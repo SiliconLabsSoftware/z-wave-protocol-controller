@@ -33,6 +33,26 @@
 extern "C" {
 #endif
 
+typedef struct
+{
+  /// Name of the serial port of the Z-Wave module
+  const char *serial_port;
+  /// If set the Serial log will be written here
+  const char *serial_log_file;
+  /// Z-Wave RF Region setting. It can be one of the following:
+  // "EU", "US","ANZ", HK", "IN", "IL", "RU", "CN", "JP", "KR"
+  const char *zwave_rf_region;
+  /// Transmit power for the Z-Wave module. Refer to \ref zwave_rx_init
+  int zwave_normal_tx_power_dbm;
+  /// Measured 0dBm output power for the Z-Wave module.
+  /// Refer to \ref zwave_rx_init
+  int zwave_measured_0dbm_power;
+  /// Max Z-Wave Long Range Transmit power
+  int zwave_max_lr_tx_power_dbm;
+} zwave_rx_config_t;
+
+void zwave_rx_set_config(const zwave_rx_config_t* config);
+
 /** Setup fixture for Z-Wave RX.
  *
  * This setup function will initialize the communication with the

@@ -14,6 +14,7 @@
 //Generic includes
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 
 // Includes from other components
 #include "sl_log.h"
@@ -22,6 +23,7 @@
 #include "ZW_classcmd.h"
 #include "zwave_s2_transport.h"
 
+// TODO: remove this include when compiling testlib
 #include "zpc_config.h"
 
 // Includes from this component
@@ -33,9 +35,17 @@
 // Setup Log ID
 #define LOG_TAG "zwapi_controller"
 
+static const zwave_controller_config_t* zwave_controller_config = NULL;
+
+void zwave_controller_set_config(const zwave_controller_config_t *config)
+{
+  zwave_controller_config = config;
+}
+
 void zwave_controller_set_application_nif(const uint8_t *command_classes,
                                           uint8_t command_classes_length)
 {
+  //TODO: solve this to build testlib
   node_type_t my_node_type
     = {.basic    = zpc_get_config()->zpc_basic_device_type,
        .generic  = zpc_get_config()->zpc_generic_device_type,

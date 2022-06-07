@@ -43,6 +43,20 @@
 extern "C" {
 #endif
 
+typedef struct
+{
+  /// The following three configuration types describes the Node type structure
+  /// that will be used in the ZPC Node Information Frames.
+  // Z-Wave Basic Device Type
+  uint8_t zpc_basic_device_type;
+  /// Z-Wave Generic Device Type
+  uint8_t zpc_generic_device_type;
+  /// Z-Wave Specific Device Type
+  uint8_t zpc_specific_device_type;
+} zwave_controller_config_t;
+
+void zwave_controller_set_config(const zwave_controller_config_t *config);
+
 /**
  * @brief Set the application part of the node information frame (NIF).
  *

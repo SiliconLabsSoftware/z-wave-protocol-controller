@@ -43,6 +43,14 @@ static zwapi_callbacks_t *registered_zwapi_callbacks              = NULL;
 static zwapi_chip_data_t test_chip_data                           = {0};
 static zwapi_protocol_version_information_t test_protocol_version = {0};
 
+static const zwave_rx_config_t my_test_configuration = {
+  .serial_log_file = "",
+  .serial_port = ZWAVE_RX_TEST_SERIAL_PORT,
+  .zwave_normal_tx_power_dbm = ZWAVE_RX_TEST_MAXIMUM_POWER_DBM,
+  .zwave_measured_0dbm_power = ZWAVE_RX_TEST_MEASURED_0DBM_POWER,
+  .zwave_rf_region = ZWAVE_RX_TEST_RF_REGION_STRING
+};
+
 // Stub function used for retrieving callbacks registered to the zwapi module
 sl_status_t zwapi_init_stub(const char *serial_port,
                             int *serial_fd,
@@ -129,7 +137,9 @@ static void rx_init_successful_test_helper()
 }
 
 /// Setup the test suite (called once before all test_xxx functions are called)
-void suiteSetUp() {}
+void suiteSetUp() {
+  zwave_rx_set_config(&my_test_configuration);
+}
 
 /// Teardown the test suite (called once after all test_xxx functions are called)
 int suiteTearDown(int num_failures)

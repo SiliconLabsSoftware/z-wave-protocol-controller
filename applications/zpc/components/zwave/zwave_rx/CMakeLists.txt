@@ -11,8 +11,17 @@ target_include_directories(zwave_rx PUBLIC include)
 target_link_libraries(zwave_rx
   PRIVATE zwave_controller
           zwave_definitions
-          unify
-  PUBLIC  zpc_config)
+          unify)
+
+IF(NOT ZWAVE_BUILD_SYSTEM EQUAL 1)
+  target_link_libraries(zwave_rx
+    PRIVATE uic_main_fd)
+ENDIF()
+
+IF(ZWAVE_BUILD_SYSTEM EQUAL 1)
+  target_link_libraries(zwave_rx
+    PUBLIC  zpc_config)
+ENDIF()
 
 if(BUILD_TESTING)
   # CMock for Z - Wave RX

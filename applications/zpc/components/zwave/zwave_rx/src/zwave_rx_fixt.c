@@ -14,14 +14,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <assert.h>
 
 // Includes from other components
 #include "sl_status.h"
-#include "zpc_config.h"
+// #include "zpc_config.h"
 #include "uic_main_externals.h"
 #include "zwave_api.h"
 
 // Includes from this component
+#include "zwave_rx_fixt.h"
 #include "zwave_rx.h"
 #include "zwave_rx_internals.h"
 #include "zwave_rx_process.h"
@@ -64,23 +66,32 @@ static uint8_t zwave_rx_zpc_config_to_rf_region(const char *region_string)
   return ZWAVE_RX_FIXT_DEFAULT_RF_REGION;
 }
 
+static const zwave_rx_config_t *zwave_rx_config = NULL;
+
+void zwave_rx_set_config(const zwave_rx_config_t* config)
+{
+  zwave_rx_config = config;
+}
+
 sl_status_t zwave_rx_fixt_setup(void)
 {
   int zpc_zwave_serial_read_fd = 0;
   sl_status_t rx_init_status   = SL_STATUS_FAIL;
 
+  assert(zwave_rx_config != NULL);
+
   // Enable serial log before init, so we can see initialization frames too
-  rx_init_status = zwapi_log_to_file_enable(zpc_get_config()->serial_log_file);
+  rx_init_status = zwapi_log_to_file_enable(zwave_rx_config->serial_log_file);
 
   // Now initialize the serial port
   if (SL_STATUS_OK == rx_init_status) {
     rx_init_status = zwave_rx_init(
-      zpc_get_config()->serial_port,
+      zwave_rx_config->serial_port,
       &zpc_zwave_serial_read_fd,
-      zpc_get_config()->zwave_normal_tx_power_dbm,
-      zpc_get_config()->zwave_measured_0dbm_power,
-      zpc_get_config()->zwave_max_lr_tx_power_dbm,
-      zwave_rx_zpc_config_to_rf_region(zpc_get_config()->zwave_rf_region));
+      zwave_rx_config->zwave_normal_tx_power_dbm,
+      zwave_rx_config->zwave_measured_0dbm_power,
+      zwave_rx_config->zwave_max_lr_tx_power_dbm,
+      zwave_rx_zpc_config_to_rf_region(zwave_rx_config->zwave_rf_region));
   }
 
   if (SL_STATUS_OK == rx_init_status) {

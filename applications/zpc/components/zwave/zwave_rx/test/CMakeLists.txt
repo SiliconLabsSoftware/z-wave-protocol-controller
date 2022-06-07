@@ -8,7 +8,6 @@ target_add_unittest(
   zwave_rx
   SOURCES
   zwave_rx_test.c
-  zwave_rx_test_zpc_config_mock.c
   DEPENDS
   zwave_api_mock
   uic_main_fd_mock

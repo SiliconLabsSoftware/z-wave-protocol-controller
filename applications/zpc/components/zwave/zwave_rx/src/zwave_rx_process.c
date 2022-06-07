@@ -16,7 +16,7 @@
 #include "zwave_rx_internals.h"
 
 // Includes from other components
-#include "zpc_config.h"
+// #include "zpc_config.h"
 #include "zwapi_init.h"
 
 // Contiki includes
