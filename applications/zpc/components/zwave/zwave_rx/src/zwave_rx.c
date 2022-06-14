@@ -175,7 +175,12 @@ sl_status_t zwave_rx_init(const char *serial_port,
   // if the module does not support it, we still try and fail, we should not run
   // if the user config indicates an RF region and the Z-Wave API runs another.
   sl_log_info(LOG_TAG, "Setting the Z-Wave RF region to %d\n", region);
-  if (region != zwapi_get_rf_region()) {
+  zwave_rf_region_t current_region = zwapi_get_rf_region();
+  if (current_region == ZWAVE_RF_REGION_DEFAULT)
+  {
+    current_region = ZWAVE_RF_REGION_EU;
+  }
+  if (region != current_region) {
     command_status = zwapi_set_rf_region(region);
     if (command_status == SL_STATUS_NOT_SUPPORTED) {
       sl_log_critical(

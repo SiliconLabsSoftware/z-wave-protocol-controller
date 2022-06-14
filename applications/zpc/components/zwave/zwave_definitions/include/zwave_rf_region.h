@@ -54,7 +54,9 @@ typedef enum {
   ///< Radio is located in Korea. 3 Channel region.
   ZWAVE_RF_REGION_KR = 0x21,
   ///<  RF region is unknown
-  ZWAVE_RF_REGION_UNDEFINED = 0xFE
+  ZWAVE_RF_REGION_UNDEFINED = 0xFE,
+  ///<  Radio is located in Library Default Region EU. 2 Channel region.
+  ZWAVE_RF_REGION_DEFAULT = 0xFF
 } zwave_rf_region_t;
 ///@}
 
