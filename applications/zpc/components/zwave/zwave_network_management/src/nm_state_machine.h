@@ -83,6 +83,9 @@ typedef struct network_mgmt_state {
 
   /// Whether S0 inclusion/bootstrapping is enabled.
   bool s0_inclusion_enabled;
+
+  /// Indicates if node inclusion / exclusion should be network wide.
+  bool network_wide;
 } network_mgmt_state_t;
 
 extern network_mgmt_state_t nms;

@@ -349,7 +349,9 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
       if (ev == NM_EV_LEARN_SET) {
         // Make sure to stop ongoing network management operations
         network_management_stop_ongoing_operations();
-        if (nms.learn_mode_intent == ZWAVE_NETWORK_MANAGEMENT_LEARN_NWI) {
+        if (nms.learn_mode_intent == ZWAVE_NETWORK_MANAGEMENT_LEARN_DIRECT_RANGE) {
+          zwapi_set_learn_mode(LEARN_MODE_DIRECT_RANGE, &on_learn_mode_callback);
+        } else if (nms.learn_mode_intent == ZWAVE_NETWORK_MANAGEMENT_LEARN_NWI) {
           zwapi_set_learn_mode(LEARN_MODE_NWI, &on_learn_mode_callback);
         } else if (nms.learn_mode_intent
                    == ZWAVE_NETWORK_MANAGEMENT_LEARN_NWE) {
@@ -422,9 +424,12 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
       } else if (ev == NM_EV_NODE_REMOVE) {
         network_management_stop_ongoing_operations();
         nms.node_id_being_handled      = 0;
+        uint8_t mode = REMOVE_NODE_ANY;
+        if (nms.network_wide) {
+          mode |= REMOVE_NODE_OPTION_NETWORK_WIDE;
+        }
         sl_status_t remove_node_status = zwapi_remove_node_from_network(
-          (REMOVE_NODE_ANY | REMOVE_NODE_OPTION_NETWORK_WIDE),
-          on_remove_node_status_update);
+          mode, on_remove_node_status_update);
         if (remove_node_status == SL_STATUS_OK) {
           nms.state = NM_WAITING_FOR_NODE_REMOVAL;
           etimer_set(&nms.timer, ADD_REMOVE_TIMEOUT);
@@ -432,8 +437,11 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
       } else if (ev == NM_EV_NODE_ADD) {
         network_management_stop_ongoing_operations();
         network_management_refresh_cached_node_list();
-        zwapi_add_node_to_network(ADD_NODE_ANY | ADD_NODE_OPTION_NETWORK_WIDE,
-                                  add_node_status_update);
+        uint8_t mode = ADD_NODE_ANY;
+        if (nms.network_wide) {
+          mode |= ADD_NODE_OPTION_NETWORK_WIDE;
+        }
+        zwapi_add_node_to_network(mode, add_node_status_update);
         nms.state              = NM_WAITING_FOR_ADD;
         nms.flags              = NMS_FLAG_S2_ADD;
         nms.inclusion_protocol = PROTOCOL_ZWAVE;
@@ -861,7 +869,8 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
       } else if (ev == NM_EV_LEARN_STARTED) {
         /* Start security here to make sure the timers are started in time */
         // Do not accept S0 bootstrapping after a SmartStart inclusion.
-        if (nms.learn_mode_intent == ZWAVE_NETWORK_MANAGEMENT_LEARN_NWI) {
+        if (nms.learn_mode_intent == ZWAVE_NETWORK_MANAGEMENT_LEARN_DIRECT_RANGE
+            || nms.learn_mode_intent == ZWAVE_NETWORK_MANAGEMENT_LEARN_NWI) {
           zwave_s0_start_learn_mode(nms.node_id_being_handled);
           zwave_s2_start_learn_mode(nms.node_id_being_handled);
         } else if (nms.learn_mode_intent

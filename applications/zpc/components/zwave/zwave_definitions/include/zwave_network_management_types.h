@@ -104,6 +104,8 @@ typedef enum {
 typedef enum {
   /// No Learn mode intent.
   ZWAVE_NETWORK_MANAGEMENT_LEARN_NONE,
+  /// Classic Z-Wave learn mode, ie without Network Wide Inclusion
+  ZWAVE_NETWORK_MANAGEMENT_LEARN_DIRECT_RANGE,
   /// Network Wide Inclusion learn mode
   ZWAVE_NETWORK_MANAGEMENT_LEARN_NWI,
   /// Enable Network Wide Exclusion

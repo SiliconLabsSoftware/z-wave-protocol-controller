@@ -88,6 +88,8 @@ sl_status_t zwave_network_management_abort();
  */
 sl_status_t zwave_network_management_add_node();
 
+sl_status_t zwave_network_management_add_node_classic();
+
 /**
  * @brief Put the Z-Wave controller in SmartStart add node mode.
  *
@@ -183,6 +185,8 @@ sl_status_t zwave_network_management_dsk_set(zwave_dsk_t dsk);
  * @return sl_status_t FAILURE is state is not IDLE
  */
 sl_status_t zwave_network_management_remove_node();
+
+sl_status_t zwave_network_management_remove_node_classic();
 
 /**
  * @brief Put the Z-Wave controller in learn mode.

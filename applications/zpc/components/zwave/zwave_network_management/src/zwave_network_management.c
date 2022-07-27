@@ -112,6 +112,13 @@ sl_status_t zwave_network_management_remove_failed(zwave_node_id_t node_id)
   return SL_STATUS_OK;
 }
 
+static sl_status_t zwave_network_management_remove_node_internal()
+{
+  sl_log_info(LOG_TAG, "Initiating a Z-Wave Network Exclusion\n");
+  process_post(&zwave_network_management_process, NM_EV_NODE_REMOVE, 0);
+  return SL_STATUS_OK;
+}
+
 sl_status_t zwave_network_management_remove_node()
 {
   if (false == network_management_is_ready_for_a_new_operation()) {
@@ -121,9 +128,20 @@ sl_status_t zwave_network_management_remove_node()
     return SL_STATUS_FAIL;
   }
 
-  sl_log_info(LOG_TAG, "Initiating a Z-Wave Network Exclusion\n");
-  process_post(&zwave_network_management_process, NM_EV_NODE_REMOVE, 0);
-  return SL_STATUS_OK;
+  nms.network_wide = true;
+  return zwave_network_management_remove_node_internal();
+}
+
+sl_status_t zwave_network_management_remove_node_classic()
+{
+  if (false == network_management_is_ready_for_a_new_operation()) {
+    sl_log_info(LOG_TAG,
+                "Network management is not ready for a new operation. "
+                "Ignoring Remove Node request.\n");
+    return SL_STATUS_FAIL;
+  }
+  nms.network_wide = false;
+  return zwave_network_management_remove_node_internal();
 }
 
 static sl_status_t zwave_network_management_stop_add_mode()
@@ -155,6 +173,13 @@ sl_status_t zwave_network_management_abort()
   return SL_STATUS_IDLE;
 }
 
+static sl_status_t zwave_network_management_add_node_internal()
+{
+  sl_log_info(LOG_TAG, "Initiating a Z-Wave Network Inclusion\n");
+  process_post(&zwave_network_management_process, NM_EV_NODE_ADD, 0);
+  return SL_STATUS_OK;
+}
+
 sl_status_t zwave_network_management_add_node()
 {
   if (false == network_management_is_ready_for_a_new_operation()) {
@@ -164,9 +189,21 @@ sl_status_t zwave_network_management_add_node()
     return SL_STATUS_FAIL;
   }
 
-  sl_log_info(LOG_TAG, "Initiating a Z-Wave Network Inclusion\n");
-  process_post(&zwave_network_management_process, NM_EV_NODE_ADD, 0);
-  return SL_STATUS_OK;
+  nms.network_wide = true;
+  return zwave_network_management_add_node_internal();
+}
+
+sl_status_t zwave_network_management_add_node_classic()
+{
+  if (false == network_management_is_ready_for_a_new_operation()) {
+    sl_log_info(LOG_TAG,
+                "Network management is not ready for a new operation. "
+                "Ignoring Add node request.\n");
+    return SL_STATUS_FAIL;
+  }
+
+  nms.network_wide = false;
+  return zwave_network_management_add_node_internal();
 }
 
 sl_status_t zwave_network_management_keys_set(bool accept,
