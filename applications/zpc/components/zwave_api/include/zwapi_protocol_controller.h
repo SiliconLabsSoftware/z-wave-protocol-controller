@@ -1100,6 +1100,25 @@ sl_status_t zwapi_assign_priority_return_route(zwave_node_id_t bNodeID,
                                                uint8_t speed,
                                                void (*completedFunc)(uint8_t bStatus));
 
+/**
+ * @brief Assign a priority SUC return route to a Routing End Node.
+ *
+ * This function assigns a specified priority return route from the SUC (Static Update Controller)
+ * to a Routing End Node. The route is defined by up to 4 repeater nodes and a speed value.
+ *
+ * @param bNodeID         The Routing End Node ID to which the SUC return route will be assigned.
+ * @param route           Pointer to an array of 4 node IDs representing the repeaters in the route.
+ *                        If a repeater is not used, set its value to 0.
+ * @param speed           The speed to use for the route (e.g., ZW_PRIORITY_ROUTE_SPEED_9600, etc.).
+ * @param completedFunc   Callback function called when the operation is complete.
+ *                        The parameter bStatus indicates the transmit complete status.
+ *
+ * @returns SL_STATUS_OK or SL_STATUS_FAIL.
+ */
+sl_status_t zwapi_assign_priority_suc_return_route(zwave_node_id_t bNodeID,
+                                                   uint8_t * route, // route length is always 4
+                                                   uint8_t speed,
+                                                   void (*completedFunc)(uint8_t bStatus));
 /// @} End of group ZWAPI_CONTROLLER
 
 #ifdef __cplusplus

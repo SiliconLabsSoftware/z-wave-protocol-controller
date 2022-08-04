@@ -322,6 +322,39 @@ sl_status_t zwapi_assign_suc_return_route(zwave_node_id_t bSrcNodeID,
   return SL_STATUS_FAIL;
 }
 
+sl_status_t zwapi_assign_priority_suc_return_route(zwave_node_id_t bNodeID,
+                                                   uint8_t * route,
+                                                   uint8_t speed,
+                                                   void (*completedFunc)(uint8_t bStatus))
+{
+  uint8_t func_id, response_length = 0, index = 0;
+  uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
+          response_buffer[FRAME_LENGTH_MAX]   = {0};
+  func_id                            = (completedFunc == NULL ? 0 : 0x03);
+  zwapi_write_node_id(request_buffer, &index, bNodeID);
+  request_buffer[index++] = route[0];
+  request_buffer[index++] = route[1];
+  request_buffer[index++] = route[2];
+  request_buffer[index++] = route[3];
+  request_buffer[index++] = speed;
+  request_buffer[index++] = func_id;
+  zwapi_assign_priority_suc_return_route_callback = completedFunc;
+
+  sl_status_t send_command_status
+    = zwapi_send_command_with_response(FUNC_ID_ZW_ASSIGN_PRIORITY_SUC_RETURN_ROUTE,
+                                       request_buffer,
+                                       index,
+                                       response_buffer,
+                                       &response_length);
+
+  if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA
+      && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
+    return SL_STATUS_OK;
+  }
+
+  return SL_STATUS_FAIL;
+}
+
 sl_status_t zwapi_delete_suc_return_route(zwave_node_id_t nodeID,
                                           void (*completedFunc)(uint8_t))
 {

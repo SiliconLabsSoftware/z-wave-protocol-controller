@@ -48,6 +48,7 @@ extern void (*zwapi_assign_return_route_callback)(uint8_t bStatus);
 extern void (*zwapi_assign_priority_return_route_callback)(uint8_t bStatus);
 extern void (*zwapi_assign_suc_return_route_callback)(uint8_t bStatus);
 extern void (*zwapi_delete_suc_return_route_callback)(uint8_t bStatus);
+extern void (*zwapi_assign_priority_suc_return_route_callback)(uint8_t bStatus);
 extern void (*zwapi_delete_return_route_callback)(uint8_t bStatus);
 extern void (*zwapi_set_learn_mode_callback)(struct LEARN_INFO *);
 extern void (*zwapi_set_virtual_node_to_learn_mode_callback)(

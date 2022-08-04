@@ -56,6 +56,7 @@ void (*zwapi_assign_return_route_callback)(uint8_t bStatus);
 void (*zwapi_assign_priority_return_route_callback)(uint8_t bStatus);
 void (*zwapi_assign_suc_return_route_callback)(uint8_t bStatus);
 void (*zwapi_delete_suc_return_route_callback)(uint8_t bStatus);
+void (*zwapi_assign_priority_suc_return_route_callback)(uint8_t bStatus);
 void (*zwapi_delete_return_route_callback)(uint8_t bStatus);
 void (*zwapi_set_learn_mode_callback)(struct LEARN_INFO *);
 void (*zwapi_set_virtual_node_to_learn_mode_callback)(uint8_t bStatus,
@@ -69,32 +70,33 @@ void (*zwapi_replace_failed_node_callback)(uint8_t txStatus);
 
 void zwave_api_protocol_init_callbacks(void)
 {
-  zwapi_send_data_callback                      = NULL;
-  zwapi_send_nop_callback                       = NULL;
-  zwapi_send_data_multi_callback                = NULL;
-  zwapi_send_test_frame_callback                = NULL;
-  zwapi_send_data_bridge_callback               = NULL;
-  zwapi_send_data_multi_bridge_callback         = NULL;
-  zwapi_send_node_information_callback          = NULL;
-  zwapi_memory_put_buffer_callback              = NULL;
-  zwapi_set_default_callback                    = NULL;
-  zwapi_create_new_primarly_ctrl_callback       = NULL;
-  zwapi_remove_node_from_network_callback       = NULL;
-  zwapi_add_node_to_network_callback            = NULL;
-  zwapi_transfer_primary_ctrl_role_callback     = NULL;
-  zwapi_send_controller_replication_callback    = NULL;
-  zwapi_assign_return_route_callback            = NULL;
-  zwapi_assign_priority_return_route_callback   = NULL;
-  zwapi_assign_suc_return_route_callback        = NULL;
-  zwapi_delete_suc_return_route_callback        = NULL;
-  zwapi_delete_return_route_callback            = NULL;
-  zwapi_set_learn_mode_callback                 = NULL;
-  zwapi_set_virtual_node_to_learn_mode_callback = NULL;
-  zwapi_request_neighbor_update_callback        = NULL;
-  zwapi_set_suc_node_id_callback                = NULL;
-  zwapi_request_network_update_callback         = NULL;
-  zwapi_remove_failed_node_callback             = NULL;
-  zwapi_replace_failed_node_callback            = NULL;
+  zwapi_send_data_callback                        = NULL;
+  zwapi_send_nop_callback                         = NULL;
+  zwapi_send_data_multi_callback                  = NULL;
+  zwapi_send_test_frame_callback                  = NULL;
+  zwapi_send_data_bridge_callback                 = NULL;
+  zwapi_send_data_multi_bridge_callback           = NULL;
+  zwapi_send_node_information_callback            = NULL;
+  zwapi_memory_put_buffer_callback                = NULL;
+  zwapi_set_default_callback                      = NULL;
+  zwapi_create_new_primarly_ctrl_callback         = NULL;
+  zwapi_remove_node_from_network_callback         = NULL;
+  zwapi_add_node_to_network_callback              = NULL;
+  zwapi_transfer_primary_ctrl_role_callback       = NULL;
+  zwapi_send_controller_replication_callback      = NULL;
+  zwapi_assign_return_route_callback              = NULL;
+  zwapi_assign_priority_return_route_callback     = NULL;
+  zwapi_assign_suc_return_route_callback          = NULL;
+  zwapi_delete_suc_return_route_callback          = NULL;
+  zwapi_assign_priority_suc_return_route_callback = NULL;
+  zwapi_delete_return_route_callback              = NULL;
+  zwapi_set_learn_mode_callback                   = NULL;
+  zwapi_set_virtual_node_to_learn_mode_callback   = NULL;
+  zwapi_request_neighbor_update_callback          = NULL;
+  zwapi_set_suc_node_id_callback                  = NULL;
+  zwapi_request_network_update_callback           = NULL;
+  zwapi_remove_failed_node_callback               = NULL;
+  zwapi_replace_failed_node_callback              = NULL;
 }
 
 /* Check if the received frame will overflow zwapi_command_buffer buffer */
@@ -569,6 +571,12 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
     case FUNC_ID_ZW_DELETE_SUC_RETURN_ROUTE:
       if (zwapi_delete_suc_return_route_callback != NULL) {
         zwapi_delete_suc_return_route_callback(pData[IDX_DATA + 1]);
+      }
+      break;
+
+    case FUNC_ID_ZW_ASSIGN_PRIORITY_SUC_RETURN_ROUTE:
+      if (zwapi_assign_priority_suc_return_route_callback != NULL) {
+        zwapi_assign_priority_suc_return_route_callback(pData[IDX_DATA + 1]);
       }
       break;
 
