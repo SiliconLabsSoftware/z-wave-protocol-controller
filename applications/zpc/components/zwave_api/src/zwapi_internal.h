@@ -45,6 +45,7 @@ extern void (*zwapi_add_node_to_network_callback)(struct LEARN_INFO *);
 extern void (*zwapi_transfer_primary_ctrl_role_callback)(struct LEARN_INFO *);
 extern void (*zwapi_send_controller_replication_callback)(uint8_t txStatus);
 extern void (*zwapi_assign_return_route_callback)(uint8_t bStatus);
+extern void (*zwapi_assign_priority_return_route_callback)(uint8_t bStatus);
 extern void (*zwapi_assign_suc_return_route_callback)(uint8_t bStatus);
 extern void (*zwapi_delete_suc_return_route_callback)(uint8_t bStatus);
 extern void (*zwapi_delete_return_route_callback)(uint8_t bStatus);

@@ -1077,6 +1077,29 @@ sl_status_t zwapi_get_nls_nodes(uint16_t *list_length,
 sl_status_t zwapi_request_protocol_cc_encryption_callback(
   uint8_t tx_status, const zwapi_tx_report_t *tx_report, uint8_t session_id);
 
+/**
+ * @brief Assign a priority return route to a Routing End Node.
+ *
+ * This function assigns a specified priority return route to a Routing End Node
+ * for communication with a destination node. The route is defined by up to 4 repeater nodes
+ * and a speed value.
+ *
+ * @param bNodeID         The Routing End Node ID to which the route will be assigned.
+ * @param bDstNodeID      The destination Node ID for the return route.
+ * @param route           Pointer to an array of 4 node IDs representing the repeaters in the route.
+ *                        If a repeater is not used, set its value to 0.
+ * @param speed           The speed to use for the route (e.g., ZW_PRIORITY_ROUTE_SPEED_9600, etc.).
+ * @param completedFunc   Callback function called when the operation is complete.
+ *                        The parameter bStatus indicates the transmit complete status.
+ *
+ * @returns SL_STATUS_OK or SL_STATUS_FAIL.
+ */
+sl_status_t zwapi_assign_priority_return_route(zwave_node_id_t bNodeID,
+                                               zwave_node_id_t bDstNodeID,
+                                               uint8_t * route, // route length is always 4
+                                               uint8_t speed,
+                                               void (*completedFunc)(uint8_t bStatus));
+
 /// @} End of group ZWAPI_CONTROLLER
 
 #ifdef __cplusplus

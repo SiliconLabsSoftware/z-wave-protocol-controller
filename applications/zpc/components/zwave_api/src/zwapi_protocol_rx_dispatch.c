@@ -53,6 +53,7 @@ void (*zwapi_add_node_to_network_callback)(struct LEARN_INFO *);
 void (*zwapi_transfer_primary_ctrl_role_callback)(struct LEARN_INFO *);
 void (*zwapi_send_controller_replication_callback)(uint8_t txStatus);
 void (*zwapi_assign_return_route_callback)(uint8_t bStatus);
+void (*zwapi_assign_priority_return_route_callback)(uint8_t bStatus);
 void (*zwapi_assign_suc_return_route_callback)(uint8_t bStatus);
 void (*zwapi_delete_suc_return_route_callback)(uint8_t bStatus);
 void (*zwapi_delete_return_route_callback)(uint8_t bStatus);
@@ -83,6 +84,7 @@ void zwave_api_protocol_init_callbacks(void)
   zwapi_transfer_primary_ctrl_role_callback     = NULL;
   zwapi_send_controller_replication_callback    = NULL;
   zwapi_assign_return_route_callback            = NULL;
+  zwapi_assign_priority_return_route_callback   = NULL;
   zwapi_assign_suc_return_route_callback        = NULL;
   zwapi_delete_suc_return_route_callback        = NULL;
   zwapi_delete_return_route_callback            = NULL;
@@ -549,6 +551,12 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
     case FUNC_ID_ZW_DELETE_RETURN_ROUTE:
       if (zwapi_delete_return_route_callback != NULL) {
         zwapi_delete_return_route_callback(pData[IDX_DATA + 1]);
+      }
+      break;
+
+    case FUNC_ID_ZW_ASSIGN_PRIORITY_RETURN_ROUTE:
+      if (zwapi_assign_priority_return_route_callback != NULL) {
+        zwapi_assign_priority_return_route_callback(pData[IDX_DATA + 1]);
       }
       break;
 
