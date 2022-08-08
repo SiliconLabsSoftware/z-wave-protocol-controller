@@ -267,7 +267,7 @@ static void on_new_network(zwave_kex_fail_type_t kex_fail)
   nms.granted_keys = zwave_s2_keystore_get_assigned_keys();
 
   // Take the SUC/SIS role if noboby has it in our new network.
-  network_management_take_sis_role_if_no_suc_in_network();
+  // network_management_take_sis_role_if_no_suc_in_network();
 
   //Call the upper layer callbacks
   zwave_controller_on_new_network_entered(nms.cached_home_id,
@@ -334,7 +334,7 @@ void nm_state_machine_init()
     sl_log_info(LOG_TAG, "NodeID %d is present in our network", node_id);
   }
 
-  network_management_take_sis_role_if_no_suc_in_network();
+  // network_management_take_sis_role_if_no_suc_in_network();
 }
 
 void nm_fsm_post_event(nm_event_t ev, void *event_data)
