@@ -61,7 +61,8 @@ void zwave_tx_on_frame_received(zwave_node_id_t node_id);
 void zwave_tx_on_new_network_entered(zwave_home_id_t home_id,
                                      zwave_node_id_t node_id,
                                      zwave_keyset_t granted_keys,
-                                     zwave_kex_fail_type_t kex_fail_type);
+                                     zwave_kex_fail_type_t kex_fail_type,
+                                     zwave_protocol_t inclusion_protocol);
 
 #ifdef __cplusplus
 }

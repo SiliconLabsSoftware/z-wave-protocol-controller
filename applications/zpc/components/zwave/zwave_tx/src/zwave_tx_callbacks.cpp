@@ -95,7 +95,8 @@ void on_zwave_transport_send_data_complete(uint8_t status,
 void zwave_tx_on_new_network_entered(zwave_home_id_t,
                                      zwave_node_id_t,
                                      zwave_keyset_t,
-                                     zwave_kex_fail_type_t)
+                                     zwave_kex_fail_type_t,
+                                     zwave_protocol_t)
 {
   // This will re-init and unlock the Tx Queue to accept frames again.
   zwave_tx_process_open_tx_queue();

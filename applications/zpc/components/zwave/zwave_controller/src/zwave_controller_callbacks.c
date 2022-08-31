@@ -268,19 +268,22 @@ void zwave_controller_on_new_network_entered(
   zwave_home_id_t home_id,
   zwave_node_id_t node_id,
   zwave_keyset_t granted_keys,
-  zwave_kex_fail_type_t kex_fail_type)
+  zwave_kex_fail_type_t kex_fail_type,
+  zwave_protocol_t inclusion_protocol)
 {
   sl_log_info(LOG_TAG,
               "New network ready to be operated. "
-              "HomeID %08X - ZPC NodeID: %d - Granted keys: 0x%02X",
+              "HomeID %08X - ZPC NodeID: %d - Granted keys: 0x%02X - Inclusion Protocol: %d",
               home_id,
               node_id,
-              granted_keys);
+              granted_keys,
+              inclusion_protocol);
   ZWAVE_CONTROLLER_DISPATCH_CALLBACKS(on_new_network_entered,
                                       home_id,
                                       node_id,
                                       granted_keys,
-                                      kex_fail_type)
+                                      kex_fail_type,
+                                      inclusion_protocol)
 }
 
 void zwave_controller_on_keys_report(bool csa, zwave_keyset_t keys)

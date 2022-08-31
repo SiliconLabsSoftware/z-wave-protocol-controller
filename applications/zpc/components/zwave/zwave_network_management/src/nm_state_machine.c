@@ -273,7 +273,8 @@ static void on_new_network(zwave_kex_fail_type_t kex_fail)
   zwave_controller_on_new_network_entered(nms.cached_home_id,
                                           nms.cached_local_node_id,
                                           nms.granted_keys,
-                                          kex_fail);
+                                          kex_fail,
+                                          nms.inclusion_protocol);
 }
 
 static void
@@ -867,6 +868,7 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
         zwapi_set_learn_mode(LEARN_MODE_DISABLE, NULL);
         nms.state = NM_IDLE;
       } else if (ev == NM_EV_LEARN_STARTED) {
+        nms.inclusion_protocol = PROTOCOL_ZWAVE;
         /* Start security here to make sure the timers are started in time */
         // Do not accept S0 bootstrapping after a SmartStart inclusion.
         if (nms.learn_mode_intent == ZWAVE_NETWORK_MANAGEMENT_LEARN_DIRECT_RANGE

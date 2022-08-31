@@ -1334,12 +1334,14 @@ sl_status_t zwave_s0_on_abort_send_data(zwave_tx_session_id_t session_id)
 static void s0_on_new_network(zwave_home_id_t home_id,
                               zwave_node_id_t node_id,
                               zwave_keyset_t granted_keys,
-                              zwave_kex_fail_type_t kex_fail_type)
+                              zwave_kex_fail_type_t kex_fail_type,
+                              zwave_protocol_t inclusion_protocol)
 {
   UNUSED(home_id);
   UNUSED(node_id);
   UNUSED(granted_keys);
   UNUSED(kex_fail_type);
+  UNUSED(inclusion_protocol);
   zwave_s0_network_init();
 }
 

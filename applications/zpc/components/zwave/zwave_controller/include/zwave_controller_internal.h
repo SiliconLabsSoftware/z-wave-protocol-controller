@@ -83,7 +83,8 @@ void zwave_controller_on_new_network_entered(
   zwave_home_id_t home_id,
   zwave_node_id_t node_id,
   zwave_keyset_t granted_keys,
-  zwave_kex_fail_type_t kex_fail_type);
+  zwave_kex_fail_type_t kex_fail_type,
+  zwave_protocol_t inclusion_protocol);
 /// see @ref zwave_controller_callbacks_t
 void zwave_controller_on_keys_report(bool csa, zwave_keyset_t keys);
 /// see @ref zwave_controller_callbacks_t

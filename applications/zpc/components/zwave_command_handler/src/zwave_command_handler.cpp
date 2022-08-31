@@ -157,7 +157,8 @@ sl_status_t zwave_command_handler_init(void)
     zwave_network_management_get_home_id(),
     zwave_network_management_get_node_id(),
     my_granted_keys,
-    kex_fail);
+    kex_fail,
+    PROTOCOL_ZWAVE);
 
   // Register on_frame_received and on_new_network_entered callbacks
   zwave_controller_register_callbacks(&zwave_command_handler_callbacks);

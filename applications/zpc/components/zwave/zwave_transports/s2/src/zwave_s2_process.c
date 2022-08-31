@@ -71,11 +71,13 @@ static void zwave_s2_on_network_address_update(zwave_home_id_t home_id,
 static void zwave_s2_on_new_network_entered(zwave_home_id_t home_id,
                                             zwave_node_id_t node_id,
                                             zwave_keyset_t granted_keys,
-                                            zwave_kex_fail_type_t kex_fail_type)
+                                            zwave_kex_fail_type_t kex_fail_type,
+                                            zwave_protocol_t inclusion_protocol)
 {
   (void)node_id;
   (void)granted_keys;
   (void)kex_fail_type;
+  (void)inclusion_protocol;
   zwave_s2_refresh_home_id(home_id);
 }
 

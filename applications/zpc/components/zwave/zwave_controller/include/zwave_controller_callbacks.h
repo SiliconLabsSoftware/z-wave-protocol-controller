@@ -129,7 +129,8 @@ typedef struct {
   void (*on_new_network_entered)(zwave_home_id_t home_id,
                                  zwave_node_id_t node_id,
                                  zwave_keyset_t granted_keys,
-                                 zwave_kex_fail_type_t kex_fail_type);
+                                 zwave_kex_fail_type_t kex_fail_type,
+                                 zwave_protocol_t inclusion_protocol);
 
   /// This function is used to inform which S2 keys have been requested
   /// during S2 bootstrapping, the receiver must call
