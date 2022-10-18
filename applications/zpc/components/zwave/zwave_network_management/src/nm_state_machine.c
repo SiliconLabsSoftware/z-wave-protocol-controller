@@ -866,6 +866,7 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
       if (ev == NM_EV_TIMEOUT || ev == NM_EV_ABORT) {
         // Just stop trying when we time out or abort
         zwapi_set_learn_mode(LEARN_MODE_DISABLE, NULL);
+        network_management_refresh_network_information();
         nms.state = NM_IDLE;
       } else if (ev == NM_EV_LEARN_STARTED) {
         nms.inclusion_protocol = PROTOCOL_ZWAVE;
