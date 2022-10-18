@@ -928,6 +928,12 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
         zwave_controller_on_error(
           ZWAVE_NETWORK_MANAGEMENT_ERROR_NODE_LEARN_MODE_FAIL);
         nms.state = NM_IDLE;
+      } else if (ev == NM_EV_ABORT) {
+        zwapi_set_learn_mode(LEARN_MODE_DISABLE, NULL);
+        zwave_s2_abort_join();
+        zwave_s0_stop_bootstrapping();
+        network_management_refresh_network_information();
+        nms.state = NM_IDLE;
       }
       break;
     case NM_WAIT_FOR_SECURE_LEARN:
