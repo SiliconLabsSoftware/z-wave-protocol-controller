@@ -1225,7 +1225,7 @@ sl_status_t
       sl_log_debug(LOG_TAG,
                    "supporting_node_scheme = %d\n",
                    supporting_node_scheme);
-      if (supporting_node_scheme == ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_0) {
+      if (false && supporting_node_scheme == ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_0) {
         sl_log_error(LOG_TAG,
                      "Not implemented: ZPC's highest security scheme is "
                      "ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_0\n");
