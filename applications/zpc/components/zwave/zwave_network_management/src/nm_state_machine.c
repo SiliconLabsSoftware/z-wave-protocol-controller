@@ -44,7 +44,6 @@
 #include "zwave_s2_network.h"
 #include "zwave_s2_keystore.h"
 #include "zwave_tx.h"
-#include "zwave_smartstart_management.h"
 
 // Unify components
 #include "sl_log.h"
@@ -780,24 +779,10 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
             zwave_s2_dsk_accept(REJECT_DSK, 0, 0);
           }
         } else {
-          if (find_dsk_obfuscated_bytes_from_smart_start_list(
-                nms.reported_dsk,
-                OBFUSCATED_DSK_LEN)) {
-            sl_log_debug(LOG_TAG,
-                         "SmartStart: Input DSK found in provisioning list\n");
-            sl_log_byte_arr(LOG_TAG,
-                            SL_LOG_DEBUG,
-                            nms.reported_dsk,
-                            sizeof(zwave_dsk_t))
-              zwave_s2_dsk_accept(ACCEPT_DSK,
-                                  nms.reported_dsk,
-                                  OBFUSCATED_DSK_LEN);
-          } else {
-            // Non-SmartStart inclusions sends the request upwards
-            zwave_controller_on_dsk_report(nms.reported_dsk_blanked,
-                                           nms.reported_dsk,
-                                           nms.requested_keys);
-          }
+          // Non-SmartStart inclusions sends the request upwards
+          zwave_controller_on_dsk_report(nms.reported_dsk_blanked,
+                                          nms.reported_dsk,
+                                          nms.requested_keys);
         }
       } else if (ev == NM_EV_ADD_SECURITY_KEYS_SET) {
         zwave_s2_key_grant(nms.accepted_s2_bootstrapping,
