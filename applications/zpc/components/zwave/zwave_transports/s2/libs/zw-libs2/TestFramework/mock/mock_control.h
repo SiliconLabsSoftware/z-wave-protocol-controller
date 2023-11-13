@@ -93,6 +93,7 @@ typedef struct
                                                       the function and not to be mistaken with output values provided thought pointer
                                                       parameters of the function. To have the function returning the value 10, simply do:
                                                       p_mock->return_code.value = 10; */
+  bool         multiple;                          /**< Allow multiple calls*/
   mock_rules_t compare_rule_arg[NUMBER_OF_ARGS]; /**< Compare rule to be used for parameter at index n.
                                                       Default compare rule is COMPARE_STRICT. So this value needs only to be set if the
                                                       parameter should be checked against a different rule, as example, COMPARE_ANY.
