@@ -81,83 +81,6 @@ static void s2_default_evt_handler(zwave_event_t * evt);
  *           must be taken into consideration when casting.
  */
 
-#ifdef DEBUG_S2_INCL_FSM
-const char * s2_incl_state_name(s2_inclusion_state_t st)
-{
-  static char str[25];
-  switch (st)
-  {
-  case S2_INC_IDLE                   :       return  "S2_INC_IDLE";
-  case S2_AWAITING_KEX_GET           :       return  "S2_AWAITING_KEX_GET";
-  case S2_AWAITING_KEX_REPORT        :       return  "S2_AWAITING_KEX_REPORT";
-  case S2_AWAITING_KEY_USER_ACCEPT   :       return  "S2_AWAITING_KEY_USER_ACCEPT";
-  case S2_AWAITING_KEX_SET           :       return  "S2_AWAITING_KEX_SET";
-  case S2_AWAITING_PUB_KEY_A         :       return  "S2_AWAITING_PUB_KEY_A";
-  case S2_AWAITING_PUB_KEY_B         :       return  "S2_AWAITING_PUB_KEY_B";
-  case S2_AWAITING_USER_ACCEPT       :       return  "S2_AWAITING_USER_ACCEPT";
-  case S2_AWAITING_USER_A_ACCEPT     :       return  "S2_AWAITING_USER_A_ACCEPT";
-  case S2_PENDING_ECHO_KEX_REPORT    :       return  "S2_PENDING_ECHO_KEX_REPORT";
-  case S2_ECHO_KEX_SET_SENDING       :       return  "S2_ECHO_KEX_SET_SENDING";
-  case S2_AWAITING_ECHO_KEX_SET      :       return  "S2_AWAITING_ECHO_KEX_SET";
-  case S2_AWAITING_ECHO_KEX_REPORT   :       return  "S2_AWAITING_ECHO_KEX_REPORT";
-  case S2_AWAITING_NET_KEY_GET       :       return  "S2_AWAITING_NET_KEY_GET";
-  case S2_AWAITING_NET_KEY_REPORT    :       return  "S2_AWAITING_NET_KEY_REPORT";
-  case S2_AWAITING_NET_KEY_VERIFY    :       return  "S2_AWAITING_NET_KEY_VERIFY";
-  case S2_AWAITING_TRANSFER_END      :       return  "S2_AWAITING_TRANSFER_END";
-  case S2_KEY_EXCHANGED              :       return  "S2_KEY_EXCHANGED";
-  case S2_SENDING_FINAL_TRANSFER_END :       return  "S2_SENDING_FINAL_TRANSFER_END";
-  case S2_ERROR_SENT                 :       return  "S2_ERROR_SENT";
-  case S2_INC_STATE_ANY              :       return  "S2_INC_STATE_ANY";
-
-  default:
-    snprintf(str, sizeof str, "%d", st);
-    return str;
-  }
-}
-
-const char * s2_incl_event_name(s2_inclusion_event_t ev)
-{
-  static char str[25];
-  switch (ev)
-  {
-  case S2_KEX_REPORT_RECV           :       return  "S2_KEX_REPORT_RECV";
-  case S2_PUB_KEY_RECV_B            :       return  "S2_PUB_KEY_RECV_B";
-  case S2_PUB_KEY_RECV_A            :       return  "S2_PUB_KEY_RECV_A";
-  case S2_KEX_GET_RECV              :       return  "S2_KEX_GET_RECV";
-  case S2_KEX_SET_RECV              :       return  "S2_KEX_SET_RECV";
-  case S2_ECHO_KEX_REPORT_RECV      :       return  "S2_ECHO_KEX_REPORT_RECV";
-  case S2_NET_KEY_REPORT_RECV       :       return  "S2_NET_KEY_REPORT_RECV";
-  case S2_ECHO_KEX_SET_RECV         :       return  "S2_ECHO_KEX_SET_RECV";
-  case S2_NET_KEY_GET_RECV          :       return  "S2_NET_KEY_GET_RECV";
-  case S2_NET_KEY_VERIFY_RECV       :       return  "S2_NET_KEY_VERIFY_RECV";
-  case S2_TRANSFER_END_RECV         :       return  "S2_TRANSFER_END_RECV";
-  case S2_INCLUSION_ERROR_RECV      :       return  "S2_INCLUSION_ERROR_RECV";
-  case S2_INCLUDING_START           :       return  "S2_INCLUDING_START";
-  case S2_JOINING_START             :       return  "S2_JOINING_START";
-  case S2_INCLUDING_ACCEPT          :       return  "S2_INCLUDING_ACCEPT";
-  case S2_INCLUDING_REJECT          :       return  "S2_INCLUDING_REJECT";
-  case S2_INCLUDING_DECRYPT_FAILED  :       return  "S2_INCLUDING_DECRYPT_FAILED";
-  case S2_SEND_FINAL_TRANSFER_END   :       return  "S2_SEND_FINAL_TRANSFER_END";
-  case S2_INCLUSION_TX_QUEUED       :       return  "S2_INCLUSION_TX_QUEUED";
-  case S2_NET_KEY_VERIFY_FINAL_RECV :       return  "S2_NET_KEY_VERIFY_FINAL_RECV";
-  case S2_INCLUSION_RETRY           :       return  "S2_INCLUSION_RETRY";
-  case S2_INCLUSION_TIMEOUT         :       return  "S2_INCLUSION_TIMEOUT";
-  case S2_INCLUSION_ERROR           :       return  "S2_INCLUSION_ERROR";
-  case S2_INCLUSION_ERROR_SENT      :       return  "S2_INCLUSION_ERROR_SENT";
-  case S2_INCLUSION_SEND_DONE       :       return  "S2_INCLUSION_SEND_DONE";
-  case S2_INCLUSION_SEND_FAILED     :       return  "S2_INCLUSION_SEND_FAILED";
-  case S2_DISCOVERY_COMPLETE        :       return  "S2_DISCOVERY_COMPLETE";
-  case S2_NO_KEYS_GRANTED           :       return  "S2_NO_KEYS_GRANTED";
-  case S2_EVT_ANY                   :       return  "S2_EVT_ANY";
-
-  default:
-    snprintf(str, sizeof str, "%d", ev);
-    return str;
-  }
-}
-
-#endif /* DEBUG_S2_INCL_FSM */
-
 #ifdef ZW_CONTROLLER
 extern const s2_transition_t s2_transition_table_controller[];
 extern const size_t s2_transition_table_controller_length;
@@ -406,11 +329,6 @@ void process_event(uint16_t evt)
 {
   bool event_handled = false;
   s2_inclusion_event_t event = (s2_inclusion_event_t)evt;
-
-#if defined(DEBUG_S2_INCL_FSM)
-  /* Disabled in C51 build to save code space on state/event _name() functions*/
-    DPRINTF( "s2incl process_event event: %s state: %s\n", s2_incl_event_name(event), s2_incl_state_name(mp_context->inclusion_state));
-#endif
 
 #ifdef ZW_CONTROLLER
   event_handled = process_s2_inclusion_event(event, s2_transition_table_controller, s2_transition_table_controller_length);
@@ -1200,9 +1118,6 @@ void s2_inclusion_send_data(void)
                         mp_context->u.inclusion_buf,
                         mp_context->inclusion_buf_length))
   {
-#if defined(DEBUG_S2_INCL_FSM)
-    S2_dbg_printf("s2_inclusion_send_data: S2 module was busy. Will retry.\n");
-#endif
     m_retry_counter = QUEUE_FULL;
   }
   else
