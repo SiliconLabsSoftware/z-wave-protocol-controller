@@ -121,48 +121,6 @@ debug_print_hex(uint8_t* vector, uint32_t length)
 #define debug_print_hex(a,b)
 #endif
 
-#ifdef DEBUG_S2_FSM
-const char * s2_state_name(states_t st)
-{
-  static char str[25];
-  switch (st)
-  {
-  case IDLE                   :       return  "IDLE";
-  case WAIT_NONCE_RAPORT           :       return  "WAIT_NONCE_RAPORT";
-  case SENDING_MSG        :       return  "SENDING_MSG";
-  case SENDING_MULTICAST   :       return  "SENDING_MULTICAST";
-  case VERIFYING_DELIVERY           :       return  "VERIFYING_DELIVERY";
-  case IS_MOS_WAIT_REPLY         :       return  "IS_MOS_WAIT_REPLY";
-
-  default:
-    snprintf(str, sizeof str, "%d", st);
-    return str;
-  }
-}
-
-const char * s2_event_name(event_t ev)
-{
-  static char str[25];
-  switch (ev)
-  {
-  case SEND_MSG           :       return  "SEND_MSG";
-  case SEND_MULTICAST            :       return  "SEND_MULTICAST";
-  case SEND_DONE            :       return  "SEND_DONE";
-  case GOT_NONCE_GET              :       return  "GOT_NONCE_GET";
-  case GOT_NONCE_RAPORT              :       return  "GOT_NONCE_RAPORT";
-  case GOT_ENC_MSG      :       return  "GOT_ENC_MSG";
-  case GOT_BAD_ENC_MSG       :       return  "GOT_BAD_ENC_MSG";
-  case GOT_ENC_MSG_MOS         :       return  "GOT_ENC_MSG_MOS";
-  case TIMEOUT          :       return  "TIMEOUT";
-  case ABORT       :       return  "ABORT";
-
-  default:
-    snprintf(str, sizeof str, "%d", ev);
-    return str;
-  }
-}
-
-#endif /* DEBUG_S2_FSM */
 #ifdef ZWAVE_PSA_SECURE_VAULT
 static uint32_t convert_key_slot_to_keyid(uint8_t slot_id)
 {
@@ -1618,10 +1576,6 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
   ZW_DEBUG_SEND_NUM(ctxt->peer.l_node);
   ZW_DEBUG_SEND_NUM(ctxt->peer.r_node);
   ZW_DEBUG_SEND_NL();
-#ifdef DEBUG_S2_FSM
-  /* ifdef'ed to save codespace on c51 build for event/state _name() functions */
-DPRINTF("S2_fsm_post_event event: %s, state %s\n", s2_event_name(e), s2_state_name(ctxt->fsm));
-#endif
 
   switch (ctxt->fsm)
   {
