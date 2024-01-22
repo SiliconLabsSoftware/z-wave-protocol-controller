@@ -16,30 +16,13 @@
 
 #include <stdint.h>
 #include "ZW_typedefs.h"
-#if !defined (EFR32ZG) && !defined(ZWAVE_ON_LINUX)
-#include <assert.h>
-#endif
 
-#ifdef __C51__
-#ifdef DEBUG
-#define ZW_DEBUG
-#endif
-#include <ZW_uart_api.h>
-
-
-void print16(uint8_t * pData);
-
-
-///* No printf on 8051 target. Comment out. This breaks includes in various modules. Use only in .c files */
-//#define SLASH /
-//#define printf  SLASH/
-
-#else /* __C51__ */
 #if defined (EFR32ZG) || defined(ZWAVE_ON_LINUX)
 #include "Assert.h"
 #else
 #include <assert.h>
 #endif
+
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -60,7 +43,5 @@ void print16(uint8_t * pData);
 #ifdef DEBUG
 #define dbg_printf printf
 #endif
-#endif /* __C51__ */
-
 
 #endif /* PLATFORM_H_ */

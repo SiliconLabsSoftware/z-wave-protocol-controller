@@ -18,17 +18,7 @@
  * \ingroup crypto
  * @{
  */
-#define CCM_TEST
 
-#if (defined(__C51__) && !defined(CCM_TEST))
-#define CCM_USE_PREDEFINED_VALUES
-#endif
-
-/*
- * When we're testing with either unit test or on the 8051, we want to use
- * different values. Therefore the C51 must be defined and a test define must
- * not be defined for this to be true.
- */
 #ifdef CCM_USE_PREDEFINED_VALUES
 #define KYO (2)
 #define Q_DEF KYO

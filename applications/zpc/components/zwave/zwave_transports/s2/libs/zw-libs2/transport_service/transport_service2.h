@@ -34,15 +34,6 @@ extern TRANSPORT2_ST_T current_state;
 //#define DATAGRAM_SIZE_MAX       (UIP_BUFSIZE - UIP_LLH_LEN) /*1280*/
 #define DATAGRAM_SIZE_MAX       (200) /*1280*/
 
-#ifdef __C51__
-#ifndef slash
-#define slash /
-#endif
-#endif
-
-#ifdef __C51__
-#define T2_DBG slash/
-#else
 //#define DBG 1
 #ifdef DBG
 #define T2_DBG(...) \
@@ -52,11 +43,7 @@ extern TRANSPORT2_ST_T current_state;
 #else
 #define T2_DBG(...)
 #endif
-#endif
 
-#ifdef __C51__
-#define T2_ERR slash/
-#else
 #if defined(ZIPGW) || defined(DBG)
 #define T2_ERR(...) \
         printf("T2: %s sid: %d rid: %d, %s():%d: ", T2_STATES_STRING[current_state],scb.cmn.session_id, rcb.cmn.session_id,__func__, __LINE__);\
@@ -64,7 +51,6 @@ extern TRANSPORT2_ST_T current_state;
         printf("\n");
 #else
 #define T2_ERR(...)
-#endif
 #endif
 
 #define TIMER

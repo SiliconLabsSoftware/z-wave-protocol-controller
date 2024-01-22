@@ -44,7 +44,6 @@ void AES128_ECB_encrypt(uint8_t *in, const uint8_t *key, uint8_t *out)
 }
 #endif
 
-#ifndef __C51__
 void AJ_AES_ECB_128_ENCRYPT(uint8_t* key, uint8_t* in, uint8_t* out)
 {
 #ifdef ZWAVE_PSA_AES
@@ -58,7 +57,6 @@ void AJ_AES_ECB_128_ENCRYPT(uint8_t* key, uint8_t* in, uint8_t* out)
     AES128_ECB_encrypt(in, key, out);
 #endif
 }
-#endif
 
 
 static void AES_CTR_DRBG_Increment(uint8_t* __data, size_t size)
@@ -95,11 +93,7 @@ static void AES_CTR_DRBG_Update(CTR_DRBG_CTX* ctx, uint8_t __data[SEEDLEN])
     //AJ_AES_Enable(ctx->k);
     for (i = 0; i < SEEDLEN; i += OUTLEN) {
         AES_CTR_DRBG_Increment(ctx->v, OUTLEN); /*V= (V+ 1) mod 2 pow(outlen) */
-#ifdef __C51__
-        AES128_ECB_encrypt(ctx->v, ctx->k, t);
-#else
         AJ_AES_ECB_128_ENCRYPT(ctx->k, ctx->v, t); /* output_block =  Block_Encrypt(Key, V). */
-#endif
         t += OUTLEN; /*temp = temp || ouput_block */
     }
 
@@ -178,11 +172,7 @@ void AES_CTR_DRBG_Generate(CTR_DRBG_CTX* ctx, uint8_t* rand)
     //AJ_AES_Enable(ctx->k);
     while (size) {
         AES_CTR_DRBG_Increment(ctx->v, OUTLEN);
-#ifdef __C51__
-        AES128_ECB_encrypt(ctx->v, ctx->k, __data);
-#else
         AJ_AES_ECB_128_ENCRYPT(ctx->k, ctx->v, __data);
-#endif
         copy = (size < OUTLEN) ? size : OUTLEN;
         memcpy(rand, __data, copy);
         rand += copy;

@@ -1,5 +1,5 @@
 # Libs2 is designed to be used included as a subproject, but this part allows to
-# build libs2 standalone, as is done for C51 in SDK670.
+# build libs2 standalone (here for x86)
 if("${PROJECT_NAME}" STREQUAL "")
   cmake_minimum_required(VERSION 2.8)
   project(libs2 C ASM)

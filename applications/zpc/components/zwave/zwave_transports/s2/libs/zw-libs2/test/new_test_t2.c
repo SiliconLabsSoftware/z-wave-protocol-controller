@@ -195,7 +195,7 @@ extern int call_with_large_value;
 /* Should be s2_tx_status_t */
 unsigned char global_status = 0xff;
 
-/* For some reason, the type of ZW_TransportService_SendData() is different in gw and C51. */
+/* For some reason, the type of ZW_TransportService_SendData() is different in ZIPGW and Z-Wave stack on EFR32. */
 #ifdef ZIPGW
 void status_callback(uint8_t txStatus, TX_STATUS_TYPE *t)
 #else

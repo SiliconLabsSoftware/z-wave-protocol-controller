@@ -6,20 +6,11 @@
  *  Created on: 16/07/2015
  *      Author: COlsen
  */
-
-#ifdef __C51__
-
-#include <ZW_uart_api.h>
-#define print_nl() ZW_DEBUG_SEND_NL()
-#define print_num(data)  ZW_DEBUG_SEND_NUM(data)
-#define print_str(STR) ZW_DEBUG_SEND_STR(STR)
-#else
 #include <stdio.h>
 
 #define print_nl() puts("\n")
 #define print_num(data)  printf("%x", data)
 #define print_str(STR) puts(STR)
-#endif
 
 #include <stdint.h>
 

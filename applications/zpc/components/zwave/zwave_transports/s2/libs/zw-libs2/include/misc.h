@@ -16,10 +16,7 @@
 #ifndef MISC_H_
 #define MISC_H_
 
-#ifdef __C51__
-#include "../../basis-include/ZW_assert.h"
-//#define _ASSERT_WRAPPER(cond,msg) do { if(!cond) ; } while(0)
-#elif defined(EFR32ZG) || defined(ZWAVE_ON_LINUX)
+#if defined(EFR32ZG) || defined(ZWAVE_ON_LINUX)
 #include "Assert.h"
 // Do nothing at this stage in this file for EFR32ZG
 #else

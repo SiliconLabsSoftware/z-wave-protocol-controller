@@ -31,15 +31,8 @@
 
 #if defined(ECB) && ECB
 
-#ifdef __C51__
-extern void ZW_AES_ecb(uint8_t* key, uint8_t* input, uint8_t *output);
-#define AES128_ECB_encrypt(in, key, out) ZW_AES_ecb(key, in, out)
-
-
-#else
 DllExport void AES128_ECB_encrypt(uint8_t* input, const uint8_t* key, uint8_t *output);
 DllExport void AES128_ECB_decrypt(uint8_t* input, const uint8_t* key, uint8_t *output);
-#endif
 
 #endif // #if defined(ECB) && ECB
 

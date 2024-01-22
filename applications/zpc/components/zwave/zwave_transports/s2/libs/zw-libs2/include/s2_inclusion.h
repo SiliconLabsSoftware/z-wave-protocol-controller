@@ -292,11 +292,7 @@ void s2_inclusion_abort(struct S2 *p_context);
  *
  * @param[in] ctxt       Structure identifying the context for current inclusion.
  */
-#ifdef __C51__
-void ZCB_s2_inclusion_notify_timeout(struct S2 *p_context);
-#else
 void s2_inclusion_notify_timeout(struct S2* ctxt);
-#endif
 
 
 /** Function for initializing the S2 inclusion state machine with supported schemes/curves/keys.

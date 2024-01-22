@@ -58,11 +58,7 @@ bool ZW_TransportService_SendData(ts_param_t* p, uint8_t *pData, uint16_t dataLe
  *    pCmd pointer to the received frame.
  *    mdLength Length of the received frame.
  */
-#ifdef __C51__
-void TransportService_ApplicationCommandHandler(ts_CommandHandler_t *pCmdHandlerStruct);
-#else
 void TransportService_ApplicationCommandHandler(ts_param_t* p,uint8_t *pCmd, uint8_t cmdLength);
-#endif
 
 /**
  * Abort the current transmission, and cause the callback of \ref ZW_TransportService_SendData to

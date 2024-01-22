@@ -24,10 +24,7 @@
 #define S2_SEQ_DUPL_WINDOW_SIZE ((uint8_t)2)
 
 #define UNENCRYPTED_CLASS 0xFF
-#ifdef __C51__
-#define SPAN_TABLE_SIZE 5
-#define MPAN_TABLE_SIZE 5
-#elif defined(ZW_CONTROLLER) && !defined(HOST_SECURITY_INCLUDED)
+#if defined(ZW_CONTROLLER) && !defined(HOST_SECURITY_INCLUDED)
 /* Largest size that fits in uint8_t (minus 1). */
 #define SPAN_TABLE_SIZE 254
 #define MPAN_TABLE_SIZE 254

@@ -22,14 +22,6 @@
 #include "ZW_typedefs.h"
 #include "ZW_classcmd.h"
 
-#ifdef __C51__
-/* Local stub implementation of ZW_WatchDogKick() when compiling for C51. */
-void ZW_WatchDogKick(void)
-{
-  // Do nothing. Stub implementation.
-}
-#endif // __C51__
-
 extern int verbose;
 
 #define TIMER_STOPPED -1;  /**< Special value used by struct test_state field timeout_value */
@@ -86,7 +78,7 @@ S2_send_frame(struct S2* ctxt, const s2_connection_t* dst, uint8_t* buf, uint16_
   int i;
   s2_connection_t swap;
   if(verbose) {
-#if defined(__C51__) || defined (SINGLE_CONTEXT)
+#if defined (SINGLE_CONTEXT)
       printf("Sending  %02u -> %02u (len %04u) : ", dst->l_node, dst->r_node,len);
 #else
       printf("Sending %p %02u -> %02u (len %04u) : ", ctxt, dst->l_node, dst->r_node,len);
