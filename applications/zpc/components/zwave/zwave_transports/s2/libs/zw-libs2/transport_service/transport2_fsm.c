@@ -16,14 +16,6 @@
 //#include <TYPES.H>
 #endif
 
-#ifdef __C51__
-#define slash /
-#define printf  slash/
-
-#define ST_DEFINE(a, b, c, d) {a, b, c}
-
-#else
-
 const char *T2_STATES_STRING[]  = {
         "ST_IDLE",
 
@@ -85,7 +77,6 @@ const char *T2_EVENTS_STRING[] = {
 
 #define ST_DEFINE(a, b, c, d) {a, b, c, d}
 
-#endif
 
 #define STATE enum TRANSPORT2_STATES
 #define EVENT enum TRANSPORT2_EVENTS

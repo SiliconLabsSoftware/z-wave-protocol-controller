@@ -14,14 +14,6 @@
 #include <wc_util.h>
 #include <bigint.h>
 
-#ifdef __C51__
-/* Local stub implementation of ZW_WatchDogKick() when compiling for C51. */
-void ZW_WatchDogKick(void)
-{
-  // Do nothing. Stub implementation.
-}
-#endif // __C51__
-
 #ifndef NULL
 #define NULL   ((void *) 0)
 #endif

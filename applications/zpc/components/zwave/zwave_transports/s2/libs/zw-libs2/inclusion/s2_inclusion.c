@@ -701,13 +701,7 @@ static void s2_inclusion_post_event_internal(struct S2 *p_context)
   process_event(event);
 }
 
-#ifdef __C51__
-void ZCB_s2_inclusion_notify_timeout(struct S2 *p_context);
-code const void (code * ZCB_s2_inclusion_notify_timeout_p)(void) = &ZCB_s2_inclusion_notify_timeout;
-void ZCB_s2_inclusion_notify_timeout(struct S2 *p_context)
-#else
 void s2_inclusion_notify_timeout(struct S2 *p_context)
-#endif
 {
   MP_CTX_DEF
 
@@ -796,7 +790,7 @@ static void s2_send_kex_report(void)
 
 static void s2_send_pub_key_b(void)
 {
-  uint8_t support;  // Helper variable, being reused purely for code optimization reasons on C51 targets
+  uint8_t support;  // Helper variable, being reused purely for code optimization reasons on memory constrained targets
 
   s2_inclusion_stop_timeout();
 

@@ -104,9 +104,7 @@ typedef void (*ZW_CommandHandler_Callback_t)(ts_param_t* p, ZW_APPLICATION_TX_BU
 
 #endif
 
-#ifndef __C51__
 extern uint8_t ZW_SendData_Bridge(uint8_t, uint8_t, uint8_t *, uint8_t, uint8_t, VOID_CALLBACKFUNC(completedFunc)(uint8_t, TX_STATUS_TYPE*));
-#endif /* ifndef __C51__ */
 
 #endif
 
@@ -116,7 +114,7 @@ extern const char *T2_EVENTS_STRING[];
 extern const char *T2_STATES_STRING[];
 
 
-#if !defined(__C51__) && !defined(ZIPGW)
+#if !defined(ZIPGW)
 #define CRC_POLY        0x1021
 uint16_t
 ZW_CheckCrc16(uint16_t crc, uint8_t *pDataAddr, uint16_t bDataLen)
@@ -175,7 +173,7 @@ typedef struct cb {
 #else
     ZW_TransportService_SendData_Callback_t completedFunc;
 #endif
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
     TX_STATUS_TYPE tx_status;
 #endif
     uint8_t session_id;
@@ -312,23 +310,15 @@ int compare_received_datagram(const uint8_t *cmp_data, uint16_t len)
 
 /* IF there is no reception of sending for 1000ms we go back to IDLE state */
 /* Helps if transprot service is stuck somewhere */
-#ifdef __C51__
-VOID_CALLBACKFUNC_PVOID(ZCB_reset_transport_service, puser)
-{
-#else
 static void reset_transport_service(__attribute__((unused)) void *ss)
 {
-#endif
   T2_ERR("reset_timer expired going back to ST_IDLE state ");
   ctimer_stop(&scb.reset_timer);
   current_state = ST_IDLE;
   discard_all_received_fragments();
 }
-#ifdef __C51__
-#define FUNC(STR) ZCB##_##STR
-#else
+
 #define FUNC(STR) STR
-#endif
 static uint8_t recv_or_send(void)
 {
     T2_DBG("sending 1: %s", scb.sending? "true": "false");
@@ -384,7 +374,7 @@ bool ZW_TransportService_SendData(ts_param_t* p, uint8_t *pData,
 #endif
 #endif
 {
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
     TX_STATUS_TYPE t;
     memset(&t, 0, sizeof(TX_STATUS_TYPE));
 #endif
@@ -393,7 +383,7 @@ bool ZW_TransportService_SendData(ts_param_t* p, uint8_t *pData,
     if (ZW_TransportService_Is_Sending()) {
         T2_ERR("Another TX session is in progress. session id: %d", scb.cmn.session_id);
         T2_ERR("Sending buffer %p, while new request to send of buffer: %p", scb.datagram, pData);
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
         completedFunc(S2_TRANSMIT_COMPLETE_FAIL, &t);
 #else
         completedFunc(S2_TRANSMIT_COMPLETE_FAIL, 0);
@@ -404,7 +394,7 @@ bool ZW_TransportService_SendData(ts_param_t* p, uint8_t *pData,
     if (ZW_TransportService_Is_Receving()) {
         T2_ERR("Another RX session is in progress. session id: %d", rcb.cmn.session_id);
         T2_ERR("Sending buffer %p, while new request to send of buffer: %p", scb.datagram, pData);
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
         completedFunc(S2_TRANSMIT_COMPLETE_FAIL, &t);
 #else
         completedFunc(S2_TRANSMIT_COMPLETE_FAIL, 0);
@@ -417,7 +407,7 @@ bool ZW_TransportService_SendData(ts_param_t* p, uint8_t *pData,
     memcpy((uint8_t*)&scb.cmn.p, (uint8_t*)p, sizeof(ts_param_t));
     scb.datagram_len = dataLength;
     scb.cmn.completedFunc = completedFunc;
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
     memset((uint8_t*)&scb.cmn.tx_status, 0, sizeof(TX_STATUS_TYPE));
 #endif
     scb.sending = false;
@@ -475,13 +465,8 @@ static void add_crc(uint8_t *buf, uint8_t len)
 static uint16_t get_next_missing_offset();
 
 /*callback frunction when fc timer expires */
-#ifdef __C51__
-VOID_CALLBACKFUNC_PVOID(ZCB_fc_timer_expired, puser)
-{
-#else
 void fc_timer_expired(__attribute__((unused)) void *nthing)
 {
-#endif
     if (scb.flag_replied_frag_req) {
         scb.transmission_aborted = scb.cmn.session_id;
         scb.flag_replied_frag_req = 0;
@@ -490,7 +475,7 @@ void fc_timer_expired(__attribute__((unused)) void *nthing)
         T2_ERR("Sending failure to application");
         t2_sm_post_event(EV_FRAG_COMPL_TIMER_REQ);
         if (scb.cmn.completedFunc) {
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
             scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_FAIL, &scb.cmn.tx_status);
 #else
             scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_FAIL, 0);
@@ -507,7 +492,7 @@ void fc_timer_expired(__attribute__((unused)) void *nthing)
         T2_ERR("FC timer expired for aborted transmission. Ignoring the timer event");
         T2_ERR("Sending failure to application");
         if (scb.cmn.completedFunc) {
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
             scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_FAIL, &scb.cmn.tx_status);
 #else
             scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_FAIL, 0);
@@ -523,7 +508,7 @@ void fc_timer_expired(__attribute__((unused)) void *nthing)
         scb.flag_fc_timer_expired_once = 0;
         scb.current_dnode = 0;
         if (scb.cmn.completedFunc) {
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
             scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_FAIL, &scb.cmn.tx_status);
 #else
             scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_FAIL, 0);
@@ -538,19 +523,13 @@ void fc_timer_expired(__attribute__((unused)) void *nthing)
     send_last_frag();
 }
 
-#ifdef __C51__
-void ZCB_temp_callback_last_frag(unsigned char status, void* ts);
-code const void (code * ZCB_temp_callback_last_frag_p)(unsigned char status, void* ts) = &ZCB_temp_callback_last_frag;
-void ZCB_temp_callback_last_frag(unsigned char status, void* ts)
-#else
 #if defined(ZIPGW)
 static void ZCB_temp_callback_last_frag(unsigned char status, TX_STATUS_TYPE* ts)
 #else
 static void ZCB_temp_callback_last_frag(unsigned char status, __attribute__((unused)) TX_STATUS_TYPE* ts)
 #endif
-#endif
 {
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
     memcpy((uint8_t*)&scb.cmn.tx_status, ts, sizeof(TX_STATUS_TYPE));
 #endif
     if (status != S2_TRANSMIT_COMPLETE_OK) {
@@ -562,9 +541,7 @@ static void send_last_frag(void)
 {
 
     uint8_t ret = 0;
-#ifndef __C51__
 retry:
-#endif
     ctimer_stop(&rcb.fc_timer); /* FIXME this is called twice. First in send_subseq_frag() ? */
     ctimer_set(&scb.reset_timer, RESET_TIME, FUNC(reset_transport_service), 0);
     scb.sending = false;
@@ -579,13 +556,11 @@ retry:
     }
 
     if (ret == 0) {
-#ifndef __C51__
         goto retry;
         T2_ERR("ZW_SendData failed\n")
         if (scb.flag_fc_timer_expired_once) {
-#endif
             if (scb.cmn.completedFunc) {
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
                 scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_FAIL, &scb.cmn.tx_status);
 #else
                 scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_FAIL, 0);
@@ -593,12 +568,10 @@ retry:
             }
             t2_sm_post_event(EV_FAILURE_LAST_FRAG2);
             return;
-#ifndef __C51__
         } else {
             scb.flag_fc_timer_expired_once++; /* FIXME: Assuming transmit queue overflow as expired timer */
             goto retry;
         }
-#endif
     }
 #ifdef TIMER
     if ((scb.cmn.p.tx_flags == RECEIVE_STATUS_TYPE_BROAD) ||
@@ -613,16 +586,10 @@ retry:
     return;
 }
 
-#ifdef __C51__
-void ZCB_ts_senddata_cb(unsigned char status_send, TX_STATUS_TYPE* txStatus);
-code const void (code * ZCB_ts_senddata_cb_p)(void* puser) = &ZCB_ts_senddata_cb;
-void ZCB_ts_senddata_cb(unsigned char status_send, TX_STATUS_TYPE* txStatus)
-#else
 #ifdef ZIPGW
 void ZCB_ts_senddata_cb(unsigned char status_send, TX_STATUS_TYPE* txStatus)
 #else
 void ZCB_ts_senddata_cb(unsigned char status_send, __attribute__((unused)) TX_STATUS_TYPE* txStatus)
-#endif
 #endif
 {
     /* FIXME: May be, this should be part of the specs
@@ -631,7 +598,7 @@ void ZCB_ts_senddata_cb(unsigned char status_send, __attribute__((unused)) TX_ST
     wait that much before sending second FRAG. if the receiving
     node wants to send FRAG_WAIT, this will give the receiving node little
     time to breath - Anders Esbensen*/
-#if defined(__C51__) || defined(ZIPGW)
+#if defined(ZIPGW)
   memcpy((uint8_t*)&scb.cmn.tx_status, (uint8_t*)txStatus, sizeof(TX_STATUS_TYPE));
 #endif
 #ifndef ZIPGW
@@ -744,10 +711,8 @@ static void send_subseq_frag(__attribute__((unused)) void *nthing)
     if (ret == 0) {
         T2_ERR("ZW_SendData failed\n");
     }
-#ifndef __C51__
     else
     {
-#endif
       if (scb.remaining_data_len >= FragmentMaxPayload) {
           scb.remaining_data_len = scb.remaining_data_len - FragmentMaxPayload;
       }
@@ -756,19 +721,13 @@ static void send_subseq_frag(__attribute__((unused)) void *nthing)
       if (scb.remaining_data_len % scb.datalen_to_send) {
           scb.cmn.pending_segments++;
       }
-#ifndef __C51__
     }
-#endif
 
     t2_sm_post_event(EV_SEND_NEW_FRAG); /*ZCB_send_subseq_frag*/
 }
 
 /* Incase fragment wait command is received */
-#ifdef __C51__
-VOID_CALLBACKFUNC_PVOID(ZCB_wait_restart_from_first, puser)
-#else
 static void wait_restart_from_first(__attribute__((unused)) void *nthing)
-#endif
 {
     send_first_frag();
     return;
@@ -888,24 +847,18 @@ static void send_first_frag(void)
     t2_sm_post_event(EV_SEND_NEW_FRAG); /*ZCB_send_subseq_frag*/
 }
 
-#ifdef __C51__
-void ZCB_temp_callback_reply_frag_req(unsigned char status, void* ts);
-code const void (code * ZCB_temp_callback_reply_frag_req_p)(unsigned char status, void* ts) = &ZCB_temp_callback_reply_frag_req;
-void ZCB_temp_callback_reply_frag_req(unsigned char status, void* ts)
-#else
 #ifdef ZIPGW
 static void ZCB_temp_callback_reply_frag_req(unsigned char status, TX_STATUS_TYPE* ts)
 #else
 void ZCB_temp_callback_reply_frag_req(unsigned char status, __attribute__((unused)) TX_STATUS_TYPE* ts)
 #endif
-#endif
 {
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
     memcpy((uint8_t*)&scb.cmn.tx_status, ts, sizeof(TX_STATUS_TYPE));
 #endif
     if (status != S2_TRANSMIT_COMPLETE_OK) {
         if (scb.cmn.completedFunc) {
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
             scb.cmn.completedFunc(status, ts);
 #else
             scb.cmn.completedFunc(status, 0);
@@ -996,26 +949,12 @@ void ZW_TransportService_Init(ZW_CommandHandler_Callback_t commandHandler)
     TSApplicationCommandHandler = commandHandler;
 }
 
-#ifdef __C51__
-void TransportService_ApplicationCommandHandler(ts_CommandHandler_t *pCmdHandlerStruct)
-{
-    ts_param_t* p;
-    uint8_t *pCmd;
-    uint8_t cmdLength;
-    uint8_t cmd_type;
-    uint8_t datagram_size_tmp;
-
-    p = pCmdHandlerStruct->pParam;
-    pCmd = (uint8_t*)pCmdHandlerStruct->pCmd;
-    cmdLength = pCmdHandlerStruct->wCmdLength;
-#else
 void TransportService_ApplicationCommandHandler(ts_param_t* p,
                                                 uint8_t *pCmd,
                                                 uint8_t cmdLength)
 {
     uint8_t cmd_type;
     uint16_t datagram_size_tmp;
-#endif
 
     ctimer_set(&scb.reset_timer, RESET_TIME, FUNC(reset_transport_service), 0);
     T2_DBG("Received data: Source node:%d, Destination node: %d", (int)p->snode, (int)p->dnode);
@@ -1219,17 +1158,9 @@ exit:
 
 #ifdef TIMER
 
-#ifdef __C51__
-VOID_CALLBACKFUNC_PVOID(ZCB_rx_timer_expired, puser)
-#else
 static void rx_timer_expired(void *ss)
-#endif
 {
-#ifdef __C51__
-    struct rx_timer_expired_data *rdata = puser;
-#else
     struct rx_timer_expired_data *rdata = ss;
-#endif
     uint8_t state = rdata->state;
 
 #ifdef TIMER
@@ -1288,7 +1219,7 @@ static void find_missing(void)
 
 static void receive(void)
 {
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
     TX_STATUS_TYPE t;
 #endif
 
@@ -1318,11 +1249,7 @@ static void receive(void)
 #define SUBSEQ_FRAG_NONPAYLOAD_LENGTH (sizeof(ZW_COMMAND_SUBSEQUENT_FRAGMENT_1BYTE_FRAME) - 1)
 
         if (rcb.fragment_len <= FIRST_FRAG_NONPAYLOAD_LENGTH) {
-#ifdef __C51__
-            T2_ERR("Length of received fragment is less than %d", FIRST_FRAG_NONPAYLOAD_LENGTH)
-#else
             T2_ERR("Length of received fragment is less than %i", (int)FIRST_FRAG_NONPAYLOAD_LENGTH)
-#endif
             t2_sm_post_event(EV_RECV_NEW_FRAG);
             return;
         }
@@ -1395,11 +1322,7 @@ static void receive(void)
         }
 
         if (rcb.fragment_len <= SUBSEQ_FRAG_NONPAYLOAD_LENGTH) {
-#ifdef __C51__
-            T2_ERR("Length of received subseq fragment is less than %d. Ignoring the fragment", SUBSEQ_FRAG_NONPAYLOAD_LENGTH)
-#else
             T2_ERR("Length of received subseq fragment is less than %i. Ignoring the fragment", (int)SUBSEQ_FRAG_NONPAYLOAD_LENGTH)
-#endif
             /*FIXME: Do we need to send FRAG_WAIT here? */
             t2_sm_post_event(EV_RECV_NEW_FRAG);
             return;
@@ -1542,7 +1465,7 @@ static void receive(void)
             scb.current_dnode = 0;
             if (scb.cmn.completedFunc) {
                 T2_DBG("Sending back TRANSMIT_COMPLETE_OK to client");
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
                 scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_OK, &scb.cmn.tx_status);
 #else
                 scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_OK, 0);
@@ -1566,7 +1489,7 @@ static void receive(void)
         t2_sm_post_event(EV_RECV_FRAG_WAIT);
         scb.transmission_aborted = scb.cmn.session_id;
         /* call ZCB_ts_senddata_cb() here that will halt the next fragment send function called from ZCB_ts_senddata_cb() */
-#if defined(ZIPGW) || defined(__C51__)
+#if defined(ZIPGW)
         memset(&t, 0, sizeof(TX_STATUS_TYPE));
         ZCB_ts_senddata_cb(S2_TRANSMIT_COMPLETE_FAIL, &t);
 #else
@@ -1681,12 +1604,12 @@ static uint8_t send_frag_complete_cmd(void)
 #endif
     /* FIXME: should this be in the call back? */
     t2_sm_post_event(EV_SUCCESS); /* just change the state to ST_RECEIVING */
-#if defined(__C51__) || ( (defined(EFR32ZG) || defined(ZWAVE_ON_LINUX)) && !defined(NEW_TEST_T2) )
+#if (defined(EFR32ZG) || defined(ZWAVE_ON_LINUX)) && !defined(NEW_TEST_T2)
 #if DATAGRAM_SIZE_MAX > 250
 #error Datagram size does not fit in uin8_t.
 #endif
     TransportService_msg_received_event((uint8_t*) rcb.datagramData, (uint8_t)rcb.datagram_size,  rcb.cmn.p.snode);
-#endif /* __C51 __*/
+#endif
     return 0;
 }
 
@@ -1739,9 +1662,7 @@ static uint8_t send_frag_req_cmd(void)
     frag_req->properties2 |= ((offset_to_request & 0x700) >> 8); /* Get 9th, 10th and 11th MSB */
     frag_req->datagramOffset2 = (offset_to_request & 0xff);
 
-#ifndef __C51__
 retry:
-#endif
     T2_DBG("Sending fragment request command for offset: %d in session id: %d", offset_to_request, rcb.cmn.session_id);
 
     /* At receiver t2_txBuf is only needed in sending frag request.
@@ -1756,9 +1677,7 @@ retry:
         T2_ERR("send_data failed ");
         if (rcb.flag_retry_frag_req_once) {
             rcb.flag_retry_frag_req_once--;
-#ifndef __C51__
             goto retry;
-#endif
         }
     }
 

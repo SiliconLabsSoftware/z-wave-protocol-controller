@@ -11,9 +11,7 @@
 #include <aes.h>
 #include "ccm.h"
 
-#ifndef __C51__
 //#define VERBOSE_DEBUG
-#endif
 
 #ifdef VERBOSE_DEBUG
 #define print_block(block, size)  debug_print_block(block, size)

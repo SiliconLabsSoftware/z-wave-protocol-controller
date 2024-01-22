@@ -258,9 +258,6 @@ find_span_by_node(struct S2* p_context, const s2_connection_t* con)
     if (ctxt->span_table[i].state != SPAN_NOT_USED && (ctxt->span_table[i].lnode == con->l_node)
         && (ctxt->span_table[i].rnode == con->r_node))
     {
-#ifdef __C51__
-      ctxt->span_mru = &ctxt->span_table[i];
-#endif
       return &ctxt->span_table[i];
     }
   }
@@ -287,9 +284,7 @@ find_span_by_node(struct S2* p_context, const s2_connection_t* con)
   ctxt->span_table[i].lnode = con->l_node;
   ctxt->span_table[i].rnode = con->r_node;
   ctxt->span_table[i].tx_seq = rnd[1];
-#ifdef __C51__
-  ctxt->span_mru = &ctxt->span_table[i];
-#endif
+
   return &ctxt->span_table[i];
 }
 
