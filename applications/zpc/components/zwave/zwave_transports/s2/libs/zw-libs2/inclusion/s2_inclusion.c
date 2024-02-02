@@ -677,7 +677,7 @@ static void s2_send_kex_report(void)
   mp_context->csa_support = (mp_context->inclusion_mode == INCLUSION_MODE_CSA ? SECURITY_2_CSA_ON : 0);
   mp_context->u.inclusion_buf[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2;
   mp_context->u.inclusion_buf[SECURITY_2_COMMAND_POS]        = KEX_REPORT;
-  mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_ECHO_POS]   = mp_context->csa_support | SECURITY_2_ECHO_OFF;
+  mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_ECHO_POS]   = mp_context->csa_support | (SECURITY_2_NLS_AVAILABLE << 2) | SECURITY_2_ECHO_OFF;
   mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_SCHEME_POS] = m_schemes;
   mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_CURVE_POS]  = m_curves;
   mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_KEYS_POS]   = m_keys;

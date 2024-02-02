@@ -55,11 +55,13 @@
 #define KEX_REPORT_CURVE_MASK                0x01     //< Mask containing all curves.
 #define KEX_REPORT_CURVE_RESERVED_MASK       0xFE
 #define KEX_REPORT_CURVE_RESERVED_SHIFT      0x01
+#define KEX_REPORT_NLS_FIELD                 0x04     //< KEX Report field denoting that NLS is available on this node.
 
 #define SECURITY_2_ECHO_OFF                  0x00     //< Value denoting that this is not an echo frame.
 #define SECURITY_2_ECHO_ON                   0x01     //< Value denoting that this is an echo frame.
 
 #define SECURITY_2_CSA_ON                    0x02     //< Value denoting that csa was requested
+#define SECURITY_2_NLS_AVAILABLE             0x01     //< Value denoting that NLS is Available
 
 
 #define SECURITY_2_JOINING_NODE              0x00     //< Value denoting that this frame originates from the joining node.
@@ -75,7 +77,7 @@
 
 /** Following defines are related to the KEX Set Frame. */
 #define SECURITY_2_KEX_SET_ECHO_POS          2 //< Position of the echo field in the KEX set frame.
-#define SECURITY_2_KEX_SET_CSA_POS          2 //< Position of the echo field in the KEX set frame.
+#define SECURITY_2_KEX_SET_CSA_POS           2 //< Position of the echo field in the KEX set frame.
 #define SECURITY_2_KEX_SET_SCHEME_POS        3 //< Position of the echo field in the KEX set frame.
 #define SECURITY_2_KEX_SET_CURVE_POS         4 //< Position of the echo field in the KEX set frame.
 #define SECURITY_2_KEX_SET_KEYS_POS          5 //< Position of the echo field in the KEX set frame.
