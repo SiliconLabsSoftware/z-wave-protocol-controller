@@ -1,4 +1,7 @@
-add_definitions( -DUNIT_TEST )
+add_compile_definitions(
+  UNIT_TEST
+)
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 
 add_unity_test(NAME test_inclusion_joining_node_slave
