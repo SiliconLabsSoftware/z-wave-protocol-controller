@@ -1,7 +1,9 @@
 cross_system_dir("curve25519" "" CURVE_INCLUDE_DIR)
 include_directories(${CURVE_INCLUDE_DIR})
 
-add_definitions(-DCCM_USE_PREDEFINED_VALUES)
+add_compile_definitions(
+  CCM_USE_PREDEFINED_VALUES
+)
 
 set(CURVE_SRC curve25519/generic/smult.c curve25519/generic/base.c
               curve25519/generic/bigint.c)
