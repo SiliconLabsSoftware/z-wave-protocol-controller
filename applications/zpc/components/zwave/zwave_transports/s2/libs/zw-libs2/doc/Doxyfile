@@ -21,7 +21,7 @@
 # http://www.gnu.org/software/libiconv for the list of possible encodings.
 
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_LOGO = @CMAKE_CURRENT_SOURCE_DIR@/logo.png
+PROJECT_LOGO = logo.png
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded
 # by quotes) that should identify the project.
 
@@ -581,8 +581,8 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-#../Z-Wave/include
-INPUT                  = @CMAKE_SOURCE_DIR@/include @CMAKE_CURRENT_BINARY_DIR@
+# on series 500 it was: ../Z-Wave/include
+INPUT                  = ../include .
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -659,7 +659,7 @@ EXAMPLE_RECURSIVE      = NO
 # directories that contain image that are included in the documentation (see
 # the \image command).
 
-IMAGE_PATH             = @CMAKE_CURRENT_SOURCE_DIR@
+IMAGE_PATH             = img
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
@@ -809,7 +809,7 @@ HTML_FOOTER            =
 # stylesheet in the HTML output directory as well, or it will be erased!
 
 #HTML_STYLESHEET        = doxygen.css
-HTML_EXTRA_STYLESHEET = @CMAKE_CURRENT_SOURCE_DIR@/style.css
+HTML_EXTRA_STYLESHEET = style.css
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output.
 # Doxygen will adjust the colors in the stylesheet and background images
