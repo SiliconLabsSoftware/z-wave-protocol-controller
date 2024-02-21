@@ -1394,11 +1394,6 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
   d.d.buf.len = len;
   d.con = src;
 
-  if (buf[0] != COMMAND_CLASS_SECURITY_2)
-  {
-    return;
-  }
-
   switch (buf[1])
   {
   case SECURITY_2_NONCE_GET:
