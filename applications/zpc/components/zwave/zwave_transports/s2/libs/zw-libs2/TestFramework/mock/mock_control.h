@@ -545,46 +545,6 @@ typedef struct
 }while(0)
 
 
-#if __C51__
-#define MOCK_CALL_ACTUAL_ARG1(P_MOCK, ARG0) do {  \
-    P_MOCK->actual_arg[0].value = (uint32_t) ARG0;   \
-  }while(0)
-
-#define MOCK_CALL_ACTUAL_ARG2(P_MOCK, ARG0, ARG1) do {  \
-    P_MOCK->actual_arg[0].value = (uint32_t) ARG0;            \
-    P_MOCK->actual_arg[1].value = (uint32_t) ARG1;            \
-  }while(0)
-
-#define MOCK_CALL_ACTUAL_ARG3(P_MOCK, ARG0, ARG1, ARG2) do {  \
-    P_MOCK->actual_arg[0].value = (uint32_t) ARG0;                  \
-    P_MOCK->actual_arg[1].value = (uint32_t) ARG1;                  \
-    P_MOCK->actual_arg[2].value = (uint32_t) ARG2;                  \
-  }while(0)
-
-#define MOCK_CALL_ACTUAL_ARG4(P_MOCK, ARG0, ARG1, ARG2, ARG3) do { \
-    P_MOCK->actual_arg[0].value = (uint32_t) ARG0;                       \
-    P_MOCK->actual_arg[1].value = (uint32_t) ARG1;                       \
-    P_MOCK->actual_arg[2].value = (uint32_t) ARG2;                       \
-    P_MOCK->actual_arg[3].value = (uint32_t) ARG3;                       \
-  }while(0)
-
-#define MOCK_CALL_ACTUAL_ARG5(P_MOCK, ARG0, ARG1, ARG2, ARG3, ARG4) do {  \
-    P_MOCK->actual_arg[0].value = (uint32_t) ARG0;                              \
-    P_MOCK->actual_arg[1].value = (uint32_t) ARG1;                              \
-    P_MOCK->actual_arg[2].value = (uint32_t) ARG2;                              \
-    P_MOCK->actual_arg[3].value = (uint32_t) ARG3;                              \
-    P_MOCK->actual_arg[4].value = (uint32_t) ARG4;                              \
-  }while(0)
-
-#define MOCK_CALL_ACTUAL_ARG6(P_MOCK, ARG0, ARG1, ARG2, ARG3, ARG4, ARG5) do {  \
-    P_MOCK->actual_arg[0].value = (uint32_t) ARG0;                                    \
-    P_MOCK->actual_arg[1].value = (uint32_t) ARG1;                                    \
-    P_MOCK->actual_arg[2].value = (uint32_t) ARG2;                                    \
-    P_MOCK->actual_arg[3].value = (uint32_t) ARG3;                                    \
-    P_MOCK->actual_arg[4].value = (uint32_t) ARG4;                                    \
-    P_MOCK->actual_arg[5].value = (uint32_t) ARG5;                                    \
-  }while(0)
-#else
 #define MOCK_CALL_ACTUAL_ARG1(P_MOCK, ARG0) do {  \
     P_MOCK->actual_arg[0].pointer = (void *)(uintptr_t) ARG0;   \
   }while(0)
@@ -656,7 +616,6 @@ typedef struct
     P_MOCK->actual_arg[7].pointer = (void *)(uintptr_t) ARG7;                                    \
     P_MOCK->actual_arg[8].pointer = (void *)(uintptr_t) ARG8;                                    \
   }while(0)
-#endif
 
 #define N_ARGS_COUNT(_1, _2, _3, _4, _5, _6, _7, _8, _9, N, ...) N
 #define N_ARGS(...)                                  N_ARGS_COUNT(__VA_ARGS__, 9, 8, 7, 6, 5, 4, 3, 2, 1)
