@@ -5,7 +5,7 @@ if (NOT TARGET unity)
 
   set(TEST_TOOLS_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL test_tools_dir)
 
-  find_package(PythonInterp)
+  find_package(Python3 COMPONENTS Interpreter)
 
   include(CMakeFunctions.cmake)
 
