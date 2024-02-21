@@ -1412,7 +1412,7 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
     break;
   case SECURITY_2_NONCE_REPORT:
     DPRINTF("Got NONCE Report %u\r\n", p_context->fsm);
-    S2_fsm_post_event(p_context, GOT_NONCE_RAPORT, &d);
+    S2_fsm_post_event(p_context, GOT_NONCE_REPORT, &d);
     ;
     break;
   case SECURITY_2_MESSAGE_ENCAPSULATION:
@@ -1566,7 +1566,7 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
     {
       S2_send_nonce_report(p_context, d->con, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
     }
-    else if (e == GOT_NONCE_RAPORT )
+    else if (e == GOT_NONCE_REPORT )
     {
       S2_set_peer(p_context, d->con, d->d.buf.buffer, d->d.buf.len);
       S2_register_nonce(p_context, d->d.buf.buffer, d->d.buf.len);
@@ -1612,15 +1612,15 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
           S2_post_send_done_event(p_context, d->d.tx.status);
       }
     }
-    else if ((e == GOT_NONCE_RAPORT) && S2_is_peernode(p_context, d->con))
+    else if ((e == GOT_NONCE_REPORT) && S2_is_peernode(p_context, d->con))
     {
-      DPRINT("GOT_NONCE_RAPORT\r\n");
+      DPRINT("GOT_NONCE_REPORT\r\n");
       if (S2_register_nonce(p_context, d->d.buf.buffer, d->d.buf.len) & SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK)
       {
         goto send_msg_state_enter;
       }
     }
-    else if ((e == GOT_NONCE_RAPORT) && !S2_is_peernode(p_context, d->con))
+    else if ((e == GOT_NONCE_REPORT) && !S2_is_peernode(p_context, d->con))
     {
       emit_S2_synchronization_event(SOS_EVENT_REASON_UNANSWERED, d);
     }
@@ -1631,7 +1631,7 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
       p_context->fsm = IDLE;
       S2_post_send_done_event(p_context, d->d.tx.status);
     }
-    else if (e == GOT_NONCE_RAPORT && !S2_is_peernode(p_context, d->con))
+    else if (e == GOT_NONCE_REPORT && !S2_is_peernode(p_context, d->con))
     {
       emit_S2_synchronization_event(SOS_EVENT_REASON_UNANSWERED, d);
     }
@@ -1681,7 +1681,7 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
       p_context->fsm = IDLE; //The frame seems to be handled but we don't know for sure
       S2_post_send_done_event(p_context, S2_TRANSMIT_COMPLETE_OK);
     }
-    else if (e == GOT_NONCE_RAPORT && S2_is_peernode(p_context, d->con))
+    else if (e == GOT_NONCE_REPORT && S2_is_peernode(p_context, d->con))
     {
       nr_flag = S2_register_nonce(p_context, d->d.buf.buffer, d->d.buf.len);
       if (nr_flag == 0)
@@ -1707,7 +1707,7 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
         // send again
       }
     }
-    else if (e == GOT_NONCE_RAPORT && !S2_is_peernode(p_context, d->con))
+    else if (e == GOT_NONCE_REPORT && !S2_is_peernode(p_context, d->con))
     {
       emit_S2_synchronization_event(SOS_EVENT_REASON_UNANSWERED, d);
     }
