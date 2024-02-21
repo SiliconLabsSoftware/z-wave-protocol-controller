@@ -72,7 +72,7 @@ static void s2_inclusion_post_event_internal(struct S2 *p_context);
 
 /** Default event handler which silently will discard events in case no handler is configured.
  */
-static void s2_default_evt_handler(zwave_event_t * evt);
+static void s2_dummy_evt_handler(zwave_event_t * evt);
 
 /** TODO: We should ensure the events in this enum matches the COMMANDS in COMMAND_CLASS_S2 to
  *        make it easier to understand the flow and avoid unneccesary translation of codes.
@@ -198,7 +198,7 @@ static const uint8_t m_key_slot_key_class_pair[] = {
   KEY_CLASS_S0                   // S0 key                   is class id 6 = index 6 in array. Index only used temporary to exchange S0 key
 };
 
-s2_event_handler_t m_evt_handler = s2_default_evt_handler;
+s2_event_handler_t m_evt_handler = s2_dummy_evt_handler;
 uint32_t           m_event_buffer[S2_EVT_BUFFER_SIZE];
 static uint8_t m_schemes;
 static uint8_t m_curves;
@@ -318,7 +318,7 @@ static bool process_s2_inclusion_event(s2_inclusion_event_t event, const s2_tran
   return false;
 }
 
-static void s2_default_evt_handler(__attribute__((unused)) zwave_event_t *evt)
+static void s2_dummy_evt_handler(__attribute__((unused)) zwave_event_t *evt)
 {
 }
 /** Member function for internal event handling.
