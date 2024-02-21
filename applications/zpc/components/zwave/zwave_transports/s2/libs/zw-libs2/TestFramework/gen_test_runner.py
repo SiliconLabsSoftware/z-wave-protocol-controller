@@ -69,57 +69,7 @@ print('''
     void setUpSuite(void);
     void tearDownSuite(void);
 #endif
-''')
 
-print('''
-
-#ifdef __C51__
-#include "reg51.h"
-
-void setUp() {
-#if 1
-SCON  = 0x50;                   /* SCON: mode 1, 8-bit UART, enable rcvr    */
-TMOD |= 0x20;                   /* TMOD: timer 1, mode 2, 8-bit reload      */
-TH1   = 0xf3;                   /* TH1:  reload value for 2400 baud         */
-TR1   = 1;                      /* TR1:  timer 1 run                        */
-TI    = 1;                      /* TI:   set TI to send first char of UART  */
-#else
-  int bBaudRate;
-  WATCHDOG_DISABLE;
-  bBaudRate = 1152;
-  bBaudRate = (80000/bBaudRate ) + (((80000 %bBaudRate ) >= (bBaudRate >> 1))  ? 1:0);
-  UART0_SET_BAUD_RATE(68);
-  UART0_TX_ENABLE;
-  
-  OPEN_IOS
-  UART0BUF = '*';
-#endif
-
-}
-
-void tearDown() {
-
-}
-
-extern int main(void) {
-    int i;
-    int ret;
-
-    setUpSuite();
-    verbose=0;
-    unity_print_init();
-    UNITY_BEGIN();
-
-''')
-for f in funcs:
-    print('    UnityDefaultTestRun(&{}, "{}", {});'.format(f[0], f[0], f[1]))
-print('''
-    ret = UNITY_END();
-    unity_print_close();
-    tearDownSuite();
-    while(1);
-}
-#else
 int main(int argc, char** argp) {
     int ret;
     setUpSuite();
@@ -146,6 +96,5 @@ print('''
     tearDownSuite();
     return ret;
 }
-#endif
 
 ''')
