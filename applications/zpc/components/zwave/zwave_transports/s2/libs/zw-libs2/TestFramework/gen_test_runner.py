@@ -8,7 +8,7 @@ import re
 from io import open
 
 n=0
-regexp = '^void (test_[A-Za-z0-9_]+)\(.*\).*'
+regexp = r'^void (test_[A-Za-z0-9_]+)\(.*\).*'
 
 filename, file_type = os.path.splitext(sys.argv[1])
 
