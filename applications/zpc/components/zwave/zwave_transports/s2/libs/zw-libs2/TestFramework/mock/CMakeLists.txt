@@ -1,5 +1,5 @@
 
-# mock target may be imported be several projects, e.g. 700 series and libs2 simultaneously.
+# mock target may be imported be several projects, e.g. zw-protocol and libs2 simultaneously.
 # This test ensures that the target named 'mock' will only be declared if it is not already declared.
 if (NOT TARGET mock)
   add_library(mock mock_control.c)
