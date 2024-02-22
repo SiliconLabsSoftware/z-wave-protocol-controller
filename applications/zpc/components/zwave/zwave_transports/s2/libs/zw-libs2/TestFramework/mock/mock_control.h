@@ -31,11 +31,7 @@
 #define NUMBER_OF_ARGS 9
 
 extern uint32_t g_mock_index;
-#if defined(USE_UNITY2)
 extern struct UNITY_STORAGE_T Unity;
-#else
-extern struct _Unity Unity;
-#endif
 
 typedef enum
 {
