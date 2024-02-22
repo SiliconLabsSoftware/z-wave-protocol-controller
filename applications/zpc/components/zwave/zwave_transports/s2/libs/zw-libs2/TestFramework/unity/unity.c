@@ -168,18 +168,6 @@ void UnityPrintNumberByStyle(const _U_SINT number, const UNITY_DISPLAY_STYLE_T s
 /// basically do an itoa using as little ram as possible
 void UnityPrintNumber(const _U_SINT number_to_print)
 {
-#ifdef __codasip__
-  _U_UINT nibbles = 0;
-  _U_UINT tmp;
-  tmp = number_to_print;
-  do
-  {
-    tmp >>= 4;
-    nibbles++;
-  }
-  while (tmp > 0);
-  UnityPrintNumberHex(number_to_print , nibbles);
-#else
     _U_SINT divisor = 1;
     _U_SINT next_divisor;
     _U_UINT number;
@@ -218,25 +206,12 @@ void UnityPrintNumber(const _U_SINT number_to_print)
         divisor /= 10;
     }
     while (divisor > 0);
-#endif /* __codasip__ */
 }
 
 //-----------------------------------------------
 /// basically do an itoa using as little ram as possible
 void UnityPrintNumberUnsigned(const _U_UINT number)
 {
-#ifdef __codasip__
-  _U_UINT nibbles = 0;
-  _U_UINT tmp;
-  tmp = number;
-  do
-  {
-    tmp = tmp >> 4;
-    nibbles++;
-  }
-  while (tmp > 0);
-  UnityPrintNumberHex(number, nibbles);
-#else
     _U_UINT divisor = 1;
     _U_UINT next_divisor;
     // figure out initial divisor
@@ -256,7 +231,6 @@ void UnityPrintNumberUnsigned(const _U_UINT number)
         divisor /= 10;
     }
     while (divisor > 0);
-#endif /* __codasip__ */
 }
 
 //-----------------------------------------------
