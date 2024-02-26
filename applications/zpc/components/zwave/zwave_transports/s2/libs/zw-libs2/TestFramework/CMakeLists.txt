@@ -103,6 +103,17 @@ if (NOT COMMAND ADD_UNITY_TEST)
     endif()
   endfunction(ADD_UNITY_TEST)
 
+  # compile the unity version bundled along with cmock sources.
+  add_library(unity cmock/vendor/unity/src/unity.c)
+  target_include_directories(unity PUBLIC cmock/vendor/unity/src)
+  target_compile_options(unity PRIVATE "-fPIC")
+
+  # Build the cmock library and link the above compiled unity with the cmock library
+  add_library(cmock STATIC cmock/src/cmock.c)
+  target_include_directories(cmock PUBLIC cmock/src)
+  target_link_libraries(cmock PUBLIC unity)
+  target_compile_options(cmock PRIVATE "-fPIC")
+
   # Check whether the building of mock framework is disabled.
   # Building of the mock framework can be disabled by chip vendors simply by adding the following line to the specific project at higher level:
   # e.g.: set(DISABLE_MOCK 1)
