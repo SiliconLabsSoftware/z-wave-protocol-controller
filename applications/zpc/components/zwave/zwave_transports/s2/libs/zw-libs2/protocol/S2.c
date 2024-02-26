@@ -55,9 +55,6 @@ Comes from the Z-Wave protocol spec. After this timeout, we just declare the
 transmission a success, so we dont block forever."*/
 #define SEND_DATA_TIMEOUT 65000
 
-static const uint8_t zeros[32] =
-  { 0 };
-
 //Forwards
 static void
 S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d);
@@ -1373,6 +1370,7 @@ void
 S2_init_prng(void)
 {
   uint8_t entropy[32];
+  const uint8_t zeros[32] = { 0 };
 
   S2_get_hw_random(entropy, sizeof(entropy));
   AES_CTR_DRBG_Instantiate(&s2_ctr_drbg, entropy, zeros);
