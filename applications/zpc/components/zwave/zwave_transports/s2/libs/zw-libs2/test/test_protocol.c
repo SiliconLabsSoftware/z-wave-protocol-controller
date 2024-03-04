@@ -653,7 +653,7 @@ void test_nonce_report(void)
   TEST_ASSERT_EQUAL(SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK,ts.frame[3]);
   /* Verify nonce bytes */
   /* Verify nonce bytes different than in case 1 */
-  TEST_ASSERT( memcmp(nonce,&ts.frame[4],8) != 0 )
+  TEST_ASSERT( memcmp(nonce,&ts.frame[4],8) != 0 );
 
   /* Verify frame length */
   TEST_ASSERT_EQUAL(4+16,ts.frame_len);
