@@ -1295,10 +1295,9 @@ void
 S2_init_prng(void)
 {
   uint8_t entropy[32];
-  const uint8_t zeros[32] = { 0 };
 
   S2_get_hw_random(entropy, sizeof(entropy));
-  AES_CTR_DRBG_Instantiate(&s2_ctr_drbg, entropy, zeros);
+  AES_CTR_DRBG_Instantiate(&s2_ctr_drbg, entropy, NULL);
 }
 
 struct S2*

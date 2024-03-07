@@ -44,8 +44,6 @@
 #include "aes.h"
 #include "aes_cmac.h"
 
-#define AES_128 0
-
 static void xor_128(const uint8_t * a, const uint8_t * b, uint8_t * out)
 {
   uint8_t count;
