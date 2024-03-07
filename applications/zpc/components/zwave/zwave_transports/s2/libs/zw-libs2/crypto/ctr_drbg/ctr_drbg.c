@@ -139,12 +139,23 @@ void AES_CTR_DRBG_Instantiate(CTR_DRBG_CTX* ctx, uint8_t* entropy, const uint8_t
     int i;
 #endif
 
-    for (i = 0; i < SEEDLEN; i++) {
-        /* temp = Leftmost seedlen bits of temp.
-           temp = temp || provided_data;
-        */
-        entropy[i] ^= personal[i];
+    if(personal != NULL) {
+        for (i = 0; i < SEEDLEN; i++) {
+            /* temp = Leftmost seedlen bits of temp.
+            temp = temp || provided_data;
+            */
+            entropy[i] ^= personal[i];
+        }
     }
+    else {
+        for (i = 0; i < SEEDLEN; i++) {
+            /* temp = Leftmost seedlen bits of temp.
+            temp = temp || provided_data;
+            */
+            entropy[i] ^= 0;
+        }
+    }
+    
 
 #ifdef VERBOSE
     printf("Instantiate: ");
