@@ -235,6 +235,10 @@ uint8_t S2_is_send_data_busy(struct S2* ctxt);
 uint8_t S2_send_data_multicast(struct S2* ctxt,  const s2_connection_t* dst, const uint8_t* buf, uint16_t len);
 
 
+decrypt_return_code_t
+S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn, uint8_t* msg, uint16_t msg_len, uint8_t** plain_text,
+    uint16_t* plain_text_len);
+
 /**
  * A new A new (improved) version of S2_send_data that allows to select a
  * keyset with wich the command is to be sent.
@@ -335,6 +339,15 @@ void S2_destroy(struct S2* ctxt);
  * \param len  The length of the received data.
  */
 void S2_application_command_handler(struct S2* ctxt, s2_connection_t* peer , uint8_t* buf, uint16_t len);
+
+/**
+ * Command handler for S2 encapsulated frames. Handle decrypted but S2 related frames.
+ * \param ctxt the S2 context
+ * \param peer Information about the frame transaction. Rember to fill in the rx_options.
+ * \param buf  pointing to the received data. The S2 machine may alter the data in this buffer.
+ * \param len  The length of the received data.
+ */
+void S2_command_handler(struct S2* ctxt, s2_connection_t* peer , uint8_t* buf, uint16_t len);
 
 /**
  * This must be called when the timer set by \ref S2_set_timeout has expired.
