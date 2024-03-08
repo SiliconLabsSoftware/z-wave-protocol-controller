@@ -1405,6 +1405,67 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
 }
 
 void
+S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8_t* buf, uint16_t len)
+{
+  uint8_t *plain_text = buf;
+  uint16_t plain_text_len = len;
+  uint8_t n_commands_supported;
+  const uint8_t* classes;
+  event_data_t d;
+
+  d.d.buf.buffer = buf;
+  d.d.buf.len = len;
+  d.con = src;
+  S2_fsm_post_event(p_context, GOT_ENC_MSG, &d);
+  if (plain_text_len)
+  {
+    if (plain_text[0] == COMMAND_CLASS_SECURITY_2 &&
+        !(plain_text[1] == SECURITY_2_COMMANDS_SUPPORTED_REPORT))
+    {
+      if(src->rx_options & S2_RXOPTION_MULTICAST) {
+        //S2 encrypted multi-cast frames shouln't exist.
+        return;
+      }
+      if (plain_text[1] == SECURITY_2_COMMANDS_SUPPORTED_GET)
+      {
+        p_context->u.commands_sup_report_buf[0] = COMMAND_CLASS_SECURITY_2;
+        p_context->u.commands_sup_report_buf[1] = SECURITY_2_COMMANDS_SUPPORTED_REPORT;
+
+        S2_get_commands_supported(src->l_node,src->class_id, &classes, &n_commands_supported);
+
+        if (n_commands_supported + 2 > sizeof(p_context->u.commands_sup_report_buf))
+        {
+          DPRINTF("No of command classes supported are more than the buffer limit(%d)\n", sizeof(p_context->u.commands_sup_report_buf)-2);
+          DPRINT("Not sending S2 Command Supported Report\n");
+          return;
+        }
+        memcpy(&p_context->u.commands_sup_report_buf[2], classes, n_commands_supported);
+        /*TODO If p_context->fsm is busy the report is not going to be sent*/
+        S2_send_data(p_context, src, p_context->u.commands_sup_report_buf, n_commands_supported + 2);
+      }
+      /* Don't validate inclusion_peer.l_node as it may not be initialized yet due to early start */
+      else
+      {
+        p_context->buf = plain_text;
+        p_context->length = plain_text_len;
+        //Default just send the command to the inclusion fsm
+        s2_inclusion_post_event(p_context,src);
+      }
+    }
+    else
+    {
+#ifdef ZW_CONTROLLER
+      /* Convert LR key classes to normal before passing out via external API */
+      if (IS_LR_NODE(src->r_node)) {
+        convert_lr_to_normal_keyclass(src);
+      }
+#endif
+      S2_msg_received_event(p_context, src, plain_text, plain_text_len);
+    }
+  }
+}
+
+void
 S2_timeout_notify(struct S2* p_context)
 {
   S2_fsm_post_event(p_context, TIMEOUT, NULL);
