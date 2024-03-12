@@ -133,20 +133,6 @@ typedef enum {
   IS_MOS_WAIT_REPLY, //Wait for reply from application layer...
 } states_t;
 
-typedef struct {
-  const s2_connection_t *con;
-  union {
-    struct {
-      const uint8_t* buffer;
-      uint16_t len;
-    } buf;
-    struct {
-      uint8_t status;
-      uint16_t time;
-    } tx;
-  } d;
-} event_data_t;
-
 typedef enum {
   SEND_MSG,
   SEND_MULTICAST,

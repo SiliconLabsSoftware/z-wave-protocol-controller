@@ -205,6 +205,20 @@ typedef enum {
    SEQUENCE_FAIL,
 } decrypt_return_code_t;
 
+typedef struct {
+  const s2_connection_t *con;
+  union {
+    struct {
+      const uint8_t* buffer;
+      uint16_t len;
+    } buf;
+    struct {
+      uint8_t status;
+      uint16_t time;
+    } tx;
+  } d;
+} event_data_t;
+
 /**
  * Send singlecast security s2 encrypted frame. Upon completion this call will call \ref S2_send_done_event. Only one transmission
  * may be active at a time. If this function is called twice without waiting to the S2_send_done_event it will return false
@@ -245,6 +259,22 @@ uint8_t S2_send_data_multicast(struct S2* ctxt,  const s2_connection_t* dst, con
 decrypt_return_code_t
 S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn, uint8_t* msg, uint16_t msg_len, uint8_t** plain_text,
     uint16_t* plain_text_len);
+
+/**
+ * Provides S2 state machine with sucess decrypt event
+ *
+ * \param p_context       The S2 context.
+ * \param d               Event data.
+ */
+void S2_success_decrypt(struct S2* p_context, event_data_t* d);
+
+/**
+ * Provides S2 state machine with fail decrypt event
+ *
+ * \param p_context       The S2 context.
+ * \param d               Event data.
+ */
+void S2_fail_decrypt(struct S2* p_context, event_data_t* d);
 
 /**
  * A new A new (improved) version of S2_send_data that allows to select a
@@ -346,6 +376,15 @@ void S2_destroy(struct S2* ctxt);
  * \param len  The length of the received data.
  */
 void S2_application_command_handler(struct S2* ctxt, s2_connection_t* peer , uint8_t* buf, uint16_t len);
+
+/**
+ * Command handler for all incoming inclusion frames.
+ * \param ctxt the S2 context
+ * \param peer Information about the frame transaction. Rember to fill in the rx_options.
+ * \param buf  pointing to the received data. The S2 machine may alter the data in this buffer.
+ * \param len  The length of the received data.
+ */
+void S2_inclusion_handler(struct S2* p_context, s2_connection_t* src, uint8_t* buf, uint16_t len);
 
 /**
  * Command handler for S2 encapsulated frames. Handle decrypted but S2 related frames.
