@@ -379,21 +379,21 @@ void S2_application_command_handler(struct S2* ctxt, s2_connection_t* peer , uin
 
 /**
  * Command handler for all incoming inclusion frames.
- * \param ctxt the S2 context
- * \param peer Information about the frame transaction. Rember to fill in the rx_options.
- * \param buf  pointing to the received data. The S2 machine may alter the data in this buffer.
- * \param len  The length of the received data.
+ * \param p_context the S2 context
+ * \param src Information about the frame transaction. Rember to fill in the rx_options.
+ * \param buf pointing to the received data. The S2 machine may alter the data in this buffer.
+ * \param len The length of the received data.
  */
 void S2_inclusion_handler(struct S2* p_context, s2_connection_t* src, uint8_t* buf, uint16_t len);
 
 /**
  * Command handler for S2 encapsulated frames. Handle decrypted but S2 related frames.
- * \param ctxt the S2 context
- * \param peer Information about the frame transaction. Rember to fill in the rx_options.
- * \param buf  pointing to the received data. The S2 machine may alter the data in this buffer.
- * \param len  The length of the received data.
+ * \param p_context the S2 context
+ * \param src Information about the frame transaction. Rember to fill in the rx_options.
+ * \param buf pointing to the received data. The S2 machine may alter the data in this buffer.
+ * \param len The length of the received data.
  */
-void S2_command_handler(struct S2* ctxt, s2_connection_t* peer , uint8_t* buf, uint16_t len);
+void S2_command_handler(struct S2* p_context, s2_connection_t* src , uint8_t* buf, uint16_t len);
 
 /**
  * This must be called when the timer set by \ref S2_set_timeout has expired.

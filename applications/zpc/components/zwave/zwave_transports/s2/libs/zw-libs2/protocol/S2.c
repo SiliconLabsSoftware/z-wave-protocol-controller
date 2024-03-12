@@ -36,6 +36,8 @@ CTR_DRBG_CTX s2_ctr_drbg;
 
 #define AUTH_TAG_LEN 8
 
+#define MIN_NONCE_LENGTH 3
+
 /*"This is the longest duration we expect a senddata callback to have.
 Comes from the Z-Wave protocol spec. After this timeout, we just declare the
 transmission a success, so we dont block forever."*/
@@ -65,9 +67,6 @@ S2_is_peernode(struct S2* p_context, const s2_connection_t* peer);
 static void
 next_mpan_state(struct MPAN* mpan);
 
-static decrypt_return_code_t
-S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn, uint8_t* msg, uint16_t msg_len, uint8_t** plain_text,
-    uint16_t* plain_text_len);
 static struct SPAN*
 find_span_by_node(struct S2* p_context, const s2_connection_t* con);
 static int
@@ -753,7 +752,7 @@ S2_register_nonce(struct S2* p_context, const uint8_t* buf, uint16_t len)
   }
 
   /*Register MOS, but only if we are expecting it */
-  if ((buf[3] & SECURITY_2_NONCE_REPORT_PROPERTIES1_MOS_BIT_MASK) && (len >= 3))
+  if ((buf[3] & SECURITY_2_NONCE_REPORT_PROPERTIES1_MOS_BIT_MASK) && (len >= MIN_NONCE_LENGTH))
   {
     S2_set_node_mos(p_context,p_context->peer.r_node);
   }
@@ -814,9 +813,9 @@ S2_make_aad(struct S2* p_context, node_t sender, node_t receiver, uint8_t* msg, 
 
 
 /* Decrypt message
- * emits AuthOK or auth fail
+ * emits AUTH_OK or AUTH_FAIL
  *  */
-static decrypt_return_code_t
+decrypt_return_code_t
 S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
     uint8_t* msg, uint16_t msg_len, uint8_t** plain_text,
     uint16_t* plain_text_len)
@@ -1296,6 +1295,51 @@ S2_destroy(struct S2* p_context)
 }
 
 
+void S2_inclusion_handler(struct S2* p_context, s2_connection_t* src, uint8_t* buf, uint16_t len)
+{
+  event_data_t d;
+
+  d.d.buf.buffer = buf;
+  d.d.buf.len = len;
+  d.con = src;
+
+  switch (buf[1])
+  {
+    case SECURITY_2_NONCE_GET:
+      DPRINT("Got NONCE Get\r\n");
+      if ((src->rx_options & S2_RXOPTION_MULTICAST) != S2_RXOPTION_MULTICAST)
+      {
+        if( (len >= MIN_NONCE_LENGTH) && S2_verify_seq(p_context, src, buf[2]) )
+        {
+          S2_send_nonce_report(p_context, src, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
+        }
+      }
+      break;
+    case SECURITY_2_NONCE_REPORT:
+      DPRINTF("Got NONCE Report %u\r\n", p_context->fsm);
+      S2_fsm_post_event(p_context, GOT_NONCE_REPORT, &d);
+      ;
+      break;
+    default:
+      /*
+      * If S2 is busy, p_context->buf may be in use for sending an encrypted message.
+      * KEX_FAIL is an exception. Must be passed to the inclusion fsm to abort all S2 action.
+      */
+      if((p_context->fsm != IDLE) && (buf[1] != KEX_FAIL))
+      {
+        return;
+      }
+
+      if ((src->rx_options & S2_RXOPTION_MULTICAST) != S2_RXOPTION_MULTICAST)
+      {
+        p_context->buf = buf; //TODO is this a good idea?
+        p_context->length = len;
+        src->class_id = UNENCRYPTED_CLASS;
+        s2_inclusion_post_event(p_context,src);
+      }
+  }
+}
+
 void
 S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8_t* buf, uint16_t len)
 {
@@ -1404,6 +1448,31 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
 
 }
 
+
+void
+S2_success_decrypt(struct S2* p_context, event_data_t* d)
+{
+  if(NULL == p_context)
+  {
+    assert(0);
+    return;
+  }
+  S2_fsm_post_event(p_context, GOT_ENC_MSG, d);
+}
+
+void
+S2_fail_decrypt(struct S2* p_context, event_data_t* d)
+{
+  if(NULL == p_context)
+  {
+    assert(0);
+    return;
+  }
+  S2_fsm_post_event(p_context, GOT_BAD_ENC_MSG, d);
+  s2_connection_t* src = (s2_connection_t*) d->con;
+  s2_inclusion_decryption_failure(p_context, src);
+}
+
 void
 S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8_t* buf, uint16_t len)
 {
@@ -1489,6 +1558,12 @@ static void emit_S2_synchronization_event(sos_event_reason_t reason, event_data_
 void
 S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
 {
+  if (NULL == p_context)
+  {
+    ASSERT(0);
+    return;
+  }
+
   uint8_t nr_flag;
 
   switch (p_context->fsm)
@@ -1512,7 +1587,7 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
       S2_send_nonce_get(p_context);
       S2_set_timeout(p_context, SEND_DATA_TIMEOUT);
     }
-    else if (e == GOT_NONCE_GET && (d->d.buf.len >= 3) && S2_verify_seq(p_context, d->con, d->d.buf.buffer[2]))
+    else if (e == GOT_NONCE_GET && (d->d.buf.len >= MIN_NONCE_LENGTH) && S2_verify_seq(p_context, d->con, d->d.buf.buffer[2]))
     {
       S2_send_nonce_report(p_context, d->con, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
     }
