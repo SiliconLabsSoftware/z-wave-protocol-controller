@@ -198,6 +198,13 @@ struct S2;
  */
 typedef uint8_t network_key_t[16];
 
+typedef enum {
+   AUTH_OK,
+   PARSE_FAIL,
+   AUTH_FAIL,
+   SEQUENCE_FAIL,
+} decrypt_return_code_t;
+
 /**
  * Send singlecast security s2 encrypted frame. Upon completion this call will call \ref S2_send_done_event. Only one transmission
  * may be active at a time. If this function is called twice without waiting to the S2_send_done_event it will return false

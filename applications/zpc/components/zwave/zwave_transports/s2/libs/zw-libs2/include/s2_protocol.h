@@ -161,13 +161,6 @@ typedef enum {
   SEND_FOLLOW_UP,
 } event_t;
 
-typedef enum {
-   AUTH_OK,
-   PARSE_FAIL,
-   AUTH_FAIL,
-   SEQUENCE_FAIL,
-} decrypt_return_code_t;
-
 //#define S2_MULTICAST
 struct S2
 {
