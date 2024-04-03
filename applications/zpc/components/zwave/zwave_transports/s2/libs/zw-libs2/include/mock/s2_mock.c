@@ -102,6 +102,65 @@ void S2_application_command_handler(struct S2* ctx, s2_connection_t* src , uint8
   MOCK_CALL_COMPARE_INPUT_UINT8_ARRAY(p_mock, ARG2, p_mock->expect_arg[3].value, buf, len);
 }
 
+void S2_inclusion_handler(struct S2* p_context, s2_connection_t* src, uint8_t* buf, uint16_t len)
+{
+  mock_t * p_mock;
+
+  MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
+  MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
+  MOCK_CALL_ACTUAL(p_mock, p_context, src, buf, len);
+
+  MOCK_CALL_COMPARE_INPUT_STRUCT_S2_CONNECTION(p_mock, ARG1, src);
+  MOCK_CALL_COMPARE_INPUT_UINT8_ARRAY(p_mock, ARG2, p_mock->expect_arg[3].value, buf, len);
+}
+
+void S2_command_handler(struct S2* ctx, s2_connection_t* src , uint8_t* buf, uint16_t len)
+{
+  mock_t * p_mock;
+
+  MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
+  MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
+  MOCK_CALL_ACTUAL(p_mock, ctx, src, buf, len);
+
+  MOCK_CALL_COMPARE_INPUT_STRUCT_S2_CONNECTION(p_mock, ARG1, src);
+  MOCK_CALL_COMPARE_INPUT_UINT8_ARRAY(p_mock, ARG2, p_mock->expect_arg[3].value, buf, len);
+}
+
+decrypt_return_code_t
+S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn, uint8_t* msg, uint16_t msg_len, uint8_t** plain_text,
+    uint16_t* plain_text_len)
+{
+  mock_t * pMock;
+
+  MOCK_CALL_RETURN_IF_USED_AS_STUB(AUTH_OK);
+  MOCK_CALL_FIND_RETURN_ON_FAILURE(pMock, AUTH_FAIL);
+  MOCK_CALL_RETURN_IF_ERROR_SET(pMock, decrypt_return_code_t);
+
+  *plain_text = &msg[2];
+  **plain_text = msg[2];
+  *plain_text_len = msg_len;
+
+  MOCK_CALL_RETURN_VALUE(pMock, decrypt_return_code_t);
+}
+
+void S2_success_decrypt(struct S2* p_context, event_data_t* d)
+{
+  mock_t * p_mock;
+
+  MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
+  MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
+  MOCK_CALL_ACTUAL(p_mock, p_context, d);
+}
+
+void S2_fail_decrypt(struct S2* p_context, event_data_t* d)
+{
+  mock_t * p_mock;
+
+  MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
+  MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
+  MOCK_CALL_ACTUAL(p_mock, p_context, d);
+}
+
 void S2_timeout_notify(struct S2* ctxt)
 {
   mock_t * p_mock;
