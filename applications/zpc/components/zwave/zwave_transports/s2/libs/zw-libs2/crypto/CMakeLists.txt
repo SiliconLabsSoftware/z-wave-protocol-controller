@@ -1,4 +1,4 @@
-cross_system_dir("curve25519" "" CURVE_INCLUDE_DIR)
+set(CURVE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/curve25519" PARENT_SCOPE)
 include_directories(${CURVE_INCLUDE_DIR})
 
 add_compile_definitions(
