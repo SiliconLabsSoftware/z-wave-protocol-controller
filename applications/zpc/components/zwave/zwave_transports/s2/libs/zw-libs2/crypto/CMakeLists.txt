@@ -13,9 +13,9 @@ if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK") # if not zw-protocol (standalone 
     aes-cmac/aes_cmac.c
     ccm/ccm.c
     ctr_drbg/ctr_drbg.c
-    curve25519/generic/base.c
-    curve25519/generic/bigint.c
-    curve25519/generic/smult.c
+    curve25519/base.c
+    curve25519/bigint.c
+    curve25519/smult.c
     kderiv/kderiv.c
     nextnonce/nextnonce.c)
   add_library(aes aes/aes.c)
@@ -27,7 +27,7 @@ if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK") # if not zw-protocol (standalone 
 else(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK") # if zw-protocol (built with the z-wave stack, only on series2 since 24q2)
   set(CRYPTO_SRC
     ctr_drbg/ctr_drbg.c
-    curve25519/generic/bigint.c
+    curve25519/bigint.c
     kderiv/kderiv.c
     nextnonce/nextnonce.c)
   add_library(s2crypto OBJECT ${CRYPTO_SRC})

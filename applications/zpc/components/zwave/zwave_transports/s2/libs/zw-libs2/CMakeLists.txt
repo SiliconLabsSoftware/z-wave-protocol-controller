@@ -73,12 +73,12 @@ endif()
 set(s2_slave_source protocol/S2.c inclusion/s2_inclusion.c)
 
 # Library for slaves
-if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
+if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK") # not built againt zw-protocol
   add_library(s2_slave ${s2_slave_source})
   target_link_libraries(s2_slave s2crypto aes)
-else(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
+else(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK") # built against zw-protocol
   add_library(s2_slave OBJECT ${s2_slave_source})
-  target_include_directories(s2_slave PRIVATE crypto/curve25519/generic)
+  target_include_directories(s2_slave PRIVATE crypto/curve25519) # just for api.h which contains ifndef ZWAVE_PSA_SECURE_VAULT specific stuff
 endif(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
 
 target_include_directories(s2_slave
@@ -86,10 +86,8 @@ target_include_directories(s2_slave
 
 if(ENABLE_CONTROLLER)
   # Library for controllers
-  add_library(s2_controller inclusion/s2_inclusion.c inclusion/s2_inclusion_controller.c protocol/S2.c)
-  set_target_properties(s2_controller PROPERTIES COMPILE_DEFINITIONS
-                                                "ZW_CONTROLLER")
+  add_library(s2_controller protocol/S2.c inclusion/s2_inclusion.c inclusion/s2_inclusion_controller.c)
+  set_target_properties(s2_controller PROPERTIES COMPILE_DEFINITIONS "ZW_CONTROLLER")
   target_link_libraries(s2_controller s2crypto aes)
-  target_include_directories(s2_controller
-                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_include_directories(s2_controller PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 endif(ENABLE_CONTROLLER)
