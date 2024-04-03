@@ -5,27 +5,25 @@ add_compile_definitions(
   CCM_USE_PREDEFINED_VALUES
 )
 
-set(CURVE_SRC curve25519/generic/smult.c curve25519/generic/base.c
-              curve25519/generic/bigint.c)
-
 set_source_files_properties(kderiv/kderiv.c PROPERTIES COMPILE_FLAGS
                                                        -Wno-unused-parameter)
 
 if (PLATFORM_VARIANT STREQUAL "800s")
   set(CRYPTO_SRC
     ctr_drbg/ctr_drbg.c
-    kderiv/kderiv.c
     curve25519/generic/bigint.c
+    kderiv/kderiv.c
     nextnonce/nextnonce.c)
 else()
   set(CRYPTO_SRC
-    ccm/ccm.c
     aes-cmac/aes_cmac.c
+    ccm/ccm.c
     ctr_drbg/ctr_drbg.c
-    nextnonce/nextnonce.c
+    curve25519/generic/base.c
+    curve25519/generic/bigint.c
+    curve25519/generic/smult.c
     kderiv/kderiv.c
-    ${CURVE_SRC}
-    ${SCRAMBLER_SRC})
+    nextnonce/nextnonce.c)
 endif()
 
 if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
