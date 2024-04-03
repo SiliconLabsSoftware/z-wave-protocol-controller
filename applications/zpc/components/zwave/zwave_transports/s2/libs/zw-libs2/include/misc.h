@@ -16,19 +16,12 @@
 #ifndef MISC_H_
 #define MISC_H_
 
-#if defined(EFR32ZG) || defined(ZWAVE_ON_LINUX)
-#include "Assert.h"
-// Do nothing at this stage in this file for EFR32ZG
-#else
-//#define _ASSERT_WRAPPER(cond,msg) do { if(!cond) printf(msg); } while(0)
 #include <assert.h>
-#define ASSERT assert
-#endif
 
 /* A memcpy with builtin buffer overrun protection
  * If the copy length is longer than maxcount, only maxcount bytes
  * will be copied. */
 #define SAFE_MEMCPY(dst, src, count, maxcount) do { \
-  ASSERT(count <= maxcount); \
+  assert(count <= maxcount); \
   memcpy(dst, src, (count > maxcount) ? maxcount : count); } while(0)
 #endif /* MISC_H_ */

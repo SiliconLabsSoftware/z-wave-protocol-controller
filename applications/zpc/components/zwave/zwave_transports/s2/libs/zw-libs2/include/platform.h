@@ -18,7 +18,7 @@
 #include "ZW_typedefs.h"
 
 #if defined (EFR32ZG) || defined(ZWAVE_ON_LINUX)
-#include "Assert.h"
+#include <assert.h>
 #else
 #include <assert.h>
 #endif

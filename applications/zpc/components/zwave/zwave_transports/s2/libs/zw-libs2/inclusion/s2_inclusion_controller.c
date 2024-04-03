@@ -16,15 +16,6 @@
 extern uint8_t zwave_shared_secret[ZWAVE_ECDH_SECRET_LENGTH];
 #endif
 
-//#define DEBUG       // To enable debug_print_hex()
-//#define DEBUGPRINT
-#ifdef DEBUGPRINT
-#include "../../../Components/DebugPrint/DebugPrint.h"
-#else
-#define DPRINT(PSTRING)
-#define DPRINTF(PFORMAT, ...)
-#endif
-
 void process_event(uint16_t evt);
 void inclusion_failed_frame_send(uint8_t error, uint8_t secure);
 void inclusion_failed_evt_push(uint8_t fail_code);

@@ -21,16 +21,6 @@
 #include "s2_psa.h"
 #endif
 
-//#define DEBUG       // To enable debug_print_hex()
-//#define DEBUGPRINT
-
-#ifdef DEBUGPRINT
-#include "../../../Components/DebugPrint/DebugPrint.h"
-#else
-#define DPRINT(PSTRING)
-#define DPRINTF(PFORMAT, ...)
-#endif
-
 #define CHECK_AND_FAIL(CHECK, FAILURE)   if ((CHECK)){ return (FAILURE); }
 
 
@@ -296,11 +286,11 @@ static bool process_s2_inclusion_event(s2_inclusion_event_t event, const s2_tran
   {
     if (mp_context->inclusion_state == table[i].state || S2_INC_STATE_ANY == table[i].state)
     {
-      DPRINTF("STATE TRANSITION: ? %u -> %u \n", mp_context->inclusion_state, table[i].state);
+      // printf("STATE TRANSITION: ? %u -> %u \n", mp_context->inclusion_state, table[i].state);
 
       if ((event == table[i].event) || (S2_EVT_ANY == table[i].event))
       {
-        DPRINTF("new_state: %u, action: %u \n", table[i].new_state, table[i].action);
+        // printf("new_state: %u, action: %u \n", table[i].new_state, table[i].action);
 
         // Found a match. Execute action and update state if new state is different from S2_INC_STATE_ANY.
         if ((S2_INC_STATE_ANY != table[i].new_state)
@@ -354,7 +344,7 @@ void s2_restore_keys(struct S2 *p_context, __attribute__((unused)) bool make_key
   bool    ret_val;
   MP_CTX_DEF
 
-  DPRINTF("Restore Keys\n");
+  // printf("Restore Keys\n");
 
   mp_context->loaded_keys = 0;
 
@@ -366,7 +356,7 @@ void s2_restore_keys(struct S2 *p_context, __attribute__((unused)) bool make_key
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
       S2_network_key_update(mp_context, convert_key_class_to_psa_key_id(m_key_slot_pair[i][0]),
                             m_key_slot_pair[i][1], shared_key_mem, 0, make_keys_persist_se);
-     DPRINTF("^ Loading: %d, loadedKeys:%d, presist: %d\n", m_key_slot_pair[i][1], mp_context->loaded_keys, make_keys_persist_se);
+     // printf("^ Loading: %d, loadedKeys:%d, presist: %d\n", m_key_slot_pair[i][1], mp_context->loaded_keys, make_keys_persist_se);
 #else
       S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, m_key_slot_pair[i][1], shared_key_mem, 0, false);
 #endif
@@ -987,7 +977,7 @@ static void s2_send_final_transfer_end(void)
   mp_context->inclusion_buf_length                               = SECURITY_2_TRANSFER_END_LENGTH;
 
 
-  DPRINT("send_final_transfer_end\r\n");
+  // printf("send_final_transfer_end\r\n");
   mp_context->inclusion_peer.class_id = TEMP_KEY_SECURE;
   mp_context->inclusion_peer.tx_options = 0;
 
