@@ -8,13 +8,7 @@ add_compile_definitions(
 set_source_files_properties(kderiv/kderiv.c PROPERTIES COMPILE_FLAGS
                                                        -Wno-unused-parameter)
 
-if (PLATFORM_VARIANT STREQUAL "800s")
-  set(CRYPTO_SRC
-    ctr_drbg/ctr_drbg.c
-    curve25519/generic/bigint.c
-    kderiv/kderiv.c
-    nextnonce/nextnonce.c)
-else()
+if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK") # if not zw-protocol (standalone or gateway build)
   set(CRYPTO_SRC
     aes-cmac/aes_cmac.c
     ccm/ccm.c
@@ -24,20 +18,18 @@ else()
     curve25519/generic/smult.c
     kderiv/kderiv.c
     nextnonce/nextnonce.c)
-endif()
-
-if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
   add_library(aes aes/aes.c)
   add_library(s2crypto ${CRYPTO_SRC})
   target_compile_definitions(s2crypto PUBLIC "DllExport=extern")
   if(WIN32)
     add_library(s2cryptoShared SHARED ${CRYPTO_SRC} aes/aes.c)
   endif()
-  # zwave-protocol support
-else(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
-if (NOT PLATFORM_VARIANT STREQUAL "800s")
-  add_library(aes OBJECT aes/aes.c)
-endif()
+else(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK") # if zw-protocol (built with the z-wave stack, only on series2 since 24q2)
+  set(CRYPTO_SRC
+    ctr_drbg/ctr_drbg.c
+    curve25519/generic/bigint.c
+    kderiv/kderiv.c
+    nextnonce/nextnonce.c)
   add_library(s2crypto OBJECT ${CRYPTO_SRC})
 endif(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
 
