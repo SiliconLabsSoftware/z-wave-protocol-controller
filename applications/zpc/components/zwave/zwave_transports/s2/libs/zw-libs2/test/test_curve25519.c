@@ -12,7 +12,6 @@
 #include "unity.h"
 #include <curve25519.h>
 #include <wc_util.h>
-#include <bigint.h>
 
 #ifndef NULL
 #define NULL   ((void *) 0)
@@ -33,6 +32,26 @@ static const uint8_t alice_secret_key[KEY_SIZE] = {
         ,0x6f,0x3b,0xb1,0x29,0x26,0x18,0xb6,0xfd
         ,0x1c,0x2f,0x8b,0x27,0xff,0x88,0xe0,0xeb
 };*/
+
+static void bigint_mul(unsigned char *r, const unsigned char *a, const unsigned char *b, uint8_t len)
+{
+  //unsigned int i,j;
+  uint8_t i;
+  uint8_t j;
+  //uint16_t t;
+  uint16_t t;
+  for(i=0;i<2*len;i++)
+    r[i] = 0;
+
+  for (i=0; i<len; i++) {
+    t = 0;
+    for (j=0; j<len; j++) {
+      t=r[i+j]+a[i]*b[j] + (t>>8);
+      r[i+j]=(t & 0xFF);
+    }
+    r[i+len]=(t>>8);
+  }
+}
 
 static uint8_t alice_public_key[KEY_SIZE];
 #ifdef NOT_USED
