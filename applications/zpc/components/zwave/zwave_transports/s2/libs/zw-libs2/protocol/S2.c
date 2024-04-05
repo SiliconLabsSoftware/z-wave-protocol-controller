@@ -16,7 +16,6 @@
 #include "aes_cmac.h"
 #include "nextnonce.h"
 #include "kderiv.h"
-#include <bigint.h>
 #include "aes.h"
 
 #include <platform.h>
@@ -539,6 +538,20 @@ S2_encrypt_and_send(struct S2* p_context)
 
   assert(msg_len > 0);
   S2_send_raw(p_context, msg, msg_len + hdr_len);
+}
+
+static inline uint8_t
+bigint_add(uint8_t *r, const uint8_t *a, const uint8_t *b, uint16_t len)
+{
+  uint16_t i;
+  uint16_t tmp = 0;
+  for (i=0; i<len; i++) 
+  {
+    tmp = ((uint16_t)a[i]) + ((uint16_t)b[i]) + tmp;
+    r[i] = tmp & 0xff;
+    tmp >>= 8;
+  }
+  return (uint8_t)tmp;
 }
 
 static void
