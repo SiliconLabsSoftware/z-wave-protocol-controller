@@ -11,18 +11,6 @@
 #include <aes.h>
 #include "ccm.h"
 
-//#define VERBOSE_DEBUG
-
-#ifdef VERBOSE_DEBUG
-#define print_block(block, size)  debug_print_block(block, size)
-#define ccm_print_str(str)        debug_ccm_print_str(str)
-#define debug_ccm_print_str(str)  printf(str)
-#else
-#define print_block(block, size)
-#define ccm_print_str(str)
-#define debug_ccm_print_str(str)
-#endif
-
 #ifndef MIN
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #endif
@@ -73,23 +61,6 @@ static void convert_to_octet_string(uint16_t text_to_encrypt_len, uint8_t *Q, ui
     Q[i+1] = (text_to_encrypt_len & bitmask);
 }
 
-#ifdef VERBOSE_DEBUG
-static void debug_ccm_print(const char *format, ...)
-{
-    va_list args;
-    va_start( args, format );
-    vprintf(format, args);
-    va_end( args );
-}
-
-/*
-static void debug_ccm_print_str(const char * str)
-{
-  printf(str);
-}
-*/
-#endif
-
 /* See section A.2.1 in the document mentioned in header */
 static int format_b0(const uint8_t t, const uint16_t text_to_encrypt_len,
                       uint8_t *first_block, const uint8_t *nonce)
@@ -125,18 +96,6 @@ static void ciph_block(uint8_t *blocks, const uint8_t *key)
 {
     AES128_ECB_encrypt(blocks, key, blocks);
 }
-
-#ifdef VERBOSE_DEBUG
-static void debug_print_block(uint8_t *block, int size)
-{
-    int i;
-
-    for (i = 0; i < size; i++)
-        debug_ccm_print("%x ", block[i]);
-
-    debug_ccm_print_str("\n");
-}
-#endif
 
 // TODO, may be reworked to avoid build errors
 #if defined(__GNUC__) && (__GNUC__ == 12)
@@ -178,7 +137,6 @@ static int format_aad(uint8_t blocks[2][BLOCK_SIZE], const uint8_t *aad, const u
         aad_bytes_in_first_block = 10;
         aad_start = 6;
     } else {
-      ccm_print_str("AAD length more than 2pow(16) - 2pow(8) is not supported ");
       return 0;
     }
 
@@ -188,7 +146,6 @@ static int format_aad(uint8_t blocks[2][BLOCK_SIZE], const uint8_t *aad, const u
         memset(&blocks[1][aad_start] + aad_len, 0, aad_bytes_in_first_block - aad_len);
         bit_xor(blocks[1], blocks[0], BLOCK_SIZE);
         ciph_block(blocks[0], key);
-        print_block(blocks[1], BLOCK_SIZE);
     } else if (aad_len > aad_bytes_in_first_block) { /* If aad_len is more than 14 we need more blocks */
         bit_xor(blocks[1], blocks[0], BLOCK_SIZE);
         ciph_block(blocks[0], key);
@@ -205,23 +162,19 @@ static int format_aad(uint8_t blocks[2][BLOCK_SIZE], const uint8_t *aad, const u
                 memcpy(&blocks[1][0], &aad[offset], (new_aad_len % BLOCK_SIZE));
                 /* pad with zeroes */
                 memset(&blocks[1][0] + (new_aad_len % BLOCK_SIZE), 0, BLOCK_SIZE - (new_aad_len % BLOCK_SIZE));
-                print_block(blocks[1], BLOCK_SIZE);
                 bit_xor(blocks[1], blocks[0], BLOCK_SIZE);
                 ciph_block(blocks[0], key);
                 break;
             }
 
             memcpy(&blocks[1][0], &aad[offset], BLOCK_SIZE);
-            //print_block(blocks[1], BLOCK_SIZE);
             bit_xor(blocks[1], blocks[0], BLOCK_SIZE);
             ciph_block(blocks[0], key);
             offset += BLOCK_SIZE;
-        //    print_block(blocks[i+2], BLOCK_SIZE);
         }
     } else {
         bit_xor(blocks[1], blocks[0], BLOCK_SIZE);
         ciph_block(blocks[0], key);
-        print_block(blocks[1], BLOCK_SIZE);
     }
     return 1;
 }
@@ -243,14 +196,12 @@ static void format_payload_block(uint8_t blocks[2][BLOCK_SIZE], const uint8_t *P
             memcpy(&blocks[1][0], &P[offset], (text_to_encrypt_len % BLOCK_SIZE));
             /* pad with zeroes */
             memset(&blocks[1][0] + (text_to_encrypt_len % BLOCK_SIZE), 0, BLOCK_SIZE - (text_to_encrypt_len % BLOCK_SIZE));
-            print_block(blocks[1], BLOCK_SIZE);
             bit_xor(blocks[1], blocks[0], BLOCK_SIZE);
             ciph_block(blocks[0], key);
             break;
         }
 
         memcpy(&blocks[1][0], &P[offset], BLOCK_SIZE);
-        print_block(blocks[1], BLOCK_SIZE);
         bit_xor(blocks[1], blocks[0], BLOCK_SIZE);
         ciph_block(blocks[0], key);
         offset += BLOCK_SIZE;
@@ -275,7 +226,6 @@ static void encrypt_or_decrypt(
     uint8_t ctr[BLOCK_SIZE];
     uint16_t length = data_len;
 
-    ccm_print_str("cntr_blks: \n");
     for (i = 0; i < num_ctr_blks; i++) {
         memset(ctr, 0, BLOCK_SIZE);
         ctr[0] = 0;
@@ -286,16 +236,10 @@ static void encrypt_or_decrypt(
         ctr[14] = (i & 0xff00) >> 8; /*Add counter see table 2 in A.3  */
         ctr[15] = i & 0xff;
 
-        print_block(ctr, BLOCK_SIZE);
         ciph_block(ctr, key);
-        print_block(ctr, BLOCK_SIZE);
         /*TODO there was bit_xor() here. What was it?*/
         if ((i == 0) && (mode == ENCRYPT)) {
-          ccm_print_str("2 rows for mac: \n");
-            print_block(mac, mac_len);
             bit_xor(ctr, mac, mac_len);
-            print_block(mac, mac_len);
-            ccm_print_str("\n");
         } else if ((i == 0) && (mode == DECRYPT)) {
             memcpy(block, ctr, BLOCK_SIZE); /* We need this first block to decrypt MAC */
         } else {
@@ -330,8 +274,6 @@ uint32_t CCM_encrypt_and_auth(
         counter_blocks++;
 
     format_b0(mac_len, text_to_encrypt_len, blocks[0], nonce);
-    ccm_print_str("block[0]: ");
-    print_block(blocks[0], BLOCK_SIZE);
     ciph_block(blocks[0], key);
     if(!format_aad(blocks, aad, aad_len, key)) {
         return 0;
@@ -339,11 +281,7 @@ uint32_t CCM_encrypt_and_auth(
 
     format_payload_block(blocks, plain_ciphertext, text_to_encrypt_len, key);
 
-    ccm_print_str("MAC/T/auth tag: ");
-    print_block(blocks[0], mac_len);
     encrypt_or_decrypt(plain_ciphertext, text_to_encrypt_len, counter_blocks, blocks[0], nonce, mac_len, key, blocks[0], ENCRYPT);
-    ccm_print_str("Encrypted text: ");
-    print_block(plain_ciphertext, text_to_encrypt_len);
     memcpy(plain_ciphertext + text_to_encrypt_len, blocks[0], mac_len);
 
     return (uint32_t)(text_to_encrypt_len + mac_len);
@@ -373,22 +311,15 @@ uint16_t CCM_decrypt_and_auth(
         num_counter_blocks++;
 
     if (ciphertext_len < t) {
-      ccm_print_str("INVALID");
       return 0;
     }
-    ccm_print_str("decryption ");
     encrypt_or_decrypt(cipher_plaintext, ciphertext_len - t, num_counter_blocks, blocks[0], nonce, mac_len, key, mac, DECRYPT);
-    ccm_print_str("decrypted text: ");
-    print_block(cipher_plaintext, ciphertext_len - t);
 
     /* Decrypt the mac which is at the end of cyphertex */
     bit_xor(&cipher_plaintext[ciphertext_len - t], blocks[0], t);
     memcpy(mac, blocks[0], t);
-    ccm_print_str("mac from ciphertext: ");
-    print_block(mac, mac_len);
 
     format_b0(mac_len, ciphertext_len - t, blocks[0], nonce);
-    print_block(blocks[0], BLOCK_SIZE);
     ciph_block(blocks[0], key);
     if(!format_aad(blocks, aad, aad_len, key)) {
         return 0;
@@ -396,10 +327,7 @@ uint16_t CCM_decrypt_and_auth(
 
     format_payload_block(blocks, cipher_plaintext, ciphertext_len - t, key);
 
-    ccm_print_str("mac: ");
-    print_block(blocks[0], mac_len);
     if (memcmp(blocks[0], mac, t) != 0) {
-      ccm_print_str("INVALID See step 10 in NIST pdf\n"); /* TODO: Come up with nice error message here */
         //memset(cipher_plaintext, 0, ciphertext_len - t);
         return 0;
     }

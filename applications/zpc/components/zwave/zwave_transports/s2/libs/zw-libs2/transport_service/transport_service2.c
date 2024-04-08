@@ -122,7 +122,7 @@ ZW_CheckCrc16(uint16_t crc, uint8_t *pDataAddr, uint16_t bDataLen)
   uint8_t WorkData;
   uint8_t bitMask;
   uint8_t NewBit;
-  //printf("ZW_CheckCrc16: bDataLen = %u\r\n", bDataLen);
+
   while (bDataLen--)
   {
     WorkData = *pDataAddr++;
@@ -312,7 +312,6 @@ int compare_received_datagram(const uint8_t *cmp_data, uint16_t len)
 /* Helps if transprot service is stuck somewhere */
 static void reset_transport_service(__attribute__((unused)) void *ss)
 {
-  T2_ERR("reset_timer expired going back to ST_IDLE state ");
   ctimer_stop(&scb.reset_timer);
   current_state = ST_IDLE;
   discard_all_received_fragments();
@@ -321,7 +320,6 @@ static void reset_transport_service(__attribute__((unused)) void *ss)
 #define FUNC(STR) STR
 static uint8_t recv_or_send(void)
 {
-    T2_DBG("sending 1: %s", scb.sending? "true": "false");
     switch (current_state) {
     case ST_IDLE:
         return 2; /*Neither sending nor receiving */
@@ -332,17 +330,14 @@ static uint8_t recv_or_send(void)
     case ST_SEND_FRAG_REQ:
     case ST_SEND_FRAG_WAIT:
     case ST_FIND_MISS_FRAG:
-        T2_DBG("Sending 2: false");
             return 1;
 
     /* Send state machine states */
     case ST_SEND_FRAG:
     case ST_SEND_LAST_FRAG:
     case ST_WAIT_ACK:
-        T2_DBG("Sending 2: true")
             return 0;
     default:
-        T2_ERR("Unkonwn current_state: %s\n", T2_STATES_STRING[current_state]);
         break;
     }
     return -1;
@@ -379,10 +374,7 @@ bool ZW_TransportService_SendData(ts_param_t* p, uint8_t *pData,
     memset(&t, 0, sizeof(TX_STATUS_TYPE));
 #endif
     ctimer_set(&scb.reset_timer, RESET_TIME, FUNC(reset_transport_service), 0);
-    T2_DBG("Request for Sending data: dataLength: %d, MyNodeid: %d Source node:%d, Destination node: %d", dataLength, (int)MyNodeID, (int)p->snode, (int)p->dnode);
-    if (ZW_TransportService_Is_Sending()) {
-        T2_ERR("Another TX session is in progress. session id: %d", scb.cmn.session_id);
-        T2_ERR("Sending buffer %p, while new request to send of buffer: %p", scb.datagram, pData);
+    if (ZW_TransportService_Is_Sending()) {   
 #if defined(ZIPGW)
         completedFunc(S2_TRANSMIT_COMPLETE_FAIL, &t);
 #else
@@ -392,8 +384,6 @@ bool ZW_TransportService_SendData(ts_param_t* p, uint8_t *pData,
         return false;
     }
     if (ZW_TransportService_Is_Receving()) {
-        T2_ERR("Another RX session is in progress. session id: %d", rcb.cmn.session_id);
-        T2_ERR("Sending buffer %p, while new request to send of buffer: %p", scb.datagram, pData);
 #if defined(ZIPGW)
         completedFunc(S2_TRANSMIT_COMPLETE_FAIL, &t);
 #else
@@ -420,25 +410,17 @@ bool ZW_TransportService_SendData(ts_param_t* p, uint8_t *pData,
     scb.remaining_data_len = 0;
     scb.current_dnode = 0;
 
-    T2_DBG("MyNodeid: %d Source node:%d, Destination node: %d", (int)MyNodeID, (int)p->snode, (int)p->dnode);
     scb.current_dnode = p->dnode;
     switch (current_state) {
         case ST_IDLE:
-            T2_DBG("Current state: ST_IDLE");
             t2_sm_post_event(EV_START_SEND); /* send() */
             break;
 
         case ST_SEND_FRAG:
-            T2_DBG("Current state: ST_SEND_FRAG");
             t2_sm_post_event(EV_SEND_NEW_FRAG); /* send() */
             break;
 
         default:
-            T2_ERR("Trying to send fragment from wrong state: %d", current_state);
-#if 0
-            scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_FAIL, 0); /*FIXME: Need to decide what to do if we are trying to send while receiving */
-            return false;
-#endif
             break;
         }
     send_first_frag();
@@ -471,8 +453,6 @@ void fc_timer_expired(__attribute__((unused)) void *nthing)
         scb.transmission_aborted = scb.cmn.session_id;
         scb.flag_replied_frag_req = 0;
         scb.current_dnode = 0;
-        T2_ERR("FC timer expired after reply_frag_req()");
-        T2_ERR("Sending failure to application");
         t2_sm_post_event(EV_FRAG_COMPL_TIMER_REQ);
         if (scb.cmn.completedFunc) {
 #if defined(ZIPGW)
@@ -489,8 +469,6 @@ void fc_timer_expired(__attribute__((unused)) void *nthing)
         and make the state machine end up in weird state */
     /* Tested in test_fc_timer_after_frag_compl_of_aborted_transmission() */
     if (scb.transmission_aborted == scb.cmn.session_id) {
-        T2_ERR("FC timer expired for aborted transmission. Ignoring the timer event");
-        T2_ERR("Sending failure to application");
         if (scb.cmn.completedFunc) {
 #if defined(ZIPGW)
             scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_FAIL, &scb.cmn.tx_status);
@@ -503,8 +481,6 @@ void fc_timer_expired(__attribute__((unused)) void *nthing)
 
     /* Tested in test_fc_timer_after_last_frag_twice() */
     if (scb.flag_fc_timer_expired_once) {
-        T2_ERR("Frag completion timer event happened twice \n");
-        T2_ERR("Sending failure to application");
         scb.flag_fc_timer_expired_once = 0;
         scb.current_dnode = 0;
         if (scb.cmn.completedFunc) {
@@ -517,7 +493,6 @@ void fc_timer_expired(__attribute__((unused)) void *nthing)
         t2_sm_post_event(EV_FRAG_COMPL_TIMER2);
         return;
     }
-    T2_DBG("fc_timer_expired once. Sending last fragment again")
     t2_sm_post_event(EV_FRAG_COMPL_TIMER); /*send_last_frag() */
     scb.flag_fc_timer_expired_once++;
     send_last_frag();
@@ -526,15 +501,12 @@ void fc_timer_expired(__attribute__((unused)) void *nthing)
 #if defined(ZIPGW)
 static void ZCB_temp_callback_last_frag(unsigned char status, TX_STATUS_TYPE* ts)
 #else
-static void ZCB_temp_callback_last_frag(unsigned char status, __attribute__((unused)) TX_STATUS_TYPE* ts)
+static void ZCB_temp_callback_last_frag( __attribute__((unused)) unsigned char status, __attribute__((unused)) TX_STATUS_TYPE* ts)
 #endif
 {
 #if defined(ZIPGW)
     memcpy((uint8_t*)&scb.cmn.tx_status, ts, sizeof(TX_STATUS_TYPE));
 #endif
-    if (status != S2_TRANSMIT_COMPLETE_OK) {
-            T2_ERR("Transmission status is not TRANSMIT_COMPLETE_OK for last_frag");
-    }
 }
 
 static void send_last_frag(void)
@@ -556,8 +528,8 @@ retry:
     }
 
     if (ret == 0) {
-        goto retry;
-        T2_ERR("ZW_SendData failed\n")
+        goto retry; // wtf ??? isn't the rest of the code in this if() block unreachable now ?
+
         if (scb.flag_fc_timer_expired_once) {
             if (scb.cmn.completedFunc) {
 #if defined(ZIPGW)
@@ -576,7 +548,6 @@ retry:
 #ifdef TIMER
     if ((scb.cmn.p.tx_flags == RECEIVE_STATUS_TYPE_BROAD) ||
         (scb.cmn.p.dnode == 0xff)) {
-        T2_ERR("Fragments being sent were broadcast. Not waiting for fragment complete");
         t2_sm_post_event(EV_MISSING_FRAG_BCAST);
     } else {
         ctimer_set(&rcb.fc_timer, FRAGMENT_FC_TIMEOUT, FUNC(fc_timer_expired), 0);
@@ -589,7 +560,7 @@ retry:
 #ifdef ZIPGW
 void ZCB_ts_senddata_cb(unsigned char status_send, TX_STATUS_TYPE* txStatus)
 #else
-void ZCB_ts_senddata_cb(unsigned char status_send, __attribute__((unused)) TX_STATUS_TYPE* txStatus)
+void ZCB_ts_senddata_cb( __attribute__((unused)) unsigned char status_send, __attribute__((unused)) TX_STATUS_TYPE* txStatus)
 #endif
 {
     /* FIXME: May be, this should be part of the specs
@@ -601,23 +572,13 @@ void ZCB_ts_senddata_cb(unsigned char status_send, __attribute__((unused)) TX_ST
 #if defined(ZIPGW)
   memcpy((uint8_t*)&scb.cmn.tx_status, (uint8_t*)txStatus, sizeof(TX_STATUS_TYPE));
 #endif
-#ifndef ZIPGW
-  ZW_DEBUG_SEND_STR("1!\r\n");
-#endif
   if (scb.round_trip_first_frag) {
       scb.round_trip_first_frag = clock_time() - scb.round_trip_first_frag;
 
       /* FIXME 500 below is added to ease the receiving side to send fragment wait if it wants to */
       scb.round_trip_first_frag += 300;
-      T2_DBG("Adding delay of scb.round_trip_first_frag: %d ms before sending second fragment", scb.round_trip_first_frag);
     }
 
-#ifndef ZIPGW
-    ZW_DEBUG_SEND_STR("2!\r\n");
-#endif
-    if (status_send != S2_TRANSMIT_COMPLETE_OK) {
-            T2_ERR("Transmission status is not TRANSMIT_COMPLETE_OK");
-    }
     if (scb.flag_reply_frag_req) {
         scb.flag_reply_frag_req = false;
         reply_frag_req(NULL);
@@ -626,7 +587,6 @@ void ZCB_ts_senddata_cb(unsigned char status_send, __attribute__((unused)) TX_ST
 
     if(scb.flag_send_frag_wait) {
         scb.flag_send_frag_wait = false;
-        T2_DBG("Send Frag_wait now");
         send_frag_wait_cmd();
         return;
     }
@@ -641,10 +601,8 @@ void ZCB_ts_senddata_cb(unsigned char status_send, __attribute__((unused)) TX_ST
      100 kbit/s: At least 15 ms if sending more than 2 frames back-to-back
     */
     if (scb.transmission_aborted == scb.cmn.session_id) {
-        T2_DBG("stopping tranmission for session: %d", scb.transmission_aborted)
         ctimer_stop(&scb.timer_btwn_2_frags);
     } else {
-        T2_DBG("Calling send_subseq_frag");
         ctimer_set(&scb.timer_btwn_2_frags, 15 + (scb.round_trip_first_frag), FUNC(send_subseq_frag), 0);
 #ifdef NEW_TEST_T2
     send_subseq_frag(NULL);
@@ -652,9 +610,6 @@ void ZCB_ts_senddata_cb(unsigned char status_send, __attribute__((unused)) TX_ST
 
     }
     scb.round_trip_first_frag = 0;
-#ifndef ZIPGW
-    ZW_DEBUG_SEND_STR("3!\r\n");
-#endif
 }
 
 static void send_subseq_frag(__attribute__((unused)) void *nthing)
@@ -673,11 +628,9 @@ static void send_subseq_frag(__attribute__((unused)) void *nthing)
 
     if (scb.frag_compl_list[scb.cmn.session_id] == true)
     {
-        T2_ERR("Already received frag complete command for this session. Aborting any more fragment sending");
         return; /*FIXME just return?*/
     }
     scb.offset = scb.datagram_len - scb.remaining_data_len;
-    T2_DBG("Sending Subsequent Fragment scb.offset: %d", scb.offset);
     subseq_frag->cmdClass = COMMAND_CLASS_TRANSPORT_SERVICE;
     subseq_frag->cmd_datagramSize1 = (COMMAND_SUBSEQUENT_FRAGMENT)|((scb.datagram_len>>8)&0x07);
     subseq_frag->datagramSize2 = scb.datagram_len & 0xff;
@@ -708,10 +661,7 @@ static void send_subseq_frag(__attribute__((unused)) void *nthing)
     ctimer_set(&scb.reset_timer, RESET_TIME, FUNC(reset_transport_service), 0);
     ret = TS_SEND_RAW(scb.cmn.p.snode,scb.cmn.p.dnode, t2_txBuf, sizeof(*subseq_frag) + scb.datalen_to_send - 1,
                               scb.cmn.p.tx_flags | TRANSMIT_OPTION_ACK, ZCB_ts_senddata_cb);
-    if (ret == 0) {
-        T2_ERR("ZW_SendData failed\n");
-    }
-    else
+    if (0 != ret)
     {
       if (scb.remaining_data_len >= FragmentMaxPayload) {
           scb.remaining_data_len = scb.remaining_data_len - FragmentMaxPayload;
@@ -732,20 +682,6 @@ static void wait_restart_from_first(__attribute__((unused)) void *nthing)
     send_first_frag();
     return;
 }
-
-#if 0 //for debugging. Do not remove.
-static void print_data(unsigned char *buf, uint8_t len)
-{
-    unsigned char *tmp_buf = buf;
-    uint8_t i = 0;
-        printf("len: %d data:", len);
-    for (i = 0; i < len; i++) {
-        printf("%x ", (int)*tmp_buf);
-        tmp_buf++;
-    }
-        printf("\n");
-}
-#endif
 
 static void send_first_frag(void)
 {
@@ -773,8 +709,6 @@ static void send_first_frag(void)
     else {
         scb.cmn.session_id++;
     }
-
-    T2_DBG("Sending First Fragment");
     if (scb.cmn.session_id > 0xf) /*scb.cmn.session_id has only 4 bits for it */
         scb.cmn.session_id = 0; /* Being back from 0 */
 #endif
@@ -783,14 +717,11 @@ static void send_first_frag(void)
     FragmentMaxPayload = FRAGMENTMAXPAYLOAD;
 #ifndef NEW_TEST_T2
     if(scb.cmn.p.tx_flags & TRANSMIT_OPTION_EXPLORE) {
-        T2_DBG("TRANSMIT_OPTION_EXPLORE is on");
         FragmentMaxPayload-=8;
     } else if(!(scb.cmn.p.tx_flags & TRANSMIT_OPTION_NO_ROUTE)) {
-        T2_DBG("TRANSMIT_OPTION_NO_ROUTE is on");
         FragmentMaxPayload-=8;
     }
 #endif
-    T2_DBG("FragmentMaxPayload: %d", FragmentMaxPayload);
 
     if (scb.remaining_data_len == 0)
         scb.remaining_data_len = scb.datagram_len;
@@ -811,11 +742,8 @@ static void send_first_frag(void)
     /* Take 0th-7th bit of scb.datagram_len */
     first_frag->datagramSize2 = scb.datagram_len & 0xff;
     first_frag->properties2 = scb.cmn.session_id << 4; /*FIXME need to check EXT and Reserved section */
-    T2_DBG("packing session id %d", first_frag->properties2 >> 4);
 
     memcpy((uint8_t*)&first_frag->payload1, scb.datagram, scb.datalen_to_send);
-    //printf("Copied following data:");
-    //print_data((uint8_t*)&first_frag->payload1, scb.datalen_to_send);
 
      /*4 is size of ZW_COMMAND_FIRST_FRAGMENT_1BYTE_FRAME till payload field */
     add_crc((uint8_t *)&subseq_frag->cmdClass, scb.datalen_to_send + 4);
@@ -831,13 +759,11 @@ static void send_first_frag(void)
         return;
     }
 
-    //print_data(t2_txBuf, sizeof(*first_frag) + scb.datalen_to_send - 1);
 //        ret = send_data(&scb.cmn.p, t2_txBuf, sizeof(*first_frag) + scb.datalen_to_send - 1, ZCB_ts_senddata_cb, NULL);
     ctimer_set(&scb.reset_timer, RESET_TIME, FUNC(reset_transport_service), 0);
     ret = TS_SEND_RAW(scb.cmn.p.snode, scb.cmn.p.dnode, t2_txBuf, sizeof(*first_frag) + scb.datalen_to_send - 1,
                               scb.cmn.p.tx_flags | TRANSMIT_OPTION_ACK, ZCB_ts_senddata_cb);
     if (ret == 0) {
-        T2_ERR("send_data failed\n");
         return;
     }
 
@@ -863,7 +789,6 @@ void ZCB_temp_callback_reply_frag_req(unsigned char status, __attribute__((unuse
 #else
             scb.cmn.completedFunc(status, 0);
 #endif
-
         }
     }
     t2_sm_post_event(EV_SENT_MISS_FRAG);
@@ -873,13 +798,11 @@ void ZCB_temp_callback_reply_frag_req(unsigned char status, __attribute__((unuse
 /*TODO this has to be aligned in sending session similarly to send_frag_wait_cmd() */
 static void reply_frag_req(__attribute__((unused)) void* nthing)
 {
-    uint8_t ret;
+    __attribute__((unused)) uint8_t ret;
     if (scb.frag_compl_list[scb.cmn.session_id] == true) {
-        T2_ERR("Already received frag complete command for this session. Aborting any more fragment sending");
         return;
     }
     scb.datalen_to_send = FragmentMaxPayload;
-    T2_DBG("Resending offset: %d", scb.missing_offset);
 
     subseq_frag->cmdClass = COMMAND_CLASS_TRANSPORT_SERVICE;
 
@@ -898,8 +821,7 @@ static void reply_frag_req(__attribute__((unused)) void* nthing)
     /* 5 is size of ZW_COMMAND_SUBSEQUENT_FRAGMENT_1BYTE_FRAME till payload
      * field */
     add_crc((uint8_t *)&subseq_frag->cmdClass, scb.datalen_to_send + 5);
-    if ((scb.missing_offset + scb.datalen_to_send) == scb.datagram_len) { /*last fragment */
-        T2_DBG("Resending last fragmnet");
+    if ((scb.missing_offset + scb.datalen_to_send) == scb.datagram_len) { /*last fragment */ 
         scb.does_not_fit_in_first_frag = true;
         t2_sm_post_event(EV_SEND_LAST_MISS_FRAG); /* send_last_frag() */
         scb.flag_replied_frag_req = 1;
@@ -916,9 +838,7 @@ static void reply_frag_req(__attribute__((unused)) void* nthing)
         ret = TS_SEND_RAW(scb.cmn.p.snode, scb.cmn.p.dnode, t2_txBuf, sizeof(*subseq_frag) + scb.datalen_to_send - 1,
                               scb.cmn.p.tx_flags | TRANSMIT_OPTION_ACK, ZCB_temp_callback_reply_frag_req);
     }
-    if (ret == 0) {
-        T2_ERR("send_data failed\n");
-    }
+
     scb.flag_replied_frag_req = 1;
     /*FIXME: After replying to fragment request, the code wait for fragment complete or another fragment request.
         But on receive side decision of another fragment request or fragment complete is taken when rx timer expires after 800ms
@@ -957,7 +877,6 @@ void TransportService_ApplicationCommandHandler(ts_param_t* p,
     uint16_t datagram_size_tmp;
 
     ctimer_set(&scb.reset_timer, RESET_TIME, FUNC(reset_transport_service), 0);
-    T2_DBG("Received data: Source node:%d, Destination node: %d", (int)p->snode, (int)p->dnode);
     /* Tie break check */
     /* 1. The receiving node is currently transmitting a datagram.
      * 2. The recipient of the datagram being transmitted is also the
@@ -966,8 +885,6 @@ void TransportService_ApplicationCommandHandler(ts_param_t* p,
     if (ZW_TransportService_Is_Sending() && /* 1st condition */
        (scb.cmn.p.dnode == p->snode) && /* 2nd condition */
        (MyNodeID < p->snode)) { /* 3rd condition */
-        T2_ERR("Tie breaking. Failing the send session. Ready to receive");
-        T2_DBG("ZW_TransportService_Is_Sending() is true. scb.cmn.p.dnode: %d, p->snode: %d, MyNodeID: %d", scb.cmn.p.dnode, p->snode, MyNodeID);
         t2_sm_post_event(EV_TIE_BREAK);
         flag_tie_broken = 1;
         /*FIXME: Can not FAIL the transmission because of following reason:
@@ -978,17 +895,13 @@ void TransportService_ApplicationCommandHandler(ts_param_t* p,
         */
     }
 
-    T2_DBG("Mynodeid: %d, Source node:%d, Destination node: %d", MyNodeID, (int)p->snode, (int)p->dnode);
 
     /* There are some garbage retranmissions where the source and destination ids are messed up */
     if (p->snode == p->dnode) {
-        T2_ERR("source and destination is same node id? Ignoring the frame")
         return;
     }
 
-    T2_ERR("cmdLength: %d\n",cmdLength);
     if (cmdLength > DATAGRAM_SIZE_MAX) {
-        T2_ERR("Length of command received is more than DATAGRAM_SIZE_MAX. Ignorning the frame")
 #ifdef NEW_TEST_T2
         call_with_large_value = 1;
 #endif
@@ -1001,8 +914,6 @@ void TransportService_ApplicationCommandHandler(ts_param_t* p,
     if (((p->snode != rcb.current_snode) && (rcb.current_snode)) || /* received frame from third node while receiving from second node */
             ((p->snode != scb.current_dnode) && (scb.current_dnode))) { /* received frame from third node while sending to second node */
         if (p->rx_flags == RECEIVE_STATUS_TYPE_SINGLE) {
-            T2_DBG("Current source node is %d but received source node id is %d, session_id: %d", rcb.current_snode, p->snode,  ((*((uint8_t *)(pCmd + 3))& 0xf0) >> 4));
-            T2_DBG("Current dest node is %d but received source node id is %d, session_id : %d", scb.current_dnode, p->snode, ((*((uint8_t *)(pCmd + 3))& 0xf0) >> 4));
 
             /*FIXME workaround to ignore further singlecast frames from different node */
             if (current_state == ST_SEND_FRAG_WAIT) {
@@ -1010,7 +921,6 @@ void TransportService_ApplicationCommandHandler(ts_param_t* p,
             }
             t2_sm_post_event(EV_SCAST_DIFF_NODE); /*send_frag_wait_cmd */
             if (scb.sending) {
-                T2_DBG("Next fragment sent will be FRAG_WAIT to %d", p->snode)
                 scb.flag_send_frag_wait = true;
             } else {
                 send_frag_wait_cmd();
@@ -1032,12 +942,12 @@ void TransportService_ApplicationCommandHandler(ts_param_t* p,
         datagram_size_tmp = (datagram_size_tmp << 8) + (*((uint8_t *)pCmd + 2));
 
         if (datagram_size_tmp > DATAGRAM_SIZE_MAX) {
-            T2_ERR("datagram size is more than DATAGRAM_SIZE_MAX. Ignoring the fragment\n");
+            
             datagram_size_tmp = 0;
             t2_sm_post_event(EV_DIFF_SESSION);
             return;
         }
-        T2_ERR("Received subseq fragment without first fragment. session_id:%d",  ((*((uint8_t *)(pCmd + 3))& 0xf0) >> 4));
+        
         t2_sm_post_event(EV_SUBSEQ_DIFF_SESSION);
         if (scb.sending) {
             scb.flag_send_frag_wait = true;
@@ -1060,13 +970,12 @@ void TransportService_ApplicationCommandHandler(ts_param_t* p,
             /*Only fragment complete, fragment request or fragment wait are expected */
             break;
         default:
-            T2_ERR("Received a fragment in unexpected state %s. Processing it, incase we need to send FRAG_WAIT.", T2_STATES_STRING[current_state]);
+            
             /*no break no return*/
             break;
     }
 
     if (flag_initialize_once) {
-        T2_DBG("Initializing rcb.cmn.session_id to 0x10");
         flag_initialize_once = 0;
         memset((uint8_t*)&rcb.cmn, 0, sizeof(control_block_t));
         rcb.cmn.session_id = 0x10;
@@ -1090,10 +999,8 @@ static uint8_t mark_frag_received(uint16_t offset, uint8_t size)
 {
     int i = 0;
 
-    T2_DBG("Received offset: %d", (int)offset);
-
     if ((offset != 0) && !(rcb.bytes_recvd_bitmask[0] & 1)) {
-        T2_ERR("Received subseq fragment without first fragment.");
+        
         t2_sm_post_event(EV_SUBSEQ_DIFF_SESSION);
         if (scb.sending) {
             scb.flag_send_frag_wait = true;
@@ -1151,7 +1058,6 @@ static uint8_t get_num_missing_frag(void)
         missing_frag = 0;
     }
 exit:
-    T2_DBG("missing_frag: %d", missing_frag);
     return missing_frag;
 }
 #endif
@@ -1179,14 +1085,13 @@ static void rx_timer_expired(void *ss)
      * state. See code above */
     t2_sm_post_event(EV_FRAG_RX_TIMER);
     if (state && (get_next_missing_offset(/*rcb.datagram_size*/))) {
-        T2_ERR("rx timer expired after sending Fragment Request");
-        T2_ERR("Discarding all fragments");
+        
+        
         discard_all_received_fragments();
     } else {
         find_missing();
     }
 /*
-    T2_DBG("ctimer_set rcb.rx_timer");
     ctimer_set(&rcb.rx_timer, FRAGMENT_RX_TIMEOUT, ZCB_rx_timer_expired, 0);
 */
 }
@@ -1200,7 +1105,6 @@ static void find_missing(void)
 
     if (missing_frag) {
         if (rcb.cmn.p.rx_flags == RECEIVE_STATUS_TYPE_BROAD) {
-            T2_DBG("There are missing fragments, but in broadcast datagram. Not sending fragment request command to sender");
             discard_all_received_fragments();
             return;
         }
@@ -1209,7 +1113,6 @@ static void find_missing(void)
     } else {
         /* No need to send Fragment complete in case of Broadcast */
         if (rcb.cmn.p.rx_flags == RECEIVE_STATUS_TYPE_BROAD) {
-            T2_DBG("Fragment transfer has compoleted, but in broadcast datagram. Not sending fragment complete command to sender");
             return;
         }
         t2_sm_post_event(EV_SEND_FRAG_COMPLETE);
@@ -1234,47 +1137,42 @@ static void receive(void)
     uint16_t datagram_size_tmp;
 
     if (*((uint8_t *)rcb.fragment) != COMMAND_CLASS_TRANSPORT_SERVICE) {
-        T2_ERR("Command class is not COMMAND_CLASS_TRANSPORT_SERVICE");
+        
         return;
     }
 
     switch (byte1 & 0xf8) {
     case COMMAND_FIRST_FRAGMENT:
-        T2_DBG("Received First Fragment");
         if (flag_tie_broken) {
             scb.transmission_aborted = scb.cmn.session_id;
         }
-        //print_data((uint8_t*)rcb.fragment, rcb.fragment_len);
 #define FIRST_FRAG_NONPAYLOAD_LENGTH (sizeof(ZW_COMMAND_FIRST_FRAGMENT_1BYTE_FRAME) - 1)
 #define SUBSEQ_FRAG_NONPAYLOAD_LENGTH (sizeof(ZW_COMMAND_SUBSEQUENT_FRAGMENT_1BYTE_FRAME) - 1)
 
         if (rcb.fragment_len <= FIRST_FRAG_NONPAYLOAD_LENGTH) {
-            T2_ERR("Length of received fragment is less than %i", (int)FIRST_FRAG_NONPAYLOAD_LENGTH)
+            
             t2_sm_post_event(EV_RECV_NEW_FRAG);
             return;
         }
 
         /* If first fragment received is corrupt send fragment wait command */
         if (CRC_FUNC(0x1D0F, (uint8_t*) rcb.fragment, rcb.fragment_len) != 0) {
-            T2_ERR("CRC error. Discarding fragment");
+            
             /*FIXME: Do we need to send FRAG_WAIT here? */
             t2_sm_post_event(EV_RECV_NEW_FRAG);
             return;
         }
 
         recvd_session_id = (byte3 & 0xf0) >> 4;
-        T2_DBG("recvd_sesion_id is %d", recvd_session_id);
         if ((recvd_session_id != rcb.cmn.session_id) && (rcb.cmn.session_id != 0x10)) { /*Refer 10.1.3.1.5 */
-        T2_DBG("Current session is %d but received session id is %d. Ignoring the fragment", rcb.cmn.session_id, recvd_session_id);
             t2_sm_post_event(EV_DIFF_SESSION);
             return;
         }
         datagram_size_tmp = (byte1) & 0x07;
         datagram_size_tmp = (datagram_size_tmp << 8) + byte2;
-        T2_DBG("Datagram size: %d\n", datagram_size_tmp);
 
         if (datagram_size_tmp > DATAGRAM_SIZE_MAX) {
-            T2_ERR("datagram size is more than DATAGRAM_SIZE_MAX. Ignoring the fragment\n");
+            
             t2_sm_post_event(EV_DIFF_SESSION);
             return;
         }
@@ -1308,7 +1206,7 @@ static void receive(void)
         /* The current fragment had more data than the size of
            whole datagram. TODO: Something wrong?*/
         if (rcb.cur_recvd_data_size > rcb.datagram_size) {
-            T2_ERR("Something went wrong. Current fragment has more data than needed in this datagram");
+            
             //t2_sm_post_event(EV_ERROR);
         }
         rcb.rx_data.state = 0; /*not after sending req cmd */
@@ -1316,20 +1214,19 @@ static void receive(void)
 
     case COMMAND_SUBSEQUENT_FRAGMENT:
         /* Stay in the same function and handle fragment */
-        T2_DBG("Received Subsequent Fragment");
         if (flag_tie_broken) {
             scb.transmission_aborted = scb.cmn.session_id;
         }
 
         if (rcb.fragment_len <= SUBSEQ_FRAG_NONPAYLOAD_LENGTH) {
-            T2_ERR("Length of received subseq fragment is less than %i. Ignoring the fragment", (int)SUBSEQ_FRAG_NONPAYLOAD_LENGTH)
+            
             /*FIXME: Do we need to send FRAG_WAIT here? */
             t2_sm_post_event(EV_RECV_NEW_FRAG);
             return;
         }
         /* If subseq fragment received is corrupt just ignore it */
         if (CRC_FUNC(0x1D0F, (uint8_t*) rcb.fragment, rcb.fragment_len) != 0) {
-            T2_ERR("CRC error. Ignoring");
+            
             /*FIXME: Do we need to send FRAG_WAIT here? */
             t2_sm_post_event(EV_RECV_NEW_FRAG);
             return;
@@ -1338,17 +1235,16 @@ static void receive(void)
         recvd_session_id = (byte3 & 0xf0) >> 4;
 
         if (rcb.recv_frag_compl_list[recvd_session_id] == true) {
-            T2_ERR("Already received Fragment Complete command for this session: %d. Looks like duplicate frame", recvd_session_id);
+            
             if (current_state == ST_RECEIVING) {
                 t2_sm_post_event(EV_DUPL_FRAME);
             } else {
-                T2_ERR("Strange current state: %s(%d)", T2_STATES_STRING[current_state], current_state);
+                
             }
             return;
         }
         /* session ID of new received fragment is different from the one being assembled */
         if ((recvd_session_id != rcb.cmn.session_id) && (rcb.cmn.session_id != 0x10)) {
-            T2_DBG("Current session is %d but recived session id is %d. Ignoring fragment", rcb.cmn.session_id, recvd_session_id);
             t2_sm_post_event(EV_DIFF_SESSION);
             return;
         }
@@ -1359,11 +1255,10 @@ static void receive(void)
         // Also checks if first fragment for this datagram is missing and we received subsequent fragment.
         // Sends FRAG_WAIT as well
 
-        T2_DBG("offset: %d", datagram_offset);
         rcb.cur_recvd_data_size = rcb.fragment_len - SUBSEQ_FRAG_NONPAYLOAD_LENGTH;
 
         if ((datagram_offset + rcb.cur_recvd_data_size) > DATAGRAM_SIZE_MAX) {
-            T2_ERR("Offset of fragment received is more than DATAGRAM_SIZE_MAX. Ignoring fragment");
+            
             if (current_state == ST_RECEIVING) {
                 t2_sm_post_event(EV_DUPL_FRAME);
             }
@@ -1373,7 +1268,7 @@ static void receive(void)
         datagram_size_tmp = (datagram_size_tmp << 8) + byte2;
 
         if (datagram_size_tmp > DATAGRAM_SIZE_MAX) {
-            T2_ERR("datagram size is more than DATAGRAM_SIZE_MAX. Ignoring the fragment\n");
+            
             t2_sm_post_event(EV_DIFF_SESSION);
             return;
         }
@@ -1383,7 +1278,6 @@ static void receive(void)
         if (mark_frag_received(datagram_offset, rcb.cur_recvd_data_size))
                 break;
 
-        T2_DBG("Pending Segments: %d", rcb.cmn.pending_segments);
         rcb.datagram_size = datagram_size_tmp;
         curr_datagramData = rcb.datagramData; /* Should not change the global buffer address */
         curr_datagramData = curr_datagramData + datagram_offset;
@@ -1400,23 +1294,19 @@ static void receive(void)
 
    case COMMAND_SEGMENT_REQUEST_V2:
         t2_sm_post_event(EV_FRAG_REQ_OR_COMPL);
-        T2_DBG("Received Fragment Request Command");
-        //T2_DBG("byte2: %x", byte2)
         recvd_session_id = (byte2 & 0xf0) >> 4;
         /*Fragment request is not from the same session in which we were sending */
 
         if (recvd_session_id == scb.transmission_aborted) {
-            T2_DBG("COMMAND_FRAGMENT_REQUEST: for aborted transmionss session:%d. Igoring... ", recvd_session_id);
             t2_sm_post_event(EV_FRAG_REQ_COMPL_WAIT_DIFF_SESSION);
             return;
         }
         if (recvd_session_id != scb.cmn.session_id) {
-            T2_DBG("Current session is %d but recived session id is %d. Ignoring...", scb.cmn.session_id, recvd_session_id);
             t2_sm_post_event(EV_FRAG_REQ_COMPL_WAIT_DIFF_SESSION);
             return;
         }
         if ((rcb.cmn.p.snode != scb.current_dnode) && (rcb.current_snode != 0)) { /* Check if the FRAG REQ is from the destination node where we were sending data to */
-            T2_ERR("Session id of Fragment request received is not same as session_id of fragment being sent, recvd_session_id: %d, scb.cmn.session_id: %d. Ignoring the Frag request command", recvd_session_id, scb.cmn.session_id);
+            
             t2_sm_post_event(EV_FRAG_REQ_COMPL_WAIT_DIFF_NODE);
             return;
         }
@@ -1426,7 +1316,6 @@ static void receive(void)
 #endif
         scb.missing_offset = ((byte2 & 0x7) << 8);
         scb.missing_offset |= byte3;
-        //T2_DBG("Frag req cmd for %d missing fragment", (int)scb.missing_offset);
 
         t2_sm_post_event(EV_RECV_FRAG_REQ); /* reply_frag_req(); */
         if (scb.sending) {
@@ -1438,33 +1327,29 @@ static void receive(void)
 
    case COMMAND_SEGMENT_COMPLETE_V2:
         t2_sm_post_event(EV_FRAG_REQ_OR_COMPL);
-        T2_DBG("Received Fragment Complete Command");
         recvd_session_id = (byte2 & 0xf0) >> 4;
         if (recvd_session_id == scb.transmission_aborted) {
-            T2_DBG("COMMAND_FRAGMENT_COMPLETE: for aborted transmionss session:%d. Igoring... ", recvd_session_id);
             t2_sm_post_event(EV_FRAG_REQ_COMPL_WAIT_DIFF_SESSION);
             return;
         }
         /*Fragment complete is not from the same session in which we were sending */
         if (recvd_session_id != scb.cmn.session_id) {
-            T2_ERR("Current session is %d but recived session id is %d", recvd_session_id, rcb.cmn.session_id);
+            
             t2_sm_post_event(EV_FRAG_REQ_COMPL_WAIT_DIFF_SESSION);
             return;
         }
         if ((rcb.cmn.p.snode != scb.current_dnode) && (rcb.current_snode != 0)) { /* Check if the FRAG complete is from the destination node where we were sending data to */
-            T2_ERR("Session id of Fragment request received is not same as session_id of fragment being sent, recvd_session_id: %d, scb.cmn.session_id: %d. Ignoring the Frag request command", recvd_session_id, scb.cmn.session_id);
+            
             t2_sm_post_event(EV_FRAG_REQ_COMPL_WAIT_DIFF_NODE);
             return;
         }
 #ifdef TIMER
         ctimer_stop(&rcb.fc_timer);
 #endif
-        T2_DBG("recvd_session_id : %d, scb.cmn.completedFunc: %p", recvd_session_id, scb.cmn.completedFunc);
         if (scb.cmn.session_id == recvd_session_id) {
             scb.frag_compl_list[recvd_session_id] = true;
             scb.current_dnode = 0;
             if (scb.cmn.completedFunc) {
-                T2_DBG("Sending back TRANSMIT_COMPLETE_OK to client");
 #if defined(ZIPGW)
                 scb.cmn.completedFunc(S2_TRANSMIT_COMPLETE_OK, &scb.cmn.tx_status);
 #else
@@ -1472,7 +1357,7 @@ static void receive(void)
 #endif
             }
         } else {
-            T2_ERR("Fragment complete session id is %d while current session id is %d", recvd_session_id, scb.cmn.session_id);
+            
         }
 
         t2_sm_post_event(EV_RECV_FRAG_COMPL); /* Go back to ST_IDLE state */
@@ -1480,9 +1365,8 @@ static void receive(void)
 
    case COMMAND_SEGMENT_WAIT_V2:
        /* Though the code flow is in receive() function. Current state is still be ST_SEND_FRAG */
-       T2_DBG("Received Fragment wait Command");
         if (scb.frag_compl_list[scb.cmn.session_id] == true) {
-            T2_ERR("Already received Fragment Complete command for this session: %d", scb.cmn.session_id);
+            
             t2_sm_post_event(EV_DUPL_FRAME);
             return;
         }
@@ -1497,14 +1381,13 @@ static void receive(void)
 #endif
         /* Refer 10.1.3.5.3 */
         rcb.cmn.pending_segments = byte2;
-        T2_DBG("Pending fragments: %d", rcb.cmn.pending_segments);
         /*FIXME: Shall we increment the scb.sending session id here or should we send it in same session id */
         /* If the pending segments are 0 then the sending side is going to bombard the receiving side with new fragments
             so added a delay of 100ms regardless of number of pending segments */
         ctimer_set(&scb.wait_restart_timer, (100 + 100 * rcb.cmn.pending_segments), FUNC(wait_restart_from_first), NULL);
         break;
     default:
-        T2_ERR("Unknown command type: %d", *((uint8_t *)rcb.fragment + 1));
+        
         break;
     }
     return;
@@ -1524,9 +1407,7 @@ static uint8_t send_frag_wait_cmd(void)
     frag_wait.cmd_reserved = (COMMAND_SEGMENT_WAIT_V2 & 0xf8);
     ctimer_set(&scb.reset_timer, RESET_TIME, FUNC(reset_transport_service), 0);
     if (scb.sending) { /* If there is a sending session going on FRAG_WAIT will be queed for next callback*/
-        T2_DBG("Sending fragment wait command. Pending segments: %d", scb.cmn.pending_segments);
         frag_wait.pendingFragments = scb.cmn.pending_segments;
-        T2_DBG("Sending FRAG_WAIT from sending session snode: %d dnode: %d", scb.frag_wait_p.dnode,  scb.frag_wait_p.snode);
         ret = TS_SEND_RAW(scb.frag_wait_p.dnode, scb.frag_wait_p.snode, (uint8_t *)&frag_wait, sizeof(frag_wait),
                                  scb.frag_wait_p.tx_flags | TRANSMIT_OPTION_ACK, ZCB_ts_senddata_cb);
         t2_sm_post_event(EV_SUCCESS2); /* Go back to ST_SEND_FRAG state in */
@@ -1537,13 +1418,10 @@ static uint8_t send_frag_wait_cmd(void)
             // TODO? this is approximate. If we have variable frame size
             rcb.cmn.pending_segments = rcb.datagram_size / rcb.cur_recvd_data_size;
             (rcb.datagram_size % rcb.cur_recvd_data_size) ? rcb.cmn.pending_segments++:0;
-            T2_DBG("datagram size: %d, cur recv size: %d\n", rcb.datagram_size, rcb.cur_recvd_data_size);
         }
 
 
-        T2_DBG("Sending fragment wait command. Pending segments: %d", rcb.cmn.pending_segments);
         frag_wait.pendingFragments = rcb.cmn.pending_segments;
-        T2_DBG("Sending FRAG_WAIT from receiving session snode: %d dnode: %d", scb.frag_wait_p.dnode,  scb.frag_wait_p.snode);
         ret = TS_SEND_RAW(scb.frag_wait_p.dnode, scb.frag_wait_p.snode, (uint8_t *)&frag_wait, sizeof(frag_wait),
                                  scb.frag_wait_p.tx_flags | TRANSMIT_OPTION_ACK, NULL);
         t2_sm_post_event(EV_SUCCESS); /* Go back to ST_RECEIVING state in receive() funciton */
@@ -1551,7 +1429,7 @@ static uint8_t send_frag_wait_cmd(void)
 
     /*TODO SPEC: What to do if sending frag wait fails*/
     if (ret == 0) {
-        T2_ERR("send_data failed\n");
+        
     }
     return 0;
 }
@@ -1561,11 +1439,10 @@ static uint8_t send_frag_complete_cmd(void)
     uint8_t ret = 0;
     //uint8_t i;
 
-    T2_DBG("Sending COMMAND_FRAGMENT_COMPLETE\n");
     ZW_COMMAND_SEGMENT_COMPLETE_V2_FRAME frag_compl;
 
     if (rcb.cmn.session_id > 0x0f) { /* Session ID has only 4 bits for it.*/
-        T2_ERR("Session id is more than 15");
+        
         return 0;
     }
 
@@ -1577,19 +1454,9 @@ static uint8_t send_frag_complete_cmd(void)
     ret = TS_SEND_RAW(rcb.cmn.p.dnode, rcb.cmn.p.snode, (uint8_t *)&frag_compl, sizeof(frag_compl),
                               rcb.cmn.p.tx_flags | TRANSMIT_OPTION_ACK, NULL);
     if (ret == 0) {
-        T2_ERR("send_data failed\n"); /* TODO What to do of sending Frag Compl fails */
+        
     }
 
-#if 0
-    printf("test_pData: \n");
-    for (i = test_pData_len -1 ; i > 0; --i) {
-         printf("%x ", test_pData[i]);
-    }
-    printf("\nrcb.datagramData: \n");
-    for (i = test_pData_len -1 ; i > 0; --i) {
-         printf("%x ", rcb.datagramData[i]);
-    }
-#endif
 #ifdef ZIPGW
     ZIPCommandHandler(rcb.cmn.p.snode, rcb.datagram_size); /**/
 #endif /* ifdef ZIPGW */
@@ -1626,7 +1493,6 @@ static uint16_t get_next_missing_offset(void)
                 if (missing_offset == 0) {
                     continue;
                 }
-                T2_DBG("missing_offset: %d", missing_offset);
                 if(missing_offset >= rcb.datagram_size) {
                    return 0;
                 }
@@ -1646,13 +1512,13 @@ static uint8_t send_frag_req_cmd(void)
 
     offset_to_request = get_next_missing_offset();
     if (!offset_to_request) {
-        T2_ERR("No offset_to_request is missing");
+        
         t2_sm_post_event(EV_SUCCESS); /* Just change the state to ST_RECEIVING */
         return 0;
     }
 
     if (rcb.cmn.session_id > 0x0f) {/* Session ID has only 4 bits for it.*/
-        T2_ERR("Session id is more than %d", 0x0f);
+        
         return 0;
     }
 
@@ -1663,7 +1529,6 @@ static uint8_t send_frag_req_cmd(void)
     frag_req->datagramOffset2 = (offset_to_request & 0xff);
 
 retry:
-    T2_DBG("Sending fragment request command for offset: %d in session id: %d", offset_to_request, rcb.cmn.session_id);
 
     /* At receiver t2_txBuf is only needed in sending frag request.
      * max size = 21 _to_reqoffsets * 2bytes + size of frag req cmd header
@@ -1674,7 +1539,7 @@ retry:
                               rcb.cmn.p.tx_flags | TRANSMIT_OPTION_ACK, NULL);
     if (ret1 == false) {
         /* TODO SPEC: what to do if frag req cmd fails */
-        T2_ERR("send_data failed ");
+        
         if (rcb.flag_retry_frag_req_once) {
             rcb.flag_retry_frag_req_once--;
             goto retry;

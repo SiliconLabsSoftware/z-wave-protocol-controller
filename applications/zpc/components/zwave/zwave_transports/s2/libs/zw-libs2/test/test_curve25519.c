@@ -11,7 +11,6 @@
 #include <string.h>
 #include "unity.h"
 #include <curve25519.h>
-#include <wc_util.h>
 
 #ifndef NULL
 #define NULL   ((void *) 0)
@@ -53,6 +52,28 @@ static void bigint_mul(unsigned char *r, const unsigned char *a, const unsigned 
   }
 }
 
+static void print16(uint8_t * pData)
+{
+  uint8_t i;
+  puts("\n");
+  for (i = 0;i < 16;++i)
+  {
+    if (i > 0)
+    {
+      puts(",");
+    }
+    else
+    {
+      puts(" ");
+    }
+    printf("%x", pData[i]);
+    if (i % 8 == 7)
+    {
+      puts("\n");
+    }
+  }
+}
+
 static uint8_t alice_public_key[KEY_SIZE];
 #ifdef NOT_USED
 static uint8_t bob_public_key[KEY_SIZE];
@@ -91,17 +112,15 @@ void test_bigint_calc(void)
 
   print16(result);
 
-  print_txt("------------------------------------");
+  printf("------------------------------------");
 
   if ( *(char *)&i == 0x12 )
   {
-    print_txt("Big endian\n");
-//    ZW_DEBUG_MYPRODUCT_SEND_STR("BIG endian.");
+    printf("Big endian\n");
   }
   else if ( *(char *)&i == 0x78 )
   {
-    print_txt("Little endian\n");
-//    ZW_DEBUG_MYPRODUCT_SEND_STR("LITTLE endian.");
+    printf("Little endian\n");
   }
 }
 

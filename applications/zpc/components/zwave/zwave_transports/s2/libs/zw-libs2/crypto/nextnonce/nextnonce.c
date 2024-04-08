@@ -53,17 +53,6 @@ static void ckdf_nonce0_expand(uint8_t *prk, uint8_t *mei)
     memcpy(mei+16, t2, 16);
 }
 
-#ifdef VERBOSE
-static void print_hex(uint8_t* buf, int len) {
-  int i;
-  for (i = 0; i < len; i++)
-         {
-           printf("%02X", buf[i]);
-         }
-       printf("\n");
-}
-#endif
-
 void next_nonce_instantiate(CTR_DRBG_CTX* ctx,const uint8_t* ei_sender,const uint8_t* ei_receiver , uint8_t *k_nonce)
 {
     /* Constant(NONCE) = 0x26 repeated 16 times.*/
@@ -86,17 +75,12 @@ void next_nonce_instantiate(CTR_DRBG_CTX* ctx,const uint8_t* ei_sender,const uin
 #endif
     ckdf_nonce0_expand(X, mei);
 
-    /*puts(__FUNCTION__);
-    print_hex(mei,32);
-    print_hex(k_nonce,32);
-*/
     AES_CTR_DRBG_Instantiate(ctx, mei, k_nonce);
 }
 
 int next_nonce_generate(CTR_DRBG_CTX* ctx, uint8_t* rand)
 {
     AES_CTR_DRBG_Generate(ctx, rand);
-  /*  puts(__FUNCTION__);
-    print_hex(rand,16);*/
+
     return 1;
 }

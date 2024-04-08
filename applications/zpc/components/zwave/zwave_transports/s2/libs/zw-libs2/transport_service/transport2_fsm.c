@@ -263,13 +263,11 @@ uint8_t find_transition(TRANSPORT2_ST_T cstate, TRANSPORT2_EV_T event)
         uint8_t num_trans;
 
         num_trans = sizeof(trans) / sizeof(trans[0]); /* FIXME better to move it inside some init function */
-//        printf("Transprot2: Current State: %s(%d), Event: %s(%d)\n", T2_STATES_STRING[current_state], current_state, T2_EVENTS_STRING[event], event);
         while(num_trans--) {        
                 if ((cstate == trans[num_trans].st) && (event == trans[num_trans].ev))
                         return num_trans+1;
         }
 
-//        printf("Transport2: Transition not found.");
         return 0;
 }
 
@@ -283,8 +281,5 @@ void t2_sm_post_event(TRANSPORT2_EV_T ev)
         i = find_transition(current_state, ev);
         if (i) {
                 current_state = trans[i-1].next_st;
-        } else {
-        /* TODO FIXME: can not find the transtion. probably stay in the same state */
-        /* print error for debugging */
         }
 }
