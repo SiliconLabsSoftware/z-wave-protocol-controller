@@ -17,7 +17,7 @@ add_unity_test(NAME test_aes_cmac FILES test_aes_cmac.c LIBRARIES s2crypto aes)
 
 # Add test for Curve25519
 include_directories(.)
-add_unity_test(NAME test_curve25519 FILES wc_util.c test_curve25519.c LIBRARIES s2crypto aes)
+add_unity_test(NAME test_curve25519 FILES test_curve25519.c LIBRARIES s2crypto aes)
 
 # Add test for CCM
 add_unity_test(NAME test_ccm FILES test_ccm.c ../crypto/ccm/ccm.c ../crypto/aes/aes.c)

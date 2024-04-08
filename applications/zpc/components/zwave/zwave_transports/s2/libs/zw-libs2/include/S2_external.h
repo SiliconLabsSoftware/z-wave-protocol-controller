@@ -112,11 +112,6 @@ void S2_get_hw_random(uint8_t *buf, uint8_t len);
  */
 void S2_get_commands_supported(node_t lnode, uint8_t class_id, const uint8_t ** cmdClasses, uint8_t* length);
 
-/**
- * External function for printing debug output
- * Takes printf arguments
- */
-void S2_dbg_printf(const char *str, ...);
 
 /**
  * Makes time in ms available to LibS2

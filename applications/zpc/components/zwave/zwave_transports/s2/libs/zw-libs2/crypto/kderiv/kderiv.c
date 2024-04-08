@@ -2,6 +2,7 @@
  */
 
 /* author: mdumbare */
+#include <assert.h>
 #include <string.h>
 #include <stdio.h>
 #include "aes_cmac.h"

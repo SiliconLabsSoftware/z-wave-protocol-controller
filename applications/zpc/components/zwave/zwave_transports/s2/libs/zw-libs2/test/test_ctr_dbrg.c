@@ -331,18 +331,7 @@ void test_ctr_dbrg(void)
 
         AES_CTR_DRBG_Generate(&ctx, __data);
         AES_CTR_DRBG_Generate(&ctx, __data);
-#ifdef VERBOSE
-        printf("rand: ");
-        for(j = 0; j < size; j++)
-            printf("%x ", rand[j]);
 
-        printf("\n");
-        printf("__data: ");
-        for(j = 0; j < size; j++)
-            printf("%x ", __data[j]);
-
-        printf("\n");
-#endif
         sprintf(message, "Expected failed for test #%lu\n", (long unsigned)i);
         TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(__data, rand, size, message);
 

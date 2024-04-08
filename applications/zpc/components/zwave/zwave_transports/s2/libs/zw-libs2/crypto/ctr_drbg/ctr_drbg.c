@@ -28,10 +28,6 @@
 #include <s2_psa.h>
 #endif
 
-#ifdef VERBOSE
-#include <stdio.h>
-#endif
-
 #ifdef ZWAVE_PSA_AES
 void AES128_ECB_encrypt(uint8_t *in, const uint8_t *key, uint8_t *out)
 {
@@ -86,9 +82,6 @@ static void AES_CTR_DRBG_Update(CTR_DRBG_CTX* ctx, uint8_t __data[SEEDLEN])
     size_t i = 0;
     uint8_t tmp[SEEDLEN];
     uint8_t* t = tmp;
-#ifdef VERBOSE
-    int j = 0;
-#endif
 
     //AJ_AES_Enable(ctx->k);
     for (i = 0; i < SEEDLEN; i += OUTLEN) {
@@ -105,28 +98,12 @@ static void AES_CTR_DRBG_Update(CTR_DRBG_CTX* ctx, uint8_t __data[SEEDLEN])
     }
 
     memcpy(ctx->k, tmp, KEYLEN);
-#ifdef VERBOSE
-    printf("\n");
-    printf("key: ");
-    for(j = 0; j < KEYLEN; j++)
-        printf("%x ", ctx->k[j]);
-    printf("\n");
-#endif
     memcpy(ctx->v, tmp + KEYLEN, OUTLEN);
-#ifdef VERBOSE
-    printf("v: ");
-    for(j = 0; j < OUTLEN; j++)
-        printf("%x ", ctx->v[j]);
-    printf("\n");
-#endif
 }
 
 
 void AES_CTR_DRBG_Reseed(CTR_DRBG_CTX* ctx, uint8_t* seed)
 {
-#ifdef VERBOSE
-    printf("Reseed: ");
-#endif
     AES_CTR_DRBG_Update(ctx, seed);
 }
 
@@ -155,11 +132,7 @@ void AES_CTR_DRBG_Instantiate(CTR_DRBG_CTX* ctx, uint8_t* entropy, const uint8_t
             entropy[i] ^= 0;
         }
     }
-    
 
-#ifdef VERBOSE
-    printf("Instantiate: ");
-#endif
     memset(ctx->k, 0, KEYLEN);
     memset(ctx->v, 0, OUTLEN);
     ctx->df = 0;
@@ -175,9 +148,6 @@ void AES_CTR_DRBG_Generate(CTR_DRBG_CTX* ctx, uint8_t* rand)
 //    /* Needed?? Is uint8_t enough ??? */
 //    uint16_t count = 0;
 
-#ifdef VERBOSE
-    printf("Generate: ");
-#endif
     // Reseed interval 2^32 (counter wraps to zero)
     // See section 10.2.1.5.1. Step 1 in "CTR_DRBG Generate Proces"
     //AJ_AES_Enable(ctx->k);

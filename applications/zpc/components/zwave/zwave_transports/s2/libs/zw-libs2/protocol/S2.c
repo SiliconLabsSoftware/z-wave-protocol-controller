@@ -92,22 +92,6 @@ static void convert_lr_to_normal_keyclass(s2_connection_t *con);
 static uint8_t
 S2_send_data_all_cast(struct S2* p_context, const s2_connection_t* con, const uint8_t* buf, uint16_t len, event_t ev);
 
-
-#ifdef DEBUG
-
-void
-debug_print_hex(uint8_t* vector, uint32_t length)
-{
-  for(int i=0; i<length; i++)
-  {
-    printf("0x%02x ", *(vector + i));
-  }
-  printf("\n");
-}
-#else
-#define debug_print_hex(a,b)
-#endif
-
 #ifdef ZWAVE_PSA_SECURE_VAULT
 static uint32_t convert_key_slot_to_keyid(uint8_t slot_id)
 {
@@ -175,8 +159,8 @@ find_mpan_by_group_id(struct S2* p_context, node_t owner_id, uint8_t group_id, u
    * */
   if (i == MPAN_TABLE_SIZE)
   {
+    // dropping random span entry
     i = rnd[0] % MPAN_TABLE_SIZE;
-    // printf("dropping random span entry\n");
   }
 
   p_context->mpan_table[i].state = owner_id ? MPAN_MOS : MPAN_SET;
@@ -219,8 +203,8 @@ find_span_by_node(struct S2* p_context, const s2_connection_t* con)
   /*Just select a random entry Note this will overwrite existing entries*/
   if (i == SPAN_TABLE_SIZE)
   {
+    // dropping random span entry
     i = rnd[0] % SPAN_TABLE_SIZE;
-    // printf("dropping random span entry\n");
   }
 
   p_context->span_table[i].state = SPAN_NO_SEQ;
@@ -285,8 +269,7 @@ S2_verify_seq(struct S2* p_context, const s2_connection_t* peer, uint8_t seq)
   }
   else
   {
-    // printf("Duplicate frame dropped with seq %d\n", seq);
-
+    // Duplicate frame dropped
     return 0;
   }
 
@@ -344,11 +327,10 @@ S2_add_mpan_extensions(struct S2* p_context, uint8_t* ext_data)
   {
     if (p_context->mos_list[i].node_id == p_context->peer.r_node)
     {
-      // printf("Adding MPAN for node %i:%i\n",p_context->mos_list[i].node_id, p_context->mos_list[i].group_id);
       mpan = find_mpan_by_group_id(p_context, 0, p_context->mos_list[i].group_id, 0);
       if (!mpan)
       {
-        // printf("could not find MPAN");
+        // could not find MPAN
         continue;
       }
       k++;
@@ -403,13 +385,12 @@ S2_encrypt_and_send(struct S2* p_context)
 
   hdr_len = 4;
   n_ext = 0;
-  // printf("S2_encrypt_and_send\r\n");
+
   /*If span is not negotiated, include senders nonce (SN) */
   ext_data = &msg[4];
 
   if (span->state == SPAN_SOS_REMOTE_NONCE)
   {
-    // printf("SPAN_SOS_REMOTE_NONCE. class_id: %u\n", p_context->peer.class_id);
     AES_CTR_DRBG_Generate(&s2_ctr_drbg, ei_sender);
     memcpy(ei_receiver, span->d.r_nonce, sizeof(ei_receiver));
 
@@ -471,7 +452,7 @@ S2_encrypt_and_send(struct S2* p_context)
   }
 
   ciphertext = &msg[hdr_len];
-  // printf("before mpan\r\n");
+
   /* Add the secure extensions */
   shdr_len = S2_add_mpan_extensions(p_context, ciphertext);
   if (shdr_len)
@@ -481,32 +462,11 @@ S2_encrypt_and_send(struct S2* p_context)
   }
 
   memcpy(ciphertext + shdr_len, p_context->buf, p_context->length);
-  // printf("after memcpy\r\n");
   aad_len = S2_make_aad(p_context, p_context->peer.l_node, p_context->peer.r_node, msg, hdr_len,
       p_context->length + shdr_len + hdr_len + AUTH_TAG_LEN, aad, sizeof(aad));
-  // printf("before next_nonce_generate\r\n");
   /*TODO we should consider to roll the nonce when we have recevied in ACK*/
   next_nonce_generate(&span->d.rng, nonce); //Create the new nonce
-  ZW_DEBUG_SEND_STR("after next_nonce_generate\r\n");
-#ifdef DEBUG
-  // printf("%p Encryption class %i\n",p_context,p_context->peer.class_id);
-  // printf("Nonce \n");
-  debug_print_hex(nonce,16);
-  // printf("key \n");
-  debug_print_hex(p_context->sg[p_context->peer.class_id].enc_key,16);
-  // printf("AAD \n");
-  debug_print_hex(aad,aad_len);
-  // printf("State: %d\n",p_context->inclusion_state);
-  // printf("==>ReceivedKey: %X\n", mp_context->buf[SECURITY_2_NET_KEY_REP_GRANT_KEY_POS]);
-  // printf("==>KeyExchange: %X\n", mp_context->key_exchange);
-  // printf("==>KeyGranted : %X\n", mp_context->key_granted);
-  // printf("==>LoadedKeys: %X\n", mp_context->loaded_keys);
-#endif
 
-  // printf("ciphertext \n");
-  debug_print_hex(ciphertext, p_context->length + shdr_len);
-
-  // printf("CCM enc auth\r\n");
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
   size_t out_len;
   uint32_t ccm_key_id = ZWAVE_CCM_TEMP_ENC_KEY_ID;
@@ -532,9 +492,6 @@ S2_encrypt_and_send(struct S2* p_context)
   msg_len = CCM_encrypt_and_auth(p_context->sg[p_context->peer.class_id].enc_key, nonce, aad, aad_len, ciphertext,
         p_context->length + shdr_len);
 #endif
-
-  // printf("ciphertext \n");
-  // debug_print_hex(ciphertext, msg_len);
 
   assert(msg_len > 0);
   S2_send_raw(p_context, msg, msg_len + hdr_len);
@@ -607,14 +564,6 @@ S2_encrypt_and_send_multi(struct S2* p_context)
 
   next_mpan_state(p_context->mpan);
 
-  // printf("%p Encryption\n",p_context);
-  // printf("Nonce \n");
-  // debug_print_hex(nonce,16);
-  // printf("key \n");
-  // debug_print_hex(p_context->sg[p_context->mpan->class_id].enc_key,16);
-  // printf("AAD \n");
-  // debug_print_hex(aad,aad_len);
-
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
   //////////////////////////////////////////////
   size_t out_len;
@@ -623,13 +572,11 @@ S2_encrypt_and_send_multi(struct S2* p_context)
   {
        /* Import key into secure vault */
     zw_wrap_aes_key_secure_vault(&key_id, p_context->sg[p_context->mpan->class_id].enc_key, ZW_PSA_ALG_CCM);
-    // printf("==> wrapping using temp <==\n");
   }
   else
   {
     /* Use secure vault for encryption using PSA APIs */
     key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(p_context->mpan->class_id), ZWAVE_KEY_TYPE_SINGLE_CAST);
-    // printf("==> Using Persistent:KeyId. Conversion : %lX <==\n", key_id);
   }
   zw_psa_aead_encrypt_ccm(key_id, nonce, ZWAVE_PSA_AES_NONCE_LENGTH, aad, aad_len, ciphertext,
                                      p_context->length, ciphertext, p_context->length+ZWAVE_PSA_AES_MAC_LENGTH, &out_len);
@@ -901,7 +848,6 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
   flags = msg[3];
   if (msg_len < (hdr_len + AUTH_TAG_LEN))
   {
-    // printf("====> parse_fail\n");
     goto parse_fail;
   }
 
@@ -915,7 +861,6 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
     /* Verify sequence */
     if (!S2_verify_seq(p_context, conn, msg[2]))
     {
-      // printf("====> sequence_fail\n");
       return SEQUENCE_FAIL;
     }
 
@@ -996,7 +941,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
   {
     if (span->state != SPAN_NEGOTIATED && span->state != SPAN_INSTANTIATE)
     {
-      // printf("Unexpected span state %i l:%i-r:%i\n", span->state,conn->l_node, conn->r_node);
+      // Unexpected span state
       goto auth_fail;
     }
   }
@@ -1028,31 +973,16 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
       {
         next_nonce_generate(&span->d.rng, nonce);
 
-        // printf("%p Decryption class %i\n",p_context,span->class_id);
-        // printf("Nonce \n");
-        // debug_print_hex(nonce,16);
-        // printf("key \n");
-        // debug_print_hex(p_context->sg[span->class_id].enc_key,16);
-        // printf("AAD \n");
-        // debug_print_hex(aad,aad_len);
-        // printf("State: %d\n",p_context->inclusion_state);
-        // printf("==>ReceivedKey: %X\n", mp_context->buf[SECURITY_2_NET_KEY_REP_GRANT_KEY_POS]);
-        // printf("==>KeyExchange: %X\n", mp_context->key_exchange);
-        // printf("==>KeyGranted : %X\n", mp_context->key_granted);
-        // printf("==>LoadedKeys: %X\n", mp_context->loaded_keys);
-
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
        size_t out_len;
        zw_status_t status;
        uint32_t ccm_key_id = ZWAVE_CCM_TEMP_DEC_KEY_ID;
        if (p_context->is_keys_restored == false) {
-         // printf("==> Wrapping using temp <===\n");
          /* Import key into secure vault */
          zw_wrap_aes_key_secure_vault(&ccm_key_id, p_context->sg[span->class_id].enc_key, ZW_PSA_ALG_CCM);
        } else {
          /* Use secure vault for encryption using PSA APIs */
          ccm_key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(span->class_id), ZWAVE_KEY_TYPE_SINGLE_CAST);
-         // printf("==> Using Persistent:KeyId: Conversion  %lX <==\n", ccm_key_id);
        }
         status = zw_psa_aead_decrypt_ccm(ccm_key_id, nonce, ZWAVE_PSA_AES_NONCE_LENGTH, aad, aad_len,
                                 ciphertext, ciphertext_len, ciphertext, ciphertext_len+ZWAVE_PSA_AES_MAC_LENGTH, &out_len);
@@ -1069,7 +999,6 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
         decrypt_len = CCM_decrypt_and_auth(p_context->sg[span->class_id].enc_key, nonce, aad, aad_len, ciphertext,
             ciphertext_len);
 #endif
-        // printf("decrypt_len: %i\n", decrypt_len);
 
         if (decrypt_len)
         {
@@ -1222,7 +1151,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
   *plain_text_len = decrypt_len - hdr_len;
   return AUTH_OK;
 
-  parse_fail: // printf("Parse fail!\n");
+parse_fail:
 
   return PARSE_FAIL;
 
@@ -1315,8 +1244,6 @@ S2_init_ctx(uint32_t home)
 #endif
   memset(ctx, 0, sizeof(struct S2));
 
-  // printf("s2_init_ctx\r\n");
-
   ctx->my_home_id = home;
   ctx->loaded_keys = 0;
 
@@ -1335,8 +1262,6 @@ S2_network_key_update(struct S2 *p_context, uint32_t key_id, security_class_t cl
   {
     return 0;
   }
-  // printf("Registered class %d\n",class_id);
-  // print_hex(net_key,16);
   if (temp_key_expand)
   {
     tempkey_expand(key_id, net_key, p_context->sg[class_id].enc_key, p_context->sg[class_id].nonce_key, p_context->sg[class_id].mpan_key);
@@ -1346,18 +1271,13 @@ S2_network_key_update(struct S2 *p_context, uint32_t key_id, security_class_t cl
     networkkey_expand(key_id, net_key, p_context->sg[class_id].enc_key, p_context->sg[class_id].nonce_key, p_context->sg[class_id].mpan_key);
 #ifdef ZWAVE_PSA_SECURE_VAULT
     if (make_keys_persist_se) {
-      // printf("Network key buffer is not empty\n");
       uint32_t ccm_key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(class_id), ZWAVE_KEY_TYPE_SINGLE_CAST);
       assert((ccm_key_id >= ZWAVE_PSA_KEY_ID_MIN) && (ccm_key_id <= ZWAVE_PSA_KEY_ID_MAX));
-      // printf("Importing SPAN: %lX\n", ccm_key_id);
       zw_wrap_aes_key_secure_vault(&ccm_key_id, p_context->sg[class_id].enc_key, ZW_PSA_ALG_CCM);
-      // printf("Imported : %lX\n", ccm_key_id);
 
       ccm_key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(class_id), ZWAVE_KEY_TYPE_MULTI_CAST);
       assert((ccm_key_id >= ZWAVE_PSA_KEY_ID_MIN) && (ccm_key_id <= ZWAVE_PSA_KEY_ID_MAX));
-      // printf("Importing MPAN: %lX\n", ccm_key_id);
       zw_wrap_aes_key_secure_vault(&ccm_key_id, p_context->sg[class_id].mpan_key, ZW_PSA_ALG_CCM);
-      // printf("Imported : %lX\n", ccm_key_id);
       p_context->is_keys_restored = true;
     }
 #endif /*#ifdef ZWAVE_PSA_SECURE_VAULT*/
@@ -1394,7 +1314,6 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
   switch (buf[1])
   {
   case SECURITY_2_NONCE_GET:
-    // printf("Got NONCE Get\r\n");
     if ((src->rx_options & S2_RXOPTION_MULTICAST) != S2_RXOPTION_MULTICAST)
     {
       if( (len >=3) && S2_verify_seq(p_context, src,buf[2]) ) {
@@ -1403,7 +1322,6 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
     }
     break;
   case SECURITY_2_NONCE_REPORT:
-    // printf("Got NONCE Report %u\r\n", p_context->fsm);
     S2_fsm_post_event(p_context, GOT_NONCE_REPORT, &d);
     ;
     break;
@@ -1411,8 +1329,6 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
     rc = S2_decrypt_msg(p_context, src, buf, len, &plain_text, &plain_text_len);
     if (rc == AUTH_OK)
     {
-      // printf("decrypt ok %i\n", rc);
-
       S2_fsm_post_event(p_context, GOT_ENC_MSG, &d);
       if (plain_text_len)
       {
@@ -1433,8 +1349,6 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
 
             if (n_commands_supported + 2 > sizeof(p_context->u.commands_sup_report_buf))
             {
-              // printf("No of command classes supported are more than the buffer limit(%d)\n", sizeof(p_context->u.commands_sup_report_buf)-2);
-              // printf("Not sending S2 Command Supported Report\n");
               return;
             }
             memcpy(&p_context->u.commands_sup_report_buf[2], classes, n_commands_supported);
@@ -1465,14 +1379,12 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
     }
     else if (rc == AUTH_FAIL)
     {
-      // printf("decrypt auth fail %i\n", rc);
-
       S2_fsm_post_event(p_context, GOT_BAD_ENC_MSG, &d);
       s2_inclusion_decryption_failure(p_context,src);
     }
     else
     {
-      // printf("decrypt error %i\n", rc);
+      assert(rc == SEQUENCE_FAIL || rc == PARSE_FAIL); // decrypt error
     }
     break;
   default:
@@ -1518,19 +1430,6 @@ void
 S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
 {
   uint8_t nr_flag;
-  // printf("Got S2 fsm event ");
-  ZW_DEBUG_SEND_NUM((uint8_t)e);
-  ZW_DEBUG_SEND_NL();
-  if(d && d->con) {
-    ZW_DEBUG_SEND_STR("Is peer node: ");
-    ZW_DEBUG_SEND_NUM(S2_is_peernode(p_context, d->con));
-    ZW_DEBUG_SEND_STR(" event data: ");
-    ZW_DEBUG_SEND_NUM(d->con->l_node);
-    ZW_DEBUG_SEND_NUM(d->con->r_node);
-  }
-  ZW_DEBUG_SEND_NUM(p_context->peer.l_node);
-  ZW_DEBUG_SEND_NUM(p_context->peer.r_node);
-  ZW_DEBUG_SEND_NL();
 
   switch (p_context->fsm)
   {
@@ -1548,7 +1447,6 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
     {
       p_context->fsm = WAIT_NONCE_RAPORT;
       p_context->retry = 2;
-      // printf("WAIT_NONCE_RAPORT\r\n");
 
       S2_set_peer(p_context, d->con, d->d.buf.buffer, d->d.buf.len);
       S2_send_nonce_get(p_context);
@@ -1606,7 +1504,6 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
     }
     else if ((e == GOT_NONCE_REPORT) && S2_is_peernode(p_context, d->con))
     {
-      // printf("GOT_NONCE_REPORT\r\n");
       if (S2_register_nonce(p_context, d->d.buf.buffer, d->d.buf.len) & SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK)
       {
         goto send_msg_state_enter;
@@ -1627,11 +1524,7 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
     {
       emit_S2_synchronization_event(SOS_EVENT_REASON_UNANSWERED, d);
     }
-    else
-    {
-      // printf("Warning got event %i while in state %i", e, p_context->fsm);
-    }
-
+    // else: Unexpected event while in state SENDING_MSG
     break;
   case VERIFYING_DELIVERY:
     if (e == SEND_DONE)
@@ -1703,10 +1596,7 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
     {
       emit_S2_synchronization_event(SOS_EVENT_REASON_UNANSWERED, d);
     }
-    else
-    {
-      // printf("Warning got event %i while in state %i", e, p_context->fsm);
-    }
+    // else: Unexpected event while in state VERIFYING_DELIVERY
     break;
   default:
     assert(0);

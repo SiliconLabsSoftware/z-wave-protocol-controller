@@ -286,12 +286,8 @@ static bool process_s2_inclusion_event(s2_inclusion_event_t event, const s2_tran
   {
     if (mp_context->inclusion_state == table[i].state || S2_INC_STATE_ANY == table[i].state)
     {
-      // printf("STATE TRANSITION: ? %u -> %u \n", mp_context->inclusion_state, table[i].state);
-
       if ((event == table[i].event) || (S2_EVT_ANY == table[i].event))
       {
-        // printf("new_state: %u, action: %u \n", table[i].new_state, table[i].action);
-
         // Found a match. Execute action and update state if new state is different from S2_INC_STATE_ANY.
         if ((S2_INC_STATE_ANY != table[i].new_state)
             && (mp_context->inclusion_state != table[i].new_state))
@@ -344,8 +340,6 @@ void s2_restore_keys(struct S2 *p_context, __attribute__((unused)) bool make_key
   bool    ret_val;
   MP_CTX_DEF
 
-  // printf("Restore Keys\n");
-
   mp_context->loaded_keys = 0;
 
   for (i = 0; i < ELEM_COUNT(m_key_slot_pair); i++)
@@ -356,7 +350,6 @@ void s2_restore_keys(struct S2 *p_context, __attribute__((unused)) bool make_key
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
       S2_network_key_update(mp_context, convert_key_class_to_psa_key_id(m_key_slot_pair[i][0]),
                             m_key_slot_pair[i][1], shared_key_mem, 0, make_keys_persist_se);
-     // printf("^ Loading: %d, loadedKeys:%d, presist: %d\n", m_key_slot_pair[i][1], mp_context->loaded_keys, make_keys_persist_se);
 #else
       S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, m_key_slot_pair[i][1], shared_key_mem, 0, false);
 #endif
@@ -825,11 +818,6 @@ static void s2_pub_key_a_recv(void)
 
   s2_event = (zwave_event_t *)m_event_buffer;
 
-//  s2_glue_print_str("send_echo_kex_set length: ");
-//  s2_glue_print_num(mp_context->length);
-//  s2_glue_print_str("send_echo_kex_set length: ");
-//  s2_glue_print_num(mp_context->length);
-
   s2_inclusion_set_timeout(mp_context, TBI1_TIMEOUT);
   // Public key receive.
   memcpy(mp_context->public_key,
@@ -976,8 +964,6 @@ static void s2_send_final_transfer_end(void)
   mp_context->u.inclusion_buf[SECURITY_2_TRANSFER_END_FLAGS_POS] = SECURITY_2_KEY_REQ_COMPLETE;
   mp_context->inclusion_buf_length                               = SECURITY_2_TRANSFER_END_LENGTH;
 
-
-  // printf("send_final_transfer_end\r\n");
   mp_context->inclusion_peer.class_id = TEMP_KEY_SECURE;
   mp_context->inclusion_peer.tx_options = 0;
 
