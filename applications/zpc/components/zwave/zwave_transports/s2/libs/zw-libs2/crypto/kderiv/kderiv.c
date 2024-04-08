@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include "aes_cmac.h"
 #include <kderiv.h>
-#include "misc.h"
 #include "s2_keystore.h"
 #ifdef ZWAVE_PSA_SECURE_VAULT
 #include "s2_psa.h"
