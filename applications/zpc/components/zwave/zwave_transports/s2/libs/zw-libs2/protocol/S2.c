@@ -9,7 +9,6 @@
 #include "S2.h"
 #include "s2_protocol.h"
 #include "s2_classcmd.h"
-#include "misc.h"
 #include "../inclusion/s2_inclusion_internal.h"
 #include<string.h>
 #include "ccm.h"
