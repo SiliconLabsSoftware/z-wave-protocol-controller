@@ -1306,7 +1306,6 @@ void S2_inclusion_handler(struct S2* p_context, s2_connection_t* src, uint8_t* b
   switch (buf[1])
   {
     case SECURITY_2_NONCE_GET:
-      DPRINT("Got NONCE Get\r\n");
       if ((src->rx_options & S2_RXOPTION_MULTICAST) != S2_RXOPTION_MULTICAST)
       {
         if( (len >= MIN_NONCE_LENGTH) && S2_verify_seq(p_context, src, buf[2]) )
@@ -1316,9 +1315,7 @@ void S2_inclusion_handler(struct S2* p_context, s2_connection_t* src, uint8_t* b
       }
       break;
     case SECURITY_2_NONCE_REPORT:
-      DPRINTF("Got NONCE Report %u\r\n", p_context->fsm);
       S2_fsm_post_event(p_context, GOT_NONCE_REPORT, &d);
-      ;
       break;
     default:
       /*
@@ -1504,8 +1501,6 @@ S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8_t* buf, uin
 
         if (n_commands_supported + 2 > sizeof(p_context->u.commands_sup_report_buf))
         {
-          DPRINTF("No of command classes supported are more than the buffer limit(%d)\n", sizeof(p_context->u.commands_sup_report_buf)-2);
-          DPRINT("Not sending S2 Command Supported Report\n");
           return;
         }
         memcpy(&p_context->u.commands_sup_report_buf[2], classes, n_commands_supported);
@@ -1560,7 +1555,7 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
 {
   if (NULL == p_context)
   {
-    ASSERT(0);
+    assert(0);
     return;
   }
 
