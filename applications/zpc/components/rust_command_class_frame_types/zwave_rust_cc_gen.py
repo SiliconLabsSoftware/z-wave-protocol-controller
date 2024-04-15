@@ -5,7 +5,7 @@ import argparse
 
 
 ################################# Generic name handling #########################
-fix_chars = re.compile("[^0-9a-z]")
+fix_chars = re.compile(r"[^0-9a-z]")
 ns = ''
 
 
