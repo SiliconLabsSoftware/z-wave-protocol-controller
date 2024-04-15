@@ -21,9 +21,7 @@
 #include "ZW_classcmd.h"
 #include "zwave_s2_transport.h"
 
-#ifndef ZWAVE_BUILD_SYSTEM
 #include "zpc_config.h"
-#endif
 
 // Includes from this component
 #include "zwave_controller_utils.h"
@@ -37,16 +35,10 @@
 void zwave_controller_set_application_nif(const uint8_t *command_classes,
                                           uint8_t command_classes_length)
 {
-#ifdef ZWAVE_BUILD_SYSTEM
-  node_type_t my_node_type = {.basic    = BASIC_TYPE_STATIC_CONTROLLER,
-                              .generic  = GENERIC_TYPE_GENERIC_CONTROLLER,
-                              .specific = SPECIFIC_TYPE_NOT_USED};
-#else
   node_type_t my_node_type
     = {.basic    = zpc_get_config()->zpc_basic_device_type,
        .generic  = zpc_get_config()->zpc_generic_device_type,
        .specific = zpc_get_config()->zpc_specific_device_type};
-#endif
   // Tell the Z-Wave module what our NIF should be:
   zwapi_set_application_node_information(APPLICATION_NODEINFO_LISTENING,
                                          my_node_type,

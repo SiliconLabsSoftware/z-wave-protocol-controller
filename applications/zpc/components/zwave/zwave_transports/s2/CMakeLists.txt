@@ -12,11 +12,7 @@ target_link_libraries(
   PRIVATE zwave_controller)
 target_compile_definitions(zwave_s2_nonce_management PRIVATE ZW_CONTROLLER)
 
-if(ZWAVE_BUILD_SYSTEM EQUAL 1)
-  set(KEYSTORE_SOURCES "")
-else()
-  set(KEYSTORE_SOURCES "src/zwave_s2_keystore.c")
-endif()
+set(KEYSTORE_SOURCES "src/zwave_s2_keystore.c")
 
 # Z-Wave S2 main library
 add_library(
@@ -46,10 +42,6 @@ target_include_directories(
   PRIVATE ${ZW-LIBS2_PATH}/include src)
 
 install(TARGETS zwave_s2 LIBRARY DESTINATION lib)
-
-if(NOT ZWAVE_BUILD_SYSTEM EQUAL 1)
-
-endif()
 
 target_link_libraries(
   zwave_s2
