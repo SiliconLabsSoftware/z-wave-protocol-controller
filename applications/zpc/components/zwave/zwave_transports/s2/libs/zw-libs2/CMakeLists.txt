@@ -24,6 +24,8 @@ if("${PROJECT_NAME}" STREQUAL "")
     HINTS ENV ZWLIBROOT ${PROJECT_SOURCE_DIR}/..
           ${PROJECT_SOURCE_DIR}/../../ZWave/API
     PATH_SUFFIXES include)
+  SET(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --verbose --errors-for-leak-kinds=all --show-leak-kinds=all --leak-check=full --error-exitcode=1 --track-origins=yes")
+  include(CTest)
   add_compile_definitions(NDEBUG)
   enable_testing()
 endif("${PROJECT_NAME}" STREQUAL "")
