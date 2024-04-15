@@ -29,11 +29,7 @@
 #define zwave_controller_ntohl(x)  ntohl(x)
 #define zwave_controller_ntohs(x)  ntohs(x)
 #else
-#if !defined(ZWAVE_BUILD_SYSTEM)
 #include <endian.h>
-#else
-#include <c_endianness.h>
-#endif  // ZWAVE_BUILD_SYSTEM
 #define zwave_controller_ntohll(x) be64toh(x)
 #define zwave_controller_ntohl(x)  be32toh(x)
 #define zwave_controller_ntohs(x)  be16toh(x)
