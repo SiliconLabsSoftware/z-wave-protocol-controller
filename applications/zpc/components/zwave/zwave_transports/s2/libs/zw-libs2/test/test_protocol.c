@@ -2410,6 +2410,9 @@ void test_S2_inclusion_handler(void)
   buf[0] = 0;
 
   S2_inclusion_handler(p_context, &conn, &buf[0], len);
+
+  S2_destroy(p_context);
+  p_context = NULL;
 }
 
 void test_S2_success_decrypt(void)
@@ -2423,6 +2426,8 @@ void test_S2_success_decrypt(void)
   // Case 1: Check normal call
 
   S2_success_decrypt(p_context, &d);
+
+  S2_destroy(p_context);
 
   // Case 2: Check NULL ptr
   
@@ -2442,6 +2447,8 @@ void test_S2_fail_decrypt(void)
   // Case 1: Check normal call
 
   S2_fail_decrypt(p_context, &d);
+
+  S2_destroy(p_context);
 
   // Case 2: Check NULL ptr
 
@@ -2479,6 +2486,8 @@ void test_S2_command_handler(void)
   buf[1] = SECURITY_2_COMMANDS_SUPPORTED_REPORT;
 
   S2_command_handler(p_context, &conn, &buf[0], len);
+
+  S2_destroy(p_context);
 }
 
 /* Stub function */
