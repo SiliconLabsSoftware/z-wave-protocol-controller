@@ -24,6 +24,7 @@ if("${PROJECT_NAME}" STREQUAL "")
     HINTS ENV ZWLIBROOT ${PROJECT_SOURCE_DIR}/..
           ${PROJECT_SOURCE_DIR}/../../ZWave/API
     PATH_SUFFIXES include)
+  add_compile_definitions(NDEBUG)
   enable_testing()
 endif("${PROJECT_NAME}" STREQUAL "")
 

@@ -2381,6 +2381,106 @@ void test_sos_recsync_event_3(void) {
   }
 }
 
+void test_S2_inclusion_handler(void)
+{
+  s2_connection_t conn = { 1, 2 };
+  uint8_t buf[10] = { 0 };
+  uint16_t len = sizeof(buf) / sizeof(buf[0]);
+  struct S2* p_context = { 0 };
+  p_context = S2_init_ctx( 0xAABBCCDD);
+
+  // Case 1: Check SECURITY_NONCE_GET
+
+  buf[0] = COMMAND_CLASS_SECURITY_2;
+  buf[1] = SECURITY_2_NONCE_GET;
+  conn.rx_options = 0;
+
+  S2_inclusion_handler(p_context, &conn, &buf[0], len);
+
+  // Case 2: Check SECURITY_NONCE_REPORT
+
+  buf[0] = COMMAND_CLASS_SECURITY_2;
+  buf[1] = SECURITY_NONCE_REPORT;
+  conn.rx_options = 0;
+
+  S2_inclusion_handler(p_context, &conn, &buf[0], len);
+
+  // Case 3: Test default case
+
+  buf[0] = 0;
+
+  S2_inclusion_handler(p_context, &conn, &buf[0], len);
+}
+
+void test_S2_success_decrypt(void)
+{
+  event_data_t d = { 0 };
+  struct S2* p_context = { 0 };
+  s2_connection_t conn = { 1, 2 };
+  d.con = &conn;
+  p_context = S2_init_ctx( 0xAABBCCDD);
+
+  // Case 1: Check normal call
+
+  S2_success_decrypt(p_context, &d);
+
+  // Case 2: Check NULL ptr
+  
+  p_context = NULL;
+
+  S2_success_decrypt(p_context, &d);
+}
+
+void test_S2_fail_decrypt(void)
+{
+  event_data_t d = { 0 };
+  s2_connection_t conn = { 1, 2 };
+  d.con = &conn;
+  struct S2* p_context = { 0 };
+  p_context = S2_init_ctx( 0xAABBCCDD);
+
+  // Case 1: Check normal call
+
+  S2_fail_decrypt(p_context, &d);
+
+  // Case 2: Check NULL ptr
+
+  p_context = NULL;
+
+  S2_fail_decrypt(p_context, &d);
+}
+
+void test_S2_command_handler(void)
+{
+  s2_connection_t conn = { 1, 2 };
+  uint8_t buf[10] = { 0 };
+  uint16_t len = sizeof(buf) / sizeof(buf[0]);
+  struct S2* p_context = { 0 };
+  p_context = S2_init_ctx( 0xAABBCCDD);
+
+  // Case 1: SECURITY_2_COMMANDS_SUPPORTED_GET
+  buf[0] = COMMAND_CLASS_SECURITY_2;
+  buf[1] = SECURITY_2_COMMANDS_SUPPORTED_GET;
+  conn.rx_options = 0;
+
+  S2_command_handler(p_context, &conn, &buf[0], len);
+
+  // Case 2: default case
+
+  buf[0] = COMMAND_CLASS_SECURITY_2;
+  buf[1] = 0x24;
+  conn.rx_options = 0;
+
+  S2_command_handler(p_context, &conn, &buf[0], len);
+
+  // Case 3: SECURITY_2_COMMANDS_SUPPORTED_REPORT
+
+  buf[0] = COMMAND_CLASS_SECURITY_2;
+  buf[1] = SECURITY_2_COMMANDS_SUPPORTED_REPORT;
+
+  S2_command_handler(p_context, &conn, &buf[0], len);
+}
+
 /* Stub function */
 uint8_t s2_inclusion_set_timeout(__attribute__((unused)) struct S2* ctxt, __attribute__((unused)) uint32_t interval)
 {
