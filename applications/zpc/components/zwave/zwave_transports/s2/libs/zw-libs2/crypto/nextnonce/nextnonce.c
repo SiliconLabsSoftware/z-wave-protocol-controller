@@ -18,8 +18,8 @@ static void ckdf_nonce0_expand(uint8_t *prk, uint8_t *mei)
     /*Constant(EI) = 0x88 repeated 15 times*/
     const uint8_t constant_ei[15] = {0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88};
     uint8_t t0[32]; /* 15 plus 1 plus 1 */
-    uint8_t t1[16];
-    uint8_t t2[16];
+    uint8_t t1[16] = { 0 };
+    uint8_t t2[16] = { 0 };
 
     /*T0 = Constant ei | 0x00*/
     /* TODO FIXME SPEC: spec says contant_nk. We think it should be constant_ei */
