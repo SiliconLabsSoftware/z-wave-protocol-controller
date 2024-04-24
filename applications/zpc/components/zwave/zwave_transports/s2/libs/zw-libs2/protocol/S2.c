@@ -466,7 +466,7 @@ S2_encrypt_and_send(struct S2* p_context)
   next_nonce_generate(&span->d.rng, nonce); //Create the new nonce
 
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
-  size_t out_len;
+  size_t out_len = 0;
   uint32_t ccm_key_id = ZWAVE_CCM_TEMP_ENC_KEY_ID;
   if (p_context->is_keys_restored == false)
   {
@@ -564,7 +564,7 @@ S2_encrypt_and_send_multi(struct S2* p_context)
 
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
   //////////////////////////////////////////////
-  size_t out_len;
+  size_t out_len = 0;
   key_id = ZWAVE_CCM_TEMP_ENC_KEY_ID;
   if (p_context->is_keys_restored == false)
   {
@@ -834,8 +834,8 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
   uint16_t hdr_len;
   struct SPAN* span;
   struct MPAN* mpan;
-  uint8_t r_nonce[16];
-  uint8_t s_nonce[16];
+  uint8_t r_nonce[16] = { 0 };
+  uint8_t s_nonce[16] = { 0 };
   uint8_t i;
 
   hdr_len = 4;
@@ -1061,7 +1061,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
     next_mpan_state(mpan);
 
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
-        size_t out_len;
+        size_t out_len = 0;
         key_id = ZWAVE_CCM_TEMP_DEC_KEY_ID;
         zw_status_t status;
         /* Import key into secure vault */
@@ -1220,7 +1220,7 @@ S2_is_send_data_busy(struct S2* p_context)
 void
 S2_init_prng(void)
 {
-  uint8_t entropy[32];
+  uint8_t entropy[32] = { 0};
 
   S2_get_hw_random(entropy, sizeof(entropy));
   AES_CTR_DRBG_Instantiate(&s2_ctr_drbg, entropy, NULL);

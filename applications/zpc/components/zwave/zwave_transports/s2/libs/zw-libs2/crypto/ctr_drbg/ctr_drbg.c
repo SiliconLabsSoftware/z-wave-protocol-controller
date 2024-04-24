@@ -80,7 +80,7 @@ Output:
 static void AES_CTR_DRBG_Update(CTR_DRBG_CTX* ctx, uint8_t __data[SEEDLEN])
 {
     size_t i = 0;
-    uint8_t tmp[SEEDLEN];
+    uint8_t tmp[SEEDLEN] = { 0 };
     uint8_t* t = tmp;
 
     //AJ_AES_Enable(ctx->k);
@@ -141,7 +141,7 @@ void AES_CTR_DRBG_Instantiate(CTR_DRBG_CTX* ctx, uint8_t* entropy, const uint8_t
 
 void AES_CTR_DRBG_Generate(CTR_DRBG_CTX* ctx, uint8_t* rand)
 {
-    uint8_t __data[SEEDLEN];
+    uint8_t __data[SEEDLEN] = { 0 };
     size_t copy;
     size_t size = RANDLEN;
 
