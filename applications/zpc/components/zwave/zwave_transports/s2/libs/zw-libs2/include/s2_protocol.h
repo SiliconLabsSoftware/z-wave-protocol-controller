@@ -230,6 +230,7 @@ struct S2
   public_key_t public_key;
   bool is_keys_restored;
   //network_key_t temp_network_key;
+  uint8_t nls_state;
 };
 
 #ifdef SINGLE_CONTEXT
