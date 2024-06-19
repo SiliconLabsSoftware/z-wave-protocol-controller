@@ -1839,3 +1839,11 @@ static void S2_send_nls_state_set(struct S2* p_context, s2_connection_t* con, bo
 
   S2_send_data(ctxt, con, ctxt->workbuf, SECURITY_2_V2_NLS_STATE_SET_LENGTH);
 }
+
+static void S2_send_nls_state_get(struct S2* p_context, s2_connection_t* con)
+{
+  p_context->workbuf[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
+  p_context->workbuf[SECURITY_2_COMMAND_POS]        = NLS_STATE_GET_V2;
+
+  S2_send_data(p_context, con, p_context->workbuf, SECURITY_2_V2_NLS_STATE_GET_LENGTH);
+}
