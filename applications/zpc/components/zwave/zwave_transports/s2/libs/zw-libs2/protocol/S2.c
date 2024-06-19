@@ -1829,3 +1829,13 @@ S2_is_send_data_multicast_busy(struct S2* p_context)
   CTX_DEF
   return ctxt->fsm != IDLE;
 }
+
+static void S2_send_nls_state_set(struct S2* p_context, s2_connection_t* con, bool nls_active)
+{
+  CTX_DEF
+  ctxt->workbuf[SECURITY_2_COMMAND_CLASS_POS]              = COMMAND_CLASS_SECURITY_2_V2;
+  ctxt->workbuf[SECURITY_2_COMMAND_POS]                    = NLS_STATE_SET_V2;
+  ctxt->workbuf[SECURITY_2_V2_NLS_STATE_SET_STATE_POS]     = nls_active;
+
+  S2_send_data(ctxt, con, ctxt->workbuf, SECURITY_2_V2_NLS_STATE_SET_LENGTH);
+}
