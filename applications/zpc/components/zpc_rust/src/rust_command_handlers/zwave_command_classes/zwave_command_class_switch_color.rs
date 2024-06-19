@@ -26,7 +26,6 @@ use crate::rust_command_handlers::{
 use crate::zwave_command_classes_sys::{
     is_zwave_command_class_filtered_for_root_device, sl_status_t,
 };
-use crate::zwave_controller_sys::zwave_controller_endpoint_t;
 use rust_command_class_frame_types::command_class_switch_color::*;
 use unify_attribute_resolver_sys::{
     attribute_resolver_register_rule, attribute_resolver_restart_set_resolution,
