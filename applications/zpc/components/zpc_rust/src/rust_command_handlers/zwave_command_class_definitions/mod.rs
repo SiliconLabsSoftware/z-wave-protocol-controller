@@ -16,7 +16,6 @@ mod connection_info_trait;
 mod info_trait;
 mod zwave_encapsulation;
 
-pub use connection_info::*;
 pub use connection_info_trait::*;
 pub use info_trait::*;
 pub use zwave_encapsulation::*;
