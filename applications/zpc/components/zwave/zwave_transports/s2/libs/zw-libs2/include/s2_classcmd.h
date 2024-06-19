@@ -55,7 +55,6 @@
 #define KEX_REPORT_CURVE_MASK                0x01     //< Mask containing all curves.
 #define KEX_REPORT_CURVE_RESERVED_MASK       0xFE
 #define KEX_REPORT_CURVE_RESERVED_SHIFT      0x01
-#define KEX_REPORT_NLS_FIELD                 0x04     //< KEX Report field denoting that NLS is available on this node.
 
 #define SECURITY_2_ECHO_OFF                  0x00     //< Value denoting that this is not an echo frame.
 #define SECURITY_2_ECHO_ON                   0x01     //< Value denoting that this is an echo frame.
@@ -81,13 +80,17 @@
 #define SECURITY_2_KEX_SET_SCHEME_POS        3 //< Position of the echo field in the KEX set frame.
 #define SECURITY_2_KEX_SET_CURVE_POS         4 //< Position of the echo field in the KEX set frame.
 #define SECURITY_2_KEX_SET_KEYS_POS          5 //< Position of the echo field in the KEX set frame.
-
+#define SECURITY_2_KEX_REP_ECHO_MASK         0x01 //< Mask for the echo bit in KEX_REPORT
+#define SECURITY_2_KEX_REP_CSA_MASK          0x02 //< Mask for the csa support bit in KEX_REPORT
+#define SECURITY_2_KEX_REP_NLS_MASK          0x04 //< Mask for the nls support bit in KEX_REPORT
 
 /** Following defines are related to the KEX Report Frame. Note: The KEX Report fields are identical to the KEX Set frame. */
 #define SECURITY_2_KEX_REP_ECHO_POS          SECURITY_2_KEX_SET_ECHO_POS   //< Position of the echo field in the KEX report frame.
 #define SECURITY_2_KEX_REP_SCHEME_POS        SECURITY_2_KEX_SET_SCHEME_POS //< Position of the echo field in the KEX report frame.
 #define SECURITY_2_KEX_REP_CURVE_POS         SECURITY_2_KEX_SET_CURVE_POS  //< Position of the echo field in the KEX report frame.
 #define SECURITY_2_KEX_REP_KEYS_POS          SECURITY_2_KEX_SET_KEYS_POS   //< Position of the echo field in the KEX report frame.
+
+#define SECURITY_2_KEX_REPORT_NLS_SUPPORT_BIT_POS           2     //< Position of the NLS support bit within the echo field in the KEX report frame.
 
 /** Following defines are related to the Public Key Frame set. */
 #define SECURITY_2_PUB_KEY_INC_FLAG_POS      2 //< Position of the including node flag in the public key exchange frame.
@@ -106,16 +109,41 @@
 /** Following define is related to the KEX Fail frame. */
 #define SECURITY_2_KEX_FAIL_FAIL_TYPE_POS    2 //< Position of the fail type field in the KEX fail frame.
 
+/** Following define is related to the NLS State Set frame. */
+#define SECURITY_2_V2_NLS_STATE_SET_STATE_POS                       2       //< Position of the state field 
+
+/** Following defines are related to the NLS State Report frame. */
+#define SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD             0x01    //< Field denoting NLS capability of this node
+#define SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD                  0x02    //< Field denoting NLS state of this node
+#define SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS                 2       //< Position of the bitfield 
+
+
+/** Following define is related to the NLS Node List Get frame. */
+#define SECURITY_2_V2_NLS_NODE_LIST_GET_REQUEST_POS                 2       //< Position of the request field
+
+/** Following define are related to the NLS Node List Report frame. */
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_FIELD          0x01    //< Field denoting if its the last node of the list
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS            0x01    //< Position of last node field
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS          2       //< Position of MSB byte of NodeID
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS          3       //< Position of LSB byte of NodeID
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS         4       //< Position of granted keys byte of NodeID
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS            5       //< Position of NLS state byte of NodeID
+
 /** Length definitions */
-#define SECURITY_2_KEX_GET_LENGTH            2
-#define SECURITY_2_KEX_REPORT_LENGTH         6
-#define SECURITY_2_KEX_SET_LENGTH            6
-#define SECURITY_2_PUB_KEY_LENGTH            35
-#define SECURITY_2_NET_KEY_GET_LENGTH        3
-#define SECURITY_2_NET_KEY_REPORT_LENGTH     19
-#define SECURITY_2_NET_KEY_VERIFY_LENGTH     2
-#define SECURITY_2_TRANSFER_END_LENGTH       3
-#define SECURITY_2_KEX_FAIL_LENGTH           3
+#define SECURITY_2_KEX_GET_LENGTH                   2
+#define SECURITY_2_KEX_REPORT_LENGTH                6
+#define SECURITY_2_KEX_SET_LENGTH                   6
+#define SECURITY_2_PUB_KEY_LENGTH                   35
+#define SECURITY_2_NET_KEY_GET_LENGTH               3
+#define SECURITY_2_NET_KEY_REPORT_LENGTH            19
+#define SECURITY_2_NET_KEY_VERIFY_LENGTH            2
+#define SECURITY_2_TRANSFER_END_LENGTH              3
+#define SECURITY_2_KEX_FAIL_LENGTH                  3
+#define SECURITY_2_V2_NLS_STATE_SET_LENGTH          3
+#define SECURITY_2_V2_NLS_STATE_GET_LENGTH          2
+#define SECURITY_2_V2_NLS_STATE_REPORT_LENGTH       3
+#define SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH      2
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LENGTH   7
 
 #define SECURITY_2_EC_PUBLIC_KEY_LENGTH      32
 
