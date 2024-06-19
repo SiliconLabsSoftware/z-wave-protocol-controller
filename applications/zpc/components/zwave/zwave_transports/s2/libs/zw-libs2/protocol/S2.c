@@ -63,6 +63,14 @@ static void
 S2_send_nonce_report(struct S2* p_context, const s2_connection_t* conn, uint8_t flags);
 static int
 S2_is_peernode(struct S2* p_context, const s2_connection_t* peer);
+#ifdef ZW_CONTROLLER
+static void
+S2_send_nls_state_set(struct S2* p_context, s2_connection_t* con, bool nls_active);
+static void
+S2_send_nls_state_get(struct S2* p_context, s2_connection_t* con);
+#endif /* ZW_CONTROLLER */
+static void
+S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con);
 
 static void
 next_mpan_state(struct MPAN* mpan);
