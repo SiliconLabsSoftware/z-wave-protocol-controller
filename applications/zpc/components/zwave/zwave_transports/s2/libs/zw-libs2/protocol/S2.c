@@ -1436,6 +1436,9 @@ static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8
         case NLS_STATE_GET_V2:
           S2_send_nls_state_report(p_context, src);
           break;
+        case NLS_STATE_SET_V2:
+          p_context->nls_state = cmd[SECURITY_2_V2_NLS_STATE_SET_STATE_POS];
+          break;
         default:
           /* Don't validate inclusion_peer.l_node as it may not be initialized yet due to early start */
           ctxt->buf = cmd;
