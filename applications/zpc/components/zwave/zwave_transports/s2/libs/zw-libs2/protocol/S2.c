@@ -64,13 +64,11 @@ S2_send_nonce_report(struct S2* p_context, const s2_connection_t* conn, uint8_t 
 static int
 S2_is_peernode(struct S2* p_context, const s2_connection_t* peer);
 #ifdef ZW_CONTROLLER
-static void
-S2_send_nls_state_set(struct S2* p_context, s2_connection_t* con, bool nls_active);
-static void
-S2_send_nls_state_get(struct S2* p_context, s2_connection_t* con);
+static void S2_send_nls_state_set(struct S2* p_context, s2_connection_t* con, bool nls_active);
+static void S2_send_nls_state_get(struct S2* p_context, s2_connection_t* con);
 #endif /* ZW_CONTROLLER */
-static void
-S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con);
+static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con);
+static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8_t* cmd, uint16_t cmd_length);
 
 static void
 next_mpan_state(struct MPAN* mpan);
@@ -1341,8 +1339,6 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
   uint8_t *plain_text;
   uint16_t plain_text_len;
   decrypt_return_code_t rc;
-  uint8_t n_commands_supported;
-  const uint8_t* classes;
   event_data_t d;
 
   d.d.buf.buffer = buf;
@@ -1367,53 +1363,7 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
     rc = S2_decrypt_msg(ctxt, src, buf, len, &plain_text, &plain_text_len);
     if (rc == AUTH_OK)
     {
-      S2_fsm_post_event(ctxt, GOT_ENC_MSG, &d);
-      if (plain_text_len)
-      {
-        if (plain_text[0] == COMMAND_CLASS_SECURITY_2 &&
-            !(plain_text[1] == SECURITY_2_COMMANDS_SUPPORTED_REPORT))
-        {
-          if(src->rx_options & S2_RXOPTION_MULTICAST) {
-            //S2 encrypted multi-cast frames shouln't exist.
-            return;
-          }
-
-          if (plain_text[1] == SECURITY_2_COMMANDS_SUPPORTED_GET)
-          {
-            ctxt->u.commands_sup_report_buf[0] = COMMAND_CLASS_SECURITY_2;
-            ctxt->u.commands_sup_report_buf[1] = SECURITY_2_COMMANDS_SUPPORTED_REPORT;
-
-            S2_get_commands_supported(src->l_node,src->class_id, &classes, &n_commands_supported);
-
-            if (n_commands_supported + 2 > sizeof(ctxt->u.commands_sup_report_buf))
-            {
-              return;
-            }
-            memcpy(&ctxt->u.commands_sup_report_buf[2], classes, n_commands_supported);
-            /*TODO If ctxt->fsm is busy the report is not going to be sent*/
-            S2_send_data(ctxt, src, ctxt->u.commands_sup_report_buf, n_commands_supported + 2);
-          }
-          /* Don't validate inclusion_peer.l_node as it may not be initialized yet due to early start */
-          else
-          {
-            ctxt->buf = plain_text;
-            ctxt->length = plain_text_len;
-            //Default just send the command to the inclusion fsm
-            s2_inclusion_post_event(ctxt,src);
-          }
-        }
-        else
-        {
-#ifdef ZW_CONTROLLER
-          /* Convert LR key classes to normal before passing out via external API */
-          if (IS_LR_NODE(src->r_node)) {
-            convert_lr_to_normal_keyclass(src);
-          }
-#endif
-          S2_msg_received_event(ctxt, src, plain_text, plain_text_len);
-        }
-
-      }
+      S2_command_handler(ctxt, src, plain_text, plain_text_len);
     }
     else if (rc == AUTH_FAIL)
     {
@@ -1441,6 +1391,69 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
     }
   }
 
+}
+
+static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8_t* cmd, uint16_t cmd_length)
+{
+  CTX_DEF
+  event_data_t d;
+
+  d.d.buf.buffer = cmd;
+  d.d.buf.len = cmd_length;
+  d.con = src;
+
+  uint8_t n_commands_supported;
+  const uint8_t* classes;
+
+  S2_fsm_post_event(ctxt, GOT_ENC_MSG, &d);
+  if (cmd_length)
+  {
+    if (cmd[0] == COMMAND_CLASS_SECURITY_2 &&
+       (cmd[1] != SECURITY_2_COMMANDS_SUPPORTED_REPORT))
+    {
+      if(src->rx_options & S2_RXOPTION_MULTICAST)
+      {
+        //S2 encrypted multi-cast frames shouln't exist.
+        return;
+      }
+
+      switch(cmd[1])
+      {
+        case SECURITY_2_COMMANDS_SUPPORTED_GET_V2:        
+          ctxt->u.commands_sup_report_buf[0] = COMMAND_CLASS_SECURITY_2;
+          ctxt->u.commands_sup_report_buf[1] = SECURITY_2_COMMANDS_SUPPORTED_REPORT;
+
+          S2_get_commands_supported(src->l_node,src->class_id, &classes, &n_commands_supported);
+
+          if (n_commands_supported + 2 > sizeof(ctxt->u.commands_sup_report_buf))
+          {
+            return;
+          }
+          memcpy(&ctxt->u.commands_sup_report_buf[2], classes, n_commands_supported);
+          /*TODO If ctxt->fsm is busy the report is not going to be sent*/
+          S2_send_data(ctxt, src, ctxt->u.commands_sup_report_buf, n_commands_supported + 2);
+          break;
+      
+        default:
+          /* Don't validate inclusion_peer.l_node as it may not be initialized yet due to early start */
+          ctxt->buf = cmd;
+          ctxt->length = cmd_length;
+          //Default just send the command to the inclusion fsm
+          s2_inclusion_post_event(ctxt,src);
+          break;
+      }
+    }
+    else
+    {
+  #ifdef ZW_CONTROLLER
+      /* Convert LR key classes to normal before passing out via external API */
+      if (IS_LR_NODE(src->r_node)) {
+        convert_lr_to_normal_keyclass(src);
+      }
+  #endif
+      S2_msg_received_event(ctxt, src, cmd, cmd_length);
+    }
+  }
 }
 
 void
