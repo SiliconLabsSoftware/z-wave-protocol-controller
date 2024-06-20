@@ -1439,6 +1439,13 @@ static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8
         case NLS_STATE_SET_V2:
           p_context->nls_state = cmd[SECURITY_2_V2_NLS_STATE_SET_STATE_POS];
           break;
+#ifdef ZW_CONTROLLER
+        case NLS_STATE_REPORT_V2:
+          S2_notify_nls_state_report(src->l_node, src->class_id,
+                                     cmd[SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD],
+                                     cmd[SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD]);
+          break;
+#endif // ZW_CONTROLLER
         default:
           /* Don't validate inclusion_peer.l_node as it may not be initialized yet due to early start */
           ctxt->buf = cmd;
@@ -1868,19 +1875,25 @@ static void S2_send_nls_state_set(struct S2* p_context, s2_connection_t* con, bo
 
 static void S2_send_nls_state_get(struct S2* p_context, s2_connection_t* con)
 {
-  p_context->workbuf[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
-  p_context->workbuf[SECURITY_2_COMMAND_POS]        = NLS_STATE_GET_V2;
+  CTX_DEF
+
+  uint8_t plain_text[SECURITY_2_V2_NLS_STATE_GET_LENGTH] = { 0 };
+  plain_text[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
+  plain_text[SECURITY_2_COMMAND_POS]        = NLS_STATE_GET_V2;
 
   S2_send_data(p_context, con, p_context->workbuf, SECURITY_2_V2_NLS_STATE_GET_LENGTH);
 }
 
 static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con)
 {
+  CTX_DEF
+
+  uint8_t plain_text[SECURITY_2_V2_NLS_STATE_REPORT_LENGTH] = { 0 };
   uint8_t nls_bitfield;
-  nls_bitfield = p_context->nls_state ? SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD | SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD : 0; // A node sending this frame will always support NLS, no ?? 
-  p_context->workbuf[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
-  p_context->workbuf[SECURITY_2_COMMAND_POS]        = NLS_STATE_REPORT_V2;
-  p_context->workbuf[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] = nls_bitfield;
+  nls_bitfield = ctxt->nls_state ? SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD | SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD : 0; // A node sending this frame will always support NLS
+  plain_text[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
+  plain_text[SECURITY_2_COMMAND_POS]        = NLS_STATE_REPORT_V2;
+  plain_text[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] = nls_bitfield;
 
   S2_send_data(p_context, con, p_context->workbuf, SECURITY_2_V2_NLS_STATE_GET_LENGTH);
 }

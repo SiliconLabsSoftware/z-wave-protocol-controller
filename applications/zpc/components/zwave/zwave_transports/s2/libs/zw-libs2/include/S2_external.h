@@ -114,6 +114,15 @@ void S2_get_commands_supported(node_t lnode, uint8_t class_id, const uint8_t ** 
 
 
 /**
+ * Notify the reception of a NLS STATE REPORT
+ * \param srcNode Source node ID of the frame
+ * \param class_id the security class this request was on
+ * \param nls_capability The NLS capability of the source node
+ * \param nls_state The NLS state of the source node
+*/
+void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, uint8_t nls_capability, uint8_t nls_state);
+
+/**
  * Makes time in ms available to LibS2
  * \return Timer tick in MS
  */
