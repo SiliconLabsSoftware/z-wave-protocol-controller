@@ -1433,7 +1433,9 @@ static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8
           /*TODO If ctxt->fsm is busy the report is not going to be sent*/
           S2_send_data(ctxt, src, ctxt->u.commands_sup_report_buf, n_commands_supported + 2);
           break;
-      
+        case NLS_STATE_GET_V2:
+          S2_send_nls_state_report(p_context, src);
+          break;
         default:
           /* Don't validate inclusion_peer.l_node as it may not be initialized yet due to early start */
           ctxt->buf = cmd;
