@@ -123,6 +123,13 @@ void S2_get_commands_supported(node_t lnode, uint8_t class_id, const uint8_t ** 
 void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, uint8_t nls_capability, uint8_t nls_state);
 
 /**
+ * Get the NLS nodes list
+ * \param srcNode Source node ID of the frame
+ * \param class_id the security class this request was on
+ * \param request request field. 0 for the first node in the list, 1 for the next node in the list
+ */
+void S2_nls_node_list_get(node_t srcNode, uint8_t class_id, uint8_t request);
+/**
  * Makes time in ms available to LibS2
  * \return Timer tick in MS
  */
