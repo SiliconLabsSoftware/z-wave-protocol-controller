@@ -1434,26 +1434,41 @@ static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8
           S2_send_data(ctxt, src, ctxt->u.commands_sup_report_buf, n_commands_supported + 2);
           break;
         case NLS_STATE_GET_V2:
-          S2_send_nls_state_report(ctxt, src);
+          if (cmd_length == SECURITY_2_V2_NLS_STATE_GET_LENGTH)
+          {
+            S2_send_nls_state_report(ctxt, src);
+          }
           break;
         case NLS_STATE_SET_V2:
-          ctxt->nls_state = cmd[SECURITY_2_V2_NLS_STATE_SET_STATE_POS];
+          if (cmd_length == SECURITY_2_V2_NLS_STATE_SET_LENGTH)
+          {
+            ctxt->nls_state = cmd[SECURITY_2_V2_NLS_STATE_SET_STATE_POS];
+          }
           break;
 #ifdef ZW_CONTROLLER
         case NLS_STATE_REPORT_V2:
-          S2_notify_nls_state_report(src->l_node, src->class_id,
-                                     cmd[SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD],
-                                     cmd[SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD]);
+          if (cmd_length == SECURITY_2_V2_NLS_STATE_REPORT_LENGTH)
+          {
+            S2_notify_nls_state_report(src->l_node, src->class_id,
+                                       cmd[SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD],
+                                       cmd[SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD]);
+          }
           break;
         case NLS_NODE_LIST_GET_V2:
-          S2_nls_node_list_get(src->l_node, src->class_id, cmd[SECURITY_2_V2_NLS_NODE_LIST_GET_REQUEST_POS]);
+          if (cmd_length == SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH)
+          {
+            S2_nls_node_list_get(src->l_node, src->class_id, cmd[SECURITY_2_V2_NLS_NODE_LIST_GET_REQUEST_POS]);
+          }
           break;
         case NLS_NODE_LIST_REPORT_V2:
-          S2_nls_node_list_report(src->l_node, src->class_id,
-                                  cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS],
-                                  (uint16_t) (cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS] << 8 | cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS]),
-                                  cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS],
-                                  cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS])
+          if (cmd_length == SECURITY_2_V2_NLS_NODE_LIST_REPORT_LENGTH)
+          {
+            S2_nls_node_list_report(src->l_node, src->class_id,
+                                    cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS],
+                                    (uint16_t) (cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS] << 8 | cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS]),
+                                    cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS],
+                                    cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS])
+          }
           break;
 #endif // ZW_CONTROLLER
         default:
