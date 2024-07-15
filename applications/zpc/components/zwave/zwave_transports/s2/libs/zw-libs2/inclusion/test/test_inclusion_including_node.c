@@ -4549,7 +4549,7 @@ void test_kex_including_node_csa_unauthenticated_only(void) {
                              0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0};
 
   uint8_t s2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                   0x02, // bit 0 is echo field, bit 1 is CSA.
+                                   0x06, // bit 0 is echo field, bit 1 is CSA.
                                    0x02, // Supported schemes. Scheme 1.
                                    0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                    0x87};// Requested keys bits. Security 2 class 1, Security 0 network key.
@@ -4844,7 +4844,7 @@ void test_kex_including_node_csa_disable(void) {
                              0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0};
 
   uint8_t s2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                   0x02, // bit 0 is echo field, bit 1 is CSA.
+                                   0x06, // bit 0 is echo field, bit 1 is CSA.
                                    0x02, // Supported schemes. Scheme 1.
                                    0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                    0x87};// Requested keys bits. Security 2 class 1, Security 0 network key.
