@@ -203,7 +203,7 @@ void test_kex_joining_node_state_machine_csa(void) {
 
     // Expect a S2 KEX Get to be sent.
     uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                     0x02, // bit 0 is echo field, rest are reserved
+                                     0x06, // reserved | NLS support | Request CSA | Echo
                                      0x02, // Supported schemes. Scheme 0 and 2.
                                      0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                      0x82};// Requested keys bits. Security 2 class 1, Security 0 network key.
@@ -391,7 +391,7 @@ void test_kex_joining_node_state_machine_csa(void) {
     // Selected schemes: scheme 0 and scheme 2.
     // Selected curve25519
     // Keys to exchange, Security2, class 2 - Security0, network key.
-    uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x03, 0x02, 0x01, 0x82};
+    uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x07, 0x02, 0x01, 0x82};
 
     s2_context.buf    = s2_echo_kex_report_frame;
     s2_context.length = sizeof(s2_echo_kex_report_frame);
@@ -505,7 +505,7 @@ void test_kex_joining_node_state_machine_authenticated_lr(void) {
 
     // Expect a S2 KEX Get to be sent.
     uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                     0x00, // bit 0 is echo field, rest are reserved
+                                     0x04, // reserved | NLS support | Request CSA | Echo
                                      0x02, // Supported schemes. Scheme 0 and 2.
                                      0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                      0x02};// Requested keys bits. Security 2 class 3 (Long Range Authenticated uses normal Authenticated bit on the radio)
@@ -667,7 +667,7 @@ void test_kex_joining_node_state_machine_authenticated_lr(void) {
     // Selected schemes: scheme 0 and scheme 2.
     // Selected curve25519
     // Keys to exchange, Security2, class 3 (Long Range Authenticated)
-    uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x01, 0x02, 0x01, 0x02};
+    uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x02};
 
     s2_context.buf    = s2_echo_kex_report_frame;
     s2_context.length = sizeof(s2_echo_kex_report_frame);
@@ -763,7 +763,7 @@ void test_kex_joining_node_state_machine_ssa(void) {
 
     // Expect a S2 KEX Get to be sent.
     uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                     0x00, // bit 0 is echo field, rest are reserved
+                                     0x04, // reserved | NLS support | Request CSA | Echo
                                      0x02, // Supported schemes. Scheme 0 and 2.
                                      0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                      0x82};// Requested keys bits. Security 2 class 1, Security 0 network key.
@@ -951,7 +951,7 @@ void test_kex_joining_node_state_machine_ssa(void) {
     // Selected schemes: scheme 0 and scheme 2.
     // Selected curve25519
     // Keys to exchange, Security2, class 2 - Security0, network key.
-    uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x01, 0x02, 0x01, 0x82};
+    uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x82};
 
     s2_context.buf    = s2_echo_kex_report_frame;
     s2_context.length = sizeof(s2_echo_kex_report_frame);
@@ -1069,7 +1069,7 @@ void test_kex_joining_node_state_machine_unauthenticated(void) {
 
   // Expect a S2 KEX Get to be sent.
   uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                   0x00, // bit 0 is echo field, rest are reserved
+                                   0x04, // reserved | NLS support | Request CSA | Echo
                                    0x02, // Supported schemes. Scheme 0 and 2.
                                    0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                    0x01};// Requested keys bits. Security 2 class 0 key.
@@ -1205,7 +1205,7 @@ void test_kex_joining_node_state_machine_unauthenticated(void) {
   // Selected schemes: scheme 0 and scheme 2.
   // Selected curve25519
   // Keys to exchange, Security2, class 2 - Security0, network key.
-  uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x01, 0x02, 0x01, 0x01};
+  uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x01};
   s2_context.buf    = s2_echo_kex_report_frame;
   s2_context.length = sizeof(s2_echo_kex_report_frame);
   s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
@@ -1492,7 +1492,7 @@ void test_kex_inclusion_timeout_all_states(void) {
     /* State is now S2_AWAITING_KEX_SET */
 
     // Expect a S2 KEX Report to be sent.
-    uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x82};
+    uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
     p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
     p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
@@ -1724,7 +1724,7 @@ void test_kex_inclusion_invalid_frame_order_all_states(void) {
     helper_func_inclusion_initiated_event();
 
     // Expect a S2 KEX Report to be sent.
-    uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x82};
+    uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
     p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
     p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
@@ -1928,7 +1928,7 @@ void test_kex_inclusion_duplicate_frame_all_states(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x82};
+  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
   p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
   p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
@@ -2152,7 +2152,7 @@ void test_kex_inclusion_error_schemes(void) {
     // After including node has sent a KEX Get, a response with above settings is expected.
     s2_kex_report_frame[0] = COMMAND_CLASS_SECURITY_2;
     s2_kex_report_frame[1] = KEX_REPORT;
-    s2_kex_report_frame[2] = 0x00, // bit 0 is echo field, rest are reserved
+    s2_kex_report_frame[2] = 0x04, // reserved | NLS support | Request CSA | Echo
     s2_kex_report_frame[3] = scheme_scheme_fail_test_vector[i][0]; // Supported schemes.
     s2_kex_report_frame[4] = 0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
     s2_kex_report_frame[5] = scheme_scheme_fail_test_vector[i][1]; // Requested keys bit.
@@ -2191,7 +2191,7 @@ void test_kex_inclusion_error_schemes(void) {
     // KEX Set frame received - With an unsupported/not requested scheme set.
     s2_kex_set_frame[0] = COMMAND_CLASS_SECURITY_2;
     s2_kex_set_frame[1] = KEX_SET;
-    s2_kex_set_frame[2] = 0x00, // bit 0 is echo field, rest are reserved
+    s2_kex_set_frame[2] = 0x04, // reserved | NLS support | Request CSA | Echo
     s2_kex_set_frame[3] = scheme_scheme_fail_test_vector[i][2]; // Supported schemes.
     s2_kex_set_frame[4] = 0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
     s2_kex_set_frame[5] = scheme_scheme_fail_test_vector[i][3]; // Requested keys bit.
@@ -2321,7 +2321,7 @@ void test_kex_inclusion_error_curves(void) {
     // After including node has sent a KEX Get, a response with above settings is expected.
     s2_kex_report_frame[0] = COMMAND_CLASS_SECURITY_2;
     s2_kex_report_frame[1] = KEX_REPORT;
-    s2_kex_report_frame[2] = 0x00, // bit 0 is echo field, rest are reserved
+    s2_kex_report_frame[2] = 0x04, // reserved | NLS support | Request CSA | Echo
     s2_kex_report_frame[3] = 0x02; // Supported schemes.
     s2_kex_report_frame[4] = curves_fail_test_vector[i][0], // Supported ECDH Profiles, bit0=1 is curve 25519 value.
     s2_kex_report_frame[5] = 0x01; // Requested keys bit, Class1.
@@ -2437,7 +2437,7 @@ void test_kex_inclusion_error_keys(void) {
     // After including node has sent a KEX Get, a response with above settings is expected.
     s2_kex_report_frame[0] = COMMAND_CLASS_SECURITY_2;
     s2_kex_report_frame[1] = KEX_REPORT;
-    s2_kex_report_frame[2] = 0x00, // bit 0 is echo field, rest are reserved
+    s2_kex_report_frame[2] = 0x04, // reserved | NLS support | Request CSA | Echo
     s2_kex_report_frame[3] = 0x02; // Supported schemes.
     s2_kex_report_frame[4] = 0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
     s2_kex_report_frame[5] = key_request_fail_test_vector[i][0]; // Requested keys bit.
@@ -2536,7 +2536,7 @@ void test_kex_inclusion_error_public_key_including_bit(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent.
-  static uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x83};
+  static uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x83};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
   p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
   p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
@@ -2637,7 +2637,7 @@ void test_kex_inclusion_public_key_reserved_bits(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x82};
+  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
   p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
   p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
@@ -2930,7 +2930,7 @@ void test_kex_inclusion_error_echo_kex_report(void) {
     helper_func_inclusion_initiated_event();
 
     // Expect a S2 KEX Report to be sent.
-    static uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x00};
+    static uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x00};
     S2_kex_report_frame[5] = echo_kex_report_fail_test_vector[i][0];
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
     p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
@@ -3125,7 +3125,7 @@ void test_kex_inclusion_invalid_key_report_set(void) {
     helper_func_inclusion_initiated_event();
 
     // Expect a S2 KEX Report to be sent.
-    static uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x00};
+    static uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x00};
     S2_kex_report_frame[5] = key_report_fail_test_vector[i][0];
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
     p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
@@ -3339,7 +3339,7 @@ void test_kex_inclusion_valid_keys(void) {
     // After including node has sent a KEX Get, a response with above settings is expected.
     s2_kex_report_frame[0] = COMMAND_CLASS_SECURITY_2;
     s2_kex_report_frame[1] = KEX_REPORT;
-    s2_kex_report_frame[2] = 0x00, // bit 0 is echo field, rest are reserved
+    s2_kex_report_frame[2] = 0x04, // reserved | NLS support | Request CSA | Echo
     s2_kex_report_frame[3] = key_request_pass_test_vector[i][0]; // Supported schemes.
     s2_kex_report_frame[4] = 0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
     s2_kex_report_frame[5] = key_request_pass_test_vector[i][1]; // Requested keys bit.
@@ -3430,7 +3430,7 @@ void test_kex_inclusion_timeout_when_idle(void) {
 
   // After timeout we will issue a node inclusion just to insure we were in idle and that a node
   // may be included after timeout.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00,0x02, 0x01, 0x01};
+  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04,0x02, 0x01, 0x01};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
   p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
   p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
@@ -3530,7 +3530,7 @@ void test_kex_inclusion_echo_kex_set_retry(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent.
-  static uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x81};
+  static uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x81};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
   p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
   p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
@@ -3855,7 +3855,7 @@ void test_kex_inclusion_received_kex_fail_frame(void) {
   uint8_t          frame_buffer[UNIT_TEST_BUF_SIZE];
   struct S2        s2_context;
 
-  uint8_t          s2_kex_report_frame[6] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x84};
+  uint8_t          s2_kex_report_frame[6] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x84};
   uint8_t          s2_kex_error_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, 0x01}; // KEX_FAIL_KEX_KEY = 0x01
 
   mock_calls_clear();
@@ -4353,7 +4353,7 @@ void test_kex_inclusion_tx_queue_full(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent. Calls fails as TX is full.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x82};
+  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
   p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
   p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
@@ -4362,7 +4362,7 @@ void test_kex_inclusion_tx_queue_full(void) {
   p_mock->return_code.value     = 0;
 
   // After send done / failed is received the inclusion shoud retry sending the frame and succeed.
-  uint8_t S2_kex_report_frame_retry[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x82};
+  uint8_t S2_kex_report_frame_retry[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
   p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
   p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
@@ -4618,7 +4618,7 @@ void test_kex_inclusion_transfer_end_key_not_verified_TO7507(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x82};
+  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
   p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
   p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
@@ -4786,7 +4786,7 @@ void test_kex_inclusion_transfer_end_key_request_complete_error(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x82};
+  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
   p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
   p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
@@ -4981,7 +4981,7 @@ void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void) 
 
   // Expect a S2 KEX Get to be sent.
   uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                   0x02, // bit 0 is echo field, bit 1 is CSA, rest are reserved
+                                   0x06, // bit 0 is echo field, bit 1 is CSA, rest are reserved
                                    0x02, // Supported schemes. Scheme 0 and 2.
                                    0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                    0x87};// Requested keys bits. Security 2 class 0, 1, 2, Security 0 network key.
@@ -5135,7 +5135,7 @@ void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void) 
   // Selected schemes: scheme 0 and scheme 2.
   // Selected curve25519
   // Keys to exchange, Security2, class 2 - Security0, network key.
-  uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x03, 0x02, 0x01, 0x87};
+  uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x07, 0x02, 0x01, 0x87};
 
   s2_context.buf    = s2_echo_kex_report_frame;
   s2_context.length = sizeof(s2_echo_kex_report_frame);
@@ -5252,7 +5252,7 @@ void test_kex_joining_node_state_machine_retry_all_states(void) {
   {
     // Expect a S2 KEX Get to be sent.
     uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                     0x00, // bit 0 is echo field, rest are reserved
+                                     0x04, // reserved | NLS support | Request CSA | Echo
                                      0x02, // Supported schemes. Scheme 0 and 2.
                                      0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                      0x01};// Requested keys bits. Security 2 class 0 key.
@@ -5422,7 +5422,7 @@ void test_kex_joining_node_state_machine_retry_all_states(void) {
   // Selected schemes: scheme 0 and scheme 2.
   // Selected curve25519
   // Keys to exchange, Security2, class 2 - Security0, network key.
-  uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x01, 0x02, 0x01, 0x01};
+  uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x01};
   s2_context.buf    = s2_echo_kex_report_frame;
   s2_context.length = sizeof(s2_echo_kex_report_frame);
   s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
@@ -5494,7 +5494,7 @@ void helper_func_kex_report_frame_expect(uint8_t scheme, uint8_t curve, uint8_t 
 {
   mock_t         * p_mock;
   // Static to keep in scope for complete test.
-  static uint8_t   s2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x00, 0x00, 0x00};
+  static uint8_t   s2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x00, 0x00, 0x00};
   s2_kex_report_frame[3] = scheme;
   s2_kex_report_frame[4] = curve;
   s2_kex_report_frame[5] = keys;
@@ -5544,7 +5544,7 @@ void helper_func_pub_key_frame(struct S2 *p_context)
 
 void helper_func_echo_kex_report_frame(struct S2 *p_context, uint8_t scheme, uint8_t curve, uint8_t keys)
 {
-  uint8_t s2_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x01, 0x00, 0x00, 0x00}; // This data must be compared to earlier sent data. As long as frames are not defined, this data is unknown.
+  uint8_t s2_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x00, 0x00, 0x00}; // This data must be compared to earlier sent data. As long as frames are not defined, this data is unknown.
   s2_frame[3] = scheme;
   s2_frame[4] = curve;
   s2_frame[5] = keys;
@@ -5627,7 +5627,7 @@ void helper_func_verify_idle_state(struct S2 *p_context, uint8_t scheme, uint8_t
 
   if (!mock_call_used_as_stub(TO_STR(S2_send_frame), "s2_extern_mock.c"))
   {
-    static uint8_t S2_kex_report_frame_retry[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x00, 0x01, 0x00};
+    static uint8_t S2_kex_report_frame_retry[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x00, 0x01, 0x00};
     S2_kex_report_frame_retry[3] = scheme;
     S2_kex_report_frame_retry[5] = keys;
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
@@ -5758,7 +5758,7 @@ void test_kex_joining_node_state_machine_lr_requeesting_classic_keys(void)
 
     // Expect a S2 KEX report frame (libs2 will send it)
     uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                     0x00, // bit 0 is echo field, rest are reserved
+                                     0x04, // reserved | NLS support | Request CSA | Echo
                                      0x02, // Supported schemes. Scheme 0 and 2.
                                      0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                      0x06};// Requested keys bits. Authenticated and Acess keys 
@@ -5874,7 +5874,7 @@ void test_kex_joining_node_state_machine_lr_requeesting_classic_keys(void)
     // Selected schemes: scheme 0 and scheme 2.
     // Selected curve25519
     // Keys to exchange, Security2, class 2 - Security0, network key.
-    uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x01, 0x02, 0x01, 0x06}; // this is being sent from unit test to libs2
+    uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x06}; // this is being sent from unit test to libs2
 
     s2_context.buf    = s2_echo_kex_report_frame;
     s2_context.length = sizeof(s2_echo_kex_report_frame);
@@ -5952,7 +5952,7 @@ void test_kex_joining_node_error_transfer_end(void) {
 
   // Expect a S2 KEX Get to be sent.
   uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                   0x00, // bit 0 is echo field, rest are reserved
+                                   0x04, // reserved | NLS support | Request CSA | Echo
                                    0x02, // Supported schemes. Scheme 0 and 2.
                                    0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                    0x82};// Requested keys bits. Security 2 class 1, Security 0 network key.
@@ -6096,7 +6096,7 @@ void test_kex_joining_node_error_transfer_end(void) {
   // Selected schemes: scheme 0 and scheme 2.
   // Selected curve25519
   // Keys to exchange, Security2, class 2 - Security0, network key.
-  uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x01, 0x02, 0x01, 0x82};
+  uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x82};
 
   s2_context.buf    = s2_echo_kex_report_frame;
   s2_context.length = sizeof(s2_echo_kex_report_frame);

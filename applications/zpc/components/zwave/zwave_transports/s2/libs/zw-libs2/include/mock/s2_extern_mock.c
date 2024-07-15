@@ -80,6 +80,36 @@ uint8_t S2_send_frame(struct S2* ctxt,const s2_connection_t* conn, uint8_t* buf,
   MOCK_CALL_RETURN_VALUE(p_mock, uint8_t);
 }
 
+void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, uint8_t nls_capability, uint8_t nls_state)
+{
+  mock_t * p_mock;
+
+  MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
+  MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
+
+  MOCK_CALL_ACTUAL(p_mock, srcNode, class_id, nls_capability, nls_state);
+}
+
+void S2_nls_node_list_get(node_t srcNode, uint8_t class_id, uint8_t request)
+{
+  mock_t * p_mock;
+
+  MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
+  MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
+
+  MOCK_CALL_ACTUAL(p_mock, srcNode, class_id, request);
+}
+
+void S2_nls_node_list_report(node_t srcNode, uint8_t class_id, uint8_t last_node, uint16_t id_of_node, uint8_t keys_node_bitmask, uint8_t nls_state)
+{
+  mock_t * p_mock;
+
+  MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
+  MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
+
+  MOCK_CALL_ACTUAL(p_mock, srcNode, class_id, last_node, id_of_node, keys_node_bitmask, nls_state);
+}
+
 void S2_set_timeout(struct S2* ctxt, uint32_t interval)
 {
   mock_t * p_mock;

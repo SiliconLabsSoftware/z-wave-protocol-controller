@@ -109,6 +109,15 @@ S2_send_frame(struct S2* ctxt, const s2_connection_t* dst, uint8_t* buf, uint16_
   return 1;
 }
 
+void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, uint8_t nls_capability, uint8_t nls_state)
+{}
+
+void S2_nls_node_list_get(node_t srcNode, uint8_t class_id, uint8_t request)
+{}
+
+void S2_nls_node_list_report(node_t srcNode, uint8_t class_id, uint8_t last_node, uint16_t id_of_node, uint8_t keys_node_bitmask, uint8_t nls_state)
+{}
+
 void
 S2_set_timeout(struct S2* ctxt, uint32_t interval)
 {
