@@ -1,0 +1,75 @@
+{
+    "name": "dev-gui-client",
+    "version": "0.0.0",
+    "description": "Developer GUI for testing and debugging Unify",
+    "private": true,
+    "bin": "./src/client.js",
+    "pkg": {
+        "assets": [
+            "./build/index.html",
+            "./build/**/*",
+            "./assets/*"
+        ]
+    },
+    "devDependencies": {
+        "@emotion/react": "^11.9.3",
+        "@emotion/styled": "^11.9.3",
+        "@mui/material": "^5.9.0",
+        "@types/react": "^17.0.47",
+        "@types/react-color": "^3.0.6",
+        "@types/react-dom": "^17.0.17",
+        "@types/react-qr-reader": "^2.1.4",
+        "@types/react-router-dom": "^5.1.7",
+        "@types/sha1": "^1.1.3",
+        "@types/websocket": "^1.0.5",
+        "env-cmd": "^10.1.0",
+        "pkg": "^5.8.0",
+        "process": "^0.11.10",
+        "react-bootstrap": "^1.6.5",
+        "react-color": "^2.19.3",
+        "react-icons": "^4.4.0",
+        "react-pro-sidebar": "^0.7.1",
+        "react-qr-code": "^2.0.11",
+        "react-qr-reader": "^3.0.0-beta-1",
+        "react-scripts": "^5.0.1",
+        "recharts": "^2.4.1",
+        "sha1": "^1.1.1",
+        "typescript": "^4.7.4",
+        "url-loader": "^4.1.1"
+    },
+    "dependencies": {
+        "ajv": "^8.15.0",
+        "mqtt": "^4.3.7",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-router-dom": "^5.3.3",
+        "react-toastify": "^8.2.0",
+        "websocket": "^1.0.34"
+    },
+    "homepage": "./",
+    "main": "src/main.js",
+    "scripts": {
+        "run-zap": "echo hello",
+        "start": "env-cmd -f ./assets/.env react-scripts start",
+        "start-api": "env-cmd -f ./assets/.env node ./src/dev-gui-api/main.js",
+        "start-react": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test --env=jsdom",
+        "eject": "react-scripts eject",
+        "dev": "nf start -p 3000",
+        "dev-gui-api-build": "pkg ./src/dev-gui-api/main.js --output=dev-gui-api --target=node18-${TARGET} --no-bytecode --public-packages '*' --public",
+        "dev-gui-client-build": "pkg package.json --target=node18-${TARGET} --no-bytecode --public-packages '*' --public"
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
+}

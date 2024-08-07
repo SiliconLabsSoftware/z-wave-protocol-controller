@@ -1,0 +1,3 @@
+SET(GIT_VERSION "ver_1.6.0")
+SET(GIT_VERSION_SHA "f0d8a05d")
+

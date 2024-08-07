@@ -1,0 +1,12 @@
+target_add_unittest(
+  zpc_utils
+  NAME
+  zwave_unid_test
+  SOURCES
+  zwave_unid_test.c)
+target_add_unittest(
+  zpc_utils
+  NAME
+  zpc_converters_test
+  SOURCES
+  zpc_converters_test.c)
