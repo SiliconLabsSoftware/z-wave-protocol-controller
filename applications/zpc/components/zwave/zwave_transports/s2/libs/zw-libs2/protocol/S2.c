@@ -1363,7 +1363,11 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
     rc = S2_decrypt_msg(ctxt, src, buf, len, &plain_text, &plain_text_len);
     if (rc == AUTH_OK)
     {
-      S2_command_handler(ctxt, src, plain_text, plain_text_len);
+      S2_fsm_post_event(ctxt, GOT_ENC_MSG, &d);
+      if(plain_text_len)
+      {
+        S2_command_handler(ctxt, src, plain_text, plain_text_len);
+      }
     }
     else if (rc == AUTH_FAIL)
     {
@@ -1396,100 +1400,90 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
 static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8_t* cmd, uint16_t cmd_length)
 {
   CTX_DEF
-  event_data_t d;
-
-  d.d.buf.buffer = cmd;
-  d.d.buf.len = cmd_length;
-  d.con = src;
 
   uint8_t n_commands_supported;
   const uint8_t* classes;
 
-  S2_fsm_post_event(ctxt, GOT_ENC_MSG, &d);
-  if (cmd_length)
+  if (cmd[0] == COMMAND_CLASS_SECURITY_2 &&
+      (cmd[1] != SECURITY_2_COMMANDS_SUPPORTED_REPORT))
   {
-    if (cmd[0] == COMMAND_CLASS_SECURITY_2 &&
-       (cmd[1] != SECURITY_2_COMMANDS_SUPPORTED_REPORT))
+    if(src->rx_options & S2_RXOPTION_MULTICAST)
     {
-      if(src->rx_options & S2_RXOPTION_MULTICAST)
-      {
-        //S2 encrypted multi-cast frames shouln't exist.
-        return;
-      }
+      //S2 encrypted multi-cast frames shouln't exist.
+      return;
+    }
 
-      switch(cmd[1])
-      {
-        case SECURITY_2_COMMANDS_SUPPORTED_GET_V2:        
-          ctxt->u.commands_sup_report_buf[0] = COMMAND_CLASS_SECURITY_2;
-          ctxt->u.commands_sup_report_buf[1] = SECURITY_2_COMMANDS_SUPPORTED_REPORT;
+    switch(cmd[1])
+    {
+      case SECURITY_2_COMMANDS_SUPPORTED_GET_V2:        
+        ctxt->u.commands_sup_report_buf[0] = COMMAND_CLASS_SECURITY_2;
+        ctxt->u.commands_sup_report_buf[1] = SECURITY_2_COMMANDS_SUPPORTED_REPORT;
 
-          S2_get_commands_supported(src->l_node,src->class_id, &classes, &n_commands_supported);
+        S2_get_commands_supported(src->l_node,src->class_id, &classes, &n_commands_supported);
 
-          if (n_commands_supported + 2 > sizeof(ctxt->u.commands_sup_report_buf))
-          {
-            return;
-          }
-          memcpy(&ctxt->u.commands_sup_report_buf[2], classes, n_commands_supported);
-          /*TODO If ctxt->fsm is busy the report is not going to be sent*/
-          S2_send_data(ctxt, src, ctxt->u.commands_sup_report_buf, n_commands_supported + 2);
-          break;
-        case NLS_STATE_GET_V2:
-          if (cmd_length == SECURITY_2_V2_NLS_STATE_GET_LENGTH)
-          {
-            S2_send_nls_state_report(ctxt, src);
-          }
-          break;
-        case NLS_STATE_SET_V2:
-          if (cmd_length == SECURITY_2_V2_NLS_STATE_SET_LENGTH)
-          {
-            ctxt->nls_state = cmd[SECURITY_2_V2_NLS_STATE_SET_STATE_POS];
-          }
-          break;
+        if (n_commands_supported + 2 > sizeof(ctxt->u.commands_sup_report_buf))
+        {
+          return;
+        }
+        memcpy(&ctxt->u.commands_sup_report_buf[2], classes, n_commands_supported);
+        /*TODO If ctxt->fsm is busy the report is not going to be sent*/
+        S2_send_data(ctxt, src, ctxt->u.commands_sup_report_buf, n_commands_supported + 2);
+        break;
+      case NLS_STATE_GET_V2:
+        if (cmd_length == SECURITY_2_V2_NLS_STATE_GET_LENGTH)
+        {
+          S2_send_nls_state_report(ctxt, src);
+        }
+        break;
+      case NLS_STATE_SET_V2:
+        if (cmd_length == SECURITY_2_V2_NLS_STATE_SET_LENGTH)
+        {
+          ctxt->nls_state = cmd[SECURITY_2_V2_NLS_STATE_SET_STATE_POS];
+        }
+        break;
 #ifdef ZW_CONTROLLER
-        case NLS_STATE_REPORT_V2:
-          if (cmd_length == SECURITY_2_V2_NLS_STATE_REPORT_LENGTH)
-          {
-            S2_notify_nls_state_report(src->l_node, src->class_id,
-                                       cmd[SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD],
-                                       cmd[SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD]);
-          }
-          break;
-        case NLS_NODE_LIST_GET_V2:
-          if (cmd_length == SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH)
-          {
-            S2_nls_node_list_get(src->l_node, src->class_id, cmd[SECURITY_2_V2_NLS_NODE_LIST_GET_REQUEST_POS]);
-          }
-          break;
-        case NLS_NODE_LIST_REPORT_V2:
-          if (cmd_length == SECURITY_2_V2_NLS_NODE_LIST_REPORT_LENGTH)
-          {
-            S2_nls_node_list_report(src->l_node, src->class_id,
-                                    cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS],
-                                    (uint16_t) (cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS] << 8 | cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS]),
-                                    cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS],
-                                    cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS])
-          }
-          break;
+      case NLS_STATE_REPORT_V2:
+        if (cmd_length == SECURITY_2_V2_NLS_STATE_REPORT_LENGTH)
+        {
+          S2_notify_nls_state_report(src->l_node, src->class_id,
+                                      cmd[SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD],
+                                      cmd[SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD]);
+        }
+        break;
+      case NLS_NODE_LIST_GET_V2:
+        if (cmd_length == SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH)
+        {
+          S2_nls_node_list_get(src->l_node, src->class_id, cmd[SECURITY_2_V2_NLS_NODE_LIST_GET_REQUEST_POS]);
+        }
+        break;
+      case NLS_NODE_LIST_REPORT_V2:
+        if (cmd_length == SECURITY_2_V2_NLS_NODE_LIST_REPORT_LENGTH)
+        {
+          S2_nls_node_list_report(src->l_node, src->class_id,
+                                  cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS],
+                                  (uint16_t) (cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS] << 8 | cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS]),
+                                  cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS],
+                                  cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS]);
+        }
+        break;
 #endif // ZW_CONTROLLER
-        default:
-          /* Don't validate inclusion_peer.l_node as it may not be initialized yet due to early start */
-          ctxt->buf = cmd;
-          ctxt->length = cmd_length;
-          //Default just send the command to the inclusion fsm
-          s2_inclusion_post_event(ctxt,src);
-          break;
-      }
+      default:
+        /* Don't validate inclusion_peer.l_node as it may not be initialized yet due to early start */
+        ctxt->buf = cmd;
+        ctxt->length = cmd_length;
+        //Default just send the command to the inclusion fsm
+        s2_inclusion_post_event(ctxt,src);
+        break;
     }
-    else
-    {
-  #ifdef ZW_CONTROLLER
-      /* Convert LR key classes to normal before passing out via external API */
-      if (IS_LR_NODE(src->r_node)) {
-        convert_lr_to_normal_keyclass(src);
-      }
-  #endif
-      S2_msg_received_event(ctxt, src, cmd, cmd_length);
+  }
+  else
+  {
+#ifdef ZW_CONTROLLER /* Convert LR key classes to normal before passing out via external API */
+    if (IS_LR_NODE(src->r_node)) {
+      convert_lr_to_normal_keyclass(src);
     }
+#endif
+    S2_msg_received_event(ctxt, src, cmd, cmd_length);
   }
 }
 
