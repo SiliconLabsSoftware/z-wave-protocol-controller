@@ -1,0 +1,25 @@
+{
+  "name": "DevGui Dotdot Mappers",
+  "version": "Unify-dotdot-v1",
+  "override": "override.js",
+  "helpers": [
+    "addon-helper.js"
+  ],
+  "templates": [
+    {
+      "path": "cluster-types.zapt",
+      "name": "Cluster Types",
+      "output": "src/cluster-types/cluster-types.ts"
+    },
+    {
+      "path": "cluster-type-attributes.zapt",
+      "name": "Cluster Type Attributes",
+      "output": "src/cluster-types/cluster-type-attributes.ts"
+    },
+    {
+      "path": "supported-clusters.zapt",
+      "name": "Supported Clusters",
+      "output": "src/cluster-types/supported-clusters.js"
+    }
+  ]
+}

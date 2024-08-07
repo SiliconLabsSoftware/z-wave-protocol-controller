@@ -1,0 +1,30 @@
+[package]
+name = "uic-gms"
+version = "0.0.1"
+authors = ["root"]
+edition = "2021"
+license = "Copyright 2021 Silicon Laboratories Inc. www.silabs.com\nThe licensor of this software is Silicon Laboratories Inc. Your use of this\nsoftware is governed by the terms of Silicon Labs Master Software License\nAgreement (MSLA) available at\nwww.silabs.com/about-us/legal/master-software-license-agreement. This\nsoftware is distributed to you in Source Code format and is governed by the\nsections of the MSLA applicable to Source Code."
+description = "Unified IOT Group Manager"
+
+[package.metadata.deb]
+name = "uic-gms"
+maintainer = "Silicon Labs"
+maintainer-scripts = "debconf/"
+systemd-units = { enable = true }
+
+[dependencies]
+rusqlite = "0.26.*"
+json = "0.12.*"
+unify_log_sys = { path = "../../components/uic_rust/unify_log_sys" }
+unify_config_sys = { path = "../../components/uic_rust/unify_config_sys" }
+unify_mqtt_sys = {path = "../../components/uic_rust/unify_mqtt_sys" }
+unify_sl_status_sys = {path = "../../components/uic_rust/unify_sl_status_sys" }
+unify_validator_sys = { path = "../../components/uic_rust/unify_validator_sys" }
+unify_application_monitoring_sys = { path = "../../components/uic_rust/unify_application_monitoring_sys" }
+
+[dev-dependencies]
+mockall= "0.11.*"
+
+[build-dependencies]
+unify_build_utils = { path = "../../components/uic_rust/unify_build_utils" }
+anyhow = "*"

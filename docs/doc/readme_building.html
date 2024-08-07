@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unify Build Guide &mdash; Unify Host SDK</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom_styles.css" type="text/css" />
+    <link rel="canonical" href="https://siliconlabs.github.io/UnifySDK/doc/readme_building.html" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/js/charenc.js"></script>
+        <script src="../_static/js/crypt.js"></script>
+        <script src="../_static/js/sha1.js"></script>
+        <script src="../_static/js/html5-qrcode.min.js"></script>
+        <script src="../_static/js/qr_code_scanner.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CMake Integration" href="readme_cmake.html" />
+    <link rel="prev" title="Unify Developer Guide" href="readme_developer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="introduction.html" class="icon icon-home"> Unify
+            <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                ver_1.6.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Unify Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started_unify.html">Getting Started with Unify</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="UnifySDK.html">Unify Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unify_framework_services.html">Framework Services</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="protocol_controllers.html">Protocol Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unify_iot_services.html">IoT Services</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="getting_started_as_developer.html">Getting Started as a Developer</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="readme_developer.html">Unify Developer Guide</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Unify Build Guide</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#build-instructions">Build Instructions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-docker-image">Build Docker Image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#porting-the-unify-host-sdk">Porting the Unify Host SDK</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="readme_cmake.html">CMake Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme_rust.html">Unify Rust Development</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unify_library_overview.html">Unify Library Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="standards/coding-standard.html">Unify Coding Standard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html">API documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme_developer.html#directory-structure-and-file-naming-conventions">Directory Structure and File Naming Conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme_developer.html#clang-format-autoformat-code">Clang-Format (autoformat code)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme_developer.html#pre-commit-hooks">Pre-commit Hooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme_developer.html#creating-a-new-application">Creating a New Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme_developer.html#unify-framework-library-unify-main-and-ipc">Unify Framework Library (Unify Main) and IPC</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#development-platform-recommendations">Development Platform Recommendations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#developing-iot-services">Developing IoT Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#developing-protocol-controllers">Developing protocol controllers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#extend-ucl-clusters">Extend UCL clusters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#overview-of-relations-among-unify-applications">Overview of relations among Unify Applications</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="unify_specifications/index.html">Unify Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system_requirements.html">System Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="standards/known-abbreviations.html">Known Abbreviations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="introduction.html">Unify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <script>
+    $(".wy-side-scroll").append("<div class='github-button'><iframe src='https://ghbtns.com/github-btn.html?user=SiliconLabs&repo=UnifySDK&type=watch&count=true&size=large&v=2' allowtransparency='true' frameborder='0' scrolling='0' width='170' height='30'></iframe></div>");
+</script>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="unify-build-guide">
+<h1>Unify Build Guide<a class="headerlink" href="#unify-build-guide" title="Permalink to this heading"></a></h1>
+<p>This document is intended for systems integrators who are trying to
+cross-compile the Unify components. This guide explains how to build Debian
+packages for the Raspberry Pi.</p>
+<p>For a list of build dependencies please refer to the
+<a class="reference download internal" download="" href="../_downloads/ebacf6f6ae4ee68078bb16454b23247d/Dockerfile"><span class="xref download myst">Dockerfile</span></a>.</p>
+<div class="toctree-wrapper compound">
+</div>
+<section id="build-instructions">
+<h2>Build Instructions<a class="headerlink" href="#build-instructions" title="Permalink to this heading"></a></h2>
+<p>The Unify Host SDK uses a docker container to provide an appropriate build environment.
+As a prerequisite Docker must be installed on the build host.</p>
+<section id="install-docker">
+<h3>Install Docker<a class="headerlink" href="#install-docker" title="Permalink to this heading"></a></h3>
+<p>The following documentation explains how to install and set up Docker.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.docker.com/products/docker-desktop">Windows and OSX</a></p></li>
+<li><p><a class="reference external" href="https://docs.docker.com/engine/install/debian/">Debian Linux</a></p></li>
+<li><p><a class="reference external" href="https://docs.docker.com/engine/install/ubuntu/">Ubuntu Linux</a></p></li>
+</ul>
+</section>
+<section id="getting-the-source">
+<h3>Getting the source<a class="headerlink" href="#getting-the-source" title="Permalink to this heading"></a></h3>
+<p>There are two ways to obtain the Unify source code, the simplest way is
+to download it from the <a class="reference external" href="https://github.com/SiliconLabs/UnifySDK/releases">GitHub release assets</a>.
+Alternatively, the source code repository can be cloned using git. Note that
+git clients need to have <em>git-lfs</em> support.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git@github.com:SiliconLabs/UnifySDK.git
+</pre></div>
+</div>
+<blockquote>
+<div><p>Note: During the build, the CMake build system will fetch additional required dependencies
+online.</p>
+</div></blockquote>
+</section>
+</section>
+<section id="build-docker-image">
+<h2>Build Docker Image<a class="headerlink" href="#build-docker-image" title="Permalink to this heading"></a></h2>
+<p>The <em>Dockerfile</em>  in <code class="docutils literal notranslate"><span class="pre">docker/Dockerfile</span></code> supports building all target applications
+(protocol controllers, UPVL, Developer GUI, etc.).
+To build the Docker image with support for the 64-bit Bookworm reference platform, you can run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./docker/build_docker.sh<span class="w"> </span>arm64<span class="w"> </span>uic_arm64
+</pre></div>
+</div>
+<p>This will build the Unify toolchain docker images and name it <em>uic_arm64</em>.</p>
+<section id="cross-compiling-for-raspberry-pi-using-docker">
+<h3>Cross Compiling for Raspberry Pi Using Docker<a class="headerlink" href="#cross-compiling-for-raspberry-pi-using-docker" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>The Raspberry Pi build is supported by Raspberry Pi OS Bookworm 64-bit.</p>
+</div></blockquote>
+<p>To start a Docker container with a pre-configured build system, run the
+following command from the root of the Unify source directory</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="nv">$PWD</span>:<span class="nv">$PWD</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span>uic_arm64
+</pre></div>
+</div>
+<p>Once the Docker container is started, a new prompt will be shown. Building
+binaries and Debian packages is done as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>build
+<span class="nb">cd</span><span class="w"> </span>build
+cmake<span class="w"> </span>-GNinja<span class="w"> </span>-DCMAKE_TOOLCHAIN_FILE<span class="o">=</span>../cmake/arm64_debian.cmake<span class="w"> </span>..
+ninja<span class="w">               </span><span class="c1"># Build binaries</span>
+ninja<span class="w"> </span>deb<span class="w">           </span><span class="c1"># Build Debian Installers (optional)</span>
+</pre></div>
+</div>
+<p>After running this, the <code class="docutils literal notranslate"><span class="pre">zpc</span></code> binary is located in <code class="docutils literal notranslate"><span class="pre">./build/applications/zpc/zpc</span></code>.</p>
+<p>The Debian packages are available as a Zip of all the Debian packages at <code class="docutils literal notranslate"><span class="pre">./build/deb-packages/unify_&lt;version&gt;_arm64.zip</span></code>.</p>
+</section>
+<section id="disabling-the-build-of-a-unify-application">
+<h3>Disabling the build of a Unify Application<a class="headerlink" href="#disabling-the-build-of-a-unify-application" title="Permalink to this heading"></a></h3>
+<p>To disable build for various applications in Unify build, CMake environment can be
+set to OFF for that application while running CMAKE in
+cmake/include/build_permutations.cmake file</p>
+<p>This can also be achieved by passing those variables on the command line with CMAKE</p>
+<p>For e.g. to disable build for ZigPC following command can be used.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>cmake<span class="w"> </span>-GNinja<span class="w"> </span>-DBUILD_ZIGPC<span class="o">=</span>OFF<span class="w"> </span>..
+</pre></div>
+</div>
+</section>
+<section id="advanced-feature-run-raspberry-pi-unit-tests-in-docker-on-the-host">
+<h3>Advanced Feature - Run Raspberry Pi Unit Tests in Docker on the Host<a class="headerlink" href="#advanced-feature-run-raspberry-pi-unit-tests-in-docker-on-the-host" title="Permalink to this heading"></a></h3>
+<p>When cross compiling the Unify, the unit tests are build for the target platform ie
+<code class="docutils literal notranslate"><span class="pre">arm64</span></code>. Using QEMU it is possible to run those binaries directly within Docker on the
+Host machine.</p>
+<p>To enable running the unit tests inside Docker on the Host machine, run the
+following command in the Host (not within the docker container).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--user<span class="w"> </span><span class="m">0</span><span class="w"> </span>--privileged<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span>uic_arm64<span class="w"> </span>update-binfmts<span class="w"> </span>--enable
+</pre></div>
+</div>
+<blockquote>
+<div><p>NB: This command needs to be run once after each restart of the Host machine.</p>
+</div></blockquote>
+<p>After enabling this, unit tests can be run by issuing the following command in
+the <code class="docutils literal notranslate"><span class="pre">uic_arm64</span></code> docker image in the build directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ninja<span class="w"> </span><span class="nb">test</span>
+ninja<span class="w"> </span>cargo_test
+</pre></div>
+</div>
+</section>
+</section>
+<section id="porting-the-unify-host-sdk">
+<h2>Porting the Unify Host SDK<a class="headerlink" href="#porting-the-unify-host-sdk" title="Permalink to this heading"></a></h2>
+<p>Porting the Unify SDK to a new platform using Debian Linux should be straightforward.
+However, if components are ported to other Linux distributions it may
+be necessary to update the startup scripts of the components. The Debian
+packages provided with the Unify Host SDK all use the system service <code class="docutils literal notranslate"><span class="pre">systemd</span></code> which
+takes care of startup and shutdown of the components. For example, the file
+<a class="reference download internal" download="" href="../_downloads/c2ec0a504bd81a82cc1294f6af00b6fe/uic-zpc.service"><span class="xref download myst">uic-zpc.service</span></a> is as
+systemd config script. When porting to a new Linux system the systemd config
+files should be used for reference. It is very important that all the Unify
+components runs as a dedicated system user to prevent attackers from
+compromising the entire system. Note that most components need write access
+to parts of the filesystem. The default path for writing files is
+<code class="docutils literal notranslate"><span class="pre">/var/lib/uic</span></code>.</p>
+</section>
+<section id="miscellaneous">
+<h2>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this heading"></a></h2>
+<ul>
+<li><p><em>The “CRLF” issue</em></p>
+<p>After running <code class="docutils literal notranslate"><span class="pre">ninja</span></code> inside the Docker container you may explore a lot of
+<code class="docutils literal notranslate"><span class="pre">expected</span> <span class="pre">primary</span> <span class="pre">expression</span> <span class="pre">before</span> <span class="pre">'case:'</span></code> errors. This is because of Windows
+line endings (CRLF vs Linux’s CR-only).</p>
+<p>Workaround: run in your repository folder</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>config<span class="w"> </span>--global<span class="w"> </span>core.autocrlf<span class="w"> </span>input
+git<span class="w"> </span>rm<span class="w"> </span>--cached<span class="w"> </span>-r<span class="w"> </span>.
+git<span class="w"> </span>reset<span class="w"> </span>--hard
+</pre></div>
+</div>
+<p>Explanations:
+<a class="reference external" href="https://stackoverflow.com/questions/1967370/git-replacing-lf-with-crlf">Stackoverflow solution</a>.</p>
+</li>
+<li><p><em>The “Docker directory path” issue</em></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>user@winmachine<span class="w"> </span>MINGW64<span class="w"> </span>~/path/to/UnifySDK<span class="w"> </span><span class="o">(</span>main<span class="o">)</span>
+$<span class="w"> </span>winpty<span class="w"> </span>docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--rm<span class="w">  </span>-v<span class="w"> </span><span class="nv">$PWD</span>:<span class="nv">$PWD</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span>uic_arm64
+docker:<span class="w"> </span>Error<span class="w"> </span>response<span class="w"> </span>from<span class="w"> </span>daemon:<span class="w"> </span>the<span class="w"> </span>working<span class="w"> </span>directory<span class="w"> </span><span class="s1">&#39;C:/path/to/UnifySDK&#39;</span><span class="w"> </span>is<span class="w"> </span>invalid,<span class="w"> </span>it<span class="w"> </span>needs<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>an<span class="w"> </span>absolute<span class="w"> </span>path.
+See<span class="w"> </span><span class="s1">&#39;docker run --help&#39;</span>.
+</pre></div>
+</div>
+<p>Workaround: add the <code class="docutils literal notranslate"><span class="pre">/</span></code> symbol before $PWD:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>user@winmachine<span class="w"> </span>MINGW64<span class="w"> </span>~/path/to/UnifySDK<span class="w"> </span><span class="o">(</span>main<span class="o">)</span>
+$<span class="w"> </span>winpty<span class="w"> </span>docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--rm<span class="w">  </span>-v/<span class="nv">$PWD</span>:/<span class="nv">$PWD</span><span class="w"> </span>-w<span class="w"> </span>/<span class="nv">$PWD</span><span class="w"> </span>uic_arm64
+user@dockercontainer:/c/path/to/UnifySDK$
+</pre></div>
+</div>
+<p>Explanation:
+<a class="reference external" href="https://stackoverflow.com/questions/40213524/using-absolute-path-with-docker-run-command-not-working#comment109755641_40214650">Stackoverflow solution</a>.</p>
+</li>
+<li><p><em>“winpty” issue</em></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>user@winmachine<span class="w"> </span>MINGW64<span class="w"> </span>~/path/to/UnifySDK<span class="w"> </span><span class="o">(</span>main<span class="o">)</span>
+$<span class="w"> </span>docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--rm<span class="w">  </span>-v<span class="w"> </span><span class="nv">$PWD</span>:<span class="nv">$PWD</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span>uic_arm64
+the<span class="w"> </span>input<span class="w"> </span>device<span class="w"> </span>is<span class="w"> </span>not<span class="w"> </span>a<span class="w"> </span>TTY.<span class="w">  </span>If<span class="w"> </span>you<span class="w"> </span>are<span class="w"> </span>using<span class="w"> </span>mintty,<span class="w"> </span>try<span class="w"> </span>prefixing<span class="w"> </span>the<span class="w"> </span><span class="nb">command</span><span class="w"> </span>with<span class="w"> </span><span class="s1">&#39;winpty&#39;</span>
+</pre></div>
+</div>
+<p>Workaround: add a <code class="docutils literal notranslate"><span class="pre">winpty</span></code> prefix to the command:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>winpty<span class="w"> </span>docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--rm<span class="w">  </span>-v<span class="w"> </span><span class="nv">$PWD</span>:<span class="nv">$PWD</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span>uic_arm64
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+    <hr/>
+    <p>Copyright © 2023 Silicon Laboratories. All rights reserved.</p>
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

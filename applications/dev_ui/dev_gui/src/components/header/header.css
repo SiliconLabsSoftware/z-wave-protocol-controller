@@ -1,0 +1,73 @@
+.header {
+    text-align: center;
+    border-bottom: 1px solid #dddddd;
+    display: inline-block;
+    width: 100%;
+    background: #f7f7f7;
+    cursor: pointer;
+    line-height: 15px;
+    height: 165px;
+    transition: height 0.3s;
+    overflow: hidden;
+    position: fixed;
+    z-index: 4;
+    min-width: 720px;
+}
+
+.header.collapsed {
+    height: 59px;
+    transition: height 0.3s;
+}
+
+.header h4 {
+    margin-bottom: 0;
+}
+
+.logo img {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+img {
+    height: 71px;
+    transition: 0.4s;
+}
+
+.collapsed img {
+    height: 40px;
+    transition: 0.3s;
+}
+
+.logo-title {
+    transition: 0.3s;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 20px;
+}
+
+.header.collapsed .logo-title {
+    font-size: 0px;
+}
+
+.mobile .collapsed img {
+    height: 70px;
+}
+
+.mobile .header {
+    line-height: 40px;
+    height: 255px;
+}
+
+.mobile .header.collapsed {
+    height: 110px;
+}
+
+.mobile .version {
+    font-size: 25px;
+}
+
+@media screen and (max-width: 720px) {
+    .logo-container {
+        display: none;
+    }
+}

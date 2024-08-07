@@ -1,0 +1,7 @@
+add_library(uic_contiki_test_shared SHARED $<TARGET_OBJECTS:uic_contiki>)
+target_link_libraries(uic_contiki_test_shared PRIVATE uic_contiki unify)
+
+target_add_unittest(uic_contiki_test_shared
+NAME uic_contiki_test
+SOURCES test_contiki.c
+DEPENDS uic_contiki_stub)
