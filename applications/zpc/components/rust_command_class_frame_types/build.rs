@@ -11,30 +11,23 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 use std::env;
-use std::path::PathBuf;
 use std::process::Command;
 
 fn main() {
     let out_dir = env::var_os("OUT_DIR").unwrap();
     //TODO I'm not quite sure how to set this in a nice way
     //env::var_os("XML_FILE").unwrap();
-    let xml = PathBuf::from("../zwave_command_classes/assets/ZWave_custom_cmd_classes.xml");
-    assert!(xml.exists());
+    let xml_file = "../zwave_command_classes/assets/ZWave_custom_cmd_classes.xml";
 
-    let py = PathBuf::from("zwave_rust_cc_gen.py");
-    assert!(py.exists());
-
-    which::which("python3").expect("Python was not found");
-    let _ = Command::new("python3")
-        .arg(py.to_str().unwrap())
+    Command::new("python3")
+        .arg("zwave_rust_cc_gen.py")
         .arg("--xml")
-        .arg(&xml.to_str().unwrap())
+        .arg(&xml_file)
         .arg("--outdir")
         .arg(&out_dir)
-        .output()
-        .expect(&format!("Failed to run python script {}", py.display()));
-    // println!("cargo:rerun-if-changed=zwave_rust_cc_gen.py");
-    println!("cargo:rerun-if-changed={}", py.to_str().unwrap());
+        .status()
+        .unwrap();
+    println!("cargo:rerun-if-changed=zwave_rust_cc_gen.py");
     // there is an fingerprinting bug in cargo, the path is constructed wrong triggering rebuilds of this package
     // println!("cargo:rerun-if-changed={:?}", &format!("{}/{}",std::env::var("CARGO_MANIFEST_DIR").unwrap(), xml_file));
 }
