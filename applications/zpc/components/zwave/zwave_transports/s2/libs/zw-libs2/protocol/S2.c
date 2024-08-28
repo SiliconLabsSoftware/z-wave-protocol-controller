@@ -1434,7 +1434,7 @@ static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8
           S2_send_data(ctxt, src, ctxt->u.commands_sup_report_buf, n_commands_supported + 2);
           break;
         case NLS_STATE_GET_V2:
-          S2_send_nls_state_report(p_context, src);
+          S2_send_nls_state_report(ctxt, src);
           break;
         case NLS_STATE_SET_V2:
           p_context->nls_state = cmd[SECURITY_2_V2_NLS_STATE_SET_STATE_POS];
