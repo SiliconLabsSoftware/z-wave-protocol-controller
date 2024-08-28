@@ -1437,7 +1437,7 @@ static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8
           S2_send_nls_state_report(ctxt, src);
           break;
         case NLS_STATE_SET_V2:
-          p_context->nls_state = cmd[SECURITY_2_V2_NLS_STATE_SET_STATE_POS];
+          ctxt->nls_state = cmd[SECURITY_2_V2_NLS_STATE_SET_STATE_POS];
           break;
 #ifdef ZW_CONTROLLER
         case NLS_STATE_REPORT_V2:
@@ -1891,7 +1891,7 @@ static void S2_send_nls_state_get(struct S2* p_context, s2_connection_t* con)
   plain_text[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
   plain_text[SECURITY_2_COMMAND_POS]        = NLS_STATE_GET_V2;
 
-  S2_send_data(p_context, con, p_context->workbuf, SECURITY_2_V2_NLS_STATE_GET_LENGTH);
+  S2_send_data(ctxt, con, ctxt->workbuf, SECURITY_2_V2_NLS_STATE_GET_LENGTH);
 }
 
 static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con)
