@@ -1905,5 +1905,5 @@ static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con)
   plain_text[SECURITY_2_COMMAND_POS]        = NLS_STATE_REPORT_V2;
   plain_text[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] = nls_bitfield;
 
-  S2_send_data(p_context, con, p_context->workbuf, SECURITY_2_V2_NLS_STATE_GET_LENGTH);
+  S2_send_data(ctxt, con, ctxt->workbuf, SECURITY_2_V2_NLS_STATE_GET_LENGTH);
 }
