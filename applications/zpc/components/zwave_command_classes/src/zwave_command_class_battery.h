@@ -38,7 +38,7 @@ extern "C" {
  * @return sl_status_t SL_STATUS_OK on success.
  * 
  */
-sl_status_t zwave_command_class_battery_control_init();
+sl_status_t zwave_command_class_battery_init();
 
 #ifdef __cplusplus
 }

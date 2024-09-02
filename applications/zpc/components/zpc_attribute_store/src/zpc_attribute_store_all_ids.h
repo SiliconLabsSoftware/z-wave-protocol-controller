@@ -14,7 +14,6 @@
 #include "unify_dotdot_defined_attribute_types.h"
 
 #include "zwave_COMMAND_CLASS_BASIC_TARIFF_INFO_attribute_id.h"
-#include "zwave_COMMAND_CLASS_BATTERY_attribute_id.h"
 #include "zwave_COMMAND_CLASS_SENSOR_BINARY_attribute_id.h"
 #include "zwave_COMMAND_CLASS_DOOR_LOCK_attribute_id.h"
 #include "zwave_COMMAND_CLASS_INDICATOR_attribute_id.h"

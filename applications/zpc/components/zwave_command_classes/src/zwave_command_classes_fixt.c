@@ -89,6 +89,7 @@ sl_status_t zwave_command_classes_init()
   status |= zwave_command_class_association_init();
   status |= zwave_command_class_barrier_operator_init();
   status |= zwave_command_class_basic_init();
+  status |= zwave_command_class_battery_init();
   status |= zwave_command_class_binary_switch_init();
   status |= zwave_command_class_central_scene_init();
   status |= zwave_command_class_configuration_init();
@@ -126,7 +127,6 @@ sl_status_t zwave_command_classes_init()
   status |= zwave_command_class_zwave_plus_info_init();
 
   // Auto-generated handlers with overrides
-  status |= zwave_command_class_battery_control_init();
   status |= zwave_command_class_indicator_control_init();
   status |= zwave_command_class_manufacturer_specific_control_init();
 
