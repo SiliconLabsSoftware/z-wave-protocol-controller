@@ -28,6 +28,8 @@
 struct S2 the_context;
 #endif
 
+#define CTX_DEF struct S2* ctxt = p_context;
+
 CTR_DRBG_CTX s2_ctr_drbg;
 
 #ifdef __GNUC__
@@ -126,15 +128,16 @@ static uint32_t convert_key_slot_to_keyid(uint8_t slot_id)
 static struct MPAN*
 find_mpan_by_group_id(struct S2* p_context, node_t owner_id, uint8_t group_id, uint8_t create_new)
 {
+  CTX_DEF
   uint8_t rnd[RANDLEN];
   int i;
 
   for (i = 0; i < MPAN_TABLE_SIZE; i++)
   {
-    if ((p_context->mpan_table[i].state != MPAN_NOT_USED) && (p_context->mpan_table[i].group_id == group_id)
-        && (p_context->mpan_table[i].owner_id == owner_id) && ((1 << p_context->mpan_table[i].class_id) &  p_context->loaded_keys))
+    if ((ctxt->mpan_table[i].state != MPAN_NOT_USED) && (ctxt->mpan_table[i].group_id == group_id)
+        && (ctxt->mpan_table[i].owner_id == owner_id) && ((1 << ctxt->mpan_table[i].class_id) &  ctxt->loaded_keys))
     {
-      return &p_context->mpan_table[i];
+      return &ctxt->mpan_table[i];
     }
   }
   if (!create_new)
@@ -147,7 +150,7 @@ find_mpan_by_group_id(struct S2* p_context, node_t owner_id, uint8_t group_id, u
   /*Allocate new entry if possible */
   for (i = 0; i < MPAN_TABLE_SIZE; i++)
   {
-    if (p_context->mpan_table[i].state == MPAN_NOT_USED)
+    if (ctxt->mpan_table[i].state == MPAN_NOT_USED)
     {
       break;
     }
@@ -162,29 +165,30 @@ find_mpan_by_group_id(struct S2* p_context, node_t owner_id, uint8_t group_id, u
     i = rnd[0] % MPAN_TABLE_SIZE;
   }
 
-  p_context->mpan_table[i].state = owner_id ? MPAN_MOS : MPAN_SET;
-  p_context->mpan_table[i].group_id = group_id;
-  p_context->mpan_table[i].owner_id = owner_id;
-  p_context->mpan_table[i].class_id = p_context->peer.class_id; //Here we assume that peer is set...
+  ctxt->mpan_table[i].state = owner_id ? MPAN_MOS : MPAN_SET;
+  ctxt->mpan_table[i].group_id = group_id;
+  ctxt->mpan_table[i].owner_id = owner_id;
+  ctxt->mpan_table[i].class_id = ctxt->peer.class_id; //Here we assume that peer is set...
 
-  AES_CTR_DRBG_Generate(&s2_ctr_drbg, p_context->mpan_table[i].inner_state);
+  AES_CTR_DRBG_Generate(&s2_ctr_drbg, ctxt->mpan_table[i].inner_state);
   ;
 
-  return &p_context->mpan_table[i];
+  return &ctxt->mpan_table[i];
 }
 
 static struct SPAN  *
 find_span_by_node(struct S2* p_context, const s2_connection_t* con)
 {
+  CTX_DEF
   uint8_t rnd[RANDLEN];
   int i;
   /* Locate existing entry */
   for (i = 0; i < SPAN_TABLE_SIZE; i++)
   {
-    if (p_context->span_table[i].state != SPAN_NOT_USED && (p_context->span_table[i].lnode == con->l_node)
-        && (p_context->span_table[i].rnode == con->r_node))
+    if (ctxt->span_table[i].state != SPAN_NOT_USED && (ctxt->span_table[i].lnode == con->l_node)
+        && (ctxt->span_table[i].rnode == con->r_node))
     {
-      return &p_context->span_table[i];
+      return &ctxt->span_table[i];
     }
   }
 
@@ -193,7 +197,7 @@ find_span_by_node(struct S2* p_context, const s2_connection_t* con)
   /*Allocate new entry if possible */
   for (i = 0; i < SPAN_TABLE_SIZE; i++)
   {
-    if (p_context->span_table[i].state == SPAN_NOT_USED)
+    if (ctxt->span_table[i].state == SPAN_NOT_USED)
     {
       break;
     }
@@ -206,11 +210,12 @@ find_span_by_node(struct S2* p_context, const s2_connection_t* con)
     i = rnd[0] % SPAN_TABLE_SIZE;
   }
 
-  p_context->span_table[i].state = SPAN_NO_SEQ;
-  p_context->span_table[i].lnode = con->l_node;
-  p_context->span_table[i].rnode = con->r_node;
-  p_context->span_table[i].tx_seq = rnd[1];
-  return &p_context->span_table[i];
+  ctxt->span_table[i].state = SPAN_NO_SEQ;
+  ctxt->span_table[i].lnode = con->l_node;
+  ctxt->span_table[i].rnode = con->r_node;
+  ctxt->span_table[i].tx_seq = rnd[1];
+
+  return &ctxt->span_table[i];
 }
 
 /**
@@ -219,7 +224,9 @@ find_span_by_node(struct S2* p_context, const s2_connection_t* con)
 static int
 S2_span_ok(struct S2* p_context, const s2_connection_t* con)
 {
-  struct SPAN  *span = find_span_by_node(p_context, con);
+  CTX_DEF
+
+  struct SPAN  *span = find_span_by_node(ctxt, con);
 
   if (span)
   {
@@ -233,20 +240,21 @@ S2_span_ok(struct S2* p_context, const s2_connection_t* con)
 }
 
 /*
- * Send nonce get to p_context->peer
+ * Send nonce get to ctxt->peer
  */
 static void
 S2_send_nonce_get(struct S2* p_context)
 {
+  CTX_DEF
   static uint8_t nonce_get[] =
     { COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_GET, 0 };
 
-  struct SPAN  *span = find_span_by_node(p_context, &p_context->peer);
+  struct SPAN  *span = find_span_by_node(ctxt, &ctxt->peer);
 
   assert(span);
 
   nonce_get[2] = span->tx_seq;
-  S2_send_raw(p_context, nonce_get, 3);
+  S2_send_raw(ctxt, nonce_get, 3);
 }
 
 /**
@@ -255,7 +263,8 @@ S2_send_nonce_get(struct S2* p_context)
 static int
 S2_verify_seq(struct S2* p_context, const s2_connection_t* peer, uint8_t seq)
 {
-  struct SPAN  *span = find_span_by_node(p_context, peer);
+  CTX_DEF
+  struct SPAN  *span = find_span_by_node(ctxt, peer);
   /* If this is a completely new entry, we will just copy seq number
      and accept it.
      To allow detection of old frames in the network, we use a window
@@ -297,10 +306,11 @@ S2_verify_seq(struct S2* p_context, const s2_connection_t* peer, uint8_t seq)
 static uint8_t
 S2_is_node_mos(struct S2* p_context, node_t nodeid)
 {
+  CTX_DEF
   uint8_t i;
   for (i = 0; i < MOS_LIST_LENGTH; i++)
   {
-    if (p_context->mos_list[i].node_id == nodeid)
+    if (ctxt->mos_list[i].node_id == nodeid)
     {
       return 1;
     }
@@ -308,7 +318,7 @@ S2_is_node_mos(struct S2* p_context, node_t nodeid)
   return 0;
 
 }
-/* Add MPAN extensions for the current p_context->peer by checks our mpan table
+/* Add MPAN extensions for the current ctxt->peer by checks our mpan table
  * for nodes who is reported MOS.
  *
  *
@@ -316,6 +326,7 @@ S2_is_node_mos(struct S2* p_context, node_t nodeid)
 static uint16_t
 S2_add_mpan_extensions(struct S2* p_context, uint8_t* ext_data)
 {
+  CTX_DEF
   uint8_t i, k;
   uint8_t *p;
   struct MPAN* mpan;
@@ -324,9 +335,9 @@ S2_add_mpan_extensions(struct S2* p_context, uint8_t* ext_data)
   k = 0;
   for (i = 0; i < MOS_LIST_LENGTH; i++)
   {
-    if (p_context->mos_list[i].node_id == p_context->peer.r_node)
+    if (ctxt->mos_list[i].node_id == ctxt->peer.r_node)
     {
-      mpan = find_mpan_by_group_id(p_context, 0, p_context->mos_list[i].group_id, 0);
+      mpan = find_mpan_by_group_id(ctxt, 0, ctxt->mos_list[i].group_id, 0);
       if (!mpan)
       {
         // could not find MPAN
@@ -335,11 +346,11 @@ S2_add_mpan_extensions(struct S2* p_context, uint8_t* ext_data)
       k++;
       *p++ = 19;
       *p++ = S2_MSG_EXTHDR_TYPE_MPAN | S2_MSG_EXTHDR_MORE_FLAG | S2_MSG_EXTHDR_CRITICAL_FLAG;
-      *p++ = p_context->mos_list[i].group_id;
+      *p++ = ctxt->mos_list[i].group_id;
       memcpy(p, mpan->inner_state, 16);
 
       //Remove the node from the mos list
-      p_context->mos_list[i].node_id = 0;
+      ctxt->mos_list[i].node_id = 0;
 
     }
   }
@@ -353,11 +364,12 @@ S2_add_mpan_extensions(struct S2* p_context, uint8_t* ext_data)
 }
 
 /**
- * Encrypt a single cast message stored in p_context and send it
+ * Encrypt a single cast message stored in ctxt and send it
  */
 void
 S2_encrypt_and_send(struct S2* p_context)
 {
+  CTX_DEF
   uint8_t aad[64];
   uint16_t aad_len;
   uint8_t ei_sender[RANDLEN]; //Note we are actually only using the first 16 bytes
@@ -373,9 +385,9 @@ S2_encrypt_and_send(struct S2* p_context)
   uint8_t n_ext;
   uint16_t msg_len;
 
-  struct SPAN  *span = find_span_by_node(p_context, &p_context->peer);
+  struct SPAN  *span = find_span_by_node(ctxt, &ctxt->peer);
 
-  msg = p_context->workbuf;
+  msg = ctxt->workbuf;
   msg[0] = COMMAND_CLASS_SECURITY_2;
   msg[1] = SECURITY_2_MESSAGE_ENCAPSULATION;
   msg[2] = span->tx_seq;
@@ -393,9 +405,9 @@ S2_encrypt_and_send(struct S2* p_context)
     AES_CTR_DRBG_Generate(&s2_ctr_drbg, ei_sender);
     memcpy(ei_receiver, span->d.r_nonce, sizeof(ei_receiver));
 
-    next_nonce_instantiate(&span->d.rng, ei_sender, ei_receiver, p_context->sg[p_context->peer.class_id].nonce_key);
+    next_nonce_instantiate(&span->d.rng, ei_sender, ei_receiver, ctxt->sg[ctxt->peer.class_id].nonce_key);
 
-    span->class_id = p_context->peer.class_id;
+    span->class_id = ctxt->peer.class_id;
     span->state = SPAN_NEGOTIATED; //TODO is it better to set this on send_data complete?
 
     *ext_data++ = 2 + sizeof(span->d.r_nonce); //Extension length
@@ -406,32 +418,32 @@ S2_encrypt_and_send(struct S2* p_context)
     n_ext++;
   }
 
-  if ((p_context->peer.tx_options & (S2_TXOPTION_SINGLECAST_FOLLOWUP | S2_TXOPTION_FIRST_SINGLECAST_FOLLOWUP)) && p_context->mpan)
+  if ((ctxt->peer.tx_options & (S2_TXOPTION_SINGLECAST_FOLLOWUP | S2_TXOPTION_FIRST_SINGLECAST_FOLLOWUP)) && ctxt->mpan)
   {
 
     /* If the destination is mos, then we will add the MPAN extension instead */
-    if (!S2_is_node_mos(p_context, p_context->peer.r_node))
+    if (!S2_is_node_mos(ctxt, ctxt->peer.r_node))
     {
 
       /* Add the MGRP header extension */
       *ext_data++ = 3;
       *ext_data++ = S2_MSG_EXTHDR_CRITICAL_FLAG | S2_MSG_EXTHDR_TYPE_MGRP;
-      *ext_data++ = p_context->mpan->group_id;
+      *ext_data++ = ctxt->mpan->group_id;
       hdr_len += 3;
       n_ext++;
     }
 
-    if ((p_context->peer.tx_options & S2_TXOPTION_FIRST_SINGLECAST_FOLLOWUP) && p_context->retry == 2)
+    if ((ctxt->peer.tx_options & S2_TXOPTION_FIRST_SINGLECAST_FOLLOWUP) && ctxt->retry == 2)
     {
-      next_mpan_state(p_context->mpan);
+      next_mpan_state(ctxt->mpan);
     }
   }
 
   /*Add MOS extension */
-  if (p_context->mpan && p_context->mpan->state == MPAN_MOS)
+  if (ctxt->mpan && ctxt->mpan->state == MPAN_MOS)
   {
-    p_context->mpan->state = MPAN_NOT_USED;
-    p_context->mpan = 0;
+    ctxt->mpan->state = MPAN_NOT_USED;
+    ctxt->mpan = 0;
     *ext_data++ = 2;
     *ext_data++ = S2_MSG_EXTHDR_TYPE_MOS;
     hdr_len += 2;
@@ -453,47 +465,47 @@ S2_encrypt_and_send(struct S2* p_context)
   ciphertext = &msg[hdr_len];
 
   /* Add the secure extensions */
-  shdr_len = S2_add_mpan_extensions(p_context, ciphertext);
+  shdr_len = S2_add_mpan_extensions(ctxt, ciphertext);
   if (shdr_len)
   {
     msg[3] |=
     SECURITY_2_MESSAGE_ENCAPSULATION_PROPERTIES1_ENCRYPTED_EXTENSION_BIT_MASK;
   }
 
-  memcpy(ciphertext + shdr_len, p_context->buf, p_context->length);
-  aad_len = S2_make_aad(p_context, p_context->peer.l_node, p_context->peer.r_node, msg, hdr_len,
-      p_context->length + shdr_len + hdr_len + AUTH_TAG_LEN, aad, sizeof(aad));
+  memcpy(ciphertext + shdr_len, ctxt->buf, ctxt->length);
+  aad_len = S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len,
+      ctxt->length + shdr_len + hdr_len + AUTH_TAG_LEN, aad, sizeof(aad));
   /*TODO we should consider to roll the nonce when we have recevied in ACK*/
   next_nonce_generate(&span->d.rng, nonce); //Create the new nonce
 
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
   size_t out_len = 0;
   uint32_t ccm_key_id = ZWAVE_CCM_TEMP_ENC_KEY_ID;
-  if (p_context->is_keys_restored == false)
+  if (ctxt->is_keys_restored == false)
   {
        /* Import key into secure vault */
-     zw_wrap_aes_key_secure_vault(&ccm_key_id, p_context->sg[p_context->peer.class_id].enc_key, ZW_PSA_ALG_CCM);
+     zw_wrap_aes_key_secure_vault(&ccm_key_id, ctxt->sg[ctxt->peer.class_id].enc_key, ZW_PSA_ALG_CCM);
   }
   else
   {
     /* Use secure vault for encryption using PSA APIs */
-    ccm_key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(p_context->peer.class_id), ZWAVE_KEY_TYPE_SINGLE_CAST);
+    ccm_key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(ctxt->peer.class_id), ZWAVE_KEY_TYPE_SINGLE_CAST);
   }
   zw_psa_aead_encrypt_ccm(ccm_key_id, nonce, ZWAVE_PSA_AES_NONCE_LENGTH, aad, aad_len, ciphertext,
-                        p_context->length + shdr_len, ciphertext, p_context->length+shdr_len+ZWAVE_PSA_AES_MAC_LENGTH, &out_len);
+                        ctxt->length + shdr_len, ciphertext, ctxt->length+shdr_len+ZWAVE_PSA_AES_MAC_LENGTH, &out_len);
   msg_len = out_len;
-  assert(msg_len == (p_context->length + shdr_len + ZWAVE_PSA_AES_MAC_LENGTH));
+  assert(msg_len == (ctxt->length + shdr_len + ZWAVE_PSA_AES_MAC_LENGTH));
   /* Remove key from vault */
-  if (p_context->is_keys_restored == false) {
+  if (ctxt->is_keys_restored == false) {
     zw_psa_destroy_key(ccm_key_id);
   }
 #else
-  msg_len = CCM_encrypt_and_auth(p_context->sg[p_context->peer.class_id].enc_key, nonce, aad, aad_len, ciphertext,
-        p_context->length + shdr_len);
+  msg_len = CCM_encrypt_and_auth(ctxt->sg[ctxt->peer.class_id].enc_key, nonce, aad, aad_len, ciphertext,
+        ctxt->length + shdr_len);
 #endif
 
   assert(msg_len > 0);
-  S2_send_raw(p_context, msg, msg_len + hdr_len);
+  S2_send_raw(ctxt, msg, msg_len + hdr_len);
 }
 
 static inline uint8_t
@@ -522,6 +534,7 @@ next_mpan_state(struct MPAN * mpan)
 void
 S2_encrypt_and_send_multi(struct S2* p_context)
 {
+  CTX_DEF
   uint8_t aad[64];
   uint16_t aad_len;
   uint8_t nonce[16];
@@ -530,7 +543,7 @@ S2_encrypt_and_send_multi(struct S2* p_context)
   uint8_t* msg;
   uint16_t msg_len;
   event_data_t e;
-  msg = p_context->workbuf;
+  msg = ctxt->workbuf;
   msg[0] = COMMAND_CLASS_SECURITY_2;
   msg[1] = SECURITY_2_MESSAGE_ENCAPSULATION;
   msg[2] = 0xFF; //TODO
@@ -539,86 +552,88 @@ S2_encrypt_and_send_multi(struct S2* p_context)
   /* Add the encrypted header extension */
   msg[4] = 3;
   msg[5] = S2_MSG_EXTHDR_CRITICAL_FLAG | S2_MSG_EXTHDR_TYPE_MGRP;
-  msg[6] = p_context->mpan->group_id;
+  msg[6] = ctxt->mpan->group_id;
 
   hdr_len = 4 + 3;
 
   ciphertext = &msg[hdr_len];
 
-  memcpy(ciphertext, p_context->buf, p_context->length);
+  memcpy(ciphertext, ctxt->buf, ctxt->length);
 
-  aad_len = S2_make_aad(p_context, p_context->peer.l_node, p_context->peer.r_node, msg, hdr_len, p_context->length + hdr_len + AUTH_TAG_LEN,
+  aad_len = S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len, ctxt->length + hdr_len + AUTH_TAG_LEN,
       aad, sizeof(aad));
 
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
     uint32_t key_id = ZWAVE_ECB_TEMP_ENC_KEY_ID;
     /* Import key into secure vault */
-    zw_wrap_aes_key_secure_vault(&key_id, p_context->sg[p_context->mpan->class_id].mpan_key, ZW_PSA_ALG_ECB_NO_PAD);
-    zw_psa_aes_ecb_encrypt(key_id, p_context->mpan->inner_state, nonce);
+    zw_wrap_aes_key_secure_vault(&key_id, ctxt->sg[ctxt->mpan->class_id].mpan_key, ZW_PSA_ALG_ECB_NO_PAD);
+    zw_psa_aes_ecb_encrypt(key_id, ctxt->mpan->inner_state, nonce);
     /* Remove key from vault */
     zw_psa_destroy_key(key_id);
 #else
-  AES128_ECB_encrypt(p_context->mpan->inner_state, p_context->sg[p_context->mpan->class_id].mpan_key, nonce);
+  AES128_ECB_encrypt(ctxt->mpan->inner_state, ctxt->sg[ctxt->mpan->class_id].mpan_key, nonce);
 #endif
 
-  next_mpan_state(p_context->mpan);
+  next_mpan_state(ctxt->mpan);
 
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
   //////////////////////////////////////////////
   size_t out_len = 0;
   key_id = ZWAVE_CCM_TEMP_ENC_KEY_ID;
-  if (p_context->is_keys_restored == false)
+  if (ctxt->is_keys_restored == false)
   {
        /* Import key into secure vault */
-    zw_wrap_aes_key_secure_vault(&key_id, p_context->sg[p_context->mpan->class_id].enc_key, ZW_PSA_ALG_CCM);
+    zw_wrap_aes_key_secure_vault(&key_id, ctxt->sg[ctxt->mpan->class_id].enc_key, ZW_PSA_ALG_CCM);
   }
   else
   {
     /* Use secure vault for encryption using PSA APIs */
-    key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(p_context->mpan->class_id), ZWAVE_KEY_TYPE_SINGLE_CAST);
+    key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(ctxt->mpan->class_id), ZWAVE_KEY_TYPE_SINGLE_CAST);
   }
   zw_psa_aead_encrypt_ccm(key_id, nonce, ZWAVE_PSA_AES_NONCE_LENGTH, aad, aad_len, ciphertext,
-                                     p_context->length, ciphertext, p_context->length+ZWAVE_PSA_AES_MAC_LENGTH, &out_len);
+                                     ctxt->length, ciphertext, ctxt->length+ZWAVE_PSA_AES_MAC_LENGTH, &out_len);
   msg_len = out_len;
-  assert(msg_len == (p_context->length + ZWAVE_PSA_AES_MAC_LENGTH));
+  assert(msg_len == (ctxt->length + ZWAVE_PSA_AES_MAC_LENGTH));
   /* Remove key from vault */
-  if (p_context->is_keys_restored == false) {
+  if (ctxt->is_keys_restored == false) {
     zw_psa_destroy_key(key_id);
   }
 #else
-  msg_len = CCM_encrypt_and_auth(p_context->sg[p_context->mpan->class_id].enc_key, nonce, aad, aad_len, ciphertext, p_context->length);
+  msg_len = CCM_encrypt_and_auth(ctxt->sg[ctxt->mpan->class_id].enc_key, nonce, aad, aad_len, ciphertext, ctxt->length);
 #endif
 
   assert(msg_len > 0);
 
-  if (S2_send_frame_multi(p_context, &p_context->peer, msg, msg_len + hdr_len))
+  if (S2_send_frame_multi(ctxt, &ctxt->peer, msg, msg_len + hdr_len))
   {
     //TX seq?
   }
   else
   {
     e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
-    S2_fsm_post_event(p_context, SEND_DONE, &e);
+    S2_fsm_post_event(ctxt, SEND_DONE, &e);
   }
 }
 
 void
 S2_send_frame_done_notify(struct S2* p_context, s2_tx_status_t status, uint16_t tx_time)
 {
+  CTX_DEF
   event_data_t e;
   e.d.tx.status = status;
   e.d.tx.time = tx_time;
-  S2_fsm_post_event(p_context, SEND_DONE, &e);
+  S2_fsm_post_event(ctxt, SEND_DONE, &e);
 }
 
 uint8_t S2_is_busy(struct S2* p_context)
 {
-  if(p_context->inclusion_state != S2_INC_IDLE)
+  CTX_DEF
+  if(ctxt->inclusion_state != S2_INC_IDLE)
   {
     return 1;
   }
 
-  if( (p_context->fsm != IDLE) && (p_context->fsm != IS_MOS_WAIT_REPLY) )
+  if( (ctxt->fsm != IDLE) && (ctxt->fsm != IS_MOS_WAIT_REPLY) )
   {
     return 1;
   }
@@ -627,11 +642,12 @@ uint8_t S2_is_busy(struct S2* p_context)
 }
 
 void S2_free_mpan(struct S2* p_context, node_t owner_id, uint8_t group_id) {
+  CTX_DEF
   // Search for a MPAN with the Group ID / owner ID, and if found, set it back to NOT USED.
   for (uint8_t i = 0; i < MPAN_TABLE_SIZE; i++) {
-    if ((p_context->mpan_table[i].group_id == group_id)
-        && (p_context->mpan_table[i].owner_id == owner_id)) {
-      p_context->mpan_table[i].state = MPAN_NOT_USED;
+    if ((ctxt->mpan_table[i].group_id == group_id)
+        && (ctxt->mpan_table[i].owner_id == owner_id)) {
+      ctxt->mpan_table[i].state = MPAN_NOT_USED;
       return;
     }
   }
@@ -644,17 +660,18 @@ void S2_free_mpan(struct S2* p_context, node_t owner_id, uint8_t group_id) {
 static void
 S2_send_raw(struct S2* p_context, uint8_t* buf, uint16_t len)
 {
+  CTX_DEF
   event_data_t e;
 
-  if (S2_send_frame(p_context, &p_context->peer, buf, len))
+  if (S2_send_frame(ctxt, &ctxt->peer, buf, len))
   {
-    struct SPAN  *span = find_span_by_node(p_context, &p_context->peer);
+    struct SPAN  *span = find_span_by_node(ctxt, &ctxt->peer);
     span->tx_seq++;
   }
   else
   {
     e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
-    S2_fsm_post_event(p_context, SEND_DONE, &e);
+    S2_fsm_post_event(ctxt, SEND_DONE, &e);
   }
 }
 
@@ -666,14 +683,15 @@ S2_send_raw(struct S2* p_context, uint8_t* buf, uint16_t len)
 static uint8_t
 S2_is_mos(struct S2* p_context, node_t node_id, uint8_t clear)
 {
+  CTX_DEF
   uint8_t i;
   for (i = 0; i < MPAN_TABLE_SIZE; i++)
   {
-    if ((p_context->mpan_table[i].owner_id == node_id) && (p_context->mpan_table[i].state == MPAN_MOS))
+    if ((ctxt->mpan_table[i].owner_id == node_id) && (ctxt->mpan_table[i].state == MPAN_MOS))
     {
       if (clear)
       {
-        p_context->mpan_table[i].state = MPAN_NOT_USED;
+        ctxt->mpan_table[i].state = MPAN_NOT_USED;
       }
       return 1;;
     }
@@ -691,12 +709,13 @@ S2_is_mos(struct S2* p_context, node_t node_id, uint8_t clear)
 static void
 S2_send_nonce_report(struct S2* p_context, const s2_connection_t* conn, uint8_t flags)
 {
+  CTX_DEF
   struct SPAN  *span;
   uint8_t rnd[RANDLEN];
 
   static uint8_t nonce_report[2 + 2 + sizeof(span->d.r_nonce)];
 
-  span = find_span_by_node(p_context, conn);
+  span = find_span_by_node(ctxt, conn);
   nonce_report[0] = COMMAND_CLASS_SECURITY_2;
   nonce_report[1] = SECURITY_2_NONCE_REPORT;
   nonce_report[3] = flags;
@@ -712,23 +731,24 @@ S2_send_nonce_report(struct S2* p_context, const s2_connection_t* conn, uint8_t 
 
   span->tx_seq++;
   /*Return code is ignored here */
-  S2_send_frame_no_cb(p_context, conn, nonce_report, nonce_report[3] & SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK ? 20 : 4);
+  S2_send_frame_no_cb(ctxt, conn, nonce_report, nonce_report[3] & SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK ? 20 : 4);
 }
 
 static void
 S2_set_node_mos(struct S2* p_context, node_t node)
 {
+  CTX_DEF
   uint8_t i;
-  if ((p_context->fsm == VERIFYING_DELIVERY || p_context->fsm == SENDING_MSG)
-      && (p_context->peer.tx_options & (S2_TXOPTION_SINGLECAST_FOLLOWUP | S2_TXOPTION_FIRST_SINGLECAST_FOLLOWUP))
-      && p_context->mpan)
+  if ((ctxt->fsm == VERIFYING_DELIVERY || ctxt->fsm == SENDING_MSG)
+      && (ctxt->peer.tx_options & (S2_TXOPTION_SINGLECAST_FOLLOWUP | S2_TXOPTION_FIRST_SINGLECAST_FOLLOWUP))
+      && ctxt->mpan)
   {
     for (i = 0; i < MOS_LIST_LENGTH; i++)
     {
-      if (p_context->mos_list[i].node_id == 0)
+      if (ctxt->mos_list[i].node_id == 0)
       {
-        p_context->mos_list[i].group_id = p_context->mpan->group_id;
-        p_context->mos_list[i].node_id = node;
+        ctxt->mos_list[i].group_id = ctxt->mpan->group_id;
+        ctxt->mos_list[i].node_id = node;
         break;
       }
     }
@@ -738,13 +758,14 @@ S2_set_node_mos(struct S2* p_context, node_t node)
 static uint8_t
 S2_register_nonce(struct S2* p_context, const uint8_t* buf, uint16_t len)
 {
+  CTX_DEF
   struct SPAN  *span;
 
-  if(!S2_verify_seq(p_context, &p_context->peer, buf[2])) {
+  if(!S2_verify_seq(ctxt, &ctxt->peer, buf[2])) {
     return 0;
   }
 
-  span = find_span_by_node(p_context, &p_context->peer);
+  span = find_span_by_node(ctxt, &ctxt->peer);
 
   if (len >= (4 + 16) && (buf[3] & SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK))
   {
@@ -755,7 +776,7 @@ S2_register_nonce(struct S2* p_context, const uint8_t* buf, uint16_t len)
   /*Register MOS, but only if we are expecting it */
   if ((buf[3] & SECURITY_2_NONCE_REPORT_PROPERTIES1_MOS_BIT_MASK) && (len >= 3))
   {
-    S2_set_node_mos(p_context,p_context->peer.r_node);
+    S2_set_node_mos(ctxt,ctxt->peer.r_node);
   }
 
   return buf[3];
@@ -777,6 +798,7 @@ static int
 S2_make_aad(struct S2* p_context, node_t sender, node_t receiver, uint8_t* msg, uint16_t hdr_len, uint16_t msg_len,
     uint8_t* aad, uint16_t max_size)
 {
+  CTX_DEF
   if (max_size < (hdr_len - 2 + 8))
   {
     return 0;
@@ -801,10 +823,10 @@ S2_make_aad(struct S2* p_context, node_t sender, node_t receiver, uint8_t* msg, 
   }
 
   /* Convert from platform byte order to big endian */
-  aad[i++] = (p_context->my_home_id >> 24) & 0xFF;
-  aad[i++] = (p_context->my_home_id >> 16) & 0xFF;
-  aad[i++] = (p_context->my_home_id >> 8)  & 0xFF;
-  aad[i++] = (p_context->my_home_id >> 0)  & 0xFF;
+  aad[i++] = (ctxt->my_home_id >> 24) & 0xFF;
+  aad[i++] = (ctxt->my_home_id >> 16) & 0xFF;
+  aad[i++] = (ctxt->my_home_id >> 8)  & 0xFF;
+  aad[i++] = (ctxt->my_home_id >> 0)  & 0xFF;
   aad[i++] = (msg_len >> 8) & 0xFF;
   aad[i++] = (msg_len >> 0) & 0xFF;
 
@@ -821,6 +843,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
     uint8_t* msg, uint16_t msg_len, uint8_t** plain_text,
     uint16_t* plain_text_len)
 {
+  CTX_DEF
   uint8_t aad_buf[64]; //We could reduce this spec says min 30 bytes
   uint8_t nonce[16];
   uint8_t* aad;
@@ -858,12 +881,12 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
   else
   {
     /* Verify sequence */
-    if (!S2_verify_seq(p_context, conn, msg[2]))
+    if (!S2_verify_seq(ctxt, conn, msg[2]))
     {
       return SEQUENCE_FAIL;
     }
 
-    span = find_span_by_node(p_context, conn);
+    span = find_span_by_node(ctxt, conn);
   }
 
   /* Parse clear text extensions */
@@ -891,7 +914,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
           memcpy(r_nonce, span->d.r_nonce, 16);
           span->state = SPAN_INSTANTIATE;
 
-          next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, p_context->sg[span->class_id].nonce_key);
+          next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key);
         }
         break;
       case S2_MSG_EXTHDR_TYPE_MGRP:
@@ -900,14 +923,14 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
           goto parse_fail;
         }
         /*Only create new MPAN if this was a single cast followup*/
-        mpan = find_mpan_by_group_id(p_context, conn->r_node, ext_data[2], (conn->rx_options & S2_RXOPTION_MULTICAST) == 0);
+        mpan = find_mpan_by_group_id(ctxt, conn->r_node, ext_data[2], (conn->rx_options & S2_RXOPTION_MULTICAST) == 0);
         break;
       case S2_MSG_EXTHDR_TYPE_MOS:
         if (ext_len != 2)
         {
           goto parse_fail;
         }
-        S2_set_node_mos(p_context,conn->r_node);
+        S2_set_node_mos(ctxt,conn->r_node);
         break;
       default:
         if (ext_data[1] & S2_MSG_EXTHDR_CRITICAL_FLAG)
@@ -950,7 +973,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
 
   aad = &aad_buf[0];
 
-  aad_len = S2_make_aad(p_context, conn->r_node, conn->l_node, msg, hdr_len, msg_len, aad, sizeof(aad_buf));
+  aad_len = S2_make_aad(ctxt, conn->r_node, conn->l_node, msg, hdr_len, msg_len, aad, sizeof(aad_buf));
 
   if (span)
   {
@@ -960,15 +983,15 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
      * we will try de-crypting with all our classes */
 
     /*Check the fsm before using the workbuf */
-    if (p_context->fsm == IDLE && span->state == SPAN_INSTANTIATE)
+    if (ctxt->fsm == IDLE && span->state == SPAN_INSTANTIATE)
     {
-      memcpy(p_context->workbuf, ciphertext, ciphertext_len);
+      memcpy(ctxt->workbuf, ciphertext, ciphertext_len);
     }
 
     for (i = 0; i < N_SEC_CLASS; i++)
     {
       /*Only decrypt with a key which is loaded */
-      if (p_context->loaded_keys & (1 << span->class_id))
+      if (ctxt->loaded_keys & (1 << span->class_id))
       {
         next_nonce_generate(&span->d.rng, nonce);
 
@@ -976,9 +999,9 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
        size_t out_len;
        zw_status_t status;
        uint32_t ccm_key_id = ZWAVE_CCM_TEMP_DEC_KEY_ID;
-       if (p_context->is_keys_restored == false) {
+       if (ctxt->is_keys_restored == false) {
          /* Import key into secure vault */
-         zw_wrap_aes_key_secure_vault(&ccm_key_id, p_context->sg[span->class_id].enc_key, ZW_PSA_ALG_CCM);
+         zw_wrap_aes_key_secure_vault(&ccm_key_id, ctxt->sg[span->class_id].enc_key, ZW_PSA_ALG_CCM);
        } else {
          /* Use secure vault for encryption using PSA APIs */
          ccm_key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(span->class_id), ZWAVE_KEY_TYPE_SINGLE_CAST);
@@ -991,11 +1014,11 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
           decrypt_len = out_len;
         }
         /* Remove key from vault */
-        if (p_context->is_keys_restored == false) {
+        if (ctxt->is_keys_restored == false) {
           zw_psa_destroy_key(ccm_key_id);
         }
 #else
-        decrypt_len = CCM_decrypt_and_auth(p_context->sg[span->class_id].enc_key, nonce, aad, aad_len, ciphertext,
+        decrypt_len = CCM_decrypt_and_auth(ctxt->sg[span->class_id].enc_key, nonce, aad, aad_len, ciphertext,
             ciphertext_len);
 #endif
 
@@ -1012,10 +1035,10 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
             {
               event_data_t e;
               e.con = conn;
-              p_context->mpan = mpan;
-              S2_fsm_post_event(p_context, GOT_ENC_MSG_MOS,&e);
+              ctxt->mpan = mpan;
+              S2_fsm_post_event(ctxt, GOT_ENC_MSG_MOS,&e);
 
-              //S2_send_nonce_report(p_context, conn, SECURITY_2_NONCE_REPORT_PROPERTIES1_MOS_BIT_MASK);
+              //S2_send_nonce_report(ctxt, conn, SECURITY_2_NONCE_REPORT_PROPERTIES1_MOS_BIT_MASK);
             }
             else
             {
@@ -1026,7 +1049,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
         }
       }
 
-      if (p_context->fsm != IDLE || span->state == SPAN_NEGOTIATED)
+      if (ctxt->fsm != IDLE || span->state == SPAN_NEGOTIATED)
       {
         /*We were not able to backup the cipher-text so we will not be able to decrypt the message*/
         goto auth_fail;
@@ -1040,10 +1063,10 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
       }
 
       //Restore the ciphertext
-      memcpy(ciphertext, p_context->workbuf, ciphertext_len);
+      memcpy(ciphertext, ctxt->workbuf, ciphertext_len);
 
       /*reset prng to the negotiated state with the right new test key */
-      next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, p_context->sg[span->class_id].nonce_key);
+      next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key);
     }
   }
   else
@@ -1051,13 +1074,13 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
     /*Multicast decryption*/
 #ifdef ZWAVE_PSA_AES
     uint32_t key_id = ZWAVE_CCM_TEMP_ENC_KEY_ID;
-    zw_wrap_aes_key_secure_vault(&key_id, p_context->sg[mpan->class_id].mpan_key, ZW_PSA_ALG_ECB_NO_PAD);
+    zw_wrap_aes_key_secure_vault(&key_id, ctxt->sg[mpan->class_id].mpan_key, ZW_PSA_ALG_ECB_NO_PAD);
     /* Import key into secure vault */
     zw_psa_aes_ecb_encrypt(key_id, mpan->inner_state, nonce);
     /* Remove key from vault */
     zw_psa_destroy_key(key_id);
 #else
-    AES128_ECB_encrypt(mpan->inner_state, p_context->sg[mpan->class_id].mpan_key, nonce);
+    AES128_ECB_encrypt(mpan->inner_state, ctxt->sg[mpan->class_id].mpan_key, nonce);
 #endif
     next_mpan_state(mpan);
 
@@ -1066,7 +1089,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
         key_id = ZWAVE_CCM_TEMP_DEC_KEY_ID;
         zw_status_t status;
         /* Import key into secure vault */
-        zw_wrap_aes_key_secure_vault(&key_id, p_context->sg[mpan->class_id].enc_key, ZW_PSA_ALG_CCM);
+        zw_wrap_aes_key_secure_vault(&key_id, ctxt->sg[mpan->class_id].enc_key, ZW_PSA_ALG_CCM);
         /* Use secure vault for decryption using PSA APIs */
         status = zw_psa_aead_decrypt_ccm(key_id, nonce, ZWAVE_PSA_AES_NONCE_LENGTH, aad, aad_len,
                                 ciphertext, ciphertext_len, ciphertext, ciphertext_len+ZWAVE_PSA_AES_MAC_LENGTH, &out_len);
@@ -1078,7 +1101,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
         /* Remove key from vault */
         zw_psa_destroy_key(key_id);
 #else
-    decrypt_len = CCM_decrypt_and_auth(p_context->sg[mpan->class_id].enc_key, nonce, aad, aad_len, ciphertext,
+    decrypt_len = CCM_decrypt_and_auth(ctxt->sg[mpan->class_id].enc_key, nonce, aad, aad_len, ciphertext,
         ciphertext_len);
 #endif
     conn->class_id = mpan->class_id;
@@ -1117,7 +1140,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
         {
           goto parse_fail;
         }
-        mpan = find_mpan_by_group_id(p_context, conn->r_node, ext_data[2],1);
+        mpan = find_mpan_by_group_id(ctxt, conn->r_node, ext_data[2],1);
         memcpy(mpan->inner_state, &ext_data[3], 16);
         mpan->state = MPAN_SET;
         mpan->class_id = span->class_id;
@@ -1168,7 +1191,7 @@ auth_fail:
   /*Send nonce report if this is not a multicast*/
   if ((conn->rx_options & S2_RXOPTION_MULTICAST) == 0)
   {
-    S2_send_nonce_report(p_context, conn,
+    S2_send_nonce_report(ctxt, conn,
         mpan ?
             (SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK | SECURITY_2_NONCE_REPORT_PROPERTIES1_MOS_BIT_MASK) :
             SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
@@ -1182,7 +1205,8 @@ auth_fail:
 int
 S2_is_peernode(struct S2* p_context, const s2_connection_t* peer)
 {
-  return peer->l_node == p_context->peer.l_node && peer->r_node == p_context->peer.r_node;
+  CTX_DEF
+  return peer->l_node == ctxt->peer.l_node && peer->r_node == ctxt->peer.r_node;
 }
 
 /*
@@ -1191,9 +1215,10 @@ S2_is_peernode(struct S2* p_context, const s2_connection_t* peer)
 static void
 S2_set_peer(struct S2* p_context, const s2_connection_t* peer, const uint8_t* buf, uint16_t len)
 {
-  p_context->peer = *peer;
-  p_context->buf = buf; //TODO decide if we want a local copy?
-  p_context->length = len;
+  CTX_DEF
+  ctxt->peer = *peer;
+  ctxt->buf = buf; //TODO decide if we want a local copy?
+  ctxt->length = len;
 }
 
 /***************** PUBLIC functions ********************/
@@ -1204,18 +1229,21 @@ S2_set_peer(struct S2* p_context, const s2_connection_t* peer, const uint8_t* bu
 uint8_t
 S2_send_data(struct S2* p_context, s2_connection_t* dst, const uint8_t* buf, uint16_t len)
 {
+  CTX_DEF
   #ifdef ZW_CONTROLLER
   if (IS_LR_NODE(dst->r_node)) {
     convert_normal_to_lr_keyclass(dst);
   }
   #endif
-  return S2_send_data_all_cast(p_context, dst, buf, len, SEND_MSG);
+  return S2_send_data_all_cast(ctxt, dst, buf, len, SEND_MSG);
 }
 
 uint8_t
 S2_is_send_data_busy(struct S2* p_context)
 {
-  return (p_context->fsm != IDLE) && (p_context->fsm != IS_MOS_WAIT_REPLY);
+  CTX_DEF
+
+  return (ctxt->fsm != IDLE) && (ctxt->fsm != IS_MOS_WAIT_REPLY);
 }
 
 void
@@ -1257,41 +1285,43 @@ uint8_t
 S2_network_key_update(struct S2 *p_context, uint32_t key_id, security_class_t class_id, const network_key_t net_key,
     uint8_t temp_key_expand, __attribute__((unused)) bool make_keys_persist_se)
 {
+  CTX_DEF
   if (class_id >= N_SEC_CLASS)
   {
     return 0;
   }
   if (temp_key_expand)
   {
-    tempkey_expand(key_id, net_key, p_context->sg[class_id].enc_key, p_context->sg[class_id].nonce_key, p_context->sg[class_id].mpan_key);
+    tempkey_expand(key_id, net_key, ctxt->sg[class_id].enc_key, ctxt->sg[class_id].nonce_key, ctxt->sg[class_id].mpan_key);
   }
   else
   {
-    networkkey_expand(key_id, net_key, p_context->sg[class_id].enc_key, p_context->sg[class_id].nonce_key, p_context->sg[class_id].mpan_key);
+    networkkey_expand(key_id, net_key, ctxt->sg[class_id].enc_key, ctxt->sg[class_id].nonce_key, ctxt->sg[class_id].mpan_key);
 #ifdef ZWAVE_PSA_SECURE_VAULT
     if (make_keys_persist_se) {
       uint32_t ccm_key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(class_id), ZWAVE_KEY_TYPE_SINGLE_CAST);
       assert((ccm_key_id >= ZWAVE_PSA_KEY_ID_MIN) && (ccm_key_id <= ZWAVE_PSA_KEY_ID_MAX));
-      zw_wrap_aes_key_secure_vault(&ccm_key_id, p_context->sg[class_id].enc_key, ZW_PSA_ALG_CCM);
+      zw_wrap_aes_key_secure_vault(&ccm_key_id, ctxt->sg[class_id].enc_key, ZW_PSA_ALG_CCM);
 
       ccm_key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(class_id), ZWAVE_KEY_TYPE_MULTI_CAST);
       assert((ccm_key_id >= ZWAVE_PSA_KEY_ID_MIN) && (ccm_key_id <= ZWAVE_PSA_KEY_ID_MAX));
-      zw_wrap_aes_key_secure_vault(&ccm_key_id, p_context->sg[class_id].mpan_key, ZW_PSA_ALG_CCM);
-      p_context->is_keys_restored = true;
+      zw_wrap_aes_key_secure_vault(&ccm_key_id, ctxt->sg[class_id].mpan_key, ZW_PSA_ALG_CCM);
+      ctxt->is_keys_restored = true;
     }
 #endif /*#ifdef ZWAVE_PSA_SECURE_VAULT*/
   }
 
-  p_context->loaded_keys |= 1 << class_id;
+  ctxt->loaded_keys |= 1 << class_id;
   return 1;
 }
 
 void
 S2_destroy(struct S2* p_context)
 {
-  memset(p_context, 0, sizeof(struct S2));
+  CTX_DEF
+  memset(ctxt, 0, sizeof(struct S2));
 #ifndef SINGLE_CONTEXT
-  free(p_context);
+  free(ctxt);
 #endif
 }
 
@@ -1299,6 +1329,7 @@ S2_destroy(struct S2* p_context)
 void
 S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8_t* buf, uint16_t len)
 {
+  CTX_DEF
   uint8_t *plain_text;
   uint16_t plain_text_len;
   decrypt_return_code_t rc;
@@ -1315,20 +1346,20 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
   case SECURITY_2_NONCE_GET:
     if ((src->rx_options & S2_RXOPTION_MULTICAST) != S2_RXOPTION_MULTICAST)
     {
-      if( (len >=3) && S2_verify_seq(p_context, src,buf[2]) ) {
-        S2_send_nonce_report(p_context,src,SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
+      if( (len >=3) && S2_verify_seq(ctxt, src,buf[2]) ) {
+        S2_send_nonce_report(ctxt,src,SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
       }
     }
     break;
   case SECURITY_2_NONCE_REPORT:
-    S2_fsm_post_event(p_context, GOT_NONCE_REPORT, &d);
+    S2_fsm_post_event(ctxt, GOT_NONCE_REPORT, &d);
     ;
     break;
   case SECURITY_2_MESSAGE_ENCAPSULATION:
-    rc = S2_decrypt_msg(p_context, src, buf, len, &plain_text, &plain_text_len);
+    rc = S2_decrypt_msg(ctxt, src, buf, len, &plain_text, &plain_text_len);
     if (rc == AUTH_OK)
     {
-      S2_fsm_post_event(p_context, GOT_ENC_MSG, &d);
+      S2_fsm_post_event(ctxt, GOT_ENC_MSG, &d);
       if (plain_text_len)
       {
         if (plain_text[0] == COMMAND_CLASS_SECURITY_2 &&
@@ -1341,26 +1372,26 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
 
           if (plain_text[1] == SECURITY_2_COMMANDS_SUPPORTED_GET)
           {
-            p_context->u.commands_sup_report_buf[0] = COMMAND_CLASS_SECURITY_2;
-            p_context->u.commands_sup_report_buf[1] = SECURITY_2_COMMANDS_SUPPORTED_REPORT;
+            ctxt->u.commands_sup_report_buf[0] = COMMAND_CLASS_SECURITY_2;
+            ctxt->u.commands_sup_report_buf[1] = SECURITY_2_COMMANDS_SUPPORTED_REPORT;
 
             S2_get_commands_supported(src->l_node,src->class_id, &classes, &n_commands_supported);
 
-            if (n_commands_supported + 2 > sizeof(p_context->u.commands_sup_report_buf))
+            if (n_commands_supported + 2 > sizeof(ctxt->u.commands_sup_report_buf))
             {
               return;
             }
-            memcpy(&p_context->u.commands_sup_report_buf[2], classes, n_commands_supported);
-            /*TODO If p_context->fsm is busy the report is not going to be sent*/
-            S2_send_data(p_context, src, p_context->u.commands_sup_report_buf, n_commands_supported + 2);
+            memcpy(&ctxt->u.commands_sup_report_buf[2], classes, n_commands_supported);
+            /*TODO If ctxt->fsm is busy the report is not going to be sent*/
+            S2_send_data(ctxt, src, ctxt->u.commands_sup_report_buf, n_commands_supported + 2);
           }
           /* Don't validate inclusion_peer.l_node as it may not be initialized yet due to early start */
           else
           {
-            p_context->buf = plain_text;
-            p_context->length = plain_text_len;
+            ctxt->buf = plain_text;
+            ctxt->length = plain_text_len;
             //Default just send the command to the inclusion fsm
-            s2_inclusion_post_event(p_context,src);
+            s2_inclusion_post_event(ctxt,src);
           }
         }
         else
@@ -1371,15 +1402,15 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
             convert_lr_to_normal_keyclass(src);
           }
 #endif
-          S2_msg_received_event(p_context, src, plain_text, plain_text_len);
+          S2_msg_received_event(ctxt, src, plain_text, plain_text_len);
         }
 
       }
     }
     else if (rc == AUTH_FAIL)
     {
-      S2_fsm_post_event(p_context, GOT_BAD_ENC_MSG, &d);
-      s2_inclusion_decryption_failure(p_context,src);
+      S2_fsm_post_event(ctxt, GOT_BAD_ENC_MSG, &d);
+      s2_inclusion_decryption_failure(ctxt,src);
     }
     else
     {
@@ -1388,17 +1419,17 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
     break;
   default:
     /*
-     * If S2 is busy, p_context->buf may be in use for sending an encrypted message.
+     * If S2 is busy, ctxt->buf may be in use for sending an encrypted message.
      * KEX_FAIL is an exception. Must be passed to the inclusion fsm to abort all S2 action.
      */
-    if((p_context->fsm != IDLE) && (buf[1] != KEX_FAIL)) return;
+    if((ctxt->fsm != IDLE) && (buf[1] != KEX_FAIL)) return;
 
     if ((src->rx_options & S2_RXOPTION_MULTICAST) != S2_RXOPTION_MULTICAST)
     {
-      p_context->buf = buf; //TODO is this a good idea?
-      p_context->length = len;
+      ctxt->buf = buf; //TODO is this a good idea?
+      ctxt->length = len;
       src->class_id = UNENCRYPTED_CLASS;
-      s2_inclusion_post_event(p_context,src);
+      s2_inclusion_post_event(ctxt,src);
     }
   }
 
@@ -1407,14 +1438,17 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
 void
 S2_timeout_notify(struct S2* p_context)
 {
-  S2_fsm_post_event(p_context, TIMEOUT, NULL);
+  CTX_DEF
+  S2_fsm_post_event(ctxt, TIMEOUT, NULL);
 }
 
 static void
 S2_post_send_done_event(struct S2* p_context, s2_tx_status_t status)
 {
-  s2_inclusion_send_done(p_context, (status == S2_TRANSMIT_COMPLETE_OK) || (status == S2_TRANSMIT_COMPLETE_VERIFIED));
-  S2_send_done_event(p_context, status);
+  CTX_DEF
+
+  s2_inclusion_send_done(ctxt, (status == S2_TRANSMIT_COMPLETE_OK) || (status == S2_TRANSMIT_COMPLETE_VERIFIED));
+  S2_send_done_event(ctxt, status);
 }
 
 static void emit_S2_synchronization_event(sos_event_reason_t reason, event_data_t* d)
@@ -1428,63 +1462,65 @@ static void emit_S2_synchronization_event(sos_event_reason_t reason, event_data_
 void
 S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
 {
+  CTX_DEF
+
   uint8_t nr_flag;
 
-  switch (p_context->fsm)
+  switch (ctxt->fsm)
   {
   case IS_MOS_WAIT_REPLY:
   case IDLE:
-    //S2_set_peer(p_context, d->con, d->buffer, d->len);
-    if (e == SEND_MSG && S2_span_ok(p_context, d->con))
+    //S2_set_peer(ctxt, d->con, d->buffer, d->len);
+    if (e == SEND_MSG && S2_span_ok(ctxt, d->con))
     {
-      S2_set_peer(p_context, d->con, d->d.buf.buffer, d->d.buf.len);
-      p_context->retry = 2;
+      S2_set_peer(ctxt, d->con, d->d.buf.buffer, d->d.buf.len);
+      ctxt->retry = 2;
 
       goto send_msg_state_enter;
     }
     else if (e == SEND_MSG)
     {
-      p_context->fsm = WAIT_NONCE_RAPORT;
-      p_context->retry = 2;
+      ctxt->fsm = WAIT_NONCE_RAPORT;
+      ctxt->retry = 2;
 
-      S2_set_peer(p_context, d->con, d->d.buf.buffer, d->d.buf.len);
-      S2_send_nonce_get(p_context);
-      S2_set_timeout(p_context, SEND_DATA_TIMEOUT);
+      S2_set_peer(ctxt, d->con, d->d.buf.buffer, d->d.buf.len);
+      S2_send_nonce_get(ctxt);
+      S2_set_timeout(ctxt, SEND_DATA_TIMEOUT);
     }
-    else if (e == GOT_NONCE_GET && (d->d.buf.len >= 3) && S2_verify_seq(p_context, d->con, d->d.buf.buffer[2]))
+    else if (e == GOT_NONCE_GET && (d->d.buf.len >= 3) && S2_verify_seq(ctxt, d->con, d->d.buf.buffer[2]))
     {
-      S2_send_nonce_report(p_context, d->con, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
+      S2_send_nonce_report(ctxt, d->con, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
     }
     else if (e == GOT_NONCE_REPORT )
     {
-      S2_set_peer(p_context, d->con, d->d.buf.buffer, d->d.buf.len);
-      S2_register_nonce(p_context, d->d.buf.buffer, d->d.buf.len);
+      S2_set_peer(ctxt, d->con, d->d.buf.buffer, d->d.buf.len);
+      S2_register_nonce(ctxt, d->d.buf.buffer, d->d.buf.len);
       emit_S2_synchronization_event(SOS_EVENT_REASON_UNANSWERED, d);
     }
     else if (e == SEND_MULTICAST)
     {
-      S2_set_peer(p_context, d->con, d->d.buf.buffer, d->d.buf.len);
+      S2_set_peer(ctxt, d->con, d->d.buf.buffer, d->d.buf.len);
       //For Multicast: 8-bit group_id is stored in d->con->r_node
-      p_context->mpan = find_mpan_by_group_id(p_context, 0, d->con->r_node, 1);
-      p_context->fsm = SENDING_MSG;
-      S2_encrypt_and_send_multi(p_context);
+      ctxt->mpan = find_mpan_by_group_id(ctxt, 0, d->con->r_node, 1);
+      ctxt->fsm = SENDING_MSG;
+      S2_encrypt_and_send_multi(ctxt);
     }
     else if (e == SEND_DONE)
     {
       /* pass message to the inclusion FSM */
-      s2_inclusion_send_done(p_context, d->d.tx.status == S2_TRANSMIT_COMPLETE_OK);
+      s2_inclusion_send_done(ctxt, d->d.tx.status == S2_TRANSMIT_COMPLETE_OK);
     }
     else if (e == GOT_ENC_MSG_MOS)
     {
-      S2_set_timeout(p_context, 10);
-      S2_set_peer(p_context,d->con,0,0);
-      p_context->fsm = IS_MOS_WAIT_REPLY;
+      S2_set_timeout(ctxt, 10);
+      S2_set_peer(ctxt,d->con,0,0);
+      ctxt->fsm = IS_MOS_WAIT_REPLY;
     }
-    else if (e == TIMEOUT && p_context->fsm == IS_MOS_WAIT_REPLY)
+    else if (e == TIMEOUT && ctxt->fsm == IS_MOS_WAIT_REPLY)
     {
-      p_context->mpan = 0;
-      p_context->fsm = IDLE;
-      S2_send_nonce_report(p_context, &p_context->peer, SECURITY_2_NONCE_REPORT_PROPERTIES1_MOS_BIT_MASK);
+      ctxt->mpan = 0;
+      ctxt->fsm = IDLE;
+      S2_send_nonce_report(ctxt, &ctxt->peer, SECURITY_2_NONCE_REPORT_PROPERTIES1_MOS_BIT_MASK);
     }
     break;
   case WAIT_NONCE_RAPORT:
@@ -1496,25 +1532,25 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
     }
     else if ((e == SEND_DONE) && (d->d.tx.status == S2_TRANSMIT_COMPLETE_OK))
     {
-      S2_set_timeout(p_context, d->d.tx.time); //Just shorten timer but stay in this state
+      S2_set_timeout(ctxt, d->d.tx.time); //Just shorten timer but stay in this state
     }
     else if ((e == SEND_DONE) || (e == TIMEOUT))
     {
-      p_context->fsm = IDLE;
+      ctxt->fsm = IDLE;
       if (e == TIMEOUT) {
-          S2_post_send_done_event(p_context, S2_TRANSMIT_COMPLETE_FAIL);
+          S2_post_send_done_event(ctxt, S2_TRANSMIT_COMPLETE_FAIL);
       } else {
-          S2_post_send_done_event(p_context, d->d.tx.status);
+          S2_post_send_done_event(ctxt, d->d.tx.status);
       }
     }
-    else if ((e == GOT_NONCE_REPORT) && S2_is_peernode(p_context, d->con))
+    else if ((e == GOT_NONCE_REPORT) && S2_is_peernode(ctxt, d->con))
     {
-      if (S2_register_nonce(p_context, d->d.buf.buffer, d->d.buf.len) & SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK)
+      if (S2_register_nonce(ctxt, d->d.buf.buffer, d->d.buf.len) & SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK)
       {
         goto send_msg_state_enter;
       }
     }
-    else if ((e == GOT_NONCE_REPORT) && !S2_is_peernode(p_context, d->con))
+    else if ((e == GOT_NONCE_REPORT) && !S2_is_peernode(ctxt, d->con))
     {
       emit_S2_synchronization_event(SOS_EVENT_REASON_UNANSWERED, d);
     }
@@ -1522,10 +1558,10 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
   case SENDING_MSG:
     if (e == SEND_DONE)
     {
-      p_context->fsm = IDLE;
-      S2_post_send_done_event(p_context, d->d.tx.status);
+      ctxt->fsm = IDLE;
+      S2_post_send_done_event(ctxt, d->d.tx.status);
     }
-    else if (e == GOT_NONCE_REPORT && !S2_is_peernode(p_context, d->con))
+    else if (e == GOT_NONCE_REPORT && !S2_is_peernode(ctxt, d->con))
     {
       emit_S2_synchronization_event(SOS_EVENT_REASON_UNANSWERED, d);
     }
@@ -1536,44 +1572,44 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
     { /* shorten timer on ACK */
       if (d->d.tx.status == S2_TRANSMIT_COMPLETE_OK)
       {
-        S2_set_timeout(p_context, d->d.tx.time); //Just shorten timer but stay in this state
+        S2_set_timeout(ctxt, d->d.tx.time); //Just shorten timer but stay in this state
       }
       else
       { /* bail out */
-        p_context->fsm = IDLE;
-        S2_post_send_done_event(p_context, d->d.tx.status);
+        ctxt->fsm = IDLE;
+        S2_post_send_done_event(ctxt, d->d.tx.status);
       }
     }
-    else if (e == GOT_ENC_MSG && S2_is_peernode(p_context, d->con))
+    else if (e == GOT_ENC_MSG && S2_is_peernode(ctxt, d->con))
     {
-      if(S2_is_node_mos(p_context,d->con->r_node) && (p_context->retry > 0)) {
-        p_context->length = 0;
-        p_context->peer.tx_options &= ~S2_TXOPTION_VERIFY_DELIVERY;
+      if(S2_is_node_mos(ctxt,d->con->r_node) && (ctxt->retry > 0)) {
+        ctxt->length = 0;
+        ctxt->peer.tx_options &= ~S2_TXOPTION_VERIFY_DELIVERY;
         goto send_msg_state_enter;
       } else {
-        p_context->fsm = IDLE;
+        ctxt->fsm = IDLE;
         /* Stop S2 timer when we have verified delivery so ZW protocol can go back to sleep */
-        S2_stop_timeout(p_context);
-        S2_post_send_done_event(p_context, S2_TRANSMIT_COMPLETE_VERIFIED);
+        S2_stop_timeout(ctxt);
+        S2_post_send_done_event(ctxt, S2_TRANSMIT_COMPLETE_VERIFIED);
       }
     }
     /*
      * As we know there will a nonce report under way, it is better to
      * wait for the NONCE_REPORT for the sake of keeping synchronization.
      *
-    else if (e == GOT_BAD_ENC_MSG && S2_is_peernode(p_context, d->con))
+    else if (e == GOT_BAD_ENC_MSG && S2_is_peernode(ctxt, d->con))
     {
-      p_context->fsm = IDLE; //No more retries
-      S2_post_send_done_event(p_context, S2_TRANSMIT_COMPLETE_FAIL);
+      ctxt->fsm = IDLE; //No more retries
+      S2_post_send_done_event(ctxt, S2_TRANSMIT_COMPLETE_FAIL);
     }*/
     else if (e == TIMEOUT)
     {
-      p_context->fsm = IDLE; //The frame seems to be handled but we don't know for sure
-      S2_post_send_done_event(p_context, S2_TRANSMIT_COMPLETE_OK);
+      ctxt->fsm = IDLE; //The frame seems to be handled but we don't know for sure
+      S2_post_send_done_event(ctxt, S2_TRANSMIT_COMPLETE_OK);
     }
-    else if (e == GOT_NONCE_REPORT && S2_is_peernode(p_context, d->con))
+    else if (e == GOT_NONCE_REPORT && S2_is_peernode(ctxt, d->con))
     {
-      nr_flag = S2_register_nonce(p_context, d->d.buf.buffer, d->d.buf.len);
+      nr_flag = S2_register_nonce(ctxt, d->d.buf.buffer, d->d.buf.len);
       if (nr_flag == 0)
       {
         return;
@@ -1583,13 +1619,13 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
         /* if we only get a MOS flag back, set the payload length to 0,
          * as we don't need to retransmit the payload, we should only
          * send the MPAN*/
-        p_context->length = 0;
+        ctxt->length = 0;
       }
 
-      if (p_context->retry == 0)
+      if (ctxt->retry == 0)
       {
-        p_context->fsm = IDLE; //No more retries
-        S2_post_send_done_event(p_context, S2_TRANSMIT_COMPLETE_FAIL);
+        ctxt->fsm = IDLE; //No more retries
+        S2_post_send_done_event(ctxt, S2_TRANSMIT_COMPLETE_FAIL);
       }
       else
       {
@@ -1597,7 +1633,7 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
         // send again
       }
     }
-    else if (e == GOT_NONCE_REPORT && !S2_is_peernode(p_context, d->con))
+    else if (e == GOT_NONCE_REPORT && !S2_is_peernode(ctxt, d->con))
     {
       emit_S2_synchronization_event(SOS_EVENT_REASON_UNANSWERED, d);
     }
@@ -1609,16 +1645,16 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
 
   return;
 send_msg_state_enter:
-  p_context->fsm = SENDING_MSG;
+  ctxt->fsm = SENDING_MSG;
 
-  if (p_context->peer.tx_options & S2_TXOPTION_VERIFY_DELIVERY)
+  if (ctxt->peer.tx_options & S2_TXOPTION_VERIFY_DELIVERY)
   {
-    p_context->fsm = VERIFYING_DELIVERY;
-    S2_set_timeout(p_context, SEND_DATA_TIMEOUT);
+    ctxt->fsm = VERIFYING_DELIVERY;
+    S2_set_timeout(ctxt, SEND_DATA_TIMEOUT);
   }
 
-  S2_encrypt_and_send(p_context);
-  p_context->retry--;
+  S2_encrypt_and_send(ctxt);
+  ctxt->retry--;
 
 
   return;
@@ -1627,20 +1663,21 @@ send_msg_state_enter:
 uint8_t
 S2_send_data_multicast(struct S2* p_context, const s2_connection_t* con, const uint8_t* buf, uint16_t len)
 {
+  CTX_DEF
   // No key conversion here, because we get a Group ID and we cannot know
   // which keyset to use. Send data multicast will be for Z-Wave only.
-  return S2_send_data_all_cast(p_context, con, buf, len, SEND_MULTICAST);
+  return S2_send_data_all_cast(ctxt, con, buf, len, SEND_MULTICAST);
 }
 
 uint8_t
-S2_send_data_singlecast_follow_up_with_keyset(struct S2* p_context,
+S2_send_data_singlecast_follow_up_with_keyset(struct S2* ctxt,
                                               s2_connection_t* connection,
                                               zwave_s2_keyset_t keyset,
                                               const uint8_t* payload,
                                               uint16_t payload_length)
 {
   if (keyset == ZWAVE_KEYSET) {
-    return S2_send_data_all_cast(p_context,
+    return S2_send_data_all_cast(ctxt,
                                  connection,
                                  payload,
                                  payload_length,
@@ -1648,7 +1685,7 @@ S2_send_data_singlecast_follow_up_with_keyset(struct S2* p_context,
 
   } else if (keyset == ZWAVE_LONG_RANGE_KEYSET) {
     convert_normal_to_lr_keyclass(connection);
-    return S2_send_data_all_cast(p_context,
+    return S2_send_data_all_cast(ctxt,
                                  connection,
                                  payload,
                                  payload_length,
@@ -1659,14 +1696,14 @@ S2_send_data_singlecast_follow_up_with_keyset(struct S2* p_context,
   return 0;
 }
 
-uint8_t S2_send_data_multicast_with_keyset(struct S2* p_context,
+uint8_t S2_send_data_multicast_with_keyset(struct S2* ctxt,
                                            s2_connection_t* connection,
                                            zwave_s2_keyset_t keyset,
                                            const uint8_t* payload,
                                            uint16_t payload_length)
 {
   if (keyset == ZWAVE_KEYSET) {
-    return S2_send_data_all_cast(p_context,
+    return S2_send_data_all_cast(ctxt,
                                  connection,
                                  payload,
                                  payload_length,
@@ -1674,7 +1711,7 @@ uint8_t S2_send_data_multicast_with_keyset(struct S2* p_context,
 
   } else if (keyset == ZWAVE_LONG_RANGE_KEYSET) {
     convert_normal_to_lr_keyclass(connection);
-    return S2_send_data_all_cast(p_context,
+    return S2_send_data_all_cast(ctxt,
                                  connection,
                                  payload,
                                  payload_length,
@@ -1685,14 +1722,14 @@ uint8_t S2_send_data_multicast_with_keyset(struct S2* p_context,
   return 0;
 }
 
-uint8_t S2_send_data_singlecast_with_keyset(struct S2* p_context,
+uint8_t S2_send_data_singlecast_with_keyset(struct S2* ctxt,
                                             s2_connection_t* connection,
                                             zwave_s2_keyset_t keyset,
                                             const uint8_t* payload,
                                             uint16_t payload_length)
 {
   if (keyset == ZWAVE_KEYSET) {
-    return S2_send_data_all_cast(p_context,
+    return S2_send_data_all_cast(ctxt,
                                  connection,
                                  payload,
                                  payload_length,
@@ -1700,7 +1737,7 @@ uint8_t S2_send_data_singlecast_with_keyset(struct S2* p_context,
 
   } else if (keyset == ZWAVE_LONG_RANGE_KEYSET) {
     convert_normal_to_lr_keyclass(connection);
-    return S2_send_data_all_cast(p_context,
+    return S2_send_data_all_cast(ctxt,
                                  connection,
                                  payload,
                                  payload_length,
@@ -1754,9 +1791,10 @@ static void convert_lr_to_normal_keyclass(s2_connection_t *con)
 static uint8_t
 S2_send_data_all_cast(struct S2* p_context, const s2_connection_t* con, const uint8_t* buf, uint16_t len, event_t ev)
 {
+  CTX_DEF
   event_data_t e;
 
-  if (len == 0 || len > WORKBUF_SIZE || buf == 0 || S2_is_send_data_busy(p_context))
+  if (len == 0 || len > WORKBUF_SIZE || buf == 0 || S2_is_send_data_busy(ctxt))
   {
     return 0;
   }
@@ -1766,20 +1804,20 @@ S2_send_data_all_cast(struct S2* p_context, const s2_connection_t* con, const ui
   e.con = con;
 
   if (ev == SEND_MULTICAST) {
-    S2_fsm_post_event(p_context, SEND_MULTICAST, &e);
+    S2_fsm_post_event(ctxt, SEND_MULTICAST, &e);
 
   } else if (ev == SEND_MSG) {
-    S2_fsm_post_event(p_context, SEND_MSG, &e);
+    S2_fsm_post_event(ctxt, SEND_MSG, &e);
 
   } else if (ev == SEND_FOLLOW_UP) {
     // Here the user has selected a MGRP Group ID for sending.
     // Make a context MPAN switch, if we can find it
-    struct MPAN *new_mpan = find_mpan_by_group_id(p_context, 0, con->mgrp_group_id, 0);
+    struct MPAN *new_mpan = find_mpan_by_group_id(ctxt, 0, con->mgrp_group_id, 0);
     if (new_mpan) {
-      p_context->mpan = new_mpan;
+      ctxt->mpan = new_mpan;
     }
     // Convert to a regular message event.
-    S2_fsm_post_event(p_context, SEND_MSG, &e);
+    S2_fsm_post_event(ctxt, SEND_MSG, &e);
   }
 
   return 1;
@@ -1788,6 +1826,6 @@ S2_send_data_all_cast(struct S2* p_context, const s2_connection_t* con, const ui
 uint8_t
 S2_is_send_data_multicast_busy(struct S2* p_context)
 {
-  return p_context->fsm != IDLE;
+  CTX_DEF
+  return ctxt->fsm != IDLE;
 }
-
