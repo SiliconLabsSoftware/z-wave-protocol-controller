@@ -178,6 +178,14 @@ sl_status_t zwapi_refresh_capabilities(void)
     return SL_STATUS_FAIL;
   }
 
+  /*
+  *   One or more Serial API Request(s) could have been stored during the execution of:
+  *   zwapi_session_send_frame_with_response(FUNC_ID_SERIAL_API_GET_CAPABILITIES, ...)
+  *   (in the case of a FUNC_ID_SERIAL_API_STARTED request, this can break ZPC network management state machine later)
+  */ 
+  
+  zwapi_session_flush_queue();
+
   if (zwapi_support_command_func(FUNC_ID_SERIAL_API_SETUP)) {
     response_length                             = 0;
     uint8_t index                               = 0;
