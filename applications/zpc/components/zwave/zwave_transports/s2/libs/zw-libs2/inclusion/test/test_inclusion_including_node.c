@@ -160,7 +160,7 @@ void test_kex_including_node_state_machine_csa(void) {
                              0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0};
 
   uint8_t s2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                   0x02, // bit 0 is echo field, bit 1 is CSA.
+                                   0x06, // bit 0 is echo field, bit 1 is CSA, bit 2 is NLS support.
                                    0x02, // Supported schemes. Scheme 1.
                                    0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                    0x82};// Requested keys bits. Security 2 class 1, Security 0 network key.
@@ -221,6 +221,7 @@ void test_kex_including_node_state_machine_csa(void) {
   p_expected_report_event->event_type = S2_NODE_INCLUSION_KEX_REPORT_EVENT;
   p_expected_report_event->evt.s2_event.s2_data.kex_report.security_keys = 0x82;
   p_expected_report_event->evt.s2_event.s2_data.kex_report.csa = 0x01;
+  p_expected_report_event->evt.s2_event.s2_data.kex_report.nls_available = 0x01;
 
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_report_event;
@@ -276,7 +277,7 @@ void test_kex_including_node_state_machine_csa(void) {
 
 
   // Expect Echo(KEX Report) to be sent.
-  uint8_t S2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x03, 0x02, 0x01, 0x82}; // Note: Echo flag set.
+  uint8_t S2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x07, 0x02, 0x01, 0x82}; // Note: Echo flag set.
 
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
   p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
@@ -4549,7 +4550,7 @@ void test_kex_including_node_csa_unauthenticated_only(void) {
                              0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0};
 
   uint8_t s2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                   0x06, // bit 0 is echo field, bit 1 is CSA.
+                                   0x06, // bit 0 is echo field, bit 1 is CSA, bit 2 is NLS support.
                                    0x02, // Supported schemes. Scheme 1.
                                    0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                    0x87};// Requested keys bits. Security 2 class 1, Security 0 network key.
@@ -4665,7 +4666,7 @@ void test_kex_including_node_csa_unauthenticated_only(void) {
 
 
   // Expect Echo(KEX Report) to be sent.
-  uint8_t S2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x03, 0x02, 0x01, 0x87}; // Note: Echo flag set.
+  uint8_t S2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x07, 0x02, 0x01, 0x87}; // Note: Echo flag set.
 
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
   p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
@@ -4844,7 +4845,7 @@ void test_kex_including_node_csa_disable(void) {
                              0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0};
 
   uint8_t s2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                   0x06, // bit 0 is echo field, bit 1 is CSA.
+                                   0x06, // bit 0 is echo field, bit 1 is CSA, bit 2 is NLS support.
                                    0x02, // Supported schemes. Scheme 1.
                                    0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
                                    0x87};// Requested keys bits. Security 2 class 1, Security 0 network key.
@@ -4960,7 +4961,7 @@ void test_kex_including_node_csa_disable(void) {
 
 
   // Expect Echo(KEX Report) to be sent.
-  uint8_t S2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x03, 0x02, 0x01, 0x87}; // Note: Echo flag set.
+  uint8_t S2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x07, 0x02, 0x01, 0x87}; // Note: Echo flag set.
 
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
   p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.

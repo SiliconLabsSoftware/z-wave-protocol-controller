@@ -37,6 +37,7 @@ typedef struct{
   struct S2     * s2_handle;      ///< Handle reference to the S2 structure to which this event relates.
   uint8_t         security_keys;  ///< Security keys requested by the joining node.
   uint8_t         csa;            ///< Client side authentication was requested
+  uint8_t         nls_available;
 }s2_node_inclusion_request_t;
 
 typedef struct{
