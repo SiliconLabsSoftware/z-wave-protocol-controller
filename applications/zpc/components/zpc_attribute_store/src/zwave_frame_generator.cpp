@@ -169,7 +169,7 @@ void zwave_frame_generator::validate_frame(uint16_t *frame_length) const
   } else {
     std::ostringstream out;
     out << "Frame size (" << current_zwave_frame_index
-        << ") does not match the expected size (" << current_zwave_frame_index
+        << ") does not match the expected size (" << current_zwave_frame_size
         << ")";
     throw std::runtime_error(out.str());
   }
