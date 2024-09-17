@@ -344,7 +344,7 @@ static void s2_kex_rep_recv(void)
     return;
   }
   mp_context->csa_support = (mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS] & SECURITY_2_KEX_REP_CSA_MASK) ? 1 : 0;
-  mp_context->nls_state = (mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS] && SECURITY_2_KEX_REP_NLS_MASK) ? 1 : 0;
+  mp_context->nls_state = (mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS] & SECURITY_2_KEX_REP_NLS_MASK) ? 1 : 0;
 
   s2_event = (zwave_event_t *)m_event_buffer;
   s2_event->event_type                                    = S2_NODE_INCLUSION_KEX_REPORT_EVENT;

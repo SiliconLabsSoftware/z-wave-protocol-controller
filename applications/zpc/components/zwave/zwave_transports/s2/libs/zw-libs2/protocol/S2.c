@@ -1445,9 +1445,9 @@ static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8
       case NLS_STATE_REPORT_V2:
         if (cmd_length == SECURITY_2_V2_NLS_STATE_REPORT_LENGTH)
         {
-          S2_notify_nls_state_report(src->l_node, src->class_id,
-                                      cmd[SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD],
-                                      cmd[SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD]);
+          S2_notify_nls_state_report(src->r_node, src->class_id,
+                                      cmd[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] & SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD,
+                                      cmd[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] & SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD);
         }
         break;
       case NLS_NODE_LIST_GET_V2:
