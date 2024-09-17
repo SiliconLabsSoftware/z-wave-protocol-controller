@@ -1885,11 +1885,13 @@ S2_is_send_data_multicast_busy(struct S2* p_context)
 static void S2_send_nls_state_set(struct S2* p_context, s2_connection_t* con, bool nls_active)
 {
   CTX_DEF
-  ctxt->workbuf[SECURITY_2_COMMAND_CLASS_POS]              = COMMAND_CLASS_SECURITY_2_V2;
-  ctxt->workbuf[SECURITY_2_COMMAND_POS]                    = NLS_STATE_SET_V2;
-  ctxt->workbuf[SECURITY_2_V2_NLS_STATE_SET_STATE_POS]     = nls_active;
 
-  S2_send_data(ctxt, con, ctxt->workbuf, SECURITY_2_V2_NLS_STATE_SET_LENGTH);
+  uint8_t plain_text[SECURITY_2_V2_NLS_STATE_SET_LENGTH] = { 0 };
+  plain_text[SECURITY_2_COMMAND_CLASS_POS]              = COMMAND_CLASS_SECURITY_2_V2;
+  plain_text[SECURITY_2_COMMAND_POS]                    = NLS_STATE_SET_V2;
+  plain_text[SECURITY_2_V2_NLS_STATE_SET_STATE_POS]     = nls_active;
+
+  S2_send_data(ctxt, con, plain_text, SECURITY_2_V2_NLS_STATE_SET_LENGTH);
 }
 
 static void S2_send_nls_state_get(struct S2* p_context, s2_connection_t* con)
@@ -1900,7 +1902,7 @@ static void S2_send_nls_state_get(struct S2* p_context, s2_connection_t* con)
   plain_text[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
   plain_text[SECURITY_2_COMMAND_POS]        = NLS_STATE_GET_V2;
 
-  S2_send_data(ctxt, con, ctxt->workbuf, SECURITY_2_V2_NLS_STATE_GET_LENGTH);
+  S2_send_data(ctxt, con, plain_text, SECURITY_2_V2_NLS_STATE_GET_LENGTH);
 }
 
 static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con)
@@ -1914,5 +1916,5 @@ static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con)
   plain_text[SECURITY_2_COMMAND_POS]        = NLS_STATE_REPORT_V2;
   plain_text[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] = nls_bitfield;
 
-  S2_send_data(ctxt, con, ctxt->workbuf, SECURITY_2_V2_NLS_STATE_GET_LENGTH);
+  S2_send_data(ctxt, con, plain_text, SECURITY_2_V2_NLS_STATE_REPORT_LENGTH);
 }
