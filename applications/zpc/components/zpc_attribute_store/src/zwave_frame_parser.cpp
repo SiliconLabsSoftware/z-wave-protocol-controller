@@ -71,12 +71,23 @@ uint8_t zwave_frame_parser::read_byte(attribute_store_node_t node)
   return value;
 }
 
-zwave_report_bitmask_t zwave_frame_parser::read_bitmask()
+zwave_report_bitmask_t zwave_frame_parser::read_bitmask(uint8_t bitmask_length)
 {
   constexpr uint8_t SUPPORT_BITMASK_SIZE = sizeof(zwave_report_bitmask_t);
   constexpr uint8_t BITMASK_SIZE         = SUPPORT_BITMASK_SIZE * 8;
 
-  uint8_t bitmask_length                    = this->read_byte();
+  if (bitmask_length > BITMASK_SIZE) {
+    sl_log_critical(LOG_TAG,
+                    "Invalid bitmask size in read_bitmask, must be less than or equal to %d",
+                    SUPPORT_BITMASK_SIZE);
+    throw std::runtime_error("Critical error in read_bitmask. This should not happen.");
+  }
+
+  // Read the first byte if the length is not provided
+  if (bitmask_length == 0) {
+    bitmask_length = read_byte();
+  }
+
   std::bitset<BITMASK_SIZE> support_bitmask = 0;
 
   if (bitmask_length > SUPPORT_BITMASK_SIZE) {
@@ -100,9 +111,10 @@ zwave_report_bitmask_t zwave_frame_parser::read_bitmask()
 }
 
 zwave_report_bitmask_t
-  zwave_frame_parser::read_bitmask(attribute_store_node_t node)
+  zwave_frame_parser::read_bitmask(attribute_store_node_t node,
+                                   uint8_t bitmask_length)
 {
-  zwave_report_bitmask_t value = read_bitmask();
+  zwave_report_bitmask_t value = read_bitmask(bitmask_length);
 
   // Store value if applicable
   helper_store_value(node, value);
@@ -118,7 +130,7 @@ zwave_frame_parser::zwave_parser_bitmask_result
 
   if (!bitmask_data.empty()) {
     uint8_t value_from_frame = read_byte();
-    
+
     for (const auto &current_bitmask: bitmask_data) {
       // Extract value
       uint8_t current_value = current_bitmask.bitmask & value_from_frame;

@@ -548,6 +548,23 @@ void test_read_bitmask_no_attribute_happy_case()
                             "Should be able to read support bitmask value");
 }
 
+void test_read_bitmask_no_attribute_with_size_happy_case()
+{
+  const uint8_t tested_frame[] = {0x01, 0x02, 0xFF, 0x02, 0x12};
+  uint8_t expected_frame_size  = sizeof(tested_frame);
+
+  zwave_frame_parser parser(tested_frame, expected_frame_size);
+
+  // Read first value
+  zwave_report_bitmask_t reported_value
+    = parser.read_bitmask(static_cast<uint8_t>(3));
+  zwave_report_bitmask_t tested_value = 0x1202FF;
+
+  TEST_ASSERT_EQUAL_MESSAGE(tested_value,
+                            reported_value,
+                            "Should be able to read support bitmask value");
+}
+
 void test_read_bitmask_attribute_happy_case()
 {
   const uint8_t tested_frame[] = {0x01, 0x02, 3, 0x12, 0xFF, 0x02};
@@ -574,6 +591,33 @@ void test_read_bitmask_attribute_happy_case()
     "Value on node should match the returned value");
 }
 
+void test_read_bitmask_attribute_given_size_happy_case()
+{
+  const uint8_t tested_frame[] = {0x01, 0x02, 0x12, 0xFF, 0x02, 0x15};
+  uint8_t expected_frame_size  = sizeof(tested_frame);
+
+  zwave_frame_parser parser(tested_frame, expected_frame_size);
+
+  // Any nodes that have the right type (zwave_report_bitmask_t) and under endpoint_id will do the trick here
+  attribute_store::attribute endpoint_id_node_cpp(endpoint_id_node);
+  auto bitmask_node = endpoint_id_node_cpp.add_node(
+    ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SUPPORTED_MODES);
+
+  // Read first value
+  zwave_report_bitmask_t reported_value
+    = parser.read_bitmask(bitmask_node, static_cast<uint8_t>(4));
+  zwave_report_bitmask_t tested_value = 0x1502FF12;
+
+  TEST_ASSERT_EQUAL_MESSAGE(tested_value,
+                            reported_value,
+                            "Should be able to read support bitmask value");
+
+  TEST_ASSERT_EQUAL_MESSAGE(
+    tested_value,
+    bitmask_node.get<zwave_report_bitmask_t>(REPORTED_ATTRIBUTE),
+    "Value on node should match the returned value");
+}
+
 void test_read_bitmask_value_too_big()
 {
   const uint8_t tested_frame[] = {0x01, 0x02, 5, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
@@ -582,6 +626,18 @@ void test_read_bitmask_value_too_big()
   zwave_frame_parser parser(tested_frame, expected_frame_size);
 
   TEST_ASSERT_EXCEPTION_MESSAGE(parser.read_bitmask(),
+                                "Should throw an exception when trying to read "
+                                "a support bitmask value that is too big");
+}
+
+void test_read_bitmask_specified_value_too_big()
+{
+  const uint8_t tested_frame[] = {0x01, 0x02, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+
+  uint8_t expected_frame_size = sizeof(tested_frame);
+  zwave_frame_parser parser(tested_frame, expected_frame_size);
+
+  TEST_ASSERT_EXCEPTION_MESSAGE(parser.read_bitmask(static_cast<uint8_t>(5)),
                                 "Should throw an exception when trying to read "
                                 "a support bitmask value that is too big");
 }

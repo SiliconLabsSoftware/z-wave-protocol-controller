@@ -250,12 +250,14 @@ class zwave_frame_parser
    * 
    * @note Calling this function will read the current value in the frame (starting index = 2) and increment it.
    * 
+   * @param bitmask_length The size of the bitmask to read. If 0, the function will read the first byte to determine the size. Accepted values : 0...4 
+   * 
    * @exception std::out_of_range if the current index is out of range
    * @exception std::invalid_argument if bitmask length is greater than 4
    * 
    * @return The bitmask read from the frame
    */
-  zwave_report_bitmask_t read_bitmask();
+  zwave_report_bitmask_t read_bitmask(uint8_t bitmask_length = 0);
 
   /**
    * @brief Read a bitmask (adaptive size) from the frame and store it in the attribute store
@@ -272,6 +274,7 @@ class zwave_frame_parser
    * @note Calling this function will read the current value in the frame (starting index = 2) and increment it (to 1 + bitmask size)
    * 
    * @param node The node in the attribute store where to store the value.
+   * @param bitmask_length The size of the bitmask to read. If 0, the function will read the first byte to determine the size. Accepted values : 0...4 
    * 
    * @exception std::out_of_range if the current index is out of range
    * @exception std::invalid_argument if something goes wrong when storing the value in the attribute store
@@ -279,7 +282,8 @@ class zwave_frame_parser
    * 
    * @return The bitmask read from the frame
    */
-  zwave_report_bitmask_t read_bitmask(attribute_store_node_t node);
+  zwave_report_bitmask_t read_bitmask(attribute_store_node_t node,
+                                      uint8_t bitmask_length = 0);
 
   /**
    * @brief Convenience function to read a string (ASCII) from the frame
