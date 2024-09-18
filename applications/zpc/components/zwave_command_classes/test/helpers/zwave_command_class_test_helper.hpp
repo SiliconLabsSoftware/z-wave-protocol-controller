@@ -226,7 +226,7 @@ class zwave_frame : public std::vector<uint8_t> {
  * 
  * @brief Command class version
  */
-void helper_set_version(const zwave_cc_version_t &version);
+void helper_set_version(const zwave_cc_version_t &version, attribute_store::attribute parent = cpp_endpoint_id_node);
 
 /**
  * @brief Get version for current class

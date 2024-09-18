@@ -172,9 +172,9 @@ void zwave_frame::add_bitmask(uint8_t size, uint32_t bitmask)
 ////////////////////////////////////////////////////////////////////////////////////
 // Attribute store helpers
 ////////////////////////////////////////////////////////////////////////////////////
-void helper_set_version(const zwave_cc_version_t &version)
+void helper_set_version(const zwave_cc_version_t &version, attribute_store::attribute parent)
 {
-  cpp_endpoint_id_node.add_node(current_command_class_id << 8 | 0x01)
+  parent.add_node(current_command_class_id << 8 | 0x01)
     .set_reported(version);
 }
 
