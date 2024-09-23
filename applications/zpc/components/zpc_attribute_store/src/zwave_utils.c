@@ -359,10 +359,8 @@ zwave_cc_version_t
                                        zwave_node_id_t node_id,
                                        zwave_endpoint_id_t endpoint_id)
 {
-  unid_t node_unid;
-  zwave_unid_from_node_id(node_id, node_unid);
   attribute_store_node_t endpoint_node
-    = attribute_store_network_helper_get_endpoint_node(node_unid, endpoint_id);
+    = zwave_get_endpoint_node(node_id, endpoint_id);
 
   if (endpoint_node == ATTRIBUTE_STORE_INVALID_NODE) {
     return 0;
@@ -376,6 +374,16 @@ zwave_cc_version_t
   attribute_store_get_reported(version_node, &version, sizeof(version));
 
   return version;
+}
+
+attribute_store_node_t zwave_get_endpoint_node(zwave_node_id_t node_id,
+                                               zwave_endpoint_id_t endpoint_id)
+{
+  unid_t node_unid;
+  zwave_unid_from_node_id(node_id, node_unid);
+  return attribute_store_network_helper_get_endpoint_node(node_unid,
+                                                          endpoint_id);
+
 }
 
 bool zwave_security_validation_is_node_s2_capable(zwave_node_id_t node_id)

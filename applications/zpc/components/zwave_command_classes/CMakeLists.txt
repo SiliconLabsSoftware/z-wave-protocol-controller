@@ -18,6 +18,7 @@ add_library(
   src/zwave_command_class_battery.cpp
   src/zwave_command_class_central_scene.c
   src/zwave_command_class_configuration_control.c
+  src/zwave_command_class_crc16.cpp
   src/zwave_command_class_device_reset_locally.cpp
   src/zwave_command_class_door_lock_control.cpp
   src/zwave_command_class_firmware_update.c

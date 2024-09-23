@@ -561,6 +561,10 @@ DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETERS_TO_DISCOVER,
 /// zwave_cc_version_t
 DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CRC16_VERSION,
                  ((COMMAND_CLASS_CRC_16_ENCAP << 8) | 0x01))
+// Flag to disable CRC16 response if necessary (default is enabled)
+// Should not be used (unless with some faulty devices)
+DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CRC16_DISABLE_CRC16,
+                 ((COMMAND_CLASS_CRC_16_ENCAP << 8) | 0x02))
 
 /////////////////////////////////////////////////
 // Device Reset Locally Command Class

@@ -32,6 +32,8 @@
 #include "zwave_command_class_wake_up_types.h"
 #include "attribute_store_defined_attribute_types.h"
 
+#include "attribute_store.h"
+
 /**
  * @ingroup zpc_utils
  * @{
@@ -214,12 +216,22 @@ zwave_cc_version_t
                                        zwave_endpoint_id_t endpoint_id);
 
 /**
+ * @brief Get endpoint node associated with the ZWave NodeID and Endpoint ID
+ * 
+ * @param node_id       The Z-Wave NodeID for which we want to find the endpoint
+ * @param endpoint_id   The Z-Wave Endpoint ID for which we want to find the endpoint
+ * 
+ * @returns The attribute store node associated with the endpoint.
+ */
+attribute_store_node_t zwave_get_endpoint_node(zwave_node_id_t node_id,
+                                               zwave_endpoint_id_t endpoint_id);
+  /**
  * @brief Verify if we registered a node as supporting S2.
  *
  * @param node_id             The NodeID that supports S2.
  * @returns True if the node has been registered to support S2, false otherwise
  */
-bool zwave_security_validation_is_node_s2_capable(zwave_node_id_t node_id);
+  bool zwave_security_validation_is_node_s2_capable(zwave_node_id_t node_id);
 
 /**
  * @brief Sets a node as S2 capable, meaning that we know it supports S2,
