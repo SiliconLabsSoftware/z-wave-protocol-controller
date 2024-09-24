@@ -280,14 +280,14 @@ Unify Clusters
 UAM files
 ---------
 
-.. warning:: 
-    No UAM files are used by this command class
+.. note:: 
+    Do NOT use UAM file
  
 Bindings
 --------
 
-.. warning:: 
-    No direct bindings are used for this command class. See next section to see how to interact with it.
+.. note:: 
+    Map the attribute onto the Door Lock commands
  
 
 Command actions
