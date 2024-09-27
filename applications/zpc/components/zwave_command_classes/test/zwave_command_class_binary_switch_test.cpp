@@ -12,6 +12,7 @@
  *****************************************************************************/
 // Base class
 #include "zwave_command_class_binary_switch.h"
+#include "zwave_command_class_binary_switch_types.h"
 #include "zwave_command_classes_utils.h"
 #include "unity.h"
 
@@ -128,14 +129,14 @@ void test_binary_switch_set_version_1_happy_case()
   auto value_node      = helper_get_value_node();
 
   // Test with reported value
-  value_node.set_reported(tested_value);
+  value_node.set_reported<binary_switch_value_t>(tested_value);
   helper_test_get_set_frame_happy_case(SWITCH_BINARY_SET,
                                        value_node,
                                        {tested_value});
 
   // Test with desired value
   tested_value = 0x00;
-  value_node.set_desired(tested_value);
+  value_node.set_desired<binary_switch_value_t>(tested_value);
   helper_test_get_set_frame_happy_case(SWITCH_BINARY_SET,
                                        value_node,
                                        {tested_value});
@@ -152,11 +153,11 @@ void test_binary_switch_set_version_2_happy_case()
   uint8_t tested_duration = 0x55;
 
   // Set value node
-  value_node.set_reported(tested_value);
+  value_node.set_reported<binary_switch_value_t>(tested_value);
   // Set duration
-  duration_node.set_reported(tested_duration + 1);
+  duration_node.set_reported<binary_switch_duration_t>(tested_duration + 1);
   // See if we take the duration from the desired value
-  duration_node.set_desired(tested_duration);
+  duration_node.set_desired<binary_switch_duration_t>(tested_duration);
 
   helper_test_get_set_frame_happy_case(SWITCH_BINARY_SET,
                                        value_node,
@@ -174,7 +175,7 @@ void test_binary_switch_report_version_1_happy_case()
 
   // Verify that the value is updated
   TEST_ASSERT_EQUAL_MESSAGE(tested_value,
-                            value_node.reported<uint8_t>(),
+                            value_node.reported<binary_switch_value_t>(),
                             "Value isn't updated after report");
 }
 
@@ -193,12 +194,12 @@ void test_binary_switch_report_version_2_happy_case()
 
   // Verify that the value is updated
   TEST_ASSERT_EQUAL_MESSAGE(tested_value,
-                            value_node.reported<uint8_t>(),
+                            value_node.reported<binary_switch_value_t>(),
                             "Value isn't updated after report");
 
   // Verify that the duration is updated
   TEST_ASSERT_EQUAL_MESSAGE(tested_duration,
-                            duration_node.reported<uint8_t>(),
+                            duration_node.reported<binary_switch_duration_t>(),
                             "Duration isn't updated after report");
 }
 
@@ -257,7 +258,7 @@ void test_binary_switch_report_adjusted_value_v1() {
   // Verify that the value is not updated
    // Verify that the duration is updated
   TEST_ASSERT_EQUAL_MESSAGE(0xFF,
-                            value_node.reported<uint8_t>(),
+                            value_node.reported<binary_switch_value_t>(),
                             "Value should be adjusted to 0xFF after report");
 }
 
@@ -273,12 +274,12 @@ void test_binary_switch_report_adjusted_value_v2()
 
   // Verify that the value is updated
   TEST_ASSERT_EQUAL_MESSAGE(0xFF,
-                            value_node.reported<uint8_t>(),
+                            value_node.reported<binary_switch_value_t>(),
                             "Value should be adjusted to 0xFF after report");
 
   // Verify that the duration is updated
   TEST_ASSERT_EQUAL_MESSAGE(0x00,
-                            duration_node.reported<uint8_t>(),
+                            duration_node.reported<binary_switch_duration_t>(),
                             "Duration value should be adjusted");
 }
 

@@ -12,6 +12,7 @@
  *****************************************************************************/
 // Includes from this component
 #include "zwave_command_class_binary_switch.h"
+#include "zwave_command_class_binary_switch_types.h"
 #include "zwave_command_classes_utils.h"
 
 // Generic includes
@@ -47,7 +48,7 @@ constexpr char LOG_TAG[] = "zwave_command_class_binary_switch";
 
 // Constants
 constexpr uint8_t VALUE_ON  = 0xFF;
-constexpr uint8_t VALUE_OFF = 0xFF;
+constexpr uint8_t VALUE_OFF = 0x00;
 
 // Cpp helpers
 namespace
@@ -121,12 +122,16 @@ static sl_status_t zwave_command_class_binary_switch_set(
     frame_generator.initialize_frame(SWITCH_BINARY_SET,
                                      frame,
                                      expected_frame_size);
-    frame_generator.add_value(value_node, DESIRED_OR_REPORTED_ATTRIBUTE);
+
+    auto value = value_node.desired_or_reported<binary_switch_value_t>();
+    frame_generator.add_raw_byte(static_cast<uint8_t>(value));
 
     if (current_version >= 2) {
       auto duration_node
         = value_node.parent().child_by_type(ATTRIBUTE(DURATION));
-      frame_generator.add_value(duration_node, DESIRED_OR_REPORTED_ATTRIBUTE);
+
+      auto duration = duration_node.desired_or_reported<binary_switch_duration_t>();
+      frame_generator.add_raw_byte(static_cast<uint8_t>(duration));
     }
 
     frame_generator.validate_frame(frame_length);
@@ -213,14 +218,14 @@ static sl_status_t zwave_command_class_binary_switch_handle_report(
       }
 
       if (target_value == current_value) {
-        value_node.set_reported<uint8_t>(current_value);
+        value_node.set_reported<binary_switch_value_t>(current_value);
       } else {
         sl_log_info(LOG_TAG,
                     "Binary Switch waiting to reach target value : %d",
                     target_value);
       }
       // Read duration
-      uint8_t current_duration = parser.read_byte(duration_node);
+      binary_switch_duration_t current_duration = parser.read_byte();
 
       sl_log_debug(LOG_TAG,
                    "Binary Switch Report Duration : %d",
@@ -228,16 +233,18 @@ static sl_status_t zwave_command_class_binary_switch_handle_report(
 
       // If duration is 0xFF (default factory), we consider this to be instantaneous
       if (current_duration == 0xFF) {
-        duration_node.set_reported<uint8_t>(0);
+        duration_node.set_reported<binary_switch_duration_t>(0);
         sl_log_info(
           LOG_TAG,
           "Forcing the duration of Binary Switch to %d since we received %d",
           0,
           0xFF);
+      } else {
+        duration_node.set_reported<binary_switch_duration_t>(current_duration);
       }
     } else {
       // In v1 we only have the value so we set it without check
-      value_node.set_reported<uint8_t>(current_value);
+      value_node.set_reported<binary_switch_value_t>(current_value);
     }
 
   } catch (const std::exception &e) {
