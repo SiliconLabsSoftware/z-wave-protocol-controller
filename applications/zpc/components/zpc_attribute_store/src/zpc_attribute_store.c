@@ -29,6 +29,7 @@
 #include "attribute_store_helper.h"
 #include "attribute_store_configuration.h"
 #include "unify_dotdot_attribute_store.h"
+#include "dotdot_mqtt.h"
 
 #include "sl_log.h"
 #define LOG_TAG "zpc_attribute_store"
@@ -185,6 +186,15 @@ static sl_status_t invoke_update_callbacks_in_network()
   return refresh;
 }
 
+
+void disable_unsupported_ucl_commands()
+{
+  // OnOff cluster
+  uic_mqtt_dotdot_on_off_off_with_effect_callback_clear();
+  uic_mqtt_dotdot_on_off_on_with_recall_global_scene_callback_clear();
+  uic_mqtt_dotdot_on_off_on_with_timed_off_callback_clear();
+}
+
 sl_status_t zpc_attribute_store_init()
 {
   sl_status_t status = zpc_attribute_store_register_known_attribute_types();
@@ -204,7 +214,13 @@ sl_status_t zpc_attribute_store_init()
   // Configure the Unify DotDot Attribute Store component:
   unify_dotdot_attribute_store_set_configuration(&zpc_configuration);
 
+  // Mark some command as unsupported by ZPC 
+  // We need to do that here because this component is called after the UCL cluster
+  // Clear the callbacks we don't need for ZPC only 
+  disable_unsupported_ucl_commands();
+
   // Just simulate an update of the whole Attribute Store.
   status |= invoke_update_callbacks_in_network();
+
   return status;
 }
