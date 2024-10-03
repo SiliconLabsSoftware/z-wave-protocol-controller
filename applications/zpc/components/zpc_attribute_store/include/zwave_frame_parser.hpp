@@ -435,6 +435,9 @@ class zwave_frame_parser
 
     if (current_attribute.is_valid()) {
       current_attribute.set_reported<T>(value);
+      sl_log_debug("zwave_frame_parser",
+                   "Attribute updated : %s",
+                   current_attribute.value_to_string().c_str());
     } else {
       sl_log_warning(
         "zwave_frame_parser",
