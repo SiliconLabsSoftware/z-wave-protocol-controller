@@ -43,7 +43,8 @@
 #define ATTRIBUTE(type) ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_##type
 
 // Log tag
-static constexpr char LOG_TAG[] = "zwave_command_class_notification";
+static constexpr char LOG_TAG[]          = "zwave_command_class_notification";
+static constexpr char NOTIFICATION_TAG[] = "NOTIFICATION";
 static constexpr unsigned int MAX_SUPPORTED_NOTIFICATION_TYPES  = 24;
 static constexpr unsigned int MAX_SUPPORTED_NOTIFICATION_STATES = 256;
 static constexpr unsigned int NOTIFICATION_REPORT_EVENT_STATE_PARAMETER_OFFSET
@@ -63,16 +64,38 @@ static sl_status_t zwave_command_class_notification_update_state_event(
   if (notification_event == 0xFE) {
     notification_event = 0;
   }
+  auto version_node = notification_type_node.parent().child_by_type(ATTRIBUTE(VERSION));
+  zwave_cc_version_t version = version_node.reported<uint8_t>();
 
-  attribute notification_event_node
+  attribute notification_event_node;
+  if (version > 2)
+  {
+    notification_event_node
     = attribute_store_get_node_child_by_value(notification_type_node,
                                               ATTRIBUTE(STATE),
                                               REPORTED_ATTRIBUTE,
                                               &state,
                                               sizeof(state),
                                               0);
-  notification_event_node
+    notification_event_node
     = notification_event_node.child_by_type(ATTRIBUTE(EVENT), 0);
+    sl_log_info(NOTIFICATION_TAG,
+              "<zwAlarm Type: %u> State: %u Event: %u",
+              notification_type_node.reported<uint8_t>(),
+              state,
+              notification_event);
+  }
+  else
+  {
+    // version 1 and 2 do not have a concept of state hence it will be a dummy parent node
+    auto state_node = notification_type_node.child_by_type(ATTRIBUTE(STATE));
+    notification_event_node = state_node.emplace_node(ATTRIBUTE(EVENT));
+    sl_log_info(NOTIFICATION_TAG,
+              "<zwAlarm Type: %u> Event: %u",
+              notification_type_node.reported<uint8_t>(),
+              notification_event);
+  }
+  
 
   if (!notification_event_node.is_valid()) {
     sl_log_debug(LOG_TAG,
@@ -83,6 +106,7 @@ static sl_status_t zwave_command_class_notification_update_state_event(
     return SL_STATUS_OK;
   }
   notification_event_node.set_reported(notification_event);
+
 
   uint8_t state_event_param_len
     = frame->properties1
@@ -103,6 +127,10 @@ static sl_status_t zwave_command_class_notification_update_state_event(
     // Length (state_event_param_len) is zero (attribute back to undefined)
     int32_t state_event = frame->eventParameter1;
     notification_event_param.set_reported(state_event);
+    sl_log_info(NOTIFICATION_TAG,
+              "Event: %u Param: %u",
+              notification_event,
+              state_event);
   } else {
     // No Event/state parameter byte added to the payload, we just undefine the
     // value again.
@@ -160,6 +188,10 @@ static sl_status_t zwave_command_class_notification_report_cmd_handler(
           = v1_alarm_type_node.add_node(ATTRIBUTE(V1_ALARM_LEVEL));
         vl_alarm_level_node.set_reported(frame->v1AlarmLevel);
       }
+      sl_log_info(NOTIFICATION_TAG,
+                  "<V1 Type: %u> level: %u",
+                  v1_alarm_type,
+                  frame->v1AlarmLevel);
     }
 
     const uint8_t notification_type = frame->notificationType;
@@ -416,6 +448,10 @@ static sl_status_t
       if (version > 2) {
         attribute_store_add_node(ATTRIBUTE(SUPPORTED_STATES_OR_EVENTS),
                                  notification_type);
+      }
+      else if (version > 1)
+      {
+        attribute_store_add_node(ATTRIBUTE(STATE), notification_type);
       }
     }
   }
@@ -698,6 +734,39 @@ void zwave_command_class_notification_on_version_attribute_update(
   }
 }
 
+static sl_status_t zwave_command_class_alarm_get(
+  attribute_store_node_t node, uint8_t *frame, uint16_t *frame_len)
+{
+  auto alarm_get_frame
+    = reinterpret_cast<ZW_ALARM_GET_V2_FRAME *>(frame);
+
+  attribute_store::attribute ep_node
+    = attribute_store_get_first_parent_with_type(node, ATTRIBUTE_ENDPOINT_ID);
+  auto version_node          = ep_node.child_by_type(ATTRIBUTE(VERSION));
+  zwave_cc_version_t version = version_node.reported<zwave_cc_version_t>();
+
+  if (version > 2)
+  {
+    sl_log_error(LOG_TAG, "Should not be called for versions > v2");
+    return SL_STATUS_FAIL;
+  }
+  alarm_get_frame->cmdClass    = COMMAND_CLASS_NOTIFICATION_V8;
+  alarm_get_frame->cmd         = NOTIFICATION_GET_V8;
+  alarm_get_frame->alarmType = 0x00; //v1 AlarmType
+  // read the Notification type
+  attribute_store_node_t type_node
+    = attribute_store_get_first_parent_with_type(node, ATTRIBUTE(TYPE));
+  uint8_t notification_type;
+  attribute_store_get_reported(type_node,
+                               &notification_type,
+                               sizeof(notification_type));
+  alarm_get_frame->zwaveAlarmType = notification_type;
+
+  *frame_len = sizeof(ZW_ALARM_GET_V2_FRAME);
+
+  return SL_STATUS_OK;  
+}
+
 static sl_status_t zwave_command_class_notification_get(
   attribute_store_node_t node, uint8_t *frame, uint16_t *frame_len)
 {
@@ -790,6 +859,9 @@ sl_status_t zwave_command_class_notification_init()
     ATTRIBUTE(SUPPORTED_NOTIFICATION_TYPES),
     nullptr,
     zwave_command_class_supported_notification_types_get);
+  attribute_resolver_register_rule(ATTRIBUTE(STATE),
+                                   nullptr,
+                                   zwave_command_class_alarm_get);
   attribute_resolver_register_rule(ATTRIBUTE(EVENT),
                                    nullptr,
                                    zwave_command_class_notification_get);
