@@ -10258,6 +10258,34 @@ void uic_mqtt_dotdot_state_publish_generated_discover_security_command(
                     payload.size(),
                     false);
 }
+/**
+ * @brief Publishes an incoming/generated EnableNls command for
+ * the State cluster.
+ *
+ * Publication will be made at the following topic
+ * ucl/by-unid/UNID/State/GeneratedCommands/EnableNls
+ *
+ * @param unid      The UNID of the node that sent us the command.
+ * 
+ * 
+ */
+void uic_mqtt_dotdot_state_publish_generated_enable_nls_command(
+  const dotdot_unid_t unid
+) {
+  // Create the topic
+  std::string topic = "ucl/by-unid/" + std::string(unid) + "/";
+  topic += "State/GeneratedCommands/EnableNls";
+
+  std::string payload =
+    get_json_payload_for_state_enable_nls_command(
+    );
+
+  // Publish our command
+  uic_mqtt_publish(topic.c_str(),
+                    payload.c_str(),
+                    payload.size(),
+                    false);
+}
 
 
 /**

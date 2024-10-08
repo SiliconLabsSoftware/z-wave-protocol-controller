@@ -47402,6 +47402,7 @@ ucl/by-unid/<UNID>/<EP>/State/Attributes/ClusterRevision/Reported { "value": <RE
               "DiscoverNeighbors",
               "Interview",
               "DiscoverSecurity",
+              "EnableNls",
               "WriteAttributes",
               "ForceReadAttributes"
             ]
@@ -47422,7 +47423,7 @@ To see supported commands for State cluster under the by-unid topic space:
 ```console
 mosquitto_sub -t 'ucl/by-unid/<UNID>/State/SupportedCommands'
 # Example output
-ucl/by-unid/<UNID>/State/SupportedCommands { "value": ["Remove","RemoveOffline","DiscoverNeighbors","Interview","DiscoverSecurity","WriteAttributes", "ForceReadAttributes"] }
+ucl/by-unid/<UNID>/State/SupportedCommands { "value": ["Remove","RemoveOffline","DiscoverNeighbors","Interview","DiscoverSecurity","EnableNls","WriteAttributes", "ForceReadAttributes"] }
 ```
 
 To see supported generated commands for State cluster under the by-unid topic space:
@@ -47637,6 +47638,45 @@ To receive a State/DiscoverSecurity generated command from a UNID/endpoint:
 
 ```console
 mosquitto_sub -t 'ucl/by-unid/<UNID>/State/GeneratedCommands/DiscoverSecurity'
+```
+
+<br><br>
+
+\subsection state_enable_nls_cmd State/EnableNls Command
+
+**MQTT Topic Pattern:**
+
+```
+[PREFIX]/State/Commands/EnableNls
+[PREFIX]/State/GeneratedCommands/EnableNls
+```
+
+**MQTT Payload JSON Schema:**
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "State Cluster EnableNls Command Properties",
+  "type": "object",
+  "properties": {
+  },
+  "required": [
+  ]
+}
+```
+
+**Example Mosquitto CLI Tool Usage**
+
+To send a State/EnableNls command under the by-unid topic space:
+
+```console
+mosquitto_pub -t 'ucl/by-unid/<UNID>/State/Commands/EnableNls' -m  '{  }'
+```
+
+To receive a State/EnableNls generated command from a UNID/endpoint:
+
+```console
+mosquitto_sub -t 'ucl/by-unid/<UNID>/State/GeneratedCommands/EnableNls'
 ```
 
 <br><br>

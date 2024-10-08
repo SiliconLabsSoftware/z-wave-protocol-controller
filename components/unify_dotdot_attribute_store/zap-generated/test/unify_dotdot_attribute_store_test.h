@@ -719,6 +719,9 @@
   uic_mqtt_dotdot_state_discover_security_callback_t get_uic_mqtt_dotdot_state_discover_security_callback();
 
 
+  uic_mqtt_dotdot_state_enable_nls_callback_t get_uic_mqtt_dotdot_state_enable_nls_callback();
+
+
   uic_mqtt_dotdot_binding_force_read_attributes_callback_t get_uic_mqtt_dotdot_binding_force_read_attributes_callback();
   uic_mqtt_dotdot_binding_write_attributes_callback_t get_uic_mqtt_dotdot_binding_write_attributes_callback();
 

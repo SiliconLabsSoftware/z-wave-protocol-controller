@@ -35609,6 +35609,11 @@ typedef sl_status_t (*uic_mqtt_dotdot_state_discover_security_callback_t)(
     dotdot_endpoint_id_t endpoint,
     uic_mqtt_dotdot_callback_call_type_t call_type
 );
+typedef sl_status_t (*uic_mqtt_dotdot_state_enable_nls_callback_t)(
+    dotdot_unid_t unid,
+    dotdot_endpoint_id_t endpoint,
+    uic_mqtt_dotdot_callback_call_type_t call_type
+);
 
 typedef struct {
   size_t endpoint_id_list_count;
@@ -35845,6 +35850,46 @@ void uic_mqtt_dotdot_state_generated_discover_security_callback_unset(const uic_
  * +/State/GeneratedCommands/discover_security is received.
  */
 void uic_mqtt_dotdot_state_generated_discover_security_callback_clear();
+/**
+ * @brief Setup callback to be called when a
+ * State/Commands/enable_nls is received.
+ *
+ * Setting this callback will not overwrite the previous set callback
+ * @param callback      Function to be called on command reception
+ */
+void uic_mqtt_dotdot_state_enable_nls_callback_set(const uic_mqtt_dotdot_state_enable_nls_callback_t callback);
+/**
+ * @brief Unsets callback to be called when a
+ * State/Commands/enable_nls is received.
+ *
+ * @param callback      Function to be no longer called on command reception
+ */
+void uic_mqtt_dotdot_state_enable_nls_callback_unset(const uic_mqtt_dotdot_state_enable_nls_callback_t callback);
+/**
+ * @brief Clears all callbacks registered for when
+ * State/Commands/enable_nls is received.
+ */
+void uic_mqtt_dotdot_state_enable_nls_callback_clear();
+
+/**
+ * @brief Setup callback to be called when a
+ * +/State/GeneratedCommands/enable_nls is received.
+ *
+ * Setting this callback will not overwrite the previous set callback
+ * @param callback      Function to be called on command reception
+ */
+void uic_mqtt_dotdot_state_generated_enable_nls_callback_set(const uic_mqtt_dotdot_state_enable_nls_callback_t callback);
+/**
+ * @brief Unsets callback to be called when a
+ * +/State/GeneratedCommands/enable_nls is received.
+ * @param callback      Function to be no longer called on command reception
+ */
+void uic_mqtt_dotdot_state_generated_enable_nls_callback_unset(const uic_mqtt_dotdot_state_enable_nls_callback_t callback);
+/**
+ * @brief Clears all callbacks registered for when
+ * +/State/GeneratedCommands/enable_nls is received.
+ */
+void uic_mqtt_dotdot_state_generated_enable_nls_callback_clear();
 
 /**
  * @brief Setup a callback for WriteAttribute to be called when a

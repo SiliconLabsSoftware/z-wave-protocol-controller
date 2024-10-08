@@ -13695,6 +13695,25 @@ std::string get_json_payload_for_state_discover_security_command(
 
 
 
+std::string get_json_payload_for_state_enable_nls_command(
+  
+){
+  bool command_with_no_fields = true;
+
+  // Create a JSON payload from all the parameters
+  nlohmann::json json_payload;
+
+  // Get the string
+  if (command_with_no_fields == true) {
+    return std::string("{}");
+  }
+  // Payload may contain data from end nodes, which we cannot control, thus we handle if there are non-utf8 characters
+  return json_payload.dump(-1, ' ', false, nlohmann::detail::error_handler_t::replace);
+}
+
+
+
+
 /**
  * @brief JSON parser for ::WriteAttributes command arguments.
  *
