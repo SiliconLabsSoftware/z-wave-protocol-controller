@@ -2378,6 +2378,9 @@ void uic_mqtt_dotdot_state_publish_supported_generated_commands(
   if (command_list->discover_security == true) {
     command_vector.emplace_back("DiscoverSecurity");
   }
+  if (command_list->enable_nls == true) {
+    command_vector.emplace_back("EnableNls");
+  }
   if (command_list->write_attributes == true) {
     command_vector.emplace_back("WriteAttributes");
   }

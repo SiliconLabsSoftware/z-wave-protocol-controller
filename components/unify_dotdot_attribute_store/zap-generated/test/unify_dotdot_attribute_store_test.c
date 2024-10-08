@@ -1170,6 +1170,10 @@ static uic_mqtt_dotdot_state_discover_security_callback_t test_uic_mqtt_dotdot_s
 uic_mqtt_dotdot_state_discover_security_callback_t get_uic_mqtt_dotdot_state_discover_security_callback(){
   return test_uic_mqtt_dotdot_state_discover_security_callback;
 }
+static uic_mqtt_dotdot_state_enable_nls_callback_t test_uic_mqtt_dotdot_state_enable_nls_callback = NULL;
+uic_mqtt_dotdot_state_enable_nls_callback_t get_uic_mqtt_dotdot_state_enable_nls_callback(){
+  return test_uic_mqtt_dotdot_state_enable_nls_callback;
+}
 static uic_mqtt_dotdot_binding_force_read_attributes_callback_t test_uic_mqtt_dotdot_binding_force_read_attributes_callback = NULL;
 static uic_mqtt_dotdot_binding_write_attributes_callback_t test_uic_mqtt_dotdot_binding_write_attributes_callback = NULL;
 
@@ -2773,6 +2777,11 @@ void uic_mqtt_dotdot_state_discover_security_callback_set_stub(
 {
   test_uic_mqtt_dotdot_state_discover_security_callback = callback;
 }
+void uic_mqtt_dotdot_state_enable_nls_callback_set_stub(
+  const uic_mqtt_dotdot_state_enable_nls_callback_t callback, int cmock_num_calls)
+{
+  test_uic_mqtt_dotdot_state_enable_nls_callback = callback;
+}
 void set_uic_mqtt_dotdot_binding_force_read_attributes_callback_stub(
   const uic_mqtt_dotdot_binding_force_read_attributes_callback_t callback, int cmock_num_calls)
 {
@@ -3805,6 +3814,9 @@ void setUp()
   test_uic_mqtt_dotdot_state_discover_security_callback = NULL;
   uic_mqtt_dotdot_state_discover_security_callback_set_Stub(
     &uic_mqtt_dotdot_state_discover_security_callback_set_stub);
+  test_uic_mqtt_dotdot_state_enable_nls_callback = NULL;
+  uic_mqtt_dotdot_state_enable_nls_callback_set_Stub(
+    &uic_mqtt_dotdot_state_enable_nls_callback_set_stub);
   test_uic_mqtt_dotdot_binding_force_read_attributes_callback = NULL;
   uic_mqtt_dotdot_set_binding_force_read_attributes_callback_Stub(
     &set_uic_mqtt_dotdot_binding_force_read_attributes_callback_stub);
@@ -7641,6 +7653,13 @@ void test_automatic_deduction_of_supported_commands()
       
       ));
   }
+  if (NULL != test_uic_mqtt_dotdot_state_enable_nls_callback) {
+    // Dummy command parameters
+  // Invoke with support check
+    TEST_ASSERT_EQUAL(SL_STATUS_FAIL, test_uic_mqtt_dotdot_state_enable_nls_callback(expected_unid,expected_endpoint_id,UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK
+      
+      ));
+  }
   if (NULL != test_uic_mqtt_dotdot_binding_bind_callback) {
     // Dummy command parameters
       const char* cluster_name_value;
@@ -10817,6 +10836,13 @@ void test_automatic_deduction_of_supported_commands()
     // Dummy command parameters
   // Invoke with support check
     TEST_ASSERT_EQUAL(SL_STATUS_OK, test_uic_mqtt_dotdot_state_discover_security_callback(expected_unid,expected_endpoint_id,UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK
+      
+      ));
+  }
+  if (NULL != test_uic_mqtt_dotdot_state_enable_nls_callback) {
+    // Dummy command parameters
+  // Invoke with support check
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, test_uic_mqtt_dotdot_state_enable_nls_callback(expected_unid,expected_endpoint_id,UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK
       
       ));
   }

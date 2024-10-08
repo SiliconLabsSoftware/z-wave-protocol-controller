@@ -4619,6 +4619,25 @@ void uic_mqtt_dotdot_on_state_discover_security(
 // clang-format on
 
 /**
+ * @brief Retrieves the container with callbacks pointer for
+ * by-unid State/Commands/EnableNls messages
+ *
+ * @returns std::set of callbacks.
+ */
+std::set<uic_mqtt_dotdot_state_enable_nls_callback_t> &get_uic_mqtt_dotdot_state_enable_nls_callback();
+
+/**
+ * @brief MQTT Subscribe handler for incoming publications on:
+ * ucl/by-unid/+/+/State/Commands/EnableNls
+ */
+// clang-format off
+void uic_mqtt_dotdot_on_state_enable_nls(
+  const char *topic,
+  const char *message,
+  const size_t message_length);
+// clang-format on
+
+/**
  * @brief Retrieves the container with callback pointers for by-unid
  * /Commands/WriteAttributes messages
  *

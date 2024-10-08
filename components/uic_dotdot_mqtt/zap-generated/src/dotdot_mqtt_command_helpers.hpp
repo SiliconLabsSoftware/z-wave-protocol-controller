@@ -5576,6 +5576,19 @@ std::string get_json_payload_for_state_discover_security_command(
 
 
 /**
+ * @brief Private helper function that will create a JSON string based on the
+ * fields of a State EnableNls command
+ * 
+ * @returns std::string that contains JSON payload
+ */
+std::string get_json_payload_for_state_enable_nls_command(
+  
+);
+
+
+
+
+/**
  * @brief JSON parser for State WriteAttributes command arguments.
  *
  * Parse incoming JSON object to populate command arguments passed in by reference.

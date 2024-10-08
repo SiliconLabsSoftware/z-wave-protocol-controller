@@ -6643,6 +6643,34 @@ void uic_mqtt_dotdot_state_publish_discover_security_command_to_group(
   uint16_t destination_group_id
 );
 /**
+ * @brief Sends/Publishes a EnableNls command for
+ * the State cluster to a destination.
+ *
+ * Publication will be made at the following topic
+ * ucl/by-unid/UNID/State/Commands/EnableNls
+ *
+ * @param destination_unid      The UNID of the node that should receive the command.
+ * 
+ * 
+ */
+void uic_mqtt_dotdot_state_publish_enable_nls_command(
+  const dotdot_unid_t destination_unid
+);
+
+/**
+ * @brief Sends/Publishes a EnableNls command for
+ * the State cluster to a group.
+ *
+ * Publication will be made at the following topic
+ * ucl/by-group/GroupID/State/Commands/EnableNls
+ *
+ * @param destination_group_id  The GroupID that should receive the command.
+ * 
+ */
+void uic_mqtt_dotdot_state_publish_enable_nls_command_to_group(
+  uint16_t destination_group_id
+);
+/**
  * @brief Sends/Publishes a Bind command for
  * the Binding cluster to a destination.
  *

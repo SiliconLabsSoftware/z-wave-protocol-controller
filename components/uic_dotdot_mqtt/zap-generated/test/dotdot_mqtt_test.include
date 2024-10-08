@@ -2816,6 +2816,17 @@ static sl_status_t uic_mqtt_dotdot_state_discover_security_callback_func(
   return SL_STATUS_OK;
 }
 
+static unsigned int uic_mqtt_dotdot_state_enable_nls_callback_count;
+static sl_status_t uic_mqtt_dotdot_state_enable_nls_callback_func(
+    dotdot_unid_t unid,
+    dotdot_endpoint_id_t endpoint,
+    uic_mqtt_dotdot_callback_call_type_t callback_type
+) {
+  uic_mqtt_dotdot_state_enable_nls_callback_count++;
+  num_command_callbacks++;
+  return SL_STATUS_OK;
+}
+
 static unsigned int uic_mqtt_dotdot_binding_bind_callback_count;
 static sl_status_t uic_mqtt_dotdot_binding_bind_callback_func(
     dotdot_unid_t unid,
@@ -3432,6 +3443,8 @@ static unsigned int set_all_callbacks()
   num_callbacks++;
   uic_mqtt_dotdot_state_discover_security_callback_set(&uic_mqtt_dotdot_state_discover_security_callback_func);
   num_callbacks++;
+  uic_mqtt_dotdot_state_enable_nls_callback_set(&uic_mqtt_dotdot_state_enable_nls_callback_func);
+  num_callbacks++;
   uic_mqtt_dotdot_binding_bind_callback_set(&uic_mqtt_dotdot_binding_bind_callback_func);
   num_callbacks++;
   uic_mqtt_dotdot_binding_unbind_callback_set(&uic_mqtt_dotdot_binding_unbind_callback_func);
@@ -3690,6 +3703,7 @@ static void unset_all_callbacks()
   uic_mqtt_dotdot_state_discover_neighbors_callback_clear();
   uic_mqtt_dotdot_state_interview_callback_clear();
   uic_mqtt_dotdot_state_discover_security_callback_clear();
+  uic_mqtt_dotdot_state_enable_nls_callback_clear();
   uic_mqtt_dotdot_clear_state_write_attributes_callbacks();
   uic_mqtt_dotdot_binding_bind_callback_clear();
   uic_mqtt_dotdot_binding_unbind_callback_clear();
@@ -3901,6 +3915,7 @@ static void reset_callback_counters()
   uic_mqtt_dotdot_state_discover_neighbors_callback_count = 0;
   uic_mqtt_dotdot_state_interview_callback_count = 0;
   uic_mqtt_dotdot_state_discover_security_callback_count = 0;
+  uic_mqtt_dotdot_state_enable_nls_callback_count = 0;
   uic_mqtt_dotdot_binding_bind_callback_count = 0;
   uic_mqtt_dotdot_binding_unbind_callback_count = 0;
   uic_mqtt_dotdot_binding_bind_to_protocol_controller_callback_count = 0;

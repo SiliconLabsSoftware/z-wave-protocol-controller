@@ -1387,6 +1387,7 @@ typedef struct _uic_mqtt_dotdot_state_supported_commands_ {
   bool discover_neighbors;
   bool interview;
   bool discover_security;
+  bool enable_nls;
   bool write_attributes;
 } uic_mqtt_dotdot_state_supported_commands_t;
 

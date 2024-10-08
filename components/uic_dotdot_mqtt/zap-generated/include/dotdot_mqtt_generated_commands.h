@@ -4519,6 +4519,20 @@ void uic_mqtt_dotdot_state_publish_generated_interview_command(
 void uic_mqtt_dotdot_state_publish_generated_discover_security_command(
   const dotdot_unid_t unid
 );
+/**
+ * @brief Publishes an incoming/generated EnableNls command for
+ * the State cluster.
+ *
+ * Publication will be made at the following topic
+ * ucl/by-unid/UNID/State/GeneratedCommands/EnableNls
+ *
+ * @param unid      The UNID of the node that sent us the command.
+ * 
+ * 
+ */
+void uic_mqtt_dotdot_state_publish_generated_enable_nls_command(
+  const dotdot_unid_t unid
+);
 
 /**
  * @brief Publishes an incoming/generated WriteAttributes command for
