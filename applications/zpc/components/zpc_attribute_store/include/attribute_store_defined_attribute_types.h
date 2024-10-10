@@ -745,6 +745,9 @@ DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_V1_ALARM_TYPE,
 /** This represents the notification V1 alarm level variable in a given notification type. */
 DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_V1_ALARM_LEVEL,
                  ((COMMAND_CLASS_NOTIFICATION_V4 << 8) | 0x09))
+/** This represents the operating mode (push or pull) of the notification sensor */
+DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+                 ((COMMAND_CLASS_NOTIFICATION_V4 << 8) | 0x0A))
 
 /////////////////////////////////////////////////
 // Supervision Command Class

@@ -21,6 +21,7 @@
 #include "attribute_store_defined_attribute_types.h"
 #include "attribute_store_mock.h"
 #include "zpc_attribute_store_network_helper_mock.h"
+#include "zpc_attribute_store_test_helper.h"
 #include "attribute_store_helper_mock.h"
 #include "attribute_resolver_mock.h"
 #include "attribute_store_type_registration_mock.h"
@@ -53,6 +54,7 @@ static attribute_resolver_function_t
   supported_notification_state_or_events_callback;
 static attribute_resolver_function_t notification_state_or_event_callback;
 static attribute_resolver_function_t state_get_callback;
+static attribute_resolver_function_t type_set_callback;
 static sl_status_t
   attribute_resolver_register_rule_stub(attribute_store_type_t node_type,
                                         attribute_resolver_function_t set_func,
@@ -69,6 +71,8 @@ static sl_status_t
     supported_notification_state_or_events_callback = get_func;
   } else if (ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_STATE == node_type) {
     state_get_callback = get_func;
+  } else if (ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_TYPE == node_type) {
+    type_set_callback = set_func;
   } else {
     char tmp[100];
     snprintf(tmp,
@@ -876,12 +880,34 @@ void test_zwave_command_class_supported_notification_types_report()
 }
 #endif
 
+void helper_test_discover_agi(bool agi_support)
+{
+  attribute_store_node_t test_parent_node            = 0xde9e;
+
+  zwave_unid_from_node_id_Expect(test_connection_info.remote.node_id, NULL);
+  zwave_unid_from_node_id_IgnoreArg_unid();
+  zwave_unid_from_node_id_ReturnMemThruPtr_unid(supporting_node_unid, sizeof(unid_t));
+  attribute_store_network_helper_get_endpoint_node_ExpectAndReturn(
+    supporting_node_unid,
+    test_connection_info.remote.endpoint_id,
+    test_parent_node);
+  zwave_node_supports_command_class_ExpectAndReturn(
+    COMMAND_CLASS_ASSOCIATION,
+    test_connection_info.remote.node_id,
+    test_connection_info.remote.endpoint_id, agi_support);
+  zwave_node_supports_command_class_ExpectAndReturn(
+    COMMAND_CLASS_ASSOCIATION_GRP_INFO,
+    test_connection_info.remote.node_id,
+    test_connection_info.remote.endpoint_id, agi_support);
+
+}
 // This also test zwave_command_class_notification_types_attribute_update()
 void test_zwave_command_class_notification_on_version_attribute_update_happy_case()
 {
   attribute_store_node_t test_updated_node           = 0xf9a;
   attribute_store_node_t test_parent_node            = 0xde9e;
   attribute_store_node_t test_notification_type_node = 0xacb8b;
+  attribute_store_node_t test_notification_mode_node = 0xacb8c;
 
   is_zwave_command_class_filtered_for_root_device_verification(
     COMMAND_CLASS_NOTIFICATION_V3,
@@ -927,6 +953,31 @@ void test_zwave_command_class_notification_on_version_attribute_update_happy_cas
     ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_SUPPORTED_NOTIFICATION_TYPES,
     test_parent_node,
     test_notification_type_node);
+
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    test_parent_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    0,
+    ATTRIBUTE_STORE_INVALID_NODE);
+
+  attribute_store_add_node_ExpectAndReturn(
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    test_parent_node,
+    test_notification_mode_node
+  );
+  helper_test_discover_agi(false);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    test_parent_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    0,
+    test_notification_mode_node);
+  uint8_t mode_value = 0x01;
+  attribute_store_set_node_attribute_value_ExpectAndReturn(
+    test_notification_mode_node,
+    REPORTED_ATTRIBUTE,
+    &mode_value,
+    sizeof(uint8_t),
+    SL_STATUS_OK);
 
   // Make the call:
   notification_version_callback(test_updated_node, ATTRIBUTE_UPDATED);
@@ -977,6 +1028,12 @@ void test_zwave_command_class_notification_on_version_attribute_update_node_exis
     0,
     0x01);
 
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    test_parent_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    0,
+    0x02);
+
   // Make the call:
   notification_version_callback(test_updated_node, ATTRIBUTE_UPDATED);
 }
@@ -984,7 +1041,9 @@ void test_zwave_command_class_notification_on_version_attribute_update_node_exis
 // in V1 we don't expect any Notificaiton Support Get
 void test_zwave_command_class_notification_on_version_attribute_update_v1()
 {
-  attribute_store_node_t test_updated_node = 0xf9a;
+  attribute_store_node_t test_updated_node           = 0xf9a;
+  attribute_store_node_t test_parent_node            = 0xde9e;
+  attribute_store_node_t test_notification_mode_node = 0xacb8c;
 
   is_zwave_command_class_filtered_for_root_device_verification(
     COMMAND_CLASS_NOTIFICATION_V3,
@@ -1013,6 +1072,33 @@ void test_zwave_command_class_notification_on_version_attribute_update_v1()
     test_connection_info.remote.node_id,
     test_connection_info.remote.endpoint_id,
     1);
+
+    // Then find out the parent node:
+  attribute_store_get_node_parent_ExpectAndReturn(test_updated_node,
+                                                  test_parent_node);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    test_parent_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    0,
+    ATTRIBUTE_STORE_INVALID_NODE);
+  attribute_store_add_node_ExpectAndReturn(
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    test_parent_node,
+    test_notification_mode_node
+  );
+  helper_test_discover_agi(false);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    test_parent_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    0,
+    test_notification_mode_node);
+  uint8_t mode_value = 0x01;
+  attribute_store_set_node_attribute_value_ExpectAndReturn(
+    test_notification_mode_node,
+    REPORTED_ATTRIBUTE,
+    &mode_value,
+    sizeof(uint8_t),
+    SL_STATUS_OK);
 
   // Make the call:
   notification_version_callback(test_updated_node, ATTRIBUTE_UPDATED);
@@ -1461,4 +1547,126 @@ void test_zwave_command_class_support_notification_supported_state_event_types_r
                     command_handler.control_handler(&test_connection_info,
                                                     (const uint8_t *)&frame,
                                                     sizeof(frame)));
+}
+
+void helper_test_agi_test(bool support_push)
+{
+  attribute_store_node_t ep_node = 0xde9e;
+  attribute_store_node_t groups_supp_node = 0xbcdb;
+  attribute_store_node_t mode_node = 0xbcdc;
+  attribute_store_node_t group_node = 0xbcdd;
+  attribute_store_node_t cmd_list_node = 0xbcde;
+  static uint32_t group_count = 1;
+  static uint8_t group_id = 1;
+  static uint8_t u32_size = 4;
+  static uint8_t u8_size = 1;
+  static uint8_t mode = 0;
+  static uint8_t push_cmd_list[] = {COMMAND_CLASS_NOTIFICATION_V8, NOTIFICATION_REPORT_V3};
+  static uint8_t cmd_list_size = 2;
+
+  mode =  !support_push;
+
+  attribute_store_get_first_parent_with_type_ExpectAndReturn(groups_supp_node, ATTRIBUTE_ENDPOINT_ID, ep_node);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(ep_node, ATTRIBUTE_COMMAND_CLASS_ASSOCIATION_SUPPORTED_GROUPINGS, 0, groups_supp_node);
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    groups_supp_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK);
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    (uint8_t *)&group_count,
+    sizeof(group_count));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u32_size,
+    sizeof(uint8_t)
+  );
+  attribute_store_get_node_child_by_type_ExpectAndReturn(ep_node, ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE, 0, mode_node);
+  attribute_store_get_node_child_count_ExpectAndReturn(ep_node, 1);
+  attribute_store_get_node_child_ExpectAndReturn(ep_node, 0, group_node);
+  attribute_store_get_node_type_ExpectAndReturn(group_node, ATTRIBUTE_COMMAND_CLASS_ASSOCIATION_GROUP_ID);
+  attribute_store_get_node_child_ExpectAndReturn(ep_node, 0, group_node);
+  attribute_store_get_node_child_count_ExpectAndReturn(ep_node, 1);
+  attribute_store_is_value_defined_ExpectAndReturn(group_node, REPORTED_ATTRIBUTE, true);
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    group_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK);
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &group_id,
+    sizeof(group_id));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
+  attribute_store_node_exists_ExpectAndReturn(group_node, true);
+  attribute_store_is_value_defined_ExpectAndReturn(group_node, REPORTED_ATTRIBUTE, true);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(group_node, ATTRIBUTE_COMMAND_CLASS_ASSOCIATION_GROUP_COMMAND_LIST, 0, cmd_list_node);
+  attribute_store_node_exists_ExpectAndReturn(cmd_list_node, true);
+  attribute_store_is_value_defined_ExpectAndReturn(cmd_list_node, REPORTED_ATTRIBUTE, true);
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    cmd_list_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK);
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    (uint8_t *)&push_cmd_list,
+    sizeof(push_cmd_list));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &cmd_list_size,
+    sizeof(uint8_t)
+  );
+  is_command_in_array_ExpectAndReturn(COMMAND_CLASS_NOTIFICATION_V8, NOTIFICATION_REPORT_V3, push_cmd_list, cmd_list_size, support_push);
+  attribute_store_set_node_attribute_value_ExpectAndReturn(mode_node, REPORTED_ATTRIBUTE, &mode, sizeof(uint8_t), SL_STATUS_OK);
+  attribute_resolver_clear_resolution_listener_Expect(groups_supp_node, NULL);
+  attribute_resolver_clear_resolution_listener_IgnoreArg_callback(); 
+}
+
+void test_zwave_command_class_notification_pull_push_discovery_agi_ready_detect_push()
+{
+  attribute_store_node_t ep_node = 0xde9e;
+  attribute_store_node_t groups_supp_node = 0xbcdb;
+
+  helper_test_discover_agi(true);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(ep_node, ATTRIBUTE_COMMAND_CLASS_ASSOCIATION_SUPPORTED_GROUPINGS, 0, groups_supp_node);
+  attribute_store_is_value_defined_ExpectAndReturn(groups_supp_node, REPORTED_ATTRIBUTE, true);
+  helper_test_agi_test(true);
+
+  zwave_command_class_notification_pull_push_discovery(test_connection_info.remote.node_id, test_connection_info.remote.endpoint_id);
+}
+
+void test_zwave_command_class_notification_pull_push_discovery_agi_ready_detect_pull()
+{
+  attribute_store_node_t ep_node = 0xde9e;
+  attribute_store_node_t groups_supp_node = 0xbcdb;
+
+  helper_test_discover_agi(true);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(ep_node, ATTRIBUTE_COMMAND_CLASS_ASSOCIATION_SUPPORTED_GROUPINGS, 0, groups_supp_node);
+  attribute_store_is_value_defined_ExpectAndReturn(groups_supp_node, REPORTED_ATTRIBUTE, true);
+  helper_test_agi_test(false);
+
+  zwave_command_class_notification_pull_push_discovery(test_connection_info.remote.node_id, test_connection_info.remote.endpoint_id);
+}
+
+void test_zwave_command_class_notification_pull_push_discovery_agi_not_ready()
+{
+  attribute_store_node_t ep_node = 0xde9e;
+  attribute_store_node_t groups_supp_node = 0xbcdb;
+
+  helper_test_discover_agi(true);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(ep_node, ATTRIBUTE_COMMAND_CLASS_ASSOCIATION_SUPPORTED_GROUPINGS, 0, groups_supp_node);
+  attribute_store_is_value_defined_ExpectAndReturn(groups_supp_node, REPORTED_ATTRIBUTE, false);
+  attribute_resolver_set_resolution_listener_Expect(groups_supp_node, NULL);
+  attribute_resolver_set_resolution_listener_IgnoreArg_callback();
+
+  zwave_command_class_notification_pull_push_discovery(test_connection_info.remote.node_id, test_connection_info.remote.endpoint_id);
 }

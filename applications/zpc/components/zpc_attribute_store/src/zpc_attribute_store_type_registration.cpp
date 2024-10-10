@@ -315,6 +315,7 @@ static const std::vector<attribute_schema_t> attribute_schema = {
   {ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_STATE,   "State (Variable)",   ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_TYPE,   U8_STORAGE_TYPE},
   {ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_EVENT,   "Event",   ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_STATE,   I32_STORAGE_TYPE},
   {ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_EVENT_PARAMETERS,   "Parameters",   ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_EVENT,   I32_STORAGE_TYPE},
+  {ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE, "Push/Pull mode", ATTRIBUTE_ENDPOINT_ID, U8_STORAGE_TYPE},
   /////////////////////////////////////////////////////////////////////
   //         Scene Activation Command Class attributes
   /////////////////////////////////////////////////////////////////////
