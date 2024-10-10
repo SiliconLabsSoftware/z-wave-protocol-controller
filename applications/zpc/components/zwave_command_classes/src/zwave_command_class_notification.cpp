@@ -30,6 +30,7 @@
 #include "attribute_resolver.h"
 #include "zwave_controller_utils.h"
 #include "zwave_utils.h"
+#include "zwave_frame_generator.hpp"
 
 // Generic includes
 #include <assert.h>
@@ -49,11 +50,160 @@ static constexpr unsigned int MAX_SUPPORTED_NOTIFICATION_TYPES  = 24;
 static constexpr unsigned int MAX_SUPPORTED_NOTIFICATION_STATES = 256;
 static constexpr unsigned int NOTIFICATION_REPORT_EVENT_STATE_PARAMETER_OFFSET
   = 9;
+static constexpr uint8_t PUSH_MODE                    = 0x00;
+static constexpr uint8_t PULL_MODE                    = 0x01;
+static constexpr uint8_t PUSH_REPORT_STATUS_DISABLED  = 0x00;
+static constexpr uint8_t PUSH_REPORT_STATUS_ENABLED   = 0xFF;
+static constexpr uint8_t PULL_REPORT_STATUS_NOT_EMPTY = 0x00;
+static constexpr uint8_t PULL_REPORT_STATUS_EMPTY     = 0xFE;
+
+namespace {
+enum class mode_discovery_state_t : uint8_t {
+  PUSH_MODE_DETECTED = 0x00,
+  PULL_MODE_DETECTED = 0x01,
+  AGI_TEST_PENDING   = 0x02,
+  NOTIFICATION_TEST_PENDING = 0x03,
+  UNKNOWN   = 0xFF
+};
+static mode_discovery_state_t discovery_state; //NOSONAR : false positive since it is warped in a namespace
+}
+
+
+// Cpp helpers
+namespace
+{
+zwave_frame_generator frame_generator(COMMAND_CLASS_NOTIFICATION_V8); //NOSONAR - false positive since it is warped in a namespace
+}
 
 using namespace attribute_store;
 
 #include "zwave_command_class_notification_types.inc"
 
+//////////////////////////////////////////////////////////////////////
+// Discovery helpers
+//////////////////////////////////////////////////////////////////////
+void zwave_command_class_continue_mode_discovery(attribute_store_node_t node)
+{
+  // we don't need notification on further resolutions if any
+  attribute_resolver_clear_resolution_listener(
+    node,
+    zwave_command_class_continue_mode_discovery);
+
+  attribute_store::attribute supported_events_node(node);
+  auto notification_type_node = supported_events_node.parent();
+  notification_type_node.set_desired<uint8_t>(
+    notification_type_node.reported<uint8_t>());
+}
+void zwave_command_class_agi_test_perform_discovery(attribute_store_node_t node)
+{
+  attribute_store::attribute resolved_node(node);
+  auto ep_node = resolved_node.first_parent(ATTRIBUTE_ENDPOINT_ID);
+
+  auto group_count
+    = ep_node
+        .child_by_type(ATTRIBUTE_COMMAND_CLASS_ASSOCIATION_SUPPORTED_GROUPINGS)
+        .reported<uint32_t>();
+  auto mode_node = ep_node.child_by_type(ATTRIBUTE(MODE));
+
+  discovery_state = mode_discovery_state_t::AGI_TEST_PENDING;
+  for (uint32_t i = 1; i <= group_count; i++) {
+    auto group_node = ep_node.child_by_type_and_value<uint8_t>(
+      ATTRIBUTE_COMMAND_CLASS_ASSOCIATION_GROUP_ID,
+      i);
+    if (!group_node.is_valid()) {
+      sl_log_warning(LOG_TAG, "Group with ID %u missing in attribute store", i);
+      return;
+    }
+    if (!group_node.reported_exists())
+    {
+      attribute_resolver_clear_resolution_listener(
+        node,
+        zwave_command_class_agi_test_perform_discovery);
+      attribute_resolver_set_resolution_listener(
+        group_node,
+        zwave_command_class_agi_test_perform_discovery);
+    }
+    auto group_cmdlist_node = group_node.child_by_type(
+      ATTRIBUTE_COMMAND_CLASS_ASSOCIATION_GROUP_COMMAND_LIST);
+    if (!group_cmdlist_node.is_valid()
+        || !group_cmdlist_node.reported_exists()) {
+      sl_log_warning(LOG_TAG, "Group Cmd List info missing for group %u", i);
+      return;
+    }
+    auto command_list =  group_cmdlist_node.reported<std::vector<uint8_t>>();
+
+    if (is_command_in_array(COMMAND_CLASS_NOTIFICATION_V8,
+                            NOTIFICATION_REPORT_V3,
+                            command_list.data(),
+                            command_list.size())) {
+      sl_log_error(LOG_TAG,
+                   "Found NOTIFICATION_REPORT_V3 report in group [%u] hence "
+                   "detecting mode as PUSH",
+                   i);
+      discovery_state = mode_discovery_state_t::PUSH_MODE_DETECTED;
+      mode_node.set_reported<uint8_t>(PUSH_MODE);
+      attribute_resolver_clear_resolution_listener(
+        node,
+        zwave_command_class_agi_test_perform_discovery);
+      return;
+    }
+  }
+  sl_log_error(LOG_TAG,
+               "NOTIFICATION_REPORT_V3 not found in any AGI groups, "
+               "detecting mode as PULL");
+  discovery_state = mode_discovery_state_t::PULL_MODE_DETECTED;
+  mode_node.set_reported<uint8_t>(PULL_MODE);
+  attribute_resolver_clear_resolution_listener(
+    node,
+    zwave_command_class_agi_test_perform_discovery);
+}
+
+void zwave_command_class_notification_pull_push_discovery(
+  zwave_node_id_t node_id, zwave_endpoint_id_t endpoint_id)
+{
+  unid_t node_unid;
+  zwave_unid_from_node_id(node_id, node_unid);
+
+  // Get the corresponding Attribute Store entry for this unid / endpoint:
+  attribute_store::attribute ep_node
+    = attribute_store_network_helper_get_endpoint_node(node_unid, endpoint_id);
+
+  auto association_support
+    = zwave_node_supports_command_class(COMMAND_CLASS_ASSOCIATION,
+                                        node_id,
+                                        endpoint_id);
+  auto agi_support
+    = zwave_node_supports_command_class(COMMAND_CLASS_ASSOCIATION_GRP_INFO_V3,
+                                        node_id,
+                                        endpoint_id);
+
+  if (!association_support) {
+    sl_log_debug(LOG_TAG,
+                 "Association CC not supported, detecting mode as PULL");
+
+    auto mode_node = ep_node.child_by_type(ATTRIBUTE(MODE));
+    mode_node.set_reported<uint8_t>(PULL_MODE);
+    discovery_state = mode_discovery_state_t::PULL_MODE_DETECTED;
+    return;
+  }
+  if (agi_support) {
+    auto groupings_node = ep_node.child_by_type(
+      ATTRIBUTE_COMMAND_CLASS_ASSOCIATION_SUPPORTED_GROUPINGS);
+    if (groupings_node.reported_exists()) {
+      zwave_command_class_agi_test_perform_discovery(groupings_node);
+      return;
+    }
+    attribute_resolver_set_resolution_listener(
+      groupings_node,
+      zwave_command_class_agi_test_perform_discovery);
+
+    discovery_state = mode_discovery_state_t::AGI_TEST_PENDING;
+    return;
+  }
+  discovery_state = mode_discovery_state_t::NOTIFICATION_TEST_PENDING;
+}
+
+//////////////////////////////////////////////////////////////////////
 static sl_status_t zwave_command_class_notification_update_state_event(
   const attribute &notification_type_node,
   uint8_t state,
@@ -161,6 +311,20 @@ static sl_status_t zwave_command_class_notification_report_cmd_handler(
     attribute ep_node = attribute_store_network_helper_get_endpoint_node(
       sending_node_unid,
       connection_info->remote.endpoint_id);
+
+    if (discovery_state == mode_discovery_state_t::NOTIFICATION_TEST_PENDING) {
+      auto mode_node = ep_node.child_by_type(ATTRIBUTE(MODE));
+      uint8_t mode;
+
+      if (frame->notificationStatus == PUSH_REPORT_STATUS_ENABLED) {
+        mode            = PUSH_MODE;
+        discovery_state = mode_discovery_state_t::PUSH_MODE_DETECTED;
+      } else {
+        mode            = PULL_MODE;
+        discovery_state = mode_discovery_state_t::PULL_MODE_DETECTED;
+      }
+      mode_node.set_reported(mode);
+    }
 
     // Handling V1 Alarm Type and Level, they are proprietary Type and Level.
     // The values are usually specified in the product manual.
@@ -437,23 +601,35 @@ static sl_status_t
         &supported_notification_types[i],
         sizeof(supported_notification_types[i]),
         0);
-    if (notification_type == ATTRIBUTE_STORE_INVALID_NODE) {
-      notification_type = attribute_store_add_node(ATTRIBUTE(TYPE), ep_node);
+    if (notification_type != ATTRIBUTE_STORE_INVALID_NODE) {
+      sl_log_debug(LOG_TAG,
+                   "Notification type[%u] already in attribute store",
+                   supported_notification_types[i]);
+      continue;
+    }
+    notification_type = attribute_store_add_node(ATTRIBUTE(TYPE), ep_node);
 
-      attribute_store_set_node_attribute_value(
-        notification_type,
-        REPORTED_ATTRIBUTE,
-        &supported_notification_types[i],
-        sizeof(supported_notification_types[i]));
-      if (version > 2) {
-        attribute_store_add_node(ATTRIBUTE(SUPPORTED_STATES_OR_EVENTS),
-                                 notification_type);
-      }
-      else if (version > 1)
-      {
-        attribute_store_add_node(ATTRIBUTE(STATE), notification_type);
+    attribute_store_set_node_attribute_value(
+      notification_type,
+      REPORTED_ATTRIBUTE,
+      &supported_notification_types[i],
+      sizeof(supported_notification_types[i]));
+    if (version > 2) {
+      auto node = attribute_store_add_node(ATTRIBUTE(SUPPORTED_STATES_OR_EVENTS),
+                                notification_type);
+      /* Wait till last type is completely resolved, to discover pull/push mode*/
+      if ((i == (number_of_supported_notification_types - 1))
+          && (discovery_state
+              == mode_discovery_state_t::NOTIFICATION_TEST_PENDING)) {
+        attribute_resolver_set_resolution_listener(
+          node,
+          zwave_command_class_continue_mode_discovery);
       }
     }
+    else if (version > 1)
+    {
+      attribute_store_add_node(ATTRIBUTE(STATE), notification_type);
+    }    
   }
 
   return SL_STATUS_OK;
@@ -714,11 +890,11 @@ void zwave_command_class_notification_on_version_attribute_update(
                                            node_id,
                                            endpoint_id);
 
+  // Here we know that a node supported Notification Command Class.
+  attribute_store_node_t parent_node
+    = attribute_store_get_node_parent(updated_node);
   // For version 1 Notification Supported Get is not available
   if (version > 1) {
-    // Here we know that a node supported Notification Command Class.
-    attribute_store_node_t parent_node
-      = attribute_store_get_node_parent(updated_node);
 
     // Verify if there is already supported notification types attribute.
     // Note that updated_node is the ENDPOINT node in the Attribute Store.
@@ -731,6 +907,14 @@ void zwave_command_class_notification_on_version_attribute_update(
       attribute_store_add_node(ATTRIBUTE(SUPPORTED_NOTIFICATION_TYPES),
                                parent_node);
     }
+  }
+  attribute_store_node_t notification_mode_node
+      = attribute_store_get_first_child_by_type(
+        parent_node, ATTRIBUTE(MODE));
+  if (notification_mode_node == ATTRIBUTE_STORE_INVALID_NODE)
+  {
+    attribute_store_add_node(ATTRIBUTE(MODE), parent_node);
+    zwave_command_class_notification_pull_push_discovery(node_id, endpoint_id);
   }
 }
 
@@ -765,6 +949,32 @@ static sl_status_t zwave_command_class_alarm_get(
   *frame_len = sizeof(ZW_ALARM_GET_V2_FRAME);
 
   return SL_STATUS_OK;  
+}
+
+static sl_status_t zwave_command_class_notification_set(
+  attribute_store_node_t node, uint8_t *frame, uint16_t *frame_len)
+{
+  attribute_store::attribute type_node(node);
+  try {
+    auto type = type_node.desired<uint8_t>();
+    frame_generator.initialize_frame(NOTIFICATION_SET_V8,
+                                     frame,
+                                     sizeof(ZW_NOTIFICATION_SET_V8_FRAME));
+    frame_generator.add_raw_byte(type);
+    frame_generator.add_raw_byte(0xFF);
+    frame_generator.validate_frame(frame_len);
+
+    auto event_node = type_node.child_by_type(ATTRIBUTE(STATE))
+                        .child_by_type(ATTRIBUTE(EVENT));
+    event_node.clear_reported();
+  } catch (const std::exception &e) {
+    sl_log_error(
+      LOG_TAG,
+      "Error while generating Notification Set Association Set frame : %s",
+      e.what());
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+  return SL_STATUS_OK;
 }
 
 static sl_status_t zwave_command_class_notification_get(
@@ -862,6 +1072,9 @@ sl_status_t zwave_command_class_notification_init()
   attribute_resolver_register_rule(ATTRIBUTE(STATE),
                                    nullptr,
                                    zwave_command_class_alarm_get);
+  attribute_resolver_register_rule(ATTRIBUTE(TYPE),
+                                   zwave_command_class_notification_set,
+                                   nullptr);
   attribute_resolver_register_rule(ATTRIBUTE(EVENT),
                                    nullptr,
                                    zwave_command_class_notification_get);
@@ -894,10 +1107,9 @@ sl_status_t zwave_command_class_notification_init()
   handler.manual_security_validation = false;
   handler.command_class_name         = "Notification";
   handler.comments                   = "Partial Control: <br>"
-                                       "1. No Push/Pull discovery is done.<br>"
-                                       "2. No Pull sensor support. <br>"
-                                       "3. Unknown types are not supported. <br>"
-                                       "4. No Regular probing is done. ";
+                                       "1. No Pull sensor support. <br>"
+                                       "2. Unknown types are not supported. <br>"
+                                       "3. No Regular probing is done. ";
 
   zwave_command_handler_register_handler(handler);
 

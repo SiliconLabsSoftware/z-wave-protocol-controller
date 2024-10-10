@@ -190,6 +190,9 @@ extern "C" {
  */
 sl_status_t zwave_command_class_notification_init();
 
+void zwave_command_class_notification_pull_push_discovery(
+  zwave_node_id_t node_id, zwave_endpoint_id_t endpoint_id);
+
 #ifdef __cplusplus
 }
 #endif
