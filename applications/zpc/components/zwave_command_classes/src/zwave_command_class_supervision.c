@@ -372,15 +372,24 @@ static void zwave_command_class_supervision_on_version_attribute_update(
                                                  ATTRIBUTE_ENDPOINT_ID);
 
   attribute_store_node_t supervision_version_node
-    = attribute_store_add_node(ATTRIBUTE_COMMAND_CLASS_SUPERVISION_ENABLED,
-                               endpoint_node);
- 
-  // By default the supervision is enabled
-  // This can be changed in the future, we enable it by default to keep compatibility with previous versions
-  uint8_t supervision_enabled_flag = 1;
-  attribute_store_set_reported(supervision_version_node,
-                               &supervision_enabled_flag,
-                               sizeof(supervision_enabled_flag));
+    = attribute_store_get_node_child_by_type(
+      endpoint_node,
+      ATTRIBUTE_COMMAND_CLASS_SUPERVISION_ENABLED,
+      0);
+
+  // Prevent node to be added twice
+  if (!attribute_store_node_exists(supervision_version_node)) {
+    supervision_version_node
+      = attribute_store_add_node(ATTRIBUTE_COMMAND_CLASS_SUPERVISION_ENABLED,
+                                 endpoint_node);
+
+    // By default the supervision is enabled
+    // This can be changed in the future, we enable it by default to keep compatibility with previous versions
+    uint8_t supervision_enabled_flag = 1;
+    attribute_store_set_reported(supervision_version_node,
+                                 &supervision_enabled_flag,
+                                 sizeof(supervision_enabled_flag));
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
