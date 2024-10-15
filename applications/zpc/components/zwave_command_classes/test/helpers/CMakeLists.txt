@@ -9,7 +9,7 @@ target_include_directories(zwave_command_class_test_helpers
 
 target_link_libraries(zwave_command_class_test_helpers 
                     # Helpers
-                    zpc_attribute_store_test_helper
+                    zpc_attribute_store_test_helper_cpp
                     # Mock
                     zwave_command_handler_mock
                     uic_attribute_resolver_mock)

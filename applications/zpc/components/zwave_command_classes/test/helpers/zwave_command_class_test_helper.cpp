@@ -60,8 +60,7 @@ void zwave_setUp(const zwave_struct_handler_args &args,
                  const command_class_init_function &init_function,
                  const resolver_function_map &bindings)
 {
-  // Create base structure
-  zpc_attribute_store_test_helper_create_network();
+  zpc_attribute_store_test_helper_init();
 
   // Clear received frame
   memset(received_frame, 0, sizeof(received_frame));
@@ -81,9 +80,6 @@ void zwave_setUp(const zwave_struct_handler_args &args,
 
   // Save current command class
   current_command_class_id = handler_args.command_class_id;
-
-  // Create wrapper around endpoint id node
-  cpp_endpoint_id_node = endpoint_id_node;
 
   // Setup connection info
   mock_connection_info                    = {};
@@ -170,18 +166,17 @@ void zwave_frame::add_bitmask(uint8_t size, uint32_t bitmask)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
-// Attribute store helpers
+// Version helpers
 ////////////////////////////////////////////////////////////////////////////////////
-void helper_set_version(const zwave_cc_version_t &version, attribute_store::attribute parent)
+void helper_set_version(const zwave_cc_version_t &version,
+                        attribute_store::attribute parent)
 {
-  parent.add_node(current_command_class_id << 8 | 0x01)
-    .set_reported(version);
+  helper_set_command_class_version(current_command_class_id, version, parent);
 }
 
 zwave_cc_version_t helper_get_version()
 {
-  return zwave_command_class_get_version_from_node(cpp_endpoint_id_node,
-                                                   current_command_class_id);
+  return helper_get_command_class_version(current_command_class_id);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -277,8 +272,10 @@ void helper_test_report_frame(uint8_t command_id,
   std::vector<uint8_t> report_frame = {current_command_class_id, command_id};
   report_frame.insert(report_frame.end(), args.cbegin(), args.cend());
 
-  TEST_ASSERT_NOT_NULL_MESSAGE(handler.control_handler,
-                               "Control handler should be defined. Check that you've call zwave_setUp() and you linked the mock libraries against this test.");
+  TEST_ASSERT_NOT_NULL_MESSAGE(
+    handler.control_handler,
+    "Control handler should be defined. Check that you've call zwave_setUp() "
+    "and you linked the mock libraries against this test.");
   sl_status_t result = handler.control_handler(&mock_connection_info,
                                                report_frame.data(),
                                                report_frame.size());
@@ -290,51 +287,6 @@ void helper_test_report_frame(uint8_t command_id,
   debug_message = (boost::format(debug_message) % unsigned(command_id)).str();
 
   TEST_ASSERT_EQUAL_MESSAGE(expected_status, result, debug_message.c_str());
-}
-
-void helper_test_node_existence(attribute_store::attribute attribute,
-                                bool should_exists,
-                                const std::string &expected_attribute_name,
-                                const std::string &expected_parent_name)
-{
-  TEST_ASSERT_EQUAL_MESSAGE(
-    should_exists,
-    attribute.is_valid(),
-    (boost::format("Attribute '%1%' should %2% exists under '%3%'")
-     % expected_attribute_name % (should_exists ? "" : "NOT")
-     % expected_parent_name)
-      .str()
-      .c_str());
-}
-
-attribute_store::attribute
-  helper_test_and_get_node(attribute_store_type_t node_type,
-                           attribute_store::attribute parent)
-{
-  auto attribute = parent.child_by_type(node_type);
-
-  helper_test_node_existence(attribute,
-                             true,
-                             attribute_store_get_type_name(node_type),
-                             parent.name());
-  return attribute;
-}
-
-void helper_test_node_exists(attribute_store_type_t node_type,
-                             attribute_store::attribute parent)
-{
-  helper_test_node_existence(parent.child_by_type(node_type),
-                             true,
-                             attribute_store_get_type_name(node_type),
-                             parent.name());
-}
-void helper_test_node_does_not_exists(attribute_store_type_t node_type,
-                                      attribute_store::attribute parent)
-{
-  helper_test_node_existence(parent.child_by_type(node_type),
-                             false,
-                             attribute_store_get_type_name(node_type),
-                             parent.name());
 }
 
 }  // namespace zwave_command_class_test_helper

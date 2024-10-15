@@ -21,6 +21,7 @@
 // Unify cpp
 #include "attribute.hpp"
 #include "zwave_resolver_function_helper.hpp"
+#include "zpc_attribute_store_test_helper_cpp.hpp"
 
 // C++ includes
 #include <vector>
@@ -30,11 +31,12 @@ extern "C" {
 // Test framework
 #include "unity.h"
 
-// Helper class
-#include "zpc_attribute_store_test_helper.h"
-
 // Unify
 #include "zwave_command_handler.h"
+
+// Dirty hack to allow existing cases to use function in zpc_attribute_store_test_helper 
+// namespace without changing the code
+using namespace zpc_attribute_store_test_helper;
 
 namespace zwave_command_class_test_helper
 {
@@ -73,11 +75,8 @@ extern uint16_t received_frame_size;
 extern zwave_command_handler_t handler;
 // Resolver function helper
 extern zwave_resolver_function_helper resolver_function_helper;
-
 // Current current command class id. We use uint8_t here instead of zwave_command_class_t to be able to set it directly in the tested frames.
 extern uint8_t current_command_class_id;
-// Endpoint id node wrapper
-extern attribute_store::attribute cpp_endpoint_id_node;
 // Used for report frames
 extern zwave_controller_connection_info_t mock_connection_info;
 
@@ -224,9 +223,12 @@ class zwave_frame : public std::vector<uint8_t> {
  * 
  * @note Use current_command_class_id global variable to determine the current current class
  * 
- * @brief Command class version
+ * @param version Version to set
+ * @param parent Parent node of the node to get (default to current endpoint)
  */
-void helper_set_version(const zwave_cc_version_t &version, attribute_store::attribute parent = cpp_endpoint_id_node);
+void helper_set_version(const zwave_cc_version_t &version,
+                        attribute_store::attribute parent
+                        = cpp_endpoint_id_node);
 
 /**
  * @brief Get version for current class
@@ -307,85 +309,10 @@ void helper_test_report_frame(uint8_t command_id,
                               const std::vector<uint8_t> &args,
                               sl_status_t expected_status = SL_STATUS_OK);
 
-////////////////////////////////////////////////////////////////////////////////////
-// Node/Attribute Test Helpers
-////////////////////////////////////////////////////////////////////////////////////
-/**
- * @brief Get a node and check that it exists
- * 
- * @note Test will fail if node doesn't exists
- * 
- * @param node_type Node type to get
- * @param parent Parent node of the node to get (default to current endpoint)
- * 
- * @return attribute_store::attribute Node that was found (garmented to exists)
- */
-attribute_store::attribute
-  helper_test_and_get_node(attribute_store_type_t node_type,
-                           attribute_store::attribute parent
-                           = cpp_endpoint_id_node);
-
-/**
- * @brief Test that a node exists
- * 
- * @param node_type Node type to test
- * @param parent Parent node of the node to get (default to current endpoint)
- */
-void helper_test_node_exists(attribute_store_type_t node_type,
-                             attribute_store::attribute parent
-                             = cpp_endpoint_id_node);
-/**
- * @brief Test that a node doesn't exists
- * 
- * @param node_type Node type to test
- * @param parent Parent node of the node to get (default to current endpoint)
- */
-void helper_test_node_does_not_exists(attribute_store_type_t node_type,
-                                      attribute_store::attribute parent
-                                      = cpp_endpoint_id_node);
-
 }  // namespace zwave_command_class_test_helper
 
 }  // extern "C"
 
-// Cpp template functions
-namespace zwave_command_class_test_helper
-{
-template<typename T> attribute_store::attribute helper_test_attribute_value(
-  attribute_store_type_t node_type,
-  T expected_value,
-  attribute_store::attribute parent        = cpp_endpoint_id_node,
-  attribute_store_node_value_state_t state = REPORTED_ATTRIBUTE)
-{
-  auto current_node = helper_test_and_get_node(node_type, parent);
 
-  try {
-    const std::string error_message
-      = (std::string("Value mismatch for ") + current_node.name_and_id())
-          .c_str();
-
-    if constexpr (std::is_same<T, std::vector<uint8_t>>::value) {
-      TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(
-        expected_value.data(),
-        current_node.reported<std::vector<uint8_t>>().data(),
-        expected_value.size(),
-        error_message.c_str());
-    } else if constexpr (std::is_same<T, std::string>::value) {
-      TEST_ASSERT_EQUAL_STRING_MESSAGE(
-        expected_value.c_str(),
-        current_node.reported<std::string>().c_str(),
-        error_message.c_str());
-    } else {
-      TEST_ASSERT_EQUAL_MESSAGE(expected_value,
-                                current_node.get<T>(state),
-                                error_message.c_str());
-    }
-  } catch (std::exception &e) {
-    TEST_FAIL_MESSAGE(e.what());
-  }
-
-  return current_node;
-}
-}  // namespace zwave_command_class_test_helper
 
 #endif  // ZWAVE_COMMAND_CLASS_TEST_HELPER_HPP
