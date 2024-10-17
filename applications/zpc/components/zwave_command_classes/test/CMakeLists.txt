@@ -47,6 +47,16 @@ target_add_unittest(
   ${MOCK_LIBS})
 
 target_add_unittest(
+    zwave_command_classes
+    NAME
+    zwave_command_class_time_parameters_test
+    SOURCES
+    zwave_command_class_time_parameters_test.c
+    DEPENDS
+    zwave_command_class_test_helpers
+    ${MOCK_LIBS})
+
+target_add_unittest(
   zwave_command_classes
   NAME
   zwave_command_class_powerlevel_test
@@ -796,7 +806,7 @@ target_add_unittest(
   uic_attribute_resolver_mock
   zpc_attribute_resolver_mock
   )
-  
+
 # Humidity Control Mode test
 target_add_unittest(
   zwave_command_classes
@@ -841,5 +851,4 @@ target_add_unittest(
     uic_attribute_resolver_mock
     zpc_attribute_resolver_mock
     uic_dotdot_mqtt_mock)
-  
-  
+

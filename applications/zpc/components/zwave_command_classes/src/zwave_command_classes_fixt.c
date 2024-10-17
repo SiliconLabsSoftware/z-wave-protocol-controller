@@ -46,6 +46,7 @@
 #include "zwave_command_class_thermostat_operating_state.h"
 #include "zwave_command_class_version.h"
 #include "zwave_command_class_wake_up.h"
+#include "zwave_command_class_time_parameters.h"
 #include "zwave_command_class_time.h"
 #include "zwave_command_class_user_code.h"
 #include "zwave_command_class_basic.h"
@@ -119,6 +120,7 @@ sl_status_t zwave_command_classes_init()
   status |= zwave_command_class_thermostat_fan_state_init();
   status |= zwave_command_class_thermostat_setpoint_init();
   status |= zwave_command_class_thermostat_operating_state_init();
+  status |= zwave_command_class_time_parameters_init();
   status |= zwave_command_class_time_init();
   status |= zwave_command_class_transport_service_init();
   status |= zwave_command_class_user_code_init();
