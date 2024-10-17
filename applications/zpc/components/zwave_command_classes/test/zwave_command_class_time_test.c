@@ -17,6 +17,7 @@
 // Includes from this component
 #include "zwave_command_class_time.h"
 #include "zwave_raw_frame_test_helper.h"
+#include "platform_date_time.h"
 
 // Includes from other components
 #include "zwave_tx_mock.h"
@@ -122,6 +123,16 @@ void test_zwave_command_class_time_multicast_not_allowed()
 
 void test_zwave_command_class_date_get()
 {
+  // Prepare the expected date_time_t structure
+  date_time_t expected_time = {
+        .year = TEST_YEAR - 1900, // Adjust for tm_year
+        .mon  = TEST_MONTH - 1,    // Adjust for tm_mon
+        .day  = TEST_DAY,
+  };
+
+  // Simulate the set time in the system
+  platform_set_date_time(&expected_time);
+
   const uint8_t cmd_frame_date_command[] = {COMMAND_CLASS_TIME, DATE_GET};
 
   const uint8_t exp_frame_date_command[] = {COMMAND_CLASS_TIME,
@@ -141,6 +152,16 @@ void test_zwave_command_class_date_get()
 
 void test_zwave_command_class_time_get()
 {
+  // Prepare the expected date_time_t structure
+  date_time_t expected_time = {
+        .hour = TEST_HOUR & 0xF,
+        .min  = TEST_MIN,
+        .sec  = TEST_SEC
+  };
+
+  // Simulate the set time in the system
+  platform_set_date_time(&expected_time);
+
   const uint8_t cmd_frame_time_command[] = {COMMAND_CLASS_TIME, TIME_GET};
 
   const uint8_t exp_frame_time_command[]

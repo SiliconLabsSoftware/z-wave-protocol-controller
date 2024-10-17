@@ -14,6 +14,7 @@
 #ifndef PLATFORM_DATE_TIME_H
 #define PLATFORM_DATE_TIME_H
 
+#include "sl_status.h"
 typedef struct {
   int sec;  /* seconds after the minute [0-60] */
   int min;  /* minutes after the hour [0-59] */
@@ -27,5 +28,11 @@ typedef struct {
  * @brief platform abstraction for retrieving local system time.
  */
 date_time_t platform_get_date_time();
+
+/**
+ * @brief platform abstraction for setting local system time.
+ */
+
+sl_status_t platform_set_date_time(const date_time_t *new_time);
 
 #endif

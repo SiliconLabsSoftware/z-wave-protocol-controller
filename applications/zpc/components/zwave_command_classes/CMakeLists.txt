@@ -52,6 +52,7 @@ add_library(
   src/zwave_command_class_thermostat_fan_state.c
   src/zwave_command_class_thermostat_setpoint.cpp
   src/zwave_command_class_thermostat_operating_state.c
+  src/zwave_command_class_time_parameters.cpp
   src/zwave_command_class_time.c
   src/zwave_command_class_user_code.c
   src/zwave_command_class_version.c
