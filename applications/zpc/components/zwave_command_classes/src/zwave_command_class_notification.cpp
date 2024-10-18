@@ -230,7 +230,7 @@ static sl_status_t zwave_command_class_notification_update_state_event(
     notification_event_node
     = notification_event_node.child_by_type(ATTRIBUTE(EVENT), 0);
     sl_log_info(NOTIFICATION_TAG,
-              "<zwAlarm Type: %u> State: %u Event: %u",
+              "<Type: %u> State: %u Event: %u",
               notification_type_node.reported<uint8_t>(),
               state,
               notification_event);
@@ -367,7 +367,11 @@ static sl_status_t zwave_command_class_notification_report_cmd_handler(
                                                 sizeof(notification_type),
                                                 0);
     if (!notification_type_node.is_valid()) {
-      sl_log_warning(LOG_TAG, "Failed to lookup attribute %d", __LINE__);
+      // Unknown/Unsupported Type needs to be reported to user
+      sl_log_info(NOTIFICATION_TAG,
+                  "Unknown Type: %u State/Event: %u",
+                  frame->notificationType,
+                  frame->mevent);
       return SL_STATUS_OK;
     }
 
@@ -1108,8 +1112,7 @@ sl_status_t zwave_command_class_notification_init()
   handler.command_class_name         = "Notification";
   handler.comments                   = "Partial Control: <br>"
                                        "1. No Pull sensor support. <br>"
-                                       "2. Unknown types are not supported. <br>"
-                                       "3. No Regular probing is done. ";
+                                       "2. No Regular probing is done. ";
 
   zwave_command_handler_register_handler(handler);
 
