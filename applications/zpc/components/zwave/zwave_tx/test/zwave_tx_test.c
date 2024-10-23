@@ -2063,7 +2063,7 @@ void test_full_zwave_tx_queue()
                                        (void *)&my_user_pointer,
                                        &test_tx_session_id_2));
   contiki_test_helper_run(0);
-
+  // Fill the queue
   for (int i = 1; i < ZWAVE_TX_QUEUE_BUFFER_SIZE; ++i) {
     TEST_ASSERT_EQUAL(SL_STATUS_OK,
                       zwave_tx_send_data(&test_connection_1,
@@ -2074,8 +2074,13 @@ void test_full_zwave_tx_queue()
                                          (void *)&my_user_pointer,
                                          &test_tx_session_id));
   }
+  zwave_tx_session_id_t second_message_id = test_tx_session_id;
 
   TEST_ASSERT_EQUAL(ZWAVE_TX_QUEUE_BUFFER_SIZE, zwave_tx_get_queue_size());
+
+  zwave_controller_transport_abort_send_data_ExpectAndReturn(
+    test_tx_session_id_2,
+    SL_STATUS_FAIL);
 
   // Now there is no more queue space:
   TEST_ASSERT_EQUAL(SL_STATUS_FAIL,
@@ -2087,16 +2092,13 @@ void test_full_zwave_tx_queue()
                                        (void *)&my_user_pointer,
                                        &test_tx_session_id));
 
-  // Get one free slot
-  on_zwave_transport_send_data_complete(TRANSMIT_COMPLETE_OK,
-                                        NULL,
-                                        test_tx_session_id_2);
-
+  // Process events
   contiki_test_helper_run(0);
   TEST_ASSERT_EQUAL(1, send_done_count);
-  TEST_ASSERT_EQUAL(TRANSMIT_COMPLETE_OK, send_done_status);
+  TEST_ASSERT_EQUAL(TRANSMIT_COMPLETE_FAIL, send_done_status);
 
-  // Now queueing should work again:
+
+  // The first frame should be discarded no matter it's timestamp since the queue is full
   TEST_ASSERT_EQUAL(SL_STATUS_OK,
                     zwave_tx_send_data(&test_connection_1,
                                        sizeof(test_expected_frame_data_1),
@@ -2106,7 +2108,11 @@ void test_full_zwave_tx_queue()
                                        (void *)&my_user_pointer,
                                        &test_tx_session_id));
 
-  // And now we are full again:
+  zwave_controller_transport_abort_send_data_ExpectAndReturn(
+    second_message_id,
+    SL_STATUS_FAIL);
+
+  // Check that we only discarded one frame and that the other frames are still here
   TEST_ASSERT_EQUAL(SL_STATUS_FAIL,
                     zwave_tx_send_data(&test_connection_1,
                                        sizeof(test_expected_frame_data_1),
@@ -2116,6 +2122,72 @@ void test_full_zwave_tx_queue()
                                        (void *)&my_user_pointer,
                                        &test_tx_session_id));
 }
+
+void test_full_zwave_tx_queue_with_timeouts()
+{
+  // We do not care about interactions with the transports for this test.
+  zwave_controller_transport_send_data_IgnoreAndReturn(SL_STATUS_OK);
+
+  // Queue a first element:
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    zwave_tx_send_data(&test_connection_2,
+                                       sizeof(test_expected_frame_data_2),
+                                       test_expected_frame_data_2,
+                                       &test_tx_options_2,
+                                       send_data_callback,
+                                       (void *)&my_user_pointer,
+                                       &test_tx_session_id_2));
+  contiki_test_helper_run(0);
+
+  // Fill the queue with elements that will time out after 400 ms
+  for (int i = 1; i < ZWAVE_TX_QUEUE_BUFFER_SIZE; ++i) {
+    TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                      zwave_tx_send_data(&test_connection_2,
+                                         sizeof(test_expected_frame_data_2),
+                                         test_expected_frame_data_2,
+                                         &test_tx_options_2,
+                                         send_data_callback,
+                                         (void *)&my_user_pointer,
+                                         &test_tx_session_id));
+  }
+
+  TEST_ASSERT_EQUAL(ZWAVE_TX_QUEUE_BUFFER_SIZE, zwave_tx_get_queue_size());
+
+  zwave_controller_transport_abort_send_data_ExpectAndReturn(
+    test_tx_session_id_2,
+    SL_STATUS_FAIL);
+
+  // Now there is no more queue space:
+  TEST_ASSERT_EQUAL(SL_STATUS_FAIL,
+                    zwave_tx_send_data(&test_connection_1,
+                                       sizeof(test_expected_frame_data_1),
+                                       test_expected_frame_data_1,
+                                       &test_tx_options_1,
+                                       send_data_callback,
+                                       (void *)&my_user_pointer,
+                                       &test_tx_session_id));
+
+  // We advance the internal contiki clock by 1000 ms so that the Tx Queue
+  // discard the frames that should have timed out by now.
+  contiki_test_helper_run(1000);
+  TEST_ASSERT_EQUAL(ZWAVE_TX_QUEUE_BUFFER_SIZE, send_done_count);
+  TEST_ASSERT_EQUAL(TRANSMIT_COMPLETE_FAIL, send_done_status);
+
+
+  // We filling the queue again and check if everything works as expected
+  // By now the queue should be empty since all the frames should have timed out
+  for (int i = 1; i < ZWAVE_TX_QUEUE_BUFFER_SIZE; ++i) {
+    TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                      zwave_tx_send_data(&test_connection_2,
+                                         sizeof(test_expected_frame_data_2),
+                                         test_expected_frame_data_2,
+                                         &test_tx_options_2,
+                                         send_data_callback,
+                                         (void *)&my_user_pointer,
+                                         &test_tx_session_id));
+  }
+}
+
 
 void test_additional_back_off()
 {
