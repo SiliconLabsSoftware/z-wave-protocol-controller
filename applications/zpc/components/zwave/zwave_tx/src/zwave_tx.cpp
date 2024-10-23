@@ -141,6 +141,20 @@ sl_status_t
 
   sl_log_error(LOG_TAG, "Tx Queue rejected new frame request.");
   tx_queue.log(true);
+  // Add a failsafe in case the queue is getting blocked
+  // This prevents one faulty device to block the whole queue
+  // The subsequent frames will most likely be discarded since they timed out by now
+  if (tx_queue.size() >= ZWAVE_TX_QUEUE_BUFFER_SIZE) {
+    sl_log_info(
+      LOG_TAG,
+      "Abort transmission of first frame in queue due to full Tx Queue.");
+    auto tx_session_id = tx_queue.first_in_queue()->zwave_tx_session_id;
+    if (zwave_tx_process_abort_transmission(tx_session_id) != SL_STATUS_OK) {
+      sl_log_critical(LOG_TAG,
+                      "Failed to abort transmission of tx session ID : %d.",
+                      tx_session_id);
+    }
+  }
   return SL_STATUS_FAIL;
 }
 
