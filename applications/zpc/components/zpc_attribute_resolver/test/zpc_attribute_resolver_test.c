@@ -32,6 +32,8 @@
 #include "zwave_controller_utils_mock.h"
 #include "zwave_controller_keyset_mock.h"
 #include "zwave_utils_mock.h"
+// Local mock
+#include "attribute_resolver_hpp_stub.h"
 
 // Interface includes
 #include "sl_status.h"
@@ -39,6 +41,7 @@
 
 // Generic includes
 #include <string.h>
+
 
 // Static test variables
 static resolver_on_set_rule_registered_t set_rule_notification_function = NULL;
@@ -120,6 +123,8 @@ void suiteSetUp()
   received_resolver_config.get_retry_count   = 0;
   received_send_data_complete                = NULL;
   received_user                              = NULL;
+
+  attribute_resolver_set_function_stub(rule_function_stub);
 }
 
 /// Teardown the test suite (called once after all test_xxx functions are called)
@@ -612,8 +617,8 @@ void test_zpc_attribute_resolver_group_2_nodes_happy_case()
     encapsulation_1);
 
   attribute_store_get_node_type_ExpectAndReturn(test_node_2, test_node_2_type);
-  attribute_resolver_set_function_ExpectAndReturn(test_node_2_type,
-                                                  &rule_function_stub);
+  // attribute_resolver_set_function_ExpectAndReturn(test_node_2_type,
+  //                                                 &rule_function_stub);
   zwave_node_want_supervision_frame_ExpectAndReturn(zwave_node_id_2,
                                                     zwave_endpoint_id_1,
                                                     true);
@@ -640,8 +645,10 @@ void test_zpc_attribute_resolver_group_2_nodes_happy_case()
     encapsulation_1);
 
   attribute_store_get_node_type_ExpectAndReturn(test_node_1, test_node_1_type);
-  attribute_resolver_set_function_ExpectAndReturn(test_node_1_type,
-                                                  &rule_function_stub);
+  
+  // attribute_resolver_register_rule(test_node_1_type,
+  //                                                 &rule_function_stub);
+
   zwave_node_want_supervision_frame_ExpectAndReturn(zwave_node_id_1,
                                                     zwave_endpoint_id_1,
                                                     true);
@@ -849,8 +856,8 @@ void test_zpc_attribute_resolver_group_unknown_protocol()
     encapsulation_1);
 
   attribute_store_get_node_type_ExpectAndReturn(test_node_1, test_node_1_type);
-  attribute_resolver_set_function_ExpectAndReturn(test_node_1_type,
-                                                  &rule_function_stub);
+  // attribute_resolver_set_function_ExpectAndReturn(test_node_1_type,
+  //                                                 &rule_function_stub);
   zwave_node_want_supervision_frame_ExpectAndReturn(zwave_node_id_1,
                                                     zwave_endpoint_id_1,
                                                     true);
@@ -977,8 +984,8 @@ void test_zpc_attribute_resolver_group_no_reported_value()
     encapsulation_1);
 
   attribute_store_get_node_type_ExpectAndReturn(test_node_1, test_node_1_type);
-  attribute_resolver_set_function_ExpectAndReturn(test_node_1_type,
-                                                  &rule_function_stub);
+  // attribute_resolver_set_function_ExpectAndReturn(test_node_1_type,
+  //                                                 &rule_function_stub);
   zwave_node_want_supervision_frame_ExpectAndReturn(zwave_node_id_1,
                                                     zwave_endpoint_id_1,
                                                     true);

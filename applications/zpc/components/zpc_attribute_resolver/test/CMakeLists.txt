@@ -6,6 +6,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 target_add_unittest(zpc_attribute_resolver
 SOURCES zpc_attribute_resolver_test.c
+        attribute_resolver_hpp_stub.cpp
 DEPENDS
   uic_attribute_store_mock
   uic_attribute_resolver_rule_mock

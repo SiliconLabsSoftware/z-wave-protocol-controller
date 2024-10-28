@@ -16,6 +16,8 @@
 
 // Unify Includes
 #include "attribute_resolver_rule.h"
+#include "attribute_resolver.hpp"
+
 #include "attribute_store.h"
 #include "attribute_store_helper.h"
 #include "zpc_attribute_store_network_helper.h"
@@ -187,8 +189,9 @@ static sl_status_t assign_multicast_pool(attribute_store_node_t node)
 
   uint16_t payload_length                           = 0;
   std::array<uint8_t, ZWAVE_MAX_FRAME_SIZE> payload = {0};
-  attribute_resolver_function_t resolution_function
-    = attribute_resolver_set_function(attribute_store_get_node_type(node));
+  auto resolution_function
+    = attribute_resolver::set_function(
+      attribute_store_get_node_type(node));
 
   if (resolution_function == nullptr) {
     return SL_STATUS_FAIL;
