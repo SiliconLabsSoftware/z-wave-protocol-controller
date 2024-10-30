@@ -115,6 +115,7 @@ target_add_unittest(
   zwave_command_class_notification_test.c
   DEPENDS
   ${MOCK_LIBS}
+  uic_contiki_stub
   zwave_command_class_test_helpers)
 
 target_add_unittest(

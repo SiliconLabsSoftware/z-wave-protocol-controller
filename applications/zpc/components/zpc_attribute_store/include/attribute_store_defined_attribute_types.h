@@ -748,6 +748,9 @@ DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_V1_ALARM_LEVEL,
 /** This represents the operating mode (push or pull) of the notification sensor */
 DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
                  ((COMMAND_CLASS_NOTIFICATION_V4 << 8) | 0x0A))
+/** This represents if the probing is active/alive for the pull sensors */
+DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_PROBE_ACTIVE,
+                 ((COMMAND_CLASS_NOTIFICATION_V4 << 8) | 0x0B))
 
 /////////////////////////////////////////////////
 // Supervision Command Class
