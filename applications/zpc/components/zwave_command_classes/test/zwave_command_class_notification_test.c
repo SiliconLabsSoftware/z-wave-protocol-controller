@@ -2021,7 +2021,7 @@ void test_zwave_command_class_notification_trigger_probe()
   attribute_store_set_node_attribute_value_ExpectAndReturn(end_device3_probe_node, REPORTED_ATTRIBUTE, 0, 0, SL_STATUS_OK);
 
   //zwave_command_class_notification_trigger_probe();
-  contiki_test_helper_run(10800);
+  contiki_test_helper_run(10800000);
 }
 
 void test_zwave_command_class_notification_pull_mode_empty_queue_report()

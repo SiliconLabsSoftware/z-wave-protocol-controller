@@ -60,7 +60,7 @@ static constexpr uint8_t PUSH_REPORT_STATUS_ENABLED   = 0xFF;
 static constexpr uint8_t PULL_REPORT_STATUS_NOT_EMPTY = 0x00;
 static constexpr uint8_t PULL_REPORT_STATUS_EMPTY     = 0xFE;
 
-static constexpr uint32_t PULL_NODE_PROBE_INTERVAL = 10800; //in sec (3h * 60m * 60s)
+static constexpr uint32_t PULL_NODE_PROBE_INTERVAL = 10800000; //in msec (3h * 60m * 60s * 1000ms)
 
 enum class mode_discovery_state_t : uint8_t {
   PUSH_MODE_DETECTED = 0x00,
@@ -214,9 +214,15 @@ void zwave_command_class_notification_pull_push_discovery(
       zwave_command_class_agi_test_perform_discovery(groupings_node);
       return;
     }
-    attribute_resolver_set_resolution_listener(
-      groupings_node,
-      zwave_command_class_agi_test_perform_discovery);
+    if (groupings_node.is_valid()) {
+      attribute_resolver_set_resolution_listener(
+        groupings_node,
+        zwave_command_class_agi_test_perform_discovery);
+    }
+    else
+    {
+      sl_log_warning(LOG_TAG, "supported grouping not yet available");
+    }
 
     discovery_state = mode_discovery_state_t::AGI_TEST_PENDING;
     return;
@@ -418,7 +424,7 @@ static sl_status_t zwave_command_class_notification_report_cmd_handler(
       sending_node_unid,
       connection_info->remote.endpoint_id);
     auto mode_node = ep_node.child_by_type(ATTRIBUTE(MODE));
-    uint8_t mode;
+    uint8_t mode = PUSH_MODE;
 
     if (discovery_state == mode_discovery_state_t::NOTIFICATION_TEST_PENDING) {
 
@@ -993,7 +999,7 @@ static sl_status_t zwave_command_class_notification_control_handler(
 void zwave_command_class_notification_on_version_attribute_update(
   attribute_store_node_t updated_node, attribute_store_change_t change)
 {
-  if (change == ATTRIBUTE_DELETED) {
+  if (change == ATTRIBUTE_DELETED || change == ATTRIBUTE_CREATED) {
     return;
   }
 
