@@ -31,6 +31,8 @@
 #include "zwave_command_handler_mock.h"
 #include "zwave_unid_mock.h"
 #include "zwave_controller_connection_info.h"
+#include "zpc_attribute_store_mock.h"
+#include "contiki_test_helper.h"
 
 #include "ZW_classcmd.h"
 
@@ -55,6 +57,7 @@ static attribute_resolver_function_t
 static attribute_resolver_function_t notification_state_or_event_callback;
 static attribute_resolver_function_t state_get_callback;
 static attribute_resolver_function_t type_set_callback;
+static attribute_resolver_function_t probe_get_callback;
 static sl_status_t
   attribute_resolver_register_rule_stub(attribute_store_type_t node_type,
                                         attribute_resolver_function_t set_func,
@@ -73,6 +76,8 @@ static sl_status_t
     state_get_callback = get_func;
   } else if (ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_TYPE == node_type) {
     type_set_callback = set_func;
+  } else if (ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_PROBE_ACTIVE == node_type) {
+    probe_get_callback = get_func;
   } else {
     char tmp[100];
     snprintf(tmp,
@@ -145,7 +150,10 @@ static void init_notification_cc()
 void setUp()
 {
   attribute_store_node_exists_Stub(&attribute_store_node_exists_stub);
+  contiki_test_helper_init();
   init_notification_cc();
+  // Get the clock to start at something else than 0.
+  contiki_test_helper_run(1);
 }
 
 // Test notification report handler
@@ -195,7 +203,9 @@ void test_zwave_command_class_notification_report()
   attribute_store_node_t notification_event_node       = 0x014;
   attribute_store_node_t notification_event_param_node = 0x015;
   attribute_store_node_t notification_version_node     = 0x018;
+  attribute_store_node_t notification_mode_node        = 0x019;
   uint8_t notification_version                         = 0x6;
+  uint8_t notification_mode                            = 0x0;
   uint8_t u8_size = 1; 
   zwave_unid_from_node_id_Expect(test_connection_info.remote.node_id, NULL);
   zwave_unid_from_node_id_IgnoreArg_unid();
@@ -207,6 +217,30 @@ void test_zwave_command_class_notification_report()
     test_unid,
     test_connection_info.remote.endpoint_id,
     endpoint_node);
+
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    0,
+    notification_mode_node
+  );
+
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    notification_mode_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK
+  );
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &notification_mode,
+    sizeof(notification_mode));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
 
   attribute_store_get_node_child_by_value_ExpectAndReturn(
     endpoint_node,
@@ -318,7 +352,9 @@ void test_zwave_command_class_notification_v2_report()
   attribute_store_node_t notification_event_node       = 0x014;
   attribute_store_node_t notification_event_param_node = 0x015;
   attribute_store_node_t notification_version_node     = 0x018;
+  attribute_store_node_t notification_mode_node        = 0x019;
   uint8_t notification_version                         = 0x2;
+  uint8_t notification_mode                            = 0x0;
   uint8_t u8_size = 1; 
   zwave_unid_from_node_id_Expect(test_connection_info.remote.node_id, NULL);
   zwave_unid_from_node_id_IgnoreArg_unid();
@@ -330,6 +366,30 @@ void test_zwave_command_class_notification_v2_report()
     test_unid,
     test_connection_info.remote.endpoint_id,
     endpoint_node);
+
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    0,
+    notification_mode_node
+  );
+
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    notification_mode_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK
+  );
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &notification_mode,
+    sizeof(notification_mode));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
 
   attribute_store_get_node_child_by_value_ExpectAndReturn(
     endpoint_node,
@@ -430,6 +490,9 @@ void test_zwave_command_class_notification_report_v1_alarm_type()
   static attribute_store_node_t endpoint_node_test = 0x01;
   static attribute_store_node_t v1_alarm_type_node_test  = 0x02;
   static attribute_store_node_t v1_alarm_level_node_test = 0x03;
+  attribute_store_node_t notification_mode_node          = 0x019;
+  uint8_t notification_mode                              = 0x0;
+  uint8_t u8_size = 1;
   test_connection_info.remote.node_id                    = 0x01;
   test_connection_info.remote.endpoint_id                = 0x00;
 
@@ -441,6 +504,30 @@ void test_zwave_command_class_notification_report_v1_alarm_type()
     test_unid_alarm,
     test_connection_info.remote.endpoint_id,
     endpoint_node_test);
+  
+    attribute_store_get_node_child_by_type_ExpectAndReturn(
+    endpoint_node_test,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    0,
+    notification_mode_node
+  );
+
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    notification_mode_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK
+  );
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &notification_mode,
+    sizeof(notification_mode));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
 
   attribute_store_get_node_child_by_value_ExpectAndReturn(
     endpoint_node_test,
@@ -505,7 +592,9 @@ void test_zwave_command_class_notification_report_idle_param()
   attribute_store_node_t notification_event_node       = 0x014;
   attribute_store_node_t notification_event_param_node = 0x015;
   attribute_store_node_t notification_version_node     = 0x018;
+  attribute_store_node_t notification_mode_node        = 0x019;
   uint8_t notification_version                         = 0x6;
+  uint8_t notification_mode                            = 0x0;
   uint8_t u8_size = 1; 
   zwave_unid_from_node_id_Expect(test_connection_info.remote.node_id, NULL);
   zwave_unid_from_node_id_IgnoreArg_unid();
@@ -515,6 +604,30 @@ void test_zwave_command_class_notification_report_idle_param()
     test_unid,
     test_connection_info.remote.endpoint_id,
     endpoint_node);
+
+    attribute_store_get_node_child_by_type_ExpectAndReturn(
+    endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    0,
+    notification_mode_node
+  );
+
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    notification_mode_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK
+  );
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &notification_mode,
+    sizeof(notification_mode));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
 
   attribute_store_get_node_child_by_value_ExpectAndReturn(
     endpoint_node,
@@ -624,7 +737,9 @@ void test_zwave_command_class_notification_report_idle_no_param()
   attribute_store_node_t notification_event_node       = 0x014;
   attribute_store_node_t notification_event_param_node = 0x015;
   attribute_store_node_t notification_version_node     = 0x018;
+  attribute_store_node_t notification_mode_node        = 0x019;
   uint8_t notification_version                         = 0x6;
+  uint8_t notification_mode                            = 0x0;
   uint8_t u8_size = 1; 
   zwave_unid_from_node_id_Expect(test_connection_info.remote.node_id, NULL);
   zwave_unid_from_node_id_IgnoreArg_unid();
@@ -634,6 +749,30 @@ void test_zwave_command_class_notification_report_idle_no_param()
     test_unid,
     test_connection_info.remote.endpoint_id,
     endpoint_node);
+
+    attribute_store_get_node_child_by_type_ExpectAndReturn(
+    endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    0,
+    notification_mode_node
+  );
+
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    notification_mode_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK
+  );
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &notification_mode,
+    sizeof(notification_mode));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
 
   attribute_store_get_node_child_by_value_ExpectAndReturn(
     endpoint_node,
@@ -904,10 +1043,11 @@ void helper_test_discover_agi(bool agi_support)
 // This also test zwave_command_class_notification_types_attribute_update()
 void test_zwave_command_class_notification_on_version_attribute_update_happy_case()
 {
-  attribute_store_node_t test_updated_node           = 0xf9a;
-  attribute_store_node_t test_parent_node            = 0xde9e;
-  attribute_store_node_t test_notification_type_node = 0xacb8b;
-  attribute_store_node_t test_notification_mode_node = 0xacb8c;
+  attribute_store_node_t test_updated_node            = 0xf9a;
+  attribute_store_node_t test_parent_node             = 0xde9e;
+  attribute_store_node_t test_notification_type_node  = 0xacb8b;
+  attribute_store_node_t test_notification_mode_node  = 0xacb8c;
+  attribute_store_node_t test_notification_probe_node = 0xacb8d;
 
   is_zwave_command_class_filtered_for_root_device_verification(
     COMMAND_CLASS_NOTIFICATION_V3,
@@ -978,6 +1118,12 @@ void test_zwave_command_class_notification_on_version_attribute_update_happy_cas
     &mode_value,
     sizeof(uint8_t),
     SL_STATUS_OK);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(test_parent_node, ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_PROBE_ACTIVE, 0, 0);
+  attribute_store_node_exists_ExpectAndReturn(0, false);
+  attribute_store_add_node_ExpectAndReturn(
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_PROBE_ACTIVE,
+    test_parent_node,
+    test_notification_probe_node);
 
   // Make the call:
   notification_version_callback(test_updated_node, ATTRIBUTE_UPDATED);
@@ -1041,9 +1187,10 @@ void test_zwave_command_class_notification_on_version_attribute_update_node_exis
 // in V1 we don't expect any Notificaiton Support Get
 void test_zwave_command_class_notification_on_version_attribute_update_v1()
 {
-  attribute_store_node_t test_updated_node           = 0xf9a;
-  attribute_store_node_t test_parent_node            = 0xde9e;
-  attribute_store_node_t test_notification_mode_node = 0xacb8c;
+  attribute_store_node_t test_updated_node            = 0xf9a;
+  attribute_store_node_t test_parent_node             = 0xde9e;
+  attribute_store_node_t test_notification_mode_node  = 0xacb8c;
+  attribute_store_node_t test_notification_probe_node = 0xacb8d;
 
   is_zwave_command_class_filtered_for_root_device_verification(
     COMMAND_CLASS_NOTIFICATION_V3,
@@ -1099,6 +1246,16 @@ void test_zwave_command_class_notification_on_version_attribute_update_v1()
     &mode_value,
     sizeof(uint8_t),
     SL_STATUS_OK);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    test_parent_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_PROBE_ACTIVE,
+    0,
+    0);
+  attribute_store_node_exists_ExpectAndReturn(0, false);
+  attribute_store_add_node_ExpectAndReturn(
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_PROBE_ACTIVE,
+    test_parent_node,
+    test_notification_probe_node);
 
   // Make the call:
   notification_version_callback(test_updated_node, ATTRIBUTE_UPDATED);
@@ -1556,6 +1713,7 @@ void helper_test_agi_test(bool support_push)
   attribute_store_node_t mode_node = 0xbcdc;
   attribute_store_node_t group_node = 0xbcdd;
   attribute_store_node_t cmd_list_node = 0xbcde;
+  attribute_store_node_t probe_node = 0xbcdf;
   static uint32_t group_count = 1;
   static uint8_t group_id = 1;
   static uint8_t u32_size = 4;
@@ -1627,6 +1785,19 @@ void helper_test_agi_test(bool support_push)
   );
   is_command_in_array_ExpectAndReturn(COMMAND_CLASS_NOTIFICATION_V8, NOTIFICATION_REPORT_V3, push_cmd_list, cmd_list_size, support_push);
   attribute_store_set_node_attribute_value_ExpectAndReturn(mode_node, REPORTED_ATTRIBUTE, &mode, sizeof(uint8_t), SL_STATUS_OK);
+  if (!support_push) {
+    attribute_store_get_node_child_by_type_ExpectAndReturn(
+      ep_node,
+      ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_PROBE_ACTIVE,
+      0,
+      0);
+    attribute_store_node_exists_ExpectAndReturn(0, false);
+    attribute_store_add_node_ExpectAndReturn(
+      ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_PROBE_ACTIVE,
+      ep_node,
+      probe_node);
+  }
+
   attribute_resolver_clear_resolution_listener_Expect(groups_supp_node, NULL);
   attribute_resolver_clear_resolution_listener_IgnoreArg_callback(); 
 }
@@ -1669,4 +1840,510 @@ void test_zwave_command_class_notification_pull_push_discovery_agi_not_ready()
   attribute_resolver_set_resolution_listener_IgnoreArg_callback();
 
   zwave_command_class_notification_pull_push_discovery(test_connection_info.remote.node_id, test_connection_info.remote.endpoint_id);
+}
+
+void test_zwave_command_class_notification_probe_happy_case()
+{
+  attribute_store_node_t ep_node = 0xde9e;
+  attribute_store_node_t mode_node = 0xbcda;
+  attribute_store_node_t probe_node = 0xbcdb;
+  uint8_t notification_mode = 0x1;
+  uint8_t u8_size = 1;
+  uint16_t frame_size = 0;
+  uint8_t frame_data[10];
+
+  attribute_store_get_first_parent_with_type_ExpectAndReturn(probe_node, ATTRIBUTE_ENDPOINT_ID, ep_node);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(ep_node, ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE, 0, mode_node);
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    mode_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK
+  );
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &notification_mode,
+    sizeof(notification_mode));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, probe_get_callback(probe_node, frame_data, &frame_size));
+  TEST_ASSERT_EQUAL(5, frame_size);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_NOTIFICATION_V8, frame_data[0]);
+  TEST_ASSERT_EQUAL(NOTIFICATION_GET_V8, frame_data[1]);
+  TEST_ASSERT_EQUAL(0x00, frame_data[2]);
+  TEST_ASSERT_EQUAL(0xFF, frame_data[3]);
+  TEST_ASSERT_EQUAL(0x00, frame_data[4]);
+}
+
+void test_zwave_command_class_notification_probe_pull_check_fail()
+{
+  attribute_store_node_t ep_node = 0xde9e;
+  attribute_store_node_t mode_node = 0xbcda;
+  attribute_store_node_t probe_node = 0xbcdb;
+  uint8_t notification_mode                            = 0x0;
+  uint8_t u8_size = 1;
+  uint16_t frame_size = 0;
+  uint8_t frame_data[10];
+
+  attribute_store_get_first_parent_with_type_ExpectAndReturn(probe_node, ATTRIBUTE_ENDPOINT_ID, ep_node);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(ep_node, ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE, 0, mode_node);
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    mode_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK
+  );
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &notification_mode,
+    sizeof(notification_mode));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
+  TEST_ASSERT_NOT_EQUAL(SL_STATUS_OK, probe_get_callback(probe_node, frame_data, &frame_size));
+  TEST_ASSERT_EQUAL(0, frame_size);
+}
+
+void test_zwave_command_class_notification_trigger_probe()
+{
+  attribute_store_node_t network_node = 0x1230;
+  attribute_store_node_t end_device_node1 = 0x1231;
+  attribute_store_node_t end_device_node2 = 0x1232;
+  attribute_store_node_t end_device_node3 = 0x1233;
+  attribute_store_node_t end_device1_ep_node = 0x1234;
+  attribute_store_node_t end_device2_ep_node = 0x1235;
+  attribute_store_node_t end_device3_ep_node = 0x1236;  
+  attribute_store_node_t end_device1_ver_node = ATTRIBUTE_STORE_INVALID_NODE;
+  attribute_store_node_t end_device2_ver_node = 0x1237;
+  attribute_store_node_t end_device3_ver_node = 0x1238;
+  attribute_store_node_t end_device2_mode_node = 0x1239;
+  attribute_store_node_t end_device3_mode_node = 0x123A;
+  attribute_store_node_t end_device3_probe_node = 0x123B;
+  uint8_t push_mode = 0x00;
+  uint8_t pull_mode = 0x01;
+  uint8_t probe_active = 0x01;
+  uint8_t u8_size = 1;
+
+  get_zpc_network_node_ExpectAndReturn(network_node);
+  attribute_store_get_node_child_count_ExpectAndReturn(network_node, 3);
+  attribute_store_get_node_child_ExpectAndReturn(network_node, 0, end_device_node1);
+  attribute_store_get_node_type_ExpectAndReturn(end_device_node1, ATTRIBUTE_NODE_ID);
+  attribute_store_get_node_child_ExpectAndReturn(network_node, 0, end_device_node1);
+  attribute_store_get_node_child_count_ExpectAndReturn(network_node, 3);
+  attribute_store_get_node_child_ExpectAndReturn(network_node, 1, end_device_node2);
+  attribute_store_get_node_type_ExpectAndReturn(end_device_node2, ATTRIBUTE_NODE_ID);
+  attribute_store_get_node_child_ExpectAndReturn(network_node, 1, end_device_node2);
+  attribute_store_get_node_child_count_ExpectAndReturn(network_node, 3);
+  attribute_store_get_node_child_ExpectAndReturn(network_node, 2, end_device_node3);
+  attribute_store_get_node_type_ExpectAndReturn(end_device_node3, ATTRIBUTE_NODE_ID);
+  attribute_store_get_node_child_ExpectAndReturn(network_node, 2, end_device_node3);
+  attribute_store_get_node_child_count_ExpectAndReturn(network_node, 3);
+
+  // end device 1 : emulate node without Notification CC]
+  attribute_store_get_node_child_count_ExpectAndReturn(end_device_node1, 1);
+  attribute_store_get_node_child_ExpectAndReturn(end_device_node1, 0, end_device1_ep_node);
+  attribute_store_get_node_type_ExpectAndReturn(end_device1_ep_node, ATTRIBUTE_ENDPOINT_ID);
+  attribute_store_get_node_child_ExpectAndReturn(end_device_node1, 0, end_device1_ep_node);
+  attribute_store_get_node_child_count_ExpectAndReturn(end_device_node1, 1);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(end_device1_ep_node, ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_VERSION, 0, end_device1_ver_node);
+  attribute_store_node_exists_ExpectAndReturn(end_device1_ver_node, false);
+
+  // end device 2 : emulate Push node
+  attribute_store_get_node_child_count_ExpectAndReturn(end_device_node2, 1);
+  attribute_store_get_node_child_ExpectAndReturn(end_device_node2, 0, end_device2_ep_node);
+  attribute_store_get_node_type_ExpectAndReturn(end_device2_ep_node, ATTRIBUTE_ENDPOINT_ID);
+  attribute_store_get_node_child_ExpectAndReturn(end_device_node2, 0, end_device2_ep_node);
+  attribute_store_get_node_child_count_ExpectAndReturn(end_device_node2, 1);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(end_device2_ep_node, ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_VERSION, 0, end_device2_ver_node);
+  attribute_store_node_exists_ExpectAndReturn(end_device2_ver_node, true);
+  attribute_store_get_node_child_count_ExpectAndReturn(end_device2_ep_node, 1);
+  attribute_store_get_node_child_ExpectAndReturn(end_device2_ep_node, 0, end_device2_mode_node);
+  attribute_store_get_node_type_ExpectAndReturn(end_device2_mode_node, ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE);
+  attribute_store_get_node_child_ExpectAndReturn(end_device2_ep_node, 0, end_device2_mode_node);
+  attribute_store_get_node_child_count_ExpectAndReturn(end_device2_ep_node, 1);
+  attribute_store_is_value_defined_ExpectAndReturn(end_device2_mode_node, REPORTED_ATTRIBUTE, true);
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    end_device2_mode_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK
+  );
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &push_mode,
+    sizeof(push_mode));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
+
+  // end device 3 : emulate pull node
+  attribute_store_get_node_child_count_ExpectAndReturn(end_device_node3, 1);
+  attribute_store_get_node_child_ExpectAndReturn(end_device_node3, 0, end_device3_ep_node);
+  attribute_store_get_node_type_ExpectAndReturn(end_device3_ep_node, ATTRIBUTE_ENDPOINT_ID);
+  attribute_store_get_node_child_ExpectAndReturn(end_device_node3, 0, end_device3_ep_node);
+  attribute_store_get_node_child_count_ExpectAndReturn(end_device_node3, 1);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(end_device3_ep_node, ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_VERSION, 0, end_device3_ver_node);
+  attribute_store_node_exists_ExpectAndReturn(end_device3_ver_node, true);
+  attribute_store_get_node_child_count_ExpectAndReturn(end_device3_ep_node, 1);
+  attribute_store_get_node_child_ExpectAndReturn(end_device3_ep_node, 0, end_device3_mode_node);
+  attribute_store_get_node_type_ExpectAndReturn(end_device3_mode_node, ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE);
+  attribute_store_get_node_child_ExpectAndReturn(end_device3_ep_node, 0, end_device3_mode_node);
+  attribute_store_get_node_child_count_ExpectAndReturn(end_device3_ep_node, 1);
+  attribute_store_is_value_defined_ExpectAndReturn(end_device3_mode_node, REPORTED_ATTRIBUTE, true);
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    end_device3_mode_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK
+  );
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &pull_mode,
+    sizeof(pull_mode));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
+  attribute_store_get_node_child_by_type_ExpectAndReturn(end_device3_ep_node, ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_PROBE_ACTIVE, 0, end_device3_probe_node);
+  attribute_store_set_node_attribute_value_ExpectAndReturn(end_device3_probe_node, REPORTED_ATTRIBUTE, &probe_active, 1, SL_STATUS_OK);
+  attribute_store_set_node_attribute_value_ExpectAndReturn(end_device3_probe_node, REPORTED_ATTRIBUTE, 0, 0, SL_STATUS_OK);
+
+  //zwave_command_class_notification_trigger_probe();
+  contiki_test_helper_run(10800);
+}
+
+void test_zwave_command_class_notification_pull_mode_empty_queue_report()
+{
+  // Test a report for Home Security notification type
+  uint8_t test_frame_data_2[]
+    = {0x71, 0x05, 0x00, 0x00, 0x00, 0xFE, 0x00, 0x00, 0x00};
+  unid_t test_unid                                     = "zw000001";
+  attribute_store_node_t endpoint_node                 = 0x017;
+  attribute_store_node_t notification_mode_node        = 0x018;
+  attribute_store_node_t notification_probe_node       = 0x019;
+  uint8_t notification_mode                            = 0x01;
+  uint8_t probe_active                                 = false;
+  uint8_t u8_size = 1; 
+  zwave_unid_from_node_id_Expect(test_connection_info.remote.node_id, NULL);
+  zwave_unid_from_node_id_IgnoreArg_unid();
+  zwave_unid_from_node_id_ReturnMemThruPtr_unid(test_unid, sizeof(unid_t));
+  //attribute_store_get_node_type_IgnoreAndReturn(ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_TYPE);
+  //attribute_store_get_type_name_IgnoreAndReturn("ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_TYPE");
+
+  attribute_store_network_helper_get_endpoint_node_ExpectAndReturn(
+    test_unid,
+    test_connection_info.remote.endpoint_id,
+    endpoint_node);
+
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    0,
+    notification_mode_node
+  );
+
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    notification_mode_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK
+  );
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &notification_mode,
+    sizeof(notification_mode));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_PROBE_ACTIVE,
+    0,
+    notification_probe_node);
+  attribute_store_set_node_attribute_value_ExpectAndReturn(
+    notification_probe_node,
+    REPORTED_ATTRIBUTE,
+    &probe_active,
+    1,
+    SL_STATUS_OK);
+  
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    command_handler.control_handler(&test_connection_info,
+                                                    test_frame_data_2,
+                                                    sizeof(test_frame_data_2)));
+}
+
+void helper_test_zwave_command_class_notification_pull_mode_report(
+  uint8_t *test_frame_data, uint8_t expect_clear)
+{
+  static int32_t notification_event_value = 0x16;  //Door state
+  static int32_t notification_event_param_value
+    = 0x00;  //0x00: Door/Window open in regular position
+  static unid_t test_unid                                     = "zw000001";
+  static attribute_store_node_t endpoint_node                 = 0x017;
+  static attribute_store_node_t notification_status_node      = 0x012;
+  static attribute_store_node_t notification_state_node       = 0x013;
+  static attribute_store_node_t notification_event_node       = 0x014;
+  static attribute_store_node_t notification_event_param_node = 0x015;
+  static attribute_store_node_t notification_version_node     = 0x018;
+  static attribute_store_node_t notification_mode_node        = 0x019;
+  static attribute_store_node_t notification_probe_node       = 0x01A;
+  static uint8_t notification_version                         = 0x06;
+  static uint8_t notification_mode                            = 0x01;
+  static uint8_t probe_active                                 = true;
+  static uint8_t notification_type                            = 0x06;
+  static uint8_t u8_size = 1; 
+
+  zwave_unid_from_node_id_Expect(test_connection_info.remote.node_id, NULL);
+  zwave_unid_from_node_id_IgnoreArg_unid();
+  zwave_unid_from_node_id_ReturnMemThruPtr_unid(test_unid, sizeof(unid_t));
+  //attribute_store_get_node_type_IgnoreAndReturn(ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_TYPE);
+  //attribute_store_get_type_name_IgnoreAndReturn("ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_TYPE");
+
+  attribute_store_network_helper_get_endpoint_node_ExpectAndReturn(
+    test_unid,
+    test_connection_info.remote.endpoint_id,
+    endpoint_node);
+
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_MODE,
+    0,
+    notification_mode_node
+  );
+
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    notification_mode_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK
+  );
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &notification_mode,
+    sizeof(notification_mode));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
+
+  if (expect_clear) {
+    attribute_store_get_node_child_by_type_ExpectAndReturn(
+      endpoint_node,
+      ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_TYPE,
+      0,
+      notification_status_node);
+    attribute_store_get_node_attribute_value_ExpectAndReturn(
+      notification_status_node,
+      REPORTED_ATTRIBUTE,
+      NULL,
+      NULL,
+      SL_STATUS_OK);
+    attribute_store_get_node_attribute_value_IgnoreArg_value();
+    attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+    attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+      &notification_type,
+      sizeof(notification_type));
+    attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+      &u8_size,
+      sizeof(uint8_t));
+    attribute_store_set_node_attribute_value_ExpectAndReturn(
+      notification_status_node,
+      DESIRED_ATTRIBUTE,
+      &notification_type,
+      sizeof(notification_type),
+      SL_STATUS_OK);
+  }
+
+  attribute_store_get_node_child_by_value_ExpectAndReturn(
+    endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_TYPE,
+    REPORTED_ATTRIBUTE,
+    &test_frame_data[6],
+    sizeof(uint8_t),
+    0,
+    notification_status_node);
+  attribute_store_node_exists_ExpectAndReturn(notification_status_node, true);
+
+  attribute_store_get_node_parent_ExpectAndReturn(notification_status_node,
+                                                  endpoint_node);
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_VERSION,
+    0,
+    notification_version_node);
+  attribute_store_get_node_type_IgnoreAndReturn(ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_VERSION);
+  attribute_store_get_type_name_IgnoreAndReturn("ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_VERSION");
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    notification_version_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK);
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &notification_version,
+    sizeof(notification_version));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
+
+  static uint8_t state = NOTIFICATION_STATE_ACCESS_CONTROL_DOOR_STATE;
+  attribute_store_get_node_child_by_value_ExpectAndReturn(
+    notification_status_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_STATE,
+    REPORTED_ATTRIBUTE,
+    &state,
+    sizeof(state),
+    0,
+    notification_state_node);
+  //attribute_store_get_node_type_ExpectAndReturn(notification_version_node, ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_VERSION);
+
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    notification_state_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_EVENT,
+    0,
+    notification_event_node);
+
+  attribute_store_get_node_attribute_value_ExpectAndReturn(
+    notification_status_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    NULL,
+    SL_STATUS_OK);
+  attribute_store_get_node_attribute_value_IgnoreArg_value();
+  attribute_store_get_node_attribute_value_IgnoreArg_value_size();
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value(
+    &test_frame_data[6],
+    sizeof(uint8_t));
+  attribute_store_get_node_attribute_value_ReturnMemThruPtr_value_size(
+    &u8_size,
+    sizeof(uint8_t)
+  );
+  //attribute_store_get_type_name_IgnoreAndReturn("Type");
+
+  attribute_store_set_node_attribute_value_ExpectAndReturn(
+    notification_event_node,
+    REPORTED_ATTRIBUTE,
+    (uint8_t *)&notification_event_value,
+    sizeof(int32_t),
+    SL_STATUS_OK);
+
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    notification_event_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_EVENT_PARAMETERS,
+    0,
+    notification_event_param_node);
+
+  attribute_store_set_node_attribute_value_ExpectAndReturn(
+    notification_event_param_node,
+    REPORTED_ATTRIBUTE,
+    (uint8_t *)&notification_event_param_value,
+    sizeof(int32_t),
+    SL_STATUS_OK);
+  
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_PROBE_ACTIVE,
+    0,
+    notification_probe_node);
+  attribute_store_set_node_attribute_value_ExpectAndReturn(
+    notification_probe_node,
+    REPORTED_ATTRIBUTE,
+    &probe_active,
+    1,
+    SL_STATUS_OK);
+  attribute_store_set_node_attribute_value_ExpectAndReturn(
+    notification_probe_node,
+    REPORTED_ATTRIBUTE,
+    NULL,
+    0,
+    SL_STATUS_OK);
+}
+
+void test_zwave_command_class_notification_pull_mode_report()
+{
+  // Test a report for Home Security notification type
+  uint8_t test_frame_data_2[]
+    = {0x71, 0x05, 0x00, 0x00, 0x00, 0x00, 0x06, 0x16, 0x01, 0x00, 0x00};
+
+  helper_test_zwave_command_class_notification_pull_mode_report(test_frame_data_2, false);
+
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    command_handler.control_handler(&test_connection_info,
+                                                    test_frame_data_2,
+                                                    sizeof(test_frame_data_2)));
+}
+
+void test_zwave_command_class_notification_pull_mode_report_priority_without_sequence()
+{
+  // Test a report for Home Security notification type
+  uint8_t test_frame_data_2[]
+    = {0x71, 0x05, 0x00, 0x00, 0x00, 0x00, 0x06, 0x16, 0x01, 0x00, 0x00};
+
+  helper_test_zwave_command_class_notification_pull_mode_report(test_frame_data_2, false);
+
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    command_handler.control_handler(&test_connection_info,
+                                                    test_frame_data_2,
+                                                    sizeof(test_frame_data_2)));
+  helper_test_zwave_command_class_notification_pull_mode_report(test_frame_data_2, false);
+
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    command_handler.control_handler(&test_connection_info,
+                                                    test_frame_data_2,
+                                                    sizeof(test_frame_data_2)));
+
+  helper_test_zwave_command_class_notification_pull_mode_report(test_frame_data_2, false);
+
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    command_handler.control_handler(&test_connection_info,
+                                                    test_frame_data_2,
+                                                    sizeof(test_frame_data_2)));
+  helper_test_zwave_command_class_notification_pull_mode_report(test_frame_data_2, true);
+
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    command_handler.control_handler(&test_connection_info,
+                                                    test_frame_data_2,
+                                                    sizeof(test_frame_data_2)));
+}
+
+void test_zwave_command_class_notification_pull_mode_report_priority_with_sequence()
+{
+  // Test a report for Home Security notification type
+  uint8_t test_frame_data_3[]
+    = {0x71, 0x05, 0x00, 0x00, 0x00, 0x00, 0x06, 0x16, 0x81, 0x00, 0x00};
+
+  helper_test_zwave_command_class_notification_pull_mode_report(test_frame_data_3, false);
+
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    command_handler.control_handler(&test_connection_info,
+                                                    test_frame_data_3,
+                                                    sizeof(test_frame_data_3)));
+
+  helper_test_zwave_command_class_notification_pull_mode_report(test_frame_data_3, true);
+
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    command_handler.control_handler(&test_connection_info,
+                                                    test_frame_data_3,
+                                                    sizeof(test_frame_data_3)));
 }
