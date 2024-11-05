@@ -1488,7 +1488,13 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
     }
     break;
   case WAIT_NONCE_RAPORT:
-    if ((e == SEND_DONE) && (d->d.tx.status == S2_TRANSMIT_COMPLETE_OK))
+    if ((e == SEND_DONE) && (d->d.tx.status == S2_TRANSMIT_COMPLETE_NO_ACK))
+    {
+      p_context->fsm = IDLE;
+      S2_stop_timeout(p_context);
+      S2_post_send_done_event(p_context, S2_TRANSMIT_COMPLETE_FAIL);
+    }
+    else if ((e == SEND_DONE) && (d->d.tx.status == S2_TRANSMIT_COMPLETE_OK))
     {
       S2_set_timeout(p_context, d->d.tx.time); //Just shorten timer but stay in this state
     }
