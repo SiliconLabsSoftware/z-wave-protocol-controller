@@ -1439,6 +1439,7 @@ static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8
         if (cmd_length == SECURITY_2_V2_NLS_STATE_SET_LENGTH)
         {
           ctxt->nls_state = cmd[SECURITY_2_V2_NLS_STATE_SET_STATE_POS];
+          S2_save_nls_state();
         }
         break;
 #ifdef ZW_CONTROLLER

@@ -118,6 +118,9 @@ void S2_nls_node_list_get(node_t srcNode, uint8_t class_id, uint8_t request)
 void S2_nls_node_list_report(node_t srcNode, uint8_t class_id, uint8_t last_node, uint16_t id_of_node, uint8_t keys_node_bitmask, uint8_t nls_state)
 {}
 
+void S2_save_nls_state(void)
+{}
+
 void
 S2_set_timeout(struct S2* ctxt, uint32_t interval)
 {
@@ -550,6 +553,25 @@ void test_send_data_fail_in_encap_message(void)
  *
  */
 void test_send_data_no_ack_in_encap_message(void)
+{
+  const char hello[] = "HelloWorld Second Frame";
+
+  test_s2_send_data();
+  /* ----------- now send second frame with SPAN established --------- *
+   */
+
+  ts.fcount = 0; //Reset frame count
+  ts.rx_frame_len = 0;
+  ts.s2_send_done =0;
+
+  S2_send_data(ctx1, &conn12, (uint8_t*) hello, sizeof(hello));
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_NO_ACK,0x42);
+  TEST_ASSERT_EQUAL(1, ts.s2_send_done);
+  TEST_ASSERT_EQUAL(S2_TRANSMIT_COMPLETE_NO_ACK, ts.s2_send_status);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count); // Test that no sync events were emitted during test
+}
+
+void test_stop_timeout_transmit_no_ack(void)
 {
   const char hello[] = "HelloWorld Second Frame";
 

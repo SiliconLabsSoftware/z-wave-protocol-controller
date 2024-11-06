@@ -148,3 +148,12 @@ void S2_get_hw_random(uint8_t *buf, uint8_t len)
 
   MOCK_CALL_SET_OUTPUT_ARRAY(p_mock->output_arg[0].pointer, buf, len, uint8_t);
 }
+
+
+void S2_save_nls_state(void)
+{
+  mock_t * p_mock;
+
+  MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
+  MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
+}

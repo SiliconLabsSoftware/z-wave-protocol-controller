@@ -186,6 +186,11 @@ void S2_resynchronization_event(
     node_t local_node);
 
 /**
+ * Save NLS state stored in S2 context in device memory
+ */
+void S2_save_nls_state(void);
+
+/**
  * @}
  */
 #endif /* INCLUDE_S2_EXTERNAL_H_ */
