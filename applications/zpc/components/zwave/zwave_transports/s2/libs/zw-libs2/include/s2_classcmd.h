@@ -130,6 +130,7 @@
 #define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS            5       //< Position of NLS state byte of NodeID
 
 /** Length definitions */
+#define SECURITY_2_NONCE_GET_LENGTH                 3
 #define SECURITY_2_KEX_GET_LENGTH                   2
 #define SECURITY_2_KEX_REPORT_LENGTH                6
 #define SECURITY_2_KEX_SET_LENGTH                   6

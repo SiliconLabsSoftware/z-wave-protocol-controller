@@ -232,7 +232,7 @@ S2_span_ok(struct S2* p_context, const s2_connection_t* con)
 {
   CTX_DEF
 
-  struct SPAN  *span = find_span_by_node(ctxt, con);
+  const struct SPAN  *span = find_span_by_node(ctxt, con);
 
   if (span)
   {
@@ -255,7 +255,7 @@ S2_send_nonce_get(struct S2* p_context)
   static uint8_t nonce_get[] =
     { COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_GET, 0 };
 
-  struct SPAN  *span = find_span_by_node(ctxt, &ctxt->peer);
+  const struct SPAN  *span = find_span_by_node(ctxt, &ctxt->peer);
 
   assert(span);
 
@@ -479,7 +479,7 @@ S2_encrypt_and_send(struct S2* p_context)
   }
 
   memcpy(ciphertext + shdr_len, ctxt->buf, ctxt->length);
-  aad_len = S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len,
+  aad_len = (uint16_t) S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len,
       ctxt->length + shdr_len + hdr_len + AUTH_TAG_LEN, aad, sizeof(aad));
   /*TODO we should consider to roll the nonce when we have recevied in ACK*/
   next_nonce_generate(&span->d.rng, nonce); //Create the new nonce
@@ -506,7 +506,7 @@ S2_encrypt_and_send(struct S2* p_context)
     zw_psa_destroy_key(ccm_key_id);
   }
 #else
-  msg_len = CCM_encrypt_and_auth(ctxt->sg[ctxt->peer.class_id].enc_key, nonce, aad, aad_len, ciphertext,
+  msg_len = (uint16_t) CCM_encrypt_and_auth(ctxt->sg[ctxt->peer.class_id].enc_key, nonce, aad, aad_len, ciphertext,
         ctxt->length + shdr_len);
 #endif
 
@@ -566,7 +566,7 @@ S2_encrypt_and_send_multi(struct S2* p_context)
 
   memcpy(ciphertext, ctxt->buf, ctxt->length);
 
-  aad_len = S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len, ctxt->length + hdr_len + AUTH_TAG_LEN,
+  aad_len = (uint16_t) S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len, ctxt->length + hdr_len + AUTH_TAG_LEN,
       aad, sizeof(aad));
 
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
@@ -605,7 +605,7 @@ S2_encrypt_and_send_multi(struct S2* p_context)
     zw_psa_destroy_key(key_id);
   }
 #else
-  msg_len = CCM_encrypt_and_auth(ctxt->sg[ctxt->mpan->class_id].enc_key, nonce, aad, aad_len, ciphertext, ctxt->length);
+  msg_len = (uint16_t) CCM_encrypt_and_auth(ctxt->sg[ctxt->mpan->class_id].enc_key, nonce, aad, aad_len, ciphertext, ctxt->length);
 #endif
 
   assert(msg_len > 0);
@@ -967,7 +967,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
   }
   else
   {
-    if (span->state != SPAN_NEGOTIATED && span->state != SPAN_INSTANTIATE)
+    if (!span || (span->state != SPAN_NEGOTIATED && span->state != SPAN_INSTANTIATE))
     {
       // Unexpected span state
       goto auth_fail;
@@ -979,7 +979,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
 
   aad = &aad_buf[0];
 
-  aad_len = S2_make_aad(ctxt, conn->r_node, conn->l_node, msg, hdr_len, msg_len, aad, sizeof(aad_buf));
+  aad_len = (uint16_t) S2_make_aad(ctxt, conn->r_node, conn->l_node, msg, hdr_len, msg_len, aad, sizeof(aad_buf));
 
   if (span)
   {
@@ -1348,11 +1348,10 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
   switch (buf[1])
   {
   case SECURITY_2_NONCE_GET:
-    if ((src->rx_options & S2_RXOPTION_MULTICAST) != S2_RXOPTION_MULTICAST)
+    if ((src->rx_options & S2_RXOPTION_MULTICAST) != S2_RXOPTION_MULTICAST
+         && ((len >=SECURITY_2_NONCE_GET_LENGTH) && S2_verify_seq(ctxt, src,buf[2])))
     {
-      if( (len >=3) && S2_verify_seq(ctxt, src,buf[2]) ) {
-        S2_send_nonce_report(ctxt,src,SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
-      }
+      S2_send_nonce_report(ctxt,src,SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
     }
     break;
   case SECURITY_2_NONCE_REPORT:
@@ -1554,7 +1553,7 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
     {
       S2_set_peer(ctxt, d->con, d->d.buf.buffer, d->d.buf.len);
       //For Multicast: 8-bit group_id is stored in d->con->r_node
-      ctxt->mpan = find_mpan_by_group_id(ctxt, 0, d->con->r_node, 1);
+      ctxt->mpan = find_mpan_by_group_id(ctxt, 0, (uint8_t) d->con->r_node, 1);
       ctxt->fsm = SENDING_MSG;
       S2_encrypt_and_send_multi(ctxt);
     }
