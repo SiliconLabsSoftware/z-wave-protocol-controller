@@ -420,7 +420,7 @@ static uint8_t validate_echo_kex_report(void)
   if ((m_schemes == mp_context->buf[SECURITY_2_KEX_REP_SCHEME_POS]) &&
       (m_curves == mp_context->buf[SECURITY_2_KEX_REP_CURVE_POS]) &&
       (m_keys == mp_context->buf[SECURITY_2_KEX_REP_KEYS_POS]) &&
-      ((( (SECURITY_2_NLS_AVAILABLE << SECURITY_2_KEX_REPORT_NLS_SUPPORT_BIT_POS) | (mp_context->csa_support) | SECURITY_2_ECHO_ON) == mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS])))
+      (((SECURITY_2_NLS_AVAILABLE << SECURITY_2_KEX_REPORT_NLS_SUPPORT_BIT_POS) | (mp_context->csa_support) | SECURITY_2_ECHO_ON) == mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS]))
   {
     return 0;
   }
