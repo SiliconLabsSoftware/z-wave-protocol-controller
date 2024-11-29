@@ -363,9 +363,9 @@ void helper_fan_mode_report(zwave_cc_version_t version,
   TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
                     handler.control_handler(&info, NULL, 0));
 
-  thermostat_fan_mode_t fan_mode;
-  thermostat_fan_mode_off_flag_t off_flag;
-  thermostat_fan_supported_modes_t current_supported_bitmask;
+  thermostat_fan_mode_t fan_mode = 0;
+  thermostat_fan_mode_off_flag_t off_flag = 0;
+  thermostat_fan_supported_modes_t current_supported_bitmask = 0;
 
   switch (version) {
     case 1:

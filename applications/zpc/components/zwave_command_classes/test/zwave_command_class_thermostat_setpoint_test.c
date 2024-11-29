@@ -668,7 +668,7 @@ attribute_store_node_t set_default_capabilities(thermostat_setpoint_type_t type)
 
 attribute_store_type_t get_ucl_type(thermostat_setpoint_type_t setpoint_type)
 {
-  attribute_store_type_t ucl_type;
+  attribute_store_type_t ucl_type = 0;
   switch (setpoint_type) {
     case SETPOINT_TYPE_HEATING:
       ucl_type = DOTDOT_ATTRIBUTE_ID_THERMOSTAT_OCCUPIED_HEATING_SETPOINT;
