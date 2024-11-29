@@ -1578,9 +1578,9 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
   case WAIT_NONCE_RAPORT:
     if ((e == SEND_DONE) && (d->d.tx.status == S2_TRANSMIT_COMPLETE_NO_ACK))
     {
-      p_context->fsm = IDLE;
-      S2_stop_timeout(p_context);
-      S2_post_send_done_event(p_context, S2_TRANSMIT_COMPLETE_FAIL);
+      ctxt->fsm = IDLE;
+      S2_stop_timeout(ctxt);
+      S2_post_send_done_event(ctxt, d->d.tx.status); // forward status to upper layer, S2_TRANSMIT_COMPLETE_FAIL happens only on timeout 
     }
     else if ((e == SEND_DONE) && (d->d.tx.status == S2_TRANSMIT_COMPLETE_OK))
     {
