@@ -153,7 +153,7 @@ typedef struct {
                         zwave_dsk_t dsk,
                         zwave_keyset_t keys);
 
-  /// This callback is fired when a frame has been received and fully
+  /// This callback is fired when an application frame has been received and fully
   /// de-encapsulated/decrypted. The application can use this frame.
   ///
   /// @param connection_info Information about the source and destination
@@ -171,6 +171,44 @@ typedef struct {
     const zwave_rx_receive_options_t *rx_options,
     const uint8_t *frame_data,
     uint16_t frame_length);
+
+  /// This callback is fired when an protocol frame has been received and fully
+  /// de-encapsulated/decrypted.
+  ///
+  /// @param connection_info Information about the source and destination
+  ///                        node if the frame, as well as information about
+  ///                        how the frame was encapsulated
+  ///
+  /// @param rx_options      Receive specific information
+  ///
+  /// @param frame_data      Pointer to de-encapsulated data
+  ///
+  /// @param frame_length    Length of data
+  /// 
+  void (*on_protocol_frame_received)(
+    const zwave_controller_connection_info_t *connection_info,
+    const zwave_rx_receive_options_t *rx_options,
+    const uint8_t *frame_data,
+    uint16_t frame_length);
+
+  /// This callback is fired when a protocol cc encryption request is received.
+  ///
+  /// @param destination_node_id      ID of the destination node.
+  /// @param payload_length           Length of the payload to be encrypted.
+  /// @param payload                  Pointer to the payload data to be encrypted.
+  /// @param protocol_metadata_length Length of the protocol metadata.
+  /// @param protocol_metadata        Pointer to the protocol metadata.
+  /// @param use_supervision          Whether the frame needs supervision.
+  /// @param session_id               Session ID associated with the request.
+  ///
+  void (*on_protocol_cc_encryption_request)(
+    const zwave_node_id_t destination_node_id,
+    const uint8_t payload_length,
+    const uint8_t *const payload,
+    const uint8_t protocol_metadata_length,
+    const uint8_t *const protocol_metadata,
+    const uint8_t use_supervision,
+    const uint8_t session_id);
 
   /// A SmartStart inclusion request was received.
   ///

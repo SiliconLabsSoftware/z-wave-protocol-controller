@@ -20,6 +20,7 @@
 
 // Generic includes
 #include <stddef.h>
+#include <string.h>
 
 // Unify Includes
 #include "sl_log.h"
@@ -245,6 +246,52 @@ sl_status_t zwapi_send_data(zwave_node_id_t destination_node_id,
   if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA
       && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
     // Activate the callback function only if the Z-Wave module accepted the command
+    zwapi_send_data_callback = callback_function;
+    return SL_STATUS_OK;
+  }
+  return SL_STATUS_FAIL;
+}
+
+sl_status_t zwapi_send_protocol_data(
+  zwave_node_id_t destination_node_id,
+  const uint8_t *data,
+  uint8_t data_length,
+  void *metadata,
+  void (*callback_function)(uint8_t, zwapi_tx_report_t *))
+{
+  uint8_t response_length = 0, index = 0;
+  uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
+          response_buffer[FRAME_LENGTH_MAX]   = {0};
+  protocol_metadata_t *protocol_metadata = (protocol_metadata_t *)metadata;
+  // Check for too long payloads
+  if ((data_length + protocol_metadata->data_length + 2)
+      > sizeof(request_buffer)) {
+    sl_log_error(LOG_TAG,
+                 "The frame is too long, therefore, the frame is discarded\n");
+    return SL_STATUS_FAIL;
+  }
+
+  // Fill up the buffer:  HOST->ZW: REQ | 0xAC | destination_node_id | data_length | data[] | protocol_metadata_length | protocol_metadata[] | session_id
+  zwapi_write_node_id(request_buffer, &index, destination_node_id);
+  request_buffer[index++] = data_length;
+  memcpy(&request_buffer[index], data, data_length);
+  index += data_length;
+  request_buffer[index++] = protocol_metadata->data_length;
+  memcpy(&request_buffer[index], protocol_metadata->data, protocol_metadata->data_length);
+  index += protocol_metadata->data_length;
+  request_buffer[index++] = protocol_metadata->session_id;
+
+  sl_status_t send_command_status
+    = zwapi_send_command_with_response(FUNC_ID_ZW_SEND_PROTOCOL_DATA,
+                                       request_buffer,
+                                       index,
+                                       response_buffer,
+                                       &response_length);
+
+  if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA
+      && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
+    // Activate the callback function only if the Z-Wave module accepted the command
+    // FUNC_ID_ZW_SEND_DATA and FUNC_ID_ZW_SEND_PROTOCOL_DATA share the same callback
     zwapi_send_data_callback = callback_function;
     return SL_STATUS_OK;
   }

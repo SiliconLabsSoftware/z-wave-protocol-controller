@@ -51,6 +51,21 @@ void zwave_rx_application_command_handler(uint8_t rx_status,
                                           int8_t rssi_value);
 
 /**
+ * @brief protocol_cc_encryption_request function for @ref zwapi_callbacks.
+ * @ref zwave_api controller libraries will call this function for incoming
+ * protocol command class frame from the Z-Wave controller will be dispatched
+ * to this function.
+ */
+void zwave_rx_protocol_cc_encryption_request(
+  const zwave_node_id_t destination_node_id,
+  const uint8_t payload_length,
+  const uint8_t *const payload,
+  const uint8_t protocol_metadata_length,
+  const uint8_t *const protocol_metadata,
+  const uint8_t use_supervision,
+  const uint8_t session_id);
+
+/**
  * @brief application_command_handler_bridge function for @ref zwapi_callbacks.
  * @ref zwave_api Bridge libraries will call this function instead of
  * application_command_handler(). Incoming frames from the Z-Wave nodes

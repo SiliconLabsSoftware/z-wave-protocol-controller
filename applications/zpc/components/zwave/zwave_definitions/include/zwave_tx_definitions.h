@@ -112,6 +112,11 @@ typedef struct zwave_tx_transport_options {
   /// transmission speed. The payload will also be ignored.
   bool is_test_frame;
 
+  /// This flag indicates if the frame is a protocol frame.
+  /// Protocol frame is introduced as part of S2V2 implementation as they need to
+  /// be encrypted by the host.
+  bool is_protocol_frame;
+
   /// This flag indicates if the frame is to be sent even if we have incoming
   /// frames. Should be used only if the transport need a frame send/delivered
   /// at the risk of a collision.

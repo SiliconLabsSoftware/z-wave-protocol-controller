@@ -329,6 +329,12 @@ static sl_status_t zwave_api_send_data(
         = zwapi_send_test_frame(info->remote.node_id,
                                 tx_options->transport.rf_power,
                                 &zwave_api_send_test_frame_callback);
+    } else if (tx_options->transport.is_protocol_frame == true) {
+      transmit_status = zwapi_send_protocol_data(info->remote.node_id,
+                                                 data,
+                                                 (uint8_t)data_length,
+                                                 user,
+                                                 &zwave_api_send_data_callback);
     } else {
       transmit_status = zwapi_send_data(info->remote.node_id,
                                         data,

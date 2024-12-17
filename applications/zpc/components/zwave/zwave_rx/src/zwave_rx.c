@@ -110,6 +110,8 @@ sl_status_t zwave_rx_init(const char *serial_port,
   // Register the local Z-Wave RX callbacks to the Z-Wave API callbacks
   zwave_rx_zwapi_callbacks.application_command_handler
     = zwave_rx_application_command_handler;
+  zwave_rx_zwapi_callbacks.protocol_cc_encryption_request
+    = zwave_rx_protocol_cc_encryption_request;
   zwave_rx_zwapi_callbacks.application_controller_update
     = zwave_rx_application_controller_update;
   zwave_rx_zwapi_callbacks.application_command_handler_bridge

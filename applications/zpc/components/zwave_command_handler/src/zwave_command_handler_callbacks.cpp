@@ -22,6 +22,7 @@
 #include "zwave_rx.h"
 #include "ZW_classcmd.h"
 #include "sl_log.h"
+#include "zwapi_protocol_controller.h"
 
 // Generic includes
 #include <vector>
@@ -229,6 +230,76 @@ void zwave_command_handler_on_frame_received(
   // Dispatch and look at the status code
   sl_status_t status
     = zwave_command_handler_dispatch(connection_info, frame_data, frame_length);
+  switch (status) {
+    case SL_STATUS_OK:
+      sl_log_debug(LOG_TAG,
+                   "Command from NodeID %d:%d was handled successfully.",
+                   connection_info->remote.node_id,
+                   connection_info->remote.endpoint_id);
+      break;
+
+    case SL_STATUS_FAIL:
+      sl_log_debug(LOG_TAG,
+                   "Command from NodeID %d:%d had an error during handling. "
+                   "Not all parameters were accepted",
+                   connection_info->remote.node_id,
+                   connection_info->remote.endpoint_id);
+      break;
+
+    case SL_STATUS_BUSY:
+      // This should not happen, or if it happens, we should be able to return
+      // an application busy message or similar.
+      sl_log_warning(LOG_TAG,
+                     "Frame handler is busy and could not handle frame from "
+                     "NodeID %d:%d correctly.",
+                     connection_info->remote.node_id,
+                     connection_info->remote.endpoint_id);
+      break;
+
+    case SL_STATUS_NOT_SUPPORTED:
+      sl_log_debug(
+        LOG_TAG,
+        "Command from NodeID %d:%d got rejected because it is not supported. "
+        "It was possibly also rejected due to security filtering",
+        connection_info->remote.node_id,
+        connection_info->remote.endpoint_id);
+      break;
+
+    default:
+      sl_log_warning(
+        LOG_TAG,
+        "Command from NodeID %d:%d had an unexpected return status: 0x%04X\n",
+        connection_info->remote.node_id,
+        connection_info->remote.endpoint_id,
+        status);
+      break;
+  }
+}
+
+void zwave_command_handler_on_protocol_frame_received(
+  const zwave_controller_connection_info_t *connection_info,
+  const zwave_rx_receive_options_t *rx_options,
+  const uint8_t *frame_data,
+  uint16_t frame_length)
+{
+  // Print out the frame dispatch
+  std::stringstream message;
+  message << "Dispatching incoming protocol command (encapsulation "
+          << int(connection_info->encapsulation) << ") from NodeID "
+          << int(connection_info->remote.node_id) << ":"
+          << int(connection_info->remote.endpoint_id) << " - [ ";
+
+  for (uint16_t i = 0; i < frame_length; i++) {
+    message << std::setfill('0') << std::setw(2) << std::hex << std::uppercase
+            << int(frame_data[i]) << " ";
+  }
+  message << "]";
+  sl_log_debug(LOG_TAG, "%s", message.str().c_str());
+
+  // Dispatch and look at the status code
+  sl_status_t status
+      = zwapi_transfer_protocol_cc(connection_info->remote.node_id, connection_info->encapsulation, frame_length, frame_data);
+  
   switch (status) {
     case SL_STATUS_OK:
       sl_log_debug(LOG_TAG,

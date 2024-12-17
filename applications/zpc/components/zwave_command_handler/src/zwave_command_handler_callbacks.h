@@ -44,11 +44,22 @@ void zwave_command_handler_on_new_network_entered(
   zwave_kex_fail_type_t kex_fail_type);
 
 /**
- * Callback for receiving a Z-Wave frame.
+ * Callback for receiving an application Z-Wave frame.
  * Refer to @ref zwave_controller_callbacks_t
  * @ref zwave_controller_callbacks_t on_frame_received for parameter description
  */
 void zwave_command_handler_on_frame_received(
+  const zwave_controller_connection_info_t *connection_info,
+  const zwave_rx_receive_options_t *rx_options,
+  const uint8_t *frame_data,
+  uint16_t frame_length);
+
+/**
+ * Callback for receiving a protocol Z-Wave frame.
+ * Refer to @ref zwave_controller_callbacks_t
+ * @ref zwave_controller_callbacks_t on_frame_received for parameter description
+ */
+void zwave_command_handler_on_protocol_frame_received(
   const zwave_controller_connection_info_t *connection_info,
   const zwave_rx_receive_options_t *rx_options,
   const uint8_t *frame_data,
