@@ -37,8 +37,8 @@ static zwave_controller_callbacks_t zwave_controller_callbacks;
 static zwave_controller_transport_t zwave_api_transport;
 static zwave_api_started_callback_t on_zwave_api_started_callback;
 
-static cmock_zwapi_protocol_transport_func_ptr1 zwave_api_send_data_callback;
-static cmock_zwapi_protocol_transport_func_ptr3
+static cmock_zwapi_protocol_transport_func_ptr2 zwave_api_send_data_callback;
+static cmock_zwapi_protocol_transport_func_ptr4
   zwave_api_send_data_multi_callback;
 static cmock_zwapi_protocol_basis_func_ptr2 zwave_api_send_test_frame_callback;
 
@@ -80,7 +80,7 @@ static sl_status_t zwapi_send_data_stub(
   const uint8_t *data,
   uint8_t data_length,
   uint8_t tx_options,
-  cmock_zwapi_protocol_transport_func_ptr1 callback_function,
+  cmock_zwapi_protocol_transport_func_ptr2 callback_function,
   int cmock_num_calls)
 {
   zwave_api_send_data_callback = callback_function;
@@ -92,7 +92,7 @@ static sl_status_t zwapi_send_data_multi_stub(
   const uint8_t *data,
   uint8_t data_length,
   uint8_t tx_options,
-  cmock_zwapi_protocol_transport_func_ptr3 callback_function,
+  cmock_zwapi_protocol_transport_func_ptr4 callback_function,
   int cmock_num_calls)
 {
   zwave_api_send_data_multi_callback = callback_function;

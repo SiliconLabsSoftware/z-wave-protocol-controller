@@ -48,6 +48,9 @@ static uic_mqtt_dotdot_state_interview_callback_t interview_command = NULL;
 static uic_mqtt_dotdot_state_discover_security_callback_t
   discover_security_command
   = NULL;
+static uic_mqtt_dotdot_state_enable_nls_callback_t
+  enable_nls_command
+  = NULL;
 
 // Stub functions
 static void uic_mqtt_dotdot_state_remove_offline_callback_set_stub(
@@ -78,6 +81,13 @@ static void uic_mqtt_dotdot_state_discover_security_callback_set_stub(
   discover_security_command = callback;
 }
 
+static void uic_mqtt_dotdot_state_enable_nls_callback_set_stub(
+  const uic_mqtt_dotdot_state_enable_nls_callback_t callback,
+  int cmock_num_calls)
+{
+  enable_nls_command = callback;
+}
+
 /// Setup the test suite (called once before all test_xxx functions are called)
 void suiteSetUp()
 {
@@ -102,6 +112,7 @@ void setUp()
   discover_neighbors_command = NULL;
   interview_command          = NULL;
   discover_security_command  = NULL;
+  enable_nls_command         = NULL;
 
   // Always respond with HomeID / NodeID from the simulated network
   zwave_network_management_get_node_id_IgnoreAndReturn(zpc_node_id);
@@ -123,6 +134,9 @@ void setUp()
   uic_mqtt_dotdot_state_discover_security_callback_set_Stub(
     uic_mqtt_dotdot_state_discover_security_callback_set_stub);
 
+  uic_mqtt_dotdot_state_enable_nls_callback_set_Stub(
+    uic_mqtt_dotdot_state_enable_nls_callback_set_stub);
+
   // Call init
   TEST_ASSERT_EQUAL(SL_STATUS_OK, zpc_node_state_init());
 
@@ -131,6 +145,7 @@ void setUp()
   TEST_ASSERT_NOT_NULL(discover_neighbors_command);
   TEST_ASSERT_NOT_NULL(interview_command);
   TEST_ASSERT_NOT_NULL(discover_security_command);
+  TEST_ASSERT_NOT_NULL(enable_nls_command);
 }
 
 /// Called after each and every test

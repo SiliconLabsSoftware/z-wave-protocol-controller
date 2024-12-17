@@ -14,7 +14,7 @@
 #include "unity.h"
 
 // Mocks
-#include "zwave_s0_transport_mock.h"
+#include "zwave_controller_transport_mock.h"
 
 /// Setup the test suite (called once before all test_xxx functions are called)
 void suiteSetUp() {}
@@ -31,10 +31,10 @@ void setUp() {}
 void test_zwave_transports_fixt_test()
 {
   // Just run init.
-  zwave_s0_transport_init_ExpectAndReturn(SL_STATUS_OK);
+  zwave_controller_transport_register_IgnoreAndReturn(SL_STATUS_OK);
   TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_transports_init());
 
   // Run another init that goes wrong
-  zwave_s0_transport_init_ExpectAndReturn(SL_STATUS_FAIL);
+  zwave_controller_transport_register_IgnoreAndReturn(SL_STATUS_FAIL);
   TEST_ASSERT_EQUAL(SL_STATUS_FAIL, zwave_transports_init());
 }

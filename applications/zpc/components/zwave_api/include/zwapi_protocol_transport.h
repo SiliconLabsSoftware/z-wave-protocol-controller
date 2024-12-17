@@ -180,6 +180,21 @@ typedef struct _S_ROUTE_LINK_ {
   uint8_t to;
 } S_ROUTE_LINK;
 
+#define PROTOCOL_METADATA_LENGTH                        \
+  (sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint32_t) \
+   + sizeof(uint8_t))  ///< rf_speed | tx_power | tx_options | callback_id
+
+typedef struct _protocol_metadata_ {
+  /// Data buffer
+  uint8_t data[PROTOCOL_METADATA_LENGTH];
+  /// Length of the data in the data buffer
+  uint8_t data_length;
+  /// Should not be part of protocol metadata but it is actually until properly implemented for FUNC_ID_ZW_SEND_*_DATA functions
+  uint8_t session_id;
+  /// Basically to save TX session ID further on because user context was mistakenly used to transport this information in `on_zwave_transport_send_data_complete`
+  void *tx_session_id;
+} protocol_metadata_t;
+
 /// Transport routing scheme state define definitions
 typedef enum _E_ROUTING_SCHEME_ {
   ROUTINGSCHEME_IDLE            = 0,
@@ -317,6 +332,29 @@ sl_status_t zwapi_send_data(zwave_node_id_t destination_node_id,
                             uint8_t tx_options,
                             void (*callback_function)(uint8_t,
                                                       zwapi_tx_report_t *));
+
+/**
+ * @brief Send protocol data to a Z-Wave node.
+ *
+ * @param destination_node_id destination node ID
+ * @param data data buffer pointer
+ * @param data_length length of data in data buffer
+ * @param metadata metadata buffer pointer
+ * @param callback_function pointer to callback function for when the radio
+ * transmission is completed. The callback function has 2 arguments:
+ * tx_status (uint8_t) that represents the transmission status.
+ * tx_status_report (zwapi_tx_report_t) is the transmit status report.
+ *
+ * @returns sl_status_t
+ *
+ * aka ZW_SendProtocolData
+ */
+sl_status_t zwapi_send_protocol_data(
+  zwave_node_id_t destination_node_id,
+  const uint8_t *data,
+  uint8_t data_length,
+  void *metadata,
+  void (*callback_function)(uint8_t, zwapi_tx_report_t *));
 
 /**
  * @brief Abort the ongoing transmit started with zwapi_send_data() or zwapi_send_data_bridge()

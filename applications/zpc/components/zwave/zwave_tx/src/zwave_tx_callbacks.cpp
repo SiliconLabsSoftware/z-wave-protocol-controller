@@ -34,6 +34,7 @@
 // Shared variables from the Z-Wave TX Process
 extern zwave_tx_queue tx_queue;
 extern zwave_tx_session_id_t current_tx_session_id;
+extern bool is_protocol_frame; // NOSONAR
 
 // Static variables
 zwave_controller_connection_info_t last_received_connection_info;
@@ -54,23 +55,29 @@ void on_zwave_transport_send_data_complete(uint8_t status,
     memset(&last_received_tx_report, 0, sizeof(zwapi_tx_report_t));
   }
 
+  void *session_id = user;
+  if (is_protocol_frame) {
+    protocol_metadata_t *protocol_metadata = (protocol_metadata_t *)user;
+    session_id = protocol_metadata->tx_session_id;
+  }
+
   // Copy the transmission results to the session_id (user pointer)
   sl_status_t queue_status
-    = tx_queue.set_transmissions_results(user,
+    = tx_queue.set_transmissions_results(session_id,
                                          status,
                                          &last_received_tx_report);
 
   if (SL_STATUS_OK != queue_status) {
     sl_log_warning(LOG_TAG,
                    "Transport Callback for a non-existing queue element: id=%p",
-                   user);
+                   session_id);
     tx_queue.log(false);
     return;
   }
 
   // Save if we used routing to reach a destination.
   zwave_tx_queue_element_t element = {};
-  if (SL_STATUS_OK != tx_queue.get_by_id(&element, user)) {
+  if (SL_STATUS_OK != tx_queue.get_by_id(&element, session_id)) {
     return;
   }
   if ((element.send_data_tx_status.number_of_repeaters > 0)
@@ -82,7 +89,7 @@ void on_zwave_transport_send_data_complete(uint8_t status,
   }
 
   // Get TX to look at the queue again, now that we are done.
-  process_post(&zwave_tx_process, ZWAVE_TX_SEND_OPERATION_COMPLETE, user);
+  process_post(&zwave_tx_process, ZWAVE_TX_SEND_OPERATION_COMPLETE, session_id);
 }
 
 void zwave_tx_on_new_network_entered(zwave_home_id_t,

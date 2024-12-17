@@ -37,6 +37,7 @@
 #include "zwave_rx.h"
 #include "zwave_tx.h"
 #include "zwave_tx_groups.h"
+#include "zwave_utils.h"
 #include "sys/clock.h"
 
 #include "sl_log.h"
@@ -72,6 +73,8 @@ typedef struct s2_transport_session_state {
   bool valid_parent_session_id;
   uint8_t last_frame_data[ZWAVE_MAX_FRAME_SIZE];
   uint16_t last_frame_data_length;
+  protocol_metadata_t protocol_metadata;
+  zwave_tx_options_t tx_options;
 } s2_transport_session_state_t;
 
 // Z-Wave TX settings
@@ -271,6 +274,10 @@ void S2_send_done_event(struct S2 *ctxt, s2_tx_status_t status)
   // Forget about the parent frame if it triggered the transmission
   state.valid_parent_session_id = false;
   memset(&state.s2_send_tx_status, 0, sizeof(state.s2_send_tx_status));
+  if (state.tx_options.transport.is_protocol_frame) {
+    memset(&state.protocol_metadata, 0, sizeof(state.protocol_metadata));
+    state.tx_options.transport.is_protocol_frame = false;
+  }
 }
 
 void S2_msg_received_event(struct S2 *ctxt,
@@ -303,7 +310,12 @@ uint8_t S2_send_frame(struct S2 *ctxt,
 {
   (void)ctxt;
   zwave_controller_connection_info_t info = {};
-  zwave_tx_options_t options              = {};
+  zwave_tx_options_t options = {};
+
+  if (state.tx_options.transport.is_protocol_frame) {
+    // TX options provided to zwave_s2_send_data can be used now at libS2 exit
+    options = state.tx_options;
+  }
 
   info.encapsulation  = ZWAVE_CONTROLLER_ENCAPSULATION_NONE;
   info.local.node_id  = conn->l_node;
@@ -334,6 +346,10 @@ uint8_t S2_send_frame(struct S2 *ctxt,
     options.transport.ignore_incoming_frames_back_off = true;
   }
 
+  void *user = NULL;
+  if (options.transport.is_protocol_frame) {
+    user = (void *)&state.protocol_metadata;
+  }
   state.transmit_start_time = clock_time();
   return SL_STATUS_OK
          == zwave_tx_send_data(&info,
@@ -341,7 +357,7 @@ uint8_t S2_send_frame(struct S2 *ctxt,
                                buf,
                                &options,
                                send_frame_callback,
-                               0,
+                               user,
                                0);
 }
 
@@ -397,6 +413,54 @@ uint8_t S2_send_frame_multi(struct S2 *ctxt,
                                0,
                                0);
 }
+
+void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, uint8_t nls_capability, uint8_t nls_state)
+{
+  (void)class_id;
+
+  sl_log_debug(LOG_TAG, "NLS state report received for node %d, capability : %d, state: %d", srcNode, (bool)nls_capability, (bool)nls_state);
+
+  if (zwave_store_nls_support((zwave_node_id_t)srcNode,
+                              (bool)nls_capability,
+                              REPORTED_ATTRIBUTE)
+      || zwave_store_nls_state((zwave_node_id_t)srcNode,
+                               (bool)nls_state,
+                               REPORTED_ATTRIBUTE)) {
+    sl_log_error(LOG_TAG, "Error setting NLS attributes");
+    return;
+  }
+
+  if(nls_capability && nls_state) {
+    if (SL_STATUS_OK != zwapi_enable_node_nls(srcNode)) {
+      sl_log_error(LOG_TAG, "Error saving NLS support and state in the controller NVM");
+    }
+  }
+}
+
+void S2_save_nls_state(void)
+{
+  // not relevant for ZPC
+}
+
+void S2_nls_node_list_get(node_t srcNode, uint8_t class_id, uint8_t request)
+{
+  // to be implemented later on
+  (void)srcNode;
+  (void)class_id;
+  (void)request;
+}
+
+void S2_nls_node_list_report(node_t srcNode, uint8_t class_id, uint8_t last_node, uint16_t id_of_node, uint8_t keys_node_bitmask, uint8_t nls_state)
+{
+  // to be implemented later on
+  (void)srcNode;
+  (void)class_id;
+  (void)last_node;
+  (void)id_of_node;
+  (void)keys_node_bitmask;
+  (void)nls_state;
+}
+
 /************************* Our interface functions ****************************/
 
 sl_status_t
@@ -442,6 +506,21 @@ sl_status_t
 
   state.s2_send_callback = on_send_complete;
   state.s2_send_user     = user;
+
+  // Protocol metadata can be used now libS2 exit
+  if (tx_options->transport.is_protocol_frame == true) {
+    protocol_metadata_t *protocol_metadata = (protocol_metadata_t *)user;
+    state.protocol_metadata.session_id = protocol_metadata->session_id;
+    state.protocol_metadata.data_length = protocol_metadata->data_length;
+    memcpy(state.protocol_metadata.data,
+           protocol_metadata->data,
+           state.protocol_metadata.data_length);
+
+    s2_connection.tx_options |= S2_TXOPTION_VERIFY_DELIVERY;
+
+    // TX options metadata can be used now libS2 exit
+    state.tx_options = *tx_options;
+  }
 
   if (connection->remote.is_multicast == false) {
     // Singlecast message.

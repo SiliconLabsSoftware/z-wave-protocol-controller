@@ -33,6 +33,25 @@ static void
                                 uint8_t zwapi_zwave_nif_length,
                                 zwave_node_info_t *destination_node_info);
 
+void zwave_rx_protocol_cc_encryption_request(
+  const zwave_node_id_t destination_node_id,
+  const uint8_t payload_length,
+  const uint8_t *const payload,
+  const uint8_t protocol_metadata_length,
+  const uint8_t *const protocol_metadata,
+  const uint8_t use_supervision,
+  const uint8_t session_id)
+{
+  zwave_controller_on_protocol_cc_encryption_request_received(
+    destination_node_id,
+    payload_length,
+    payload,
+    protocol_metadata_length,
+    protocol_metadata,
+    use_supervision,
+    session_id);
+}
+
 void zwave_rx_application_command_handler(uint8_t rx_status,
                                           zwave_node_id_t destination_node_id,
                                           zwave_node_id_t source_node_id,
@@ -40,7 +59,7 @@ void zwave_rx_application_command_handler(uint8_t rx_status,
                                           uint8_t zwave_command_payload_length,
                                           int8_t rssi_value)
 {
-  // We have received a frame!
+  // We have received an application frame!
 
   // Create a connection info structure with default parameters
   zwave_controller_connection_info_t connection_info = {{}};

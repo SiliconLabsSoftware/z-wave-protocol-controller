@@ -1019,6 +1019,50 @@ sl_status_t zwapi_set_virtual_node_application_node_information(
   uint8_t *nodeParm,
   uint8_t parmLength);
 
+/**
+ * @brief Transfer a decrypted Protocol Command Class to the controller module
+ *
+ * @param srcNode source NodeID of the frame
+ * @param decryptionKey ID of the S2 key used for decryption
+ * @param payloadLength decrypted payload length
+ * @param payload decrypted payload
+ */
+sl_status_t zwapi_transfer_protocol_cc(
+  const zwave_node_id_t srcNode,
+  const uint8_t decryptionKey,
+  uint8_t payloadLength,
+  const uint8_t * const payload);
+
+/**
+ * @brief Set the NLS State of the node in the controller NVM 
+ * 
+ * @param nodeId the node ID
+ * 
+ * @note the NLS State can only be set to 1
+ */
+sl_status_t zwapi_enable_node_nls(const zwave_node_id_t nodeId);
+
+/**
+ * @brief Get the NLS State of the node in the controller NVM 
+ * 
+ * @param nodeId the node ID
+ * 
+ */
+sl_status_t zwapi_get_node_nls(const zwave_node_id_t nodeId, uint8_t* nls_state);
+
+/**
+ * @brief Sends TX status, TX report and session ID of the ongoing protocol command class encryption
+ * session to the Z-Wave API module.
+ *
+ * @param tx_status Transmission status of the ongoing session
+ * @param tx_report Transmission report of the ongoing session
+ * @param session_id ID of the ongoing session
+ * 
+ * @returns SL_STATUS_OK or SL_STATUS_FAIL.
+ */
+sl_status_t zwapi_request_protocol_cc_encryption_callback(
+  uint8_t tx_status, const zwapi_tx_report_t *tx_report, uint8_t session_id);
+
 /// @} End of group ZWAPI_CONTROLLER
 
 #ifdef __cplusplus

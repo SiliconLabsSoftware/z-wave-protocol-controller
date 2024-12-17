@@ -49,7 +49,7 @@ static sl_status_t ucl_node_state_discover_neighbors_command(
   dotdot_endpoint_id_t endpoint,
   uic_mqtt_dotdot_callback_call_type_t callback_type)
 {
-  if (true == is_zpc_unid(unid)) {
+  if (is_zpc_unid(unid)) {
     return SL_STATUS_NOT_SUPPORTED;
   }
 
@@ -90,7 +90,7 @@ static sl_status_t ucl_node_state_remove_offline_command(
   dotdot_endpoint_id_t endpoint,
   uic_mqtt_dotdot_callback_call_type_t callback_type)
 {
-  if (true == is_zpc_unid(unid)) {
+  if (is_zpc_unid(unid)) {
     return SL_STATUS_NOT_SUPPORTED;
   }
 
@@ -132,7 +132,7 @@ static sl_status_t ucl_node_state_interview_command(
   dotdot_endpoint_id_t endpoint,
   uic_mqtt_dotdot_callback_call_type_t callback_type)
 {
-  if (true == is_zpc_unid(unid)) {
+  if (is_zpc_unid(unid)) {
     return SL_STATUS_NOT_SUPPORTED;
   }
 
@@ -170,7 +170,7 @@ static sl_status_t ucl_node_state_discover_security_command(
   dotdot_endpoint_id_t endpoint,
   uic_mqtt_dotdot_callback_call_type_t callback_type)
 {
-  if (true == is_zpc_unid(unid)) {
+  if (is_zpc_unid(unid)) {
     return SL_STATUS_NOT_SUPPORTED;
   }
 
@@ -199,6 +199,48 @@ static sl_status_t ucl_node_state_discover_security_command(
                                                    : SL_STATUS_NOT_SUPPORTED;
 }
 
+/**
+ * @brief Performs an enable NLS operation for a Unid/Endpoint
+ *
+ * @param unid          UNID of the node to attempt to enable NLS
+ * @param endpoint      Endpoint of the node. The State topic does not support
+ *                      endpoints so this variable will be ignored.
+ *                      is performed on a NodeID level, as all endpoints share the same radio.
+ * @param callback_type  Dotdot MQTT Callback type
+ *
+ * @returns SL_STATUS_OK/SL_STATUS_FAIL to indicate support if callback_type is set to UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK
+ * sl_status_t code indicating the outcome of applying the command if callback_type is set to UIC_MQTT_DOTDOT_CALLBACK_TYPE_NORMAL
+*/
+static sl_status_t ucl_node_state_enable_nls_command(
+  const dotdot_unid_t unid,
+  dotdot_endpoint_id_t endpoint,
+  uic_mqtt_dotdot_callback_call_type_t callback_type)
+{
+  if (is_zpc_unid(unid)) {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+
+  if (UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK == callback_type) {
+    // Enable NLS always supported unless the node is offline/unavailable
+    NodeStateNetworkStatus network_status = unify_attribute_store_node_state_get_status(
+      attribute_store_network_helper_get_node_id_node(unid)
+    );
+
+    sl_status_t support = SL_STATUS_OK;
+    if ((network_status == ZCL_NODE_STATE_NETWORK_STATUS_OFFLINE)
+        || (network_status == ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE)) {
+      support = SL_STATUS_FAIL;
+    }
+    return support;
+  }
+
+  zwave_node_id_t node_id = 0x00;
+  if (SL_STATUS_OK == zwave_unid_to_node_id(unid, &node_id)) {
+    return zwave_store_nls_state(node_id, true, DESIRED_ATTRIBUTE);
+  }
+  return SL_STATUS_OK;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Init function shared with the component.
 //////////////////////////////////////////////////////////////////////////////
@@ -215,6 +257,9 @@ sl_status_t zpc_node_state_init()
 
   uic_mqtt_dotdot_state_discover_security_callback_set(
     &ucl_node_state_discover_security_command);
+
+  uic_mqtt_dotdot_state_enable_nls_callback_set(
+    &ucl_node_state_enable_nls_command);
 
   return SL_STATUS_OK;
 }

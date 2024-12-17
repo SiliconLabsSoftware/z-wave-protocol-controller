@@ -27,6 +27,109 @@
 #include "sl_log.h"
 #define LOG_TAG "zwave_utils"
 
+bool zwave_get_nls_support(zwave_node_id_t node_id, attribute_store_node_value_state_t value_state)
+{
+  attribute_store_node_t node_id_node
+    = attribute_store_network_helper_get_zwave_node_id_node(node_id);
+
+  attribute_store_node_t node
+    = attribute_store_get_first_child_by_type(node_id_node,
+                                              ATTRIBUTE_ZWAVE_NLS_SUPPORT);
+
+  if (node == ATTRIBUTE_STORE_INVALID_NODE) {
+    return false;
+  }
+
+  uint8_t nls_supported = 0;
+  if (SL_STATUS_OK
+      != attribute_store_read_value(node,
+                                    value_state,
+                                    &nls_supported,
+                                    sizeof(nls_supported))) {
+    return false;
+  }
+
+  return (bool)nls_supported;
+}
+
+bool zwave_get_nls_state(zwave_node_id_t node_id,
+                         attribute_store_node_value_state_t value_state)
+{
+  attribute_store_node_t node_id_node
+    = attribute_store_network_helper_get_zwave_node_id_node(node_id);
+
+  attribute_store_node_t node
+    = attribute_store_get_first_child_by_type(node_id_node,
+                                              ATTRIBUTE_ZWAVE_NLS_STATE);
+
+  if (node == ATTRIBUTE_STORE_INVALID_NODE) {
+    return false;
+  }
+
+  uint8_t nls_enabled = 0;
+  if (SL_STATUS_OK
+      != attribute_store_read_value(node,
+                                    value_state,
+                                    &nls_enabled,
+                                    sizeof(nls_enabled))) {
+    return false;
+  }
+
+  return (bool)nls_enabled;
+}
+
+sl_status_t zwave_store_nls_support(zwave_node_id_t node_id,
+                                    bool is_nls_supported,
+                                    attribute_store_node_value_state_t value_state)
+{
+  uint8_t value = (uint8_t)is_nls_supported;
+
+  attribute_store_node_t node_id_node
+    = attribute_store_network_helper_get_zwave_node_id_node(node_id);
+
+  attribute_store_node_t node
+    = attribute_store_get_first_child_by_type(node_id_node,
+                                              ATTRIBUTE_ZWAVE_NLS_SUPPORT);
+
+  if (node == ATTRIBUTE_STORE_INVALID_NODE) {
+    node = attribute_store_add_node(ATTRIBUTE_ZWAVE_NLS_SUPPORT, node_id_node);
+  }
+
+  if (value_state == DESIRED_ATTRIBUTE) {
+    return attribute_store_set_desired(node, &value, sizeof(value));
+  } else if (value_state == REPORTED_ATTRIBUTE) {
+    return attribute_store_set_reported(node, &value, sizeof(value));
+  } else {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+}
+
+sl_status_t zwave_store_nls_state(zwave_node_id_t node_id,
+                                  bool is_nls_enabled,
+                                  attribute_store_node_value_state_t value_state)
+{
+  uint8_t value = (uint8_t)is_nls_enabled;
+
+  attribute_store_node_t node_id_node
+    = attribute_store_network_helper_get_zwave_node_id_node(node_id);
+
+  attribute_store_node_t node
+    = attribute_store_get_first_child_by_type(node_id_node,
+                                              ATTRIBUTE_ZWAVE_NLS_STATE);
+
+  if (node == ATTRIBUTE_STORE_INVALID_NODE) {
+    node = attribute_store_add_node(ATTRIBUTE_ZWAVE_NLS_STATE, node_id_node);
+  }
+
+  if (value_state == DESIRED_ATTRIBUTE) {
+    return attribute_store_set_desired(node, &value, sizeof(value));
+  } else if (value_state == REPORTED_ATTRIBUTE) {
+    return attribute_store_set_reported(node, &value, sizeof(value));
+  } else {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+}
+
 zwave_operating_mode_t zwave_get_operating_mode(zwave_node_id_t node_id)
 {
   attribute_store_node_t node_id_node
