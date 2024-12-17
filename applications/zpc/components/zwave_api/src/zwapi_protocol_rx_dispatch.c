@@ -368,6 +368,7 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
       }
       break;
 
+    case FUNC_ID_ZW_SEND_PROTOCOL_DATA:
     case FUNC_ID_ZW_SEND_DATA_BRIDGE:
     case FUNC_ID_ZW_SEND_DATA:
     case FUNC_ID_SEND_NOP: {
@@ -376,7 +377,8 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
       uint8_t *p       = &pData[IDX_DATA + 1];
       uint8_t txStatus = *p++;
 
-      if (pData[IDX_CMD] == FUNC_ID_ZW_SEND_DATA) {
+      if (pData[IDX_CMD] == FUNC_ID_ZW_SEND_DATA
+          || pData[IDX_CMD] == FUNC_ID_ZW_SEND_PROTOCOL_DATA) {
         f                        = zwapi_send_data_callback;
         zwapi_send_data_callback = 0;
       } else if (pData[IDX_CMD] == FUNC_ID_SEND_NOP) {
@@ -588,7 +590,7 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
       }
       break;
 
-    case FUNC_ID_ZW_SET_VIRTUAL_NODE_TO_LEARN_MODE:
+    case FUNC_ID_ZW_SET_SLAVE_LEARN_MODE:
       if (zwapi_set_virtual_node_to_learn_mode_callback != NULL) {
         uint8_t index                    = IDX_DATA + 2;
         zwave_node_id_t original_node_id = zwapi_read_node_id(pData, &index);
@@ -642,6 +644,34 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
         memcpy(zwapi_command_buffer, &pData[IDX_DATA], data_length);
         zwave_api_get_callbacks()->zwapi_started(zwapi_command_buffer,
                                                  data_length);
+      }
+      break;
+
+    case FUNC_ID_ZW_REQUEST_PROTOCOL_CC_ENCRYPTION:
+      if (zwave_api_get_callbacks()->protocol_cc_encryption_request != NULL) {
+        // ZW->HOST: REQ | 0x6C | destination_node_id | payload_length | payload | protocol_metadata_length | protocol_metadata | use_supervision | session_id
+        uint8_t current_index               = IDX_DATA;
+        const zwave_node_id_t destination_node_id
+          = zwapi_read_node_id(pData, &current_index);
+        const uint8_t payload_length = pData[current_index++];
+        if (zwave_api_detect_buffer_overflow(payload_length)) {
+          break;
+        }
+        const uint8_t *const payload = &pData[current_index];
+        current_index += payload_length;
+        const uint8_t protocol_metadata_length = pData[current_index++];
+        const uint8_t *const protocol_metadata = &pData[current_index];
+        current_index += protocol_metadata_length;
+        const uint8_t use_supervision = pData[current_index++];
+        const uint8_t session_id      = pData[current_index++];
+        zwave_api_get_callbacks()->protocol_cc_encryption_request(
+          destination_node_id,
+          payload_length,
+          payload,
+          protocol_metadata_length,
+          protocol_metadata,
+          use_supervision,
+          session_id);
       }
       break;
 

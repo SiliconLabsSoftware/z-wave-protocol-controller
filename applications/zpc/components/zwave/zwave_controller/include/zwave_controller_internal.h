@@ -99,6 +99,15 @@ void zwave_controller_on_frame_received(
 
 );
 /// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_protocol_cc_encryption_request_received(
+  const zwave_node_id_t destination_node_id,
+  const uint8_t payload_length,
+  const uint8_t *const payload,
+  const uint8_t protocol_metadata_length,
+  const uint8_t *const protocol_metadata,
+  const uint8_t use_supervision,
+  const uint8_t session_id);
+/// see @ref zwave_controller_callbacks_t
 void zwave_controller_on_smart_start_inclusion_request(
   uint32_t home_id,
   bool already_included,

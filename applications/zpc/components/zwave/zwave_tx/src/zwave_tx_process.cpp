@@ -54,6 +54,9 @@ zwave_tx_backoff_reason_t backoff_reason;
 // The Z-Wave TX queue
 zwave_tx_queue tx_queue;  // zwave_tx.cpp uses the tx_queue.
 
+// Shared ariable indicating if the ongoing session is for a procotol frame
+bool is_protocol_frame = false; // NOSONAR
+
 // Forward declarations
 static void zwave_tx_message_transmission_completed_step(
   zwave_tx_session_id_t session_id);
@@ -332,6 +335,18 @@ static void zwave_tx_process_send_next_message_step()
     return;
   }
 
+  void *user = current_tx_session_id;
+  is_protocol_frame = false;
+  if (current_element.options.transport.is_protocol_frame == true) {
+    // `user` argument in `zwave_controller_transport_send_data` is used to transport the current TX session ID
+    // which is not ideal so we need to transport the real user data in the protocol metadata structure to match
+    // the queue element when `on_zwave_transport_send_data_complete` is called.
+    protocol_metadata_t *protocol_metadata = (protocol_metadata_t *)current_element.user;
+    protocol_metadata->tx_session_id = current_tx_session_id;
+    user = current_element.user;
+    is_protocol_frame = true;
+  }
+
   // Ask the transports to take the frame.
   sl_status_t transport_status = zwave_controller_transport_send_data(
     &(current_element.connection_info),
@@ -339,7 +354,7 @@ static void zwave_tx_process_send_next_message_step()
     current_element.data,
     &(current_element.options),
     &on_zwave_transport_send_data_complete,
-    current_tx_session_id,
+    user,
     current_tx_session_id);
 
   if (transport_status == SL_STATUS_OK) {
@@ -613,11 +628,13 @@ void zwave_tx_process_check_queue()
                                       BACKOFF_EXPECTED_ADDITIONAL_FRAMES);
   } else if ((ZWAVE_TX_STATE_BACKOFF != state)
              && (zwave_tx_is_protocol_sending_frames())) {
-    // Let's wait 50 ms for the protocol before we try again.
-    // We do not want extremely small values (like 1ms), else it's just going to spin for nothing. Too large value will create Tx Delays.
-    backoff_time = CLOCK_SECOND / 20;
-    zwave_tx_process_initiate_backoff(backoff_time,
-                                      BACKOFF_PROTOCOL_SENDING_FRAMES);
+    if (zwapi_supports_nls() == false) {
+      // Let's wait 50 ms for the protocol before we try again.
+      // We do not want extremely small values (like 1ms), else it's just going to spin for nothing. Too large value will create Tx Delays.
+      backoff_time = CLOCK_SECOND / 20;
+      zwave_tx_process_initiate_backoff(backoff_time,
+                                        BACKOFF_PROTOCOL_SENDING_FRAMES);
+    }
   }
 
   if (ZWAVE_TX_STATE_BACKOFF != state && !tx_queue.empty()) {

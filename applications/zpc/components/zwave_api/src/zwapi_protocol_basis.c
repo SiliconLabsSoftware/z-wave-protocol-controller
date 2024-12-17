@@ -839,3 +839,16 @@ bool zwapi_supports_long_range()
   }
   return true;
 }
+
+bool zwapi_supports_nls()
+{
+  if (zwapi_support_command_func(FUNC_ID_ZW_TRANSFER_PROTOCOL_CC)
+      && zwapi_support_command_func(FUNC_ID_ZW_ENABLE_NODE_NLS)
+      && zwapi_support_command_func(FUNC_ID_ZW_GET_NODE_NLS_STATE)
+      && zwapi_support_command_func(FUNC_ID_ZW_REQUEST_PROTOCOL_CC_ENCRYPTION)
+      && zwapi_support_command_func(FUNC_ID_ZW_SEND_PROTOCOL_DATA)) {
+    return true;
+  }
+
+  return false;
+}

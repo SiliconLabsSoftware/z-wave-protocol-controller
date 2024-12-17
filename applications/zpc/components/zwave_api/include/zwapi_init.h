@@ -178,6 +178,18 @@ typedef void (*application_command_handler_function)(
   int8_t rssi_value);
 
 /**
+ * @todo
+ */
+typedef void (*protocol_cc_encryption_command_handler_function)(
+  zwave_node_id_t destination_node_id,
+  uint8_t payload_length,
+  const uint8_t *payload,
+  uint8_t protocol_metadata_length,
+  const uint8_t *const protocol_metadata,
+  uint8_t use_supervision,
+  uint8_t session_id);
+
+/**
  * @brief Application controller update function type definition
  *
  * @param status The status of the update process, value could be one of the
@@ -259,6 +271,7 @@ typedef struct zwapi_callbacks {
   application_command_handler_function application_command_handler;
   application_controller_update_function application_controller_update;
   application_command_handler_function application_command_handler_bridge;
+  protocol_cc_encryption_command_handler_function protocol_cc_encryption_request;
   void (*zwapi_started)(const uint8_t *pData, uint8_t pLen);
   void (*poll_request)();
 } zwapi_callbacks_t;

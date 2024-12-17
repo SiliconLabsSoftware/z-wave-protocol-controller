@@ -313,12 +313,43 @@ void zwave_controller_on_frame_received(
                                                    frame_length);
   //If no transport plugins needs the frame parse it on to upper layers
   if (status == SL_STATUS_NOT_FOUND) {
-    ZWAVE_CONTROLLER_DISPATCH_CALLBACKS(on_application_frame_received,
+    // Check if the frame is a protocol CC
+    if (frame_data[0] == ZWAVE_CMD_CLASS_PROTOCOL || frame_data[0] == ZWAVE_CMD_CLASS_PROTOCOL_LR)
+    {
+      ZWAVE_CONTROLLER_DISPATCH_CALLBACKS(on_protocol_frame_received,
+                                          connection_info,
+                                          rx_options,
+                                          frame_data,
+                                          frame_length);
+    }
+    else
+    {
+      ZWAVE_CONTROLLER_DISPATCH_CALLBACKS(on_application_frame_received,
                                         connection_info,
                                         rx_options,
                                         frame_data,
                                         frame_length);
+    }
   }
+}
+
+void zwave_controller_on_protocol_cc_encryption_request_received(
+  const zwave_node_id_t destination_node_id,
+  const uint8_t payload_length,
+  const uint8_t *const payload,
+  const uint8_t protocol_metadata_length,
+  const uint8_t *const protocol_metadata,
+  const uint8_t use_supervision,
+  const uint8_t session_id)
+{
+  ZWAVE_CONTROLLER_DISPATCH_CALLBACKS(on_protocol_cc_encryption_request,
+                                      destination_node_id,
+                                      payload_length,
+                                      payload,
+                                      protocol_metadata_length,
+                                      protocol_metadata,
+                                      use_supervision,
+                                      session_id);
 }
 
 void zwave_controller_on_smart_start_inclusion_request(

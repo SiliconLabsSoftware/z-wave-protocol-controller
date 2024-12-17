@@ -61,6 +61,8 @@ static const std::vector<attribute_schema_t> attribute_schema = {
   {ATTRIBUTE_ZWAVE_GENERIC_DEVICE_CLASS,   "Generic Device Class",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
   {ATTRIBUTE_ZWAVE_SPECIFIC_DEVICE_CLASS,   "Specific Device Class",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
   {ATTRIBUTE_ZWAVE_KEY_AND_PROTOCOL_TO_DISCOVER,   "Network Key / Protocol to probe",   ATTRIBUTE_ENDPOINT_ID,   BYTE_ARRAY_STORAGE_TYPE},
+  {ATTRIBUTE_ZWAVE_NLS_SUPPORT,   "NLS support",   ATTRIBUTE_NODE_ID,   U8_STORAGE_TYPE},
+  {ATTRIBUTE_ZWAVE_NLS_STATE,   "NLS state",   ATTRIBUTE_NODE_ID,   U8_STORAGE_TYPE},
   /////////////////////////////////////////////////////////////////////
   //         Generic Z-Wave attributes
   /////////////////////////////////////////////////////////////////////

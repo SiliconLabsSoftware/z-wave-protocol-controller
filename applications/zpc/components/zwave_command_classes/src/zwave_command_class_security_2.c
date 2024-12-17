@@ -40,6 +40,8 @@
 #define LOG_TAG                                "zwave_command_class_security_2"
 #define SECURE_SUPPORTED_COMMAND_CLASSES_INDEX 2
 
+static zwave_node_id_t last_node_id = 0;
+
 ///////////////////////////////////////////////////////////////////////////////
 // Command Handler functions
 ///////////////////////////////////////////////////////////////////////////////
@@ -142,6 +144,125 @@ static sl_status_t zwave_command_class_security_2_control_handler(
   }
 }
 
+static void on_nls_state_get_v2_send_complete(uint8_t status,
+                                              const zwapi_tx_report_t *tx_info,
+                                              void *user)
+{
+  // This callback is just for debugging purposes
+  zwave_node_id_t node_id = *((zwave_node_id_t *)user);
+  (void)tx_info;
+
+  sl_log_debug(LOG_TAG, "%s, status: %d, node_id: %d", __func__, status, node_id);
+}
+
+static void on_nls_state_set_v2_send_complete(uint8_t status,
+                                              const zwapi_tx_report_t *tx_info,
+                                              void *user)
+{
+  // Standard frame constructing mechanism is not used here, as we want to
+  // respond to the ACK reception of the NLS State Set command with a NLS State Get
+
+  zwave_node_id_t node_id = *((zwave_node_id_t *)user);
+  sl_status_t send_status = SL_STATUS_OK;
+
+  sl_log_debug(LOG_TAG, "%s, status: %d, node_id: %d", __func__, status, node_id);
+
+  switch (status) {
+    case TRANSMIT_COMPLETE_VERIFIED: 
+    case TRANSMIT_COMPLETE_OK:
+      {
+        ZW_NLS_STATE_GET_V2_FRAME frame = {0};
+        frame.cmdClass    = COMMAND_CLASS_SECURITY_2;
+        frame.cmd         = NLS_STATE_GET_V2;
+
+        zwave_controller_connection_info_t connection_info  = {};
+        zwave_tx_options_t tx_options                       = {};
+        uint8_t number_of_expected_responses                = 1;
+        uint32_t discard_timeout_ms                         = 5 * CLOCK_CONF_SECOND;
+
+        zwave_tx_scheme_get_node_connection_info(node_id, 0, &connection_info);
+        zwave_tx_scheme_get_node_tx_options(
+          ZWAVE_TX_QOS_MAX_PRIORITY,
+          number_of_expected_responses,
+          discard_timeout_ms,
+          &tx_options);
+
+        last_node_id = node_id;
+        send_status = zwave_tx_send_data(&connection_info,
+          sizeof(ZW_NLS_STATE_GET_V2_FRAME),
+          (const uint8_t *)&frame,
+          &tx_options,
+          on_nls_state_get_v2_send_complete,
+          (void *)&last_node_id,
+          NULL);      
+      }
+      break;
+    default:
+      send_status = SL_STATUS_TRANSMIT_INCOMPLETE;
+      break;
+  }
+
+  if (send_status == SL_STATUS_OK) {
+    sl_log_debug(LOG_TAG, "Sending NLS State Get Command to node ID: %d", node_id);
+  } else {
+    sl_log_error(LOG_TAG, "Failed to send NLS State Get Command to node ID: %d, status: %d", node_id, send_status);
+  }
+}
+
+static sl_status_t
+  zwave_command_class_security_2_nls_state_set(zwave_node_id_t node_id)
+{
+  ZW_NLS_STATE_SET_V2_FRAME frame = {0};
+  frame.cmdClass    = COMMAND_CLASS_SECURITY_2;
+  frame.cmd         = NLS_STATE_SET_V2;
+  frame.nlsState    = true;
+
+  zwave_controller_connection_info_t connection_info  = {0};
+  zwave_tx_options_t tx_options                       = {0};
+  uint8_t number_of_expected_responses                = 0;
+  uint32_t discard_timeout_ms                         = 5 * CLOCK_CONF_SECOND;
+  sl_status_t send_status                             = SL_STATUS_OK;
+
+  zwave_tx_scheme_get_node_connection_info(node_id, 0, &connection_info);
+  zwave_tx_scheme_get_node_tx_options(
+    ZWAVE_TX_QOS_RECOMMENDED_GET_ANSWER_PRIORITY,
+    number_of_expected_responses,
+    discard_timeout_ms,
+    &tx_options);
+  
+  last_node_id = node_id;
+  send_status = zwave_tx_send_data(
+    &connection_info,
+    sizeof(ZW_NLS_STATE_SET_V2_FRAME),
+    (const uint8_t *)&frame,
+    &tx_options,
+    on_nls_state_set_v2_send_complete,
+    (void *)&last_node_id,
+    NULL);
+
+  if (send_status == SL_STATUS_OK) {
+    sl_log_debug(LOG_TAG, "Sending NLS State Set Command to node ID: %d", node_id);
+  } else {
+    sl_log_error(LOG_TAG, "Failed to send NLS State Set Command to node ID: %d, status: %d", node_id, send_status);
+  }
+
+  return send_status;
+}
+
+static void on_attribute_zwave_nls_state_desired_change(
+  attribute_store_node_t node, attribute_store_change_t change)
+{
+  if (change != ATTRIBUTE_UPDATED) {
+    sl_log_debug(LOG_TAG, "NLS State Desired attribute change ignored");
+    return;
+  }
+
+  zwave_node_id_t node_id = 0;
+  attribute_store_network_helper_get_node_id_from_node(node, &node_id);
+
+  zwave_command_class_security_2_nls_state_set(node_id);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Public interface functions
 //////////////////////////////////////////////////////////////////////////////
@@ -169,6 +290,11 @@ sl_status_t zwave_command_class_security_2_init()
   handler.version            = SECURITY_2_VERSION;
   handler.command_class_name = "Security 2";
   handler.manual_security_validation = true;
+
+  attribute_store_register_callback_by_type_and_state(
+    on_attribute_zwave_nls_state_desired_change,
+    ATTRIBUTE_ZWAVE_NLS_STATE,
+    DESIRED_ATTRIBUTE);
 
   zwave_command_handler_register_handler(handler);
 

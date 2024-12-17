@@ -93,6 +93,16 @@ void zwave_controller_reset();
  */
 bool zwave_controller_is_reset_ongoing();
 
+/**
+ * @brief Callback function for requesting protocol Command Class encryption.
+ *
+ * @param status      TX status of the ongoing session.
+ * @param tx_info     TX report of the ongoing session.
+ * @param session_id  Session ID.
+ */
+void zwave_controller_request_protocol_cc_encryption_callback(
+  uint8_t status, const zwapi_tx_report_t *tx_info, uint8_t session_id);
+
 #ifdef __cplusplus
 }
 #endif

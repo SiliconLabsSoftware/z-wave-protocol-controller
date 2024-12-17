@@ -18,6 +18,7 @@
 // Includes from other components
 #include "sl_log.h"
 #include "zwapi_protocol_basis.h"
+#include "zwapi_protocol_controller.h"
 #include "ZW_classcmd.h"
 #include "zwave_s2_transport.h"
 
@@ -51,4 +52,10 @@ void zwave_controller_set_secure_application_nif(const uint8_t *command_classes,
 {
   // Simply forward our secure NIF to the S2 library.
   zwave_s2_set_secure_nif(command_classes, command_classes_length);
+}
+
+void zwave_controller_request_protocol_cc_encryption_callback(
+  uint8_t status, const zwapi_tx_report_t *tx_info, uint8_t session_id)
+{
+  zwapi_request_protocol_cc_encryption_callback(status, tx_info, session_id);
 }

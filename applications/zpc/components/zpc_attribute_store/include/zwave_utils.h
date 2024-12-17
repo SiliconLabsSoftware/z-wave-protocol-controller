@@ -30,6 +30,7 @@
 #include "zwave_keyset_definitions.h"
 #include "zwave_command_class_version_types.h"
 #include "zwave_command_class_wake_up_types.h"
+#include "attribute_store_defined_attribute_types.h"
 
 /**
  * @ingroup zpc_utils
@@ -44,6 +45,66 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @brief Returns whether a node supports Network Layer Security (NLS)
+ *
+ * It will search for the node in the Attribute store and deduct its NLS support
+ * from the ATTRIBUTE_ZWAVE_NLS_SUPPORT
+ * attribute stored under the NodeID.
+ *
+ * @param node_id The NodeID for which the NLS support is requested
+ * @param value_state The value state to look for
+ * 
+ * @returns
+ * - true if the node/endpoint supports NLS
+ * - false if the node/endpoint does not support NLS
+ */
+bool zwave_get_nls_support(zwave_node_id_t node_id, attribute_store_node_value_state_t value_state);
+
+/**
+ * @brief Returns whether a node has Network Layer Security (NLS) enabled
+ *
+ * It will search for the node in the Attribute store and deduct its NLS state
+ * from the ATTRIBUTE_ZWAVE_NLS_STATE
+ * attribute stored under the NodeID.
+ *
+ * @param node_id The NodeID for which the NLS state is requested
+ * @param value_state The value state to look for
+ * 
+ * @returns
+ * - true if the node/endpoint has NLS enabled
+ * - false if the node/endpoint has NLS disabled
+ */
+bool zwave_get_nls_state(zwave_node_id_t node_id, attribute_store_node_value_state_t value_state);
+
+/**
+ * @brief Stores Network Layer Security (NLS) support for a NodeID in the attribute store.
+ *
+ * @param node_id                 The NodeID for which the NLS support
+ *                                must be saved in the attribute store
+ * @param is_nls_supported        NLS support
+ * @param value_state             The value state to store
+ * 
+ * @returns SL_STATUS_OK on success, any other code if not successful.
+ */
+sl_status_t zwave_store_nls_support(zwave_node_id_t node_id,
+                                    bool is_nls_supported,
+                                    attribute_store_node_value_state_t value_state);
+
+/**
+ * @brief Stores Network Layer Security (NLS) state for a NodeID in the attribute store.
+ *
+ * @param node_id                 The NodeID for which the NLS state
+ *                                must be saved in the attribute store
+ * @param is_nls_enabled          NLS state
+ * @param value_state             The value state to store
+ * 
+ * @returns SL_STATUS_OK on success, any other code if not successful.
+ */
+sl_status_t zwave_store_nls_state(zwave_node_id_t node_id,
+                                  bool is_nls_enabled,
+                                  attribute_store_node_value_state_t value_state);
 
 /**
  * @brief Returns the operating mode of a node

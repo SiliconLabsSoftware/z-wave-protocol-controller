@@ -701,6 +701,13 @@ sl_status_t zwapi_enable_auto_program_mode(void);
  */
 bool zwapi_supports_long_range();
 
+/**
+ * @brief Return whether the Z-Wave module supports Network Layer Security
+ *
+ * @returns True or False
+ */
+bool zwapi_supports_nls(void);
+
 /// @} End of defgroup ZWAPI_BASIS
 
 #ifdef __cplusplus

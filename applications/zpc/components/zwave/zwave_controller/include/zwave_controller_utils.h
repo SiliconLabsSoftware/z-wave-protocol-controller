@@ -39,6 +39,9 @@
 extern "C" {
 #endif
 
+#define ZWAVE_CMD_CLASS_PROTOCOL    0x01  /* Z-Wave protocol class command */
+#define ZWAVE_CMD_CLASS_PROTOCOL_LR 0x04  /* Z-Wave Long Range protocol class command */
+
 /**
  * @brief Send a Z-Wave NOP frame to Z-Wave NodeID
  *

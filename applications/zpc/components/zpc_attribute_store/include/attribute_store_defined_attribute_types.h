@@ -107,6 +107,10 @@ DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_GENERIC_DEVICE_CLASS, 0x0104)
 DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_SPECIFIC_DEVICE_CLASS, 0x0105)
 ///< This represent a zwave_key_protocol_combination_t
 DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_KEY_AND_PROTOCOL_TO_DISCOVER, 0x0106)
+/** This represents whether a Z-Wave node/endpoint supports NLS. */
+DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_NLS_SUPPORT, 0x0107)
+/** This represents whether a Z-Wave node/endpoint has NLS enabled. */
+DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_NLS_STATE, 0x0108)
 
 // Generic attributes that can be placed anywhere under an endpoint.
 /** This indicates if more reports are expected to "complete" the value of an attribute */

@@ -128,7 +128,7 @@ sl_status_t
   // Protocol CCs must not be encrypted, but Z-Wave API transport is called last
   // and S2 will just encrypt stuff..
   // We automatically downgrade security if Command Class is 0x00 or 0x01.
-  if (data_length > 0 && (data[0] == 0x00 || data[0] == 0x01)) {
+  if (data_length > 0 && (data[0] == 0x00 || data[0] == 0x01) && (new_element.options.transport.is_protocol_frame == false)) {
     new_element.connection_info.encapsulation
       = ZWAVE_CONTROLLER_ENCAPSULATION_NONE;
     new_element.connection_info.remote.endpoint_id = 0;

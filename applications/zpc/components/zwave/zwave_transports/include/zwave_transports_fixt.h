@@ -18,6 +18,10 @@
 #include <stdbool.h>
 #include "sl_status.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @defgroup zwave_transports Z-Wave Transports
  * @ingroup zwave_controller
@@ -51,5 +55,9 @@
 sl_status_t zwave_transports_init(void);
 
 /** @} end zwave_transports_fixt */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // ZWAVE_TRANSPORTS_FIXT_H

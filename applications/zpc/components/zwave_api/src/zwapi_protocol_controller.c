@@ -19,6 +19,11 @@
 #include "zwapi_init.h"
 #include "zwapi_internal.h"
 #include "zwapi_utils.h"
+#include "zwave_utils.h"
+
+// Unify includes
+#include "sl_log.h"
+#define LOG_TAG "zwave_protocol_controller"
 
 sl_status_t zwapi_request_neighbor_update(zwave_node_id_t bNodeID,
                                            void (*completedFunc)(uint8_t))
@@ -404,7 +409,7 @@ sl_status_t zwapi_set_virtual_node_to_learn_mode(
   zwapi_set_virtual_node_to_learn_mode_callback = completedFunc;
 
   sl_status_t send_command_status
-    = zwapi_send_command_with_response(FUNC_ID_ZW_SET_VIRTUAL_NODE_TO_LEARN_MODE,
+    = zwapi_send_command_with_response(FUNC_ID_ZW_SET_SLAVE_LEARN_MODE,
                                        request_buffer,
                                        index,
                                        response_buffer,
@@ -434,6 +439,54 @@ sl_status_t zwapi_request_node_info(zwave_node_id_t node_id)
 
   if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA
       && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
+    return SL_STATUS_OK;
+  }
+
+  return SL_STATUS_FAIL;
+}
+
+sl_status_t zwapi_request_protocol_cc_encryption_callback(uint8_t tx_status, const zwapi_tx_report_t *tx_report, uint8_t session_id)
+{
+  uint8_t index = 0;
+  uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
+
+  request_buffer[index++] = session_id;
+  request_buffer[index++] = tx_status;
+
+  request_buffer[index++] = (tx_report->transmit_ticks >> 8) & 0xFF;
+  request_buffer[index++] = tx_report->transmit_ticks & 0xFF;
+  request_buffer[index++] = tx_report->number_of_repeaters;
+  request_buffer[index++] = tx_report->ack_rssi;
+  request_buffer[index++] = tx_report->rssi_values.incoming[0];
+  request_buffer[index++] = tx_report->rssi_values.incoming[1];
+  request_buffer[index++] = tx_report->rssi_values.incoming[2];
+  request_buffer[index++] = tx_report->rssi_values.incoming[3];
+  request_buffer[index++] = tx_report->ack_channel_number;
+  request_buffer[index++] = tx_report->tx_channel_number;
+  request_buffer[index++] = tx_report->route_scheme_state;
+  request_buffer[index++] = tx_report->last_route_repeaters[0];
+  request_buffer[index++] = tx_report->last_route_repeaters[1];
+  request_buffer[index++] = tx_report->last_route_repeaters[2];
+  request_buffer[index++] = tx_report->last_route_repeaters[3];
+  request_buffer[index] = (tx_report->beam_1000ms & 0x01) << 6;
+  request_buffer[index] |= (tx_report->beam_250ms & 0x01) << 5;
+  request_buffer[index] |= (tx_report->last_route_speed & 0x07);
+  index++;
+  request_buffer[index++] = tx_report->routing_attempts;
+  request_buffer[index++] = tx_report->last_failed_link.from;
+  request_buffer[index++] = tx_report->last_failed_link.to;
+  request_buffer[index++] = tx_report->tx_power;
+  request_buffer[index++] = tx_report->measured_noise_floor;
+  request_buffer[index++] = tx_report->destination_ack_mpdu_tx_power;
+  request_buffer[index++] = tx_report->destination_ack_mpdu_measured_rssi;
+  request_buffer[index++] = tx_report->destination_ack_mpdu_measured_noise_floor;
+
+  sl_status_t send_command_status
+    = zwapi_send_command(FUNC_ID_ZW_REQUEST_PROTOCOL_CC_ENCRYPTION,
+                         request_buffer,
+                         index);
+
+  if (send_command_status == SL_STATUS_OK) {
     return SL_STATUS_OK;
   }
 
@@ -727,7 +780,98 @@ sl_status_t zwapi_set_virtual_node_application_node_information(
     request_buffer[index++] = nodeParm[i];
   }
 
-  return zwapi_send_command(FUNC_ID_SERIAL_API_APPL_VIRTUAL_NODE_INFORMATION,
+  return zwapi_send_command(FUNC_ID_ZW_SET_SLAVE_LEARN_MODE,
                             request_buffer,
                             index);
+}
+
+sl_status_t zwapi_enable_node_nls(const zwave_node_id_t nodeId)
+{
+  uint8_t response_length = 0;
+  uint8_t index = 0;
+  uint8_t request_buffer[REQUEST_BUFFER_SIZE] = { 0 };
+  uint8_t response_buffer[FRAME_LENGTH_MAX] = { 0 };
+  zwapi_write_node_id(request_buffer, &index, nodeId);
+  sl_status_t send_command_status
+    = zwapi_send_command_with_response(FUNC_ID_ZW_ENABLE_NODE_NLS,
+                                       request_buffer,
+                                       index,
+                                       response_buffer,
+                                       &response_length);
+
+  if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA
+      && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE)
+  {
+    sl_log_debug(LOG_TAG, "NLS enabled for node %d", nodeId);
+    return SL_STATUS_OK;
+  }
+
+  return SL_STATUS_FAIL; 
+}
+
+sl_status_t zwapi_get_node_nls(
+  const zwave_node_id_t nodeId,
+  uint8_t* nls_state)
+{
+  uint8_t response_length = 0;
+  uint8_t index = 0;
+  uint8_t request_buffer[REQUEST_BUFFER_SIZE] = { 0 };
+  uint8_t response_buffer[FRAME_LENGTH_MAX] = { 0 };
+  zwapi_write_node_id(request_buffer, &index, nodeId);
+  sl_status_t send_command_status
+    = zwapi_send_command_with_response(FUNC_ID_ZW_GET_NODE_NLS_STATE,
+                                       request_buffer,
+                                       index,
+                                       response_buffer,
+                                       &response_length);
+
+  if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA)
+  {
+    *nls_state = response_buffer[IDX_DATA];
+    if (// zwave_store_nls_support(nodeId, *nls_support, REPORTED_ATTRIBUTE) ||
+        // TODO: to be added once SAPI command is updated
+        zwave_store_nls_state(nodeId, *nls_state, REPORTED_ATTRIBUTE))
+    {
+      return SL_STATUS_FAIL;
+    }
+  }
+  return send_command_status;
+}
+
+sl_status_t zwapi_transfer_protocol_cc(
+  const zwave_node_id_t srcNode,
+  const uint8_t decryptionKey,
+  const uint8_t payloadLength,
+  const uint8_t * const payload)
+{
+  uint8_t index = 0;
+  uint8_t response_length = 0;
+  uint8_t request_buffer[REQUEST_BUFFER_SIZE] = { 0 };
+  uint8_t response_buffer[FRAME_LENGTH_MAX] = { 0 };
+
+  zwapi_write_node_id(request_buffer, &index, srcNode);
+  request_buffer[index++] = zwave_controller_get_key_from_encapsulation(decryptionKey);
+
+  if (payloadLength > ZWAVE_MAX_FRAME_SIZE)
+  {
+    return SL_STATUS_WOULD_OVERFLOW;
+  }
+
+  request_buffer[index++] = payloadLength;
+  memcpy(&request_buffer[index], payload, payloadLength);
+  index += payloadLength;
+
+  sl_status_t send_command_status
+    = zwapi_send_command_with_response(FUNC_ID_ZW_TRANSFER_PROTOCOL_CC,
+                                       request_buffer,
+                                       index,
+                                       response_buffer,
+                                       &response_length);
+
+  if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA
+      && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
+    return SL_STATUS_OK;
+  }
+
+  return SL_STATUS_FAIL;
 }

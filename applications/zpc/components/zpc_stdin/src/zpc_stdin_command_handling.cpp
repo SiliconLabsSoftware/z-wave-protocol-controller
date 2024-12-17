@@ -41,6 +41,7 @@
 #include "attribute.hpp"
 #include "zwave_s2_keystore.h"
 #include "zwave_s2_nonce_management.h"
+#include "zwapi_protocol_controller.h"
 // Contiki includes
 #include "clock.h"  // For CLOCK_CONF_SECOND
 
@@ -95,6 +96,8 @@ static sl_status_t handle_zwave_abort_firmware_update(const handle_args_t &arg);
 static sl_status_t handle_zwave_reset_span(const handle_args_t &arg);
 static sl_status_t handle_zwave_reset_mpan(const handle_args_t &arg);
 static sl_status_t handle_zwave_home_id(const handle_args_t &arg);
+static sl_status_t handle_enable_nls(const handle_args_t &arg);
+static sl_status_t handle_get_nls_state(const handle_args_t &arg);
 
 /// Map that holds all the commands (used for printing help)
 ///
@@ -213,6 +216,14 @@ const std::map<std::string, std::pair<std::string, handler_func>> commands = {
     &handle_zwave_abort_firmware_update}},
   {"zwave_cc_versions_log",
    {"Print the CC version table", &handle_cc_versions_log}},
+  {"zwave_enable_nls",
+   {COLOR_START "<NodeID>" COLOR_END
+                "Enable NLS on a given node.",
+    &handle_enable_nls}},
+  {"zwave_get_nls_state",
+   {COLOR_START "<NodeID>" COLOR_END
+                "Print the NLS state of the given nodeID",
+    &handle_get_nls_state}},
 };
 
 // Pre declaration of setup function
@@ -832,6 +843,54 @@ static void
             "<insert the first two byte of the DSK in [decimal]>\n");
 
     memcpy(node_reported_dsk, dsk, sizeof(zwave_dsk_t));
+  }
+}
+
+static sl_status_t handle_enable_nls(const handle_args_t &arg)
+{
+  if (arg.size() != 2) {
+    dprintf(out_stream,
+            "Invalid number of arguments, expected args: <NodeID>"
+            "For example zwave_enable_nls 02\n");
+    return SL_STATUS_FAIL;
+  }
+  try {
+    zwave_node_id_t node_id
+        = static_cast<zwave_node_id_t>(std::stoi(arg[1].c_str(), nullptr, 10));
+
+    return zwave_store_nls_state(node_id, true, DESIRED_ATTRIBUTE);
+  } catch (const std::invalid_argument &e) {
+    dprintf(out_stream, "%s: Invalid argument: %s\n", arg[0].c_str(), e.what());
+    return SL_STATUS_FAIL;
+  }
+}
+
+static sl_status_t handle_get_nls_state(const handle_args_t &arg)
+{
+  if (arg.size() != 2) {
+    dprintf(out_stream,
+            "Invalid number of arguments, expected args: <NodeID>"
+            "For example zwave_get_nls_state 02\n");
+    return SL_STATUS_FAIL;
+  }
+
+  try {
+    zwave_node_id_t node_id
+      = static_cast<zwave_node_id_t>(std::stoi(arg[1].c_str(), nullptr, 10));
+    uint8_t nls_state = 0;
+    sl_status_t status = zwapi_get_node_nls(node_id, &nls_state);
+    if (SL_STATUS_OK == status)
+    {
+      dprintf(out_stream, "Node ID %d, NLS state: %d\n", node_id, nls_state);
+    }
+    else
+    {
+      dprintf(out_stream, "Unable to read NLS state");
+    }
+    return status;
+  } catch (const std::invalid_argument &e) {
+    dprintf(out_stream, "%s: Invalid argument: %s\n", arg[0].c_str(), e.what());
+    return SL_STATUS_FAIL;
   }
 }
 
