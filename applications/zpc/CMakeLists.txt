@@ -26,15 +26,15 @@ include(${COMMON_PATH}/cmake/include/uic_helper.cmake)
 include(${COMMON_PATH}/cmake/include/compatible_platform.cmake)
 include(${COMMON_PATH}/cmake/include/compiler_options.cmake)
 include(${COMMON_PATH}/cmake/include/version.cmake)
-include(${COMMON_PATH}/cmake/include/doxygen.cmake)
+# include(${COMMON_PATH}/cmake/include/doxygen.cmake)
 include(${COMMON_PATH}/cmake/modules/CMakeCargo.cmake)
-include(${COMMON_PATH}/cmake/include/package-helper.cmake)
+# include(${COMMON_PATH}/cmake/include/package-helper.cmake)
 include(${COMMON_PATH}/cmake/include/zap.cmake)
 include(${COMMON_PATH}/cmake/include/unittest.cmake)
 include(${COMMON_PATH}/cmake/include/version_file.cmake)
 
 set(DEFAULT_UNIFY-TESTFRAMEWORK_PATH
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../components/testframework)
+    ${COMMON_PATH}/components/testframework)
 if(EXISTS ${UNIFY-TESTFRAMEWORK_LOCATION})
   set(UNIFY-TESTFRAMEWORK_PATH ${UNIFY-TESTFRAMEWORK_LOCATION})
 else()
@@ -49,6 +49,40 @@ endif()
 include(${UNIFY-TESTFRAMEWORK_PATH}/add_mock.cmake)
 include(${UNIFY-TESTFRAMEWORK_PATH}/target_add_unittest.cmake)
 
+include_directories(
+  include
+  ${COMMON_PATH}/components/uic_config/include/ # config.h
+  ${COMMON_PATH}/components/uic_gbl_interface/include/# uic_gbl_interface.h
+  ${COMMON_PATH}/components/uic_definitions/include/# uic_typedefs.h
+  ${COMMON_PATH}/components/uic_attribute_store/include/# attribute_store.h
+  ${COMMON_PATH}/components/uic_datastore/include/# datastore_attributes.h
+  ${COMMON_PATH}/components/unify_dotdot_attribute_store/zap-generated/include/# unify_dotdot_defined_attribute_types.h
+  ${COMMON_PATH}/components/uic_dotdot/zap-generated/include/# dotdot_cluster_id_definitions.h
+  ${COMMON_PATH}/components/uic_smartstart_management/include/# smartstart_management.hpp
+  ${COMMON_PATH}/components/uic_contiki/core/ # sys/ctimer.h
+  ${COMMON_PATH}/components/uic_contiki/platform/posix/ # contiki-conf.h
+  ${COMMON_PATH}/components/uic_attribute_resolver/include/# attribute_resolver.h
+  ${COMMON_PATH}/components/uic_contiki/core/sys/# clock.h
+  ${COMMON_PATH}/components/uic_main_fd/include/# uic_main_externals.h
+  ${COMMON_PATH}/components/unify_dotdot_attribute_store/include/# unify_dotdot_attribute_store_node_state.h
+  ${COMMON_PATH}/components/uic_dotdot_mqtt/zap-generated/include # dotdot_mqtt.h
+  ${COMMON_PATH}/components/uic_mqtt/include # uic_mqtt.h
+  ${COMMON_PATH}/components/unify_application_monitoring/include # unify_application_monitoring.h
+  ${COMMON_PATH}/components/uic_stdin/include/# uic_stdin.hpp
+  ${COMMON_PATH}/components/uic_ota/platform/posix/# ota_time.hpp
+  ${COMMON_PATH}/components/uic_attribute_mapper/include # attribute_mapper.h
+  ${COMMON_PATH}/components/uic_attribute_utils/include # attribute_timeouts.h
+  ${COMMON_PATH}/components/uic_ota/include # ota.hpp
+  ${COMMON_PATH}/components/uic_dotdot_mqtt/include # dotdot_mqtt_parsing_helpers.hpp
+  ${COMMON_PATH}/components/uic_main/include # uic_main.h
+  ${COMMON_PATH}/components/uic_contiki/include # request_poller.h
+  ${COMMON_PATH}/components/uic_rust/unify_middleware/include/ # rust_contiki_fixt.h
+)
+
+link_directories(
+  ${unifysdk_BINARY_DIR}/components # libunify.so
+  ${unifysdk_BINARY_DIR}/components/uic_config # libuic_config_mock.a
+)
 
 if(EXISTS ${LIBUNIFY_LOCATION})
   message(STATUS "Found libunify: ${LIBUNIFY_LOCATION}")
