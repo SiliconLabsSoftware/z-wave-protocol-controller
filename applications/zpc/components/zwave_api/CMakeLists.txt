@@ -14,7 +14,7 @@ add_library(
   platform/${COMPATIBLE_PLATFORM}/zwapi_timestamp.c
 )
 
-target_link_libraries(zwave_api PUBLIC zwave_definitions PRIVATE unify zpc_attribute_store)
+target_link_libraries(zwave_api PUBLIC zwave_definitions PRIVATE unify)
 target_include_directories(
   zwave_api
   PRIVATE src platform/${COMPATIBLE_PLATFORM}

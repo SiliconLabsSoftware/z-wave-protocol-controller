@@ -19,7 +19,6 @@
 #include "zwapi_init.h"
 #include "zwapi_internal.h"
 #include "zwapi_utils.h"
-#include "zwave_utils.h"
 
 // Unify includes
 #include "sl_log.h"
@@ -828,14 +827,10 @@ sl_status_t zwapi_get_node_nls(
   if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA)
   {
     *nls_state = response_buffer[IDX_DATA];
-    if (// zwave_store_nls_support(nodeId, *nls_support, REPORTED_ATTRIBUTE) ||
-        // TODO: to be added once SAPI command is updated
-        zwave_store_nls_state(nodeId, *nls_state, REPORTED_ATTRIBUTE))
-    {
-      return SL_STATUS_FAIL;
-    }
+    return SL_STATUS_OK;    
   }
-  return send_command_status;
+
+  return SL_STATUS_FAIL;
 }
 
 sl_status_t zwapi_transfer_protocol_cc(

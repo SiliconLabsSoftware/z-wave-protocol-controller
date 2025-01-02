@@ -881,13 +881,22 @@ static sl_status_t handle_get_nls_state(const handle_args_t &arg)
     sl_status_t status = zwapi_get_node_nls(node_id, &nls_state);
     if (SL_STATUS_OK == status)
     {
+      // TODO: Add commented condition below once related SAPI command is updated
+      status = zwave_store_nls_state(node_id, nls_state, REPORTED_ATTRIBUTE) /* || zwave_store_nls_support(node_id, nls_support, REPORTED_ATTRIBUTE) */;
+      if (SL_STATUS_OK != status) {
+        dprintf(out_stream, "Unable to store NLS state for Node ID: %d\n", node_id);
+        return SL_STATUS_FAIL;
+      }
       dprintf(out_stream, "Node ID %d, NLS state: %d\n", node_id, nls_state);
+      return SL_STATUS_OK;
     }
     else
     {
-      dprintf(out_stream, "Unable to read NLS state");
+      dprintf(out_stream,
+              "Unable to read NLS state for Node ID: %d\n",
+              node_id);
+      return SL_STATUS_FAIL;
     }
-    return status;
   } catch (const std::invalid_argument &e) {
     dprintf(out_stream, "%s: Invalid argument: %s\n", arg[0].c_str(), e.what());
     return SL_STATUS_FAIL;
