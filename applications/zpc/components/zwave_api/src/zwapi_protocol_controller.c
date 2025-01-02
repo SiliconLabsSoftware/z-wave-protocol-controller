@@ -850,7 +850,7 @@ sl_status_t zwapi_transfer_protocol_cc(
   uint8_t response_buffer[FRAME_LENGTH_MAX] = { 0 };
 
   zwapi_write_node_id(request_buffer, &index, srcNode);
-  request_buffer[index++] = zwave_controller_get_key_from_encapsulation(decryptionKey);
+  request_buffer[index++] = decryptionKey;
 
   if (payloadLength > ZWAVE_MAX_FRAME_SIZE)
   {

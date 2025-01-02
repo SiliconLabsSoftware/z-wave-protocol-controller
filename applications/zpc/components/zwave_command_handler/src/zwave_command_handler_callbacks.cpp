@@ -296,10 +296,15 @@ void zwave_command_handler_on_protocol_frame_received(
   message << "]";
   sl_log_debug(LOG_TAG, "%s", message.str().c_str());
 
-  // Dispatch and look at the status code
+  uint8_t decryption_key = zwave_controller_get_key_from_encapsulation(connection_info->encapsulation);
+
+ // Dispatch and look at the status code
   sl_status_t status
-      = zwapi_transfer_protocol_cc(connection_info->remote.node_id, connection_info->encapsulation, frame_length, frame_data);
-  
+    = zwapi_transfer_protocol_cc(connection_info->remote.node_id,
+                                 decryption_key,
+                                 frame_length,
+                                 frame_data);
+
   switch (status) {
     case SL_STATUS_OK:
       sl_log_debug(LOG_TAG,
