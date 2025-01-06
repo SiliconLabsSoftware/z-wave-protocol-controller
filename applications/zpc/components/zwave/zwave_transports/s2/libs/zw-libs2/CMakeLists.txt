@@ -20,9 +20,14 @@ if("${PROJECT_NAME}" STREQUAL "")
   endif()
 
   find_path(
-    ZWAVE_INCLUDE_DIR ZW_classcmd.h
+    ${ZWAVE_CLASSCMD_DIR} ZW_classcmd.h
     HINTS ENV ZWLIBROOT ${PROJECT_SOURCE_DIR}/..
-          ${PROJECT_SOURCE_DIR}/../../ZWave/API
+          ${PROJECT_SOURCE_DIR}/../../ThirdParty/generated/
+    PATH_SUFFIXES include)
+  find_path(
+    ${ZWAVE_INCLUDE_DIR} ZW.h
+    HINTS ENV ZWLIBROOT ${PROJECT_SOURCE_DIR}/..
+          ${PROJECT_SOURCE_DIR}/../../ZWave/API/
     PATH_SUFFIXES include)
   SET(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --verbose --errors-for-leak-kinds=all --show-leak-kinds=all --leak-check=full --error-exitcode=1 --track-origins=yes")
   include(CTest)
@@ -40,7 +45,7 @@ set(CROSS_SYSTEM_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include" PARENT_SCOPE)
 # Setting -DOPTIONAL_SYSTEM_INCLUDE=<optional_include_path> allows to specify
 # addional include path(s) when building libs2.
 include_directories(include ${ZWAVE_INCLUDE_DIR} ${CROSS_SYSTEM_INCLUDE}
-                    ${OPTIONAL_SYSTEM_INCLUDE})
+                    ${OPTIONAL_SYSTEM_INCLUDE} ${ZWAVE_CLASSCMD_DIR})
 
 if("${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
   set(SKIP_TESTING true)
