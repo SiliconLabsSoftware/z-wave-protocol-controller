@@ -437,6 +437,47 @@ void test_zwave_rx_on_frame_received()
   TEST_ASSERT_EQUAL(0, zwave_rx_fixt_teardown());
 }
 
+void test_zwave_rx_on_protocol_cc_encryption_request_received()
+{
+  // Init zwave_rx:
+  rx_init_successful_test_helper();
+
+  zwave_node_id_t destination_node_id = 3;
+  uint8_t payload[]                   = {0x01, 0x02};
+  uint8_t payload_length              = sizeof(payload);
+  uint8_t metadata[]                  = {0xA1, 0xA2};
+  uint8_t metadata_length             = sizeof(metadata);
+  uint8_t use_supervision             = 1;
+  uint8_t session_id                  = 2;
+
+  // Frame dispatch
+  zwave_controller_on_protocol_cc_encryption_request_received_ExpectWithArray(
+    destination_node_id,
+    payload_length,
+    payload,
+    payload_length,
+    metadata_length,
+    metadata,
+    metadata_length,
+    use_supervision,
+    session_id);
+
+  // Trigger an on_frame_received callback
+  registered_zwapi_callbacks->protocol_cc_encryption_request(
+    destination_node_id,
+    payload_length,
+    payload,
+    metadata_length,
+    metadata,
+    use_supervision,
+    session_id);
+
+  // Now shut down the functionality
+  zwapi_destroy_Expect();
+  zwapi_log_to_file_disable_ExpectAndReturn(SL_STATUS_OK);
+  TEST_ASSERT_EQUAL(0, zwave_rx_fixt_teardown());
+}
+
 /// Test of rx init for on_smart_start_event callbacks
 void test_zwave_rx_on_smart_start_event()
 {

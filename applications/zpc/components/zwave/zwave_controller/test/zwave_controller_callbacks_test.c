@@ -22,17 +22,21 @@
 #include "sl_log.h"
 
 /// Static variables
-static zwave_controller_callbacks_t callbacks                   = {};
-static int zwave_controller_on_frame_transmission_call_count    = 0;
-static int zwave_controller_on_node_event_test_call_count       = 0;
-static int zwave_controller_on_rx_frame_received_count          = 0;
-static int zwave_controller_on_network_address_update_count     = 0;
-static int zwave_controller_on_application_frame_received_count = 0;
-static zwave_controller_connection_info_t info                  = {};
-static zwave_rx_receive_options_t rx_options                    = {};
-const uint8_t frame_data[]                                      = {0x00};
-const uint8_t transport_frame_data[]                            = {0xbb};
-static sl_status_t transport_return_code                        = SL_STATUS_OK;
+static zwave_controller_callbacks_t callbacks                       = {};
+static int zwave_controller_on_frame_transmission_call_count        = 0;
+static int zwave_controller_on_node_event_test_call_count           = 0;
+static int zwave_controller_on_rx_frame_received_count              = 0;
+static int zwave_controller_on_network_address_update_count         = 0;
+static int zwave_controller_on_application_frame_received_count     = 0;
+static int zwave_controller_on_protocol_cc_encryption_request_count = 0;
+static int zwave_controller_on_protocol_frame_received_count        = 0;
+static zwave_controller_connection_info_t info                      = {};
+static zwave_rx_receive_options_t rx_options                        = {};
+const uint8_t frame_data[]                                          = {0x00};
+const uint8_t protocol_frame_data[]    = {0x01};  // ZWAVE_CMD_CLASS_PROTOCOL
+const uint8_t protocol_lr_frame_data[] = {0x04};  // ZWAVE_CMD_CLASS_PROTOCOL_LR
+const uint8_t transport_frame_data[]   = {0xbb};
+static sl_status_t transport_return_code = SL_STATUS_OK;
 
 // A Z-Wave Controller transport:
 static sl_status_t test_transport_on_frame_received(
@@ -82,6 +86,27 @@ static void zwave_controller_on_application_frame_received(
   zwave_controller_on_application_frame_received_count += 1;
 }
 
+static void zwave_controller_on_protocol_cc_encryption_request(
+  const zwave_node_id_t destination_node_id,
+  const uint8_t payload_length,
+  const uint8_t *const payload,
+  const uint8_t protocol_metadata_length,
+  const uint8_t *const protocol_metadata,
+  const uint8_t use_supervision,
+  const uint8_t session_id)
+{
+  zwave_controller_on_protocol_cc_encryption_request_count += 1;
+}
+
+static void zwave_controller_on_protocol_frame_received(
+  const zwave_controller_connection_info_t *connection_info,
+  const zwave_rx_receive_options_t *rx_options,
+  const uint8_t *frame_data,
+  uint16_t frame_length)
+{
+  zwave_controller_on_protocol_frame_received_count += 1;
+}
+
 static void zwave_controller_on_node_event_test(zwave_node_id_t node_id)
 {
   zwave_controller_on_node_event_test_call_count += 1;
@@ -102,12 +127,14 @@ int suiteTearDown(int num_failures)
 
 void setUp()
 {
-  zwave_controller_on_frame_transmission_call_count    = 0;
-  zwave_controller_on_node_event_test_call_count       = 0;
-  zwave_controller_on_rx_frame_received_count          = 0;
-  zwave_controller_on_network_address_update_count     = 0;
-  zwave_controller_on_application_frame_received_count = 0;
-  transport_return_code                                = SL_STATUS_OK;
+  zwave_controller_on_frame_transmission_call_count        = 0;
+  zwave_controller_on_node_event_test_call_count           = 0;
+  zwave_controller_on_rx_frame_received_count              = 0;
+  zwave_controller_on_network_address_update_count         = 0;
+  zwave_controller_on_application_frame_received_count     = 0;
+  zwave_controller_on_protocol_cc_encryption_request_count = 0;
+  zwave_controller_on_protocol_frame_received_count        = 0;
+  transport_return_code                                    = SL_STATUS_OK;
   zwave_controller_callbacks_init();
 }
 
@@ -264,6 +291,125 @@ void test_zwave_controller_on_controller_application_frames()
   // remove these callbacks:
   callbacks.on_rx_frame_received          = NULL;
   callbacks.on_application_frame_received = NULL;
+}
+
+void test_zwave_controller_on_protocol_cc_encryption_request_received()
+{
+  zwave_node_id_t destination_node_id = 3;
+  uint8_t payload[]                   = {0xF1, 0xF2};
+  uint8_t payload_length              = sizeof(payload);
+  uint8_t protocol_metadata[]         = {0x1E, 0x2E};
+  uint8_t protocol_metadata_length    = sizeof(protocol_metadata);
+  uint8_t use_supervision             = 1;
+  uint8_t session_id                  = 2;
+
+  zwave_controller_on_protocol_cc_encryption_request_received(
+    destination_node_id,
+    payload_length,
+    payload,
+    protocol_metadata_length,
+    protocol_metadata,
+    use_supervision,
+    session_id);
+  TEST_ASSERT_EQUAL(0,
+                    zwave_controller_on_protocol_cc_encryption_request_count);
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_application_frame_received_count);
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_rx_frame_received_count);
+
+  callbacks.on_rx_frame_received
+    = &zwave_controller_on_rx_frame_received_callback;
+  callbacks.on_application_frame_received
+    = &zwave_controller_on_application_frame_received;
+  callbacks.on_protocol_cc_encryption_request
+    = &zwave_controller_on_protocol_cc_encryption_request;
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    zwave_controller_register_callbacks(&callbacks));
+
+  zwave_controller_on_protocol_cc_encryption_request_received(
+    destination_node_id,
+    payload_length,
+    payload,
+    protocol_metadata_length,
+    protocol_metadata,
+    use_supervision,
+    session_id);
+  TEST_ASSERT_EQUAL(1,
+                    zwave_controller_on_protocol_cc_encryption_request_count);
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_application_frame_received_count);
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_rx_frame_received_count);
+
+  // remove these callbacks:
+  callbacks.on_rx_frame_received              = NULL;
+  callbacks.on_application_frame_received     = NULL;
+  callbacks.on_protocol_cc_encryption_request = NULL;
+}
+
+void test_zwave_controller_on_controller_protocol_frames()
+{
+  // We need to inject a valid frame, as this will go through the transports
+  zwave_controller_on_frame_received(&info,
+                                     &rx_options,
+                                     protocol_frame_data,
+                                     sizeof(protocol_frame_data));
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_protocol_frame_received_count);
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_rx_frame_received_count);
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_application_frame_received_count);
+
+  callbacks.on_rx_frame_received
+    = &zwave_controller_on_rx_frame_received_callback;
+  callbacks.on_application_frame_received
+    = &zwave_controller_on_application_frame_received;
+  callbacks.on_protocol_frame_received
+    = &zwave_controller_on_protocol_frame_received;
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    zwave_controller_register_callbacks(&callbacks));
+
+  zwave_controller_on_frame_received(&info,
+                                     &rx_options,
+                                     protocol_frame_data,
+                                     sizeof(protocol_frame_data));
+  TEST_ASSERT_EQUAL(1, zwave_controller_on_protocol_frame_received_count);
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_application_frame_received_count);
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_rx_frame_received_count);
+
+  // remove these callbacks:
+  callbacks.on_rx_frame_received          = NULL;
+  callbacks.on_application_frame_received = NULL;
+  callbacks.on_protocol_frame_received    = NULL;
+}
+
+void test_zwave_controller_on_controller_protocol_lr_frames()
+{
+  // We need to inject a valid frame, as this will go through the transports
+  zwave_controller_on_frame_received(&info,
+                                     &rx_options,
+                                     protocol_lr_frame_data,
+                                     sizeof(protocol_lr_frame_data));
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_protocol_frame_received_count);
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_rx_frame_received_count);
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_application_frame_received_count);
+
+  callbacks.on_rx_frame_received
+    = &zwave_controller_on_rx_frame_received_callback;
+  callbacks.on_application_frame_received
+    = &zwave_controller_on_application_frame_received;
+  callbacks.on_protocol_frame_received
+    = &zwave_controller_on_protocol_frame_received;
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    zwave_controller_register_callbacks(&callbacks));
+
+  zwave_controller_on_frame_received(&info,
+                                     &rx_options,
+                                     protocol_lr_frame_data,
+                                     sizeof(protocol_lr_frame_data));
+  TEST_ASSERT_EQUAL(1, zwave_controller_on_protocol_frame_received_count);
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_application_frame_received_count);
+  TEST_ASSERT_EQUAL(0, zwave_controller_on_rx_frame_received_count);
+
+  // remove these callbacks:
+  callbacks.on_rx_frame_received          = NULL;
+  callbacks.on_application_frame_received = NULL;
+  callbacks.on_protocol_frame_received    = NULL;
 }
 
 void test_zwave_controller_on_network_address_update()

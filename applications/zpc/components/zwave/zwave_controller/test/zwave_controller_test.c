@@ -17,6 +17,7 @@
 #include "zpc_config_mock.h"
 #include "zwapi_protocol_basis_mock.h"
 #include "zwave_s2_transport_mock.h"
+#include "zwapi_protocol_controller_mock.h"
 
 /// Setup the test suite (called once before all test_xxx functions are called)
 void suiteSetUp() {}
@@ -68,4 +69,20 @@ void test_zwave_controller_set_secure_nif()
 
   zwave_controller_set_secure_application_nif(command_classes,
                                               sizeof(command_classes));
+}
+
+void test_zwave_controller_request_protocol_cc_encryption_callback()
+{
+  uint8_t status                  = TRANSMIT_COMPLETE_VERIFIED;
+  zwapi_tx_report_t tx_info       = {0};
+  uint8_t session_id              = 0;
+
+  zwapi_request_protocol_cc_encryption_callback_ExpectAndReturn(status,
+                                                                &tx_info,
+                                                                session_id,
+                                                                SL_STATUS_OK);
+
+  zwave_controller_request_protocol_cc_encryption_callback(status,
+                                                           &tx_info,
+                                                           session_id);
 }
