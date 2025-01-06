@@ -36,6 +36,23 @@ void test_zwapi_soft_reset()
   TEST_ASSERT_EQUAL(SL_STATUS_OK, zwapi_soft_reset());
 }
 
+void test_zwapi_supports_nls()
+{
+  //Happy case
+  zwapi_support_command_func_ExpectAndReturn(FUNC_ID_ZW_TRANSFER_PROTOCOL_CC, true);
+  zwapi_support_command_func_ExpectAndReturn(FUNC_ID_ZW_ENABLE_NODE_NLS, true);
+  zwapi_support_command_func_ExpectAndReturn(FUNC_ID_ZW_GET_NODE_NLS_STATE, true);
+  zwapi_support_command_func_ExpectAndReturn(FUNC_ID_ZW_REQUEST_PROTOCOL_CC_ENCRYPTION, true);
+  zwapi_support_command_func_ExpectAndReturn(FUNC_ID_ZW_SEND_PROTOCOL_DATA, true);
+  TEST_ASSERT_EQUAL(true, zwapi_supports_nls());
+
+  //Bad case
+  zwapi_support_command_func_ExpectAndReturn(FUNC_ID_ZW_TRANSFER_PROTOCOL_CC, true);
+  zwapi_support_command_func_ExpectAndReturn(FUNC_ID_ZW_ENABLE_NODE_NLS, true);
+  zwapi_support_command_func_ExpectAndReturn(FUNC_ID_ZW_GET_NODE_NLS_STATE, false);
+  TEST_ASSERT_EQUAL(false, zwapi_supports_nls());
+}
+
 void test_zwapi_get_zw_protocol_status()
 {
   //Happy case

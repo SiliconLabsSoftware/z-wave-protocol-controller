@@ -219,6 +219,57 @@ void test_zwapi_send_data_happy_case()
                                     callback_function_test));
 }
 
+void test_zwapi_send_protocol_data_happy_case()
+{
+  zwapi_get_library_type_IgnoreAndReturn(ZWAVE_LIBRARY_TYPE_CONTROLLER_STATIC);
+
+  zwave_node_id_t destination_node_id = 5;
+  protocol_metadata_t metadata        = {0};
+  metadata.session_id                 = 3;
+  metadata.data_length                = 2;
+  metadata.data[0]                    = 0x01;
+  metadata.data[1]                    = 0x02;
+  const uint8_t data[]                = {1, 2, 3, 5};
+  uint8_t payload_buffer[20]          = {0};
+  payload_buffer[0]                   = destination_node_id;  // node_id
+  payload_buffer[1]                   = 4;                    // sizeof(data)
+  payload_buffer[2]                   = 1;                    // data[0]
+  payload_buffer[3]                   = 2;                    // data[1]
+  payload_buffer[4]                   = 3;                    // data[2]
+  payload_buffer[5]                   = 5;                    // data[3]
+  payload_buffer[6]                   = 2;     // metadata.data_length
+  payload_buffer[7]                   = 0x01;  // metadata.data[0]
+  payload_buffer[8]                   = 0x02;  // metadata.data[1]
+  payload_buffer[9]                   = 3;     // session_id
+  response_length                     = 3 + IDX_DATA;
+  response_buffer[3]                  = ZW_COMMAND_RETURN_VALUE_TRUE;
+  zwapi_session_send_frame_with_response_ExpectWithArrayAndReturn(
+    FUNC_ID_ZW_SEND_PROTOCOL_DATA,
+    payload_buffer,
+    sizeof(payload_buffer),
+    10,
+    response_buffer,
+    sizeof(response_buffer),
+    &response_length,
+    sizeof(response_length),
+    SL_STATUS_OK);
+  zwapi_session_send_frame_with_response_IgnoreArg_response_buf();
+  zwapi_session_send_frame_with_response_IgnoreArg_response_len();
+
+  zwapi_session_send_frame_with_response_ReturnMemThruPtr_response_buf(
+    response_buffer,
+    response_length);
+  zwapi_session_send_frame_with_response_ReturnThruPtr_response_len(
+    &response_length);
+
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    zwapi_send_protocol_data(destination_node_id,
+                                             data,
+                                             sizeof(data),
+                                             (void *)&metadata,
+                                             callback_function_test));
+}
+
 void test_zwapi_send_data_too_long_frame()
 {
   zwapi_get_library_type_IgnoreAndReturn(ZWAVE_LIBRARY_TYPE_CONTROLLER_STATIC);

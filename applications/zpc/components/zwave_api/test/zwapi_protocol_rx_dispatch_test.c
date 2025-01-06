@@ -18,10 +18,11 @@
 #include <string.h>
 
 // List of static test variables
-static int zwapi_send_data_test_callback_call_count                     = 0;
-static int zwapi_application_controller_update_test_function_call_count = 0;
-static int zwapi_zwave_api_started_test_function_call_count             = 0;
-static int zwapi_application_command_handler_test_function_call_count   = 0;
+static int zwapi_send_data_test_callback_call_count                      = 0;
+static int zwapi_application_controller_update_test_function_call_count  = 0;
+static int zwapi_zwave_api_started_test_function_call_count              = 0;
+static int zwapi_application_command_handler_test_function_call_count    = 0;
+static int zwapi_protocol_cc_encryption_request_test_function_call_count = 0;
 
 // book-keeping variables
 static uint8_t received_status              = 0;
@@ -64,6 +65,18 @@ void zwapi_application_command_handler_test_function(
 {
   zwapi_application_command_handler_test_function_call_count += 1;
   received_node_id = source_node_id;
+}
+
+void zwapi_protocol_cc_encryption_request_test_function(
+  const zwave_node_id_t destination_node_id,
+  const uint8_t payload_length,
+  const uint8_t *const payload,
+  const uint8_t protocol_metadata_length,
+  const uint8_t *const protocol_metadata,
+  const uint8_t use_supervision,
+  const uint8_t session_id)
+{
+  zwapi_protocol_cc_encryption_request_test_function_call_count += 1;
 }
 
 void zwapi_zwave_api_started_test_function(const uint8_t *buffer,
@@ -114,6 +127,35 @@ void test_zwapi_protocol_rx_dispatch_test_send_data_callback_tx_report_happy()
   zwave_api_get_callbacks_IgnoreAndReturn(&test_zwapi_callbacks);
   zwapi_send_data_callback = &zwapi_send_data_test_callback;
   uint8_t frame[] = {0x1D, 0x00, 0x13, 0x00, 0x00, 0x12, 0x23, 0x05, 0xCF, 0x7D,
+                     0x7F, 0x6F, 0x7F, 0x01, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00,
+                     0x02, 0x01, 0x00, 0x00, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
+  zwave_api_protocol_rx_dispatch(frame, sizeof(frame));
+
+  TEST_ASSERT_EQUAL(1, zwapi_send_data_test_callback_call_count);
+  TEST_ASSERT_EQUAL(TRANSMIT_COMPLETE_OK, received_status);
+  TEST_ASSERT_EQUAL(0x1223, received_tx_report.transmit_ticks);
+  TEST_ASSERT_EQUAL(0x05, received_tx_report.number_of_repeaters);
+  TEST_ASSERT_EQUAL((int8_t)0xCF, received_tx_report.ack_rssi);
+  TEST_ASSERT_EQUAL(0x7D, received_tx_report.rssi_values.incoming[0]);
+  TEST_ASSERT_EQUAL(0x7F, received_tx_report.rssi_values.incoming[1]);
+  TEST_ASSERT_EQUAL(0x6F, received_tx_report.rssi_values.incoming[2]);
+  TEST_ASSERT_EQUAL((int8_t)0xAA, received_tx_report.tx_power);
+  TEST_ASSERT_EQUAL((int8_t)0xBB, received_tx_report.measured_noise_floor);
+  TEST_ASSERT_EQUAL((int8_t)0xCC,
+                    received_tx_report.destination_ack_mpdu_tx_power);
+  TEST_ASSERT_EQUAL((int8_t)0xDD,
+                    received_tx_report.destination_ack_mpdu_measured_rssi);
+  TEST_ASSERT_EQUAL(
+    (int8_t)0xEE,
+    received_tx_report.destination_ack_mpdu_measured_noise_floor);
+}
+
+void test_zwapi_protocol_rx_dispatch_test_send_protocol_data_callback_tx_report_happy()
+{
+  // Manually add our callback:
+  zwave_api_get_callbacks_IgnoreAndReturn(&test_zwapi_callbacks);
+  zwapi_send_data_callback = &zwapi_send_data_test_callback;
+  uint8_t frame[] = {0x1D, 0x00, 0xAC, 0x00, 0x00, 0x12, 0x23, 0x05, 0xCF, 0x7D,
                      0x7F, 0x6F, 0x7F, 0x01, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00,
                      0x02, 0x01, 0x00, 0x00, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
   zwave_api_protocol_rx_dispatch(frame, sizeof(frame));
@@ -464,4 +506,19 @@ void test_zwapi_protocol_rx_dispatch_zwave_api_started_overflow()
   zwave_api_protocol_rx_dispatch(frame, sizeof(frame));
 
   TEST_ASSERT_EQUAL(1, zwapi_zwave_api_started_test_function_call_count);
+}
+
+void test_zwapi_protocol_rx_dispatch_protocol_cc_encryption_request()
+{
+  // Manually add our callback:
+  test_zwapi_callbacks.protocol_cc_encryption_request
+    = &zwapi_protocol_cc_encryption_request_test_function;
+  zwave_api_get_callbacks_IgnoreAndReturn(&test_zwapi_callbacks);
+
+  uint8_t frame[]
+    = {0x0C, 0x00, 0x6C, 0x00, 0x01, 0x02, 0x03, 0x02, 0xAA, 0xCC, 0x01, 0x01};
+  zwave_api_protocol_rx_dispatch(frame, sizeof(frame));
+
+  TEST_ASSERT_EQUAL(1,
+                    zwapi_protocol_cc_encryption_request_test_function_call_count);
 }
