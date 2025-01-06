@@ -39,6 +39,126 @@ int suiteTearDown(int num_failures)
 /// Called before each and every test
 void setUp() {}
 
+void test_get_nls_state_reported_happy_case()
+{
+  zwave_node_id_t test_node_id             = 119;
+  attribute_store_node_t test_node_id_node = 1;
+  attribute_store_node_t test_child_node   = 2;
+
+  attribute_store_network_helper_get_zwave_node_id_node_ExpectAndReturn(
+    test_node_id,
+    test_node_id_node);
+
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    test_node_id_node,
+    ATTRIBUTE_ZWAVE_NLS_STATE,
+    0,
+    test_child_node);
+
+  uint8_t nls_state = 0;
+  attribute_store_read_value_ExpectAndReturn(test_child_node,
+                                             REPORTED_ATTRIBUTE,
+                                             NULL,
+                                             sizeof(uint8_t),
+                                             SL_STATUS_OK);
+  attribute_store_read_value_IgnoreArg_read_value();
+  attribute_store_read_value_ReturnMemThruPtr_read_value(&nls_state,
+                                                         sizeof(nls_state));
+
+  TEST_ASSERT_EQUAL(nls_state,
+                    zwave_get_nls_state(test_node_id, REPORTED_ATTRIBUTE));
+}
+
+void test_get_nls_state_desired_happy_case()
+{
+  zwave_node_id_t test_node_id             = 119;
+  attribute_store_node_t test_node_id_node = 1;
+  attribute_store_node_t test_child_node   = 2;
+
+  attribute_store_network_helper_get_zwave_node_id_node_ExpectAndReturn(
+    test_node_id,
+    test_node_id_node);
+
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    test_node_id_node,
+    ATTRIBUTE_ZWAVE_NLS_STATE,
+    0,
+    test_child_node);
+
+  uint8_t nls_state = 0;
+  attribute_store_read_value_ExpectAndReturn(test_child_node,
+                                             DESIRED_ATTRIBUTE,
+                                             NULL,
+                                             sizeof(uint8_t),
+                                             SL_STATUS_OK);
+  attribute_store_read_value_IgnoreArg_read_value();
+  attribute_store_read_value_ReturnMemThruPtr_read_value(&nls_state,
+                                                         sizeof(nls_state));
+
+  TEST_ASSERT_EQUAL(nls_state,
+                    zwave_get_nls_state(test_node_id, DESIRED_ATTRIBUTE));
+}
+
+void test_get_nls_support_reported_happy_case()
+{
+  zwave_node_id_t test_node_id             = 119;
+  attribute_store_node_t test_node_id_node = 1;
+  attribute_store_node_t test_child_node   = 2;
+
+  attribute_store_network_helper_get_zwave_node_id_node_ExpectAndReturn(
+    test_node_id,
+    test_node_id_node);
+
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    test_node_id_node,
+    ATTRIBUTE_ZWAVE_NLS_SUPPORT,
+    0,
+    test_child_node);
+
+  uint8_t nls_state = 0;
+  attribute_store_read_value_ExpectAndReturn(test_child_node,
+                                             REPORTED_ATTRIBUTE,
+                                             NULL,
+                                             sizeof(uint8_t),
+                                             SL_STATUS_OK);
+  attribute_store_read_value_IgnoreArg_read_value();
+  attribute_store_read_value_ReturnMemThruPtr_read_value(&nls_state,
+                                                         sizeof(nls_state));
+
+  TEST_ASSERT_EQUAL(nls_state,
+                    zwave_get_nls_support(test_node_id, REPORTED_ATTRIBUTE));
+}
+
+void test_get_nls_support_desired_happy_case()
+{
+  zwave_node_id_t test_node_id             = 119;
+  attribute_store_node_t test_node_id_node = 1;
+  attribute_store_node_t test_child_node   = 2;
+
+  attribute_store_network_helper_get_zwave_node_id_node_ExpectAndReturn(
+    test_node_id,
+    test_node_id_node);
+
+  attribute_store_get_node_child_by_type_ExpectAndReturn(
+    test_node_id_node,
+    ATTRIBUTE_ZWAVE_NLS_SUPPORT,
+    0,
+    test_child_node);
+
+  uint8_t nls_state = 0;
+  attribute_store_read_value_ExpectAndReturn(test_child_node,
+                                             DESIRED_ATTRIBUTE,
+                                             NULL,
+                                             sizeof(uint8_t),
+                                             SL_STATUS_OK);
+  attribute_store_read_value_IgnoreArg_read_value();
+  attribute_store_read_value_ReturnMemThruPtr_read_value(&nls_state,
+                                                         sizeof(nls_state));
+
+  TEST_ASSERT_EQUAL(nls_state,
+                    zwave_get_nls_support(test_node_id, DESIRED_ATTRIBUTE));
+}
+
 void test_get_operating_mode_happy_case_NL()
 {
   zwave_node_id_t test_node_id                        = 119;
