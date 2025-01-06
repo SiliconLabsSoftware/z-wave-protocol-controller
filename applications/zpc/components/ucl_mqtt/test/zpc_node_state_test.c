@@ -233,3 +233,72 @@ void test_discover_security_command()
                               UIC_MQTT_DOTDOT_CALLBACK_TYPE_NORMAL));
   TEST_ASSERT_TRUE(attribute_store_is_reported_defined(granted_keys_node));
 }
+
+void test_enable_nls_support_check()
+{
+  // Set our node to online functional
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+  attribute_store_set_child_reported(node_id_node,
+                                     DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                                     &network_status,
+                                     sizeof(network_status));
+
+  // Enable NLS should be supported:
+  TEST_ASSERT_EQUAL(
+    SL_STATUS_OK,
+    enable_nls_command(supporting_node_unid,
+                       endpoint_id,
+                       UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK));
+
+  // Offline should not show this state command
+  network_status = ZCL_NODE_STATE_NETWORK_STATUS_OFFLINE;
+  attribute_store_set_child_reported(node_id_node,
+                                     DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                                     &network_status,
+                                     sizeof(network_status));
+  TEST_ASSERT_EQUAL(
+    SL_STATUS_FAIL,
+    enable_nls_command(supporting_node_unid,
+                       endpoint_id,
+                       UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK));
+
+  // Unavailable should not show this state command
+  network_status = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
+  attribute_store_set_child_reported(node_id_node,
+                                     DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                                     &network_status,
+                                     sizeof(network_status));
+  TEST_ASSERT_EQUAL(
+    SL_STATUS_FAIL,
+    enable_nls_command(supporting_node_unid,
+                       endpoint_id,
+                       UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK));
+
+  // ZPC SHOULD not support this state command either
+  network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+  attribute_store_set_child_reported(zpc_node_id_node,
+                                     DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                                     &network_status,
+                                     sizeof(network_status));
+  TEST_ASSERT_EQUAL(
+    SL_STATUS_NOT_SUPPORTED,
+    enable_nls_command(zpc_unid,
+                       zpc_endpoint_id,
+                       UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK));
+}
+
+void test_enable_nls_command()
+{
+  attribute_store_node_t target_node
+    = attribute_store_add_node(ATTRIBUTE_ZWAVE_NLS_STATE, node_id_node);
+  attribute_store_set_reported_number(target_node, 0);
+  attribute_store_set_desired_number(target_node, 0);
+
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    enable_nls_command(supporting_node_unid,
+                                       endpoint_id,
+                                       UIC_MQTT_DOTDOT_CALLBACK_TYPE_NORMAL));
+  TEST_ASSERT_EQUAL(0, attribute_store_get_reported_number(target_node));
+  TEST_ASSERT_EQUAL(1, attribute_store_get_desired_number(target_node));
+}
