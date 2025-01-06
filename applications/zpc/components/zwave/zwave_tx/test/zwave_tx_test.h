@@ -54,6 +54,12 @@ static const zwave_controller_connection_info_t test_connection_3 = {
   .encapsulation = ZWAVE_CONTROLLER_ENCAPSULATION_NONE,
 };
 
+static const zwave_controller_connection_info_t test_connection_4 = {
+  .local         = {.node_id = 10, .endpoint_id = 10, .is_multicast = false},
+  .remote        = {.node_id = 5, .endpoint_id = 0, .is_multicast = false},
+  .encapsulation = ZWAVE_CONTROLLER_ENCAPSULATION_NONE,
+};
+
 static const zwave_tx_options_t test_tx_options_1
   = {.number_of_responses = 0,
      .discard_timeout_ms  = 0,
@@ -119,6 +125,21 @@ static const zwave_tx_options_t test_tx_options_test_frame
      .transport           = {
                  .is_first_follow_up              = false,
                  .is_test_frame                   = true,
+                 .ignore_incoming_frames_back_off = false,
+                 .rf_power                        = MINUS_3_DBM,
+                 .group_id                        = ZWAVE_TX_INVALID_GROUP,
+     }};
+
+static const zwave_tx_options_t test_tx_options_protocol_frame
+  = {.number_of_responses = 1,
+     .discard_timeout_ms  = 5000,
+     .qos_priority        = ZWAVE_TX_QOS_MAX_PRIORITY,
+     .fasttrack           = false,
+     .send_follow_ups     = false,
+     .transport           = {
+                 .is_first_follow_up              = false,
+                 .is_test_frame                   = false,
+                 .is_protocol_frame               = true,
                  .ignore_incoming_frames_back_off = false,
                  .rf_power                        = MINUS_3_DBM,
                  .group_id                        = ZWAVE_TX_INVALID_GROUP,

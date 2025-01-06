@@ -258,6 +258,66 @@ void test_zwave_tx_send_data_happy_case()
   TEST_ASSERT_EQUAL_PTR(NULL, received_user_pointer);
 }
 
+void test_zwave_tx_send_protocol_data_happy_case()
+{
+  protocol_metadata_t protocol_metadata = {
+    .tx_session_id = NULL,
+    .session_id    = 1,
+    .data_length   = 7,
+    .data          = {0xDE, 0xAD, 0xBE, 0xEF, 0xCA, 0xFE, 0xBA},
+  };
+
+  zwave_controller_transport_send_data_ExpectWithArrayAndReturn(
+    &test_connection_4,
+    sizeof(test_connection_4),
+    sizeof(test_expected_frame_data_1),
+    test_expected_frame_data_1,
+    sizeof(test_expected_frame_data_1),
+    &test_tx_options_protocol_frame,
+    sizeof(test_tx_options_protocol_frame),
+    NULL,
+    (void *)&protocol_metadata,
+    sizeof(void *),
+    NULL,
+    SL_STATUS_OK);
+
+  zwave_controller_transport_send_data_IgnoreArg_session();
+  zwave_controller_transport_send_data_IgnoreArg_on_send_complete();
+
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    zwave_tx_send_data(&test_connection_4,
+                                       sizeof(test_expected_frame_data_1),
+                                       test_expected_frame_data_1,
+                                       &test_tx_options_protocol_frame,
+                                       send_data_callback,
+                                       (void *)&protocol_metadata,
+                                       &test_tx_session_id));
+
+  // We are now waiting for more frames, or a transport callback.
+  contiki_test_helper_run_once(DEFAULT_CONTIKI_CLOCK_JUMP);
+
+  // Transport informs it is done.
+  TEST_ASSERT_NOT_NULL(zwave_transport_send_data_save);
+  zwave_transport_send_data_save(TRANSMIT_COMPLETE_VERIFIED,
+                                 &test_tx_report,
+                                 (void *)&protocol_metadata);
+
+  // Now the child frame is fully done.
+  contiki_test_helper_run_clock_increases_for_each_event(
+    TX_BACKOFF_CONTIKI_CLOCK_JUMP);
+
+  // Verify that it looks looks as expected
+  TEST_ASSERT_EQUAL(1, send_done_count);
+  TEST_ASSERT_EQUAL(TRANSMIT_COMPLETE_VERIFIED, send_done_status);
+  // We expect that the transmission time is copied from TX
+  // Contiki made a clock jump of DEFAULT_CONTIKI_CLOCK_JUMP for each event
+  send_done_tx_status.transmit_ticks = 0;
+  TEST_ASSERT_EQUAL_MEMORY(&test_tx_report,
+                           &send_done_tx_status,
+                           sizeof(zwapi_tx_report_t));
+  TEST_ASSERT_EQUAL_PTR((void *)&protocol_metadata, received_user_pointer);
+}
+
 void test_zwave_tx_send_data_fast_track()
 {
   zwave_controller_transport_send_data_ExpectWithArrayAndReturn(
