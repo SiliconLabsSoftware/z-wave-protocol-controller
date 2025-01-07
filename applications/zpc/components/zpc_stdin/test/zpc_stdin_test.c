@@ -29,7 +29,8 @@
 #include "zwave_command_handler_mock.h"
 #include "zwave_tx_mock.h"
 #include "zwave_tx_scheme_selector_mock.h"
-#include "zwave_utils.h"
+#include "zwave_utils_mock.h"
+#include "zwapi_protocol_controller_mock.h"
 #include "zwave_unid_mock.h"
 #include "zwave_command_class_supervision_mock.h"
 #include "zpc_attribute_store_network_helper_mock.h"
@@ -327,6 +328,27 @@ void test_handle_cc_versions_log()
   zwave_command_handler_print_info_Expect(0);
   TEST_ASSERT_EQUAL(SL_STATUS_OK,
                     uic_stdin_handle_command("zwave_cc_versions_log"));
+}
+
+void test_handle_nls()
+{
+  sl_status_t state;
+  uint8_t nls_state = false;
+
+  state = uic_stdin_handle_command("zwave_enable_nls");
+  TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
+
+  zwave_store_nls_state_ExpectAndReturn(2, true, DESIRED_ATTRIBUTE, SL_STATUS_OK);
+  state = uic_stdin_handle_command("zwave_enable_nls 2");
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, state);
+
+  state = uic_stdin_handle_command("zwave_get_nls_state");
+  TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
+
+  zwapi_get_node_nls_ExpectAndReturn(2, &nls_state, SL_STATUS_OK);
+  zwave_store_nls_state_ExpectAndReturn(2, nls_state, REPORTED_ATTRIBUTE, SL_STATUS_OK);
+  state = uic_stdin_handle_command("zwave_get_nls_state 2");
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, state);
 }
 
 void test_handle_zwave_s2_log_security_keys()
