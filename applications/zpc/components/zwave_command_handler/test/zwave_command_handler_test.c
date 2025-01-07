@@ -141,14 +141,14 @@ void zwave_command_handler_init_test_helper()
   TEST_ASSERT_EQUAL_UINT8(1, cc_version_init_counter);
 }
 
-void test_on_frame_received_supported_cc()
+void test_on_application_frame_received_supported_cc()
 {
   zwave_command_handler_init_test_helper();
   zwave_security_validation_is_security_valid_for_support_ExpectAndReturn(
     ZWAVE_CONTROLLER_ENCAPSULATION_NONE,
     &connection_info_frame_non_secure,
     true);
-  // Receive a frame
+  // Receive an application frame
   zwave_controller_callbacks->on_application_frame_received(
     &connection_info_frame_non_secure,
     NULL,
@@ -156,6 +156,22 @@ void test_on_frame_received_supported_cc()
     sizeof(frame_data_1));
 
   TEST_ASSERT_EQUAL_UINT8(1, cc_zwave_plus_handle_counter);
+}
+
+void test_on_protocol_frame_received_supported_cc()
+{
+  zwave_command_handler_init_test_helper();
+  zwave_controller_get_key_from_encapsulation_ExpectAndReturn(
+    ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_2_AUTHENTICATED,
+    ZWAVE_CONTROLLER_S2_AUTHENTICATED_KEY);
+  // Receive a protocol frame
+  zwave_controller_callbacks->on_protocol_frame_received(
+    &connection_info_frame_security_2_authenticated,
+    NULL,
+    frame_data_1,
+    sizeof(frame_data_1));
+
+  TEST_ASSERT_EQUAL_UINT8(0, cc_zwave_plus_handle_counter);
 }
 
 void test_security_levels()
