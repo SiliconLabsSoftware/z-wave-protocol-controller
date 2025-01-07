@@ -60,6 +60,7 @@ int suiteTearDown(int num_failures)
 
 void setUp()
 {
+  num_callbacks = 0;
   contiki_test_helper_init();
 }
 
@@ -144,6 +145,56 @@ void test_zwave_s2_send_data()
   //Check the callback
   S2_send_done_event(0, S2_TRANSMIT_COMPLETE_VERIFIED);
   TEST_ASSERT_EQUAL_PTR((void *)0x42, my_user);
+  TEST_ASSERT_EQUAL(1, num_callbacks);
+  TEST_ASSERT_EQUAL(TRANSMIT_COMPLETE_VERIFIED, my_status);
+}
+
+void test_zwave_s2_send_protocol_data()
+{
+  zwave_controller_connection_info_t connection = {};
+
+  uint8_t cmd_data[]            = "HelloWorld";
+  zwave_tx_options_t tx_options = {};
+  zwave_tx_session_id_t session;
+  protocol_metadata_t metadata = {0};
+
+  connection.encapsulation  = ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_2_ACCESS;
+  connection.local.node_id  = 1;
+  connection.remote.node_id = 2;
+
+  tx_options.transport.is_protocol_frame = true;
+
+  s2_connection_t s2c = {};
+  s2c.l_node          = 1;
+  s2c.r_node          = 2;
+  s2c.zw_tx_options   = 0;
+  s2c.class_id        = 2;
+  s2c.tx_options      = S2_TXOPTION_VERIFY_DELIVERY;
+
+  S2_send_data_singlecast_with_keyset_ExpectWithArrayAndReturn(
+    0,
+    0,
+    &s2c,
+    sizeof(s2_connection_t),
+    UNKNOWN_KEYSET,
+    cmd_data,
+    sizeof(cmd_data),
+    sizeof(cmd_data),
+    1);
+
+  zwave_tx_get_number_of_responses_ExpectAndReturn(&session, 0);
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    zwave_s2_send_data(&connection,
+                                       sizeof(cmd_data),
+                                       cmd_data,
+                                       &tx_options,
+                                       on_zwave_tx_send_data_complete,
+                                       (void *)&metadata,
+                                       &session));
+
+  //Check the callback
+  S2_send_done_event(0, S2_TRANSMIT_COMPLETE_VERIFIED);
+  TEST_ASSERT_EQUAL_PTR((void *)&metadata, my_user);
   TEST_ASSERT_EQUAL(1, num_callbacks);
   TEST_ASSERT_EQUAL(TRANSMIT_COMPLETE_VERIFIED, my_status);
 }

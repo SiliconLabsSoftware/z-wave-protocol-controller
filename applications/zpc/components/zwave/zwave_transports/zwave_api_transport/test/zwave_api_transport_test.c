@@ -38,6 +38,8 @@ static zwave_controller_transport_t zwave_api_transport;
 static zwave_api_started_callback_t on_zwave_api_started_callback;
 
 static cmock_zwapi_protocol_transport_func_ptr2 zwave_api_send_data_callback;
+static cmock_zwapi_protocol_transport_func_ptr3
+  zwave_api_send_protocol_data_callback;
 static cmock_zwapi_protocol_transport_func_ptr4
   zwave_api_send_data_multi_callback;
 static cmock_zwapi_protocol_basis_func_ptr2 zwave_api_send_test_frame_callback;
@@ -84,6 +86,18 @@ static sl_status_t zwapi_send_data_stub(
   int cmock_num_calls)
 {
   zwave_api_send_data_callback = callback_function;
+  return SL_STATUS_OK;
+}
+
+static sl_status_t zwapi_send_protocol_data_stub(
+  zwave_node_id_t destination_node_id,
+  const uint8_t *data,
+  uint8_t data_length,
+  void *metadata,
+  cmock_zwapi_protocol_transport_func_ptr3 callback_function,
+  int cmock_num_calls)
+{
+  zwave_api_send_protocol_data_callback = callback_function;
   return SL_STATUS_OK;
 }
 
@@ -670,6 +684,64 @@ void test_zwave_api_transport_send_test_frame_happy_case()
 
   TEST_ASSERT_EQUAL_PTR(user, received_user);
   TEST_ASSERT_EQUAL(TRANSMIT_COMPLETE_VERIFIED, received_status);
+}
+
+void test_zwave_api_transport_send_protocol_frame_happy_case()
+{
+  TEST_ASSERT_NOT_NULL(zwave_api_transport.send_data);
+
+  // Prepare data:
+  info.remote.node_id                    = 23;
+  tx_options.fasttrack                   = false;
+  tx_options.transport.is_protocol_frame = true;
+  const uint8_t frame[]                  = {0x56, 0x32, 0x9F, 0x22, 0x01, 0xFF};
+  parent_session_id                      = (void *)53;
+  protocol_metadata_t metadata           = {0};
+
+  zwapi_send_protocol_data_AddCallback(zwapi_send_protocol_data_stub);
+  zwapi_send_protocol_data_ExpectAndReturn(info.remote.node_id,
+                                           frame,
+                                           sizeof(frame),
+                                           (void *)&metadata,
+                                           NULL,
+                                           SL_STATUS_OK);
+  zwapi_send_protocol_data_IgnoreArg_callback_function();
+
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    zwave_api_transport.send_data(&info,
+                                                  sizeof(frame),
+                                                  frame,
+                                                  &tx_options,
+                                                  &on_send_data_complete,
+                                                  (void *)&metadata,
+                                                  parent_session_id));
+
+  //Run the contiki events
+  contiki_test_helper_run(0);
+
+  //Additional test: Node info event are to be ignored when sending data.
+  TEST_ASSERT_NOT_NULL(zwave_controller_callbacks.on_node_information);
+  TEST_ASSERT_NOT_NULL(zwave_controller_callbacks.on_node_info_req_failed);
+  zwave_controller_callbacks.on_node_information(info.remote.node_id, NULL);
+  zwave_controller_callbacks.on_node_info_req_failed(info.remote.node_id);
+
+  contiki_test_helper_run(0);
+
+  // Expect to notify of a frame transmission success
+  zwapi_tx_report_t report = {};
+  zwave_controller_on_frame_transmission_Expect(true,
+                                                &report,
+                                                info.remote.node_id);
+
+  // callback from the Z-Wave API
+  TEST_ASSERT_NOT_NULL(zwave_api_send_protocol_data_callback);
+  zwave_api_send_protocol_data_callback(TRANSMIT_COMPLETE_OK, &report);
+
+  TEST_ASSERT_EQUAL_PTR((void *)&metadata, received_user);
+  TEST_ASSERT_EQUAL_MEMORY(&report,
+                           &received_tx_report,
+                           sizeof(zwapi_tx_report_t));
+  TEST_ASSERT_EQUAL(TRANSMIT_COMPLETE_OK, received_status);
 }
 
 void test_zwave_api_transport_send_test_frame_rejected()
