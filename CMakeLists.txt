@@ -9,9 +9,13 @@ include(cmake/include/version.cmake)
 include(cmake/include/build_permutations.cmake)
 
 include(cmake/modules/FindUnifySDK.cmake)
-
 if(NOT DEFINED COMMON_LOCATION)
   set(COMMON_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/_deps/unifysdk-src")
+endif()
+
+if(BUILD_TESTING)
+  include(${CMAKE_SOURCE_DIR}/components/testframework/target_add_unittest.cmake)
+  include(cmake/include/unittest.cmake)
 endif()
 
 # ##############################################################################
