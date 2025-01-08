@@ -26,6 +26,9 @@ if(BUILD_TESTING)
   # Unit tests
   add_subdirectory(test)
 
+  include_directories(
+    ${CMAKE_SOURCE_DIR}/include
+  )
   # Mocks
   add_mock(ucl_mqtt_mock include/ucl_mqtt.h)
   target_interface_libraries(ucl_mqtt_mock zpc_utils)

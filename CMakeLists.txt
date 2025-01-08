@@ -13,6 +13,11 @@ if(NOT DEFINED COMMON_LOCATION)
   set(COMMON_LOCATION "${unifysdk_SOURCE_DIR}")
 endif()
 
+if(BUILD_TESTING)
+  include(${CMAKE_SOURCE_DIR}/components/testframework/target_add_unittest.cmake)
+  include(cmake/include/unittest.cmake)
+endif()
+
 # ##############################################################################
 # Global includes
 # ##############################################################################
