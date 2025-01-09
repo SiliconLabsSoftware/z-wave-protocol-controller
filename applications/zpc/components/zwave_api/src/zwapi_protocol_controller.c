@@ -833,6 +833,63 @@ sl_status_t zwapi_get_node_nls(
   return SL_STATUS_FAIL;
 }
 
+sl_status_t zwapi_get_nls_nodes(uint16_t *list_length,
+                                zwave_nodemask_t node_list)
+{
+  uint8_t more_nodes         = 1;
+  uint8_t start_offset       = 0;
+  sl_status_t command_status = SL_STATUS_OK;
+  *list_length               = 0;
+
+  while (more_nodes > 0) {
+    uint8_t response_length = 0;
+    uint8_t index = 0;
+    uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
+    uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
+    uint8_t received_nodelist_length            = 0;
+    request_buffer[index++]                     = start_offset;
+
+    command_status = zwapi_send_command_with_response(FUNC_ID_ZW_GET_NLS_NODES,
+                                                      request_buffer,
+                                                      index,
+                                                      response_buffer,
+                                                      &response_length);
+
+    if (command_status == SL_STATUS_OK) {
+      more_nodes               = response_buffer[IDX_DATA];
+      start_offset             = response_buffer[IDX_DATA + 1];
+      received_nodelist_length = response_buffer[IDX_DATA + 2];
+      *list_length += received_nodelist_length;
+      const uint8_t *p = &response_buffer[IDX_DATA + 3];
+      for (uint8_t i = 0; i < received_nodelist_length; i++) {
+        if ((i + (start_offset * GET_NLS_NODES_OFFSET_GRANULARITY_IN_BYTES)) // NOSONAR
+            > sizeof(zwave_nodemask_t)) {
+          sl_log_debug(LOG_TAG,
+                       "Z-Wave API get NLS node list index of bound\n");
+          return SL_STATUS_FAIL;
+        }
+        node_list[i + start_offset * GET_NLS_NODES_OFFSET_GRANULARITY_IN_BYTES]
+          = *p;
+        p++;
+      }
+      start_offset++;
+    } else {
+      sl_log_debug(LOG_TAG,
+                   "Z-Wave API get NLS node list retrieve error, %d",
+                   command_status);
+      return SL_STATUS_FAIL;
+    }
+  }
+
+  // Buffer is shifted due to misalignement between zwave stack and ZPC.
+  // It will be addressed in SWPROT-9279.
+  memmove(&node_list[ZW_LR_NODEMASK_OFFSET - 1],
+          &node_list[ZW_MAX_NODEMASK_LENGTH - 1],
+          ZW_LR_MAX_NODEMASK_LENGTH - ZW_LR_NODEMASK_OFFSET);
+
+  return SL_STATUS_OK;
+}
+
 sl_status_t zwapi_transfer_protocol_cc(
   const zwave_node_id_t srcNode,
   const uint8_t decryptionKey,

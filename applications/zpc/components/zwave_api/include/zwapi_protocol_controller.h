@@ -309,6 +309,9 @@ extern "C" {
 #define MULTI_DEST_MASK_OFFSET_MASK 0xE0
 ///@}
 
+/// Each increase in offset in nodeID is reflected in this value multiplied by 8
+#define GET_NLS_NODES_OFFSET_GRANULARITY_IN_BYTES 128
+
 typedef struct _ZW_MULTI_DEST_ {
   /// - bit 5-7 states the nodeId-1 (offset 0, 32, 64, 96... - translates into
   ///   respectively nodeID 1, 33, 65, 97...), which is represented by the
@@ -1049,6 +1052,17 @@ sl_status_t zwapi_enable_node_nls(const zwave_node_id_t nodeId);
  * 
  */
 sl_status_t zwapi_get_node_nls(const zwave_node_id_t nodeId, uint8_t* nls_state);
+
+/**
+ * @brief Get the NLS State of the nodes of a network in the controller NVM 
+ * 
+ * @param list_length Length of the node list in bytes
+ * @param node_list List of nodes with NLS state
+ * 
+ * @returns SL_STATUS_OK or SL_STATUS_FAIL
+ */
+sl_status_t zwapi_get_nls_nodes(uint16_t *list_length,
+                                zwave_nodemask_t node_list);
 
 /**
  * @brief Sends TX status, TX report and session ID of the ongoing protocol command class encryption

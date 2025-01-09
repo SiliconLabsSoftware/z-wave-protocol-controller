@@ -219,6 +219,7 @@ typedef enum
 #define FUNC_ID_ZW_GET_NODE_NLS_STATE                   0x6B
 #define FUNC_ID_ZW_REQUEST_PROTOCOL_CC_ENCRYPTION       0x6C
 #define FUNC_ID_ZW_SEND_PROTOCOL_DATA                   0xAC
+#define FUNC_ID_ZW_GET_NLS_NODES                        0xC0
 
 #define FUNC_ID_TIMER_START                             0x70
 #define FUNC_ID_TIMER_RESTART                           0x71
