@@ -1911,7 +1911,7 @@ static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con)
 
   uint8_t plain_text[SECURITY_2_V2_NLS_STATE_REPORT_LENGTH] = { 0 };
   uint8_t nls_bitfield;
-  nls_bitfield = ctxt->nls_state ? SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD | SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD : 0; // A node sending this frame will always support NLS
+  nls_bitfield = SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD | (ctxt->nls_state ? SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD  : 0); // A node sending this frame will always support NLS
   plain_text[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
   plain_text[SECURITY_2_COMMAND_POS]        = NLS_STATE_REPORT_V2;
   plain_text[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] = nls_bitfield;
