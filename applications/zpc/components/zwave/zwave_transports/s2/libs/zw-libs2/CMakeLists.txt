@@ -20,12 +20,12 @@ if("${PROJECT_NAME}" STREQUAL "")
   endif()
 
   find_path(
-    ${ZWAVE_CLASSCMD_DIR} ZW_classcmd.h
+    ZWAVE_CLASSCMD_DIR ZW_classcmd.h
     HINTS ENV ZWLIBROOT ${PROJECT_SOURCE_DIR}/..
           ${PROJECT_SOURCE_DIR}/../../ThirdParty/generated/
     PATH_SUFFIXES include)
   find_path(
-    ${ZWAVE_INCLUDE_DIR} ZW.h
+    ZWAVE_INCLUDE_DIR ZW.h
     HINTS ENV ZWLIBROOT ${PROJECT_SOURCE_DIR}/..
           ${PROJECT_SOURCE_DIR}/../../ZWave/API/
     PATH_SUFFIXES include)
