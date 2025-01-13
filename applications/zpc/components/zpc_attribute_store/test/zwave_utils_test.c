@@ -632,6 +632,38 @@ void test_nodemask_add_node()
   TEST_ASSERT_EQUAL(0, IS_ZWAVE_EXTENDED_NODE_ID(232));
 }
 
+void test_nodemask_values()
+{
+  zwave_nodemask_t nodemask = {0};
+
+  nodemask[0] = 0x81;  // Node IDs: 1 (first classic node ID), 8
+  TEST_ASSERT_EQUAL(1, ZW_IS_NODE_IN_MASK(1, nodemask));
+  TEST_ASSERT_EQUAL(0, ZW_IS_NODE_IN_MASK(2, nodemask));
+  TEST_ASSERT_EQUAL(0, ZW_IS_NODE_IN_MASK(7, nodemask));
+  TEST_ASSERT_EQUAL(1, ZW_IS_NODE_IN_MASK(8, nodemask));
+  TEST_ASSERT_EQUAL(0, ZW_IS_NODE_IN_MASK(9, nodemask));
+  nodemask[28] = 0xC0;  // Node IDs: 231, 232 (last classic node ID)
+  TEST_ASSERT_EQUAL(0, ZW_IS_NODE_IN_MASK(230, nodemask));
+  TEST_ASSERT_EQUAL(1, ZW_IS_NODE_IN_MASK(231, nodemask));
+  TEST_ASSERT_EQUAL(1, ZW_IS_NODE_IN_MASK(232, nodemask));
+  nodemask[32] = 0x01;  // Node IDs: 256 (first LR node ID)
+  TEST_ASSERT_EQUAL(1, ZW_IS_NODE_IN_MASK(256, nodemask));
+  nodemask[32] = 0x02;  // Node IDs: 257
+  TEST_ASSERT_EQUAL(1, ZW_IS_NODE_IN_MASK(257, nodemask));
+  nodemask[127] = 0x80;  // Node IDs: 1023
+  TEST_ASSERT_EQUAL(1, ZW_IS_NODE_IN_MASK(1023, nodemask));
+  nodemask[128] = 0x01;  // Node IDs: 1024
+  TEST_ASSERT_EQUAL(1, ZW_IS_NODE_IN_MASK(1024, nodemask));
+  nodemask[130] = 0x80;  // Node IDs: 1047
+  TEST_ASSERT_EQUAL(1, ZW_IS_NODE_IN_MASK(1047, nodemask));
+  nodemask[131] = 0x01;  // Node IDs: 1048
+  TEST_ASSERT_EQUAL(1, ZW_IS_NODE_IN_MASK(1048, nodemask));
+  nodemask[147] = 0x10;  // Node IDs: 1180
+  TEST_ASSERT_EQUAL(1, ZW_IS_NODE_IN_MASK(1180, nodemask));
+  nodemask[159] = 0x80;  // Node IDs: 1279
+  TEST_ASSERT_EQUAL(1, ZW_IS_NODE_IN_MASK(1279, nodemask));
+}
+
 static const zwave_node_id_t test_node_id              = 0x39;
 static const zwave_endpoint_id_t test_endpoint_id      = 0x12;
 static unid_t test_unid                                = "zw-00000000-0039";
