@@ -123,11 +123,11 @@
 
 /** Following define are related to the NLS Node List Report frame. */
 #define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_FIELD          0x01    //< Field denoting if its the last node of the list
-#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS            0x01    //< Position of last node field
-#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS          2       //< Position of MSB byte of NodeID
-#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS          3       //< Position of LSB byte of NodeID
-#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS         4       //< Position of granted keys byte of NodeID
-#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS            5       //< Position of NLS state byte of NodeID
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS            2       //< Position of last node field
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS          3       //< Position of MSB byte of NodeID
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS          4       //< Position of LSB byte of NodeID
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS         5       //< Position of granted keys byte of NodeID
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS            6       //< Position of NLS state byte of NodeID
 
 /** Length definitions */
 #define SECURITY_2_NONCE_GET_LENGTH                 3
@@ -143,7 +143,7 @@
 #define SECURITY_2_V2_NLS_STATE_SET_LENGTH          3
 #define SECURITY_2_V2_NLS_STATE_GET_LENGTH          2
 #define SECURITY_2_V2_NLS_STATE_REPORT_LENGTH       3
-#define SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH      2
+#define SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH      3
 #define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LENGTH   7
 
 #define SECURITY_2_EC_PUBLIC_KEY_LENGTH      32

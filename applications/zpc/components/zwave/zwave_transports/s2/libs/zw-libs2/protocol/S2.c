@@ -66,6 +66,10 @@ S2_is_peernode(struct S2* p_context, const s2_connection_t* peer);
 #ifdef ZW_CONTROLLER
 static void S2_send_nls_state_set(struct S2* p_context, s2_connection_t* con, bool nls_active);
 static void S2_send_nls_state_get(struct S2* p_context, s2_connection_t* con);
+static void S2_prepare_nls_node_list_get(uint8_t *buf, bool request);
+static void S2_send_nls_node_list_get(struct S2* p_context, s2_connection_t* con, bool request);
+static void S2_prepare_nls_node_list_report(uint8_t *buf, bool is_last_node, uint16_t node_id, uint8_t granted_keys, uint8_t nls_state);
+static void S2_send_nls_node_list_report(struct S2* p_context, s2_connection_t* con, bool is_last_node, uint16_t node_id, uint8_t granted_keys, uint8_t nls_state);
 #endif /* ZW_CONTROLLER */
 static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con);
 static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8_t* cmd, uint16_t cmd_length);
@@ -1432,6 +1436,10 @@ static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8
         if (cmd_length == SECURITY_2_V2_NLS_STATE_GET_LENGTH)
         {
           S2_send_nls_state_report(ctxt, src);
+#ifdef ZW_CONTROLLER
+          ctxt->delayed_transmission_flags.send_nls_node_list_get = 1;
+          ctxt->delayed_transmission_cache.get_nls_node_list.request = 0; // request first node
+#endif
         }
         break;
       case NLS_STATE_SET_V2:
@@ -1445,25 +1453,58 @@ static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8
       case NLS_STATE_REPORT_V2:
         if (cmd_length == SECURITY_2_V2_NLS_STATE_REPORT_LENGTH)
         {
-          S2_notify_nls_state_report(src->r_node, src->class_id,
-                                      cmd[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] & SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD,
-                                      cmd[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] & SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD);
+          bool capability = (cmd[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] & SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD) ? true : false;
+          bool state = (cmd[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] & SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD) ? true : false;
+
+          if (state) {
+            ctxt->nls_state = 1; // There is at least one an NLS-enabled node in the network
+          }
+
+          S2_notify_nls_state_report(src->r_node, src->class_id, capability, state);
         }
         break;
       case NLS_NODE_LIST_GET_V2:
         if (cmd_length == SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH)
         {
-          S2_nls_node_list_get(src->l_node, src->class_id, cmd[SECURITY_2_V2_NLS_NODE_LIST_GET_REQUEST_POS]);
+          bool is_last_node = false;
+          uint16_t node_id = 0;
+          uint8_t granted_keys = 0;
+          bool nls_state = false;
+          uint8_t retval;
+          bool request = (cmd[SECURITY_2_V2_NLS_NODE_LIST_GET_REQUEST_POS] == 1) ? true : false;
+
+          retval = S2_get_nls_node_list(src->r_node, request, &is_last_node, &node_id, &granted_keys, &nls_state);
+          if (nls_state && retval == 0) {
+            if (S2_is_send_data_busy(ctxt)) {
+              ctxt->delayed_transmission_flags.send_nls_node_list_report = 1;
+              ctxt->delayed_transmission_cache.nls_node_report.is_last_node = (uint8_t)is_last_node;
+              ctxt->delayed_transmission_cache.nls_node_report.node_id = node_id;
+              ctxt->delayed_transmission_cache.nls_node_report.granted_keys = granted_keys;
+              ctxt->delayed_transmission_cache.nls_node_report.nls_state = (uint8_t)nls_state;
+            } else {
+              S2_send_nls_node_list_report(ctxt, src, is_last_node, node_id, granted_keys, nls_state);
+            }
+          }
         }
         break;
       case NLS_NODE_LIST_REPORT_V2:
         if (cmd_length == SECURITY_2_V2_NLS_NODE_LIST_REPORT_LENGTH)
         {
-          S2_nls_node_list_report(src->l_node, src->class_id,
-                                  cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS],
-                                  (uint16_t) (cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS] << 8 | cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS]),
-                                  cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS],
-                                  cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS]);
+          bool is_last_node = (cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS] & SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_FIELD) ? true : false;
+          bool nls_state = (cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS] != 0) ? true : false;
+
+          int8_t retval = S2_notify_nls_node_list_report(src->r_node,
+                                                         (uint16_t)(cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS] << 8 | cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS]),
+                                                         cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS],
+                                                         nls_state);
+          if (!is_last_node && retval == 0) {
+            if (S2_is_send_data_busy(ctxt)) {
+              ctxt->delayed_transmission_flags.send_nls_node_list_get = 1;
+              ctxt->delayed_transmission_cache.get_nls_node_list.request = 1; // request next node
+            } else {
+              S2_send_nls_node_list_get(ctxt, src, true);
+            }
+          }
         }
         break;
 #endif // ZW_CONTROLLER
@@ -1612,6 +1653,51 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
     {
       ctxt->fsm = IDLE;
       S2_post_send_done_event(ctxt, d->d.tx.status);
+#ifdef ZW_CONTROLLER
+      if (ctxt->delayed_transmission_flags.send_nls_node_list_get && ctxt->nls_state)
+      {
+        ctxt->delayed_transmission_flags.send_nls_node_list_get = 0;
+
+        uint8_t buf[SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH] = { 0 };
+
+        S2_prepare_nls_node_list_get(
+          buf,
+          ctxt->delayed_transmission_cache.get_nls_node_list.request);
+
+        ctxt->buf = buf;
+        ctxt->length = sizeof(buf);
+
+        // Clear cache
+        ctxt->delayed_transmission_cache.get_nls_node_list.request = 0;
+
+        goto send_msg_state_enter;
+      }
+
+      if (ctxt->delayed_transmission_flags.send_nls_node_list_report && ctxt->nls_state)
+      {
+        ctxt->delayed_transmission_flags.send_nls_node_list_report = 0;
+
+        uint8_t buf[SECURITY_2_V2_NLS_NODE_LIST_REPORT_LENGTH] = { 0 };
+
+        S2_prepare_nls_node_list_report(
+          buf,
+          ctxt->delayed_transmission_cache.nls_node_report.is_last_node,
+          ctxt->delayed_transmission_cache.nls_node_report.node_id,
+          ctxt->delayed_transmission_cache.nls_node_report.granted_keys,
+          ctxt->delayed_transmission_cache.nls_node_report.nls_state);
+
+        ctxt->buf = buf;
+        ctxt->length = sizeof(buf);
+
+        // Clear cache
+        ctxt->delayed_transmission_cache.nls_node_report.is_last_node = 0;
+        ctxt->delayed_transmission_cache.nls_node_report.node_id = 0;
+        ctxt->delayed_transmission_cache.nls_node_report.granted_keys = 0;
+        ctxt->delayed_transmission_cache.nls_node_report.nls_state = 0;
+
+        goto send_msg_state_enter;
+      }
+#endif
     }
     else if (e == GOT_NONCE_REPORT && !S2_is_peernode(ctxt, d->con))
     {
@@ -1882,6 +1968,22 @@ S2_is_send_data_multicast_busy(struct S2* p_context)
   return ctxt->fsm != IDLE;
 }
 
+static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con)
+{
+  CTX_DEF
+
+  uint8_t plain_text[SECURITY_2_V2_NLS_STATE_REPORT_LENGTH] = { 0 };
+  uint8_t nls_bitfield;
+  nls_bitfield = SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD | (ctxt->nls_state ? SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD  : 0); // A node sending this frame will always support NLS
+  plain_text[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
+  plain_text[SECURITY_2_COMMAND_POS]        = NLS_STATE_REPORT_V2;
+  plain_text[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] = nls_bitfield;
+
+  S2_send_data(ctxt, con, plain_text, SECURITY_2_V2_NLS_STATE_REPORT_LENGTH);
+}
+
+#ifdef ZW_CONTROLLER
+
 static void S2_send_nls_state_set(struct S2* p_context, s2_connection_t* con, bool nls_active)
 {
   CTX_DEF
@@ -1905,16 +2007,44 @@ static void S2_send_nls_state_get(struct S2* p_context, s2_connection_t* con)
   S2_send_data(ctxt, con, plain_text, SECURITY_2_V2_NLS_STATE_GET_LENGTH);
 }
 
-static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con)
+static void S2_prepare_nls_node_list_get(uint8_t *buf, bool request)
+{
+  buf[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
+  buf[SECURITY_2_COMMAND_POS]        = NLS_NODE_LIST_GET_V2;
+  buf[SECURITY_2_V2_NLS_NODE_LIST_GET_REQUEST_POS] = (uint8_t)request;
+}
+
+static void S2_send_nls_node_list_get(struct S2* p_context, s2_connection_t* con, bool request)
 {
   CTX_DEF
 
-  uint8_t plain_text[SECURITY_2_V2_NLS_STATE_REPORT_LENGTH] = { 0 };
-  uint8_t nls_bitfield;
-  nls_bitfield = SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD | (ctxt->nls_state ? SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD  : 0); // A node sending this frame will always support NLS
-  plain_text[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
-  plain_text[SECURITY_2_COMMAND_POS]        = NLS_STATE_REPORT_V2;
-  plain_text[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] = nls_bitfield;
+  uint8_t buf[SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH] = { 0 };
 
-  S2_send_data(ctxt, con, plain_text, SECURITY_2_V2_NLS_STATE_REPORT_LENGTH);
+  S2_prepare_nls_node_list_get(buf, request);
+
+  S2_send_data(ctxt, con, buf, SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH);
 }
+
+static void S2_prepare_nls_node_list_report(uint8_t *buf, bool is_last_node, uint16_t node_id, uint8_t granted_keys, uint8_t nls_state)
+{
+  buf[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
+  buf[SECURITY_2_COMMAND_POS]        = NLS_NODE_LIST_REPORT_V2;
+  buf[SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS]    = (uint8_t)is_last_node;
+  buf[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS]  = (node_id >> 8) & 0xFF;
+  buf[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS]  = (node_id >> 0) & 0xFF;
+  buf[SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS] = granted_keys;
+  buf[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS]    = nls_state;
+}
+
+static void S2_send_nls_node_list_report(struct S2* p_context, s2_connection_t* con, bool is_last_node, uint16_t node_id, uint8_t granted_keys, uint8_t nls_state)
+{
+  CTX_DEF
+
+  uint8_t buf[SECURITY_2_V2_NLS_NODE_LIST_REPORT_LENGTH] = { 0 };
+
+  S2_prepare_nls_node_list_report(buf, is_last_node, node_id, granted_keys, nls_state);
+
+  S2_send_data(ctxt, con, buf, SECURITY_2_V2_NLS_NODE_LIST_REPORT_LENGTH);
+}
+
+#endif

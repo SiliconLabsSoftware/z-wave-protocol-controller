@@ -38,6 +38,24 @@ struct test_state
   int s2_send_done;
   s2_tx_status_t s2_send_status;
 
+  bool S2_save_nls_state_called;
+
+  bool S2_notify_nls_state_report_nls_capability;
+  bool S2_notify_nls_state_report_nls_state;
+  bool S2_notify_nls_state_report_called;
+
+  bool S2_nls_node_list_get_request;
+  bool S2_nls_node_list_get_called;
+  bool S2_nls_node_list_get_is_last_node;
+  uint16_t S2_nls_node_list_get_node_id;
+  uint8_t S2_nls_node_list_get_granted_keys;
+  bool S2_nls_node_list_nls_state;
+
+  uint16_t S2_nls_node_list_report_id_of_node;
+  uint8_t S2_nls_node_list_report_keys_node_bitmask;
+  bool S2_nls_node_list_report_nls_state;
+  bool S2_nls_node_list_report_called;
+
   int send_data_return_fail; //Make send_data return fail
 
   uint8_t rx_frame[1280];
@@ -109,17 +127,40 @@ S2_send_frame(struct S2* ctxt, const s2_connection_t* dst, uint8_t* buf, uint16_
   return 1;
 }
 
-void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, uint8_t nls_capability, uint8_t nls_state)
-{}
+void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, bool nls_capability, bool nls_state)
+{
+  ts.S2_notify_nls_state_report_nls_capability = nls_capability;
+  ts.S2_notify_nls_state_report_nls_state = nls_state;
+  ts.S2_notify_nls_state_report_called = true;
+}
 
-void S2_nls_node_list_get(node_t srcNode, uint8_t class_id, uint8_t request)
-{}
+int8_t S2_get_nls_node_list(node_t srcNode, bool request, bool *is_last_node, uint16_t *node_id, uint8_t *granted_keys, bool *nls_state)
+{
+  ts.S2_nls_node_list_get_request = request;
+  ts.S2_nls_node_list_get_called = true;
 
-void S2_nls_node_list_report(node_t srcNode, uint8_t class_id, uint8_t last_node, uint16_t id_of_node, uint8_t keys_node_bitmask, uint8_t nls_state)
-{}
+  *is_last_node = ts.S2_nls_node_list_get_is_last_node;
+  *node_id = ts.S2_nls_node_list_get_node_id;
+  *granted_keys = ts.S2_nls_node_list_get_granted_keys;
+  *nls_state = ts.S2_nls_node_list_nls_state;
+
+  return 0;
+}
+
+int8_t S2_notify_nls_node_list_report(node_t srcNode, uint16_t id_of_node, uint8_t keys_node_bitmask, bool nls_state)
+{
+  ts.S2_nls_node_list_report_id_of_node = id_of_node;
+  ts.S2_nls_node_list_report_keys_node_bitmask = keys_node_bitmask;
+  ts.S2_nls_node_list_report_nls_state = nls_state;
+  ts.S2_nls_node_list_report_called = true;
+
+  return 0;
+}
 
 void S2_save_nls_state(void)
-{}
+{
+  ts.S2_save_nls_state_called = true;
+}
 
 void
 S2_set_timeout(struct S2* ctxt, uint32_t interval)
@@ -272,6 +313,11 @@ my_setup(void)
 
 }
 
+void setUp(void)
+{
+  memset(&ts, 0, sizeof(ts));
+}
+
 void tearDownSuite(void)
 {
   if(ctx1) {
@@ -389,7 +435,750 @@ void test_single_frame_transmission(void)
   TEST_ASSERT_EQUAL(0, ts.sync_ev.count); // Test that no sync events were emitted during test
 }
 
+/**
+ * The goal of this test is to test the flow described in the Z-Wave AWG specification
+ * Figure 4.21: Joining node asks for NLS enabled nodes.
+ * 
+ * As exactly described in the spec, secondary controller sends 3 times NLS_NODE_LIST_GET_V2
+ * in a row until the last node flag sent by the primary controller is true.
+ */
+void test_secondary_controller_joining_to_network_happy_case(void)
+{
+  test_s2_send_data();
+  /* ----------- now send second frame with SPAN established --------- *
+   */
 
+  ts.fcount = 0; //Reset frame count
+  ts.rx_frame_len = 0;
+
+  /* --- step 1 (NLS_STATE_SET_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_STATE_SET_V2 frame
+  uint8_t nls_state = 1; // enable NLS
+  uint8_t nls_state_set[] = {COMMAND_CLASS_SECURITY_2, NLS_STATE_SET_V2, nls_state};
+  S2_send_data(ctx1, &conn12, (uint8_t *)nls_state_set, sizeof(nls_state_set));
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+
+  // Secondary controller receives the encapsulated NLS_STATE_SET_V2 frame
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ctx2->nls_state);      // Test the flag in the context of secondary controller
+  TEST_ASSERT_EQUAL(true, ts.S2_save_nls_state_called);  // Test callback
+  TEST_ASSERT_EQUAL(1, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+
+  /* --- step 2 (NLS_STATE_GET_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_STATE_GET_V2 frame
+  uint8_t nls_state_get[] = {COMMAND_CLASS_SECURITY_2, NLS_STATE_GET_V2};
+  S2_send_data(ctx1, &conn12, (uint8_t *)nls_state_get, sizeof(nls_state_get));
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(14, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(2, ts.fcount);
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+
+  // Secondary controller receives the encapsulated NLS_STATE_GET_V2 frame
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(true, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+
+  /* --- step 3 (NLS_STATE_REPORT_V2 from secondary to primary controller) --- */
+
+  // Secondary controller immediately responds to the primary controller with an encapsulated NLS_STATE_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(3, ts.fcount);
+
+  // Primary controller receives the encapsulated NLS_STATE_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(false, ts.S2_notify_nls_state_report_nls_capability);
+  TEST_ASSERT_EQUAL(false, ts.S2_notify_nls_state_report_nls_state);
+  TEST_ASSERT_EQUAL(false, ts.S2_notify_nls_state_report_called);
+  S2_application_command_handler(ctx1, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(true, ts.S2_notify_nls_state_report_called);
+  TEST_ASSERT_EQUAL(true, ts.S2_notify_nls_state_report_nls_capability);
+  TEST_ASSERT_EQUAL(true, ts.S2_notify_nls_state_report_nls_state);
+  TEST_ASSERT_EQUAL(3, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+
+  // Secondary controller receives an ack following to the transmitted encapsulated NLS_STATE_REPORT_V2 frame
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42);
+
+  /* --- step 4 (NLS_NODE_LIST_GET_V2 from secondary to primary controller) --- */
+
+  // Secondary controller immediately responds to the primary controller with an encapsulated NLS_NODE_LIST_GET_v2 frame
+  TEST_ASSERT_EQUAL(false, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(4, ts.fcount);
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx2->fsm);
+
+  // Primary controller receives the encapsulated NLS_NODE_LIST_GET_V2 frame
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_called);
+  ts.S2_nls_node_list_get_is_last_node = false;
+  ts.S2_nls_node_list_get_node_id = 4;
+  ts.S2_nls_node_list_get_granted_keys = 0xFF;
+  ts.S2_nls_node_list_nls_state = true;
+  S2_application_command_handler(ctx1, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_called);
+
+  /* --- step 5 (NLS_NODE_LIST_REPORT_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx1->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(19, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(5, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx1->fsm);
+
+  // Secondary controller receives the encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_report_nls_state);
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_node_id, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_granted_keys, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_nls_state, ts.S2_nls_node_list_report_nls_state);
+
+  /* --- step 6 (NLS_NODE_LIST_GET_V2 from secondary to primary controller) --- */
+
+  // Secondary controller immediately responds to the primary controller with an encapsulated NLS_NODE_LIST_GET_v2 frame
+  TEST_ASSERT_EQUAL(false, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(6, ts.fcount);
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx2->fsm);
+  ts.S2_nls_node_list_get_called = false;
+
+  // Primary controller receives the encapsulated NLS_NODE_LIST_GET_V2 frame
+  ts.S2_nls_node_list_get_is_last_node = false;
+  ts.S2_nls_node_list_get_node_id = 5;
+  ts.S2_nls_node_list_get_granted_keys = 0xFF;
+  ts.S2_nls_node_list_nls_state = true;
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_called);
+  S2_application_command_handler(ctx1, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_called);
+
+  /* --- step 7 (NLS_NODE_LIST_REPORT_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx1->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(19, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(7, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx1->fsm);
+  ts.S2_nls_node_list_report_called = 0;
+  ts.S2_nls_node_list_report_id_of_node = 0;
+  ts.S2_nls_node_list_report_keys_node_bitmask = 0;
+  ts.S2_nls_node_list_report_nls_state = false;
+
+  // Secondary controller receives the encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_report_nls_state);
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_node_id, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_granted_keys, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_nls_state, ts.S2_nls_node_list_report_nls_state);
+
+  /* --- step 8 (NLS_NODE_LIST_GET_V2 from secondary to primary controller) --- */
+
+  // Secondary controller immediately responds to the primary controller with an encapsulated NLS_NODE_LIST_GET_v2 frame
+  TEST_ASSERT_EQUAL(false, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(8, ts.fcount);
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx2->fsm);
+  ts.S2_nls_node_list_get_called = false;
+
+  // Primary controller receives the encapsulated NLS_NODE_LIST_GET_V2 frame
+  ts.S2_nls_node_list_get_is_last_node = true;
+  ts.S2_nls_node_list_get_node_id = 6;
+  ts.S2_nls_node_list_get_granted_keys = 0xFF;
+  ts.S2_nls_node_list_nls_state = true;
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_called);
+  S2_application_command_handler(ctx1, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_called);
+
+  /* --- step 9 (NLS_NODE_LIST_REPORT_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx1->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(19, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(9, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx1->fsm);
+  ts.S2_nls_node_list_report_called = 0;
+  ts.S2_nls_node_list_report_id_of_node = 0;
+  ts.S2_nls_node_list_report_keys_node_bitmask = 0;
+  ts.S2_nls_node_list_report_nls_state = false;
+
+  // Secondary controller receives the encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_report_nls_state);
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_node_id, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_granted_keys, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_nls_state, ts.S2_nls_node_list_report_nls_state);
+
+  /* --- step 10 (Secondary controller gets last_node flag finally and does not re-initiate another NLS_NODE_LIST_GET_v2) --- */
+
+  TEST_ASSERT_EQUAL(IDLE, ctx2->fsm);
+}
+
+/**
+ * The goal of this test is to test the flow described in the Z-Wave AWG specification
+ * Figure 4.21: Joining node asks for NLS enabled nodes exactly like the previous happy case
+ * test except that this test is focused on delayed transmissions where the S2 state machine
+ * is caught busy and the frames are scheduled for later transmissions.
+ *
+ * As exactly described in the spec, secondary controller sends 3 times NLS_NODE_LIST_GET_V2
+ * in a row until the last node flag sent by the primary controller is true.
+ */
+void test_secondary_controller_joining_to_network_delayed_transmissions(void)
+{
+  test_s2_send_data();
+  /* ----------- now send second frame with SPAN established --------- *
+   */
+
+  ts.fcount = 0; //Reset frame count
+  ts.rx_frame_len = 0;
+
+  /* --- step 1 (NLS_STATE_SET_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_STATE_SET_V2 frame
+  uint8_t nls_state = 1; // enable NLS
+  uint8_t nls_state_set[] = {COMMAND_CLASS_SECURITY_2, NLS_STATE_SET_V2, nls_state};
+  S2_send_data(ctx1, &conn12, (uint8_t *)nls_state_set, sizeof(nls_state_set));
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+
+  // Secondary controller receives the encapsulated NLS_STATE_SET_V2 frame
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ctx2->nls_state);      // Test the flag in the context of secondary controller
+  TEST_ASSERT_EQUAL(true, ts.S2_save_nls_state_called);  // Test callback
+  TEST_ASSERT_EQUAL(1, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+
+  /* --- step 2 (NLS_STATE_GET_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_STATE_GET_V2 frame
+  uint8_t nls_state_get[] = {COMMAND_CLASS_SECURITY_2, NLS_STATE_GET_V2};
+  S2_send_data(ctx1, &conn12, (uint8_t *)nls_state_get, sizeof(nls_state_get));
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(14, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(2, ts.fcount);
+  // Let's not receive the ack to simulate delaying of the encapsulated NLS_NODE_LIST_REPORT_V2 frame
+
+  // Secondary controller receives the encapsulated NLS_STATE_GET_V2 frame
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(true, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+
+  /* --- step 3 (NLS_STATE_REPORT_V2 from secondary to primary controller) --- */
+
+  // Secondary controller immediately responds to the primary controller with an encapsulated NLS_STATE_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(3, ts.fcount);
+
+  // Primary controller receives the encapsulated NLS_STATE_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(false, ts.S2_notify_nls_state_report_nls_capability);
+  TEST_ASSERT_EQUAL(false, ts.S2_notify_nls_state_report_nls_state);
+  TEST_ASSERT_EQUAL(false, ts.S2_notify_nls_state_report_called);
+  S2_application_command_handler(ctx1, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(true, ts.S2_notify_nls_state_report_called);
+  TEST_ASSERT_EQUAL(true, ts.S2_notify_nls_state_report_nls_capability);
+  TEST_ASSERT_EQUAL(true, ts.S2_notify_nls_state_report_nls_state);
+  TEST_ASSERT_EQUAL(3, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+
+  // Secondary controller receives an ack following to the transmitted encapsulated NLS_STATE_REPORT_V2 frame
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42);
+
+  /* --- step 4 (NLS_NODE_LIST_GET_V2 from secondary to primary controller) --- */
+
+  // Secondary controller immediately responds to the primary controller with an encapsulated NLS_NODE_LIST_GET_v2 frame
+  TEST_ASSERT_EQUAL(false, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(4, ts.fcount);
+  // Let's not receive the ack to simulate delaying of the encapsulated NLS_NODE_LIST_GET_V2 frame
+
+  // Primary controller receives the encapsulated NLS_NODE_LIST_GET_V2 frame before the ack of the encapsulated NLS_STATE_GET_V2
+  // frame sent at step 2 so the next encapsulated NLS_NODE_LIST_REPORT_V2 transmission is delayed
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_called);
+  ts.S2_nls_node_list_get_is_last_node = false;
+  ts.S2_nls_node_list_get_node_id = 4;
+  ts.S2_nls_node_list_get_granted_keys = 0xFF;
+  ts.S2_nls_node_list_nls_state = true;
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx1->fsm);
+  TEST_ASSERT_EQUAL(0, ctx1->delayed_transmission_flags.send_nls_node_list_report);
+  S2_application_command_handler(ctx1, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ctx1->delayed_transmission_flags.send_nls_node_list_report);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_called);
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42); // Receive the ack of the encapsulated NLS_STATE_GET_V2 frame
+  TEST_ASSERT_EQUAL(0, ctx1->delayed_transmission_flags.send_nls_node_list_report);
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx1->fsm);
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx1->fsm);
+
+  /* --- step 5 (NLS_NODE_LIST_REPORT_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(19, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(5, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx1->fsm);
+
+  // Secondary controller receives the encapsulated NLS_NODE_LIST_REPORT_V2 frame before the ack of the encapsulated NLS_NODE_LIST_GET_V2
+  // frame sent at step 4 so the next encapsulated NLS_NODE_LIST_GET_V2 transmission is delayed
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_report_nls_state);
+  TEST_ASSERT_EQUAL(0, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+  TEST_ASSERT_EQUAL(1, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_node_id, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_granted_keys, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_nls_state, ts.S2_nls_node_list_report_nls_state);
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42); // Receive the ack of the encapsulated NLS_NODE_LIST_GET_V2 frame
+  TEST_ASSERT_EQUAL(0, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx2->fsm);
+
+  /* --- step 6 (NLS_NODE_LIST_GET_V2 from secondary to primary controller) --- */
+
+  // Secondary controller immediately responds to the primary controller with an encapsulated NLS_NODE_LIST_GET_v2 frame
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(6, ts.fcount);
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx2->fsm);
+  ts.S2_nls_node_list_get_called = false;
+
+  // Primary controller receives the encapsulated NLS_NODE_LIST_GET_V2 frame
+  ts.S2_nls_node_list_get_is_last_node = false;
+  ts.S2_nls_node_list_get_node_id = 5;
+  ts.S2_nls_node_list_get_granted_keys = 0xFF;
+  ts.S2_nls_node_list_nls_state = true;
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_called);
+  S2_application_command_handler(ctx1, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_called);
+
+  /* --- step 7 (NLS_NODE_LIST_REPORT_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx1->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(19, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(7, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx1->fsm);
+  ts.S2_nls_node_list_report_called = 0;
+  ts.S2_nls_node_list_report_id_of_node = 0;
+  ts.S2_nls_node_list_report_keys_node_bitmask = 0;
+  ts.S2_nls_node_list_report_nls_state = false;
+
+  // Secondary controller receives the encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_report_nls_state);
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_node_id, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_granted_keys, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_nls_state, ts.S2_nls_node_list_report_nls_state);
+
+  /* --- step 8 (NLS_NODE_LIST_GET_V2 from secondary to primary controller) --- */
+
+  // Secondary controller immediately responds to the primary controller with an encapsulated NLS_NODE_LIST_GET_v2 frame
+  TEST_ASSERT_EQUAL(false, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(8, ts.fcount);
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx2->fsm);
+  ts.S2_nls_node_list_get_called = false;
+
+  // Primary controller receives the encapsulated NLS_NODE_LIST_GET_V2 frame
+  ts.S2_nls_node_list_get_is_last_node = true;
+  ts.S2_nls_node_list_get_node_id = 6;
+  ts.S2_nls_node_list_get_granted_keys = 0xFF;
+  ts.S2_nls_node_list_nls_state = true;
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_called);
+  S2_application_command_handler(ctx1, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_called);
+
+  /* --- step 9 (NLS_NODE_LIST_REPORT_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx1->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(19, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(9, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx1->fsm);
+  ts.S2_nls_node_list_report_called = 0;
+  ts.S2_nls_node_list_report_id_of_node = 0;
+  ts.S2_nls_node_list_report_keys_node_bitmask = 0;
+  ts.S2_nls_node_list_report_nls_state = false;
+
+  // Secondary controller receives the encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_report_nls_state);
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_node_id, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_granted_keys, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_nls_state, ts.S2_nls_node_list_report_nls_state);
+
+  /* --- step 10 (Secondary controller gets last_node flag finally and does not re-initiate another NLS_NODE_LIST_GET_v2) --- */
+
+  TEST_ASSERT_EQUAL(IDLE, ctx2->fsm);
+}
+
+/**
+ * This test is very similar to the original test_secondary_controller_joining_to_network_happy_case test
+ * except that the ack for the NLS_STATE_REPORT_V2 is delayed and unluckily the secondary controller receives
+ * an irrelevant packet instead of the ack. Luckily, the secondary controller is still able to receive the ack
+ * after the irrelevant packet reception and the flow continues as expected.
+ */
+void test_secondary_controller_joining_to_network_nls_state_report_ack_received_after_irrelevent_packet_reception(void)
+{
+  test_s2_send_data();
+  /* ----------- now send second frame with SPAN established --------- *
+   */
+
+  ts.fcount = 0; //Reset frame count
+  ts.rx_frame_len = 0;
+
+  /* --- step 1 (NLS_STATE_SET_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_STATE_SET_V2 frame
+  uint8_t nls_state = 1; // enable NLS
+  uint8_t nls_state_set[] = {COMMAND_CLASS_SECURITY_2, NLS_STATE_SET_V2, nls_state};
+  S2_send_data(ctx1, &conn12, (uint8_t *)nls_state_set, sizeof(nls_state_set));
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+
+  // Secondary controller receives the encapsulated NLS_STATE_SET_V2 frame
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ctx2->nls_state);      // Test the flag in the context of secondary controller
+  TEST_ASSERT_EQUAL(true, ts.S2_save_nls_state_called);  // Test callback
+  TEST_ASSERT_EQUAL(1, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+
+  /* --- step 2 (NLS_STATE_GET_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_STATE_GET_V2 frame
+  uint8_t nls_state_get[] = {COMMAND_CLASS_SECURITY_2, NLS_STATE_GET_V2};
+  S2_send_data(ctx1, &conn12, (uint8_t *)nls_state_get, sizeof(nls_state_get));
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(14, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(2, ts.fcount);
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+
+  // Secondary controller receives the encapsulated NLS_STATE_GET_V2 frame
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(true, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+
+  /* --- step 3 (NLS_STATE_REPORT_V2 from secondary to primary controller) --- */
+
+  // Secondary controller immediately responds to the primary controller with an encapsulated NLS_STATE_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(3, ts.fcount);
+
+  // Primary controller receives the encapsulated NLS_STATE_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(false, ts.S2_notify_nls_state_report_nls_capability);
+  TEST_ASSERT_EQUAL(false, ts.S2_notify_nls_state_report_nls_state);
+  TEST_ASSERT_EQUAL(false, ts.S2_notify_nls_state_report_called);
+  S2_application_command_handler(ctx1, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(true, ts.S2_notify_nls_state_report_called);
+  TEST_ASSERT_EQUAL(true, ts.S2_notify_nls_state_report_nls_capability);
+  TEST_ASSERT_EQUAL(true, ts.S2_notify_nls_state_report_nls_state);
+  TEST_ASSERT_EQUAL(3, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+
+  /* --- step 3.1 (Secondary controller gets an irrelevant packet instead of the ack) --- */
+
+  // Irrelevant packet triggers a transmission of SECURITY_2_NONCE_REPORT frame without a need for an ack
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  uint8_t inject_frame[]="irrelevant packet";
+  inject_frame[0] = COMMAND_CLASS_SECURITY_2;
+  inject_frame[1] = SECURITY_2_NONCE_GET;
+  S2_application_command_handler(ctx2, &conn31, inject_frame, sizeof(inject_frame));
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm); // We're still lucky that state machine is still in the same state
+
+  /* --- step 3.2 (Secondary controller finally receives the ack it is waiting) --- */
+
+  // Secondary controller receives the ack following to the transmitted encapsulated NLS_STATE_REPORT_V2 frame a little bit later
+  // after having recevied an irrelevant packet
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42);
+
+  /* --- step 4 (NLS_NODE_LIST_GET_V2 from secondary to primary controller) --- */
+
+  // Secondary controller immediately responds to the primary controller with an encapsulated NLS_NODE_LIST_GET_v2 frame
+  TEST_ASSERT_EQUAL(false, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(5, ts.fcount);
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx2->fsm);
+
+  // Primary controller receives the encapsulated NLS_NODE_LIST_GET_V2 frame
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_called);
+  ts.S2_nls_node_list_get_is_last_node = false;
+  ts.S2_nls_node_list_get_node_id = 4;
+  ts.S2_nls_node_list_get_granted_keys = 0xFF;
+  ts.S2_nls_node_list_nls_state = true;
+  S2_application_command_handler(ctx1, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_called);
+
+  /* --- step 5 (NLS_NODE_LIST_REPORT_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx1->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(19, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(6, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx1->fsm);
+
+  // Secondary controller receives the encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_report_nls_state);
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_node_id, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_granted_keys, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_nls_state, ts.S2_nls_node_list_report_nls_state);
+
+  /* --- step 6 (NLS_NODE_LIST_GET_V2 from secondary to primary controller) --- */
+
+  // Secondary controller immediately responds to the primary controller with an encapsulated NLS_NODE_LIST_GET_v2 frame
+  TEST_ASSERT_EQUAL(false, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(7, ts.fcount);
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx2->fsm);
+  ts.S2_nls_node_list_get_called = false;
+
+  // Primary controller receives the encapsulated NLS_NODE_LIST_GET_V2 frame
+  ts.S2_nls_node_list_get_is_last_node = false;
+  ts.S2_nls_node_list_get_node_id = 5;
+  ts.S2_nls_node_list_get_granted_keys = 0xFF;
+  ts.S2_nls_node_list_nls_state = true;
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_called);
+  S2_application_command_handler(ctx1, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_called);
+
+  /* --- step 7 (NLS_NODE_LIST_REPORT_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx1->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(19, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(8, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx1->fsm);
+  ts.S2_nls_node_list_report_called = 0;
+  ts.S2_nls_node_list_report_id_of_node = 0;
+  ts.S2_nls_node_list_report_keys_node_bitmask = 0;
+  ts.S2_nls_node_list_report_nls_state = false;
+
+  // Secondary controller receives the encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_report_nls_state);
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_node_id, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_granted_keys, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_nls_state, ts.S2_nls_node_list_report_nls_state);
+
+  /* --- step 8 (NLS_NODE_LIST_GET_V2 from secondary to primary controller) --- */
+
+  // Secondary controller immediately responds to the primary controller with an encapsulated NLS_NODE_LIST_GET_v2 frame
+  TEST_ASSERT_EQUAL(false, ctx2->delayed_transmission_flags.send_nls_node_list_get);
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx2->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(15, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(9, ts.fcount);
+  S2_send_frame_done_notify(ctx2, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx2->fsm);
+  ts.S2_nls_node_list_get_called = false;
+
+  // Primary controller receives the encapsulated NLS_NODE_LIST_GET_V2 frame
+  ts.S2_nls_node_list_get_is_last_node = true;
+  ts.S2_nls_node_list_get_node_id = 6;
+  ts.S2_nls_node_list_get_granted_keys = 0xFF;
+  ts.S2_nls_node_list_nls_state = true;
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_get_called);
+  S2_application_command_handler(ctx1, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_request);
+  TEST_ASSERT_EQUAL(true, ts.S2_nls_node_list_get_called);
+
+  /* --- step 9 (NLS_NODE_LIST_REPORT_V2 from primary to secondary controller) --- */
+
+  // Primary controller sends an encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(SENDING_MSG, ctx1->fsm);
+  TEST_ASSERT_EQUAL(COMMAND_CLASS_SECURITY_2, ts.frame[0]);
+  TEST_ASSERT_EQUAL(SECURITY_2_MESSAGE_ENCAPSULATION, ts.frame[1]);
+  TEST_ASSERT_EQUAL(0, ts.frame[3]);    // No extension sent
+  TEST_ASSERT_EQUAL(19, ts.frame_len);  // Lenght of encrypted frame
+  TEST_ASSERT_EQUAL(10, ts.fcount);
+  TEST_ASSERT_EQUAL(0, ts.rx_frame_len);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count);     // Test that no sync events were emitted during test
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_OK, 0x42);
+  TEST_ASSERT_EQUAL(IDLE, ctx1->fsm);
+  ts.S2_nls_node_list_report_called = 0;
+  ts.S2_nls_node_list_report_id_of_node = 0;
+  ts.S2_nls_node_list_report_keys_node_bitmask = 0;
+  ts.S2_nls_node_list_report_nls_state = false;
+
+  // Secondary controller receives the encapsulated NLS_NODE_LIST_REPORT_V2 frame
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(0, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(false, ts.S2_nls_node_list_report_nls_state);
+  S2_application_command_handler(ctx2, &ts.last_trans, ts.frame, ts.frame_len);
+  TEST_ASSERT_EQUAL(1, ts.S2_nls_node_list_report_called);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_node_id, ts.S2_nls_node_list_report_id_of_node);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_get_granted_keys, ts.S2_nls_node_list_report_keys_node_bitmask);
+  TEST_ASSERT_EQUAL(ts.S2_nls_node_list_nls_state, ts.S2_nls_node_list_report_nls_state);
+
+  /* --- step 10 (Secondary controller gets last_node flag finally and does not re-initiate another NLS_NODE_LIST_GET_v2) --- */
+
+  TEST_ASSERT_EQUAL(IDLE, ctx2->fsm);
+}
 
 /**
  * Make send data return false in nonce get

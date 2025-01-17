@@ -229,6 +229,32 @@ struct S2
 
   public_key_t public_key;
   bool is_keys_restored;
+
+#ifdef ZW_CONTROLLER
+  /* This structure stores flags that are associated to some NLS related
+  commands that are used to retransmit the frames that cannot be sent due
+  to the S2 state machine not being IDLE. */
+  struct {
+    uint8_t send_nls_node_list_get: 1;
+    uint8_t send_nls_node_list_report: 1;
+    uint8_t reserved: 6;
+  } delayed_transmission_flags;
+
+  /* This union stores some parameters that are associated to some NLS related
+  commands. They are used to cache information to be sent later on using the flags
+  above. */
+  union {
+    struct {
+      uint8_t is_last_node;
+      uint8_t granted_keys;
+      uint16_t node_id;
+      uint8_t nls_state;
+    } nls_node_report;
+    struct {
+      uint8_t request; // 0: first node, 1: next node
+    } get_nls_node_list;
+  } delayed_transmission_cache;
+#endif
   //network_key_t temp_network_key;
   uint8_t nls_state;
 };
