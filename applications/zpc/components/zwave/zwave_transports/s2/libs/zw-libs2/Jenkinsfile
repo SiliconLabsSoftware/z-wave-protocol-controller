@@ -1,0 +1,109 @@
+pipeline {
+  agent {
+    node {
+        label 'zw-docker/develop/24q2'
+        customWorkspace  "/gsdk/protocol/z-wave/SubTree/libs2"
+    }
+  }
+  options {
+    skipDefaultCheckout()
+    ansiColor('xterm')
+    sidebarLinks([
+            [displayName: 'Artifactory', iconFileName: '', urlName: "https://artifactory.silabs.net/ui/native/zwave-gen/${env.JOB_NAME}/${env.BUILD_NUMBER}"]
+        ])
+    timeout(time: 10, unit: 'MINUTES')
+  }
+  environment {
+    ARTIFACTORY_CREDS = credentials('artifactory-creds')
+    ARTIFACTORY_URL = "https://artifactory.silabs.net/artifactory/zwave-gen/${env.JOB_NAME}/${env.BUILD_NUMBER}"
+    CI_BUILD_TAG = env.BUILD_TAG.replaceAll('%2f','').replaceAll("[^A-Za-z0-9]+", "").toLowerCase()
+    BITBUCKET_API_URL = "https://stash.silabs.com/rest/api/1.0/projects/Z-WAVE/repos/zw-protocol/pull-requests/"
+  }
+  parameters {
+    booleanParam(name: 'Documentation', defaultValue: true, description: 'Generate Documentation files')
+    booleanParam(name: 'SonarQube', defaultValue: true, description: 'Run SonarQube analysis')
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        sh("git fetch origin && git checkout origin/${env.CHANGE_BRANCH ?: env.BRANCH_NAME}")
+        sh("git submodule update --init --recursive TestFramework/")
+      }
+    }
+    stage('Build libs2') {
+      steps {
+        sh('cmake -S . -B build/ -GNinja -DZWAVE_INCLUDE_DIR="../../ZWave/API/" -DCMAKE_C_FLAGS="-fprofile-arcs -ftest-coverage"')
+        dir('build') {
+          sh('build-wrapper --out-dir bw_output ninja')
+          sh('ctest -T memcheck --parallel=32 --no-compress-output --output-on-failure')
+          sh('./test/new_test_t2')
+          sh('gcovr --sonarqube ../coverage_sonarqube.xml --gcov-exclude=.*[Tt]est.* --gcov-exclude=.*mock.* -r .. --xml-pretty > ../gcov_results.xml')
+        }
+      }
+    }
+    stage('Doxygen') {
+      when {
+        expression { true == params.Documentation }
+      }
+      steps {
+        dir('doc') {
+          sh('doxygen | tee build_doc.log')
+          sh('zip -r libs2_docs.zip html')
+          script {
+            doxygen_warnings = scanForIssues tool: doxygen(pattern: 'build_doc.log')
+          }
+          publishHTML([
+            allowMissing: false,
+            alwaysLinkToLastBuild: false,
+            keepAll: false,
+            reportDir: 'html',
+            reportFiles: 'index.html', 
+            reportName: 'LibS2 Doxygen',
+            reportTitles: ''
+          ])
+        }
+      }
+    }
+    stage('SonarQube') {
+      when {
+        expression { true == params.SonarQube }
+      }
+      steps {
+        withSonarQubeEnv('Silabs SonarQube') {
+          withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_SECRET')]) {
+            script {
+              sonar_scanner_params = ''
+              if (env.CHANGE_ID) {
+                sonar_scanner_params = "-D\"sonar.pullrequest.key=${env.CHANGE_ID}\" \
+                                        -D\"sonar.pullrequest.branch=${env.CHANGE_BRANCH}\" \
+                                        -D\"sonar.pullrequest.base=${env.CHANGE_TARGET}\""
+              }
+              else {
+                sonar_scanner_params = "-D\"sonar.branch.name=${env.BRANCH_NAME}\""
+              }
+            }
+
+            sh('''sonar-scanner \
+            -D\"project.settings=sonar-project.properties\" \
+            -D\"sonar.token=${SONAR_SECRET}\" \
+              ${sonar_scanner_params} ''')
+          }
+        }
+      }
+    }
+    stage('Post Build') {
+      steps {
+        cobertura(
+          autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: '**/gcov_results.xml',
+          conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false,
+          lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0',
+          onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
+        )
+        xunit(
+          thresholds: [failed(unstableNewThreshold: '0', unstableThreshold: '0'), skipped(unstableNewThreshold: '0', unstableThreshold: '0')],
+          tools: [CTest(deleteOutputFiles: true, failIfNotNew: false, pattern: '**/Testing/**/Test.xml', skipNoTestFiles: true, stopProcessingIfError: false)]
+        )
+      }
+    }
+  }
+}
