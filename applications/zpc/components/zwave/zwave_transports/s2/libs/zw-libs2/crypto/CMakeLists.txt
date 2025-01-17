@@ -1,43 +1,41 @@
-cross_system_dir("curve25519" "" CURVE_INCLUDE_DIR)
+set(CURVE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/curve25519" PARENT_SCOPE)
 include_directories(${CURVE_INCLUDE_DIR})
 
-add_definitions(-DCCM_USE_PREDEFINED_VALUES)
-
-set(CURVE_SRC curve25519/generic/smult.c curve25519/generic/base.c
-              curve25519/generic/bigint.c)
+add_compile_definitions(
+  CCM_USE_PREDEFINED_VALUES
+)
 
 set_source_files_properties(kderiv/kderiv.c PROPERTIES COMPILE_FLAGS
                                                        -Wno-unused-parameter)
 
-if (PLATFORM_VARIANT STREQUAL "800s")
+
+if (PLATFORM_VARIANT STREQUAL "series2")
   set(CRYPTO_SRC
     ctr_drbg/ctr_drbg.c
     kderiv/kderiv.c
-    curve25519/generic/bigint.c
     nextnonce/nextnonce.c)
 else()
   set(CRYPTO_SRC
-    ccm/ccm.c
     aes-cmac/aes_cmac.c
+    ccm/ccm.c
     ctr_drbg/ctr_drbg.c
-    nextnonce/nextnonce.c
+    curve25519/base.c
+    curve25519/smult.c
     kderiv/kderiv.c
-    ${CURVE_SRC}
-    ${SCRAMBLER_SRC})
+    nextnonce/nextnonce.c)
 endif()
 
-if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
+if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK") # if not zw-protocol (standalone or gateway build)
   add_library(aes aes/aes.c)
   add_library(s2crypto ${CRYPTO_SRC})
   target_compile_definitions(s2crypto PUBLIC "DllExport=extern")
   if(WIN32)
     add_library(s2cryptoShared SHARED ${CRYPTO_SRC} aes/aes.c)
   endif()
-  # zwave-protocol support
-else(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
-if (NOT PLATFORM_VARIANT STREQUAL "800s")
-  add_library(aes OBJECT aes/aes.c)
-endif()
+else(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK") # if zw-protocol (built with the z-wave stack, only on series2 since 24q2)
+  if (NOT PLATFORM_VARIANT STREQUAL "series2")
+    add_library(aes OBJECT aes/aes.c)
+  endif()
   add_library(s2crypto OBJECT ${CRYPTO_SRC})
 endif(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
 

@@ -112,11 +112,34 @@ void S2_get_hw_random(uint8_t *buf, uint8_t len);
  */
 void S2_get_commands_supported(node_t lnode, uint8_t class_id, const uint8_t ** cmdClasses, uint8_t* length);
 
+
 /**
- * External function for printing debug output
- * Takes printf arguments
+ * Notify the reception of a NLS STATE REPORT
+ * \param srcNode Source node ID of the frame
+ * \param class_id the security class this request was on
+ * \param nls_capability The NLS capability of the source node
+ * \param nls_state The NLS state of the source node
+*/
+void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, uint8_t nls_capability, uint8_t nls_state);
+
+/**
+ * Get the NLS nodes list
+ * \param srcNode Source node ID of the frame
+ * \param class_id the security class this request was on
+ * \param request request field. 0 for the first node in the list, 1 for the next node in the list
  */
-void S2_dbg_printf(const char *str, ...);
+void S2_nls_node_list_get(node_t srcNode, uint8_t class_id, uint8_t request);
+
+/**
+ * Get the NLS node list report
+ * \param srcNode Source node ID of the frame
+ * \param class_id the security class this request was on
+ * \param last_node wether the node in list is last or not
+ * \param id_of_node the Node ID of the node being advertised
+ * \param keys_node_bitmask granted keys for current Node ID
+ * \param nls_state NLS state of the current node ID
+ */
+void S2_nls_node_list_report(node_t srcNode, uint8_t class_id, uint8_t last_node, uint16_t id_of_node, uint8_t keys_node_bitmask, uint8_t nls_state);
 
 /**
  * Makes time in ms available to LibS2
@@ -161,6 +184,11 @@ void S2_resynchronization_event(
     sos_event_reason_t reason,
     uint8_t seqno,
     node_t local_node);
+
+/**
+ * Save NLS state stored in S2 context in device memory
+ */
+void S2_save_nls_state(void);
 
 /**
  * @}

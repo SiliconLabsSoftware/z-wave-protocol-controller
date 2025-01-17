@@ -16,15 +16,6 @@
 extern uint8_t zwave_shared_secret[ZWAVE_ECDH_SECRET_LENGTH];
 #endif
 
-//#define DEBUG       // To enable debug_print_hex()
-//#define DEBUGPRINT
-#ifdef DEBUGPRINT
-#include "../../../Components/DebugPrint/DebugPrint.h"
-#else
-#define DPRINT(PSTRING)
-#define DPRINTF(PFORMAT, ...)
-#endif
-
 void process_event(uint16_t evt);
 void inclusion_failed_frame_send(uint8_t error, uint8_t secure);
 void inclusion_failed_evt_push(uint8_t fail_code);
@@ -352,13 +343,15 @@ static void s2_kex_rep_recv(void)
     process_event(S2_INCLUSION_ERROR_SENT);
     return;
   }
-  mp_context->csa_support = mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS];
+  mp_context->csa_support = (mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS] & SECURITY_2_KEX_REP_CSA_MASK) ? 1 : 0;
+  mp_context->nls_state = (mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS] & SECURITY_2_KEX_REP_NLS_MASK) ? 1 : 0;
 
   s2_event = (zwave_event_t *)m_event_buffer;
   s2_event->event_type                                    = S2_NODE_INCLUSION_KEX_REPORT_EVENT;
   s2_event->evt.s2_event.peer                             = mp_context->inclusion_peer;
   s2_event->evt.s2_event.s2_data.kex_report.security_keys = mp_context->key_granted;
-  s2_event->evt.s2_event.s2_data.kex_report.csa = (mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS] & 2) !=0;
+  s2_event->evt.s2_event.s2_data.kex_report.csa = (mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS] & SECURITY_2_KEX_REP_CSA_MASK) !=0;
+  s2_event->evt.s2_event.s2_data.kex_report.nls_available = (mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS] & SECURITY_2_KEX_REP_NLS_MASK);
   m_evt_handler(s2_event);
 
   s2_inclusion_set_timeout(mp_context, TAI1_TIMEOUT);
@@ -473,7 +466,7 @@ static void s2_send_echo_kex_report(void)
 
   mp_context->u.inclusion_buf[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2;
   mp_context->u.inclusion_buf[SECURITY_2_COMMAND_POS]        = KEX_REPORT;
-  mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_ECHO_POS]   = mp_context->csa_support | SECURITY_2_ECHO_ON;
+  mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_ECHO_POS]   = (uint8_t) ((mp_context->nls_state << 2) | (mp_context->csa_support << 1)  | SECURITY_2_ECHO_ON);
   mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_SCHEME_POS] = mp_context->scheme_support;
   mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_CURVE_POS]  = mp_context->curve_support;
   mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_KEYS_POS]   = mp_context->kex_report_keys;

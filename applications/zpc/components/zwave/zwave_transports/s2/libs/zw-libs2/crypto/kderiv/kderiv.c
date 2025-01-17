@@ -2,11 +2,11 @@
  */
 
 /* author: mdumbare */
+#include <assert.h>
 #include <string.h>
 #include <stdio.h>
 #include "aes_cmac.h"
 #include <kderiv.h>
-#include "misc.h"
 #include "s2_keystore.h"
 #ifdef ZWAVE_PSA_SECURE_VAULT
 #include "s2_psa.h"
@@ -36,7 +36,7 @@ static void zw_expand_aes_cmac(uint32_t key_id, const uint8_t *network_key, cons
       zw_psa_destroy_key(key_id);
     }
 #else
-    ASSERT(key_id == ZWAVE_KEY_ID_NONE);
+    assert(key_id == ZWAVE_KEY_ID_NONE);
     aes_cmac_calculate(network_key, input, length, output);
 #endif
 }

@@ -9,14 +9,12 @@
 #include "S2.h"
 #include "s2_protocol.h"
 #include "s2_classcmd.h"
-#include "misc.h"
 #include "../inclusion/s2_inclusion_internal.h"
 #include<string.h>
 #include "ccm.h"
 #include "aes_cmac.h"
 #include "nextnonce.h"
 #include "kderiv.h"
-#include <bigint.h>
 #include "aes.h"
 
 #include <platform.h>
@@ -24,16 +22,6 @@
 #include "s2_keystore.h"
 #ifdef ZWAVE_PSA_SECURE_VAULT
 #include "s2_psa.h"
-#endif
-
-//#define DEBUG       // To enable debug_print_hex()
-//#define DEBUGPRINT
-
-#ifdef DEBUGPRINT
-#include "../../../Components/DebugPrint/DebugPrint.h"
-#else
-#define DPRINT(PSTRING)
-#define DPRINTF(PFORMAT, ...)
 #endif
 
 #ifdef SINGLE_CONTEXT
@@ -55,9 +43,6 @@ Comes from the Z-Wave protocol spec. After this timeout, we just declare the
 transmission a success, so we dont block forever."*/
 #define SEND_DATA_TIMEOUT 65000
 
-static const uint8_t zeros[32] =
-  { 0 };
-
 //Forwards
 static void
 S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d);
@@ -78,6 +63,12 @@ static void
 S2_send_nonce_report(struct S2* p_context, const s2_connection_t* conn, uint8_t flags);
 static int
 S2_is_peernode(struct S2* p_context, const s2_connection_t* peer);
+#ifdef ZW_CONTROLLER
+static void S2_send_nls_state_set(struct S2* p_context, s2_connection_t* con, bool nls_active);
+static void S2_send_nls_state_get(struct S2* p_context, s2_connection_t* con);
+#endif /* ZW_CONTROLLER */
+static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con);
+static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8_t* cmd, uint16_t cmd_length);
 
 static void
 next_mpan_state(struct MPAN* mpan);
@@ -108,64 +99,6 @@ static void convert_lr_to_normal_keyclass(s2_connection_t *con);
 static uint8_t
 S2_send_data_all_cast(struct S2* p_context, const s2_connection_t* con, const uint8_t* buf, uint16_t len, event_t ev);
 
-
-#ifdef DEBUG
-
-void
-debug_print_hex(uint8_t* vector, uint32_t length)
-{
-  for(int i=0; i<length; i++)
-  {
-    DPRINTF("0x%02x ", *(vector + i));
-  }
-  DPRINT("\n");
-}
-#else
-#define debug_print_hex(a,b)
-#endif
-
-#ifdef DEBUG_S2_FSM
-const char * s2_state_name(states_t st)
-{
-  static char str[25];
-  switch (st)
-  {
-  case IDLE                   :       return  "IDLE";
-  case WAIT_NONCE_RAPORT           :       return  "WAIT_NONCE_RAPORT";
-  case SENDING_MSG        :       return  "SENDING_MSG";
-  case SENDING_MULTICAST   :       return  "SENDING_MULTICAST";
-  case VERIFYING_DELIVERY           :       return  "VERIFYING_DELIVERY";
-  case IS_MOS_WAIT_REPLY         :       return  "IS_MOS_WAIT_REPLY";
-
-  default:
-    snprintf(str, sizeof str, "%d", st);
-    return str;
-  }
-}
-
-const char * s2_event_name(event_t ev)
-{
-  static char str[25];
-  switch (ev)
-  {
-  case SEND_MSG           :       return  "SEND_MSG";
-  case SEND_MULTICAST            :       return  "SEND_MULTICAST";
-  case SEND_DONE            :       return  "SEND_DONE";
-  case GOT_NONCE_GET              :       return  "GOT_NONCE_GET";
-  case GOT_NONCE_RAPORT              :       return  "GOT_NONCE_RAPORT";
-  case GOT_ENC_MSG      :       return  "GOT_ENC_MSG";
-  case GOT_BAD_ENC_MSG       :       return  "GOT_BAD_ENC_MSG";
-  case GOT_ENC_MSG_MOS         :       return  "GOT_ENC_MSG_MOS";
-  case TIMEOUT          :       return  "TIMEOUT";
-  case ABORT       :       return  "ABORT";
-
-  default:
-    snprintf(str, sizeof str, "%d", ev);
-    return str;
-  }
-}
-
-#endif /* DEBUG_S2_FSM */
 #ifdef ZWAVE_PSA_SECURE_VAULT
 static uint32_t convert_key_slot_to_keyid(uint8_t slot_id)
 {
@@ -234,8 +167,8 @@ find_mpan_by_group_id(struct S2* p_context, node_t owner_id, uint8_t group_id, u
    * */
   if (i == MPAN_TABLE_SIZE)
   {
+    // dropping random span entry
     i = rnd[0] % MPAN_TABLE_SIZE;
-    DPRINT("dropping random span entry\n");
   }
 
   ctxt->mpan_table[i].state = owner_id ? MPAN_MOS : MPAN_SET;
@@ -261,9 +194,6 @@ find_span_by_node(struct S2* p_context, const s2_connection_t* con)
     if (ctxt->span_table[i].state != SPAN_NOT_USED && (ctxt->span_table[i].lnode == con->l_node)
         && (ctxt->span_table[i].rnode == con->r_node))
     {
-#ifdef __C51__
-      ctxt->span_mru = &ctxt->span_table[i];
-#endif
       return &ctxt->span_table[i];
     }
   }
@@ -282,17 +212,15 @@ find_span_by_node(struct S2* p_context, const s2_connection_t* con)
   /*Just select a random entry Note this will overwrite existing entries*/
   if (i == SPAN_TABLE_SIZE)
   {
+    // dropping random span entry
     i = rnd[0] % SPAN_TABLE_SIZE;
-    DPRINT("dropping random span entry\n");
   }
 
   ctxt->span_table[i].state = SPAN_NO_SEQ;
   ctxt->span_table[i].lnode = con->l_node;
   ctxt->span_table[i].rnode = con->r_node;
   ctxt->span_table[i].tx_seq = rnd[1];
-#ifdef __C51__
-  ctxt->span_mru = &ctxt->span_table[i];
-#endif
+
   return &ctxt->span_table[i];
 }
 
@@ -304,7 +232,7 @@ S2_span_ok(struct S2* p_context, const s2_connection_t* con)
 {
   CTX_DEF
 
-  struct SPAN  *span = find_span_by_node(ctxt, con);
+  const struct SPAN  *span = find_span_by_node(ctxt, con);
 
   if (span)
   {
@@ -327,9 +255,9 @@ S2_send_nonce_get(struct S2* p_context)
   static uint8_t nonce_get[] =
     { COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_GET, 0 };
 
-  struct SPAN  *span = find_span_by_node(ctxt, &ctxt->peer);
+  const struct SPAN  *span = find_span_by_node(ctxt, &ctxt->peer);
 
-  ASSERT(span);
+  assert(span);
 
   nonce_get[2] = span->tx_seq;
   S2_send_raw(ctxt, nonce_get, 3);
@@ -355,8 +283,7 @@ S2_verify_seq(struct S2* p_context, const s2_connection_t* peer, uint8_t seq)
   }
   else
   {
-    DPRINTF("Duplicate frame dropped with seq %d\n", seq);
-
+    // Duplicate frame dropped
     return 0;
   }
 
@@ -416,11 +343,10 @@ S2_add_mpan_extensions(struct S2* p_context, uint8_t* ext_data)
   {
     if (ctxt->mos_list[i].node_id == ctxt->peer.r_node)
     {
-      DPRINTF("Adding MPAN for node %i:%i\n",ctxt->mos_list[i].node_id, ctxt->mos_list[i].group_id);
       mpan = find_mpan_by_group_id(ctxt, 0, ctxt->mos_list[i].group_id, 0);
       if (!mpan)
       {
-        DPRINT("could not find MPAN");
+        // could not find MPAN
         continue;
       }
       k++;
@@ -476,13 +402,12 @@ S2_encrypt_and_send(struct S2* p_context)
 
   hdr_len = 4;
   n_ext = 0;
-  DPRINT("S2_encrypt_and_send\r\n");
+
   /*If span is not negotiated, include senders nonce (SN) */
   ext_data = &msg[4];
 
   if (span->state == SPAN_SOS_REMOTE_NONCE)
   {
-    DPRINTF("SPAN_SOS_REMOTE_NONCE. class_id: %u\n", ctxt->peer.class_id);
     AES_CTR_DRBG_Generate(&s2_ctr_drbg, ei_sender);
     memcpy(ei_receiver, span->d.r_nonce, sizeof(ei_receiver));
 
@@ -544,7 +469,7 @@ S2_encrypt_and_send(struct S2* p_context)
   }
 
   ciphertext = &msg[hdr_len];
-  DPRINT("before mpan\r\n");
+
   /* Add the secure extensions */
   shdr_len = S2_add_mpan_extensions(ctxt, ciphertext);
   if (shdr_len)
@@ -554,34 +479,13 @@ S2_encrypt_and_send(struct S2* p_context)
   }
 
   memcpy(ciphertext + shdr_len, ctxt->buf, ctxt->length);
-  DPRINT("after memcpy\r\n");
-  aad_len = S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len,
+  aad_len = (uint16_t) S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len,
       ctxt->length + shdr_len + hdr_len + AUTH_TAG_LEN, aad, sizeof(aad));
-  DPRINT("before next_nonce_generate\r\n");
   /*TODO we should consider to roll the nonce when we have recevied in ACK*/
   next_nonce_generate(&span->d.rng, nonce); //Create the new nonce
-  ZW_DEBUG_SEND_STR("after next_nonce_generate\r\n");
-#ifdef DEBUG
-  DPRINTF("%p Encryption class %i\n",ctxt,ctxt->peer.class_id);
-  DPRINT("Nonce \n");
-  debug_print_hex(nonce,16);
-  DPRINT("key \n");
-  debug_print_hex(ctxt->sg[ctxt->peer.class_id].enc_key,16);
-  DPRINT("AAD \n");
-  debug_print_hex(aad,aad_len);
-  DPRINTF("State: %d\n",ctxt->inclusion_state);
-  DPRINTF("==>ReceivedKey: %X\n", mp_context->buf[SECURITY_2_NET_KEY_REP_GRANT_KEY_POS]);
-  DPRINTF("==>KeyExchange: %X\n", mp_context->key_exchange);
-  DPRINTF("==>KeyGranted : %X\n", mp_context->key_granted);
-  DPRINTF("==>LoadedKeys: %X\n", mp_context->loaded_keys);
-#endif
 
-  DPRINT("ciphertext \n");
-  debug_print_hex(ciphertext, ctxt->length + shdr_len);
-
-  DPRINT("CCM enc auth\r\n");
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
-  size_t out_len;
+  size_t out_len = 0;
   uint32_t ccm_key_id = ZWAVE_CCM_TEMP_ENC_KEY_ID;
   if (ctxt->is_keys_restored == false)
   {
@@ -596,21 +500,32 @@ S2_encrypt_and_send(struct S2* p_context)
   zw_psa_aead_encrypt_ccm(ccm_key_id, nonce, ZWAVE_PSA_AES_NONCE_LENGTH, aad, aad_len, ciphertext,
                         ctxt->length + shdr_len, ciphertext, ctxt->length+shdr_len+ZWAVE_PSA_AES_MAC_LENGTH, &out_len);
   msg_len = out_len;
-  ASSERT(msg_len == (ctxt->length + shdr_len + ZWAVE_PSA_AES_MAC_LENGTH));
+  assert(msg_len == (ctxt->length + shdr_len + ZWAVE_PSA_AES_MAC_LENGTH));
   /* Remove key from vault */
   if (ctxt->is_keys_restored == false) {
     zw_psa_destroy_key(ccm_key_id);
   }
 #else
-  msg_len = CCM_encrypt_and_auth(ctxt->sg[ctxt->peer.class_id].enc_key, nonce, aad, aad_len, ciphertext,
+  msg_len = (uint16_t) CCM_encrypt_and_auth(ctxt->sg[ctxt->peer.class_id].enc_key, nonce, aad, aad_len, ciphertext,
         ctxt->length + shdr_len);
 #endif
 
-  DPRINT("ciphertext \n");
-  debug_print_hex(ciphertext, msg_len);
-
-  ASSERT(msg_len > 0);
+  assert(msg_len > 0);
   S2_send_raw(ctxt, msg, msg_len + hdr_len);
+}
+
+static inline uint8_t
+bigint_add(uint8_t *r, const uint8_t *a, const uint8_t *b, uint16_t len)
+{
+  uint16_t i;
+  uint16_t tmp = 0;
+  for (i=0; i<len; i++) 
+  {
+    tmp = ((uint16_t)a[i]) + ((uint16_t)b[i]) + tmp;
+    r[i] = tmp & 0xff;
+    tmp >>= 8;
+  }
+  return (uint8_t)tmp;
 }
 
 static void
@@ -651,7 +566,7 @@ S2_encrypt_and_send_multi(struct S2* p_context)
 
   memcpy(ciphertext, ctxt->buf, ctxt->length);
 
-  aad_len = S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len, ctxt->length + hdr_len + AUTH_TAG_LEN,
+  aad_len = (uint16_t) S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len, ctxt->length + hdr_len + AUTH_TAG_LEN,
       aad, sizeof(aad));
 
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
@@ -667,45 +582,33 @@ S2_encrypt_and_send_multi(struct S2* p_context)
 
   next_mpan_state(ctxt->mpan);
 
-#ifdef DEBUGPRINT
-  DPRINTF("%p Encryption\n",ctxt);
-  DPRINT("Nonce \n");
-  debug_print_hex(nonce,16);
-  DPRINT("key \n");
-  debug_print_hex(ctxt->sg[ctxt->mpan->class_id].enc_key,16);
-  DPRINT("AAD \n");
-  debug_print_hex(aad,aad_len);
-#endif
-
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
   //////////////////////////////////////////////
-  size_t out_len;
+  size_t out_len = 0;
   key_id = ZWAVE_CCM_TEMP_ENC_KEY_ID;
   if (ctxt->is_keys_restored == false)
   {
        /* Import key into secure vault */
     zw_wrap_aes_key_secure_vault(&key_id, ctxt->sg[ctxt->mpan->class_id].enc_key, ZW_PSA_ALG_CCM);
-    DPRINTF("==> wrapping using temp <==\n");
   }
   else
   {
     /* Use secure vault for encryption using PSA APIs */
     key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(ctxt->mpan->class_id), ZWAVE_KEY_TYPE_SINGLE_CAST);
-    DPRINTF("==> Using Persistent:KeyId. Conversion : %lX <==\n", key_id);
   }
   zw_psa_aead_encrypt_ccm(key_id, nonce, ZWAVE_PSA_AES_NONCE_LENGTH, aad, aad_len, ciphertext,
                                      ctxt->length, ciphertext, ctxt->length+ZWAVE_PSA_AES_MAC_LENGTH, &out_len);
   msg_len = out_len;
-  ASSERT(msg_len == (ctxt->length + ZWAVE_PSA_AES_MAC_LENGTH));
+  assert(msg_len == (ctxt->length + ZWAVE_PSA_AES_MAC_LENGTH));
   /* Remove key from vault */
   if (ctxt->is_keys_restored == false) {
     zw_psa_destroy_key(key_id);
   }
 #else
-  msg_len = CCM_encrypt_and_auth(ctxt->sg[ctxt->mpan->class_id].enc_key, nonce, aad, aad_len, ciphertext, ctxt->length);
+  msg_len = (uint16_t) CCM_encrypt_and_auth(ctxt->sg[ctxt->mpan->class_id].enc_key, nonce, aad, aad_len, ciphertext, ctxt->length);
 #endif
 
-  ASSERT(msg_len > 0);
+  assert(msg_len > 0);
 
   if (S2_send_frame_multi(ctxt, &ctxt->peer, msg, msg_len + hdr_len))
   {
@@ -961,8 +864,8 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
   uint16_t hdr_len;
   struct SPAN* span;
   struct MPAN* mpan;
-  uint8_t r_nonce[16];
-  uint8_t s_nonce[16];
+  uint8_t r_nonce[16] = { 0 };
+  uint8_t s_nonce[16] = { 0 };
   uint8_t i;
 
   hdr_len = 4;
@@ -973,7 +876,6 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
   flags = msg[3];
   if (msg_len < (hdr_len + AUTH_TAG_LEN))
   {
-    DPRINTF("====> parse_fail\n");
     goto parse_fail;
   }
 
@@ -987,7 +889,6 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
     /* Verify sequence */
     if (!S2_verify_seq(ctxt, conn, msg[2]))
     {
-      DPRINTF("====> sequence_fail\n");
       return SEQUENCE_FAIL;
     }
 
@@ -1066,9 +967,9 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
   }
   else
   {
-    if (span->state != SPAN_NEGOTIATED && span->state != SPAN_INSTANTIATE)
+    if (!span || (span->state != SPAN_NEGOTIATED && span->state != SPAN_INSTANTIATE))
     {
-      DPRINTF("Unexpected span state %i l:%i-r:%i\n", span->state,conn->l_node, conn->r_node);
+      // Unexpected span state
       goto auth_fail;
     }
   }
@@ -1078,7 +979,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
 
   aad = &aad_buf[0];
 
-  aad_len = S2_make_aad(ctxt, conn->r_node, conn->l_node, msg, hdr_len, msg_len, aad, sizeof(aad_buf));
+  aad_len = (uint16_t) S2_make_aad(ctxt, conn->r_node, conn->l_node, msg, hdr_len, msg_len, aad, sizeof(aad_buf));
 
   if (span)
   {
@@ -1100,33 +1001,16 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
       {
         next_nonce_generate(&span->d.rng, nonce);
 
-#ifdef DEBUGPRINT
-        DPRINTF("%p Decryption class %i\n",ctxt,span->class_id);
-        DPRINT("Nonce \n");
-        debug_print_hex(nonce,16);
-        DPRINT("key \n");
-        debug_print_hex(ctxt->sg[span->class_id].enc_key,16);
-        DPRINT("AAD \n");
-        debug_print_hex(aad,aad_len);
-        DPRINTF("State: %d\n",ctxt->inclusion_state);
-        DPRINTF("==>ReceivedKey: %X\n", mp_context->buf[SECURITY_2_NET_KEY_REP_GRANT_KEY_POS]);
-        DPRINTF("==>KeyExchange: %X\n", mp_context->key_exchange);
-        DPRINTF("==>KeyGranted : %X\n", mp_context->key_granted);
-        DPRINTF("==>LoadedKeys: %X\n", mp_context->loaded_keys);
-#endif
-
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
        size_t out_len;
        zw_status_t status;
        uint32_t ccm_key_id = ZWAVE_CCM_TEMP_DEC_KEY_ID;
        if (ctxt->is_keys_restored == false) {
-         DPRINTF("==> Wrapping using temp <===\n");
          /* Import key into secure vault */
          zw_wrap_aes_key_secure_vault(&ccm_key_id, ctxt->sg[span->class_id].enc_key, ZW_PSA_ALG_CCM);
        } else {
          /* Use secure vault for encryption using PSA APIs */
          ccm_key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(span->class_id), ZWAVE_KEY_TYPE_SINGLE_CAST);
-         DPRINTF("==> Using Persistent:KeyId: Conversion  %lX <==\n", ccm_key_id);
        }
         status = zw_psa_aead_decrypt_ccm(ccm_key_id, nonce, ZWAVE_PSA_AES_NONCE_LENGTH, aad, aad_len,
                                 ciphertext, ciphertext_len, ciphertext, ciphertext_len+ZWAVE_PSA_AES_MAC_LENGTH, &out_len);
@@ -1143,7 +1027,6 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
         decrypt_len = CCM_decrypt_and_auth(ctxt->sg[span->class_id].enc_key, nonce, aad, aad_len, ciphertext,
             ciphertext_len);
 #endif
-        DPRINTF("decrypt_len: %i\n", decrypt_len);
 
         if (decrypt_len)
         {
@@ -1208,7 +1091,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
     next_mpan_state(mpan);
 
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
-        size_t out_len;
+        size_t out_len = 0;
         key_id = ZWAVE_CCM_TEMP_DEC_KEY_ID;
         zw_status_t status;
         /* Import key into secure vault */
@@ -1296,7 +1179,7 @@ S2_decrypt_msg(struct S2* p_context, s2_connection_t* conn,
   *plain_text_len = decrypt_len - hdr_len;
   return AUTH_OK;
 
-  parse_fail: DPRINT("Parse fail!\n");
+parse_fail:
 
   return PARSE_FAIL;
 
@@ -1372,10 +1255,10 @@ S2_is_send_data_busy(struct S2* p_context)
 void
 S2_init_prng(void)
 {
-  uint8_t entropy[32];
+  uint8_t entropy[32] = { 0};
 
   S2_get_hw_random(entropy, sizeof(entropy));
-  AES_CTR_DRBG_Instantiate(&s2_ctr_drbg, entropy, zeros);
+  AES_CTR_DRBG_Instantiate(&s2_ctr_drbg, entropy, NULL);
 }
 
 struct S2*
@@ -1393,8 +1276,6 @@ S2_init_ctx(uint32_t home)
   }
 #endif
   memset(ctx, 0, sizeof(struct S2));
-
-  DPRINT("s2_init_ctx\r\n");
 
   ctx->my_home_id = home;
   ctx->loaded_keys = 0;
@@ -1415,10 +1296,6 @@ S2_network_key_update(struct S2 *p_context, uint32_t key_id, security_class_t cl
   {
     return 0;
   }
-#ifdef DEBUGPRINT
-  DPRINTF("Registered class %d\n",class_id);
-  //print_hex(net_key,16);
-#endif
   if (temp_key_expand)
   {
     tempkey_expand(key_id, net_key, ctxt->sg[class_id].enc_key, ctxt->sg[class_id].nonce_key, ctxt->sg[class_id].mpan_key);
@@ -1428,18 +1305,13 @@ S2_network_key_update(struct S2 *p_context, uint32_t key_id, security_class_t cl
     networkkey_expand(key_id, net_key, ctxt->sg[class_id].enc_key, ctxt->sg[class_id].nonce_key, ctxt->sg[class_id].mpan_key);
 #ifdef ZWAVE_PSA_SECURE_VAULT
     if (make_keys_persist_se) {
-      DPRINTF("Network key buffer is not empty\n");
       uint32_t ccm_key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(class_id), ZWAVE_KEY_TYPE_SINGLE_CAST);
-      ASSERT((ccm_key_id >= ZWAVE_PSA_KEY_ID_MIN) && (ccm_key_id <= ZWAVE_PSA_KEY_ID_MAX));
-      DPRINTF("Importing SPAN: %lX\n", ccm_key_id);
+      assert((ccm_key_id >= ZWAVE_PSA_KEY_ID_MIN) && (ccm_key_id <= ZWAVE_PSA_KEY_ID_MAX));
       zw_wrap_aes_key_secure_vault(&ccm_key_id, ctxt->sg[class_id].enc_key, ZW_PSA_ALG_CCM);
-      DPRINTF("Imported : %lX\n", ccm_key_id);
 
       ccm_key_id = convert_keyclass_to_derived_key_id(convert_key_slot_to_keyid(class_id), ZWAVE_KEY_TYPE_MULTI_CAST);
-      ASSERT((ccm_key_id >= ZWAVE_PSA_KEY_ID_MIN) && (ccm_key_id <= ZWAVE_PSA_KEY_ID_MAX));
-      DPRINTF("Importing MPAN: %lX\n", ccm_key_id);
+      assert((ccm_key_id >= ZWAVE_PSA_KEY_ID_MIN) && (ccm_key_id <= ZWAVE_PSA_KEY_ID_MAX));
       zw_wrap_aes_key_secure_vault(&ccm_key_id, ctxt->sg[class_id].mpan_key, ZW_PSA_ALG_CCM);
-      DPRINTF("Imported : %lX\n", ccm_key_id);
       ctxt->is_keys_restored = true;
     }
 #endif /*#ifdef ZWAVE_PSA_SECURE_VAULT*/
@@ -1467,101 +1339,43 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
   uint8_t *plain_text;
   uint16_t plain_text_len;
   decrypt_return_code_t rc;
-  uint8_t n_commands_supported;
-  const uint8_t* classes;
   event_data_t d;
 
   d.d.buf.buffer = buf;
   d.d.buf.len = len;
   d.con = src;
 
-  if (buf[0] != COMMAND_CLASS_SECURITY_2)
-  {
-    return;
-  }
-
   switch (buf[1])
   {
   case SECURITY_2_NONCE_GET:
-    DPRINT("Got NONCE Get\r\n");
-    if ((src->rx_options & S2_RXOPTION_MULTICAST) != S2_RXOPTION_MULTICAST)
+    if ((src->rx_options & S2_RXOPTION_MULTICAST) != S2_RXOPTION_MULTICAST
+         && ((len >=SECURITY_2_NONCE_GET_LENGTH) && S2_verify_seq(ctxt, src,buf[2])))
     {
-      if( (len >=3) && S2_verify_seq(ctxt, src,buf[2]) ) {
-        S2_send_nonce_report(ctxt,src,SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
-      }
+      S2_send_nonce_report(ctxt,src,SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
     }
     break;
   case SECURITY_2_NONCE_REPORT:
-    DPRINTF("Got NONCE Report %u\r\n", ctxt->fsm);
-    S2_fsm_post_event(ctxt, GOT_NONCE_RAPORT, &d);
+    S2_fsm_post_event(ctxt, GOT_NONCE_REPORT, &d);
     ;
     break;
   case SECURITY_2_MESSAGE_ENCAPSULATION:
     rc = S2_decrypt_msg(ctxt, src, buf, len, &plain_text, &plain_text_len);
     if (rc == AUTH_OK)
     {
-      DPRINTF("decrypt ok %i\n", rc);
-
       S2_fsm_post_event(ctxt, GOT_ENC_MSG, &d);
-      if (plain_text_len)
+      if(plain_text_len)
       {
-        if (plain_text[0] == COMMAND_CLASS_SECURITY_2 &&
-            !(plain_text[1] == SECURITY_2_COMMANDS_SUPPORTED_REPORT))
-        {
-          if(src->rx_options & S2_RXOPTION_MULTICAST) {
-            //S2 encrypted multi-cast frames shouln't exist.
-            return;
-          }
-
-          if (plain_text[1] == SECURITY_2_COMMANDS_SUPPORTED_GET)
-          {
-            ctxt->u.commands_sup_report_buf[0] = COMMAND_CLASS_SECURITY_2;
-            ctxt->u.commands_sup_report_buf[1] = SECURITY_2_COMMANDS_SUPPORTED_REPORT;
-
-            S2_get_commands_supported(src->l_node,src->class_id, &classes, &n_commands_supported);
-
-            if (n_commands_supported + 2 > sizeof(ctxt->u.commands_sup_report_buf))
-            {
-              DPRINTF("No of command classes supported are more than the buffer limit(%d)\n", sizeof(ctxt->u.commands_sup_report_buf)-2);
-              DPRINT("Not sending S2 Command Supported Report\n");
-              return;
-            }
-            memcpy(&ctxt->u.commands_sup_report_buf[2], classes, n_commands_supported);
-            /*TODO If ctxt->fsm is busy the report is not going to be sent*/
-            S2_send_data(ctxt, src, ctxt->u.commands_sup_report_buf, n_commands_supported + 2);
-          }
-          /* Don't validate inclusion_peer.l_node as it may not be initialized yet due to early start */
-          else
-          {
-            ctxt->buf = plain_text;
-            ctxt->length = plain_text_len;
-            //Default just send the command to the inclusion fsm
-            s2_inclusion_post_event(ctxt,src);
-          }
-        }
-        else
-        {
-#ifdef ZW_CONTROLLER
-          /* Convert LR key classes to normal before passing out via external API */
-          if (IS_LR_NODE(src->r_node)) {
-            convert_lr_to_normal_keyclass(src);
-          }
-#endif
-          S2_msg_received_event(ctxt, src, plain_text, plain_text_len);
-        }
-
+        S2_command_handler(ctxt, src, plain_text, plain_text_len);
       }
     }
     else if (rc == AUTH_FAIL)
     {
-      DPRINTF("decrypt auth fail %i\n", rc);
-
       S2_fsm_post_event(ctxt, GOT_BAD_ENC_MSG, &d);
       s2_inclusion_decryption_failure(ctxt,src);
     }
     else
     {
-      DPRINTF("decrypt error %i\n", rc);
+      assert(rc == SEQUENCE_FAIL || rc == PARSE_FAIL); // decrypt error
     }
     break;
   default:
@@ -1580,6 +1394,97 @@ S2_application_command_handler(struct S2* p_context, s2_connection_t* src, uint8
     }
   }
 
+}
+
+static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8_t* cmd, uint16_t cmd_length)
+{
+  CTX_DEF
+
+  uint8_t n_commands_supported;
+  const uint8_t* classes;
+
+  if (cmd[0] == COMMAND_CLASS_SECURITY_2 &&
+      (cmd[1] != SECURITY_2_COMMANDS_SUPPORTED_REPORT))
+  {
+    if(src->rx_options & S2_RXOPTION_MULTICAST)
+    {
+      //S2 encrypted multi-cast frames shouln't exist.
+      return;
+    }
+
+    switch(cmd[1])
+    {
+      case SECURITY_2_COMMANDS_SUPPORTED_GET_V2:        
+        ctxt->u.commands_sup_report_buf[0] = COMMAND_CLASS_SECURITY_2;
+        ctxt->u.commands_sup_report_buf[1] = SECURITY_2_COMMANDS_SUPPORTED_REPORT;
+
+        S2_get_commands_supported(src->l_node,src->class_id, &classes, &n_commands_supported);
+
+        if (n_commands_supported + 2 > sizeof(ctxt->u.commands_sup_report_buf))
+        {
+          return;
+        }
+        memcpy(&ctxt->u.commands_sup_report_buf[2], classes, n_commands_supported);
+        /*TODO If ctxt->fsm is busy the report is not going to be sent*/
+        S2_send_data(ctxt, src, ctxt->u.commands_sup_report_buf, n_commands_supported + 2);
+        break;
+      case NLS_STATE_GET_V2:
+        if (cmd_length == SECURITY_2_V2_NLS_STATE_GET_LENGTH)
+        {
+          S2_send_nls_state_report(ctxt, src);
+        }
+        break;
+      case NLS_STATE_SET_V2:
+        if (cmd_length == SECURITY_2_V2_NLS_STATE_SET_LENGTH)
+        {
+          ctxt->nls_state = cmd[SECURITY_2_V2_NLS_STATE_SET_STATE_POS];
+          S2_save_nls_state();
+        }
+        break;
+#ifdef ZW_CONTROLLER
+      case NLS_STATE_REPORT_V2:
+        if (cmd_length == SECURITY_2_V2_NLS_STATE_REPORT_LENGTH)
+        {
+          S2_notify_nls_state_report(src->r_node, src->class_id,
+                                      cmd[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] & SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD,
+                                      cmd[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] & SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD);
+        }
+        break;
+      case NLS_NODE_LIST_GET_V2:
+        if (cmd_length == SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH)
+        {
+          S2_nls_node_list_get(src->l_node, src->class_id, cmd[SECURITY_2_V2_NLS_NODE_LIST_GET_REQUEST_POS]);
+        }
+        break;
+      case NLS_NODE_LIST_REPORT_V2:
+        if (cmd_length == SECURITY_2_V2_NLS_NODE_LIST_REPORT_LENGTH)
+        {
+          S2_nls_node_list_report(src->l_node, src->class_id,
+                                  cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS],
+                                  (uint16_t) (cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS] << 8 | cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS]),
+                                  cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS],
+                                  cmd[SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS]);
+        }
+        break;
+#endif // ZW_CONTROLLER
+      default:
+        /* Don't validate inclusion_peer.l_node as it may not be initialized yet due to early start */
+        ctxt->buf = cmd;
+        ctxt->length = cmd_length;
+        //Default just send the command to the inclusion fsm
+        s2_inclusion_post_event(ctxt,src);
+        break;
+    }
+  }
+  else
+  {
+#ifdef ZW_CONTROLLER /* Convert LR key classes to normal before passing out via external API */
+    if (IS_LR_NODE(src->r_node)) {
+      convert_lr_to_normal_keyclass(src);
+    }
+#endif
+    S2_msg_received_event(ctxt, src, cmd, cmd_length);
+  }
 }
 
 void
@@ -1612,23 +1517,6 @@ S2_fsm_post_event(struct S2* p_context, event_t e, event_data_t* d)
   CTX_DEF
 
   uint8_t nr_flag;
-  DPRINT("Got S2 fsm event ");
-  ZW_DEBUG_SEND_NUM((uint8_t)e);
-  ZW_DEBUG_SEND_NL();
-  if(d && d->con) {
-    ZW_DEBUG_SEND_STR("Is peer node: ");
-    ZW_DEBUG_SEND_NUM(S2_is_peernode(ctxt, d->con));
-    ZW_DEBUG_SEND_STR(" event data: ");
-    ZW_DEBUG_SEND_NUM(d->con->l_node);
-    ZW_DEBUG_SEND_NUM(d->con->r_node);
-  }
-  ZW_DEBUG_SEND_NUM(ctxt->peer.l_node);
-  ZW_DEBUG_SEND_NUM(ctxt->peer.r_node);
-  ZW_DEBUG_SEND_NL();
-#ifdef DEBUG_S2_FSM
-  /* ifdef'ed to save codespace on c51 build for event/state _name() functions */
-DPRINTF("S2_fsm_post_event event: %s, state %s\n", s2_event_name(e), s2_state_name(ctxt->fsm));
-#endif
 
   switch (ctxt->fsm)
   {
@@ -1646,7 +1534,6 @@ DPRINTF("S2_fsm_post_event event: %s, state %s\n", s2_event_name(e), s2_state_na
     {
       ctxt->fsm = WAIT_NONCE_RAPORT;
       ctxt->retry = 2;
-      DPRINT("WAIT_NONCE_RAPORT\r\n");
 
       S2_set_peer(ctxt, d->con, d->d.buf.buffer, d->d.buf.len);
       S2_send_nonce_get(ctxt);
@@ -1656,7 +1543,7 @@ DPRINTF("S2_fsm_post_event event: %s, state %s\n", s2_event_name(e), s2_state_na
     {
       S2_send_nonce_report(ctxt, d->con, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
     }
-    else if (e == GOT_NONCE_RAPORT )
+    else if (e == GOT_NONCE_REPORT )
     {
       S2_set_peer(ctxt, d->con, d->d.buf.buffer, d->d.buf.len);
       S2_register_nonce(ctxt, d->d.buf.buffer, d->d.buf.len);
@@ -1666,7 +1553,7 @@ DPRINTF("S2_fsm_post_event event: %s, state %s\n", s2_event_name(e), s2_state_na
     {
       S2_set_peer(ctxt, d->con, d->d.buf.buffer, d->d.buf.len);
       //For Multicast: 8-bit group_id is stored in d->con->r_node
-      ctxt->mpan = find_mpan_by_group_id(ctxt, 0, d->con->r_node, 1);
+      ctxt->mpan = find_mpan_by_group_id(ctxt, 0, (uint8_t) d->con->r_node, 1);
       ctxt->fsm = SENDING_MSG;
       S2_encrypt_and_send_multi(ctxt);
     }
@@ -1689,7 +1576,13 @@ DPRINTF("S2_fsm_post_event event: %s, state %s\n", s2_event_name(e), s2_state_na
     }
     break;
   case WAIT_NONCE_RAPORT:
-    if ((e == SEND_DONE) && (d->d.tx.status == S2_TRANSMIT_COMPLETE_OK))
+    if ((e == SEND_DONE) && (d->d.tx.status == S2_TRANSMIT_COMPLETE_NO_ACK))
+    {
+      ctxt->fsm = IDLE;
+      S2_stop_timeout(ctxt);
+      S2_post_send_done_event(ctxt, d->d.tx.status); // forward status to upper layer, S2_TRANSMIT_COMPLETE_FAIL happens only on timeout 
+    }
+    else if ((e == SEND_DONE) && (d->d.tx.status == S2_TRANSMIT_COMPLETE_OK))
     {
       S2_set_timeout(ctxt, d->d.tx.time); //Just shorten timer but stay in this state
     }
@@ -1702,15 +1595,14 @@ DPRINTF("S2_fsm_post_event event: %s, state %s\n", s2_event_name(e), s2_state_na
           S2_post_send_done_event(ctxt, d->d.tx.status);
       }
     }
-    else if ((e == GOT_NONCE_RAPORT) && S2_is_peernode(ctxt, d->con))
+    else if ((e == GOT_NONCE_REPORT) && S2_is_peernode(ctxt, d->con))
     {
-      DPRINT("GOT_NONCE_RAPORT\r\n");
       if (S2_register_nonce(ctxt, d->d.buf.buffer, d->d.buf.len) & SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK)
       {
         goto send_msg_state_enter;
       }
     }
-    else if ((e == GOT_NONCE_RAPORT) && !S2_is_peernode(ctxt, d->con))
+    else if ((e == GOT_NONCE_REPORT) && !S2_is_peernode(ctxt, d->con))
     {
       emit_S2_synchronization_event(SOS_EVENT_REASON_UNANSWERED, d);
     }
@@ -1721,15 +1613,11 @@ DPRINTF("S2_fsm_post_event event: %s, state %s\n", s2_event_name(e), s2_state_na
       ctxt->fsm = IDLE;
       S2_post_send_done_event(ctxt, d->d.tx.status);
     }
-    else if (e == GOT_NONCE_RAPORT && !S2_is_peernode(ctxt, d->con))
+    else if (e == GOT_NONCE_REPORT && !S2_is_peernode(ctxt, d->con))
     {
       emit_S2_synchronization_event(SOS_EVENT_REASON_UNANSWERED, d);
     }
-    else
-    {
-      DPRINTF("Warning got event %i while in state %i", e, ctxt->fsm);
-    }
-
+    // else: Unexpected event while in state SENDING_MSG
     break;
   case VERIFYING_DELIVERY:
     if (e == SEND_DONE)
@@ -1771,7 +1659,7 @@ DPRINTF("S2_fsm_post_event event: %s, state %s\n", s2_event_name(e), s2_state_na
       ctxt->fsm = IDLE; //The frame seems to be handled but we don't know for sure
       S2_post_send_done_event(ctxt, S2_TRANSMIT_COMPLETE_OK);
     }
-    else if (e == GOT_NONCE_RAPORT && S2_is_peernode(ctxt, d->con))
+    else if (e == GOT_NONCE_REPORT && S2_is_peernode(ctxt, d->con))
     {
       nr_flag = S2_register_nonce(ctxt, d->d.buf.buffer, d->d.buf.len);
       if (nr_flag == 0)
@@ -1797,17 +1685,14 @@ DPRINTF("S2_fsm_post_event event: %s, state %s\n", s2_event_name(e), s2_state_na
         // send again
       }
     }
-    else if (e == GOT_NONCE_RAPORT && !S2_is_peernode(ctxt, d->con))
+    else if (e == GOT_NONCE_REPORT && !S2_is_peernode(ctxt, d->con))
     {
       emit_S2_synchronization_event(SOS_EVENT_REASON_UNANSWERED, d);
     }
-    else
-    {
-      DPRINTF("Warning got event %i while in state %i", e, ctxt->fsm);
-    }
+    // else: Unexpected event while in state VERIFYING_DELIVERY
     break;
   default:
-    ASSERT(0);
+    assert(0);
   }
 
   return;
@@ -1830,9 +1715,10 @@ send_msg_state_enter:
 uint8_t
 S2_send_data_multicast(struct S2* p_context, const s2_connection_t* con, const uint8_t* buf, uint16_t len)
 {
+  CTX_DEF
   // No key conversion here, because we get a Group ID and we cannot know
   // which keyset to use. Send data multicast will be for Z-Wave only.
-  return S2_send_data_all_cast(p_context, con, buf, len, SEND_MULTICAST);
+  return S2_send_data_all_cast(ctxt, con, buf, len, SEND_MULTICAST);
 }
 
 uint8_t
@@ -1970,11 +1856,9 @@ S2_send_data_all_cast(struct S2* p_context, const s2_connection_t* con, const ui
   e.con = con;
 
   if (ev == SEND_MULTICAST) {
-    DPRINTF("S2 send data multi %i->[%i] class %i\n",con->l_node,con->r_node,con->class_id);
     S2_fsm_post_event(ctxt, SEND_MULTICAST, &e);
 
   } else if (ev == SEND_MSG) {
-    DPRINTF("S2 send data to %i->%i class %i\n",con->l_node,con->r_node,con->class_id);
     S2_fsm_post_event(ctxt, SEND_MSG, &e);
 
   } else if (ev == SEND_FOLLOW_UP) {
@@ -1984,11 +1868,6 @@ S2_send_data_all_cast(struct S2* p_context, const s2_connection_t* con, const ui
     if (new_mpan) {
       ctxt->mpan = new_mpan;
     }
-    DPRINTF("S2 send data singlecast follow-up to %i->%i class %i, requested Group ID %i\n",
-            con->l_node,
-            con->r_node,
-            con->class_id,
-            con->mgrp_group_id);
     // Convert to a regular message event.
     S2_fsm_post_event(ctxt, SEND_MSG, &e);
   }
@@ -2001,4 +1880,41 @@ S2_is_send_data_multicast_busy(struct S2* p_context)
 {
   CTX_DEF
   return ctxt->fsm != IDLE;
+}
+
+static void S2_send_nls_state_set(struct S2* p_context, s2_connection_t* con, bool nls_active)
+{
+  CTX_DEF
+
+  uint8_t plain_text[SECURITY_2_V2_NLS_STATE_SET_LENGTH] = { 0 };
+  plain_text[SECURITY_2_COMMAND_CLASS_POS]              = COMMAND_CLASS_SECURITY_2_V2;
+  plain_text[SECURITY_2_COMMAND_POS]                    = NLS_STATE_SET_V2;
+  plain_text[SECURITY_2_V2_NLS_STATE_SET_STATE_POS]     = nls_active;
+
+  S2_send_data(ctxt, con, plain_text, SECURITY_2_V2_NLS_STATE_SET_LENGTH);
+}
+
+static void S2_send_nls_state_get(struct S2* p_context, s2_connection_t* con)
+{
+  CTX_DEF
+
+  uint8_t plain_text[SECURITY_2_V2_NLS_STATE_GET_LENGTH] = { 0 };
+  plain_text[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
+  plain_text[SECURITY_2_COMMAND_POS]        = NLS_STATE_GET_V2;
+
+  S2_send_data(ctxt, con, plain_text, SECURITY_2_V2_NLS_STATE_GET_LENGTH);
+}
+
+static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con)
+{
+  CTX_DEF
+
+  uint8_t plain_text[SECURITY_2_V2_NLS_STATE_REPORT_LENGTH] = { 0 };
+  uint8_t nls_bitfield;
+  nls_bitfield = ctxt->nls_state ? SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD | SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD : 0; // A node sending this frame will always support NLS
+  plain_text[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2_V2;
+  plain_text[SECURITY_2_COMMAND_POS]        = NLS_STATE_REPORT_V2;
+  plain_text[SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS] = nls_bitfield;
+
+  S2_send_data(ctxt, con, plain_text, SECURITY_2_V2_NLS_STATE_REPORT_LENGTH);
 }

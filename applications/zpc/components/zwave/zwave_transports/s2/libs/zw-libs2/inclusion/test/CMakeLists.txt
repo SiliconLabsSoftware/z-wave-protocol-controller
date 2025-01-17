@@ -1,7 +1,8 @@
-add_definitions( -DUNIT_TEST )
-if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "C51")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
-endif()
+add_compile_definitions(
+  UNIT_TEST
+)
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 
 add_unity_test(NAME test_inclusion_joining_node_slave
   TEST_BASE

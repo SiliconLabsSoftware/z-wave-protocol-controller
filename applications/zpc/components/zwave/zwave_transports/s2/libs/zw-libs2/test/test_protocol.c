@@ -22,14 +22,6 @@
 #include "ZW_typedefs.h"
 #include "ZW_classcmd.h"
 
-#ifdef __C51__
-/* Local stub implementation of ZW_WatchDogKick() when compiling for C51. */
-void ZW_WatchDogKick(void)
-{
-  // Do nothing. Stub implementation.
-}
-#endif // __C51__
-
 extern int verbose;
 
 #define TIMER_STOPPED -1;  /**< Special value used by struct test_state field timeout_value */
@@ -86,7 +78,7 @@ S2_send_frame(struct S2* ctxt, const s2_connection_t* dst, uint8_t* buf, uint16_
   int i;
   s2_connection_t swap;
   if(verbose) {
-#if defined(__C51__) || defined (SINGLE_CONTEXT)
+#if defined (SINGLE_CONTEXT)
       printf("Sending  %02u -> %02u (len %04u) : ", dst->l_node, dst->r_node,len);
 #else
       printf("Sending %p %02u -> %02u (len %04u) : ", ctxt, dst->l_node, dst->r_node,len);
@@ -116,6 +108,18 @@ S2_send_frame(struct S2* ctxt, const s2_connection_t* dst, uint8_t* buf, uint16_
 
   return 1;
 }
+
+void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, uint8_t nls_capability, uint8_t nls_state)
+{}
+
+void S2_nls_node_list_get(node_t srcNode, uint8_t class_id, uint8_t request)
+{}
+
+void S2_nls_node_list_report(node_t srcNode, uint8_t class_id, uint8_t last_node, uint16_t id_of_node, uint8_t keys_node_bitmask, uint8_t nls_state)
+{}
+
+void S2_save_nls_state(void)
+{}
 
 void
 S2_set_timeout(struct S2* ctxt, uint32_t interval)
@@ -567,6 +571,25 @@ void test_send_data_no_ack_in_encap_message(void)
   TEST_ASSERT_EQUAL(0, ts.sync_ev.count); // Test that no sync events were emitted during test
 }
 
+void test_stop_timeout_transmit_no_ack(void)
+{
+  const char hello[] = "HelloWorld Second Frame";
+
+  test_s2_send_data();
+  /* ----------- now send second frame with SPAN established --------- *
+   */
+
+  ts.fcount = 0; //Reset frame count
+  ts.rx_frame_len = 0;
+  ts.s2_send_done =0;
+
+  S2_send_data(ctx1, &conn12, (uint8_t*) hello, sizeof(hello));
+  S2_send_frame_done_notify(ctx1, S2_TRANSMIT_COMPLETE_NO_ACK,0x42);
+  TEST_ASSERT_EQUAL(1, ts.s2_send_done);
+  TEST_ASSERT_EQUAL(S2_TRANSMIT_COMPLETE_NO_ACK, ts.s2_send_status);
+  TEST_ASSERT_EQUAL(0, ts.sync_ev.count); // Test that no sync events were emitted during test
+}
+
 
 /* Test that sequence counter increases and test all message lengths */
 
@@ -653,7 +676,7 @@ void test_nonce_report(void)
   TEST_ASSERT_EQUAL(SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK,ts.frame[3]);
   /* Verify nonce bytes */
   /* Verify nonce bytes different than in case 1 */
-  TEST_ASSERT( memcmp(nonce,&ts.frame[4],8) != 0 )
+  TEST_ASSERT( memcmp(nonce,&ts.frame[4],8) != 0 );
 
   /* Verify frame length */
   TEST_ASSERT_EQUAL(4+16,ts.frame_len);

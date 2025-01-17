@@ -21,16 +21,6 @@
 #include "s2_psa.h"
 #endif
 
-//#define DEBUG       // To enable debug_print_hex()
-//#define DEBUGPRINT
-
-#ifdef DEBUGPRINT
-#include "../../../Components/DebugPrint/DebugPrint.h"
-#else
-#define DPRINT(PSTRING)
-#define DPRINTF(PFORMAT, ...)
-#endif
-
 #define CHECK_AND_FAIL(CHECK, FAILURE)   if ((CHECK)){ return (FAILURE); }
 
 
@@ -72,7 +62,7 @@ static void s2_inclusion_post_event_internal(struct S2 *p_context);
 
 /** Default event handler which silently will discard events in case no handler is configured.
  */
-static void s2_default_evt_handler(zwave_event_t * evt);
+static void s2_dummy_evt_handler(zwave_event_t * evt);
 
 /** TODO: We should ensure the events in this enum matches the COMMANDS in COMMAND_CLASS_S2 to
  *        make it easier to understand the flow and avoid unneccesary translation of codes.
@@ -80,83 +70,6 @@ static void s2_default_evt_handler(zwave_event_t * evt);
  *           or maybe 4 bytes (word), e.g. on cortex-M. In z-wave it is 1 byte or 2 bytes, and this
  *           must be taken into consideration when casting.
  */
-
-#ifdef DEBUG_S2_INCL_FSM
-const char * s2_incl_state_name(s2_inclusion_state_t st)
-{
-  static char str[25];
-  switch (st)
-  {
-  case S2_INC_IDLE                   :       return  "S2_INC_IDLE";
-  case S2_AWAITING_KEX_GET           :       return  "S2_AWAITING_KEX_GET";
-  case S2_AWAITING_KEX_REPORT        :       return  "S2_AWAITING_KEX_REPORT";
-  case S2_AWAITING_KEY_USER_ACCEPT   :       return  "S2_AWAITING_KEY_USER_ACCEPT";
-  case S2_AWAITING_KEX_SET           :       return  "S2_AWAITING_KEX_SET";
-  case S2_AWAITING_PUB_KEY_A         :       return  "S2_AWAITING_PUB_KEY_A";
-  case S2_AWAITING_PUB_KEY_B         :       return  "S2_AWAITING_PUB_KEY_B";
-  case S2_AWAITING_USER_ACCEPT       :       return  "S2_AWAITING_USER_ACCEPT";
-  case S2_AWAITING_USER_A_ACCEPT     :       return  "S2_AWAITING_USER_A_ACCEPT";
-  case S2_PENDING_ECHO_KEX_REPORT    :       return  "S2_PENDING_ECHO_KEX_REPORT";
-  case S2_ECHO_KEX_SET_SENDING       :       return  "S2_ECHO_KEX_SET_SENDING";
-  case S2_AWAITING_ECHO_KEX_SET      :       return  "S2_AWAITING_ECHO_KEX_SET";
-  case S2_AWAITING_ECHO_KEX_REPORT   :       return  "S2_AWAITING_ECHO_KEX_REPORT";
-  case S2_AWAITING_NET_KEY_GET       :       return  "S2_AWAITING_NET_KEY_GET";
-  case S2_AWAITING_NET_KEY_REPORT    :       return  "S2_AWAITING_NET_KEY_REPORT";
-  case S2_AWAITING_NET_KEY_VERIFY    :       return  "S2_AWAITING_NET_KEY_VERIFY";
-  case S2_AWAITING_TRANSFER_END      :       return  "S2_AWAITING_TRANSFER_END";
-  case S2_KEY_EXCHANGED              :       return  "S2_KEY_EXCHANGED";
-  case S2_SENDING_FINAL_TRANSFER_END :       return  "S2_SENDING_FINAL_TRANSFER_END";
-  case S2_ERROR_SENT                 :       return  "S2_ERROR_SENT";
-  case S2_INC_STATE_ANY              :       return  "S2_INC_STATE_ANY";
-
-  default:
-    snprintf(str, sizeof str, "%d", st);
-    return str;
-  }
-}
-
-const char * s2_incl_event_name(s2_inclusion_event_t ev)
-{
-  static char str[25];
-  switch (ev)
-  {
-  case S2_KEX_REPORT_RECV           :       return  "S2_KEX_REPORT_RECV";
-  case S2_PUB_KEY_RECV_B            :       return  "S2_PUB_KEY_RECV_B";
-  case S2_PUB_KEY_RECV_A            :       return  "S2_PUB_KEY_RECV_A";
-  case S2_KEX_GET_RECV              :       return  "S2_KEX_GET_RECV";
-  case S2_KEX_SET_RECV              :       return  "S2_KEX_SET_RECV";
-  case S2_ECHO_KEX_REPORT_RECV      :       return  "S2_ECHO_KEX_REPORT_RECV";
-  case S2_NET_KEY_REPORT_RECV       :       return  "S2_NET_KEY_REPORT_RECV";
-  case S2_ECHO_KEX_SET_RECV         :       return  "S2_ECHO_KEX_SET_RECV";
-  case S2_NET_KEY_GET_RECV          :       return  "S2_NET_KEY_GET_RECV";
-  case S2_NET_KEY_VERIFY_RECV       :       return  "S2_NET_KEY_VERIFY_RECV";
-  case S2_TRANSFER_END_RECV         :       return  "S2_TRANSFER_END_RECV";
-  case S2_INCLUSION_ERROR_RECV      :       return  "S2_INCLUSION_ERROR_RECV";
-  case S2_INCLUDING_START           :       return  "S2_INCLUDING_START";
-  case S2_JOINING_START             :       return  "S2_JOINING_START";
-  case S2_INCLUDING_ACCEPT          :       return  "S2_INCLUDING_ACCEPT";
-  case S2_INCLUDING_REJECT          :       return  "S2_INCLUDING_REJECT";
-  case S2_INCLUDING_DECRYPT_FAILED  :       return  "S2_INCLUDING_DECRYPT_FAILED";
-  case S2_SEND_FINAL_TRANSFER_END   :       return  "S2_SEND_FINAL_TRANSFER_END";
-  case S2_INCLUSION_TX_QUEUED       :       return  "S2_INCLUSION_TX_QUEUED";
-  case S2_NET_KEY_VERIFY_FINAL_RECV :       return  "S2_NET_KEY_VERIFY_FINAL_RECV";
-  case S2_INCLUSION_RETRY           :       return  "S2_INCLUSION_RETRY";
-  case S2_INCLUSION_TIMEOUT         :       return  "S2_INCLUSION_TIMEOUT";
-  case S2_INCLUSION_ERROR           :       return  "S2_INCLUSION_ERROR";
-  case S2_INCLUSION_ERROR_SENT      :       return  "S2_INCLUSION_ERROR_SENT";
-  case S2_INCLUSION_SEND_DONE       :       return  "S2_INCLUSION_SEND_DONE";
-  case S2_INCLUSION_SEND_FAILED     :       return  "S2_INCLUSION_SEND_FAILED";
-  case S2_DISCOVERY_COMPLETE        :       return  "S2_DISCOVERY_COMPLETE";
-  case S2_NO_KEYS_GRANTED           :       return  "S2_NO_KEYS_GRANTED";
-  case S2_EVT_ANY                   :       return  "S2_EVT_ANY";
-
-  default:
-    snprintf(str, sizeof str, "%d", ev);
-    return str;
-  }
-}
-
-#endif /* DEBUG_S2_INCL_FSM */
 
 #ifdef ZW_CONTROLLER
 extern const s2_transition_t s2_transition_table_controller[];
@@ -275,7 +188,7 @@ static const uint8_t m_key_slot_key_class_pair[] = {
   KEY_CLASS_S0                   // S0 key                   is class id 6 = index 6 in array. Index only used temporary to exchange S0 key
 };
 
-s2_event_handler_t m_evt_handler = s2_default_evt_handler;
+s2_event_handler_t m_evt_handler = s2_dummy_evt_handler;
 uint32_t           m_event_buffer[S2_EVT_BUFFER_SIZE];
 static uint8_t m_schemes;
 static uint8_t m_curves;
@@ -373,12 +286,8 @@ static bool process_s2_inclusion_event(s2_inclusion_event_t event, const s2_tran
   {
     if (mp_context->inclusion_state == table[i].state || S2_INC_STATE_ANY == table[i].state)
     {
-      DPRINTF("STATE TRANSITION: ? %u -> %u \n", mp_context->inclusion_state, table[i].state);
-
       if ((event == table[i].event) || (S2_EVT_ANY == table[i].event))
       {
-        DPRINTF("new_state: %u, action: %u \n", table[i].new_state, table[i].action);
-
         // Found a match. Execute action and update state if new state is different from S2_INC_STATE_ANY.
         if ((S2_INC_STATE_ANY != table[i].new_state)
             && (mp_context->inclusion_state != table[i].new_state))
@@ -395,7 +304,7 @@ static bool process_s2_inclusion_event(s2_inclusion_event_t event, const s2_tran
   return false;
 }
 
-static void s2_default_evt_handler(__attribute__((unused)) zwave_event_t *evt)
+static void s2_dummy_evt_handler(__attribute__((unused)) zwave_event_t *evt)
 {
 }
 /** Member function for internal event handling.
@@ -406,11 +315,6 @@ void process_event(uint16_t evt)
 {
   bool event_handled = false;
   s2_inclusion_event_t event = (s2_inclusion_event_t)evt;
-
-#if defined(DEBUG_S2_INCL_FSM)
-  /* Disabled in C51 build to save code space on state/event _name() functions*/
-    DPRINTF( "s2incl process_event event: %s state: %s\n", s2_incl_event_name(event), s2_incl_state_name(mp_context->inclusion_state));
-#endif
 
 #ifdef ZW_CONTROLLER
   event_handled = process_s2_inclusion_event(event, s2_transition_table_controller, s2_transition_table_controller_length);
@@ -436,8 +340,6 @@ void s2_restore_keys(struct S2 *p_context, __attribute__((unused)) bool make_key
   bool    ret_val;
   MP_CTX_DEF
 
-  DPRINTF("Restore Keys\n");
-
   mp_context->loaded_keys = 0;
 
   for (i = 0; i < ELEM_COUNT(m_key_slot_pair); i++)
@@ -448,7 +350,6 @@ void s2_restore_keys(struct S2 *p_context, __attribute__((unused)) bool make_key
 #if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
       S2_network_key_update(mp_context, convert_key_class_to_psa_key_id(m_key_slot_pair[i][0]),
                             m_key_slot_pair[i][1], shared_key_mem, 0, make_keys_persist_se);
-     DPRINTF("^ Loading: %d, loadedKeys:%d, presist: %d\n", m_key_slot_pair[i][1], mp_context->loaded_keys, make_keys_persist_se);
 #else
       S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, m_key_slot_pair[i][1], shared_key_mem, 0, false);
 #endif
@@ -519,7 +420,7 @@ static uint8_t validate_echo_kex_report(void)
   if ((m_schemes == mp_context->buf[SECURITY_2_KEX_REP_SCHEME_POS]) &&
       (m_curves == mp_context->buf[SECURITY_2_KEX_REP_CURVE_POS]) &&
       (m_keys == mp_context->buf[SECURITY_2_KEX_REP_KEYS_POS]) &&
-      ((mp_context->csa_support | SECURITY_2_ECHO_ON) == mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS]) )
+      (((SECURITY_2_NLS_AVAILABLE << SECURITY_2_KEX_REPORT_NLS_SUPPORT_BIT_POS) | (mp_context->csa_support) | SECURITY_2_ECHO_ON) == mp_context->buf[SECURITY_2_KEX_REP_ECHO_POS]))
   {
     return 0;
   }
@@ -701,13 +602,7 @@ static void s2_inclusion_post_event_internal(struct S2 *p_context)
   process_event(event);
 }
 
-#ifdef __C51__
-void ZCB_s2_inclusion_notify_timeout(struct S2 *p_context);
-code const void (code * ZCB_s2_inclusion_notify_timeout_p)(void) = &ZCB_s2_inclusion_notify_timeout;
-void ZCB_s2_inclusion_notify_timeout(struct S2 *p_context)
-#else
 void s2_inclusion_notify_timeout(struct S2 *p_context)
-#endif
 {
   MP_CTX_DEF
 
@@ -782,7 +677,7 @@ static void s2_send_kex_report(void)
   mp_context->csa_support = (mp_context->inclusion_mode == INCLUSION_MODE_CSA ? SECURITY_2_CSA_ON : 0);
   mp_context->u.inclusion_buf[SECURITY_2_COMMAND_CLASS_POS]  = COMMAND_CLASS_SECURITY_2;
   mp_context->u.inclusion_buf[SECURITY_2_COMMAND_POS]        = KEX_REPORT;
-  mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_ECHO_POS]   = mp_context->csa_support | SECURITY_2_ECHO_OFF;
+  mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_ECHO_POS]   = mp_context->csa_support | (SECURITY_2_NLS_AVAILABLE << SECURITY_2_KEX_REPORT_NLS_SUPPORT_BIT_POS) | SECURITY_2_ECHO_OFF;
   mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_SCHEME_POS] = m_schemes;
   mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_CURVE_POS]  = m_curves;
   mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_KEYS_POS]   = m_keys;
@@ -796,7 +691,7 @@ static void s2_send_kex_report(void)
 
 static void s2_send_pub_key_b(void)
 {
-  uint8_t support;  // Helper variable, being reused purely for code optimization reasons on C51 targets
+  uint8_t support;  // Helper variable, being reused purely for code optimization reasons on memory constrained targets
 
   s2_inclusion_stop_timeout();
 
@@ -922,11 +817,6 @@ static void s2_pub_key_a_recv(void)
   s2_inclusion_stop_timeout();
 
   s2_event = (zwave_event_t *)m_event_buffer;
-
-//  s2_glue_print_str("send_echo_kex_set length: ");
-//  s2_glue_print_num(mp_context->length);
-//  s2_glue_print_str("send_echo_kex_set length: ");
-//  s2_glue_print_num(mp_context->length);
 
   s2_inclusion_set_timeout(mp_context, TBI1_TIMEOUT);
   // Public key receive.
@@ -1074,8 +964,6 @@ static void s2_send_final_transfer_end(void)
   mp_context->u.inclusion_buf[SECURITY_2_TRANSFER_END_FLAGS_POS] = SECURITY_2_KEY_REQ_COMPLETE;
   mp_context->inclusion_buf_length                               = SECURITY_2_TRANSFER_END_LENGTH;
 
-
-  DPRINT("send_final_transfer_end\r\n");
   mp_context->inclusion_peer.class_id = TEMP_KEY_SECURE;
   mp_context->inclusion_peer.tx_options = 0;
 
@@ -1206,9 +1094,6 @@ void s2_inclusion_send_data(void)
                         mp_context->u.inclusion_buf,
                         mp_context->inclusion_buf_length))
   {
-#if defined(DEBUG_S2_INCL_FSM)
-    S2_dbg_printf("s2_inclusion_send_data: S2 module was busy. Will retry.\n");
-#endif
     m_retry_counter = QUEUE_FULL;
   }
   else

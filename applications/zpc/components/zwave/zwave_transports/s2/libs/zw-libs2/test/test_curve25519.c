@@ -11,16 +11,6 @@
 #include <string.h>
 #include "unity.h"
 #include <curve25519.h>
-#include <wc_util.h>
-#include <bigint.h>
-
-#ifdef __C51__
-/* Local stub implementation of ZW_WatchDogKick() when compiling for C51. */
-void ZW_WatchDogKick(void)
-{
-  // Do nothing. Stub implementation.
-}
-#endif // __C51__
 
 #ifndef NULL
 #define NULL   ((void *) 0)
@@ -41,6 +31,48 @@ static const uint8_t alice_secret_key[KEY_SIZE] = {
         ,0x6f,0x3b,0xb1,0x29,0x26,0x18,0xb6,0xfd
         ,0x1c,0x2f,0x8b,0x27,0xff,0x88,0xe0,0xeb
 };*/
+
+static void bigint_mul(unsigned char *r, const unsigned char *a, const unsigned char *b, uint8_t len)
+{
+  //unsigned int i,j;
+  uint8_t i;
+  uint8_t j;
+  //uint16_t t;
+  uint16_t t;
+  for(i=0;i<2*len;i++)
+    r[i] = 0;
+
+  for (i=0; i<len; i++) {
+    t = 0;
+    for (j=0; j<len; j++) {
+      t=r[i+j]+a[i]*b[j] + (t>>8);
+      r[i+j]=(t & 0xFF);
+    }
+    r[i+len]=(t>>8);
+  }
+}
+
+static void print16(uint8_t * pData)
+{
+  uint8_t i;
+  puts("\n");
+  for (i = 0;i < 16;++i)
+  {
+    if (i > 0)
+    {
+      puts(",");
+    }
+    else
+    {
+      puts(" ");
+    }
+    printf("%x", pData[i]);
+    if (i % 8 == 7)
+    {
+      puts("\n");
+    }
+  }
+}
 
 static uint8_t alice_public_key[KEY_SIZE];
 #ifdef NOT_USED
@@ -80,17 +112,15 @@ void test_bigint_calc(void)
 
   print16(result);
 
-  print_txt("------------------------------------");
+  printf("------------------------------------");
 
   if ( *(char *)&i == 0x12 )
   {
-    print_txt("Big endian\n");
-//    ZW_DEBUG_MYPRODUCT_SEND_STR("BIG endian.");
+    printf("Big endian\n");
   }
   else if ( *(char *)&i == 0x78 )
   {
-    print_txt("Little endian\n");
-//    ZW_DEBUG_MYPRODUCT_SEND_STR("LITTLE endian.");
+    printf("Little endian\n");
   }
 }
 
