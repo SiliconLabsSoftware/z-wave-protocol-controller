@@ -44,6 +44,17 @@ target_add_unittest(
   zwave_command_class_test_helper
   ${MOCK_LIBS})
 
+# TODO: Enable when testsystems are aligned
+# target_add_unittest(
+#     zwave_command_classes
+#     NAME
+#     zwave_command_class_time_parameters_test
+#     SOURCES
+#     zwave_command_class_time_parameters_test.c
+#     DEPENDS
+#     zwave_command_class_test_helpers
+#     ${MOCK_LIBS})
+
 target_add_unittest(
   zwave_command_classes
   NAME
