@@ -165,10 +165,16 @@ test: zpc/test
 
 check: test
 
-dist: ${build_dir}
+dist/archive: ${build_dir}
+	cmake --build $< --target package
+	cmake --build $< --target package_archive
+
+dist/deb: ${build_dir}
 	cmake --build $< --target package
 	install -d $</$@
 	cp -av ${<}/*.deb $</$@
+
+dist: dist/archive
 
 distclean:
 	rm -rf ${build_dir}
