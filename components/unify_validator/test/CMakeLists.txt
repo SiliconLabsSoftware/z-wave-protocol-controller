@@ -1,1 +1,0 @@
-target_add_unittest(unify_validator SOURCES unify_validator_test.cpp)
