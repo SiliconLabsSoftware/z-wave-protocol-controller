@@ -154,8 +154,14 @@ build: ${build_dir}/CMakeCache.txt
 ${build_dir}/%: build
 	file -E "$@"
 
-test: ${build_dir}
+default/test: ${build_dir}
 	ctest --test-dir ${<}
+
+zpc/test: ${build_dir}/applications/zpc/components/zwave_command_classes/
+	ctest --test-dir ${<}
+
+test: zpc/test
+	@echo "TODO: enable more test"
 
 check: test
 
