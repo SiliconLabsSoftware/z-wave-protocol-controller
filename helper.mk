@@ -3,7 +3,7 @@
 # ex: set tabstop=4 noexpandtab:
 # -*- coding: utf-8 -*
 
-default: help zpc/default
+default: help all/default
 	@echo "$@: TODO: Support more than $^ by default"
 	@date -u
 
@@ -12,7 +12,10 @@ SELF?=${CURDIR}/helper.mk
 project?=unifysdk
 
 # Allow overloading from env if needed
+# VERBOSE?=1
 BUILD_DEV_GUI?=OFF
+
+cmake_options?=-B ${build_dir}
 
 CMAKE_GENERATOR?=Ninja
 export CMAKE_GENERATOR
@@ -29,37 +32,36 @@ packages+=nlohmann-json3-dev
 packages+=curl wget python3-pip
 packages+=time
 
+# Extra for components, make it optional
+packages+=python3-jinja2
+packages+=yarnpkg
+
 rust_url?=https://sh.rustup.rs
 RUST_VERSION?=1.65.0
 export PATH := ${HOME}/.cargo/bin:${PATH}
 
-zpc_exe?=${build_dir}/applications/zpc/zpc
-exes+=${zpc_exe}
 
 # Allow overloading from env if needed
-ifeq (${BUILD_DEV_GUI}, ON)
-packages+=nodejs
-packages+=yarnpkg
+ifdef VERBOSE
+CMAKE_VERBOSE_MAKEFILE?=${VERBOSE}
+cmake_options+=-DCMAKE_VERBOSE_MAKEFILE=${CMAKE_VERBOSE_MAKEFILE}
 endif
 
+ifdef BUILD_DEV_GUI
+cmake_options+=-DBUILD_DEV_GUI=${BUILD_DEV_GUI}
+ifeq (${BUILD_DEV_GUI}, ON)
+packages+=nodejs
+endif
+endif
 
-zpc_cmake_options?=\
-	-DBUILD_AOXPC=OFF \
-	-DBUILD_CPCD=OFF \
-	-DBUILD_DEV_GUI=${BUILD_DEV_GUI} \
-	-DBUILD_EMD=OFF \
-	-DBUILD_EPC=OFF \
-	-DBUILD_GMS=OFF \
-	-DBUILD_IMAGE_PROVIDER=OFF \
-	-DBUILD_NAL=OFF \
-	-DBUILD_OTBR=OFF \
-	-DBUILD_POSITIONING=OFF \
-	-DBUILD_TESTING=ON \
-	-DBUILD_UPTI_CAP=OFF \
-	-DBUILD_UPTI_WRITER=OFF \
-	-DBUILD_UPVL=OFF \
-	-DBUILD_ZIGBEED=OFF \
-	-DBUILD_ZIGPC=OFF
+# Allow to bypass env detection, to support more build systems
+ifdef CMAKE_SYSTEM_PROCESSOR
+cmake_options+=-DCMAKE_SYSTEM_PROCESSOR="${CMAKE_SYSTEM_PROCESSOR}"
+export CMAKE_SYSTEM_PROCESSOR
+else
+# CMAKE_SYSTEM_PROCESSOR?=$(shell uname -m)
+endif
+
 
 help: README.md
 	@cat $<
@@ -121,12 +123,16 @@ setup/debian/bookworm: setup/debian setup/rust setup/python
 setup: setup/debian/${debian_codename}
 	date -u
 
-git/lfs/prepare: .git/lfs
-	git lfs version || echo "$@: warning: Please install git-lfs"
-	git lfs status --porcelain || git lfs install
-	time git lfs pull
-	git lfs update || git lfs update --force
-	git lfs status --porcelain
+
+git/lfs/prepare:
+	[ ! -r .git/lfs/objects ] \
+	  || { git lfs version || echo "$@: warning: Please install git-lfs" \
+	  && git lfs status --porcelain || git lfs install \
+	  && time git lfs pull \
+	  && git lfs update || git lfs update --force \
+	  && git lfs status --porcelain \
+	  && git lfs ls-files \
+	  ; }
 
 git/modules/prepare:
 	[ ! -r .git/modules ] || git submodule update --init --recursive
@@ -136,8 +142,8 @@ git/prepare: git/modules/prepare git/lfs/prepare
 configure: ${build_dir}/CMakeCache.txt
 	file -E $<
 
-${build_dir}/CMakeCache.txt: CMakeLists.txt ${build_pre_list}
-	cmake -B ${build_dir}
+${build_dir}/CMakeCache.txt: CMakeLists.txt
+	cmake ${cmake_options}
 
 build: ${build_dir}/CMakeCache.txt
 	cmake --build ${<D} \
@@ -146,13 +152,7 @@ build: ${build_dir}/CMakeCache.txt
 .PHONY: build
 
 ${build_dir}/%: build
-	file -E "$<"
-
-${exe}: build
-	file -E $<
-
-all: ${exes}
-	file -E $<
+	file -E "$@"
 
 test: ${build_dir}
 	ctest --test-dir ${<}
@@ -169,20 +169,9 @@ distclean:
 
 prepare: git/prepare
 
-all/default: configure build test
+all/default: configure prepare build test dist
 	@date -u
 
-zpc/configure: CMakeLists.txt
-	cmake -B ${build_dir}  ${zpc_cmake_options}
-
-zpc/build: zpc/configure build
-	@date -u
-
-zpc/test: ${build_dir}/applications/zpc/components/zwave_command_classes/test/
-	ctest --test-dir ${<}
-
-zpc/default: zpc/configure zpc/build zpc/test dist
-	@date -u
 
 ### @rootfs is faster than docker for env check
 
