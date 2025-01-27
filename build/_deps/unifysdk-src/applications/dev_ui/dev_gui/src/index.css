@@ -1,0 +1,15 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: auto;
+    line-height: 12px;
+    min-width: 1200px;
+}
+
+.Toastify__toast-body {
+    line-height: 20px;
+}
+
+.Toastify__toast-container {
+    width: auto;
+    max-width: 90%;
+}

@@ -1,0 +1,40 @@
+@@@UnifyCore @naagarwa @mamehta @sushanka @sabollim
+@@@Documentation @naagarwa @mamehta @phcoval @jutiron @sushanka
+@@@UnifyFwkServices @naagarwa @mamehta @sushanka @sabollim
+@@@UnifyIoTServices @naagarwa @sushanka @sabollim
+@@@CICD @naagarwa @dethammi @sushanka
+
+# Pipeline rule and scripts
+Jenkinsfile @@CICD
+scripts/ @@CICD
+
+# Documentations
+**/*.md @@Documentation
+doc/ @@Documentation
+
+components/ @@UnifyCore
+docker/ @@UnifyCore
+cmake/ @@UnifyCore
+portable_runtime/ @@UnifyCore
+applications/dev_ui/ @@UnifyIoTServices
+applications/examples/ @@UnifyCore
+applications/gms/ @@UnifyFwkServices
+applications/image_provider/ @@UnifyFwkServices
+applications/nal/ @@UnifyFwkServices
+applications/upvl/ @@UnifyFwkServices
+applications/upti_cap/ @@UnifyFwkServices
+applications/upti_writer/ @@UnifyFwkServices
+
+CODEOWNERS               @@UnifyCore
+
+
+
+# If a group is involved, at least one reviewer of the group must approve
+(Check(@@UnifyCore >= 1))
+(Check(@@UnifyFwkServices >= 1))
+(Check(@@UnifyIoTServices >= 1))
+(Check(@@CICD >= 1))
+(Check(@@Documentation >= 1))
+(Check(@@UnifyReviewers >= 1))
+
+AllGroupsCheck(1)
