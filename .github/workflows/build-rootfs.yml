@@ -30,9 +30,9 @@ jobs:
         with:
           name: ${{ github.event.repository.name }}-${{ steps.describe.outputs.describe }}-${{ matrix.arch }}
           path: build/dist/
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: build/dist/*
+      # - name: Upload Release Asset
+      #   id: upload-release-asset
+      #   uses: softprops/action-gh-release@v2
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   with:
+      #     files: build/dist/*
