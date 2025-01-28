@@ -1,5 +1,5 @@
-if(NOT PACKAGE_HELPER_CMAKE)
-  set(PACKAGE_HELPER_CMAKE ${CMAKE_CURRENT_LIST_DIR})
+if(NOT ZPC_PACKAGE_HELPER_CMAKE)
+  set(ZPC_PACKAGE_HELPER_CMAKE ${CMAKE_CURRENT_LIST_DIR})
 else()
   return()
 endif()
@@ -9,8 +9,13 @@ set(CPACK_DEB_COMPONENT_INSTALL ON)
 set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
 set(CPACK_DEB_PACKAGE_COMPONENT ON)
 
+# TODO: Not aligned to debian arch
+if(NOT DEFINED FILE_NAME_VERSIONING_ARCH)
+  set(FILE_NAME_VERSIONING_ARCH "${CMAKE_PROJECT_VERSION}_${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+
 set(CPACK_PACKAGE_FILE_NAME
-    "${CMAKE_PROJECT_NAME}_${FILE_NAME_VERSIONING_ARCH}"
+  "${CMAKE_PROJECT_NAME}_${FILE_NAME_VERSIONING_ARCH}"
 )
 
 # Common CPACK configuration
@@ -108,22 +113,8 @@ macro(add_component_to_uic PKG_NAME PKG_DESCRIPTION PKG_FILE_NAME PKG_DEPNDS PKG
     set(CPACK_COMPONENTS_ALL                                ${CPACK_COMPONENTS_ALL}                     CACHE STRING "Packages that will have Debian packages built: ${CPACK_COMPONENTS_ALL}" FORCE)
 
     install(
-      FILES "${PACKAGE_HELPER_CMAKE}/../../copyright"
+      FILES "${CMAKE_SOURCE_DIR}/copyright"
       DESTINATION share/doc/${PKG_NAME}
       COMPONENT ${PKG_NAME})
   endif()
 endmacro()
-
-set(DEB_PACKAGE_FOLDER "unify_${FILE_NAME_VERSIONING_ARCH}")
-set(DEB_PACKAGE_ZIP "${DEB_PACKAGE_FOLDER}.zip")
-add_custom_target(
-  deb
-  DEPENDS package
-  COMMAND mkdir -p "${DEB_PACKAGE_FOLDER}"
-  COMMAND mv "\*_${FILE_NAME_VERSIONING_ARCH}.deb" "${DEB_PACKAGE_FOLDER}/"
-  COMMAND cd "${DEB_PACKAGE_FOLDER}" && dpkg-scanpackages . /dev/null
-          > Packages && cd ..
-  COMMAND zip -rm "${DEB_PACKAGE_ZIP}" "${DEB_PACKAGE_FOLDER}"
-  COMMAND mkdir -p deb-packages && mv "${DEB_PACKAGE_ZIP}" deb-packages
-  COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan
-          "Debian packages archived in deb-packages/${DEB_PACKAGE_FOLDER}.zip")
