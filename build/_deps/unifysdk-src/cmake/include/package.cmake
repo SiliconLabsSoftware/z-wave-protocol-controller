@@ -1,6 +1,7 @@
 message(STATUS "Components of Unify which will have deb packages"
                ": ${CPACK_COMPONENTS_ALL}")
 
+if(PROJECT_IS_TOP_LEVEL)
 include(CPack)
 
 foreach(PKG_NAME IN LISTS CPACK_COMPONENTS_ALL)
@@ -11,3 +12,4 @@ foreach(PKG_NAME IN LISTS CPACK_COMPONENTS_ALL)
     DESCRIPTION ${CPACK_DEBIAN_${PKG_NAME_UPPER}_DESCRIPTION}
     INSTALL_TYPES Full)
 endforeach()
+endif()
