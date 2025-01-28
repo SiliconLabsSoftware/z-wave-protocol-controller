@@ -137,7 +137,8 @@ git/lfs/prepare:
 git/modules/prepare:
 	[ ! -r .git/modules ] || git submodule update --init --recursive
 
-git/prepare: git/modules/prepare git/lfs/prepare
+git/prepare: git/modules/prepare
+	@echo "# ${project}: warning: $@: Skipping $^ as not needed for project"
 
 configure: ${build_dir}/CMakeCache.txt
 	file -E $<
