@@ -1,7 +1,0 @@
-#!/bin/sh
-if type "systemctl" > /dev/null; then
-    systemctl stop uic-dev-gui-api.service
-    systemctl stop uic-dev-gui-client.service
-    systemctl disable uic-dev-gui-api.service
-    systemctl disable uic-dev-gui-client.service
-fi
