@@ -19,6 +19,7 @@ version?=$(shell git describe --tags || echo "0")
 # Allow overloading from env if needed
 # VERBOSE?=1
 BUILD_DEV_GUI?=OFF
+BUILD_IMAGE_PROVIDER?=ON
 
 cmake_options?=-B ${build_dir}
 
@@ -70,6 +71,10 @@ cmake_options+=-DBUILD_DEV_GUI=${BUILD_DEV_GUI}
 ifeq (${BUILD_DEV_GUI}, ON)
 packages+=nodejs
 endif
+endif
+
+ifdef BUILD_IMAGE_PROVIDER
+cmake_options+=-DBUILD_IMAGE_PROVIDER=${BUILD_IMAGE_PROVIDER}
 endif
 
 # Allow to bypass env detection, to support more build systems
