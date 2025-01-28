@@ -75,11 +75,27 @@ if [ ! -d "${rootfs_dir}" ] ; then
     ${sudo} chmod -v u+rX "${rootfs_dir}"
 fi
 
+### Environement to pass
+
+[ "" = "$UNIFYSDK_GIT_REPOSITORY" ] \
+  || env_vars="$env_vars UNIFYSDK_GIT_REPOSITORY=${UNIFYSDK_GIT_REPOSITORY}"
+[ "" = "$UNIFYSDK_GIT_TAG" ] \
+  || env_vars="$env_vars UNIFYSDK_GIT_TAG=${UNIFYSDK_GIT_TAG}"
+export UNIFYSDK_GIT_TAG
+
+
 # TODO: https://github.com/rust-lang/cargo/issues/8719#issuecomment-1516492970
 env_vars="$env_vars CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse"
 
 # TODO: https://github.com/rust-lang/cargo/issues/10583
 env_vars="$env_vars CARGO_NET_GIT_FETCH_WITH_CLI=true"
+
+env_vars_options=""
+for i in $env_vars; do
+    env_vars_options="$env_vars_options --setenv=$i"
+done
+
+### Workarounds/Optimizations
 
 cargo_dir="/tmp/$USER/${machine}/${HOME}/.cargo"
 ${sudo} mkdir -pv  "${cargo_dir}"
@@ -91,6 +107,7 @@ case ${chroot} in
  --machine="${machine}" \
  --bind="${CURDIR}:${CURDIR}" \
  --bind="${cargo_dir}:/root/.cargo" \
+ $env_vars_options
 "
         if [ -e "${qemu_file}" ] ; then
             rootfs_shell="$rootfs_shell --bind ${qemu_file}"
