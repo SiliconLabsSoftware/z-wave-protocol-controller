@@ -37,7 +37,7 @@ packages+=python3-jinja2
 packages+=yarnpkg
 
 rust_url?=https://sh.rustup.rs
-RUST_VERSION?=1.65.0
+RUST_VERSION?=1.71.0
 export PATH := ${HOME}/.cargo/bin:${PATH}
 
 
@@ -60,6 +60,11 @@ cmake_options+=-DCMAKE_SYSTEM_PROCESSOR="${CMAKE_SYSTEM_PROCESSOR}"
 export CMAKE_SYSTEM_PROCESSOR
 else
 # CMAKE_SYSTEM_PROCESSOR?=$(shell uname -m)
+endif
+
+ifdef CARGO_TARGET_TRIPLE
+cmake_options+=-DCARGO_TARGET_TRIPLE="${CARGO_TARGET_TRIPLE}"
+export CMAKE_TARGET_TRIPLE
 endif
 
 
@@ -88,11 +93,14 @@ setup/rust:
 	-which rustc
 	rustc --version
 	cargo --version
+	rustc --print target-list
+	@echo "$@: TODO: https://github.com/kornelski/cargo-deb/issues/159"
+	cargo install --version 1.44.0 --locked cargo-deb
 	@echo "$@: TODO: Support stable version from https://releases.rs/ or older"
 
 setup/python:
 	python3 --version
-	@echo "$@: TODO: https://github.com/wbond/pybars3/issues/82"
+	@echo "$@: TODO: https://bugs.debian.org/1094297"
 	pip3 --version || echo "warning: Please install pip"
 	pip3 install "pybars3" \
 		|| pip3 install --break-system-packages "pybars3"
