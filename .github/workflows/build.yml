@@ -10,6 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - id: clone-private
+        run: >
+          git clone --depth 1
+          --branch z-wave/init/main
+          https://${{ secrets.GH_UNIFY_ACCESS_TOKEN }}@github.com/SiliconLabs/UnifySDK_test.git      
       - uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
