@@ -3,7 +3,8 @@
 # ex: set tabstop=4 noexpandtab:
 # -*- coding: utf-8 -*
 
-default: help zpc/default
+default: help
+	set
 	@echo "$@: TODO: Support more than $^ by default"
 	@date -u
 
