@@ -22,6 +22,7 @@ jobs:
           | tee $GITHUB_OUTPUT
       - name: Build Docker image from sources
         run: >-
-        docker build
-        --tag "${{ env.project-name }}:latest"
-        --build-arg ${{ secrets.GH_UNIFY_ACCESS_TOKEN }}
+          docker build
+          --tag "${{ env.project-name }}:latest"
+          --build-arg ${{ secrets.GH_UNIFY_ACCESS_TOKEN }}
+          .
