@@ -23,8 +23,11 @@ jobs:
           echo "describe=$(git describe --tags --always || echo 0)"
           | tee $GITHUB_OUTPUT
       - name: Setup and build
-        run: |
-          ARCH=${{ matrix.arch }} ./scripts/build-rootfs.sh
+        run: >-
+          ARCH=${{ matrix.arch }}
+          UNIFYSDK_GIT_REPOSITORY=${{ secrets.UNIFYSDK_GIT_REPOSITORY }}
+          UNIFYSDK_GIT_TAG=${{ secrets.UNIFYSDK_GIT_TAG }}
+          ./scripts/build-rootfs.sh
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:

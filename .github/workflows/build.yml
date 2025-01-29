@@ -21,7 +21,12 @@ jobs:
           echo "describe=$(git describe --tags --always || echo 0)"
           | tee $GITHUB_OUTPUT
       - name: Build Docker image from sources
-        run: docker build --tag "${{ env.project-name }}:latest" .
+        run: >-
+          docker build
+          --tag "${{ env.project-name }}:latest"
+          --build-arg UNIFYSDK_GIT_REPOSITORY=${{ secrets.UNIFYSDK_GIT_REPOSITORY }}
+          --build-arg UNIFYSDK_GIT_TAG=${{ secrets.UNIFYSDK_GIT_TAG }}
+          .
       - name: Extract artifacts
         run: >-
           container=$(docker create "${{ env.project-name }}:latest")
