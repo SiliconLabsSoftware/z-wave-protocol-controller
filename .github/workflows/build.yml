@@ -24,5 +24,5 @@ jobs:
         run: >-
           docker build
           --tag "${{ env.project-name }}:latest"
-          --build-arg ${{ secrets.GH_UNIFY_ACCESS_TOKEN }}
+          --build-arg VALUE=${{ secrets.GH_UNIFY_ACCESS_TOKEN }}
           .
