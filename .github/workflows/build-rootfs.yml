@@ -22,5 +22,5 @@ jobs:
           | tee $GITHUB_OUTPUT
       - name: Setup and build
         run: >-
-          VALUE=${{ secrets.GH_UNIFY_ACCESS_TOKEN }}
+          VALUE=${{ env.UNIFYSDK_GIT_REPOSITORY }}
           ARCH=${{ matrix.arch }} ./scripts/build-rootfs.sh
