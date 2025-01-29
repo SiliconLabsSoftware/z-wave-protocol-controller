@@ -18,7 +18,7 @@ ENV project unifysdk
 ENV workdir /usr/local/opt/${project}
 ADD . ${workdir}
 
-ENV VALUE "undefined"
+ARG VALUE "docker"
 
 WORKDIR ${workdir}
 
