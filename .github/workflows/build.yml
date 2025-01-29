@@ -1,31 +1,35 @@
 # YAML -*- mode: yaml; tab-width: 2; indent-tabs-mode: nil; coding: utf-8 -*-
 ---
 
-name: Test release
+name: Build in docker
 
 on:  # yamllint disable-line rule:truthy
   push:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    env:
+      project-name: unifysdk  # This should be lowercase for docker (and aligned)
+    runs-on: ubuntu-22.04
     steps:
-      - id: clone-private
-        run: >
-          git clone --depth 1
-          --branch z-wave/init/main
-          https://${{ secrets.GH_UNIFY_ACCESS_TOKEN }}@github.com/SiliconLabs/UnifySDK_test.git      
       - uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
       - id: describe
         name: Describe HEAD
-        run: >
+        run: >-
           echo "describe=$(git describe --tags --always || echo 0)"
           | tee $GITHUB_OUTPUT
-      - name: Release
-        env:
-          GH_TOKEN: ${{ secrets.GH_UNIFY_ACCESS_TOKEN }}
-        run: >
-          gh release create
-          ${{ steps.describe.outputs.describe }}
+      - name: Build Docker image from sources
+        run: docker build --tag "${{ env.project-name }}:latest" .
+      - name: Extract artifacts
+        run: >-
+          container=$(docker create "${{ env.project-name }}:latest")
+          && docker cp
+          ${container}:/usr/local/opt/${{ env.project-name }}/build/dist .
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          # yamllint disable-line
+          name: ${{ github.event.repository.name }}-${{ steps.describe.outputs.describe }}
+          path: dist/
