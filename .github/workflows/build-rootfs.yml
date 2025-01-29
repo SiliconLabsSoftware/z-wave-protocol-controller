@@ -22,5 +22,5 @@ jobs:
           | tee $GITHUB_OUTPUT
       - name: Setup and build
         run: >-
-          VALUE=${{ env.UNIFYSDK_GIT_REPOSITORY }}
+          VALUE=${{ vars.UNIFYSDK_GIT_REPOSITORY }}
           ARCH=${{ matrix.arch }} ./scripts/build-rootfs.sh
