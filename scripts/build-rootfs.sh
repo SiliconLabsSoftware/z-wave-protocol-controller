@@ -75,6 +75,10 @@ if [ ! -d "${rootfs_dir}" ] ; then
     ${sudo} chmod -v u+rX "${rootfs_dir}"
 fi
 
+[ "" = "$VALUE" ] || env_vars="$env_vars VALUE=${VALUE}"
+
+export VALUE
+
 # TODO: https://github.com/rust-lang/cargo/issues/8719#issuecomment-1516492970
 env_vars="$env_vars CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse"
 
@@ -84,6 +88,11 @@ env_vars="$env_vars CARGO_NET_GIT_FETCH_WITH_CLI=true"
 cargo_dir="/tmp/$USER/${machine}/${HOME}/.cargo"
 ${sudo} mkdir -pv  "${cargo_dir}"
 
+env_vars_options=""
+for i in $env_vars; do
+    env_vars_options="$env_vars_options --setenv=$i"
+done
+
 case ${chroot} in
     "systemd-nspawn")
         rootfs_shell="${sudo} systemd-nspawn \
@@ -91,6 +100,7 @@ case ${chroot} in
  --machine="${machine}" \
  --bind="${CURDIR}:${CURDIR}" \
  --bind="${cargo_dir}:/root/.cargo" \
+$env_vars_options
 "
         if [ -e "${qemu_file}" ] ; then
             rootfs_shell="$rootfs_shell --bind ${qemu_file}"
