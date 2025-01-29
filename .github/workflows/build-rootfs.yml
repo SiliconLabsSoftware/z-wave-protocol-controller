@@ -39,4 +39,4 @@ jobs:
           files: build/dist/*
           # yamllint disable-line rule:line-length
           # TODO: Sign asset: https://github.com/softprops/action-gh-release/issues/580#2025
-
+          token: ${{ secrets.GH_UNIFY_ACCESS_TOKEN }}
