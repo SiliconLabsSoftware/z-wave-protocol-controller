@@ -4,8 +4,6 @@ name: Build in rootfs for arch
 
 on:  # yamllint disable-line rule:truthy
   push:
-    tags:
-      - '*'
 jobs:
   build:
     runs-on: ubuntu-24.04
