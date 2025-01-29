@@ -65,7 +65,7 @@ zpc_cmake_options?=\
 help: README.md
 	@cat $<
 	@echo ""
-	@echo "# Available rules at your own risk:"
+	@echo "# Available rules at your own risk: for ${VALUE} "
 	@grep -o '^[^ ]*:' ${SELF} | grep -v '\$$' | grep -v '^#' | grep -v '^\.'
 	@echo ""
 	@echo "# Environment:"
