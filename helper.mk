@@ -119,7 +119,7 @@ setup/debian/bullseye: setup/debian setup/rust setup/python setup/cmake
 setup/debian/bookworm: setup/debian setup/rust setup/python
 	date -u
 
-setup: setup/debian/${debian_codename}
+setup: 
 	date -u
 
 git/lfs/prepare: .git/lfs
