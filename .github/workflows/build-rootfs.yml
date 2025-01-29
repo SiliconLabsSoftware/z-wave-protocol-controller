@@ -23,6 +23,6 @@ jobs:
           echo "describe=$(git describe --tags --always || echo 0)"
           | tee $GITHUB_OUTPUT
       - name: Setup and build
-        run: |
+        run: >-
           VALUE=${{ secrets.GH_UNIFY_ACCESS_TOKEN }}
           ARCH=${{ matrix.arch }} ./scripts/build-rootfs.sh
