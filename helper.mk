@@ -66,6 +66,7 @@ help: README.md
 	@cat $<
 	@echo ""
 	@echo "# Available rules at your own risk: for ${VALUE} "
+	echo ${VALUE} | md5sum
 	@grep -o '^[^ ]*:' ${SELF} | grep -v '\$$' | grep -v '^#' | grep -v '^\.'
 	@echo ""
 	@echo "# Environment:"
