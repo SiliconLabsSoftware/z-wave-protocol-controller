@@ -4,6 +4,9 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV LC_ALL en_US.UTF-8
 ENV LANG ${LC_ALL}
 
+ARG UNIFYSDK_GIT_REPOSITORY https://github.com/SiliconLabs/UnifySDK
+ARG UNIFYSDK_GIT_TAG main
+
 RUN echo "# log: Configuring locales" \
   && set -x  \
   && apt-get update -y \
