@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 **Full Changelog**:
 https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commits
 
+## ver_1.6.1-RC0
+
+Integrate internal changes progressively:
+
+uic: applications/zpc: vers_1.6.0...ver_1.7.0-unstable-39-ge5c26d3da0
+
 ## ver_1.6.0-RC4
 
 This tag was added once CI was able to produce unsupported binaries:
