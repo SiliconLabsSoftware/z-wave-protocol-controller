@@ -10,6 +10,10 @@ https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commits
 Integrate internal changes progressively:
 
 uic: applications/zpc: vers_1.6.0...ver_1.7.0-unstable-39-ge5c26d3da0
+uic: ver_1.6.0-28-g7ef08ebfeb
+
+applications/zpc/components/zwave/zwave_transports/s2/libs/zw-libs2
+zwave-sdk-7.21.0-ga..zwave-sdk-7.21.0-ga-38-ga5f4bbff28
 
 ## ver_1.6.0-RC4
 
