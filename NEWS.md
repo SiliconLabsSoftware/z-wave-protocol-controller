@@ -37,3 +37,9 @@ downstream repostiory.
 Sources should be mostly same as above:
 
 https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/releases/tag/ver_1.6.0-RC0
+ver_1.6.0-RC4-66-gade53306f0
+uic: dee77ff5cd
+ec2e855d5d
+b2f8f10af9
+457ec469fc
+465b6e2487
