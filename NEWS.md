@@ -45,3 +45,4 @@ b2f8f10af9
 465b6e2487
 docs: Update NEWS.md applications/zpc/components/zwave/zwave_transports/s2/libs/zw-libs2: import: a5f4bbff2896c28b9316c8b1568f5bbca91420b3..3b7dcd7e9f7f6c019b97dc22a149e8d46ad9f71e: pre
 docs: Update NEWS.md applications/zpc/components/zwave/zwave_transports/s2/libs/zw-libs2: import: a5f4bbff2896c28b9316c8b1568f5bbca91420b3..3b7dcd7e9f7f6c019b97dc22a149e8d46ad9f71e: post
+docs: Update NEWS.md uic: import: ver_1.7.0-unstable-60-g7cbdd551af
