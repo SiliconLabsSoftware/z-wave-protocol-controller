@@ -13,6 +13,8 @@ jobs:
       matrix:
         arch:
           - amd64
+          - arm64
+          - armhf
     steps:
       - uses: actions/checkout@v4.1.1
         with:
