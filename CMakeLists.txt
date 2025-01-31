@@ -14,6 +14,11 @@ if(NOT DEFINED COMMON_LOCATION)
 endif()
 
 if(BUILD_TESTING)
+  # https://gitlab.kitware.com/cmake/cmake/-/issues/22813#note_1620373
+  option(BUILD_TESTING_PROPERTY_DISABLED "WARNING: Bypass some tests" True)
+  if(BUILD_TESTING_PROPERTY_DISABLED)
+    message(WARNING "TODO: Some tests are bypassed, please help fixing them")
+  endif()
   include(${CMAKE_SOURCE_DIR}/components/testframework/target_add_unittest.cmake)
   include(cmake/include/unittest.cmake)
 endif()

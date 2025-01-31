@@ -1,7 +1,4 @@
 # Build options enabling different permutations and exluding unwanted software
-
-option(BUILD_TESTING "WARNING: Bypass all tests (for integration purpose only)" OFF)
-
 # applications
 option(BUILD_ZPC "Package the ZPC" ON)
 option(BUILD_DEV_GUI "Package the developer GUI" OFF)

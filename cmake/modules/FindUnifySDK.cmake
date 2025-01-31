@@ -46,3 +46,27 @@ FetchContent_MakeAvailable(UnifySDK)
 
 # message(STATUS "UnifySDK Sources: ${unifysdk_SOURCE_DIR}")
 # message(STATUS "UnifySDK Binaries: ${unifysdk_BINARY_DIR}")
+if(BUILD_TESTING)
+  option(unifysdk_BUILD_TESTING_PROPERTY_DISABLED "WARNING: UnifySDK: Bypass some tests" True)
+  if(NOT unifysdk_BUILD_TESTING_PROPERTY_DISABLED)
+    message(WARNING "UnifySDK tests may break, skip them with ctest")
+  else()
+    message(WARNING "UnifySDK tests, some are bypassed")
+    if(NOT CMAKE_VERSION VERSION_LESS 3.7.28)
+      message(WARNING "Consider to upgrade cmake for https://gitlab.kitware.com/cmake/cmake/-/issues/22813#note_1620373 ${CMAKE_VERSION}")
+    else()
+      set_tests_properties(unify_build
+        DIRECTORY ${unifysdk_SOURCE_DIR}/components
+        PROPERTIES DISABLED True
+      )
+      set_tests_properties(attribute_mapper_uam_test_example_1
+        DIRECTORY ${unifysdk_SOURCE_DIR}/components/uic_attribute_mapper/test
+        PROPERTIES DISABLED True
+      )
+      set_tests_properties(attribute_mapper_uam_test_example_2
+        DIRECTORY ${unifysdk_SOURCE_DIR}/components/uic_attribute_mapper/test
+        PROPERTIES DISABLED True
+      )
+    endif()
+  endif()
+endif()

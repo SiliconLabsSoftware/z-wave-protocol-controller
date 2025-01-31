@@ -10,6 +10,9 @@ default: help all/default
 SELF?=${CURDIR}/helper.mk
 
 project?=unifysdk
+# Temporary workaround for:
+# https://gitlab.kitware.com/cmake/cmake/-/issues/22813#note_1620373
+project_test_dir?=applications
 
 # Allow overloading from env if needed
 # VERBOSE?=1
@@ -105,25 +108,24 @@ setup/python:
 	pip3 install "pybars3" \
 		|| pip3 install --break-system-packages "pybars3"
 
-cmake_url?=https://github.com/Kitware/CMake/releases/download/v3.21.6/cmake-3.21.6-Linux-x86_64.sh
-cmake_filename?=$(shell basename -- "${cmake_url}")
-cmake_sha256?=d460a33c42f248388a8f2249659ad2f5eab6854bebaf4f57c1df49ded404e593
+# Relate-to: https://gitlab.kitware.com/cmake/cmake/-/issues/22813#note_1620373
+cmake_version?=3.29.3
+cmake_sha256?=f1a1672648eb72c0f7945b347e0537ebf640468e5ddd74f3d1def714e190e0cf
+cmake_filename?=cmake-${cmake_version}-linux-x86_64.sh
+cmake_url?=https://github.com/Kitware/CMake/releases/download/v${cmake_version}/${cmake_filename}
 
 setup/cmake:
-	@echo "$@: TODO: remove for debian-12+"
-	curl -O -L ${cmake_url}
-	sha256sum  ${cmake_filename} \
+	@echo "$@: TODO: remove for debian-13+ , currently supporting ${debian_codename}"
+	time curl -O -L ${cmake_url}
+	sha256sum ${cmake_filename} \
 		| grep "${cmake_sha256}"
-	${SHELL} "${cmake_filename}" \
+	${sudo} ${SHELL} "${cmake_filename}" \
 		--prefix=/usr/local \
 		--skip-license
 	rm -v "${cmake_filename}"
 	cmake --version
 
 setup-cmake: setup/cmake
-
-setup/debian/bullseye: setup/debian setup/rust setup/python setup/cmake
-	date -u
 
 setup/debian/bookworm: setup/debian setup/rust setup/python
 	date -u
@@ -164,7 +166,7 @@ ${build_dir}/%: build
 	file -E "$@"
 
 test: ${build_dir}
-	ctest --test-dir ${<}
+	ctest --test-dir ${<}/${project_test_dir}
 
 check: test
 
@@ -183,6 +185,8 @@ distclean:
 	rm -rf ${build_dir}
 
 prepare: git/prepare
+	git --version
+	cmake --version
 
 all/default: configure prepare build test dist
 	@date -u

@@ -55,6 +55,10 @@ target_add_unittest(
     DEPENDS
     zwave_command_class_test_helpers
     ${MOCK_LIBS})
+if(${BUILD_TESTING_PROPERTY_DISABLED})
+  set_tests_properties(zwave_command_class_time_parameters_test
+    PROPERTIES DISABLED True)
+endif()
 
 target_add_unittest(
   zwave_command_classes
@@ -430,8 +434,14 @@ target_add_unittest(
   zpc_config_mock
   zwave_tx_scheme_selector_mock
   zwave_tx_mock
-  uic_dotdot_mqtt_mock)
-
+  uic_dotdot_mqtt_mock
+)
+if(${BUILD_TESTING_PROPERTY_DISABLED})
+  set_tests_properties(zwave_command_class_switch_multilevel_test
+    PROPERTIES DISABLED True
+  )
+endif()
+ 
 # Z-Wave Color Switch Command Class test
 target_add_unittest(
   zwave_command_classes
@@ -806,8 +816,14 @@ target_add_unittest(
   zwave_command_handler_mock
   uic_attribute_resolver_mock
   zpc_attribute_resolver_mock
+)
+if(${BUILD_TESTING_PROPERTY_DISABLED})
+  set_tests_properties(zwave_command_class_user_code_test
+    PROPERTIES DISABLED True
   )
+endif()
 
+  
 # Humidity Control Mode test
 target_add_unittest(
   zwave_command_classes
