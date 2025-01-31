@@ -14,7 +14,7 @@ jobs:
         arch:
           - amd64
           - arm64
-          - armhf
+          # - armhf # TODO Enable when supported
     steps:
       - uses: actions/checkout@v4.1.1
         with:
