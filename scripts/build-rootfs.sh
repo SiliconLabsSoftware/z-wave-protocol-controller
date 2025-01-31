@@ -16,8 +16,10 @@ EOF
 project="unifysdk"
 debian_suite="bookworm"
 
+debian_arch=$(dpkg --print-architecture)
+
 # Can be overloaded from env eg: ARCH=arm64"
-target_debian_arch=${ARCH:="$(dpkg --print-architecture)"}
+target_debian_arch=${ARCH:="${debian_arch}"}
 
 debian_mirror_url="http://deb.debian.org/debian"
 sudo="sudo"
@@ -27,18 +29,16 @@ MAKE="/usr/bin/make"
 CURDIR="$PWD"
 chroot="systemd-nspawn"
 packages="debootstrap \
-  binfmt-support \
   debian-archive-keyring \
-  qemu-user-static \
   systemd-container \
   time \
 "
 case $target_debian_arch in
     amd64)
+        qemu_system="qemu-system-${CMAKE_SYSTEM_PROCESSOR}"
         export CMAKE_SYSTEM_PROCESSOR="x86_64"
         export CARGO_TARGET_TRIPLE="${CMAKE_SYSTEM_PROCESSOR}-unknown-linux-gnu"
-        packages="${packages} qemu-system-x86"
-        qemu_system="qemu-system-${CMAKE_SYSTEM_PROCESSOR}"
+        qemu_package="qemu-system-x86"
         ;;
 
     arm64)
@@ -46,26 +46,59 @@ case $target_debian_arch in
         qemu_system="qemu-system-${qemu_arch}"
         export CMAKE_SYSTEM_PROCESSOR="${qemu_arch}"
         export CARGO_TARGET_TRIPLE="${CMAKE_SYSTEM_PROCESSOR}-unknown-linux-gnu"
-        packages="${packages} qemu-system-arm"
+        qemu_package="qemu-system-arm"
         ;;
 
+    armhf)
+        debian_arch="armhf"
+        qemu_arch="arm"
+        qemu_system="qemu-system-${qemu_arch}"
+        export CMAKE_SYSTEM_PROCESSOR="armv7l"
+        export CARGO_TARGET_TRIPLE="armv7-unknown-linux-gnueabihf"
+        qemu_package="qemu-system-arm"
+
+        # Workaround: https://github.com/armbian/build/issues/5330
+        binfmt_file="/var/lib/binfmts/qemu-${qemu_arch}"
+        [ -e "$binfmt_file" ] || cat<<EOF \
+                | { sudo mkdir -p /var/lib/binfmts && sudo tee "$binfmt_file" ; }
+package qemu-user-static
+interpreter /usr/libexec/qemu-binfmt/arm-binfmt-P
+magic \x7f\x45\x4c\x46\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x28\x00
+offset 0
+mask \xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff
+credentials yes
+fix_binary no
+preserve yes
+EOF
+        ;;
     *)
         CMAKE_SYSTEM_PROCESSOR="$ARCH"
         CARGO_TARGET_TRIPLE="${CMAKE_SYSTEM_PROCESSOR}-unknown-linux-gnu"
         qemu_arch="${ARCH}"
         qemu_system="qemu-system-${qemu_arch}"
+        qemu_package="${qemu_system}"
         echo "error: Not supported yet"
 
         exit 1
         ;;
 esac
+qemu_file="/usr/bin/${qemu_system}"
+binfmt_file="/var/lib/binfmts/qemu-${qemu_arch}"
 
 ${sudo} apt-get update
 ${sudo} apt install -y ${packages}
-if [ -e "/var/lib/binfmts/qemu-${qemu_arch}" ]; then
-    ${sudo} update-binfmts --enable "qemu-${qemu_arch}"
+
+if [ "${debian_target_arch}" != "${debian_arch}" ] ; then
+    echo "log: ${ARCH}: Support foreign arch: ${qemu_arch}"
+    ${sudo} apt-get update
+    packages="binfmt-support qemu-user-static ${qemu_package}"
+    ${sudo} apt install -y ${packages}
+
+    if [ -e "${qemu_file}" ]; then
+        ${sudo} update-binfmts --enable "qemu-${qemu_arch}" \
+            || find /usr/libexec/qemu-binfmt/
+    fi
 fi
-qemu_file="/usr/bin/${qemu_system}"
 
 if [ ! -d "${rootfs_dir}" ] ; then
     ${sudo} mkdir -pv "${rootfs_dir}"
@@ -139,4 +172,4 @@ ${rootfs_shell}	\
     CARGO_TARGET_TRIPLE="${CARGO_TARGET_TRIPLE}" \
     # EoL
 
-sudo du -hs "/var/tmp/var/lib/machines/${machine}"
+echo "sudo du -hs -- '/var/tmp/var/lib/machines/${machine}' # can be removed now"
