@@ -22,7 +22,6 @@
 #include "zwave_s2_keystore_int.h"
 #include "zwave_s2_network.h"
 #include "zwave_s2_transport.h"
-#include "zwave_s2_protocol_cc_encryption.h"
 
 #define LOG_TAG "zwave_s2_process"
 
@@ -86,7 +85,6 @@ static void zwave_s2_init()
     .on_network_address_update  = zwave_s2_on_network_address_update,
     .on_new_network_entered     = zwave_s2_on_new_network_entered,
     .on_multicast_group_deleted = zwave_s2_on_on_multicast_group_deleted,
-    .on_protocol_cc_encryption_request = zwave_s2_on_protocol_cc_encryption_request,
   };
 
   zwave_controller_register_callbacks(&callbacks);

@@ -503,10 +503,17 @@ sl_status_t zwave_command_class_supervision_send_data(
   supervision_tx_options.number_of_responses = tx_options->number_of_responses;
   supervision_tx_options.number_of_responses += 1;
 
-  intptr_t user_parameter = (intptr_t)INVALID_SUPERVISION_ID;
-  if (connection->remote.is_multicast == false) {
-    user_parameter = (intptr_t)supervision_id;
+  intptr_t user_parameter;
+  if (!tx_options->transport.is_protocol_frame)
+  {
+    user_parameter = (intptr_t)INVALID_SUPERVISION_ID;
+    if (connection->remote.is_multicast == false) {
+      user_parameter = (intptr_t)supervision_id;
+    }
+  } else {
+    user_parameter = (intptr_t) user;
   }
+
   sl_status_t zwave_tx_status = zwave_tx_send_data(
     connection,
     supervision_frame_size,

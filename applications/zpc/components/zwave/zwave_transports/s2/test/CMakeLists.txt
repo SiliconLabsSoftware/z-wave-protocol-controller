@@ -65,21 +65,6 @@ target_add_unittest(
   zpc_attribute_store_test_helper
   zwave_network_management_mock)
 
-# ####################### S2 Protocol CC Encryption test ##################################
-target_add_unittest(
-  zwave_s2
-  NAME
-  zwave_s2_protocol_cc_encryption_test
-  SOURCES
-  zwave_s2_protocol_cc_encryption_test.c
-  DEPENDS
-  zwave_controller ## Non-mock, we use the real thing here
-  libs2_mock
-  zwave_api_mock
-  uic_contiki_stub
-  zwave_tx_mock
-  zwave_network_management_mock)
-
 # ####################### S2 Nonce Management test ##################################
 target_add_unittest(
   zwave_s2_nonce_management

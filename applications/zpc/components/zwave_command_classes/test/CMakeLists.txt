@@ -887,3 +887,18 @@ target_add_unittest(
   uic_attribute_resolver_mock
   zpc_attribute_resolver_mock
   uic_dotdot_mqtt_mock)
+
+target_add_unittest(
+  zwave_command_classes
+  NAME
+  zwave_command_class_protocol_test
+  SOURCES
+  zwave_command_class_protocol_test.c
+  DEPENDS
+  zwave_command_class_test_helpers
+  zwave_controller_mock
+  zwave_command_handler_mock
+  zwave_api_mock
+  zwave_tx_mock
+  zwave_tx_scheme_selector_mock
+)

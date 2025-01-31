@@ -53,7 +53,7 @@ std::multiset<zwave_command_handler_t, zwave_command_handler_compare>
 static zwave_controller_callbacks_t zwave_command_handler_callbacks = {
   .on_new_network_entered        = zwave_command_handler_on_new_network_entered,
   .on_application_frame_received = zwave_command_handler_on_frame_received,
-  .on_protocol_frame_received    = zwave_command_handler_on_protocol_frame_received
+  .on_protocol_frame_received    = zwave_command_handler_on_protocol_frame_received,
 };
 
 ///////////////////////////////////////////////////////////////////////////////
