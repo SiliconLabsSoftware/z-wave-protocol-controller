@@ -194,6 +194,14 @@ void S2_resynchronization_event(
 void S2_save_nls_state(void);
 
 /**
+ * Load NLS state stored in device memory in S2 context
+ *
+ * \param ctxt the S2 context
+ * \param nls_state NLS state
+ */
+void S2_load_nls_state(struct S2* ctxt, uint8_t nls_state);
+
+/**
  * @}
  */
 #endif /* INCLUDE_S2_EXTERNAL_H_ */
