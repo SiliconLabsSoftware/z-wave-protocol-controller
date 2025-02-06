@@ -74,18 +74,3 @@ hidden:
 ---
 protocol/zwave/running_zpc.md
 ```
-
-[Zigbee (ZigPC)](protocol/zigbee/running_zigpc.md)
-
-```{toctree}
----
-maxdepth: 1
-titlesonly:
-hidden:
----
-protocol/zigbee/running_zigpc.md
-```
-
-[Matter Protocol Controller](protocol/matter/matter_mpc.md)
-
-[Multiprotocol](getting_started_multiprotocol_cpc.md)

@@ -1,4 +1,4 @@
-# Z-Wave-Protocol-Controller Overview
+# Unify Overview
 
 ```{toctree}
 ---
@@ -63,13 +63,13 @@ This documentation is for the [latest release of the Unify Host SDK](https://git
 
 ## Overview
 
-Unify SDK is a software framework that simplifies the developer experience, removing difficult parts of network control and network management as it relates to gateway and hub development in IoT applications. It can also provide Matter bridge functionality to other protocols that do not natively run matter.
+Z-Wave-Protocol-Controller is a software framework that simplifies the developer experience, removing difficult parts of network control and network management as it relates to gateway and hub development in IoT applications.
 
-Unify SDK is developed as an open, modular, and portable architecture based on ubiquitous lightweight MQTT technology. The software framework is designed and developed on Linux. It provides an extensible set of software features to enable IoT wireless connectivity in gateways, multiprotocol scalability and application processor-based end products. Unify SDK simplifies development and ongoing software maintenance for IoT gateways and application processor-based end devices.
+Z-Wave-Protocol-Controller is developed as an open, modular, and portable architecture based on ubiquitous lightweight MQTT technology. The software framework is designed and developed on Linux. It provides an extensible set of software features to enable IoT wireless connectivity in gateways, multiprotocol scalability and application processor-based end products. Z-Wave-Protocol-Controller simplifies development and ongoing software maintenance for IoT gateways and application processor-based end devices.
 
-The Unify SDK provides software source and binary packages for Raspberry Pi 4. 
+The Z-Wave-Protocol-Controller provides software source and binary packages for Raspberry Pi 4. 
 
-Unify SDK provides common building blocks that ease connectivity across IoT ecosystems.
+Z-Wave-Protocol-Controller provides common building blocks that ease connectivity across IoT ecosystems.
 
 When developing IoT products that leverage a Linux operating system and a
 Silicon Labs radio, such as an IoT gateway or an advanced IoT end device,
@@ -102,16 +102,5 @@ Here is a component view along with further detailed descriptions below.
 The Unify Framework has support for:
 
   [![Z-Wave](assets/img/Z-Wave_logo.png)](../applications/zpc/readme_user.md)
-  [![Zigbee](assets/img/Zigbee_logo.png)](../applications/zigpc/readme_user.md)
-  [![Matter](assets/img/matter_logo.png)](https://siliconlabs.github.io/matter/latest/unify/index.html)
-  [![Bluetooth AoX](assets/img/Bluetooth_logo.png)](../applications/aox/applications/aoxpc/readme_user.md)
 
 Further details can be found on the [Unify Framework introduction page](UnifySDK.md).
-
-## Multiprotocol 
-
-The Unify Host SDK contains support for running Zigbee, OpenThread, and Bluetooth on a
-Linux host, using only a single low-cost Radio Co-Processor (RCP) chip from Silicon Labs.
-This system allows for running multiple protocols simultaneously using the same RCP.
-
-Further details can be found on the [Multiprotocol Host Software page](multiprotocol.md).
