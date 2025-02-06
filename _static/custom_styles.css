@@ -46,7 +46,7 @@ a:hover {
 }
 
 .icon-home::after {
-    content: "Unify";
+    content: "Z-Wave-Protocol-Controller";
     font-family: 'Open Sans', Helvetica, Arial, sans-serif;
     color: #fff;
     font-weight: 300;
