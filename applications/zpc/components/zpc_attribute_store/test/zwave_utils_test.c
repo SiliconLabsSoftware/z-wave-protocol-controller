@@ -39,6 +39,29 @@ int suiteTearDown(int num_failures)
 /// Called before each and every test
 void setUp() {}
 
+void test_set_node_granted_keys_happy_case()
+{
+  zwave_node_id_t test_node_id             = 119;
+  attribute_store_node_t test_node_id_node = 1;
+  zwave_keyset_t keyset
+    = ZWAVE_CONTROLLER_S2_AUTHENTICATED_KEY | ZWAVE_CONTROLLER_S2_ACCESS_KEY;
+
+  attribute_store_network_helper_create_node_id_node_ExpectAndReturn(
+    0,
+    test_node_id_node);
+  attribute_store_network_helper_create_node_id_node_IgnoreArg_node_unid();
+
+  attribute_store_set_child_reported_ExpectAndReturn(
+    test_node_id_node,
+    ATTRIBUTE_GRANTED_SECURITY_KEYS,
+    &keyset,
+    sizeof(keyset),
+    SL_STATUS_OK);
+
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    zwave_set_node_granted_keys(test_node_id, &keyset));
+}
+
 void test_get_nls_state_reported_happy_case()
 {
   zwave_node_id_t test_node_id             = 119;

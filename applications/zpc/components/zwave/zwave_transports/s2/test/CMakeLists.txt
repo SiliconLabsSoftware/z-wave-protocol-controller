@@ -61,6 +61,7 @@ target_add_unittest(
   zwave_api_mock
   uic_contiki_stub
   zwave_tx_mock
+  zpc_attribute_store_test_helper
   zwave_network_management_mock)
 
 # ####################### S2 Protocol CC Encryption test ##################################

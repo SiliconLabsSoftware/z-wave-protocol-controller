@@ -57,6 +57,9 @@
 #define S2_NONCE_REPORT_MOS_SOS_INDEX 3
 #define S2_NONCE_REPORT_MOS_SOS_MASK  0x3
 
+// Number of nodes per byte in NLS state node mask
+#define NLS_ENABLED_NODES_PER_BYTE 8
+
 struct S2 *s2_ctx;
 
 typedef enum { SINGLECAST, MULTICAST } zwave_s2_current_transmission_type_t;
@@ -83,6 +86,17 @@ static s2_transport_session_state_t state = {};
 // Secure NIF contents
 static uint8_t secure_nif[ZWAVE_MAX_FRAME_SIZE];
 static uint8_t secure_nif_length;
+
+// NLS context
+typedef struct s2_node_nls_context {
+  zwave_nodemask_t  node_list;                  // bitmask containing NLS enabled nodes in the network
+  uint16_t          node_list_length;           // length of the list in bytes (is not equal to the number of nodes in the network)
+  zwave_node_id_t   next_sent_node_id;          // node ID of the NLS enabled node to be sent next
+  uint16_t          nls_enabled_node_cnt;       // total number of NLS enabled nodes in the network
+  uint16_t          nls_enabled_node_sent_cnt;  // number of NLS enabled nodes already sent to the joining node
+} s2_node_nls_context_t;
+
+static s2_node_nls_context_t node_nls_context = {0};
 
 static uint8_t
   encapsulation_to_class(zwave_controller_encapsulation_scheme_t encap)
@@ -414,18 +428,17 @@ uint8_t S2_send_frame_multi(struct S2 *ctxt,
                                0);
 }
 
-
 void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, bool nls_capability, bool nls_state)
 {
   (void)class_id;
 
-  sl_log_debug(LOG_TAG, "NLS state report received for node %d, capability : %d, state: %d", srcNode, (bool)nls_capability, (bool)nls_state);
+  sl_log_debug(LOG_TAG, "NLS state report received for node %d, capability : %d, state: %d", srcNode, nls_capability, nls_state);
 
   if (zwave_store_nls_support((zwave_node_id_t)srcNode,
-                              (bool)nls_capability,
+                              nls_capability,
                               REPORTED_ATTRIBUTE)
       || zwave_store_nls_state((zwave_node_id_t)srcNode,
-                               (bool)nls_state,
+                               nls_state,
                                REPORTED_ATTRIBUTE)) {
     sl_log_error(LOG_TAG, "Error setting NLS attributes");
     return;
@@ -443,22 +456,169 @@ void S2_save_nls_state(void)
   // not relevant for ZPC
 }
 
-int8_t S2_get_nls_node_list(node_t srcNode, bool request, bool *is_last_node, uint16_t *node_id, uint8_t *granted_keys, bool *nls_state)
+sl_status_t compute_next_nls_enabled_node(void)
 {
-  // to be implemented later on
-  (void)srcNode;
-  (void)request;
+  for (uint16_t i = (node_nls_context.next_sent_node_id + 1);
+       i <= (node_nls_context.node_list_length * NLS_ENABLED_NODES_PER_BYTE);
+       i++) {
+    uint8_t nls_enabled = ZW_IS_NODE_IN_MASK(i, node_nls_context.node_list);
+    if (nls_enabled) {
+      node_nls_context.next_sent_node_id = i;
+      return SL_STATUS_OK;
+    }
+  }
+
+  return SL_STATUS_NOT_FOUND;
+}
+
+static uint16_t compute_nls_enabled_node_cnt(void)
+{
+  for (uint16_t i = 1;
+       i <= (node_nls_context.node_list_length * NLS_ENABLED_NODES_PER_BYTE);
+       i++) {
+    uint8_t nls_enabled = ZW_IS_NODE_IN_MASK(i, node_nls_context.node_list);
+    if (nls_enabled) {
+      node_nls_context.nls_enabled_node_cnt++;
+    }
+  }
+
+  return node_nls_context.nls_enabled_node_cnt;
+}
+
+/*
+This command is received by the trust center (SIS). We can retrieve the list from the controller when the
+joining node requests it for the first node (request flag is set to 0) and then send the cached
+information for the remaining nodes.
+
+This function is not supposed to send a frame. It just fills the necessary fields of the report frame of the
+command in question and let libS2 send it.
+
+If there is no NLS enabled nodes or last NLS enabled node is sent, `nls_state` is not set to true so libS2
+should not send the report frame.
+*/
+int8_t S2_get_nls_node_list(node_t srcNode,
+                            bool request,
+                            bool *is_last_node,
+                            uint16_t *node_id,
+                            uint8_t *granted_keys,
+                            bool *nls_state)
+{
+  sl_status_t status = SL_STATUS_OK;
+  *is_last_node      = false;
+  *node_id           = 0;
+  *granted_keys      = 0;
+  *nls_state         = false;
+
+  sl_log_debug(LOG_TAG,
+               "NLS Node List Get received from node %d, request: %d",
+               srcNode,
+               request);
+
+  if (request == false) {
+    memset(&node_nls_context, 0, sizeof(s2_node_nls_context_t));
+    status = zwapi_get_nls_nodes(&node_nls_context.node_list_length,
+                                 node_nls_context.node_list);
+    if (status != SL_STATUS_OK) {
+      sl_log_error(LOG_TAG, "Error getting NLS nodes, %d", status);
+      return -1;
+    }
+    compute_nls_enabled_node_cnt();
+  }
+
+  if (node_nls_context.nls_enabled_node_cnt == 0) {
+    sl_log_warning(LOG_TAG, "No NLS enabled nodes found in the controller NVM");
+    return -1;
+  }
+
+  if (node_nls_context.nls_enabled_node_sent_cnt
+      == node_nls_context.nls_enabled_node_cnt) {
+    sl_log_warning(LOG_TAG, "All NLS enabled nodes are already sent");
+    return -1;
+  }
+
+  if (node_nls_context.nls_enabled_node_sent_cnt
+      == node_nls_context.nls_enabled_node_cnt - 1) {
+    *is_last_node = true;
+  }
+
+  status = compute_next_nls_enabled_node();
+  if (status != SL_STATUS_OK) {
+    sl_log_debug(LOG_TAG, "No NLS enabled nodes found in the controller NVM");
+    return -1;
+  }
+
+  zwave_keyset_t keyset = {0};
+  status
+    = zwave_get_node_granted_keys(node_nls_context.next_sent_node_id, &keyset);
+  if (status != SL_STATUS_OK) {
+    sl_log_error(LOG_TAG,
+                 "Error getting granted keys of the node %d",
+                 node_nls_context.next_sent_node_id);
+    return -1;
+  }
+  *granted_keys = (uint8_t)keyset;
+
+  node_nls_context.nls_enabled_node_sent_cnt++;
+
+  *node_id   = node_nls_context.next_sent_node_id;
+  *nls_state = true;
+
   return 0;
 }
 
-int8_t S2_notify_nls_node_list_report(node_t srcNode, uint16_t id_of_node, uint8_t keys_node_bitmask, bool nls_state)
+/*
+This command is received by the joining node (secondary controller).
+*/
+int8_t S2_notify_nls_node_list_report(node_t srcNode,
+                                      uint16_t id_of_node,
+                                      uint8_t keys_node_bitmask,
+                                      bool nls_state)
 {
-  // to be implemented later on
-  (void)srcNode;
-  (void)id_of_node;
-  (void)keys_node_bitmask;
-  (void)nls_state;
-  return 0;
+  sl_status_t status = SL_STATUS_OK;
+
+  sl_log_debug(LOG_TAG,
+               "NLS Node List Report received from the node %d, NLS state: %d",
+               srcNode,
+               nls_state);
+
+  if (nls_state) {
+    status = zwapi_enable_node_nls(id_of_node);
+    if (SL_STATUS_OK != status) {
+      sl_log_error(
+        LOG_TAG,
+        "Error saving NLS state of the node %d in the controller NVM",
+        id_of_node);
+      return -1;
+    }
+
+    if (zwave_store_nls_support((zwave_node_id_t)id_of_node,
+                                true,
+                                REPORTED_ATTRIBUTE)
+        || zwave_store_nls_state((zwave_node_id_t)id_of_node,
+                                 true,
+                                 REPORTED_ATTRIBUTE)) {
+      sl_log_error(LOG_TAG,
+                   "Error setting NLS attributes of the node %d",
+                   id_of_node);
+      return -1;
+    }
+
+    status = zwave_set_node_granted_keys((zwave_node_id_t)id_of_node,
+                                         &keys_node_bitmask);
+    if (SL_STATUS_OK != status) {
+      sl_log_error(LOG_TAG,
+                   "Error setting granted keys of the node %d",
+                   id_of_node);
+      return -1;
+    }
+
+    sl_log_debug(LOG_TAG, "Saved NLS state of the node %d", id_of_node);
+    return 0;
+  }
+
+  // Consider the case as error where NLS state is sent as 0. The protocol
+  // should send only NLS enabled nodes.
+  return -1;
 }
 
 /************************* Our interface functions ****************************/
