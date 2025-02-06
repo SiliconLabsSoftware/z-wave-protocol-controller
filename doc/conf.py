@@ -72,12 +72,12 @@ class mqtt_lexer(RegexLexer):
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "Unify"
-copyright = "Copyright © 2023 Silicon Laboratories. All rights reserved."
+project = "Z-Wave-Protocol-Controller"
+copyright = "Copyright © 2025 Silicon Laboratories. All rights reserved."
 author = "Silicon Labs"
 language = "en"
 
-root_doc = "doc/introduction"
+root_doc = "doc/protocol/zwave/zpc_introduction"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -140,9 +140,9 @@ myst_enable_extensions = [
     "tasklist",
 ]
 
-# setup plantuml plugin
-plantuml = "java -jar " + os.environ["PLANTUML_JAR_PATH"]
-
+# setup plantuml plugin, fallback to LSB location
+plantuml = os.environ.get("PLANTUML_JAR_PATH", "/usr/share/plantuml/plantuml.jar")
+plantuml = "java -jar " + plantuml
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -151,10 +151,10 @@ html_static_path = ["_static"]
 html_js_files = ["js/charenc.js", "js/crypt.js", "js/sha1.js", "js/html5-qrcode.min.js", "js/qr_code_scanner.js"]
 html_css_files = ["custom_styles.css"]
 html_logo = "doxygen/assets/silicon-labs-logo.png"
-html_title = "Unify Host SDK"
-html_baseurl = "https://siliconlabs.github.io/UnifySDK"
+html_title = "Z-Wave-Protocol-Controller"
+html_baseurl = "https://SiliconLabsSoftware.github.io/z-wave-protocol-controller"
 
-releases_github_path = "SiliconLabs/UnifySDK"
+releases_github_path = "SiliconLabsSoftware/z-wave-protocol-controller"
 
 # -- Options for figures and tables (https://www.sphinx-doc.org/en/master/usage/configuration.html)
 numfig = True
