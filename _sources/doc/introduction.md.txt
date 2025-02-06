@@ -1,4 +1,4 @@
-# Unify Overview
+# Z-Wave-Protocol-Controller Overview
 
 ```{toctree}
 ---
@@ -84,9 +84,6 @@ The Unify Host SDK contains:
 
 * The Unify Framework - A powerful IoT gateway framework that can support multiple wireless protocols.
 * Protocol Controllers that implement various wireless protocols.
-* Multiprotocol Host Software - A collection of host software for simultaneously
-  running multiple protocol stacks on the host.
-  Using a single radio co-processor, you can run Zigbee, OpenThread, and Bluetooth.
 
 Here is a component view along with further detailed descriptions below.
 
