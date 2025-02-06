@@ -52,14 +52,15 @@ standards/known-abbreviations.md
 
 
 
-This documentation is for the [latest release of the Unify Host SDK](https://github.com/SiliconLabs/UnifySDK/releases/latest).
+This documentation is for the
+[latest release of the Z-Wave-Protocol-Controller](
+https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/releases/latest
+).
 
-* The Silicon Labs Unify Host SDK source code may be found at
-  <https://github.com/SiliconLabs/UnifySDK>
+* The Silicon Labs Z-Wave-Protocol-Controller source code may be found at
+  <https://github.com/SiliconLabsSoftware/z-wave-protocol-controller>
 * Binary packages for Raspberry Pi 4 (Raspbian 12, Debian Bookworm 64-bit) can be found
-  here <https://github.com/SiliconLabs/UnifySDK/releases>
-
-**Use [Portable Runtime](portable_runtime/readme_user.md) for a quick demo with Unify**
+  here <https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/releases>
 
 ## Overview
 
@@ -80,7 +81,7 @@ has created a single repository for important customer software needs on a Linux
 gateway. We've aggregated software from multiple repositories and simplified the
 distribution to enhance ease of use and accessibility.
 
-The Unify Host SDK contains:
+The Z-Wave-Protocol-Controller contains:
 
 * The Unify Framework - A powerful IoT gateway framework that can support multiple wireless protocols.
 * Protocol Controllers that implement various wireless protocols.
@@ -89,7 +90,7 @@ Here is a component view along with further detailed descriptions below.
 
 ```{eval-rst}
 .. figure:: assets/img/unify-sdk-block-diagram.jpg
-   :alt: Unify Host SDK
+   :alt: Z-Wave-Protocol-Controller
    :width: 75%
    :align: center
 ```
