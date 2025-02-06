@@ -170,6 +170,15 @@ sl_status_t zwave_get_node_granted_keys(zwave_node_id_t node_id,
                                         zwave_keyset_t *keys);
 
 /**
+ * @brief Set the node granted keys object
+ *
+ * @param node_id
+ * @param keys
+ */
+sl_status_t zwave_set_node_granted_keys(zwave_node_id_t node_id,
+                                        zwave_keyset_t *keyset);
+
+/**
  * @brief Verify whether a node/endpoint supports a Command Class
  * using the attribute Store.
  *
