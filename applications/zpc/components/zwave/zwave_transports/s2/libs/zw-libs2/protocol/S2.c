@@ -1459,6 +1459,7 @@ static void S2_command_handler(struct S2* p_context, s2_connection_t* src, uint8
           if (state) {
             ctxt->nls_state = 1; // There is at least one an NLS-enabled node in the network
           }
+          S2_save_nls_state();
 
           S2_notify_nls_state_report(src->r_node, src->class_id, capability, state);
         }
@@ -1966,6 +1967,12 @@ S2_is_send_data_multicast_busy(struct S2* p_context)
 {
   CTX_DEF
   return ctxt->fsm != IDLE;
+}
+
+void S2_load_nls_state(struct S2* p_context, uint8_t nls_state)
+{
+  CTX_DEF
+  ctxt->nls_state = nls_state;
 }
 
 static void S2_send_nls_state_report(struct S2* p_context, s2_connection_t* con)
