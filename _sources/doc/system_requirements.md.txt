@@ -16,8 +16,6 @@ when running multiple Unify applications that use the same shared library
 | Component          |    Flash |                RAM (RSS) |
 | ------------------ | -------: | -----------------------: |
 | libunify           | 15427 kB |                      N/A |
-| uic-aoxpc          |  1507 kB |                 17872 kB |
-| uic-zigpc          |  1485 kB |                 17332 kB |
 | uic-zpc            |  5061 kB |                 24888 kB |
 | uic-gms            |  1579 kB |                 16160 kB |
 | uic-nal            |  1620 kB |                 17324 kB |
@@ -27,10 +25,7 @@ when running multiple Unify applications that use the same shared library
 | uic-image-provider |  1579 kB |                 16440 kB |
 | uic-upvl           |  1628 kB |                 17392 kB |
 | uic-dev-gui        | 48089 kB |                 47440 kB |
-| zigbeed            |  4019 kB |                  3108 kB |
 | Z3Gateway          |   621 kB |                      TBD |
-| uic-cpcd           |   290 kB |                   772 kB |
-| uic-cpc-hci-bridge |    10 kB |                      TBD |
 
 The SDK depends on the following Debian packages:
 
