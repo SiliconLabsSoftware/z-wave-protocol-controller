@@ -263,6 +263,25 @@ sl_status_t zwave_get_node_granted_keys(zwave_node_id_t node_id,
                                       sizeof(zwave_keyset_t));
 }
 
+// Write the granted keys for a node from the attribute store
+sl_status_t zwave_set_node_granted_keys(zwave_node_id_t node_id,
+                                        zwave_keyset_t *keyset)
+{
+  // Find the node from the attribute store:
+  unid_t unid;
+  zwave_unid_from_node_id(node_id, unid);
+
+  // Find out attribute store node based on the UNID
+  attribute_store_node_t node_id_node
+    = attribute_store_network_helper_create_node_id_node(unid);
+
+  // Write down the granted keys for that node
+  return attribute_store_set_child_reported(node_id_node,
+                                            ATTRIBUTE_GRANTED_SECURITY_KEYS,
+                                            keyset,
+                                            sizeof(zwave_keyset_t));
+}
+
 bool zwave_node_want_supervision_frame(zwave_node_id_t node_id,
                                        zwave_endpoint_id_t endpoint_id)
 {

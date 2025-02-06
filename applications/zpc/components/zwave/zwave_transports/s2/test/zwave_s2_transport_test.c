@@ -23,16 +23,26 @@
 #include "S2_mock.h"
 #include "zwapi_protocol_mem_mock.h"
 #include "zwave_tx_mock.h"
+#include "zwapi_protocol_controller_mock.h"
+#include "zwave_network_management_mock.h"
+#include "zwave_utils.h"
 
 // ZPC Components
 #include "zwave_controller_callbacks.h"
 #include "s2_classcmd.h"
 #include "ZW_classcmd.h"
 #include "zwave_rx.h"
+#include "attribute_store_fixt.h"
+#include "datastore_fixt.h"
+#include "zpc_attribute_store_type_registration.h"
+#include "zpc_attribute_store_test_helper.h"
+#include "zpc_attribute_store_network_helper.h"
 
 // Unify components
 #include "sl_status.h"
 #include "sl_log.h"
+#include "unify_dotdot_attribute_store.h"
+#include "attribute_store_helper.h"
 
 // Generic includes
 #include <string.h>
@@ -49,6 +59,45 @@ static zwave_rx_receive_options_t my_rx_options;
 static uint8_t my_frame_data[100];
 static uint16_t my_frame_length;
 
+extern const unify_dotdot_attribute_store_configuration_t zpc_configuration;
+
+static void create_basic_network(void)
+{
+  const zwave_home_id_t home_id = 0xcafecafe;
+  zwave_keyset_t granted_keys = 0xFF;
+
+  unify_dotdot_attribute_store_set_configuration(&zpc_configuration);
+
+  // Configure the UNID module to know our UNID.
+  zwave_unid_set_home_id(home_id);
+
+  // Make sure to start from scratch
+  attribute_store_delete_node(attribute_store_get_root());
+  // HomeID
+  attribute_store_node_t home_id_node
+    = attribute_store_add_node(ATTRIBUTE_HOME_ID, attribute_store_get_root());
+  attribute_store_set_reported(home_id_node, &home_id, sizeof(zwave_home_id_t));
+
+  attribute_store_node_t node_id_node;
+  zwave_node_id_t node_id;
+
+  node_id      = 1;  // ZPC
+  node_id_node = attribute_store_add_node(ATTRIBUTE_NODE_ID, home_id_node);
+  attribute_store_set_reported(node_id_node, &node_id, sizeof(node_id));
+
+  node_id      = 3;  // Z-Wave node
+  node_id_node = attribute_store_add_node(ATTRIBUTE_NODE_ID, home_id_node);
+  attribute_store_set_reported(node_id_node, &node_id, sizeof(node_id));
+  node_id_node = attribute_store_add_node(ATTRIBUTE_GRANTED_SECURITY_KEYS, node_id_node);
+  zwave_set_node_granted_keys(node_id, &granted_keys);
+
+  node_id      = 4;  // Z-Wave node
+  node_id_node = attribute_store_add_node(ATTRIBUTE_NODE_ID, home_id_node);
+  attribute_store_set_reported(node_id_node, &node_id, sizeof(node_id));
+  node_id_node = attribute_store_add_node(ATTRIBUTE_GRANTED_SECURITY_KEYS, node_id_node);
+  zwave_set_node_granted_keys(node_id, &granted_keys);
+}
+
 /// Setup the test suite (called once before all test_xxx functions are called)
 void suiteSetUp() {}
 
@@ -62,9 +111,19 @@ void setUp()
 {
   num_callbacks = 0;
   contiki_test_helper_init();
+
+  datastore_fixt_setup(":memory:");
+  attribute_store_init();
+  zpc_attribute_store_register_known_attribute_types();
+
+  create_basic_network();
 }
 
-void tearDown() {}
+void tearDown()
+{
+  attribute_store_teardown();
+  datastore_fixt_teardown();
+}
 
 // Used to catch the status codes
 static void on_zwave_tx_send_data_complete(uint8_t status,
@@ -383,4 +442,221 @@ void test_zwave_s2_abort_send_data()
   S2_send_frame_done_notify_Ignore();
   //Abort the tranmission
   TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_abort_send_data(session));
+}
+
+void test_zwave_s2_nls_node_list_get_test_request_0_node_exists_last_node()
+{
+  zwave_nodemask_t node_list = {0};
+  uint16_t node_list_length  = 0;
+  int8_t status;
+
+  // Variables for test input
+  node_t src_node;
+  bool request;
+
+  // Variables to be filled by the function being tested
+  bool is_last_node;
+  uint16_t node_id;
+  uint8_t granted_keys;
+  bool nls_state;
+
+  // Set expected values
+  node_list[0]     = 0x08;  // Node 4 is NLS enabled
+  node_list_length = 1;
+
+  zwapi_get_nls_nodes_ExpectAndReturn(NULL, NULL, SL_STATUS_OK);
+  zwapi_get_nls_nodes_IgnoreArg_list_length();
+  zwapi_get_nls_nodes_IgnoreArg_node_list();
+  zwapi_get_nls_nodes_ReturnThruPtr_list_length(&node_list_length);
+  zwapi_get_nls_nodes_ReturnArrayThruPtr_node_list(node_list,
+                                                   sizeof(node_list));
+
+  src_node = 1;
+  request  = false;  // Request 1st node
+  status   = S2_get_nls_node_list(src_node,
+                                request,
+                                &is_last_node,
+                                &node_id,
+                                &granted_keys,
+                                &nls_state);
+
+  TEST_ASSERT_EQUAL(0, status);
+  TEST_ASSERT_EQUAL(true, is_last_node);
+  TEST_ASSERT_EQUAL(4, node_id);
+  TEST_ASSERT_EQUAL(0xFF, granted_keys);
+  TEST_ASSERT_EQUAL(true, nls_state);
+}
+
+void test_zwave_s2_nls_node_list_get_test_request_0_node_exists_not_last_node()
+{
+  zwave_nodemask_t node_list = {0};
+  uint16_t node_list_length  = 0;
+  int8_t status;
+
+  // Variables for test input
+  node_t src_node;
+  bool request;
+
+  // Variables to be filled by the function being tested
+  bool is_last_node;
+  uint16_t node_id;
+  uint8_t granted_keys;
+  bool nls_state;
+
+  // Set expected values
+  node_list[0]     = 0x0C;  // Node 3 and 4 are NLS enabled
+  node_list_length = 1;
+
+  zwapi_get_nls_nodes_ExpectAndReturn(NULL, NULL, SL_STATUS_OK);
+  zwapi_get_nls_nodes_IgnoreArg_list_length();
+  zwapi_get_nls_nodes_IgnoreArg_node_list();
+  zwapi_get_nls_nodes_ReturnThruPtr_list_length(&node_list_length);
+  zwapi_get_nls_nodes_ReturnArrayThruPtr_node_list(node_list,
+                                                   sizeof(node_list));
+
+  src_node = 1;
+  request  = false;  // Request 1st node
+  status   = S2_get_nls_node_list(src_node,
+                                request,
+                                &is_last_node,
+                                &node_id,
+                                &granted_keys,
+                                &nls_state);
+
+  TEST_ASSERT_EQUAL(0, status);
+  TEST_ASSERT_EQUAL(false, is_last_node);
+  TEST_ASSERT_EQUAL(3, node_id);
+  TEST_ASSERT_EQUAL(0xFF, granted_keys);
+  TEST_ASSERT_EQUAL(true, nls_state);
+
+  src_node = 1;
+  request  = true;  // Request 2nd node
+  status   = S2_get_nls_node_list(src_node,
+                                request,
+                                &is_last_node,
+                                &node_id,
+                                &granted_keys,
+                                &nls_state);
+
+  TEST_ASSERT_EQUAL(0, status);
+  TEST_ASSERT_EQUAL(true, is_last_node);
+  TEST_ASSERT_EQUAL(4, node_id);
+  TEST_ASSERT_EQUAL(0xFF, granted_keys);
+  TEST_ASSERT_EQUAL(true, nls_state);
+
+  src_node = 1;
+  request  = true;  // Request a non-existant node
+  status   = S2_get_nls_node_list(src_node,
+                                request,
+                                &is_last_node,
+                                &node_id,
+                                &granted_keys,
+                                &nls_state);
+
+  TEST_ASSERT_EQUAL(-1, status);
+  TEST_ASSERT_EQUAL(false, nls_state);
+}
+
+void test_zwave_s2_nls_node_list_get_test_request_0_node_does_not_exist()
+{
+  zwave_nodemask_t node_list = {0};
+  uint16_t node_list_length  = 0;
+  int8_t status;
+
+  // Variables for test input
+  node_t src_node;
+  bool request;
+
+  // Variables to be filled by the function being tested
+  bool is_last_node;
+  uint16_t node_id;
+  uint8_t granted_keys;
+  bool nls_state;
+
+  // Set expected values
+  node_list[0]     = 0x00;
+  node_list_length = 1;
+
+  zwapi_get_nls_nodes_ExpectAndReturn(NULL, NULL, SL_STATUS_OK);
+  zwapi_get_nls_nodes_IgnoreArg_list_length();
+  zwapi_get_nls_nodes_IgnoreArg_node_list();
+  zwapi_get_nls_nodes_ReturnThruPtr_list_length(&node_list_length);
+  zwapi_get_nls_nodes_ReturnArrayThruPtr_node_list(node_list,
+                                                   sizeof(node_list));
+
+  src_node = 1;
+  request  = false;  // Request 1st node
+  status   = S2_get_nls_node_list(src_node,
+                                request,
+                                &is_last_node,
+                                &node_id,
+                                &granted_keys,
+                                &nls_state);
+
+  TEST_ASSERT_EQUAL(-1, status);
+  TEST_ASSERT_EQUAL(false, nls_state);
+}
+
+void test_zwave_s2_nls_node_list_report_test_happy_case()
+{
+  int8_t status;
+
+  // Variables for test input
+  node_t src_node;
+  uint16_t node_id;
+  uint8_t granted_keys;
+  bool nls_state;
+
+  src_node = 1;
+  node_id = 3;
+  granted_keys = 0xFF;
+  nls_state = true;
+
+  zwapi_enable_node_nls_ExpectAndReturn(node_id, SL_STATUS_OK);
+
+  status = S2_notify_nls_node_list_report(src_node, node_id, granted_keys, nls_state);
+
+  TEST_ASSERT_EQUAL(0, status);
+}
+
+void test_zwave_s2_nls_node_list_report_test_node_does_not_exist()
+{
+  int8_t status;
+
+  // Variables for test input
+  node_t src_node;
+  uint16_t node_id;
+  uint8_t granted_keys;
+  bool nls_state;
+
+  src_node = 1;
+  node_id = 6; // Non existant node
+  granted_keys = 0xFF;
+  nls_state = true;
+
+  zwapi_enable_node_nls_ExpectAndReturn(node_id, SL_STATUS_OK);
+
+  status = S2_notify_nls_node_list_report(src_node, node_id, granted_keys, nls_state);
+
+  TEST_ASSERT_EQUAL(-1, status);
+}
+
+void test_zwave_s2_nls_node_list_report_test_nls_state_not_set()
+{
+  int8_t status;
+
+  // Variables for test input
+  node_t src_node;
+  uint16_t node_id;
+  uint8_t granted_keys;
+  bool nls_state;
+
+  src_node = 1;
+  node_id = 3; // Non existant node
+  granted_keys = 0xFF;
+  nls_state = false;
+
+  status = S2_notify_nls_node_list_report(src_node, node_id, granted_keys, nls_state);
+
+  TEST_ASSERT_EQUAL(-1, status);
 }
