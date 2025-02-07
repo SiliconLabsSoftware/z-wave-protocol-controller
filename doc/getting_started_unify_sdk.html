@@ -41,7 +41,7 @@
               <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.6.0-RC4-203-g6f5c28dc1e
+                ver_1.6.0-RC4-141-g17e4441c97-70-ga5dee2cc9f
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -54,9 +54,9 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Z-Wave-Protocol-Controller Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="getting_started_unify.html">Getting Started with Unify</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="getting_started.html">Running Unify on Raspberry Pi</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="getting_started.html">Running Z-Wave-Protocol-Controller on Raspberry Pi</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="unify_readme_user.html">Unify Host SDK User guide</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Getting Started with the Unify Framework</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Getting Started with the Z-Wave-Protocol-Controller Framework</a></li>
 </ul>
 </li>
 </ul>
@@ -119,8 +119,8 @@ It is recommended to use the Developer GUI for controlling the Unify Framework I
 <p>For including an IoT protocol stack, you need to install and setup at least one protocol controller.</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#zpc"><span class="std std-ref">Z-Wave Protocol Controller (ZPC)</span></a></p></li>
-<li><p><a class="reference internal" href="#zigpc"><span class="std std-ref">Zigbee Protocol Controller (ZigPC)</span></a></p></li>
-<li><p><a class="reference internal" href="#aoxpc"><span class="std std-ref">Bluetooth Angle of Arrival/Departure Protocol Controller (AoXPC)</span></a></p></li>
+<li><p><span class="xref myst"></span></p></li>
+<li><p><span class="xref myst"></span></p></li>
 </ul>
 <section id="z-wave-protocol-controller-zpc">
 <span id="zpc"></span><h3>Z-Wave Protocol Controller (ZPC)<a class="headerlink" href="#z-wave-protocol-controller-zpc" title="Permalink to this heading"></a></h3>
@@ -132,27 +132,6 @@ automatically start up the <code class="docutils literal notranslate"><span clas
 provide the USB path for the Z-Wave module at the configuration steps.</p>
 <p>A more in depth getting started guide specifically for the <code class="docutils literal notranslate"><span class="pre">ZPC</span></code> is
 <a class="reference internal" href="../applications/zpc/readme_user.html"><span class="doc std std-doc">ZPC User’s Guide</span></a>.</p>
-</section>
-<section id="zigbee-protocol-controller-zigpc">
-<span id="zigpc"></span><h3>Zigbee Protocol Controller (ZigPC)<a class="headerlink" href="#zigbee-protocol-controller-zigpc" title="Permalink to this heading"></a></h3>
-<p><strong>Prerequisite</strong>: Required hardware for using the <code class="docutils literal notranslate"><span class="pre">ZigPC</span></code> is a <a class="reference external" href="https://www.silabs.com/wireless/zigbee">Zigbee module</a> which could be EFR32MG12/EFR32xG22
-running NCP or CPC Firmware for Zigbee.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">ZigPC</span></code> enables the Unify Framework to control Zigbee devices. Starting quickly
-can be done by simply installing the <code class="docutils literal notranslate"><span class="pre">uic-zigpc</span></code> Debian package and configuring
-the USB device at the configuration step. After installing, the protocol
-controller should be started automatically as a systemd service.</p>
-<p>For more information on getting started with the <code class="docutils literal notranslate"><span class="pre">ZigPC</span></code> is placed in
-<span class="xref myst">ZigPC User’s Guide</span>.</p>
-</section>
-<section id="bluetooth-angle-of-arrival-departure-protocol-controller-aoxpc">
-<span id="aoxpc"></span><h3>Bluetooth Angle of Arrival/Departure Protocol Controller (AoXPC)<a class="headerlink" href="#bluetooth-angle-of-arrival-departure-protocol-controller-aoxpc" title="Permalink to this heading"></a></h3>
-<p><strong>Prerequisite</strong>: Required hardware for using the <code class="docutils literal notranslate"><span class="pre">AoXPC</span></code> is a <a class="reference external" href="https://www.silabs.com/wireless/bluetooth">Bluetooth module</a>
-EFR32xG22 running NCP Firmware for AoXPC.</p>
-<p>Lastly of the protocol controllers the above approach can again be used for the
-<code class="docutils literal notranslate"><span class="pre">AoXPC</span></code>. Installing <code class="docutils literal notranslate"><span class="pre">uic-aoxpc</span></code>, going through configuration steps and it should
-be running.</p>
-<p>For more information on getting started with the <code class="docutils literal notranslate"><span class="pre">AoXPC</span></code> is found in
-<span class="xref myst">AoXPC User Guide</span>.</p>
 </section>
 <section id="evaluation-after-installation">
 <h3>Evaluation after Installation<a class="headerlink" href="#evaluation-after-installation" title="Permalink to this heading"></a></h3>

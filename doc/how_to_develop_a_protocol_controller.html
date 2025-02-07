@@ -41,7 +41,7 @@
               <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.6.0-RC4-203-g6f5c28dc1e
+                ver_1.6.0-RC4-141-g17e4441c97-70-ga5dee2cc9f
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -91,326 +91,12 @@
              
   <section id="how-to-develop-a-protocol-controller">
 <span id="how-to-develop-a-protocol-controller-section"></span><h1>How to develop a Protocol Controller<a class="headerlink" href="#how-to-develop-a-protocol-controller" title="Permalink to this heading"></a></h1>
-<p>This page provides a guide on how to develop a Protocol Controller. A Protocol
-Controller can be a complicated application, but can be developed easily
-using the <a class="reference internal" href="unify_library_overview.html"><span class="doc">Unify Library</span></a>.</p>
-<section id="what-is-a-protocol-controller">
-<h2>What is a Protocol Controller?<a class="headerlink" href="#what-is-a-protocol-controller" title="Permalink to this heading"></a></h2>
-<p>Protocol Controllers can be quite different by design. As a minimum, an
-application is considered to be a Protocol Controller when it
-interacts (send/receive messages) with some nodes/entities using e.g.
-networking protocols and allows at least one of the following using
-the UCL language:</p>
-<ol class="arabic simple">
-<li><p>Expose attributes from the nodes it can reach via MQTT.</p></li>
-<li><p>Send commands to the nodes it can reach when instructed via MQTT.</p></li>
-</ol>
-<p>If an application can communicate with a device and proxy
-its state and/or functionality using the UCL language, it is considered
-a Protocol Controller.</p>
-</section>
-<section id="before-getting-started">
-<h2>Before getting started<a class="headerlink" href="#before-getting-started" title="Permalink to this heading"></a></h2>
-<p>First and foremost, take a moment to read the
-<span class="xref std std-doc">Unify Framework Specifications</span>.
-They describe how the Protocol Controller will translate and display nodes
-using the UCL framework.</p>
-<p>If using the Unify repository, make sure to read the
-<a class="reference internal" href="readme_developer.html"><span class="doc">Developer README</span></a> before going ahead and creating a new
-application. Finally, it is also a good idea to check the
-<a class="reference internal" href="standards/coding-standard.html"><span class="doc">Coding Standard</span></a> and adhere to it before creating
-a Protocol Controller in the Unify repository.</p>
-</section>
-<section id="example-protocol-controller">
-<h2>Example Protocol Controller<a class="headerlink" href="#example-protocol-controller" title="Permalink to this heading"></a></h2>
-<p>An Example Protocol Controller (<strong>EPC</strong>) is provided as part of the Unify Framework.
-This example application intends to show how to set up and develop a Protocol
-Controller.</p>
-<p>We use code snippets from the Example Protocol Controller in this guide, but
-it is a good idea to have a look at the <strong>EPC</strong> and use it for inspiration when
-developing a new Protocol Controller.</p>
-</section>
-<section id="getting-started">
-<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h2>
-<section id="creating-a-new-application">
-<h3>Creating a new application<a class="headerlink" href="#creating-a-new-application" title="Permalink to this heading"></a></h3>
-<p>If you are using the Unify repository, start by creating folders and CMake
-files that will allow to build a new application. Peek into the other
-applications to get quickly started.</p>
-</section>
-<section id="creating-a-main-loop">
-<h3>Creating a main loop<a class="headerlink" href="#creating-a-main-loop" title="Permalink to this heading"></a></h3>
-<p>Protocol Controllers designed using the
-<a class="reference internal" href="unify_library_overview.html"><span class="doc">Unify Library</span></a> should get started by creating a
-main loop.</p>
-<p>The main loop can be created by providing a list of functions to invoke for
-initialization and teardown, and then invoking <em>uic_main</em>.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;uic_main.h&quot;</span>
-
-<span class="c1">// List of init functions.</span>
-<span class="k">static</span><span class="w"> </span><span class="n">uic_fixt_setup_step_t</span><span class="w"> </span><span class="n">uic_fixt_setup_steps_list</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="p">{</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Terminator&quot;</span><span class="p">}};</span>
-
-<span class="c1">// List of shutdown functions</span>
-<span class="k">static</span><span class="w"> </span><span class="n">uic_fixt_shutdown_step_t</span><span class="w"> </span><span class="n">uic_fixt_shutdown_steps_list</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="p">{</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Terminator&quot;</span><span class="p">}};</span>
-
-<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">uic_main</span><span class="p">(</span><span class="n">uic_fixt_setup_steps_list</span><span class="p">,</span>
-<span class="w">                  </span><span class="n">uic_fixt_shutdown_steps_list</span><span class="p">,</span>
-<span class="w">                  </span><span class="n">argc</span><span class="p">,</span>
-<span class="w">                  </span><span class="n">argv</span><span class="p">,</span>
-<span class="w">                  </span><span class="n">CMAKE_PROJECT_VERSION</span><span class="p">);</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Running the main loop without any additional components active will provide a
-simple console with a few default functions available. An MQTT broker must be
-available and its addresss must be given as argument.</p>
-<p>Using the <strong>Example Protocol Controller</strong> application with an empty list of
-setup and teardown fixtures will look like this.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">pi@raspberrypi:~/unify/build $ </span>ninja<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./applications/examples/applications/epc/epc<span class="w"> </span>--log.level<span class="w"> </span>d<span class="w"> </span>--mqtt.host<span class="w"> </span>zpi
-</pre></div>
-</div>
-<figure class="align-center" id="id1">
-<a class="reference internal image-reference" href="../_images/epc_bare_minimum_main_loop_running.png"><img alt="EPC Bare minimum main loop" src="../_images/epc_bare_minimum_main_loop_running.png" style="width: 700px;" /></a>
-<figcaption>
-<p><span class="caption-text">EPC Bare minimum main loop</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
-<p>The order of initialization must be carefully set, so the components that
-depend on another can rely on their dependencies to be initialized. For instance,
-it is important to initialize the <strong>Datastore</strong> component before
-the <strong>Attribute store</strong>. Components will in most cases log warnings or errors
-if they cannot initialize as intended.</p>
-<p>It is recommended to initialize:</p>
-<ol class="arabic simple">
-<li><p>All configuration first</p></li>
-<li><p>Unify Components that The protocol Controller needs</p></li>
-<li><p>Protocol Controller specific components</p></li>
-</ol>
-<p>The teardown order should be the reverse of the initialization order.</p>
-<p>Fixture functions are expected to return status codes that will indicate
-if the start sequence should continue. For example:</p>
-<ul class="simple">
-<li><p>SL_STATUS_OK: Initialization went well</p></li>
-<li><p>SL_STATUS_NOT_AVAILABLE: Initialialization failed, but it was not a critical error and the system should continue running</p></li>
-<li><p>Any other value: Initialization failed and the program will shutdown immediately.</p></li>
-</ul>
-</section>
-<section id="additional-configuration">
-<h3>Additional configuration<a class="headerlink" href="#additional-configuration" title="Permalink to this heading"></a></h3>
-<p>The Unify configuration module allows to define configuration keys and values
-that will be used by the application. The
-<a class="reference internal" href="unify_library_overview.html"><span class="doc">Unify Library</span></a> itself sets up a few of these keys
-such as the MQTT broker, port, etc.</p>
-<p>To see the current configuration setup for an application, run the application
-with <code class="docutils literal notranslate"><span class="pre">--help</span></code>. For example using the EPC:</p>
-<figure class="align-center" id="id2">
-<a class="reference internal image-reference" href="../_images/epc_help_default_configuration.png"><img alt="EPC Help default configuration" src="../_images/epc_help_default_configuration.png" style="width: 700px;" /></a>
-<figcaption>
-<p><span class="caption-text">EPC Help default configuration</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
-<p>Protocol Controllers should add a component that will initialize all the
-additional configuration keys and values that they need. Using the EPC, a
-dedicated component holding the list of configuration (<code class="docutils literal notranslate"><span class="pre">epc_config</span></code>) is used
-to add more value/keys in the main function.</p>
-<p>Protocol Controllers have to initialize all configuration keys and default
-values before running the main loop.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">  </span><span class="c1">// Initialize the EPC Configuration, add new keys/default values as needed.</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">epc_config_init</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
-<span class="w">  </span><span class="p">}</span>
-
-<span class="w">  </span><span class="n">sl_log_info</span><span class="p">(</span><span class="n">LOG_TAG</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Starting the EPC main loop&quot;</span><span class="p">);</span>
-
-<span class="w">  </span><span class="c1">// Run uic_main and return result</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">uic_main</span><span class="p">(</span><span class="n">uic_fixt_setup_steps_list</span><span class="p">,</span>
-<span class="w">                  </span><span class="n">uic_fixt_shutdown_steps_list</span><span class="p">,</span>
-<span class="w">                  </span><span class="n">argc</span><span class="p">,</span>
-<span class="w">                  </span><span class="n">argv</span><span class="p">,</span>
-<span class="w">                  </span><span class="n">CMAKE_PROJECT_VERSION</span><span class="p">);</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>In the example above, the <code class="docutils literal notranslate"><span class="pre">epc_config_init()</span></code> function will for example
-initialize the default path that will be used with the persistent storage
-database. Components can then rely from the initialization that the
-<code class="docutils literal notranslate"><span class="pre">CONFIG_KEY_EPC_DATASTORE_FILE</span></code> configuration is available and be set to a value
-that they can use this value for their operation.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">epc_config_init</span><span class="p">()</span>
-<span class="p">{</span>
-<span class="w">  </span><span class="n">config_status_t</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CONFIG_STATUS_OK</span><span class="p">;</span>
-<span class="w">  </span><span class="n">status</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">config_add_string</span><span class="p">(</span><span class="n">CONFIG_KEY_EPC_DATASTORE_FILE</span><span class="p">,</span>
-<span class="w">                              </span><span class="s">&quot;EPC datastore database file&quot;</span><span class="p">,</span>
-<span class="w">                              </span><span class="n">DEFAULT_EPC_DATASTORE_FILE</span><span class="p">);</span>
-
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">CONFIG_STATUS_OK</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Further, it is recommended to have a cached variable made available for all other
-components of the Protocol Controller to access configuration values quickly.
-For example, after adding a datastore_file configuration, a wrapper could look
-like this:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="c1">/// File name for datastore/persistent storage</span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">datastore_file</span><span class="p">;</span>
-<span class="p">}</span><span class="w"> </span><span class="n">epc_config_t</span><span class="p">;</span>
-
-<span class="k">static</span><span class="w"> </span><span class="n">epc_config_t</span><span class="w"> </span><span class="n">config</span><span class="p">;</span>
-
-<span class="n">sl_status_t</span><span class="w"> </span><span class="nf">epc_config_fixt_setup</span><span class="p">()</span>
-<span class="p">{</span>
-<span class="w">  </span><span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">config</span><span class="p">));</span>
-<span class="w">  </span><span class="n">config_status_t</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CONFIG_STATUS_OK</span><span class="p">;</span>
-<span class="w">  </span><span class="c1">// Datastore configuration</span>
-<span class="w">  </span><span class="n">status</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">config_get_as_string</span><span class="p">(</span><span class="n">CONFIG_KEY_EPC_DATASTORE_FILE</span><span class="p">,</span>
-<span class="w">                                </span><span class="o">&amp;</span><span class="n">config</span><span class="p">.</span><span class="n">datastore_file</span><span class="p">);</span>
-
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CONFIG_STATUS_OK</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">SL_STATUS_OK</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">SL_STATUS_FAIL</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="k">const</span><span class="w"> </span><span class="n">epc_config_t</span><span class="w"> </span><span class="o">*</span><span class="nf">epc_get_config</span><span class="p">()</span>
-<span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Finally, make sure to initialize this Protocol Controller specialization of
-the configuration as the first initizalized fixture, so that all components
-can access the configuration through the cache.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">uic_fixt_setup_step_t</span><span class="w"> </span><span class="n">uic_fixt_setup_steps_list</span><span class="p">[]</span>
-<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="o">&amp;</span><span class="n">epc_config_fixt_setup</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;EPC Config&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Terminator&quot;</span><span class="p">}};</span>
-</pre></div>
-</div>
-<p>From now on, any component in the application will be able to read the
-datastore file configuration setting by invoking:
-<code class="docutils literal notranslate"><span class="pre">epc_get_config()-&gt;datastore_file</span></code></p>
-</section>
-<section id="adding-contiki-processes">
-<h3>Adding Contiki processes<a class="headerlink" href="#adding-contiki-processes" title="Permalink to this heading"></a></h3>
-<p>To keep the system reactive (and not blocking for too long when
-performing a chain of operations), Unify Applications and components use Contiki
-processes. When an event occurs and can be processed non-sequentially,
-it is almost always better to use a Contiki Process.</p>
-<p>Note that Contiki Process are not the same as threads, and they still
-block each other while executing events. Refer to the Contiki documentation
-for details.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;process.h&quot;</span>
-
-<span class="n">PROCESS</span><span class="p">(</span><span class="n">epc_process</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Example Protocol Controller Process&quot;</span><span class="p">);</span>
-
-<span class="c1">// Demo process implementation</span>
-<span class="n">PROCESS_THREAD</span><span class="p">(</span><span class="n">epc_process</span><span class="p">,</span><span class="w"> </span><span class="n">ev</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">  </span><span class="n">PROCESS_BEGIN</span><span class="p">()</span>
-<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">ev</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="no">PROCESS_EVENT_INIT</span><span class="p">:</span>
-<span class="w">        </span><span class="c1">// Additional init code here</span>
-<span class="w">        </span><span class="k">break</span><span class="p">;</span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="no">PROCESS_EVENT_EXIT</span><span class="p">:</span>
-<span class="w">        </span><span class="c1">// Additional teardown code here</span>
-<span class="w">        </span><span class="k">break</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="n">PROCESS_WAIT_EVENT</span><span class="p">();</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="w">  </span><span class="n">PROCESS_END</span><span class="p">()</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Processes will get started as part of the initialization fixtures. There is
-no need to shutdown the processes on exit.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Fixture starting a process</span>
-<span class="n">sl_status_t</span><span class="w"> </span><span class="nf">epc_process_fixt_setup</span><span class="p">()</span>
-<span class="p">{</span>
-<span class="w">  </span><span class="n">process_start</span><span class="p">(</span><span class="o">&amp;</span><span class="n">epc_process</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">SL_STATUS_OK</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="k">static</span><span class="w"> </span><span class="n">uic_fixt_setup_step_t</span><span class="w"> </span><span class="n">uic_fixt_setup_steps_list</span><span class="p">[]</span>
-<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="o">&amp;</span><span class="n">epc_config_fixt_setup</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;EPC Config&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="o">&amp;</span><span class="n">epc_process_fixt_setup</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;EPC Process&quot;</span><span class="p">},</span><span class="w"> </span><span class="c1">// Start the Contiki process in initialization</span>
-<span class="w">    </span><span class="p">{</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Terminator&quot;</span><span class="p">}};</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="how-to-use-the-attribute-system">
-<h2>How to use the attribute system<a class="headerlink" href="#how-to-use-the-attribute-system" title="Permalink to this heading"></a></h2>
-<p>The Attribute System aims at providing a very generic solution to storing
-network information and making decisions based on any data present in the
-network.</p>
-<p>It makes the assumption that everything can be stored in an acyclic directed
-graph structure, representing the state and knowledge that we have a about
-nodes that we can communicate with.</p>
-<p>Arbitrary values from 0 to 255 bytes long can be stored in for each attribute
-(i.e. it can be any type of numbers, byte-array, structs, strings). Each
-attribute has 2 values, a reported (current value reported by the node itself)
-and a desired (future/wished value).</p>
-<p>An example of a Z-Wave Attribute Store is shown below:</p>
-<figure class="align-center" id="id3">
-<a class="reference internal image-reference" href="../_images/attribute_store_example_representation.png"><img alt="Z-Wave Attribute Store representation" src="../_images/attribute_store_example_representation.png" style="width: 95%;" /></a>
-<figcaption>
-<p><span class="caption-text">Z-Wave Attribute Store representation</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
-<section id="defining-attribute-types">
-<h3>Defining Attribute Types<a class="headerlink" href="#defining-attribute-types" title="Permalink to this heading"></a></h3>
-<p>Attribute types are identified by a unique <em>uint32_t</em> value, and only 0
-(invalid type) and 1 (root attribute) are reserved. The rest of the range can
-be assigned by an application.</p>
-<p>As the list of defined types is application specific, each application is
-free to define for example that type = 2 represents a UNID string, type = 3
-represents a uint16_t port number, etc.</p>
-<p>To fully leverage the Attribute System, attribute types should be registered
-to the Attribute Store using the <em>attribute_store_regisration</em> API. For example,
-below, registering the “NodeID” attribute, indicating that it will be placed
-under HomeID attributes and uses a <em>uint16_t</em> format for storage.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">status</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">attribute_store_register_type</span><span class="p">(</span><span class="n">ATTRIBUTE_NODE_ID</span><span class="p">,</span><span class="w"> </span><span class="c1">// ATTRIBUTE_NODE_ID is a unique uint32_t number, e.g. 3</span>
-<span class="w">                                        </span><span class="s">&quot;NodeID&quot;</span><span class="p">,</span>
-<span class="w">                                        </span><span class="n">ATTRIBUTE_HOME_ID</span><span class="p">,</span><span class="w"> </span><span class="c1">// ATTRIBUTE_HOME_ID is a unique uint32_t number, e.g. 2</span>
-<span class="w">                                        </span><span class="n">U16_STORAGE_TYPE</span><span class="p">);</span>
-</pre></div>
-</div>
-<p>This is particularly important if a Protocol Controller needs to use the
-<strong>Attribute Mapper</strong>, as it will allow it to interpret the values of each
-attribute.</p>
-<section id="pre-defined-attribute-types">
-<h4>Pre-defined attribute types<a class="headerlink" href="#pre-defined-attribute-types" title="Permalink to this heading"></a></h4>
-<p>A shared DotDot attribute store component (<strong>UIC DotDot Attribute Store</strong>)
-defines automatically ZCL attribute types for usage in the <strong>Attribute Store</strong>.
-It is not mandatory to use it, but intends to provide a very easy solution to
-storing the ZCL state of nodes, which serves as a basis for publishing
-attributes or receiving commands via MQTT.</p>
-<p>Attribute types are <em>uint32_t</em> values, so 4 bytes long.
-The DotDot pre-defined attributes use the following range:
-<code class="docutils literal notranslate"><span class="pre">(ZigBee</span> <span class="pre">Cluster</span> <span class="pre">ID</span> <span class="pre">(2</span> <span class="pre">bytes)</span> <span class="pre">&lt;&lt;16)</span> <span class="pre">|</span> <span class="pre">Zigbee</span> <span class="pre">attribute</span> <span class="pre">ID</span> <span class="pre">(2</span> <span class="pre">bytes)</span></code></p>
-<p>The value 0 (Basic Cluster ID) has been replaced to value 0xBA5C, so the range
-0x00000002 to 0x0000FFFF is guaranteed to be available for Protocol Controllers
-to define their proprietary attributes.</p>
-<p>Protocol Controllers must then use this reserved range to assign their own
-application attribute definitions. Additionally, attributes allowing to
-identify networking addresses/PAN nodes must also be defined by the Protocol
-Controllers themselves.</p>
-</section>
-<section id="attribute-store-and-addressing">
-<h4>Attribute Store and addressing<a class="headerlink" href="#attribute-store-and-addressing" title="Permalink to this heading"></a></h4>
-<p>Using the reserved attribute type range, Protocol Controllers must come up
-with an addressing/identifying schema for their networking protocol.</p>
-<p>These types should be defined in a manner that will make it easy for the
-Protocol Controller to retrieve addresses (either networking addresses,
-or UNID/Endpoint addresses) of the resources based on their location in the
-attribute tree.</p>
-<p>An example of the 2 possible strategies is given in the subsections below.</p>
+<p>Please refer to related chapter of
+[UnifySDK documentation](
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/">https://siliconlabs.github.io/UnifySDK/</a>
+)</p>
 <section id="networking-addresses-approach">
-<h5>Networking addresses approach<a class="headerlink" href="#networking-addresses-approach" title="Permalink to this heading"></a></h5>
+<h2>Networking addresses approach<a class="headerlink" href="#networking-addresses-approach" title="Permalink to this heading"></a></h2>
 <p>The <strong>ZPC</strong> for example uses the networking address strategy, where it stores
 Z-Wave addresses under the <strong>Attribute Store</strong> tree root. Application level
 attributes are then placed under Endpoints.</p>
@@ -428,27 +114,6 @@ navigating up the <strong>Attribute Store</strong>.</p>
 <p>This method is advantageous if there is a need to store more information
 alongside netorking entities, like granted keys for a node, or shared
 network properties under for example the HomeID.</p>
-</section>
-<section id="unid-endpoint-approach">
-<h5>UNID/Endpoint approach<a class="headerlink" href="#unid-endpoint-approach" title="Permalink to this heading"></a></h5>
-<p>The <strong>AoXPC</strong> uses a more UNID-like strategy, where the UNIDs are directly saved
-under the <strong>Attribute Store</strong> tree root.</p>
-<p>Using this methodology, to publish the state of the OnOff attribute when updated,
-the <strong>AoxPC</strong> navigates up the <strong>Attribute Store</strong>, collects the value of the
-Endpoint, UNID, and does require any further calculation.
-The <strong>AoxPC</strong> can subsequently make these 2 publications:</p>
-<div class="highlight-mqtt notranslate"><div class="highlight"><pre><span></span><span class="ow">ucl/by-unid/&lt;UNID&gt;/ep&lt;EndpointId&gt;/OnOff/Attributes/OnOff/Desired</span> - {<span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>}
-<span class="ow">ucl/by-unid/&lt;UNID&gt;/ep&lt;EndpointId&gt;/OnOff/Attributes/OnOff/Reported</span> - {<span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>}
-</pre></div>
-</div>
-<p>However, when using UNIDs, if a frame is to be sent using the Protocol
-Controller networking protocol, the reverse logic needs to be applied and
-whenever an attribute triggers the <strong>Attribute Resolver</strong> to send a frame to
-a destination, the frame sending functions needs to calculate networking
-addresses based on the UNID/Endpoint data in the <strong>Attribute Store</strong>.</p>
-</section>
-</section>
-</section>
 <section id="attribute-resolution">
 <h3>Attribute resolution<a class="headerlink" href="#attribute-resolution" title="Permalink to this heading"></a></h3>
 <p>When a Protocol Controller has defined its own proprietary atttributes
@@ -496,14 +161,14 @@ operations. It is used for mapping, but can also be used as information
 database in some cases.</p>
 <p>A tutorial and examples on how to create <em>.uam</em> files are given in the
 <a class="reference internal" href="how_to_write_uam_files.html#how-to-write-uam-files-section"><span class="std std-ref">How to write UAM files</span></a>:</p>
-</section>
-</section>
 <section id="connecting-the-attribute-store-and-mqtt">
-<h2>Connecting the Attribute Store and MQTT<a class="headerlink" href="#connecting-the-attribute-store-and-mqtt" title="Permalink to this heading"></a></h2>
+<h4>Connecting the Attribute Store and MQTT<a class="headerlink" href="#connecting-the-attribute-store-and-mqtt" title="Permalink to this heading"></a></h4>
 <p>When the attributes are set in the Attribute Store, it is time to advertise
 them using MQTT.</p>
 <p>There are a few things to set in place to get the Protocol Controller to follow the
 <span class="xref std std-doc">Unify Framework Specifications</span>.</p>
+</section>
+</section>
 <section id="listening-to-incoming-mqtt-commands">
 <h3>Listening to incoming MQTT commands<a class="headerlink" href="#listening-to-incoming-mqtt-commands" title="Permalink to this heading"></a></h3>
 <p>A large set of auto-generated files in the <strong>UIC DotDot MQTT</strong> components
@@ -679,10 +344,10 @@ to publish the updated state.</p>
 <span class="w">    </span><span class="n">UCL_MQTT_PUBLISH_TYPE_DESIRED</span><span class="p">);</span>
 </pre></div>
 </div>
-</section>
-</section>
 <section id="ucl-node-state">
-<h2>UCL node state<a class="headerlink" href="#ucl-node-state" title="Permalink to this heading"></a></h2>
+<h4>UCL node state<a class="headerlink" href="#ucl-node-state" title="Permalink to this heading"></a></h4>
+</section>
+</section>
 <section id="ucl-node-state-overview">
 <h3>UCL node state overview<a class="headerlink" href="#ucl-node-state-overview" title="Permalink to this heading"></a></h3>
 <p>When the Protocol Controller is setup to publish attributes, process incoming
@@ -760,10 +425,10 @@ list of nodes and publish their state, as well as the Dotdot attributes and comm
 <em>attribute_store_refresh_node_and_children_callbacks</em> function, that will simulate
 that all attributes just got updated in the Attribute Store and will trigger a
 publication.</p>
-</section>
-</section>
 <section id="general-recommendations">
-<h2>General recommendations<a class="headerlink" href="#general-recommendations" title="Permalink to this heading"></a></h2>
+<h4>General recommendations<a class="headerlink" href="#general-recommendations" title="Permalink to this heading"></a></h4>
+</section>
+</section>
 <section id="mqtt-publications-vs-attribute-store-resolution-and-mapping">
 <h3>MQTT publications vs Attribute Store resolution and mapping<a class="headerlink" href="#mqtt-publications-vs-attribute-store-resolution-and-mapping" title="Permalink to this heading"></a></h3>
 <p>Whenever a component wants to publish the state of an attribute, it can
@@ -795,13 +460,13 @@ component. Here is an example.</p>
 <span class="w">  </span><span class="c1">// [...]</span>
 </pre></div>
 </div>
-</section>
-</section>
 <section id="network-management">
-<h2>Network Management<a class="headerlink" href="#network-management" title="Permalink to this heading"></a></h2>
+<h4>Network Management<a class="headerlink" href="#network-management" title="Permalink to this heading"></a></h4>
 <p>Network management is an optional feature of Protocol Controllers, and should
 be implemented only if their networking protocol allows them to
 perform such operations.</p>
+</section>
+</section>
 <section id="manual-network-management-operations">
 <h3>Manual Network Management operations<a class="headerlink" href="#manual-network-management-operations" title="Permalink to this heading"></a></h3>
 <p>If a Protocol Controller is able to join/leave a network or add/remove nodes
@@ -817,10 +482,8 @@ commands.</p>
 <p>A dedicated Unify component named <strong>UIC SmartStart Management</strong> is available
 for Protocol Controller that would like to use SmartStart. It will enable
 them to receive the SmartStart information automatically.</p>
-</section>
-</section>
 <section id="additional-shared-components">
-<h2>Additional shared components<a class="headerlink" href="#additional-shared-components" title="Permalink to this heading"></a></h2>
+<h4>Additional shared components<a class="headerlink" href="#additional-shared-components" title="Permalink to this heading"></a></h4>
 <p>In general, it is recommended to use components that are provided as part of the
 <a class="reference internal" href="unify_library_overview.html"><span class="doc">Unify Library</span></a>. Not all of these shared components
 are designed for Protocol Controllers in particular, but most will provide
@@ -828,6 +491,8 @@ some useful functionalities.</p>
 <p>For example, the <strong>UIC OTA</strong> provides a simple interface to advertise, receive
 and apply firmware updates to end nodes. <strong>Unify Attribute poll</strong> will manage
 a list of attributes types that must be read periodically.</p>
+</section>
+</section>
 </section>
 </section>
 

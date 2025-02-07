@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Running Unify on Raspberry Pi &mdash; Z-Wave-Protocol-Controller</title>
+  <title>Running Z-Wave-Protocol-Controller on Raspberry Pi &mdash; Z-Wave-Protocol-Controller</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom_styles.css" type="text/css" />
@@ -41,7 +41,7 @@
               <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.6.0-RC4-203-g6f5c28dc1e
+                ver_1.6.0-RC4-141-g17e4441c97-70-ga5dee2cc9f
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -54,9 +54,9 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Z-Wave-Protocol-Controller Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="getting_started_unify.html">Getting Started with Unify</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Running Unify on Raspberry Pi</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Running Z-Wave-Protocol-Controller on Raspberry Pi</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="unify_readme_user.html">Unify Host SDK User guide</a></li>
-<li class="toctree-l3"><a class="reference internal" href="getting_started_unify_sdk.html">Getting Started with the Unify Framework</a></li>
+<li class="toctree-l3"><a class="reference internal" href="getting_started_unify_sdk.html">Getting Started with the Z-Wave-Protocol-Controller Framework</a></li>
 </ul>
 </li>
 </ul>
@@ -96,37 +96,37 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="running-unify-on-raspberry-pi">
-<h1>Running Unify on Raspberry Pi<a class="headerlink" href="#running-unify-on-raspberry-pi" title="Permalink to this heading"></a></h1>
-<p>The Unify Host SDK targets our reference platform, a Raspberry Pi 4 (RPi4).
+  <section class="tex2jax_ignore mathjax_ignore" id="running-z-wave-protocol-controller-on-raspberry-pi">
+<h1>Running Z-Wave-Protocol-Controller on Raspberry Pi<a class="headerlink" href="#running-z-wave-protocol-controller-on-raspberry-pi" title="Permalink to this heading"></a></h1>
+<p>The Z-Wave-Protocol-Controller targets our reference platform, a Raspberry Pi 4 (RPi4).
 It is therefore recommended to set up a RPi4 for evaluating the full set of functionalities.</p>
 <p>For details on setting up a bare RPi4, follow the setup instructions in the
 <a class="reference external" href="https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up">Official Raspberry Pi User Guide</a>,
 and ensure a supported radio module is attached to your RPi4.</p>
-<p>For set up and running quickly to test out Unify on the Raspberry Pi refer <a class="reference internal" href="running_unify.html"><span class="doc std std-doc">Setting up Raspberry Pi for Unify</span></a></p>
+<p>For set up and running quickly to test out Z-Wave-Protocol-Controller on the Raspberry Pi refer <a class="reference internal" href="running_unify.html"><span class="doc std std-doc">Setting up Raspberry Pi for Z-Wave-Protocol-Controller</span></a></p>
 <p>The rest of this guide focuses on how to set up all of the applications and
 services on a RPi4.</p>
-<p>For running Unify Framework it is required to have a running MQTT broker to which the Unify Framework can connect.
+<p>For running Z-Wave-Protocol-Controller Framework it is required to have a running MQTT broker to which the Z-Wave-Protocol-Controller Framework can connect.
 To get an MQTT broker installed on the RPi4:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">pi@raspberrypi:~ $ </span>sudo<span class="w"> </span>apt<span class="w"> </span>update
 <span class="gp">pi@raspberrypi:~ $ </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>mosquitto
 </pre></div>
 </div>
 <p>For more information regarding logging and configuration of eg. the Mosquitto
-broker, see the <a class="reference internal" href="unify_readme_user.html"><span class="doc std std-doc">Unify Host SDK User Guide</span></a>.</p>
+broker, see the <a class="reference internal" href="unify_readme_user.html"><span class="doc std std-doc">Z-Wave-Protocol-Controller Host SDK User Guide</span></a>.</p>
 <div class="toctree-wrapper compound">
 </div>
 <section id="how-to-install-packages">
 <span id="how-to-install"></span><h2>How to install packages<a class="headerlink" href="#how-to-install-packages" title="Permalink to this heading"></a></h2>
-<p>The Unify Host SDK distribution targets the reference platform Debian Bookworm
+<p>The Z-Wave-Protocol-Controller Host SDK distribution targets the reference platform Debian Bookworm
 platform. Binary Debian packages are provided with the SDK and they are
 available in a Zip file eg. unify_x.y.z_arm64.zip on
-<a class="reference external" href="https://github.com/SiliconLabs/UnifySDK/releases">Unify’s GitHub release page</a>.</p>
-<p>The simplest way to install the Unify components is to use the <code class="docutils literal notranslate"><span class="pre">apt</span></code> tool.
+<a class="reference external" href="https://github.com/SiliconLabs/Z-Wave-Protocol-ControllerSDK/releases">Z-Wave-Protocol-Controller’s GitHub release page</a>.</p>
+<p>The simplest way to install the Z-Wave-Protocol-Controller components is to use the <code class="docutils literal notranslate"><span class="pre">apt</span></code> tool.
 Transfer the <code class="docutils literal notranslate"><span class="pre">.deb</span></code> packages to the target via eg. SCP. Make sure to use either
 a local relative path with <code class="docutils literal notranslate"><span class="pre">./</span></code> or absolute paths. Otherwise apt will look
 for the package in the wrong place and fail.</p>
-<p>Install a specific Unify package:</p>
+<p>Install a specific Z-Wave-Protocol-Controller package:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">pi@raspberrypi:~ $ </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>uic-sdk-dir/uic-&lt;component&gt;_&lt;version&gt;_arm64.deb
 </pre></div>
 </div>
@@ -140,17 +140,12 @@ for the package in the wrong place and fail.</p>
 </div>
 <section id="verify-the-configuration">
 <h3>Verify the configuration<a class="headerlink" href="#verify-the-configuration" title="Permalink to this heading"></a></h3>
-<p>After installing the desired Unify Host SDK packages, make sure the configuration is set correctly.</p>
+<p>After installing the desired Z-Wave-Protocol-Controller Host SDK packages, make sure the configuration is set correctly.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">pi@raspberrypi:~ $ </span>cat<span class="w"> </span>/etc/uic/uic.cfg
 <span class="go">zpc:</span>
 <span class="go">  serial: /dev/ttyUSB0</span>
 <span class="go">  rf_region: EU</span>
 <span class="go">  datastore_file: /var/lib/uic/zpc.db</span>
-<span class="go">zigpc:</span>
-<span class="go">  serial: /dev/ttyACM0</span>
-<span class="go">  datastore_file: /var/lib/uic/zigpc.db</span>
-<span class="go">cpcd:</span>
-<span class="go">  serial: /dev/ttyACM0</span>
 </pre></div>
 </div>
 <p>If your configuration is wrong, you can either edit the file directly or reconfigure a specific package.
@@ -161,12 +156,12 @@ After making changes to the configuration make sure to either reboot or restart 
 </section>
 <section id="verifying-if-an-application-is-running">
 <h3>Verifying if an application is running<a class="headerlink" href="#verifying-if-an-application-is-running" title="Permalink to this heading"></a></h3>
-<p>The Unify applications all install SystemD service files for handling the starting and stopping of the applications on a RPi4.
-You can check if a Unify Host SDK application is running by using <code class="docutils literal notranslate"><span class="pre">systemctl</span></code>.
+<p>The Z-Wave-Protocol-Controller applications all install SystemD service files for handling the starting and stopping of the applications on a RPi4.
+You can check if a Z-Wave-Protocol-Controller Host SDK application is running by using <code class="docutils literal notranslate"><span class="pre">systemctl</span></code>.
 For information on how to handle SystemD services using <code class="docutils literal notranslate"><span class="pre">systemctl</span></code>, see <a class="reference external" href="https://man7.org/linux/man-pages/man1/systemctl.1.html">the systemctl man pages</a>.</p>
 <p>Here we can see that the <code class="docutils literal notranslate"><span class="pre">uic-zpc</span></code> service is loaded and active:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">pi@raspberrypi:~ $ </span>systemctl<span class="w"> </span>status<span class="w"> </span>uic-zpc.service
-<span class="go">* uic-zpc.service - Unify Z-Wave protocol controller</span>
+<span class="go">* uic-zpc.service - Z-Wave-Protocol-Controller Z-Wave protocol controller</span>
 <span class="go">   Loaded: loaded (/lib/systemd/system/uic-zpc.service; enabled; vendor preset: enabled)</span>
 <span class="go">   Active: active (running) since Tue 2022-08-02 14:14:58 CEST; 8s ago</span>
 <span class="go"> Main PID: 9471 (zpc)</span>
@@ -181,17 +176,10 @@ For information on how to handle SystemD services using <code class="docutils li
 </div>
 </section>
 </section>
-<section id="unify-framework">
-<h2>Unify Framework<a class="headerlink" href="#unify-framework" title="Permalink to this heading"></a></h2>
-<p>If you are interested in building an IoT Gateway based on the Unify Framework refer to
-the <a class="reference internal" href="getting_started_unify_sdk.html"><span class="doc std std-doc">Unify Framework Getting Started</span></a>.</p>
-<div class="toctree-wrapper compound">
-</div>
-</section>
-<section id="multiprotocol-setup">
-<h2>Multiprotocol Setup<a class="headerlink" href="#multiprotocol-setup" title="Permalink to this heading"></a></h2>
-<p>If you are interested in setting up multiprotocol CPC-based applications
-see the <span class="xref myst">Multiprotocol Setup</span> page.</p>
+<section id="z-wave-protocol-controller-framework">
+<h2>Z-Wave-Protocol-Controller Framework<a class="headerlink" href="#z-wave-protocol-controller-framework" title="Permalink to this heading"></a></h2>
+<p>If you are interested in building an IoT Gateway based on the Z-Wave-Protocol-Controller Framework refer to
+the <a class="reference internal" href="getting_started_unify_sdk.html"><span class="doc std std-doc">Z-Wave-Protocol-Controller Framework Getting Started</span></a>.</p>
 <div class="toctree-wrapper compound">
 </div>
 </section>

@@ -2,6 +2,6 @@
 
 Find the programming API's of various components at the following links:
 
-## Unify Library Doxygen
+## Z-Wave-Protocol-Controller Doxygen
 
 - <a href="../doxygen_zpc/index.html">ZPC API</a>

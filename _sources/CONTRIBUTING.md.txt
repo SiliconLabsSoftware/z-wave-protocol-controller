@@ -1,8 +1,11 @@
-# Contributing to UnifySDK
+# Contributing to Z-Wave-Protocol-Controller
 
 ## Reporting issues
 
-Currently there is no way to report issue in the github project,
+Currently there is no way to report issue in the 
+[z-wave-protocol-controller github project](
+https://github.com/SiliconLabsSoftware/z-wave-protocol-controller
+),
 however supported @SiliconLabs customers can report cases individually.
 
 ## Git Branch naming conventions
@@ -40,16 +43,6 @@ GH-XYZ: Fix issue with login button not showing.
 - Update login form validation
 - Update login styling for showing the button
 ```
-
-| Sl No | Commit Message Examples |
-| ----- | ----------------------- |
-| 1 | Add support for thermostat cluster |
-| 2 | Remove python2 deprecated dependencies |
-| 3 | Update rust dependencies to latest version |
-| 4 | Fix portable runtime crash |
-| 5 | Refactor core components into rust |
-| 6 | Add unit tests for thermostat cluster |
-
 ## Pull request guidelines
 
 ### As a Developer
@@ -75,7 +68,7 @@ Context: <message clearing explaining what commit does>
 What to consider while reviewing a Pull Request
 
 * Does the code has successful build?
-* Does the code follow unify coding guidelines?
+* Does the code follow z-wave-protocol-controller coding guidelines?
 * Does the code meet its objective / acceptance criteria?
 * Does the code have unit test and documentation included?
 * Does the code need any refactoring, considering security, performance or simply ease of reading?

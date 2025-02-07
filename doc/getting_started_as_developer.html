@@ -41,7 +41,7 @@
               <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.6.0-RC4-203-g6f5c28dc1e
+                ver_1.6.0-RC4-141-g17e4441c97-70-ga5dee2cc9f
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -67,7 +67,6 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started as a Developer</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="readme_developer.html">Unify Developer Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#development-platform-recommendations">Development Platform Recommendations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#developing-iot-services">Developing IoT Services</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#developing-protocol-controllers">Developing protocol controllers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#extend-ucl-clusters">Extend UCL clusters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#overview-of-relations-among-unify-applications">Overview of relations among Unify Applications</a></li>
@@ -99,6 +98,8 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="getting-started-as-a-developer">
 <h1>Getting Started as a Developer<a class="headerlink" href="#getting-started-as-a-developer" title="Permalink to this heading"></a></h1>
+<p>Please refer to related chapter of
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/">UnifySDK documentation</a></p>
 <div class="toctree-wrapper compound">
 </div>
 <p>The <a class="reference internal" href="readme_developer.html"><span class="doc std std-doc">Unify Developer Guide</span></a> contains a lot of useful information for Unify developers.</p>
@@ -108,11 +109,6 @@
 <h2>Development Platform Recommendations<a class="headerlink" href="#development-platform-recommendations" title="Permalink to this heading"></a></h2>
 <p>The Unify reference platform is a Raspberry Pi 4 however it is understood that users may not wish to run on a Raspberry Pi in a final product. Porting to Debian based linux should be straightforward.</p>
 <p>System requirements for flash, RAM, and dependencies are listed at <a class="reference internal" href="system_requirements.html"><span class="doc std std-doc">here</span></a></p>
-</section>
-<section id="developing-iot-services">
-<h2>Developing IoT Services<a class="headerlink" href="#developing-iot-services" title="Permalink to this heading"></a></h2>
-<p>The IoT or cloud connector must use UCL (MQTT) to communicate with the other components of Unify. See <a class="reference internal" href="how_to_develop_an_iot_service.html"><span class="doc std std-doc">How to Develop an IoT service</span></a> Unify uses MQTT to communicate among each component using the Mosquitto MQTT broker. UCL is the format of the MQTT messages. The <span class="xref myst">Unify Framework Specification</span> contains the definitions for UCL.</p>
-<p>Also see <a href="../reference_ucl_mqtt/index.html">UCL MQTT API</a></p>
 </section>
 <section id="developing-protocol-controllers">
 <h2>Developing protocol controllers<a class="headerlink" href="#developing-protocol-controllers" title="Permalink to this heading"></a></h2>
@@ -139,57 +135,35 @@ Protocol Controller, it will be marked as [x].</p>
 <tr>
 <th></th>
 <th style="text-align: left;"><a href="../applications/zpc/readme_user.html">ZPC</a></th>
-<th style="text-align: left;"><a href="../applications/zigpc/readme_user.html">ZigPC</a></th>
-<th style="text-align: left;"><a href="../applications/aox/applications/aoxpc/readme_user.html">AoXPC</a></th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><a href="../applications/upvl/readme_user.html">UPVL</a></td>
 <td style="text-align: left;">[x]</td>
-<td style="text-align: left;">[x]</td>
-<td style="text-align: left;"></td>
 </tr>
 <tr>
 <td><a href="../applications/gms/readme_user.html">GMS</a></td>
 <td style="text-align: left;">[x]</td>
-<td style="text-align: left;">[x]</td>
-<td style="text-align: left;"></td>
 </tr>
 <tr>
 <td><a href="../applications/nal/readme_user.html">NAL</a></td>
-<td style="text-align: left;">[x]</td>
-<td style="text-align: left;">[x]</td>
 <td style="text-align: left;">[x]</td>
 </tr>
 <tr>
 <td><a href="../applications/image_provider/readme_user.html">OTA Image Provider</a></td>
 <td style="text-align: left;">[x]</td>
-<td style="text-align: left;">[x]</td>
-<td style="text-align: left;"></td>
 </tr>
 <tr>
 <td><a href="../applications/dev_ui/dev_gui/readme_user.html">Dev GUI</a></td>
-<td style="text-align: left;">[x]</td>
-<td style="text-align: left;">[x]</td>
 <td style="text-align: left;">[x]</td>
 </tr>
 <tr>
 <td><a href="../applications/upti_cap/readme_user.html">UPTICap</a></td>
 <td style="text-align: left;">[x]</td>
-<td style="text-align: left;">[x]</td>
-<td style="text-align: left;"></td>
 </tr>
 <tr>
 <td><a href="../applications/upti_writer/readme_user.html">UPTIWriter</a></td>
-<td style="text-align: left;">[x]</td>
-<td style="text-align: left;">[x]</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td><a href="../applications/aox/applications/positioning/readme_user.html">AoX Positioning</a></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
 <td style="text-align: left;">[x]</td>
 </tr>
 </tbody>
