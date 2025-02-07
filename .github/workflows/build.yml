@@ -1,7 +1,7 @@
 # YAML -*- mode: yaml; tab-width: 2; indent-tabs-mode: nil; coding: utf-8 -*-
 ---
 
-name: Build in docker
+name: z-wave-protocol-controller Build in docker
 
 on:  # yamllint disable-line rule:truthy
   push:
@@ -9,7 +9,7 @@ on:  # yamllint disable-line rule:truthy
 jobs:
   build:
     env:
-      project-name: unifysdk  # This should be lowercase for docker (and aligned)
+      project-name: z-wave-protocol-controller  # This should be lowercase for docker (and aligned)
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4.1.1

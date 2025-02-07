@@ -17,7 +17,7 @@ RUN echo "# log: Configuring locales" \
   && TZ=Etc/UTC apt-get -y install tzdata \
   && date -u
   
-ENV project unifysdk
+ENV project z-wave-protocol-controller
 ENV workdir /usr/local/opt/${project}
 ADD . ${workdir}
 
@@ -34,5 +34,5 @@ RUN echo "# log: Build" \
   && ./helper.mk \
   && date -u
 
-ENTRYPOINT [ "/usr/local/opt/unifysdk/helper.mk" ]
+ENTRYPOINT [ "/usr/local/opt/z-wave-protocol-controller/helper.mk" ]
 CMD [ "help" ]

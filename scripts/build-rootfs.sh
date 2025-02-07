@@ -13,7 +13,7 @@ Usage:
 ARCH=arm64 ./scripts/build-rootfs.sh
 EOF
 
-project="unifysdk"
+project="z-wave-protocol-controller"
 debian_suite="bookworm"
 
 debian_arch=$(dpkg --print-architecture)
