@@ -5,3 +5,10 @@ Find the programming API's of various components at the following links:
 ## Z-Wave-Protocol-Controller Doxygen
 
 - <a href="../doxygen_zpc/index.html">ZPC API</a>
+
+## Unify Doxygen
+
+Note: For reference documentation please refer to related chapter of
+[UnifySDK](
+https://SiliconLabs.github.io/UnifySDK/
+)

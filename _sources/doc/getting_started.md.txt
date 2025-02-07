@@ -46,7 +46,9 @@ unify_readme_user.md
 The Z-Wave-Protocol-Controller Host SDK distribution targets the reference platform Debian Bookworm
 platform. Binary Debian packages are provided with the SDK and they are
 available in a Zip file eg. unify_x.y.z_arm64.zip on
-[Z-Wave-Protocol-Controller's GitHub release page](https://github.com/SiliconLabs/Z-Wave-Protocol-ControllerSDK/releases).
+[Z-Wave-Protocol-Controller's GitHub release page](
+https://github.com/SiliconLabs/Z-Wave-Protocol-ControllerSDK/releases
+).
 
 The simplest way to install the Z-Wave-Protocol-Controller components is to use the `apt` tool.
 Transfer the `.deb` packages to the target via eg. SCP. Make sure to use either
