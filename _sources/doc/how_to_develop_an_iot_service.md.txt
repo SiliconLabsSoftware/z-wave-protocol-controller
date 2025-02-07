@@ -1,7 +1,6 @@
 # How To Make an IoT Service
 
-
-Please refer to related chapter of
+Note: For reference documentation please refer to related chapter of
 [UnifySDK documentation](
 https://siliconlabs.github.io/UnifySDK/
 )

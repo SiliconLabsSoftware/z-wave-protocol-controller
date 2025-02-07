@@ -11,12 +11,10 @@
 How to develop a Protocol Controller
 ====================================
 
-Please refer to related chapter of
+Note: For reference documentation please refer to related chapter of
 [UnifySDK documentation](
 https://siliconlabs.github.io/UnifySDK/
 )
-
-
 
 Networking addresses approach
 *****************************

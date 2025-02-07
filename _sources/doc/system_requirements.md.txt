@@ -1,5 +1,10 @@
 # System Requirements
 
+Note: For reference documentation please refer to related chapter of
+[Z-Wave-Protocol-Controller documentation](
+https://SiliconLabsSoftware.github.io/z-wave-protocol-controller/
+)
+
 The Unify Host SDK is at the moment only implemented for the Linux OS. The table
 below shows the resource usage of the individual components measured on arm64
 release binaries. No debug symbols included. RAM figures are indicative for

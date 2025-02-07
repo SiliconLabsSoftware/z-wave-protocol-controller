@@ -1,5 +1,13 @@
-
 # Unify Attribute Mapper Overview
+
+
+Note: For reference documentation please refer to related chapter of
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/
+)
+
+The following chapters, may be also relevent for z-wave-protocol-controller users/developers.
+
 
 ## Introduction
 

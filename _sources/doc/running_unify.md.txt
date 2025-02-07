@@ -1,5 +1,10 @@
 # Setting up Raspberry Pi for Unify
 
+Note: For reference documentation please refer to related chapter of
+[Z-Wave-Protocol-Controller documentation](
+https://SiliconLabsSoftware.github.io/z-wave-protocol-controller/
+)
+
 ## Introduction
 
 Here we explain how to set up and running quickly to test out Unify on the Raspberry Pi reference platform. Depending on the protocol(s) used this setup may vary so there are several sections that go into more detail for each protocol controller. This page contains the steps to install Unify on the Raspberry Pi regardless of the protocol(s) used.

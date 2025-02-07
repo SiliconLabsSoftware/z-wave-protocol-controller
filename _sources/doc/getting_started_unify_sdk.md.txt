@@ -1,12 +1,18 @@
 # Unify Framework Getting Started
 
+Note: For reference documentation please refer to related chapter of
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/
+)
+
+The following chapters may be also relevent for z-wave-protocol-controller users/developers.
+
 ## Setup base system
 
 Unify Framework has a number of service applications which enables different basic
 functionality. For unlocking all features of the Unify Framework, install the Debian
 packages of the applications below.
-It is recommended to use the Developer GUI for controlling the Unify Framework IoT Protocol Controllers such as `ZPC`,
-`ZigPC` or `AoXPC`.
+It is recommended to use the Developer GUI for controlling the Unify Framework IoT Protocol Controllers such as `ZPC`.
 
 For installation steps refer to the [](how-to-install) section.
 
@@ -21,8 +27,6 @@ For installation steps refer to the [](how-to-install) section.
 For including an IoT protocol stack, you need to install and setup at least one protocol controller.
 
 - [](zpc)
-- [](zigpc)
-- [](aoxpc)
 
 (zpc)=
 

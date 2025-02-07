@@ -11,6 +11,11 @@
 How to write UAM files
 ======================
 
+Note: For reference documentation please refer to related chapter of
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/
+)
+
 The attribute mapper is a component that allows to define relations between
 attributes stored in the Attribute Store. It can be used for mapping, as
 well as easily adding logic around attributes.

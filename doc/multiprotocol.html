@@ -39,7 +39,7 @@
               <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.6.0-RC4-141-g17e4441c97-70-ga5dee2cc9f
+                ver_1.6.0-RC4-141-g17e4441c97-94-ged21c28e1c
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -89,74 +89,8 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="multiprotocol-host-software">
 <h1>Multiprotocol Host Software<a class="headerlink" href="#multiprotocol-host-software" title="Permalink to this heading"></a></h1>
-<section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
-<p>The Unify Host SDK aggregates all the host software necessary to run
-Zigbee, OpenThread, and Bluetooth protocol stacks on the host processor
-simultaneously while using a single RCP. For a detailed explanation of the
-multiprotocol host architecture, see
-<a class="reference external" href="https://www.silabs.com/documents/public/application-notes/an1333-concurrent-protocols-with-802-15-4-rcp.pdf">AN1333</a>.</p>
-<p><img alt="MultiProtocol Architecture" src="../_images/multiprotocol_architecture.png" /></p>
-<p>The Host SDK makes it easy to install and run the software components
-on a Raspberry Pi via prebuilt binary Debian packages. Build scripts for
-creating the Debian packages are also provided. The sources themselves are
-obtained from the Silicon Labs GSDK and the Silicon Labs GitHub repository.</p>
-<p>For instructions on quickly getting started using the multiprotocol host
-software, see the
-<span class="xref myst">Multiprotocol Setup</span> page.</p>
-<section id="rcp">
-<h3>RCP<a class="headerlink" href="#rcp" title="Permalink to this heading"></a></h3>
-<p>The RCP (Radio Co-Processor) is an embedded application running on a
-Silicon Labs EFR32 radio chip connected to the host processor via a UART or
-SPI serial connection. There are different flavors of RCP depending on which
-protocol stacks are running on the host.  The RCP software is distributed
-with the GSDK. For details on building RCP images for the co-processor, see
-<a class="reference external" href="https://www.silabs.com/documents/public/application-notes/an1333-concurrent-protocols-with-802-15-4-rcp.pdf">AN1333</a>.</p>
-</section>
-<section id="cpc-daemon">
-<h3>CPC Daemon<a class="headerlink" href="#cpc-daemon" title="Permalink to this heading"></a></h3>
-<p>The key host software component at the heart of the multiprotocol architecture is
-a multiplexer called CPCd (Co-Processor Communication daemon). CPCd runs on
-the host and acts as a reliable and secure serial transport layer to the
-RCP over either a UART or SPI serial bus. Each protocol stack running on the
-host connects to CPCd in order to communicate with the RCP.
-For more information see the <span class="xref myst">CPCd page</span>.</p>
-</section>
-</section>
-<section id="zigbee">
-<h2>Zigbee<a class="headerlink" href="#zigbee" title="Permalink to this heading"></a></h2>
-<p>The Zigbee protocol stack runs on the host in a daemon called zigbeed.  Zigbeed
-communicates with an 802.15.4 stack on the RCP via the SPINEL protocol. Zigbeed
-connects via sockets to CPCd, which transports the SPINEL messages over the
-serial bus to the RCP. A Zigbee host application connects to Zigbeed via a
-PTY (pseudo terminal) and communicates using the EZSP protocol. Two host
-applications are included with the Unify Host SDK: ZigPC, and Z3Gateway.
-To get started running zigbeed with CPCd, see the
-<span class="xref myst">Multiprotocol Setup</span> page.</p>
-</section>
-<section id="openthread">
-<h2>OpenThread<a class="headerlink" href="#openthread" title="Permalink to this heading"></a></h2>
-<p>The OpenThread Border Router (OTBR) is included in a binary Debian package
-with the Unify Host SDK. The version included is compiled from the GSDK
-with CPCd connectivity and multiprotocol capabilities enabled.
-It communicates to the 802.15.4 RCP using SPINEL via CPCd.
-It can run alongside zigbeed using the same RCP, provided both
-networks use the same 802.15.4 channel.
-To get started running OTBR with CPCd, see the
-<span class="xref myst">Multiprotocol Setup</span> page.</p>
-<section id="bluetooth">
-<h3>Bluetooth<a class="headerlink" href="#bluetooth" title="Permalink to this heading"></a></h3>
-<p>BlueZ is the official Linux Bluetooth stack. A small utility called the
-cpc-hci-bridge is provided to connect BlueZ to CPCd so that it can communicate
-to a BLE link-layer enabled RCP using the HCI protocol.  For more information
-see the <span class="xref myst">CPC HCI Bridge page</span>.</p>
-</section>
-</section>
-<section id="applications">
-<h2>Applications<a class="headerlink" href="#applications" title="Permalink to this heading"></a></h2>
-<div class="toctree-wrapper compound">
-</div>
-</section>
+<p>Note: For reference documentation please refer to related chapter of
+<a class="reference external" href="https://SiliconLabsSoftware.github.io/z-wave-protocol-controller/">Z-Wave-Protocol-Controller documentation</a></p>
 </section>
 
 

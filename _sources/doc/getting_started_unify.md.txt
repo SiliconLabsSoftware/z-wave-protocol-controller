@@ -1,5 +1,12 @@
 # Getting Started with Unify
 
+Note: For reference documentation please refer to related chapter of
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/
+)
+
+The following chapters may be also relevent for z-wave-protocol-controller users/developers.
+
 ## Introduction
 
 Z-Wave-Protocol-Controller is a software framework that simplifies the developer experience, removing difficult parts of network control and network management as it relates to gateway and hub development in IoT applications.

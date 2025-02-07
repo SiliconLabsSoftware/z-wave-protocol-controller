@@ -1,5 +1,10 @@
 # Unify Build Guide
 
+Note: For reference documentation please refer to related chapter of
+[Z-Wave-Protocol-Controller documentation](
+https://SiliconLabsSoftware.github.io/z-wave-protocol-controller/
+)
+
 This document is intended for systems integrators who are trying to
 cross-compile the Unify components. This guide explains how to build Debian
 packages for the Raspberry Pi.

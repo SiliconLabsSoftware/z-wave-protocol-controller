@@ -1,5 +1,12 @@
 # Running Z-Wave-Protocol-Controller on Raspberry Pi
 
+Note: For reference documentation please refer to related chapter of
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/
+)
+
+The following chapters, may be also relevent for z-wave-protocol-controller users/developers.
+
 The Z-Wave-Protocol-Controller targets our reference platform, a Raspberry Pi 4 (RPi4).
 It is therefore recommended to set up a RPi4 for evaluating the full set of functionalities.
 

@@ -1,5 +1,10 @@
 # Unify Host SDK User guide
 
+Note: For reference documentation please refer to related chapter of
+[Z-Wave-Protocol-Controller documentation](
+https://SiliconLabsSoftware.github.io/z-wave-protocol-controller/
+)
+
 This guide contains information which is common to all Unify applications.
 For a having a general setup running, it assumes you have gone over the [Getting Started guide](getting_started_unify.md).
 Details about each application can be found in the application specific user guides.

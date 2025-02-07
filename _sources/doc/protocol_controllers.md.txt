@@ -1,5 +1,10 @@
 # Protocol Controllers
 
+Note: For reference documentation please refer to related chapter of
+[Z-Wave-Protocol-Controller documentation](
+https://SiliconLabsSoftware.github.io/z-wave-protocol-controller/
+)
+
 The Unify Framework currently includes several protocol controllers.
 
 Each protocol controller interfaces with its radio hardware and implements a
