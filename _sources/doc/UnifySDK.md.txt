@@ -1,6 +1,0 @@
-# Unify Framework
-
-Note: For reference documentation please refer to related chapter of
-[UnifySDK](
-https://SiliconLabs.github.io/UnifySDK/
-)
