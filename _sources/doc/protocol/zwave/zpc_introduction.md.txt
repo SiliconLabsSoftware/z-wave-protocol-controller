@@ -30,4 +30,4 @@ The guide [How to interact with clusters](../../../applications/zpc/how_to_inter
 
 The guide [Supported Command Classes](../../../applications/zpc/doc/supported_command_classes.md) goes into detail about how the command class are implemented. This documents gives specifics about the attributes store and MQTT topics that can interact with the class.
 
-The doxygen generated <a href="../../../doxygen_zpc/index.html">ZPC API</a> 
+The doxygen generated <a href="../../../doxygen_zpc/index.html">ZPC API</a>

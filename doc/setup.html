@@ -4,11 +4,11 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Setting up Raspberry Pi for Unify &mdash; Z-Wave-Protocol-Controller</title>
+  <title>Setting up Raspberry Pi for z-wave-protocol-controller &mdash; Z-Wave-Protocol-Controller</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom_styles.css" type="text/css" />
-    <link rel="canonical" href="https://SiliconLabsSoftware.github.io/z-wave-protocol-controller/doc/running_unify.html" />
+    <link rel="canonical" href="https://SiliconLabsSoftware.github.io/z-wave-protocol-controller/doc/setup.html" />
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
@@ -39,7 +39,7 @@
               <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.6.0-RC4-141-g17e4441c97-94-ged21c28e1c
+                ver_1.6.0-RC4-141-g17e4441c97-107-gc353a0bf11
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -87,32 +87,33 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="setting-up-raspberry-pi-for-unify">
-<h1>Setting up Raspberry Pi for Unify<a class="headerlink" href="#setting-up-raspberry-pi-for-unify" title="Permalink to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="setting-up-raspberry-pi-for-z-wave-protocol-controller">
+<h1>Setting up Raspberry Pi for z-wave-protocol-controller<a class="headerlink" href="#setting-up-raspberry-pi-for-z-wave-protocol-controller" title="Permalink to this heading"></a></h1>
 <p>Note: For reference documentation please refer to related chapter of
 <a class="reference external" href="https://SiliconLabsSoftware.github.io/z-wave-protocol-controller/">Z-Wave-Protocol-Controller documentation</a></p>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
-<p>Here we explain how to set up and running quickly to test out Unify on the Raspberry Pi reference platform. Depending on the protocol(s) used this setup may vary so there are several sections that go into more detail for each protocol controller. This page contains the steps to install Unify on the Raspberry Pi regardless of the protocol(s) used.</p>
+<p>Here we explain how to set up and running quickly to test out
+z-wave-protocol-controller
+on the Raspberry Pi reference platform.</p>
 </section>
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading"></a></h2>
-<ul class="simple">
-<li><p>Raspberry Pi 4</p>
 <ul>
+<li><p>Raspberry Pi 3+ (4 is the recommended reference hardware)</p>
+<ul class="simple">
 <li><p>SD card for Raspberry Pi</p></li>
 <li><p>SD card reader</p></li>
 </ul>
 </li>
 <li><p>IP router with built-in DHCP</p></li>
 <li><p>Software tools</p>
-<ul>
-<li><p><a class="reference external" href="https://www.realvnc.com">VNC Viewer</a></p></li>
-<li><p><a class="reference external" href="https://filezilla-project.org">Filezilla</a></p></li>
-<li><p><a class="reference external" href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a></p></li>
-<li><p><a class="reference external" href="https://www.putty.org">Putty</a></p></li>
-<li><p><a class="reference external" href="https://www.raspberrypi.com/software/operating-systems/">Raspberry Pi Bookworm OS 64 bit image</a></p></li>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.raspberrypi.com/software/operating-systems/">Raspberry Pi Bookworm OS 64 bit image</a>
+(Raspberry Pi OS Lite is enough eg:</p></li>
 </ul>
+<p><a class="reference external" href="http://downloads.raspberrypi.org/raspios_lite_arm64/images//raspios_lite_arm64-2024-11-19/2024-11-19-raspios-bookworm-arm64-lite.img.xz">2024-11-19-raspios-bookworm-arm64-lite.img</a>
+.</p>
 </li>
 </ul>
 </section>
@@ -122,15 +123,13 @@
 <li><p>Prepare the SD card</p>
 <ul class="simple">
 <li><p>Insert SD card into SD reader</p></li>
-<li><p>Use Raspberry Pi Imager to load the image to the SD card</p></li>
-</ul>
-<p><img alt="Raspberry Pi Imager" src="../_images/rpi_imager.png" /></p>
-<ul class="simple">
+<li><p>Use Raspberry Pi Imager to load the image to the SD card (or any lowlevel disk writer eg: dd)
+<img alt="Raspberry Pi Imager" src="../_images/rpi_imager.png" /></p></li>
 <li><p>Click on settings and set the following</p>
 <ul>
 <li><p>Enable SSH</p></li>
 <li><p>Set username and password</p></li>
-<li><p>Set hostname</p></li>
+<li><p>Set hostname (eg: last 4 digit of ethernet address)</p></li>
 </ul>
 </li>
 </ul>
@@ -144,28 +143,18 @@
 <li><p>Power up the router. Connect your PC to the router using ethernet or WiFi. Connect the Raspberry Pi to the router using ethernet.</p></li>
 <li><p>Open a terminal with ssh (such as Putty), and type in either raspberrypi.local or the IP address of the Raspberry Pi in the host name field. After clicking open, click yes to accept the security key, and the default user name is pi and password is raspberry (unless any of this was changed in the previous step when loading the OS image).
 <img alt="Putty" src="../_images/putty.png" /></p></li>
-<li><p>Now we can enable the VNC server. Run raspi-config by typing the command “sudo raspi-config” in the ssh command line. Select “Interfacing Options”, “VNC”, and “yes” to enable. This may also be a good time to increase the screen resolution. Select “Display Options”, “resolution”, and select a suitable resolution. Finally select “Finish” and “yes” to reboot.</p></li>
-</ul>
-<p><img alt="RaspiConfig" src="../_images/raspiconfig.png" /></p>
-<ul class="simple">
-<li><p>Wait for the Raspberry Pi to reboot and then open VNC Viewer. Connect to raspberrypi.local, or use the IP address. Use the same username and password as previously. Upon success you will see the Raspberry Pi desktop.
-<img alt="VNC" src="../_images/vncviewer.png" /></p></li>
 </ul>
 </section>
-<section id="copy-unify-to-raspberry-pi">
-<h2>Copy Unify to Raspberry Pi<a class="headerlink" href="#copy-unify-to-raspberry-pi" title="Permalink to this heading"></a></h2>
+<section id="copy-z-wave-protocol-controller-to-raspberry-pi">
+<h2>Copy z-wave-protocol-controller to Raspberry Pi<a class="headerlink" href="#copy-z-wave-protocol-controller-to-raspberry-pi" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>Download the Unify release file from <a class="reference external" href="https://github.com/SiliconLabs/UnifySDK/releases">https://github.com/SiliconLabs/UnifySDK/releases</a></p></li>
-<li><p>Open Filezilla and connect to sftp://raspberrypi.local entering the same username and password again
-<img alt="Filezilla" src="../_images/filezilla.png" /></p></li>
-<li><p>On the left side (local) locate the unify zip file, and on the right side (remote) choose a location to copy to</p></li>
-<li><p>Right click on the zip file and “Upload” to transfer the file</p></li>
-<li><p>Go to VNC Viewer and open a terminal on the Raspberry Pi</p></li>
-<li><p>Use the command “unzip” to extract the zip file contents</p></li>
+<li><p>Download the archive package for aarch64 architecture:
+<a class="reference external" href="https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/releases">https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/releases</a></p></li>
+<li><p>Unarchive and upload all deb files to target using scp, sftp or just copy to target sdcard.</p></li>
 </ul>
 </section>
-<section id="install-unify">
-<h2>Install Unify<a class="headerlink" href="#install-unify" title="Permalink to this heading"></a></h2>
+<section id="install-precompiled-packages">
+<h2>Install Precompiled packages<a class="headerlink" href="#install-precompiled-packages" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>Enter the directory of the extracted files and install Unify</p>
 <ul>
@@ -173,12 +162,14 @@
 </ul>
 </li>
 </ul>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">pi@raspberrypi:~ $ </span><span class="nb">cd</span><span class="w"> </span>unify_*
-<span class="gp">pi@raspberrypi:~ $ </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>mosquitto
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">pi@raspberrypi:~ $ </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>etckeeper<span class="w"> </span>unp<span class="w"> </span>mosquitto<span class="w"> </span>mosquitto-clients
+<span class="gp">pi@raspberrypi:~ $ </span>unp<span class="w"> </span>z-wave-protocol-controller_*.zip<span class="w"> </span>
+<span class="gp">pi@raspberrypi:~ $ </span><span class="nb">cd</span><span class="w"> </span>z-wave-protocol-controller_*
+<span class="gp">pi@raspberrypi:~ $ </span>rm<span class="w"> </span>*-dev*.deb<span class="w"> </span><span class="c1"># development package not needed</span>
 <span class="gp">pi@raspberrypi:~ $ </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>./*deb
 </pre></div>
 </div>
-<p>To finish installing and running Unify choose a protocol to continue with and following the remaining steps</p>
+<p>Some menu will appear you can rely on default values, or we can adjust in next part of the documentation:¨</p>
 <p><a class="reference internal" href="protocol/zwave/running_zpc.html"><span class="doc std std-doc">Z-Wave (ZPC)</span></a></p>
 <div class="toctree-wrapper compound">
 </div>

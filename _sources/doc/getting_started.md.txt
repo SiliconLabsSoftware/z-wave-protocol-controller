@@ -14,7 +14,7 @@ For details on setting up a bare RPi4, follow the setup instructions in the
 [Official Raspberry Pi User Guide](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up),
 and ensure a supported radio module is attached to your RPi4.
 
-For set up and running quickly to test out Z-Wave-Protocol-Controller on the Raspberry Pi refer [Setting up Raspberry Pi for Z-Wave-Protocol-Controller](running_unify.md)
+For set up and running quickly to test out Z-Wave-Protocol-Controller on the Raspberry Pi refer [Setting up Raspberry Pi for Z-Wave-Protocol-Controller](setup.md)
 
 The rest of this guide focuses on how to set up all of the applications and
 services on a RPi4.
