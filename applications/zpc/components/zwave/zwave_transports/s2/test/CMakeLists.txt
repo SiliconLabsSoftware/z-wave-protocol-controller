@@ -42,6 +42,7 @@ target_add_unittest(
   zwave_s2_network_test.c
   DEPENDS
   libs2_mock
+  libs2_external_mock
   zwave_network_management_mock
   zwave_api_mock
   uic_contiki_stub

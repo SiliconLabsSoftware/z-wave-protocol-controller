@@ -57,6 +57,9 @@ if(BUILD_TESTING)
   add_mock(libs2_mock ${ZW-LIBS2_PATH}/include/S2.h
            ${ZW-LIBS2_PATH}/include/s2_inclusion.h
            ${ZW-LIBS2_PATH}/include/s2_protocol.h)
+  add_mock(libs2_external_mock ${ZW-LIBS2_PATH}/include/S2_external.h)
   target_interface_libraries(libs2_mock zwave_definitions s2crypto aes)
+  target_interface_libraries(libs2_external_mock zwave_definitions s2crypto aes)
   target_compile_definitions(libs2_mock PUBLIC ZIPGW)
+  target_compile_definitions(libs2_external_mock PUBLIC ZIPGW)
 endif()

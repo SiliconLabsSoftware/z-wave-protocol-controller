@@ -453,7 +453,23 @@ void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, bool nls_capab
 
 void S2_save_nls_state(void)
 {
-  // not relevant for ZPC
+  zwave_node_id_t node_id = zwave_network_management_get_node_id();
+
+  sl_status_t status = zwave_store_nls_state(node_id, s2_ctx->nls_state, REPORTED_ATTRIBUTE);
+  if (status != SL_STATUS_OK) {
+    sl_log_error(LOG_TAG, "Unable to save NLS state in attribute store for Node ID: %d\n", node_id);
+    return;
+  }
+
+  if (s2_ctx->nls_state) {
+    status = zwapi_enable_node_nls(node_id);
+    if (SL_STATUS_OK != status) {
+      sl_log_error(LOG_TAG, "Error saving NLS state in the controller NVM for Node ID: %d", node_id);
+      return;
+    }
+  }
+
+  sl_log_debug(LOG_TAG, "NLS state saved in the controller NVM for Node ID: %d\n", node_id);
 }
 
 sl_status_t compute_next_nls_enabled_node(void)

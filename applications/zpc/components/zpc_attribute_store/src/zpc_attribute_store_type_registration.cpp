@@ -51,6 +51,8 @@ static const std::vector<attribute_schema_t> attribute_schema = {
   {ATTRIBUTE_MULTICAST_GROUP_LIST,   "Multicast Group list",   ATTRIBUTE_NODE_ID,   EMPTY_STORAGE_TYPE},
   {ATTRIBUTE_MULTICAST_GROUP,   "Multicast Group",   ATTRIBUTE_MULTICAST_GROUP_LIST,   U8_STORAGE_TYPE},
   {ATTRIBUTE_ZWAVE_FAILING_NODE_PING_INTERVAL,   "NOP interval",   ATTRIBUTE_NODE_ID,   UNSIGNED_LONG_STORAGE_TYPE},
+  {ATTRIBUTE_ZWAVE_NLS_SUPPORT,   "NLS support",   ATTRIBUTE_NODE_ID,   U8_STORAGE_TYPE},
+  {ATTRIBUTE_ZWAVE_NLS_STATE,   "NLS state",   ATTRIBUTE_NODE_ID,   U8_STORAGE_TYPE},
   {ATTRIBUTE_POLL_ENGINE_MARK,   "Poll Engine Mark",   ATTRIBUTE_STORE_INVALID_ATTRIBUTE_TYPE,   UNKNOWN_STORAGE_TYPE},
   /////////////////////////////////////////////////////////////////////
   //         Generic Z-Wave Endpoint ID attributes
@@ -61,8 +63,6 @@ static const std::vector<attribute_schema_t> attribute_schema = {
   {ATTRIBUTE_ZWAVE_GENERIC_DEVICE_CLASS,   "Generic Device Class",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
   {ATTRIBUTE_ZWAVE_SPECIFIC_DEVICE_CLASS,   "Specific Device Class",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
   {ATTRIBUTE_ZWAVE_KEY_AND_PROTOCOL_TO_DISCOVER,   "Network Key / Protocol to probe",   ATTRIBUTE_ENDPOINT_ID,   BYTE_ARRAY_STORAGE_TYPE},
-  {ATTRIBUTE_ZWAVE_NLS_SUPPORT,   "NLS support",   ATTRIBUTE_NODE_ID,   U8_STORAGE_TYPE},
-  {ATTRIBUTE_ZWAVE_NLS_STATE,   "NLS state",   ATTRIBUTE_NODE_ID,   U8_STORAGE_TYPE},
   /////////////////////////////////////////////////////////////////////
   //         Generic Z-Wave attributes
   /////////////////////////////////////////////////////////////////////

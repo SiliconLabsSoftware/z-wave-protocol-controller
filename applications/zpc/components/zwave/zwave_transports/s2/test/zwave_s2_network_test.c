@@ -17,10 +17,12 @@
 
 #include "S2_mock.h"
 #include "s2_inclusion_mock.h"
+#include "S2_external_mock.h"
 #include "zwave_s2_network.h"
 #include "zwave_s2_network_callbacks_mock.h"
 #include "sl_log.h"
 #include "zwapi_protocol_mem_mock.h"
+#include "zwapi_protocol_controller_mock.h"
 
 // Includes from LibS2
 #include "s2_protocol.h"
@@ -53,6 +55,7 @@ void setUp()
   // Configure our HomeID and NodeID for the test:
   zwave_network_management_get_home_id_IgnoreAndReturn(test_home_id);
   zwave_network_management_get_node_id_IgnoreAndReturn(test_node_id);
+  clock_time_IgnoreAndReturn(0);
   s2_ctx = &test_ctx;
   memset(s2_ctx, 0, sizeof(struct S2));
   contiki_test_helper_init();
@@ -74,6 +77,8 @@ static void
 
 void test_s2_network_init()
 {
+  uint8_t nls_state = false;
+
   S2_destroy_Expect(s2_ctx);
   s2_inclusion_init_IgnoreAndReturn(true);
   s2_inclusion_set_event_handler_StubWithCallback(
@@ -81,6 +86,9 @@ void test_s2_network_init()
   S2_init_ctx_IgnoreAndReturn(0);
 
   zwapi_memory_get_buffer_IgnoreAndReturn(SL_STATUS_OK);
+
+  zwapi_get_node_nls_ExpectAndReturn(1, &nls_state, SL_STATUS_OK);
+  S2_load_nls_state_Ignore();
 
   zwave_s2_network_init();
 }
