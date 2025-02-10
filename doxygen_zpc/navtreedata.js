@@ -24,7 +24,7 @@
 */
 var NAVTREE =
 [
-  [ "Z-Wave Protocol Controller Refrence", "index.html", [
+  [ "Z-Wave Protocol Controller Reference", "index.html", [
     [ "Z-Wave Command Class Handler Generator", "md_applications_zpc_components_zwave_command_classes_README.html", [
       [ "Data model", "md_applications_zpc_components_zwave_command_classes_README.html#autotoc_md6", null ]
     ] ],
