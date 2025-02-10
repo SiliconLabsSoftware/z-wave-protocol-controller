@@ -1,5 +1,12 @@
 var group__command__classes =
 [
+    [ "Command handlers for COMMAND_CLASS_BASIC_TARIFF_INFO", "group__COMMAND__CLASS__BASIC__TARIFF__INFO__handler.html", "group__COMMAND__CLASS__BASIC__TARIFF__INFO__handler" ],
+    [ "Command handlers for COMMAND_CLASS_DOOR_LOCK", "group__COMMAND__CLASS__DOOR__LOCK__handler.html", "group__COMMAND__CLASS__DOOR__LOCK__handler" ],
+    [ "Command handlers for COMMAND_CLASS_INDICATOR", "group__COMMAND__CLASS__INDICATOR__handler.html", "group__COMMAND__CLASS__INDICATOR__handler" ],
+    [ "Command handlers for COMMAND_CLASS_MANUFACTURER_SPECIFIC", "group__COMMAND__CLASS__MANUFACTURER__SPECIFIC__handler.html", "group__COMMAND__CLASS__MANUFACTURER__SPECIFIC__handler" ],
+    [ "Command handlers for COMMAND_CLASS_SENSOR_BINARY", "group__COMMAND__CLASS__SENSOR__BINARY__handler.html", "group__COMMAND__CLASS__SENSOR__BINARY__handler" ],
+    [ "Command handlers for COMMAND_CLASS_SWITCH_COLOR", "group__COMMAND__CLASS__SWITCH__COLOR__handler.html", "group__COMMAND__CLASS__SWITCH__COLOR__handler" ],
+    [ "Command handlers for COMMAND_CLASS_ZWAVEPLUS_INFO", "group__COMMAND__CLASS__ZWAVEPLUS__INFO__handler.html", "group__COMMAND__CLASS__ZWAVEPLUS__INFO__handler" ],
     [ "Association Command Classes helpers", "group__zwave__command__class__association__helper.html", "group__zwave__command__class__association__helper" ],
     [ "Firmware Update Command Class", "group__zwave__command__class__firmware__update.html", "group__zwave__command__class__firmware__update" ],
     [ "Multi Channel Command Class", "group__multi__channel__command__class.html", "group__multi__channel__command__class" ],
