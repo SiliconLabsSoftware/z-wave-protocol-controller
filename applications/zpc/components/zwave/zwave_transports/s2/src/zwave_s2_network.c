@@ -22,6 +22,8 @@
 #include "zwave_s2_internal.h"
 #include "zwave_s2_keystore_int.h"
 #include "zwave_helper_macros.h"
+#include "zwapi_protocol_controller.h"
+#include "zwave_utils.h"
 
 #define LOG_TAG "zwave_s2_network"
 
@@ -136,6 +138,22 @@ void zwave_s2_network_init()
   // Print out our keys on the console
   zwave_s2_log_security_keys(SL_LOG_INFO);
 #endif
+
+  uint8_t nls_state = 0;
+  zwave_node_id_t node_id = zwave_network_management_get_node_id();
+  sl_status_t status = zwapi_get_node_nls(node_id, &nls_state);
+  if (status != SL_STATUS_OK) {
+    sl_log_error(LOG_TAG, "Unable to read NLS state for Node ID: %d\n", node_id);
+    return;
+  }
+
+  sl_log_info(LOG_TAG, "NLS state %s for Node ID: %d\n", nls_state == 1 ? "active" : "not active", node_id);
+
+  S2_load_nls_state(s2_ctx, nls_state);
+  status = zwave_store_nls_state(node_id, nls_state, REPORTED_ATTRIBUTE);
+  if (status != SL_STATUS_OK) {
+    sl_log_error(LOG_TAG, "Unable to store NLS state in attribute store for Node ID: %d\n", node_id);
+  }
 }
 
 void zwave_s2_start_learn_mode(zwave_node_id_t node_id)

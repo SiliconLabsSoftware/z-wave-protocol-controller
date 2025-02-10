@@ -93,6 +93,11 @@ DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_FAILING_NODE_PING_INTERVAL, 0x0017)
 ///< Used by poll engine to request of for polling of the  attributer
 DEFINE_ATTRIBUTE(ATTRIBUTE_POLL_ENGINE_MARK, 0x0018)
 
+///< This represents whether a Z-Wave node supports NLS.
+DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_NLS_SUPPORT, 0x0019)
+///< This represents whether a Z-Wave node has NLS enabled.
+DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_NLS_STATE, 0x0020)
+
 // Generic endpoint attributes, should be attached under endpoints
 // Suggested range 0x100..0x1FF (using Z-Wave Protocol CC identifier)
 /** This represents the list of supported command classes (NIF) for a node */
@@ -107,10 +112,6 @@ DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_GENERIC_DEVICE_CLASS, 0x0104)
 DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_SPECIFIC_DEVICE_CLASS, 0x0105)
 ///< This represent a zwave_key_protocol_combination_t
 DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_KEY_AND_PROTOCOL_TO_DISCOVER, 0x0106)
-/** This represents whether a Z-Wave node/endpoint supports NLS. */
-DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_NLS_SUPPORT, 0x0107)
-/** This represents whether a Z-Wave node/endpoint has NLS enabled. */
-DEFINE_ATTRIBUTE(ATTRIBUTE_ZWAVE_NLS_STATE, 0x0108)
 
 // Generic attributes that can be placed anywhere under an endpoint.
 /** This indicates if more reports are expected to "complete" the value of an attribute */
