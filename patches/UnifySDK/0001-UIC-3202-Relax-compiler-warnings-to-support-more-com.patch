@@ -1,0 +1,44 @@
+From 9e212f8578e945598096b90e18b91a662d5f98e6 Mon Sep 17 00:00:00 2001
+From: Philippe Coval <philippe.coval@silabs.com>
+Date: Tue, 23 Jan 2024 16:27:50 +0100
+Subject: [PATCH] UIC-3202: Relax compiler warnings to support more compilers
+
+Threating warning as error is a good practice durring development phase,
+for release it's ok to relax this to support more (future) compilers
+and then provide best effort support on non supported environements.
+
+For instance we might allow users to support stable version of gcc
+(gcc-13 currently which is not yet enabled in our CI)
+
+Of course this change should be reverted on development branch, ASAP,
+and introduced again for next releases.
+
+Ideally it should be near to release tags.
+
+Origin: uic/pull-requests/2704/overview
+Relate-to: uic/pull-requests/2705/overview?commentId=796680
+Relate-to: /x/FND4Dg#BrainstormItems-Identifystandardsbreakage
+Forwarded: uic/pull-requests/2704/overview
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ cmake/include/compiler_options.cmake | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cmake/include/compiler_options.cmake b/cmake/include/compiler_options.cmake
+index 751ffe84bd..1f83caa008 100644
+--- a/cmake/include/compiler_options.cmake
++++ b/cmake/include/compiler_options.cmake
+@@ -31,8 +31,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON) # Do not allow fallback to previous C++
+ set(CMAKE_CXX_EXTENSIONS ON) # Enable gnu++11 extentions
+ 
+ # Set compiler Flags
+-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pipe -Werror -Wall")
+-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -Werror -Wall")
++set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pipe -Wall")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -Wall")
+ 
+ # Only add code coverage when CMAKE_GCOV is True
+ if(CMAKE_GCOV)
+-- 
+2.39.5
+
