@@ -63,7 +63,6 @@ var dir_a7413761325a0de7b31d33e30e75f050 =
     [ "zwave_command_class_supervision.c", "zwave__command__class__supervision_8c.html", "zwave__command__class__supervision_8c" ],
     [ "zwave_command_class_supervision_internals.h", "zwave__command__class__supervision__internals_8h.html", "zwave__command__class__supervision__internals_8h" ],
     [ "zwave_command_class_supervision_process.h", "zwave__command__class__supervision__process_8h.html", "zwave__command__class__supervision__process_8h" ],
-    [ "zwave_command_class_switch_color.c", "zwave__command__class__switch__color_8c.html", "zwave__command__class__switch__color_8c" ],
     [ "zwave_command_class_switch_color.h", "zwave__command__class__switch__color_8h.html", "zwave__command__class__switch__color_8h" ],
     [ "zwave_command_class_switch_multilevel.c", "zwave__command__class__switch__multilevel_8c.html", "zwave__command__class__switch__multilevel_8c" ],
     [ "zwave_command_class_switch_multilevel.h", "zwave__command__class__switch__multilevel_8h.html", "zwave__command__class__switch__multilevel_8h" ],
