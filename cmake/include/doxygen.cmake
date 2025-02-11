@@ -1,11 +1,12 @@
-if(NOT DOXYGEN_INCLUDED)
-  set(DOXYGEN_INCLUDED True)
+if(NOT ZPC_DOXYGEN_INCLUDED)
+  set(ZPC_DOXYGEN_INCLUDED True)
 else()
   return()
 endif()
 find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
+  set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
   find_package(PlantUML)
   # ############################################################################
   # Shared doxygen options
@@ -82,6 +83,7 @@ if(DOXYGEN_FOUND)
   set(DOXYGEN_VERBATIM_VARS DOXYGEN_ALIASES)
   set(DOXYGEN_LATEX)
   if(PlantUML_FOUND)
+    message(STATUS "doxygen: will use ${PlantUML_JARFILE}")
     set(DOXYGEN_PLANTUML_JAR_PATH ${PlantUML_JARFILE})
   else()
     message(
@@ -96,9 +98,9 @@ if(DOXYGEN_FOUND)
   # ############################################################################
   # Create doxygen build target, that includes all other doxygen targets
   # ############################################################################
-  add_custom_target(doxygen)
-  add_custom_target(doxygen_zip)
-  add_custom_target(doxygen_pdf)
+  add_custom_target(zpc_doxygen)
+  add_custom_target(zpc_doxygen_zip)
+  add_custom_target(zpc_doxygen_pdf)
 
   function(add_doxygen_target)
     # DOX_TARGET DOX_PROJECT_NAME DOX_IMAGE_PATH DOX_SOURCES
@@ -128,7 +130,7 @@ if(DOXYGEN_FOUND)
     # Print doxygen warnings after doxygen is built
     add_custom_command(TARGET ${ADD_DOX_TARGET} COMMAND cat
                                                         ${DOXYGEN_WARN_LOGFILE})
-    add_dependencies(doxygen ${ADD_DOX_TARGET})
+    add_dependencies(zpc_doxygen ${ADD_DOX_TARGET})
     add_custom_target(
       ${ADD_DOX_TARGET}_zip
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${ADD_DOX_TARGET}
@@ -144,48 +146,12 @@ if(DOXYGEN_FOUND)
           ${CMAKE_CURRENT_SOURCE_DIR}/scripts/build/pdf_latex/compile_latex.sh
           ${ADD_DOX_TARGET}_${FILE_NAME_VERSIONING})
 
-      add_dependencies(doxygen_pdf ${ADD_DOX_TARGET}_pdf)
+      add_dependencies(zpc_doxygen_pdf ${ADD_DOX_TARGET}_pdf)
     endif()
 
-    add_dependencies(doxygen_zip ${ADD_DOX_TARGET}_zip)
+    add_dependencies(zpc_doxygen_zip ${ADD_DOX_TARGET}_zip)
   endfunction()
 
-  # ############################################################################
-  # Configure Doxygen for UCL MQTT Reference Guide
-  # ############################################################################
-  set(REFERENCE_UCL_MQTT_FILE
-      ${CMAKE_SOURCE_DIR}/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md
-  )
-  set(DOXYGEN_USE_MDFILE_AS_MAINPAGE ${REFERENCE_UCL_MQTT_FILE})
-  set_source_files_properties(${REFERENCE_UCL_MQTT_FILE} PROPERTIES GENERATED
-                                                                    TRUE)
-  add_doxygen_target(
-    TARGET
-    reference_ucl_mqtt
-    PROJECT_NAME
-    "Unify Framework UCL MQTT Reference"
-    TARGET_DEPENDS
-    ${REFERENCE_UCL_MQTT_FILE}
-    SRC_PATHS
-    ${REFERENCE_UCL_MQTT_FILE}
-    PDF
-    true)
-  unset(DOXYGEN_USE_MDFILE_AS_MAINPAGE)
-  unset(REFERENCE_UCL_MQTT_FILE)
-
-  # ############################################################################
-  # Configure Doxygen for libuic
-  # ############################################################################
-  add_doxygen_target(
-    TARGET
-    doxygen_uic
-    PROJECT_NAME
-    "Unify Framework Lib"
-    IMAGE_PATHS
-    doc/assets/img/
-    SRC_PATHS
-    ${CMAKE_SOURCE_DIR}/doc/doxygen
-    ${LIBUIC_DOXYGEN_SRC})
   # ############################################################################
   # Configure Doxygen for ZPC
   # ############################################################################
@@ -196,9 +162,9 @@ if(DOXYGEN_FOUND)
   # "zgw_name=\"@xrefitem zgw_namemap \\\"\\\" \\\"\\\"\"")
   add_doxygen_target(
     TARGET
-    doxygen_zpc
+    zpc_doxygen_zpc
     PROJECT_NAME
-    "Z-Wave Protocol Controller Refrence"
+    "Z-Wave Protocol Controller Reference"
     IMAGE_PATHS
     doc/assets/img/
     applications/zpc/doc/assets/img/
@@ -210,37 +176,6 @@ if(DOXYGEN_FOUND)
     ${LIBUIC_DOXYGEN_SRC})
 
   unset(DOXYGEN_ALIASES)
-
-  # ############################################################################
-  # Configure Doxygen for zigpc
-  # ############################################################################
-  add_doxygen_target(
-    TARGET
-    doxygen_zigpc
-    PROJECT_NAME
-    "Zigbee Protocol Controller"
-    IMAGE_PATHS
-    doc/assets/img/
-    SRC_PATHS
-    ${CMAKE_SOURCE_DIR}/applications/zigpc
-    ${CMAKE_CURRENT_BINARY_DIR}/applications/zigpc/components/zcl_command_parser/include
-    ${CMAKE_CURRENT_BINARY_DIR}/applications/zigpc/components/zcl_util/include
-    ${LIBUIC_DOXYGEN_SRC})
-
-  # ############################################################################
-  # Configure Doxygen for AoX (AoXPC and Positioning application)
-  # ############################################################################
-  add_doxygen_target(
-    TARGET
-    doxygen_aox
-    PROJECT_NAME
-    "AoX Applications"
-    IMAGE_PATHS
-    doc/assets/img/
-    SRC_PATHS
-    ${CMAKE_SOURCE_DIR}/applications/aox/applications/aoxpc/components
-    ${CMAKE_SOURCE_DIR}/applications/aox/applications/positioning/components
-    ${LIBUIC_DOXYGEN_SRC})
 
 else()
   message(
