@@ -23,7 +23,9 @@
         <script src="../../_static/js/qr_code_scanner.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" /> 
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to interact with clusters" href="how_to_interact_with_clusters.html" />
+    <link rel="prev" title="UAM maps for the ZPC" href="how_to_write_uam_files_for_the_zpc.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -39,7 +41,7 @@
               <img src="../../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.7.0-RC0-93-g339a49ad21
+                ver_1.7.0-RC0-91-g5f779a0200
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -49,7 +51,56 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme_user.html">ZPC User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme_certification.html">ZPC - Z-Wave (certification) Information</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Guideline for implementing Command Classes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#defining-the-z-wave-command-class-attribute-state-data-model">Defining the Z-Wave Command Class attribute state data model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-the-data-model-in-the-attribute-store">Create the data model in the Attribute Store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#attribute-definition">Attribute definition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#attribute-registration">Attribute registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#write-the-logic-of-the-command-class">Write the logic of the command class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#base-skeleton-creation">Base skeleton creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#global-handler">Global handler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#initialize-attributes">Initialize attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-set-command">Get/Set command</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#report-callback">Report callback</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-our-implementation">Testing our implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mapping-z-wave-to-dotdot-ucl-with-uam-file">Mapping Z-Wave to Dotdot UCL with .uam file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#map-z-wave-attribute-to-clusters-attributes">Map Z-Wave attribute to clusters attributes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#on-off-cluster">On/Off cluster</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#uam-guard">UAM Guard</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#level-cluster">Level cluster</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#quirks">Quirks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unit-testing">Unit Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-test-file-to-cmake">Add test file to CMake</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#base-test-skeleton">Base test skeleton</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-report-z-wave-function">Test report Z-Wave function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-get-set-z-wave-function">Test get/set Z-Wave function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#z-wave-get-test">Z-Wave Get test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#z-wave-set-test">Z-Wave Set test</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#z-wave-self-certification-with-the-compliance-test-tool-ctt">Z-Wave Self-Certification with the Compliance Test Tool (CTT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-the-ctt-project">Setup the CTT project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-the-tests">Run the tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="how_to_write_uam_files_for_the_zpc.html">UAM maps for the ZPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how_to_interact_with_clusters.html">How to interact with clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="doc/supported_command_classes.html">Supported Z-Wave Command Classes</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/introduction.html">Z-Wave-Protocol-Controller Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/api.html">API documentation</a></li>
 </ul>

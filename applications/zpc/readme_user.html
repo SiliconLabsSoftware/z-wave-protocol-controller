@@ -23,7 +23,9 @@
         <script src="../../_static/js/qr_code_scanner.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" /> 
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="UAM maps for the ZPC" href="how_to_write_uam_files_for_the_zpc.html" />
+    <link rel="prev" title="Z-Wave-Protocol-Controller Overview" href="../../doc/introduction.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -39,7 +41,7 @@
               <img src="../../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.7.0-RC0-93-g339a49ad21
+                ver_1.7.0-RC0-91-g5f779a0200
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -49,7 +51,71 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ZPC User’s Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#files">Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configuration-file">Configuration File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#database-file">Database File</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#running-zpc-from-the-command-line">Running ZPC From the Command Line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#updating-the-ncp-firmware">Updating the NCP firmware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#performing-firmware-updates-of-end-devices">Performing Firmware Updates of End Devices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ota-uiid-construction">OTA UIID Construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uiid-unid-association">UIID/UNID Association</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-string-calculation">Version String Calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#possible-errors">Possible Errors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#understanding-how-the-zpc-works">Understanding how the ZPC Works</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#discovery-and-operation">Discovery and Operation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#wake-up-device-support">Wake up device support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#failing-nodes">Failing nodes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#network-polling">Network Polling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dotdot-cluster-to-z-wave-command-class-mapping">Dotdot Cluster to Z-Wave Command Class Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generated-commands-from-end-nodes">Generated Commands from end nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modifying-maps-for-the-zpc">Modifying maps for the ZPC</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="how_to_write_uam_files_for_the_zpc.html">UAM maps for the ZPC</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#migrating-to-zpc-from-z-ip-gateway">Migrating to ZPC from Z/IP Gateway</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#z-wave-module-hardware-migration">Z-Wave Module/hardware migration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#starting-the-zpc-on-a-previous-z-wave-network">Starting the ZPC on a previous Z-Wave network</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#without-database-migration">Without database migration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#with-database-migration">With database migration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#zpc-database-json-example">ZPC Database JSON Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#transitioning-from-z-ip-gateway-z-ware">Transitioning from Z/IP Gateway + Z-Ware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#performing-backup-and-restore">Performing Backup and Restore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#datastore-versioning">Datastore Versioning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#recovering-a-database">Recovering a Database</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#z-wave-certification">Z-Wave Certification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#developer-resources">Developer resources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="how_to_implement_zwave_command_classes.html">Guideline for implementing Command Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="how_to_interact_with_clusters.html">How to interact with clusters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="readme_certification.html">ZPC - Z-Wave (certification) Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how_to_implement_zwave_command_classes.html">Guideline for implementing Command Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how_to_write_uam_files_for_the_zpc.html">UAM maps for the ZPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how_to_interact_with_clusters.html">How to interact with clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="doc/supported_command_classes.html">Supported Z-Wave Command Classes</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/introduction.html">Z-Wave-Protocol-Controller Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/api.html">API documentation</a></li>
 </ul>
