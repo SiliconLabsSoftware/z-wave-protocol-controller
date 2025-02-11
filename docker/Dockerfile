@@ -94,13 +94,6 @@ RUN wget -O /tmp/zap.deb https://github.com/project-chip/zap/releases/download/v
   && apt install -y --no-install-recommends /tmp/zap.deb \
   && rm -rf /var/lib/apt/lists/*
 
-# Unpack SLC CLI
-COPY uic-resources/linux/slc_cli_linux.zip /tmp/slc_cli_linux.zip
-RUN unzip /tmp/slc_cli_linux.zip -d /opt \
-  && chmod +x /opt/slc_cli/slc \
-  && rm /tmp/slc_cli_linux.zip
-ENV PATH="/opt/slc_cli:${PATH}"
-
 # Install Clang toolchain
 RUN if [ "$CLANG" = true ] ; then \
   curl -sL https://apt.llvm.org/llvm.sh --output /tmp/llvm.sh; \
