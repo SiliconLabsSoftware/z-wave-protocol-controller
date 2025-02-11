@@ -23,6 +23,8 @@ if(BUILD_TESTING)
   include(cmake/include/unittest.cmake)
 endif()
 
+include(cmake/include/doxygen.cmake)
+
 # ##############################################################################
 # Global includes
 # ##############################################################################
