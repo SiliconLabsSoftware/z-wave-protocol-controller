@@ -9,10 +9,12 @@ default: help all/default
 
 SELF?=${CURDIR}/helper.mk
 
-project?=unifysdk
+project?=z-wave-protocol-controller
 # Temporary workaround for:
 # https://gitlab.kitware.com/cmake/cmake/-/issues/22813#note_1620373
 project_test_dir?=applications
+project_docs_api_target?=zpc_doxygen
+version?=$(shell git describe --tags || echo "0")
 
 # Allow overloading from env if needed
 # VERBOSE?=1
@@ -34,6 +36,19 @@ packages+=nlohmann-json3-dev
 # TODO: remove for offline build
 packages+=curl wget python3-pip
 packages+=time
+
+# For docs
+packages+=graphviz
+export cmake_options+=-DDOXYGEN_HAVE_DOT=YES
+
+packages+=python3-breathe python3-myst-parser \
+  python3-sphinx-markdown-tables python3-sphinx-rtd-theme \
+  python3-linkify-it
+
+# TODO: https://bugs.debian.org/1004136#python-sphinxcontrib.plantuml
+# packages+=python3-sphinxcontrib.plantuml
+
+docs_dist_dir?=${build_dir}/dist
 
 # Extra for components, make it optional
 packages+=python3-jinja2
@@ -75,7 +90,9 @@ help: README.md
 	@cat $<
 	@echo ""
 	@echo "# Available rules at your own risk:"
-	@grep -o '^[^ ]*:' ${SELF} | grep -v '\$$' | grep -v '^#' | grep -v '^\.'
+	@grep -o '^[^ ]*:' ${SELF} \
+		| grep -v '\$$' | grep -v '^#' | grep -v '^\.' \
+		| grep -v '=' | grep -v '%'
 	@echo ""
 	@echo "# Environment:"
 	@echo "# PATH=${PATH}"
@@ -101,12 +118,15 @@ setup/rust:
 	cargo install --version 1.44.0 --locked cargo-deb
 	@echo "$@: TODO: Support stable version from https://releases.rs/ or older"
 
-setup/python:
-	python3 --version
-	@echo "$@: TODO: https://bugs.debian.org/1094297"
+setup/python/pip/%:
 	pip3 --version || echo "warning: Please install pip"
-	pip3 install "pybars3" \
-		|| pip3 install --break-system-packages "pybars3"
+	pip3 install "${@F}" \
+		|| pip3 install --break-system-packages "${@F}"
+
+setup/python: setup/python/pip/pybars3 setup/python/pip/sphinxcontrib.plantuml
+	python3 --version
+	@echo "$@: TODO: https://bugs.debian.org/1094297#pybars3"
+	@echo "$@: TODO: https://bugs.debian.org/1004136#python-sphinxcontrib.plantuml"
 
 # Relate-to: https://gitlab.kitware.com/cmake/cmake/-/issues/22813#note_1620373
 cmake_version?=3.29.3
@@ -127,7 +147,29 @@ setup/cmake:
 
 setup-cmake: setup/cmake
 
-setup/debian/bookworm: setup/debian setup/rust setup/python
+
+plantuml_url?=https://github.com/plantuml/plantuml/releases/download/v1.2022.0/plantuml-1.2022.0.jar
+plantuml_filename?=$(shell basename -- "${plantuml_url}")
+plantuml_sha256?=f1070c42b20e6a38015e52c10821a9db13bedca6b5d5bc6a6192fcab6e612691
+plantuml_dir?=/usr/local/share/plantuml
+PLANTUML_JAR_PATH?=${plantuml_dir}/${plantuml_filename}
+export PLANTUML_JAR_PATH
+
+${PLANTUML_JAR_PATH}:
+	@echo "# $@: TODO: Please help on:"
+	@echo "# $@: https://bugs.debian.org/1004135#2025"
+	curl -L ${plantuml_url} -O
+	sha256sum ${plantuml_filename} | grep "${plantuml_sha256}"
+	${sudo} install -d ${plantuml_dir}
+	${sudo} install ${plantuml_filename} ${plantuml_dir}/
+	rm -v ${plantuml_filename}
+	@echo "# %@: Please adapt env to:"
+	@echo "# export PLANTUML_JAR_PATH=${plantuml_dir}/${plantuml_filename}"
+
+setup/plantuml: ${PLANTUML_JAR_PATH}
+	file -E $<
+
+setup/debian/bookworm: setup/debian setup/rust setup/python setup/plantuml
 	date -u
 
 setup: setup/debian/${debian_codename}
@@ -153,16 +195,22 @@ git/prepare: git/modules/prepare
 configure: ${build_dir}/CMakeCache.txt
 	file -E $<
 
+configure/clean:
+	rm -rf ${build_dir}/CMake*
+
+reconfigure: configure/clean configure
+	@date -u
+
 ${build_dir}/CMakeCache.txt: CMakeLists.txt
 	cmake ${cmake_options}
 
-build: ${build_dir}/CMakeCache.txt
+all: ${build_dir}/CMakeCache.txt
 	cmake --build ${<D} \
 		|| cat ${build_dir}/CMakeFiles/CMakeOutput.log
 	cmake --build ${<D}
-.PHONY: build
+.PHONY: all
 
-${build_dir}/%: build
+${build_dir}/%: all
 	file -E "$@"
 
 test: ${build_dir}
@@ -188,7 +236,7 @@ prepare: git/prepare
 	git --version
 	cmake --version
 
-all/default: configure prepare build test dist
+all/default: configure prepare all test dist
 	@date -u
 
 
@@ -243,3 +291,27 @@ docker/%: Dockerfile
 
 test/docker: distclean prepare/docker docker/help docker/test
 	@echo "# ${project}: log: $@: done: $^"
+
+docs: ./scripts/build/build_documentation.py doc ${PLANTUML_JAR_PATH} configure
+	@echo "# export PLANTUML_JAR_PATH=${plantuml_dir}/${plantuml_filename}"
+	@echo "$@: PLANTUML_JAR_PATH=${PLANTUML_JAR_PATH}"
+	$< --output-dir $@
+	touch $@/.nojekyll
+
+zpc/docs/api: docs
+	cmake --build build --target  zpc_doxygen
+	install -d docs/doxygen_zpc
+	cp -rfa build/zpc_doxygen_zpc/html/* docs/doxygen_zpc/
+
+docs/api: zpc/docs/api
+
+docs/dist: ${docs_dist_dir}/${project}-docs-${version}.zip
+	file -E "$<"
+	@du -hsc "$<"
+
+${docs_dist_dir}/${project}-docs-${version}.zip: docs docs/api
+	ln -fs docs "${project}-docs-${version}"
+	install -d ${@D}
+	zip -r9 "$@" "${project}-docs-${version}/" \
+	  --exclude "*/_sources/*"
+	rm "${project}-docs-${version}"
