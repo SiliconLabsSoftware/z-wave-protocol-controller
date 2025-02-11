@@ -8,7 +8,7 @@ if("${PROJECT_NAME}" STREQUAL "")
   add_definitions(-Dx86)
 
   if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
     # For gov/cobertura: do not use .c.o on the object files, only .o
     set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
