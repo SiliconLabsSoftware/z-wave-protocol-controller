@@ -19,9 +19,8 @@ jobs:
       - id: build-docs
         name: Build documentation once
         run: |
-          ./helper.mk docs
           mkdir -p _site
-          tar cfvz _site/docs.tar.gz docs
+          date >  _site/index.html
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3.0.1
         with:
