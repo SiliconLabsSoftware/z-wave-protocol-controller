@@ -20,7 +20,7 @@ jobs:
         name: Build documentation once
         run: |
           ./helper.mk docs
-          mkdir _site
+          mkdir -p _site
           tar cfvz _site/docs.tar.gz docs
   deploy:
     needs: build
