@@ -36,6 +36,10 @@ jobs:
           # yamllint disable-line rule:line-length
           name: ${{ github.event.repository.name }}-${{ steps.describe.outputs.describe }}-${{ matrix.arch }}
           path: build/dist/
+      - name: Build documentation once
+        if: startsWith(github.ref, 'refs/tags/') && matrix.arch == 'amd64'
+        run: >-
+          ./scripts/build-rootfs.sh docs/dist
       - name: Upload Release Asset
         id: upload-release-asset
         uses: softprops/action-gh-release@v2
@@ -45,3 +49,23 @@ jobs:
           # yamllint disable-line rule:line-length
           # TODO: Sign asset: https://github.com/softprops/action-gh-release/issues/580#2025
           token: ${{ secrets.GH_UNIFY_ACCESS_TOKEN }}
+      - name: Upload pages artifact
+        id: deployment
+        if: startsWith(github.ref, 'refs/tags/') && matrix.arch == 'amd64'
+        uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          path: docs/
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        if: startsWith(github.ref, 'refs/tags/')
