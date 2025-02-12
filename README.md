@@ -1,29 +1,42 @@
-# Unify Host SDK
+# z-wave-protocol-controller
 
-This SDK contains non-embedded applications developed by Silicon Labs. The Host
-SDK is the main source for Silicon Labs customers who are working with Linux
-based applications in conjunction with Silicon Labs products.
+## About
 
-When developing IoT products that leverage a Linux operating system and a
-Silicon Labs radio, such as an IoT gateway or an advanced IoT end device,
-additional software is needed to interface with the IoT radio and provide
-interoperability with the host application. To equip customers developing
-complex IoT applications for single or multi-protocol use cases, Silicon Labs
-has created a single repository for all customer software needs on a Linux
-gateway. Rather than pulling software from multiple repositories including the
-[Gecko SDK](https://github.com/SiliconLabs/gecko_sdk/), we've simplified the distribution of customer-facing software to enhance
-ease of use. We haven't changed what we're creating for customers, and the
-protocol-specific host software you expect from us is still distributed
-concurrently with the GSDK. But, each protocol supported by Silicon Labs has
-corresponding host application software that we've also distributed with the
-Host SDK for greater accessibility. Here is an overview of the components delivered with this repo.
+Z-Wave-Protocol-Controller is a Linux application to control Z-Wave networks with a Silicon Labs NCP,
+It has grown as part of Unify SDK project and is now maintained as an external project.
 
-![Unify Host SDK](doc/assets/img/unify_host_sdk.png)
+## News
+
+- [NEWS.md](NEWS.md) lists important information regarding zpc "split release".
+- [doc/release_nodes.md](doc/release_nodes.md) release notes
 
 ## Documentation
 
-You will find complete documentation for quickly evaluating the Unify Host SDK in the [Unify Host SDK documentation](https://siliconlabs.github.io/UnifySDK).
-Here you will also learn how to build and run the various components that make up the Unify Host SDK.
+Please refer to online documentation at:
+
+https://siliconlabssoftware.github.io/z-wave-protocol-controller
+
+Or relevant sources pages, to get started head to:
+
+- [doc/protocol/zwave/zpc_introduction.md](doc/protocol/zwave/zpc_introduction.md)
+
+## Quickstart
+
+
+## Contributing
+
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## References
+
+- https://SiliconLabs.github.io/UnifySDK/
+- https://github.com/SiliconLabs/UnifySDK/
+- https://docs.silabs.com/z-wave/
+- https://www.silabs.com/
+- https://z-wavealliance.org/
+- https://github.com/Z-Wave-Alliance/z-wave-stack/wiki/ZPC
+
+## Legal info
 
 **Copyright 2021 Silicon Laboratories Inc. www.silabs.com**
 
