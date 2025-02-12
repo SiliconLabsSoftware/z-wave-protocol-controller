@@ -19,7 +19,7 @@ jobs:
       - id: build-docs
         name: Build documentation once
         run: |
-          apt-get install -y install make
+          #  apt-get install -y install make
           ./helper.mk docs
   deploy:
     needs: build
