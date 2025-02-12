@@ -17,12 +17,12 @@ jobs:
           echo "describe=$(git describe --tags --always || echo 0)"
           | tee $GITHUB_OUTPUT
       - id: build-docs
-      - name: Build documentation once
+        name: Build documentation once
         run: |
           apt-get install -y install make
           ./helper.mk docs
   deploy:
-    needs: build-docs
+    needs: build
     permissions:
       pages: write      # to deploy to Pages
       id-token: write   # to verify the deployment originates from an appropriate source
