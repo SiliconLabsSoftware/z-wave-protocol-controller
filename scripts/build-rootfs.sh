@@ -157,7 +157,14 @@ case ${chroot} in
 esac
 
 ${rootfs_shell} \
-    apt-get install -y -- make sudo util-linux
+    apt-get install -y -- make sudo util-linux git
+
+# echo "log: To prevent 'fatal: detected dubious ownership in repository'"
+${rootfs_shell} \
+    git config --global --add safe.directory "${CURDIR}"
+
+args="help setup default"
+[ "$1" = "" ] || args="$@"
 
 ${rootfs_shell}	\
     ${MAKE} \
@@ -166,7 +173,7 @@ ${rootfs_shell}	\
     USER="${USER}" \
     ${env_vars} \
     -- \
-    help setup default \
+    ${args} \
     target_debian_arch="${target_debian_arch}" \
     CMAKE_SYSTEM_PROCESSOR="${CMAKE_SYSTEM_PROCESSOR}" \
     CARGO_TARGET_TRIPLE="${CARGO_TARGET_TRIPLE}" \
