@@ -12,7 +12,8 @@ they can also be used to:
 
 ### Guide for UAM files
 
-Refer to [How to write UAM files](../../doc/how_to_write_uam_files.rst)
+Refer to 
+[How to write UAM files](https://siliconlabs.github.io/UnifySDK/doc/how_to_write_uam_files)
 
 ### Attribute types
 

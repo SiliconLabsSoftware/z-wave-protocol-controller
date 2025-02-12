@@ -787,8 +787,8 @@ The ZPC controls partially the Multilevel Switch Command Class. It is possible
 to set and see the current level of a Multilevel Switch supporting node.
 
 However, the model on which the Unify system and
-[Dev GUI](../dev_ui/dev_gui/readme_user.md) operate is based on
-The Dotdot model.
+[Dev GUI](https://siliconlabs.github.io/UnifySDK/applications/dev_ui/dev_gui/readme_user)
+operate is based on The Dotdot model.
 
 This means that Multilevel Switch supporting node will be represented with both
 an OnOff and a Level functionality. The Level setting can be changed
@@ -848,7 +848,7 @@ states/events to the ZPC.
 Due to the very diverse nature of the Notifications states and events that
 can be reported via the Command Class, information from the command class is
 displayed in a few different places in the
-[Dev GUI](../dev_ui/dev_gui/readme_user.md).
+[Dev GUI](https://siliconlabs.github.io/UnifySDK/applications/dev_ui/dev_gui/readme_user)
 
 
 #### Node status
@@ -1057,7 +1057,7 @@ network vicinity.
 
 The ZPC supports including other nodes using SmartStart. Detailed
 steps to manipulate the SmartStart list are also given in the
-[Dev GUI User's Guide](../dev_ui/dev_gui/readme_user.md).
+[Dev GUI User's Guide](https://siliconlabs.github.io/UnifySDK/applications/dev_ui/dev_gui/readme_user).
 
 ### SmartStart List Format
 

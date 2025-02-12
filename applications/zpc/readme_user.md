@@ -88,7 +88,7 @@ all information about the network and need to probe all nodes in the network.
 The best way to run ZPC is using the Systemd service that is
 installed with the Debian installer.
 For more information, see the
-[Unify Framework User guide](../../doc/unify_readme_user.md).
+[Unify Framework User guide](https://siliconlabs.github.io/UnifySDK/doc/unify_readme_user).
 
 ## Running ZPC From the Command Line
 
@@ -173,13 +173,14 @@ echo 2 > /dev/ttyUSB0
 
 The ZPC has the capability to perform Firmware Updates of end devices.
 Performing firmware updates requires
-[Image Provider](../image_provider/readme_user.md) application to be
-run and configured correctly. The section below discuss how to construct
+[Image Provider](https://siliconlabs.github.io/UnifySDK/applications/image_provider/readme_user) 
+application to be run and configured correctly.
+The section below discuss how to construct
 UIID and VERSION information that are required to perform a firmware update of an
 end device.
 
 Firmware updates can be triggered by providing the
-[Image Provider](../image_provider/readme_user.md)
+[Image Provider](https://siliconlabs.github.io/UnifySDK/applications/image_provider/readme_user) 
 with compatible firmware images and meta data information.
 
 Once the firmware update is successfully performed on an end device, the ZPC
@@ -259,12 +260,15 @@ The resulting version string will be "3.14.15".
 ### Examples
 
 This section provides an example using the
-[Image Provider](../image_provider/readme_user.md) and
-[Developer GUI](../dev_ui/dev_gui/readme_user.md) to perform a firmware update of a PowerStrip sample application.
+[Image Provider](https://siliconlabs.github.io/UnifySDK/applications/image_provider/readme_user) 
+and
+[Developer GUI](https://siliconlabs.github.io/UnifySDK/applications/dev_ui/dev_gui/readme_user)
+to perform a firmware update of a PowerStrip sample application.
 
 First, make sure that the ZPC,
-[Image Provider](../image_provider/readme_user.md) and
-[Developer GUI](../dev_ui/dev_gui/readme_user.md)
+[Image Provider](https://siliconlabs.github.io/UnifySDK/applications/image_provider/readme_user) 
+and
+[Developer GUI](https://siliconlabs.github.io/UnifySDK/applications/dev_ui/dev_gui/readme_user)
 are running.
 
 Flash a PowerStrip application on a Z-Wave module with the OTA bootloader
@@ -293,7 +297,9 @@ pi@unify:/var/lib/uic-image-provider/updates $ ls -l
 
 Then, use the found UIID to configure the _image.json_ file from the image
 provider. Remember to set a version string as well as calculate the Md5 as
-described in the [Image Provider User Guide](../image_provider/readme_user.md):
+described in the
+[Image Provider](https://siliconlabs.github.io/UnifySDK/applications/image_provider/readme_user) 
+:
 
 ```json
 {

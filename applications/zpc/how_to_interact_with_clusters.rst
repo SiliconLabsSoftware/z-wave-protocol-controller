@@ -1,9 +1,10 @@
 How to interact with clusters
 =============================
 
-Unify internal model works with DotDot ZCL clusters. More info on this
-in :doc:`chapter 2 <../../doc/unify_specifications/Chapter02-ZCL-in-uic>` that
-describes how clusters are implemented in Unify and how to use them.
+Unify internal model works with DotDot ZCL clusters.
+More info on this in
+`UnifySDK specifications chapter 2 <https://siliconlabs.github.io/UnifySDK/doc/unify_specifications/Chapter02-ZCL-in-uic>`_
+that describes how clusters are implemented in Unify and how to use them.
 
 ZPC attributes are not exposed to MQTT bus by default. To be able to interact 
 with ZPC with the MQTT broker we must map ZPC values to cluster attributes.

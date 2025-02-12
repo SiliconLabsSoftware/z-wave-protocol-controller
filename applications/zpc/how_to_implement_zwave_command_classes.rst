@@ -961,8 +961,8 @@ Mapping Z-Wave to Dotdot UCL with .uam file
 
 You should have some basic knowledge about clusters and UAM files.
 
--  :doc:`Cluster attributes <../../doc/unify_specifications/Chapter02-ZCL-in-uic>`
--  :doc:`.uam file documentation <../../doc/how_to_write_uam_files>`
+-  `UnifySDK: Cluster attributes <https://siliconlabs.github.io/UnifySDK/doc/unify_specifications/Chapter02-ZCL-in-uic>`_
+-  `UnifySDK: .uam file documentation <https://siliconlabs.github.io/UnifySDK/doc/how_to_write_uam_files>`_
 -  :doc:`Z-Wave specific .uam files documentation <how_to_write_uam_files_for_the_zpc>`
 
 Now that our attribute store is correctly defined and sending the right
@@ -1179,9 +1179,11 @@ Let's look at the ``Level`` cluster definition :
 
 We see that we have access to 2 int attributes : ``CurrentLevel`` and
 ``CurrentFrequency``. We can decide to map the current volume to
-``CurrentLevel`` and current tone ID to ``CurrentFrequency`` (even if
-its make little sense). We'll see how to implement our own cluster if we
-need more accuracy :doc:`here <../../doc/how_to_write_new_cluster>`.
+``CurrentLevel`` and current tone ID to ``CurrentFrequency`` 
+(even if it makes little sense).
+We'll see how to implement our own cluster if we need more accuracy check
+`UnifySDK: How to write new cluster <https://siliconlabs.github.io/UnifySDK#/doc/how_to_write_new_cluster>`_
+.
 
 Both ZCL attributes have a min and a max values, so we need to map those
 as well.
@@ -1443,8 +1445,9 @@ the second endpoint, etc.
 This is why we needed to add ``ep[0]`` before ``zwMANUFACTURER_ID`` and
 the other attributes in ``def aeotec_doorbell``. Since its evaluated in
 the ``ATTRIBUTE_NODE_ID`` context the only attribute directly available
-is the ``ATTRIBUTE_ENDPOINT_ID``. You can find more information about
-this in :doc:`How to write UAM files <../../doc/how_to_write_uam_files>`
+is the ``ATTRIBUTE_ENDPOINT_ID``.
+You can find more information about this in
+`UnifySDK: .uam file documentation <https://siliconlabs.github.io/UnifySDK/doc/how_to_write_uam_files>`_
 
 So we need to map the second endpoint (``ep[1]``) tone play value to
 match the first one (``ep[0]``) but ONLY when the device is the Aoetec
@@ -1957,7 +1960,7 @@ Next, you should have ZPC running to include the CTT devices.
 
 .. note:: 
    If you use WSL
-   `usbipd<https://learn.microsoft.com/en-us/windows/wsl/connect-usb>`__
+   `usbipd <https://learn.microsoft.com/en-us/windows/wsl/connect-usb>`__
    can help you connect your Z-Wave controller to ZPC.
 
 **You can skip Step 5 - CTT includes DUT and move to the next step DUR
