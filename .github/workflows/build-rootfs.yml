@@ -7,11 +7,6 @@ on:  # yamllint disable-line rule:truthy
 jobs:
   build:
     runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        arch:
-          - amd64
-          # - armhf # TODO Enable when supported
     steps:
       - uses: actions/checkout@v4.1.1
         with:
