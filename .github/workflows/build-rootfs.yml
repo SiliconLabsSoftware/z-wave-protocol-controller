@@ -30,6 +30,9 @@ jobs:
           UNIFYSDK_GIT_REPOSITORY=${{ secrets.UNIFYSDK_GIT_REPOSITORY }}
           UNIFYSDK_GIT_TAG=${{ secrets.UNIFYSDK_GIT_TAG }}
           ./scripts/build-rootfs.sh
+      - name: Build documentation once
+        run: >-
+          ./scripts/build-rootfs.sh dist/docs
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
