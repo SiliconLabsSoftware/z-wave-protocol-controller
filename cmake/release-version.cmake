@@ -1,0 +1,1 @@
+SET(GIT_VERSION "ver_1.7.0")
