@@ -237,3 +237,7 @@ docker/%: Dockerfile
 
 test/docker: distclean prepare/docker docker/help docker/test
 	@echo "# ${project}: log: $@: done: $^"
+
+docs:
+	mkdir -p $@
+	date > $@/index.html
