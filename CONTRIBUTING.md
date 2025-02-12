@@ -1,8 +1,11 @@
-# Contributing to UnifySDK
+# Contributing to Z-Wave-Protocol-Controller
 
 ## Reporting issues
 
-Currently there is no way to report issue in the github project,
+Currently there is no way to report issue in the
+[z-wave-protocol-controller github project](
+https://github.com/SiliconLabsSoftware/z-wave-protocol-controller
+),
 however supported @SiliconLabs customers can report cases individually.
 
 ## Git Branch naming conventions
@@ -75,7 +78,7 @@ Context: <message clearing explaining what commit does>
 What to consider while reviewing a Pull Request
 
 * Does the code has successful build?
-* Does the code follow unify coding guidelines?
+* Does the code follow z-wave-protocol-controller coding guidelines?
 * Does the code meet its objective / acceptance criteria?
 * Does the code have unit test and documentation included?
 * Does the code need any refactoring, considering security, performance or simply ease of reading?
