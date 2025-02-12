@@ -22,9 +22,8 @@ jobs:
           mkdir -p _site
           date >  _site/index.html
       - name: Upload pages artifact
+        id: deployment        
         uses: actions/upload-pages-artifact@v3.0.1
-        with:
-          name: 'github-pages'
   deploy:
     needs: build
     permissions:
@@ -37,4 +36,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
