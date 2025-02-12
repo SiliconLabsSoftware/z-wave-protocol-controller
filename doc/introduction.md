@@ -1,5 +1,16 @@
 # Unify Overview
 
+
+Note: For reference documentation please refer to
+[UnifySDK documentation](
+https://SiliconLabs.github.io/UnifySDK/
+)
+
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
+
+
 ```{toctree}
 ---
 maxdepth: 2
