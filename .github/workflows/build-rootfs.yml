@@ -20,6 +20,7 @@ jobs:
         name: Build documentation once
         run: |
           ./helper.mk docs
+          tar cfvz docs.tar.gz docs
   deploy:
     needs: build
     permissions:
@@ -34,7 +35,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3.0.1
         with:
           name: 'github-pages'
-          path: 'docs/'
+          path: 'docs.tar.gz'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v3
