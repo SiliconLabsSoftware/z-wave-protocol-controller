@@ -22,6 +22,10 @@ jobs:
           ./helper.mk docs
           mkdir -p _site
           tar cfvz _site/docs.tar.gz docs
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          name: 'github-pages'
   deploy:
     needs: build
     permissions:
@@ -32,10 +36,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-24.04
     steps:
-      - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v3.0.1
-        with:
-          name: 'github-pages'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v3
