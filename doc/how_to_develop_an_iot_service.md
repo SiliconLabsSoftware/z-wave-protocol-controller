@@ -1,5 +1,16 @@
 # How To Make an IoT Service
 
+
+Note: For reference documentation please refer to
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/doc/how_to_develop_an_iot_service
+)
+
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
+
+
 To build an IoT Service from scratch, it is recommended to follow the steps
 below. IoT Services come in many forms, and exact steps will depend on the
 detailed requirements of the IoT Service.
@@ -20,16 +31,17 @@ detailed requirements of the IoT Service.
 3. Discover nodes using MQTT topics. Discovering nodes and resources that can be
    displayed or manipulated is fundamental to any IoT Service. This is achieved
    by subscribing to particular MQTT topics. See the Service Discovery chapter
-   of the [Unify Specification](./unify_specifications/index.rst).
+   of the 
+   [Unify Specifications](https://siliconlabs.github.io/UnifySDK/doc/unify_specifications)
 4. Implement Network Management. If the IoT Service needs to do network
    management, consider which operations are needed and implement them as
    described in the Network Management chapter of the
-   [Unify Specification](./unify_specifications/index.rst).
+   [Unify Specifications](https://siliconlabs.github.io/UnifySDK/doc/unify_specifications)
 5. Interact with nodes using MQTT topics. Interacting with the nodes by either
    reading out status or controlling their state is fundamental to most IoT
    services. Subscribe and publish to the relevant MQTT topics as described in
    the Application Level Control chapter of the
-   [Unify Specification](./unify_specifications/index.rst).
+   [Unify Specifications](https://siliconlabs.github.io/UnifySDK/doc/unify_specifications)
 6. Consider re-using appropriate shared components from the Unify Framework codebase.
    A valuable feature of Unify is the common components shared by many modules
    of the SDK. Code reuse saves both development time and offers IoT Service

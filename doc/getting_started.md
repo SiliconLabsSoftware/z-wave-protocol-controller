@@ -1,5 +1,16 @@
 # Running Unify on Raspberry Pi
 
+
+Note: For reference documentation please refer to
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/doc/getting_started
+)
+
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
+
+
 The Unify Host SDK targets our reference platform, a Raspberry Pi 4 (RPi4).
 It is therefore recommended to set up a RPi4 for evaluating the full set of functionalities.
 
@@ -21,7 +32,8 @@ pi@raspberrypi:~ $ sudo apt install mosquitto
 ```
 
 For more information regarding logging and configuration of eg. the Mosquitto
-broker, see the [Unify Host SDK User Guide](unify_readme_user.md).
+broker, see the 
+[Unify SDK User Guide](https://siliconlabs.github.io/UnifySDK/doc/unify_readme_user).
 
 ```{toctree}
 ---
@@ -36,7 +48,7 @@ unify_readme_user.md
 
 ## How to install packages
 
-The Unify Host SDK distribution targets the reference platform Debian Bookworm
+The Unify SDK distribution targets the reference platform Debian Bookworm
 platform. Binary Debian packages are provided with the SDK and they are
 available in a Zip file eg. unify_x.y.z_arm64.zip on
 [Unify's GitHub release page](https://github.com/SiliconLabs/UnifySDK/releases).
@@ -125,16 +137,3 @@ hidden:
 Getting Started with the Unify Framework <getting_started_unify_sdk.md>
 ```
 
-## Multiprotocol Setup
-
-If you are interested in setting up multiprotocol CPC-based applications
-see the [Multiprotocol Setup](getting_started_multiprotocol_cpc.md) page.
-
-```{toctree}
----
-maxdepth: 1
-titlesonly:
-hidden:
----
-getting_started_multiprotocol_cpc.md
-```

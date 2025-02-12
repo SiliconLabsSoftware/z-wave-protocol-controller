@@ -1,5 +1,17 @@
 # Unify Host SDK User guide
 
+
+Note: For reference documentation please refer to
+[UnifySDK documentation](
+https://SiliconLabs.github.io/UnifySDK/doc/unify_readme_user
+)
+
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
+
+
+
 This guide contains information which is common to all Unify applications.
 For a having a general setup running, it assumes you have gone over the [Getting Started guide](getting_started_unify.md).
 Details about each application can be found in the application specific user guides.
@@ -165,7 +177,7 @@ structured overview of your MQTT topics.
 
 Configure [MQTT Explorer](https://mqtt-explorer.com/) to connect to the host
 where your MQTT broker is located and the topics can be observed. Use the
-[Unify Specifications](./unify_specifications/index.rst)
+[Unify Specifications](https://siliconlabs.github.io/UnifySDK/doc/unify_specifications)
 if you need assistance to understand what topics and they data represent.
 
 ## Evaluation
@@ -179,5 +191,6 @@ The Unify dev_gui can be accessed from a browser on
 _Note_ that the Unify user interface needs TCP access to the port 3080 and 1337
 on the Raspberry Pi.
 
-See the [Dev-GUI manual](../applications/dev_ui/dev_gui/readme_user.md) for more
-information about using this interface.
+See the
+[Developer GUI User's Guide](https://siliconlabs.github.io/UnifySDK/applications/dev_ui/dev_gui/readme_user)
+for more information about using this interface.

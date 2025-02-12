@@ -1,5 +1,16 @@
 # Getting Started with Unify
 
+
+Note: For reference documentation please refer to
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/doc/getting_started
+)
+
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
+
+
 ## Introduction
 
 Unify SDK is a software framework that simplifies the developer experience, removing difficult parts of network control and network management as it relates to gateway and hub development in IoT applications. It can also provide Matter bridge functionality to other protocols that do not natively run matter.
@@ -10,32 +21,12 @@ Unify SDK is a software framework that simplifies the developer experience, remo
 
 - At least one of the following, supported wireless radios is connected to the RPi4 via USB:
   - [Z-Wave module](https://www.silabs.com/wireless/z-wave) flashed with Z-Wave - NCP Serial API Controller.
-  - [Zigbee module](https://www.silabs.com/wireless/zigbee) EFR32MG2X/EFR32xG22 running NCP for Zigbee or RCP for Multiprotocol
-  - [Bluetooth module](https://www.silabs.com/wireless/bluetooth) EFR32xG22 running NCP Firmware for AoXPC
-
 
 The following are the ways to get started with Unify..
 
-1) Use [Portable Runtime](portable_runtime/readme_user.md)
+1) Use [UnifySDK Portable Runtime](https://siliconlabs.github.io/UnifySDK/doc/portable_runtime/readme_user)
 for quick demo with Unify IoT gateway running on Windows, MacOS or Linux desktop.
-
-```{toctree}
----
-maxdepth: 1
-titlesonly:
-hidden:
----
-portable_runtime/readme_user.md
-```
 
 2) Use [Unify on Raspberry Pi](getting_started.md)
 for complete hands-on of Unify IoT gateway.
 
-```{toctree}
----
-maxdepth: 1
-titlesonly:
-hidden:
----
-getting_started.md
-```

@@ -1,28 +1,36 @@
 # Unify Framework Getting Started
 
+
+Note: For reference documentation please refer to
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/doc/getting_started_unify_sdk
+)
+
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
+
+
 ## Setup base system
 
 Unify Framework has a number of service applications which enables different basic
 functionality. For unlocking all features of the Unify Framework, install the Debian
 packages of the applications below.
-It is recommended to use the Developer GUI for controlling the Unify Framework IoT Protocol Controllers such as `ZPC`,
-`ZigPC` or `AoXPC`.
+It is recommended to use the Developer GUI for controlling the Unify Framework IoT Protocol Controllers such as `ZPC`.
 
 For installation steps refer to the [](how-to-install) section.
 
-1. [Provisioning List (UPVL) User's Guide](../applications/upvl/readme_user.md).
-2. [Group Manager Service (GMS) User's Guide](../applications/gms/readme_user.md).
-3. [Name and Location service (NAL) User's Guide](../applications/nal/readme_user.md).
-4. [OTA Image Provider User's Guide](../applications/image_provider/readme_user.md).
-5. [Developer GUI User's Guide](../applications/dev_ui/dev_gui/readme_user.md).
+1. [Provisioning List (UPVL) User's Guide](https://siliconlabs.github.io/UnifySDK/applications/upvl/readme_user)
+2. [Group Manager Service (GMS) User's Guide](https://siliconlabs.github.io/UnifySDK/applications/gms/readme_user).
+3. [Name and Location service (NAL) User's Guide](https://siliconlabs.github.io/UnifySDK/applications/nal/readme_user).
+4. [OTA Image Provider User's Guide](https://siliconlabs.github.io/UnifySDK/applications/image_provider/readme_user).
+5. [Developer GUI User's Guide](https://siliconlabs.github.io/UnifySDK/applications/dev_ui/dev_gui/readme_user).
 
 ## Choose an IoT protocol
 
 For including an IoT protocol stack, you need to install and setup at least one protocol controller.
 
 - [](zpc)
-- [](zigpc)
-- [](aoxpc)
 
 (zpc)=
 
@@ -39,35 +47,6 @@ provide the USB path for the Z-Wave module at the configuration steps.
 A more in depth getting started guide specifically for the `ZPC` is
 [ZPC User's Guide](../applications/zpc/readme_user.md).
 
-(zigpc)=
-
-### Zigbee Protocol Controller (ZigPC)
-
-**Prerequisite**: Required hardware for using the `ZigPC` is a [Zigbee module](https://www.silabs.com/wireless/zigbee) which could be EFR32MG12/EFR32xG22
-running NCP or CPC Firmware for Zigbee.
-
-The `ZigPC` enables the Unify Framework to control Zigbee devices. Starting quickly
-can be done by simply installing the `uic-zigpc` Debian package and configuring
-the USB device at the configuration step. After installing, the protocol
-controller should be started automatically as a systemd service.
-
-For more information on getting started with the `ZigPC` is placed in
-[ZigPC User's Guide](../applications/zigpc/readme_user.md).
-
-(aoxpc)=
-
-### Bluetooth Angle of Arrival/Departure Protocol Controller (AoXPC)
-
-**Prerequisite**: Required hardware for using the `AoXPC` is a [Bluetooth module](https://www.silabs.com/wireless/bluetooth)
-EFR32xG22 running NCP Firmware for AoXPC.
-
-Lastly of the protocol controllers the above approach can again be used for the
-`AoXPC`. Installing `uic-aoxpc`, going through configuration steps and it should
-be running.
-
-For more information on getting started with the `AoXPC` is found in
-[AoXPC User Guide](../applications/aox/applications/aoxpc/readme_user.md).
-
 ### Evaluation after Installation
 
 Once all Unify Framework Applications are installed and configured, one can evaluate the system via the Unify Framework Developer GUI.
@@ -78,4 +57,6 @@ After a reboot the Unify Framework Developer GUI can be accessed from a browser 
 _Note_ that the Unify Framework Developer GUI needs TCP access to the port 3080 and 1337
 on the Raspberry Pi.
 
-See the [Dev-GUI manual](../applications/dev_ui/dev_gui/readme_user.md) for more information about using this interface.
+See the
+[Dev-GUI manual](https://siliconlabs.github.io/UnifySDK/applications/dev_ui/dev_gui/readme_user)
+for more information about using this interface.

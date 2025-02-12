@@ -1,18 +1,27 @@
 # Getting Started as a Developer
 
-```{toctree}
----
-maxdepth: 2
-hidden:
----
-./readme_developer.md
-```
 
-The [Unify Developer Guide](readme_developer.md) contains a lot of useful information for Unify developers. 
+Note: For reference documentation please refer to
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/doc/getting_started_as_developer
+)
 
-The [Unify Build Guide](readme_building.md) is the best starting point for working with the source code.
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
 
-The [Unify User Guide](unify_readme_user.md) contains helpful tips on debugging within Unify.
+
+The
+[Unify Developer Guide](https://siliconlabs.github.io/UnifySDK/doc/readme_developer)
+contains a lot of useful information for Unify developers. 
+
+The 
+[Unify Build Guide](https://siliconlabs.github.io/UnifySDK/doc/readme_building)
+is the best starting point for working with the source code.
+
+The
+[Unify User Guide](https://siliconlabs.github.io/UnifySDK/doc/unify_readme_user)
+contains helpful tips on debugging within Unify.
 
 ## Development Platform Recommendations
 
@@ -22,16 +31,22 @@ System requirements for flash, RAM, and dependencies are listed at [here](system
 
 ## Developing IoT Services
 
-The IoT or cloud connector must use UCL (MQTT) to communicate with the other components of Unify. See [How to Develop an IoT service](how_to_develop_an_iot_service.md) Unify uses MQTT to communicate among each component using the Mosquitto MQTT broker. UCL is the format of the MQTT messages. The [Unify Framework Specification](./unify_specifications/index.rst) contains the definitions for UCL.
+The IoT or cloud connector must use UCL (MQTT) to communicate with the other components of Unify. See [How to Develop an IoT service](how_to_develop_an_iot_service.md) Unify uses MQTT to communicate among each component using the Mosquitto MQTT broker. UCL is the format of the MQTT messages. 
+The
+[Unify Specifications](https://siliconlabs.github.io/UnifySDK/doc/unify_specifications)
+contains the definitions for UCL.
 
-Also see <a href="../reference_ucl_mqtt/index.html">UCL MQTT API</a>
+Also see 
+[UCL MQTT API](https://siliconlabs.github.io/UnifySDK/reference_ucl_mqtt")
 
 ## Developing protocol controllers
 
-See [How to Develop a Protocol Controller](how_to_develop_a_protocol_controller.rst) 
+See
+[how to develop Protocol Controller](https://siliconlabs.github.io/UnifySDK/doc/how_to_develop_a_protocol_controller)
 
 The attribute mapper helps to translate protocol commands to UCL MQTT messages.
-See [How to write UAM files](how_to_write_uam_files.md)
+See 
+[How to write UAM files](https://siliconlabs.github.io/UnifySDK/doc/how_to_write_uam_files)
 
 ## Extend UCL clusters
 

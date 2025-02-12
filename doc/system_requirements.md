@@ -1,6 +1,16 @@
 # System Requirements
 
-The Unify Host SDK is at the moment only implemented for the Linux OS. The table
+Note: For reference documentation please refer to
+[UnifySDK documentation](
+https://SiliconLabs.github.io/UnifySDK/doc/system_requirements
+)
+
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
+
+
+The Unify SDK is at the moment only implemented for the Linux OS. The table
 below shows the resource usage of the individual components measured on arm64
 release binaries. No debug symbols included. RAM figures are indicative for
 applications without any data added (i.e. initial memory usage). The measurement

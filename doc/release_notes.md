@@ -1,5 +1,16 @@
 # Unify Release Notes
 
+
+Note: For reference documentation please refer to
+[UnifySDK release_notes](
+https://github.com/SiliconLabs/UnifySDK/blob/main/doc/release_notes.md
+)
+
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
+
+
 Below are descriptions of the changes to our shared components.
 These changes affects all applications based on the Unify Host SDK.
 
@@ -13,15 +24,9 @@ For the application specific release notes, please follow these links:
 * [Dev GUI](../applications/dev_ui/dev_gui/release_notes.md)
 * [Image Provider](../applications/image_provider/release_notes.md)
 * [UPVL](../applications/upvl/release_notes.md)
-* [ZigPC](../applications/zigpc/release_notes.md)
 * [ZPC](../applications/zpc/release_notes.md)
 * [UPTICap](../applications/upti_cap/release_notes.md)
 * [UPTIWriter](../applications/upti_writer/release_notes.md)
-* [AoXPC](../applications/aox/applications/aoxpc/release_notes.md)
-* [AoX Positioning application](../applications/aox/applications/positioning/release_notes.md)
-* [CPCd](../applications/cpcd/release_notes.md)
-* [OpenThread Border Router](../applications/openthread_border_router/release_notes.md)
-* [Zigbeed](../applications/zigbeed/release_notes.md)
 * [Portable Runtime](../portable_runtime/release_notes.md)
 
 ## [1.6.0] - August 2024

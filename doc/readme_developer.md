@@ -1,22 +1,19 @@
 # Unify Developer Guide
 
+Note: For reference documentation please refer to
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/doc/readme_developer
+)
+
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
+
+
 This is a guide for developers who wish to get started on adding or modifying the
 Unify SDK source code.
 
 Other Guides related to development are
-
-```{toctree}
----
-maxdepth: 2
-titlesonly:
----
-readme_building.md
-readme_cmake.md
-readme_rust.md
-unify_library_overview.md
-standards/coding-standard.md
-api.md
-```
 
 ## Directory Structure and File Naming Conventions
 
@@ -58,9 +55,6 @@ i.e. "unify_my_sample_component".
 |-- applications/               // Unify application specific code goes here
 |   |-- zpc/                    // ZPC application code
 |   |   |-- components/         // ZPC components
-|   |   `-- ...
-|   |-- zigpc/                  // ZIGPC application code
-|   |   |-- components/         // ZIGPC components
 |   |   `-- ...
 |   |-- gms/                    // GMS application code
 |   |-- upvl/                   // UPVL application code
@@ -254,4 +248,4 @@ The following sequence diagram shows how the Unify Main loop triggers events bas
 ![Unify Main Events](assets/img/sequence_uic_ipc.png)
 
 Additional information on this is available in the
-<a href="../doxygen_uic/index.html">Unify Library API</a>
+<a href="https://siliconlabs.github.io/UnifySDK/doxygen_uic">Unify Library API</a>

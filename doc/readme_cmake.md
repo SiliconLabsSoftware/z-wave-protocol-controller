@@ -1,12 +1,13 @@
 # CMake Integration
 
-```{toctree}
----
-maxdepth: 2
-titlesonly:
----
-standards/cmake-standard.md
-```
+Note: For reference documentation please refer to
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/doc/readme_cmake
+)
+
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
 
 The Unify project uses CMake to generate build files.
 

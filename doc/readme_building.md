@@ -1,5 +1,15 @@
 # Unify Build Guide
 
+Note: For reference documentation please refer to
+[UnifySDK documentation](
+https://siliconlabs.github.io/UnifySDK/doc/readme_building
+)
+
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
+
+
 This document is intended for systems integrators who are trying to
 cross-compile the Unify components. This guide explains how to build Debian
 packages for the Raspberry Pi.
@@ -7,13 +17,6 @@ packages for the Raspberry Pi.
 For a list of build dependencies please refer to the
 [Dockerfile](../docker/Dockerfile).
 
-```{toctree}
----
-maxdepth: 2
-titlesonly:
-hidden:
----
-```
 
 ## Build Instructions
 
@@ -184,3 +187,4 @@ to parts of the filesystem. The default path for writing files is
   ``` sh
   winpty docker run -it --rm  -v $PWD:$PWD -w $PWD uic_arm64
   ```
+

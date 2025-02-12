@@ -1,5 +1,16 @@
 # Setting up Raspberry Pi for Unify
 
+
+Note: For reference documentation please refer to
+[UnifySDK documentation](
+https://SiliconLabs.github.io/UnifySDK/doc/running_unify
+)
+
+WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.
+
+
 ## Introduction
 
 Here we explain how to set up and running quickly to test out Unify on the Raspberry Pi reference platform. Depending on the protocol(s) used this setup may vary so there are several sections that go into more detail for each protocol controller. This page contains the steps to install Unify on the Raspberry Pi regardless of the protocol(s) used.
@@ -74,18 +85,3 @@ hidden:
 ---
 protocol/zwave/running_zpc.md
 ```
-
-[Zigbee (ZigPC)](protocol/zigbee/running_zigpc.md)
-
-```{toctree}
----
-maxdepth: 1
-titlesonly:
-hidden:
----
-protocol/zigbee/running_zigpc.md
-```
-
-[Matter Protocol Controller](protocol/matter/matter_mpc.md)
-
-[Multiprotocol](getting_started_multiprotocol_cpc.md)
