@@ -8,7 +8,7 @@ It has grown as part of Unify SDK project and is now maintained as an external p
 ## News
 
 - [NEWS.md](NEWS.md) lists important information regarding zpc "split release".
-- [doc/release_nodes.md](doc/release_nodes.md) release notes
+- [applications/zpc/release_notes.md](applications/zpc/release_notes.md)
 
 ## Documentation
 

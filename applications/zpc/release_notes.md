@@ -1,5 +1,34 @@
 # ZPC Release Notes
 
+## [1.7.0] - Feb 2025
+
+**BREAKING**: ZPC has been relocated outside of UnifySDK and is now dependent on it.
+
+### Added (1.7.0)
+
+* [Z-Wave S2v2 alpha support along Silicon Labs Z-Wave firmware (7.23.x)](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/pull/11)
+* [Notification CC updated to support Alarm CC v1 and v2](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commit/647aac3b)
+* [Notification CC support Push/Pull Mode Discovery](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commit/e4aab0dd)
+  and [probe](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commit/e4aab0dd)
+* [Notification CC support unknown type](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commit/96fc24de)
+* [Time Parameters CC support](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commit/af84a42)
+* [CRC16 Encapsulation](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commit/cb377ace)
+
+### Changes (1.7.0)
+
+* Standlone project, helper script to setup native reference system (used for docker, github CI etc)
+
+### Fixed (1.7.0)
+
+* [Improvement to prevent faulty devices to block the TX queue](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commit/722028a7)
+* [Notification CC fixes to pass CTT](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commit/ef497b17)
+* [OnOff: Disable unsupported UCL commands (effects)](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commit/73ece3a7)
+
+### Known issues (1.7.0)
+
+* [User credentials still Experimental](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commit/8cdbbc36)
+* ZPC's UnifySDK related documentation may be inconsistent.
+
 ## [1.6.0] - Aug 2024
 
 **BREAKING** : ZPC database version bumped from 2 to 3.

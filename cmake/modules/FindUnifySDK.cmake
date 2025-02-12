@@ -21,17 +21,15 @@ endif()
 if(NOT DEFINED UNIFYSDK_GIT_TAG)
   if(DEFINED ENV{UNIFYSDK_GIT_TAG})
     set(UNIFYSDK_GIT_TAG $ENV{UNIFYSDK_GIT_TAG})
+  else()
+    set(UNIFYSDK_GIT_TAG "ver_1.7.0")
   endif()
 endif()
 if("${UNIFYSDK_GIT_TAG}" STREQUAL "")
   set(UNIFYSDK_GIT_TAG "main") # Override CMake default ("master")
 endif()
 
-if(${GIT_EXECUTABLE})
-else()
-  set(GIT_EXECUTABLE git)
-endif()
-
+find_package(Git)
 FetchContent_Declare(
   UnifySDK
   GIT_REPOSITORY ${UNIFYSDK_GIT_REPOSITORY}
