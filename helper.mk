@@ -10,6 +10,8 @@ default: help all/default
 SELF?=${CURDIR}/helper.mk
 
 project?=z-wave-protocol-controller
+url?=https://github.com/SiliconLabsSoftware/z-wave-protocol-controller
+
 # Temporary workaround for:
 # https://gitlab.kitware.com/cmake/cmake/-/issues/22813#note_1620373
 project_test_dir?=applications
@@ -86,17 +88,31 @@ export CMAKE_TARGET_TRIPLE
 endif
 
 
-help: README.md
-	@cat $<
+help: ./helper.mk
+	@echo "# ${project}: ${url}"
+	@echo "#"
+	@echo "# Usage:"
+	@echo "#  ${<D}/${<F} setup # To setup developer system (once)"
+	@echo "#  ${<D}/${<F} VERBOSE=1 # Default build tasks verbosely (depends on setup)"
+	@echo "#  ${<D}/${<F} # For more info"
+	@echo "#"
+
+help/all: README.md NEWS.md
+	@echo "# ${project}: ${url}"
 	@echo ""
-	@echo "# Available rules at your own risk:"
+	@head $^
+	@echo ""
+	@echo "# Available helper.mk rules at your own risk:"
 	@grep -o '^[^ ]*:' ${SELF} \
 		| grep -v '\$$' | grep -v '^#' | grep -v '^\.' \
 		| grep -v '=' | grep -v '%'
-	@echo ""
+	@echo "#"
 	@echo "# Environment:"
-	@echo "# PATH=${PATH}"
+	@echo "#  PATH=${PATH}"
+	@echo "#  version=${version}"
 	@echo ""
+	@echo ""
+
 
 setup/debian: ${CURDIR}/docker/target_dependencies.apt ${CURDIR}/docker/host_dependencies.apt
 	cat /etc/debian_version
@@ -163,7 +179,7 @@ ${PLANTUML_JAR_PATH}:
 	${sudo} install -d ${plantuml_dir}
 	${sudo} install ${plantuml_filename} ${plantuml_dir}/
 	rm -v ${plantuml_filename}
-	@echo "# %@: Please adapt env to:"
+	@echo "# $@: Please adapt env to use:"
 	@echo "# export PLANTUML_JAR_PATH=${plantuml_dir}/${plantuml_filename}"
 
 setup/plantuml: ${PLANTUML_JAR_PATH}
@@ -285,12 +301,17 @@ prepare/docker: Dockerfile prepare
 	@echo "# ${project}: log: $@: done: $^"
 
 docker_workdir?=/usr/local/opt/${project}
+docker_branch?=main
+docker_url?=${url}.git\#${docker_branch}
 
 docker/%: Dockerfile
 	time docker run "${project}:latest" -C "${docker_workdir}" "${@F}"
 
 test/docker: distclean prepare/docker docker/help docker/test
 	@echo "# ${project}: log: $@: done: $^"
+
+test/docker/build:
+	time docker build -t "${project}:${docker_branch}" ${docker_url}
 
 docs: ./scripts/build/build_documentation.py doc ${PLANTUML_JAR_PATH} configure
 	@echo "# export PLANTUML_JAR_PATH=${plantuml_dir}/${plantuml_filename}"
