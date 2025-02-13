@@ -24,7 +24,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Running Unify on Raspberry Pi" href="getting_started.html" />
+    <link rel="next" title="Framework Services" href="unify_framework_services.html" />
     <link rel="prev" title="Unify Overview" href="introduction.html" /> 
 </head>
 
@@ -41,7 +41,7 @@
               <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.7.0-RC7
+                ver_1.7.0-RC7-16-g3d888689c2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -53,24 +53,18 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Unify Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started with Unify</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html">Running Unify on Raspberry Pi</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started with Unify</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="UnifySDK.html">Unify Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unify_framework_services.html">Framework Services</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="protocol_controllers.html">Protocol Controllers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unify_iot_services.html">IoT Services</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started_as_developer.html">Getting Started as a Developer</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="unify_specifications/index.html">Unify Specifications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="system_requirements.html">System Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="standards/known-abbreviations.html">Known Abbreviations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
@@ -95,6 +89,11 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="getting-started-with-unify">
 <h1>Getting Started with Unify<a class="headerlink" href="#getting-started-with-unify" title="Permalink to this heading"></a></h1>
+<p>Note: For reference documentation please refer to
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/getting_started">UnifySDK documentation</a></p>
+<p>WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.</p>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
 <p>Unify SDK is a software framework that simplifies the developer experience, removing difficult parts of network control and network management as it relates to gateway and hub development in IoT applications. It can also provide Matter bridge functionality to other protocols that do not natively run matter.</p>
@@ -106,24 +105,16 @@
 <li><p>At least one of the following, supported wireless radios is connected to the RPi4 via USB:</p>
 <ul>
 <li><p><a class="reference external" href="https://www.silabs.com/wireless/z-wave">Z-Wave module</a> flashed with Z-Wave - NCP Serial API Controller.</p></li>
-<li><p><a class="reference external" href="https://www.silabs.com/wireless/zigbee">Zigbee module</a> EFR32MG2X/EFR32xG22 running NCP for Zigbee or RCP for Multiprotocol</p></li>
-<li><p><a class="reference external" href="https://www.silabs.com/wireless/bluetooth">Bluetooth module</a> EFR32xG22 running NCP Firmware for AoXPC</p></li>
 </ul>
 </li>
 </ul>
 <p>The following are the ways to get started with Unify…</p>
 <ol class="arabic simple">
-<li><p>Use <span class="xref myst">Portable Runtime</span>
+<li><p>Use <a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/portable_runtime/readme_user">UnifySDK Portable Runtime</a>
 for quick demo with Unify IoT gateway running on Windows, MacOS or Linux desktop.</p></li>
-</ol>
-<div class="toctree-wrapper compound">
-</div>
-<ol class="arabic simple" start="2">
 <li><p>Use <a class="reference internal" href="getting_started.html"><span class="doc std std-doc">Unify on Raspberry Pi</span></a>
 for complete hands-on of Unify IoT gateway.</p></li>
 </ol>
-<div class="toctree-wrapper compound">
-</div>
 </section>
 </section>
 

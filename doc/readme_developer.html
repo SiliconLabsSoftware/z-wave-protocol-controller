@@ -23,9 +23,7 @@
         <script src="../_static/js/qr_code_scanner.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Unify Build Guide" href="readme_building.html" />
-    <link rel="prev" title="Getting Started as a Developer" href="getting_started_as_developer.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,7 +39,7 @@
               <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.7.0-RC7
+                ver_1.7.0-RC7-16-g3d888689c2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,50 +54,15 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started_unify.html">Getting Started with Unify</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="UnifySDK.html">Unify Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unify_framework_services.html">Framework Services</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="protocol_controllers.html">Protocol Controllers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unify_iot_services.html">IoT Services</a></li>
-</ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="getting_started_as_developer.html">Getting Started as a Developer</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Unify Developer Guide</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="readme_building.html">Unify Build Guide</a></li>
-<li class="toctree-l3"><a class="reference internal" href="readme_cmake.html">CMake Integration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="readme_rust.html">Unify Rust Development</a></li>
-<li class="toctree-l3"><a class="reference internal" href="unify_library_overview.html">Unify Library Overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="standards/coding-standard.html">Unify Coding Standard</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api.html">API documentation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#directory-structure-and-file-naming-conventions">Directory Structure and File Naming Conventions</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#rules">Rules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#structure-of-components-best-practice">Structure of Components (Best Practice)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#structure">Structure</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#clang-format-autoformat-code">Clang-Format (autoformat code)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#install-on-mac">Install on Mac</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#install-on-ubuntu">Install on Ubuntu</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#visual-studio-code">Visual Studio Code</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#command-line">Command Line</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#pre-commit-hooks">Pre-commit Hooks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#creating-a-new-application">Creating a New Application</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#unify-framework-library-unify-main-and-ipc">Unify Framework Library (Unify Main) and IPC</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#development-platform-recommendations">Development Platform Recommendations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#developing-iot-services">Developing IoT Services</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#developing-protocol-controllers">Developing protocol controllers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#extend-ucl-clusters">Extend UCL clusters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#overview-of-relations-among-unify-applications">Overview of relations among Unify Applications</a></li>
-</ul>
-</li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="unify_specifications/index.html">Unify Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started_as_developer.html">Getting Started as a Developer</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="system_requirements.html">System Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="standards/known-abbreviations.html">Known Abbreviations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
@@ -124,22 +87,14 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="unify-developer-guide">
 <h1>Unify Developer Guide<a class="headerlink" href="#unify-developer-guide" title="Permalink to this heading"></a></h1>
+<p>Note: For reference documentation please refer to
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/readme_developer">UnifySDK documentation</a></p>
+<p>WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.</p>
 <p>This is a guide for developers who wish to get started on adding or modifying the
 Unify SDK source code.</p>
 <p>Other Guides related to development are</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="readme_building.html">Unify Build Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="readme_cmake.html">CMake Integration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="standards/cmake-standard.html">CMake coding standard</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="readme_rust.html">Unify Rust Development</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unify_library_overview.html">Unify Library Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="standards/coding-standard.html">Unify Coding Standard</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
-</ul>
-</div>
 <section id="directory-structure-and-file-naming-conventions">
 <h2>Directory Structure and File Naming Conventions<a class="headerlink" href="#directory-structure-and-file-naming-conventions" title="Permalink to this heading"></a></h2>
 <section id="rules">
@@ -184,9 +139,6 @@ i.e. “unify_my_sample_component”.</p></li>
 |-- applications/               // Unify application specific code goes here
 |   |-- zpc/                    // ZPC application code
 |   |   |-- components/         // ZPC components
-|   |   `-- ...
-|   |-- zigpc/                  // ZIGPC application code
-|   |   |-- components/         // ZIGPC components
 |   |   `-- ...
 |   |-- gms/                    // GMS application code
 |   |-- upvl/                   // UPVL application code
@@ -371,7 +323,7 @@ This design was chosen to avoid concurrency issues between threads.</p>
 <p>The following sequence diagram shows how the Unify Main loop triggers events based on file descriptors in <code class="docutils literal notranslate"><span class="pre">process1</span></code> and timers in <code class="docutils literal notranslate"><span class="pre">process2</span></code>.</p>
 <p><img alt="Unify Main Events" src="../_images/sequence_uic_ipc.png" /></p>
 <p>Additional information on this is available in the
-<a href="../doxygen_uic/index.html">Unify Library API</a></p>
+<a href="https://siliconlabs.github.io/UnifySDK/doxygen_uic">Unify Library API</a></p>
 </section>
 </section>
 

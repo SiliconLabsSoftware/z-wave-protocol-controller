@@ -41,7 +41,7 @@
               <img src="../../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.7.0-RC7
+                ver_1.7.0-RC7-16-g3d888689c2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -56,7 +56,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../doc/getting_started_unify.html">Getting Started with Unify</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../doc/UnifySDK.html">Unify Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/unify_framework_services.html">Framework Services</a></li>
 </ul>
 <ul class="current">
@@ -89,16 +88,13 @@
 <li class="toctree-l3"><a class="reference internal" href="doc/supported_command_classes.html">Supported Z-Wave Command Classes</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../doc/multiprotocol.html">Multiprotocol Host Software</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../doc/unify_iot_services.html">IoT Services</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/getting_started_as_developer.html">Getting Started as a Developer</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../doc/unify_specifications/index.html">Unify Specifications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/system_requirements.html">System Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/standards/known-abbreviations.html">Known Abbreviations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/license.html">License</a></li>
@@ -242,7 +238,7 @@ e.g. Nodes DSKs or KEX Fail types will be unknown.</p>
 <p>The best way to run ZPC is using the Systemd service that is
 installed with the Debian installer.
 For more information, see the
-<a class="reference internal" href="../../doc/unify_readme_user.html"><span class="doc std std-doc">Unify Framework User guide</span></a>.</p>
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/unify_readme_user">Unify Framework User guide</a>.</p>
 </section>
 </section>
 <section id="running-zpc-from-the-command-line">
@@ -315,12 +311,13 @@ sx<span class="w"> </span>ZW_SerialAPI_Controller_7.15.4_256_EFR32ZG14_REGION_EU
 <h2>Performing Firmware Updates of End Devices<a class="headerlink" href="#performing-firmware-updates-of-end-devices" title="Permalink to this heading"></a></h2>
 <p>The ZPC has the capability to perform Firmware Updates of end devices.
 Performing firmware updates requires
-<span class="xref myst">Image Provider</span> application to be
-run and configured correctly. The section below discuss how to construct
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/image_provider/readme_user">Image Provider</a>
+application to be run and configured correctly.
+The section below discuss how to construct
 UIID and VERSION information that are required to perform a firmware update of an
 end device.</p>
 <p>Firmware updates can be triggered by providing the
-<span class="xref myst">Image Provider</span>
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/image_provider/readme_user">Image Provider</a>
 with compatible firmware images and meta data information.</p>
 <p>Once the firmware update is successfully performed on an end device, the ZPC
 will automatically re-interview the device and presents the device capabilities of the
@@ -389,11 +386,14 @@ if a node sends a Version Z-Wave Software Report Command with:</p>
 <section id="examples">
 <h3>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h3>
 <p>This section provides an example using the
-<span class="xref myst">Image Provider</span> and
-<span class="xref myst">Developer GUI</span> to perform a firmware update of a PowerStrip sample application.</p>
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/image_provider/readme_user">Image Provider</a>
+and
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/dev_ui/dev_gui/readme_user">Developer GUI</a>
+to perform a firmware update of a PowerStrip sample application.</p>
 <p>First, make sure that the ZPC,
-<span class="xref myst">Image Provider</span> and
-<span class="xref myst">Developer GUI</span>
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/image_provider/readme_user">Image Provider</a>
+and
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/dev_ui/dev_gui/readme_user">Developer GUI</a>
 are running.</p>
 <p>Flash a PowerStrip application on a Z-Wave module with the OTA bootloader
 and GBL encryption keys. See the Z-Wave/Gecko SDK documentation in
@@ -414,7 +414,9 @@ but the end node will reject the upgrade operation after the transfer.</p>
 </div>
 <p>Then, use the found UIID to configure the <em>image.json</em> file from the image
 provider. Remember to set a version string as well as calculate the Md5 as
-described in the <span class="xref myst">Image Provider User Guide</span>:</p>
+described in the
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/image_provider/readme_user">Image Provider</a>
+:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;Version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;Images&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>

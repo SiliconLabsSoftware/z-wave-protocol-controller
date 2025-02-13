@@ -1,7 +1,5 @@
 var NAVTREEINDEX17 =
 {
-"zwave__command__class__multi__channel_8c.html#a16daf353476dffd2f848569ce30974b9":[6,0,0,0,0,17,2,36,14],
-"zwave__command__class__multi__channel_8c.html#a20abf4a05614bb1cfe10e7c50e8e6389":[6,0,0,0,0,17,2,36,28],
 "zwave__command__class__multi__channel_8c.html#a2213ec5e647b57be3a48282c7888d775":[6,0,0,0,0,17,2,36,21],
 "zwave__command__class__multi__channel_8c.html#a26c4766d3d33b7b833ab1a975f24af41":[6,0,0,0,0,17,2,36,6],
 "zwave__command__class__multi__channel_8c.html#a2d182b7aae379e1581d3df4b0981489e":[6,0,0,0,0,17,2,36,15],
@@ -249,5 +247,7 @@ var NAVTREEINDEX17 =
 "zwave__command__class__scene__actuator__configuration__control_8c.html#a43370320987d77ebe98c89bbdf5524bc":[6,0,0,0,0,17,2,50,11],
 "zwave__command__class__scene__actuator__configuration__control_8c.html#a7ce0df38eb467e59f209470c8f5ac4e6":[6,0,0,0,0,17,2,50,4],
 "zwave__command__class__scene__actuator__configuration__control_8c.html#a81e634cb4b767d5598e8e320a8831b34":[6,0,0,0,0,17,2,50,1],
-"zwave__command__class__scene__actuator__configuration__control_8c.html#ab9bac027658c754d371fb7964a8cd1e1":[6,0,0,0,0,17,2,50,10]
+"zwave__command__class__scene__actuator__configuration__control_8c.html#ab9bac027658c754d371fb7964a8cd1e1":[6,0,0,0,0,17,2,50,10],
+"zwave__command__class__scene__actuator__configuration__control_8c.html#ac9cd722211001bdcc02f6266a69e8ced":[6,0,0,0,0,17,2,50,3],
+"zwave__command__class__scene__actuator__configuration__control_8c.html#ad2c55aec9b04c76f33eaf024aee36881":[6,0,0,0,0,17,2,50,7]
 };

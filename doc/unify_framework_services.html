@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Protocol Controllers" href="protocol_controllers.html" />
-    <link rel="prev" title="Unify Framework" href="UnifySDK.html" /> 
+    <link rel="prev" title="Getting Started with Unify" href="getting_started_unify.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,7 +41,7 @@
               <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.7.0-RC7
+                ver_1.7.0-RC7-16-g3d888689c2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,20 +56,15 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started_unify.html">Getting Started with Unify</a></li>
 </ul>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="UnifySDK.html">Unify Framework</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Framework Services</a><ul class="simple">
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Framework Services</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="protocol_controllers.html">Protocol Controllers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unify_iot_services.html">IoT Services</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started_as_developer.html">Getting Started as a Developer</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="unify_specifications/index.html">Unify Specifications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="system_requirements.html">System Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="standards/known-abbreviations.html">Known Abbreviations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
@@ -94,43 +89,26 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="framework-services">
 <h1>Framework Services<a class="headerlink" href="#framework-services" title="Permalink to this heading"></a></h1>
+<p>Note: For reference documentation please refer to
+<a class="reference external" href="https://SiliconLabs.github.io/UnifySDK/doc/unify_framework_services">UnifySDK documentation</a></p>
+<p>WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.</p>
 <p>The following services facilitate different functionalities in cooperation with
 the Protocol Controller(s).</p>
-<div class="toctree-wrapper compound">
-</div>
 <ul class="simple">
-<li><p><span class="xref myst">The UPVL</span> (Unify Provisioning List) serves the SmartStart Provisioning
+<li><p><a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/upvl/readme_user">The UPVL</a> (Unify Provisioning List) serves the SmartStart Provisioning
 list to perform SmartStart Security 2 (S2) inclusions and maintains the
 ucl/SmartStart MQTT topic.</p></li>
-</ul>
-<div class="toctree-wrapper compound">
-</div>
-<ul class="simple">
-<li><p><span class="xref myst">GMS</span> (Group Manager) manages groups and bookkeeping between
+<li><p><a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/gms/readme_user">GMS</a> (Group Manager) manages groups and bookkeeping between
 protocol controllers and also publishes group state changes to the ucl/by-group
 MQTT topic.</p></li>
-</ul>
-<div class="toctree-wrapper compound">
-</div>
-<ul class="simple">
-<li><p><span class="xref myst">NAL</span> (Name and Location service) is a helper MQTT component that allows for book-keeping of text names and locations that have been assigned. This functionality allows IoT Services to assign and read back a Name and a Location for each node/endpoint.</p></li>
-</ul>
-<div class="toctree-wrapper compound">
-</div>
-<ul class="simple">
-<li><p><span class="xref myst">OTA Image Provider</span> announces OTA
+<li><p><a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/nal/readme_user">NAL</a> (Name and Location service) is a helper MQTT component that allows for book-keeping of text names and locations that have been assigned. This functionality allows IoT Services to assign and read back a Name and a Location for each node/endpoint.</p></li>
+<li><p><a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/image_provider/readme_user">OTA Image Provider</a> announces OTA
 images available in OTA storage and publishes OTA binary on request.</p></li>
-</ul>
-<div class="toctree-wrapper compound">
-</div>
-<ul class="simple">
-<li><p><span class="xref myst">UPTICap (upti_cap)</span> is an application to communicate with Silicon Labs WSTK adapters. The adapters capture data on the debug channel and publish the captured data as MQTT messages. Application provided strictly for
+<li><p><a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/upti_cap/readme_user">UPTICap (upti_cap)</a> is an application to communicate with Silicon Labs WSTK adapters. The adapters capture data on the debug channel and publish the captured data as MQTT messages. Application provided strictly for
 test and demonstration purposes only and is not suitable for production.</p></li>
-</ul>
-<div class="toctree-wrapper compound">
-</div>
-<ul class="simple">
-<li><p><span class="xref myst">UPTIWriter (upti_writer)</span> is an application to receive trace packages captured
+<li><p><a class="reference external" href="https://siliconlabs.github.io/UnifySDK/applications/upti_writer/readme_user">UPTIWriter (upti_writer)</a> is an application to receive trace packages captured
 with <em>UPTI_CAP</em> application and save them to a file in <a class="reference external" href="https://docs.silabs.com/simplicity-studio-5-users-guide/latest/ss-5-users-guide-tools-network-analyzer/">Network Analyzer</a> compatible format. Application provided strictly for test and demonstration purposes only
 and is not suitable for production.</p></li>
 </ul>

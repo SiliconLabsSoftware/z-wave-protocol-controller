@@ -1,7 +1,5 @@
 var NAVTREEINDEX7 =
 {
-"group__zwave__command__class__basic.html#ga6780c7bc2310c30c76e7a54aa101604f":[3,22,11,0],
-"group__zwave__command__class__battery.html":[3,22,12],
 "group__zwave__command__class__battery.html#ga474576c3ba2c507f6b5c211207d2d6a2":[3,22,12,0],
 "group__zwave__command__class__central__scene.html":[3,22,14],
 "group__zwave__command__class__central__scene.html#ga0667e3960719fc27dd2b5df9ade52019":[3,22,14,0],
@@ -249,5 +247,7 @@ var NAVTREEINDEX7 =
 "group__zwave__controller__callbacks.html#gacf03c126e4680e51fd814c06ab389134":[3,19,0,0,6],
 "group__zwave__controller__callbacks.html#gafb29674d2b018e2c069e1932f5179673":[3,19,0,0,9],
 "group__zwave__controller__component.html":[3,19,0],
-"group__zwave__controller__component.html#ga003007299b737f9636f1a99442e22c3a":[3,19,0,9]
+"group__zwave__controller__component.html#ga003007299b737f9636f1a99442e22c3a":[3,19,0,9],
+"group__zwave__controller__component.html#ga0178c4d14827e2028441460f1c9802e3":[3,19,0,6],
+"group__zwave__controller__component.html#ga35c0407648757629f7e74017fe81cfb2":[3,19,0,10]
 };

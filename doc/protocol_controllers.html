@@ -41,7 +41,7 @@
               <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.7.0-RC7
+                ver_1.7.0-RC7-16-g3d888689c2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,22 +56,18 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started_unify.html">Getting Started with Unify</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="UnifySDK.html">Unify Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unify_framework_services.html">Framework Services</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Protocol Controllers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="protocol/zwave/zpc_introduction.html">Z-Wave (ZPC)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="multiprotocol.html">Multiprotocol Host Software</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="unify_iot_services.html">IoT Services</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started_as_developer.html">Getting Started as a Developer</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="unify_specifications/index.html">Unify Specifications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="system_requirements.html">System Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="standards/known-abbreviations.html">Known Abbreviations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
@@ -96,10 +92,17 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="protocol-controllers">
 <h1>Protocol Controllers<a class="headerlink" href="#protocol-controllers" title="Permalink to this heading"></a></h1>
+<p>Note: For reference documentation please refer to
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/protocol_controllers">UnifySDK documentation</a></p>
+<p>WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.</p>
 <p>The Unify Framework currently includes several protocol controllers.</p>
 <p>Each protocol controller interfaces with its radio hardware and implements a
 translation between its own wireless protocol and the <em>Unified Command Language</em>
-(UCL), which is defined in the <a class="reference internal" href="unify_specifications/index.html"><span class="doc std std-doc">Unify Framework Specification</span></a>.
+(UCL), which is defined in the
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/unify_specifications">Unify Framework Specifications</a></p>
+<p>.
 In addition, these protocol controllers implement best practices regarding
 message delivery and adherence to regulatory requirements. Protocol-specific
 implementation details can be found in the user guide for each protocol
@@ -108,26 +111,6 @@ controller.</p>
 </div>
 <ul class="simple">
 <li><p><a class="reference internal" href="protocol/zwave/zpc_introduction.html"><span class="doc std std-doc">The Z-Wave protocol controller (ZPC)</span></a> implements the Z-Wave wireless protocol using a Z-Wave NCP.</p></li>
-</ul>
-<div class="toctree-wrapper compound">
-</div>
-<ul class="simple">
-<li><p><span class="xref myst">The Zigbee protocol controller (ZigPC)</span> implements the ZigBee wireless protocol using a Zigbee NCP.</p></li>
-</ul>
-<div class="toctree-wrapper compound">
-</div>
-<ul class="simple">
-<li><p><a class="reference internal" href="multiprotocol.html"><span class="doc std std-doc">The Multiprotocol Host Software (Zigbee, OpenThread, Bluetooth)</span></a> uses the RCP mode of the wireless SoC to implement Zigbee, OpenThread, and Bluetooth.</p></li>
-</ul>
-<div class="toctree-wrapper compound">
-</div>
-<ul class="simple">
-<li><p><span class="xref myst">The Matter protocol controller</span> implements the matter protocol.</p></li>
-</ul>
-<div class="toctree-wrapper compound">
-</div>
-<ul class="simple">
-<li><p><span class="xref myst">The Bluetooth AoX protocol controller (AoXPC)</span> implements Bluetooth AoX functionality.</p></li>
 </ul>
 </section>
 

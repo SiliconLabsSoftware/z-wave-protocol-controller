@@ -23,9 +23,7 @@
         <script src="../_static/js/qr_code_scanner.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="CMake Integration" href="readme_cmake.html" />
-    <link rel="prev" title="Unify Developer Guide" href="readme_developer.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,7 +39,7 @@
               <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.7.0-RC7
+                ver_1.7.0-RC7-16-g3d888689c2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,45 +54,15 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started_unify.html">Getting Started with Unify</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="UnifySDK.html">Unify Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unify_framework_services.html">Framework Services</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="protocol_controllers.html">Protocol Controllers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unify_iot_services.html">IoT Services</a></li>
-</ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="getting_started_as_developer.html">Getting Started as a Developer</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="readme_developer.html">Unify Developer Guide</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Unify Build Guide</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#build-instructions">Build Instructions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#build-docker-image">Build Docker Image</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#porting-the-unify-host-sdk">Porting the Unify Host SDK</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="readme_cmake.html">CMake Integration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="readme_rust.html">Unify Rust Development</a></li>
-<li class="toctree-l3"><a class="reference internal" href="unify_library_overview.html">Unify Library Overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="standards/coding-standard.html">Unify Coding Standard</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api.html">API documentation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="readme_developer.html#directory-structure-and-file-naming-conventions">Directory Structure and File Naming Conventions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="readme_developer.html#clang-format-autoformat-code">Clang-Format (autoformat code)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="readme_developer.html#pre-commit-hooks">Pre-commit Hooks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="readme_developer.html#creating-a-new-application">Creating a New Application</a></li>
-<li class="toctree-l3"><a class="reference internal" href="readme_developer.html#unify-framework-library-unify-main-and-ipc">Unify Framework Library (Unify Main) and IPC</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#development-platform-recommendations">Development Platform Recommendations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#developing-iot-services">Developing IoT Services</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#developing-protocol-controllers">Developing protocol controllers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#extend-ucl-clusters">Extend UCL clusters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_as_developer.html#overview-of-relations-among-unify-applications">Overview of relations among Unify Applications</a></li>
-</ul>
-</li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="unify_specifications/index.html">Unify Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started_as_developer.html">Getting Started as a Developer</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="system_requirements.html">System Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="standards/known-abbreviations.html">Known Abbreviations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
@@ -119,13 +87,16 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="unify-build-guide">
 <h1>Unify Build Guide<a class="headerlink" href="#unify-build-guide" title="Permalink to this heading"></a></h1>
+<p>Note: For reference documentation please refer to
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/readme_building">UnifySDK documentation</a></p>
+<p>WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.</p>
 <p>This document is intended for systems integrators who are trying to
 cross-compile the Unify components. This guide explains how to build Debian
 packages for the Raspberry Pi.</p>
 <p>For a list of build dependencies please refer to the
 <a class="reference download internal" download="" href="../_downloads/ebacf6f6ae4ee68078bb16454b23247d/Dockerfile"><span class="xref download myst">Dockerfile</span></a>.</p>
-<div class="toctree-wrapper compound">
-</div>
 <section id="build-instructions">
 <h2>Build Instructions<a class="headerlink" href="#build-instructions" title="Permalink to this heading"></a></h2>
 <p>The Unify Host SDK uses a docker container to provide an appropriate build environment.

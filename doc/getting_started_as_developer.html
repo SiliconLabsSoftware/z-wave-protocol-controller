@@ -24,8 +24,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Unify Developer Guide" href="readme_developer.html" />
-    <link rel="prev" title="IoT Services" href="unify_iot_services.html" /> 
+    <link rel="next" title="System Requirements" href="system_requirements.html" />
+    <link rel="prev" title="User Code" href="../applications/zpc/doc/command_classes/user_code.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,7 +41,7 @@
               <img src="../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.7.0-RC7
+                ver_1.7.0-RC7-16-g3d888689c2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,16 +56,13 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started_unify.html">Getting Started with Unify</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="UnifySDK.html">Unify Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unify_framework_services.html">Framework Services</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="protocol_controllers.html">Protocol Controllers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unify_iot_services.html">IoT Services</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started as a Developer</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="readme_developer.html">Unify Developer Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#development-platform-recommendations">Development Platform Recommendations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#developing-iot-services">Developing IoT Services</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#developing-protocol-controllers">Developing protocol controllers</a></li>
@@ -75,7 +72,6 @@
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="unify_specifications/index.html">Unify Specifications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="system_requirements.html">System Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="standards/known-abbreviations.html">Known Abbreviations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
@@ -100,11 +96,20 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="getting-started-as-a-developer">
 <h1>Getting Started as a Developer<a class="headerlink" href="#getting-started-as-a-developer" title="Permalink to this heading"></a></h1>
-<div class="toctree-wrapper compound">
-</div>
-<p>The <a class="reference internal" href="readme_developer.html"><span class="doc std std-doc">Unify Developer Guide</span></a> contains a lot of useful information for Unify developers.</p>
-<p>The <a class="reference internal" href="readme_building.html"><span class="doc std std-doc">Unify Build Guide</span></a> is the best starting point for working with the source code.</p>
-<p>The <a class="reference internal" href="unify_readme_user.html"><span class="doc std std-doc">Unify User Guide</span></a> contains helpful tips on debugging within Unify.</p>
+<p>Note: For reference documentation please refer to
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/getting_started_as_developer">UnifySDK documentation</a></p>
+<p>WARNING: The following chapters may be oudated,
+they are still here until the new release of UnifySDK.
+In the future, Z-Wave parts will be more isolated and the rest deduplicated.</p>
+<p>The
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/readme_developer">Unify Developer Guide</a>
+contains a lot of useful information for Unify developers.</p>
+<p>The
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/readme_building">Unify Build Guide</a>
+is the best starting point for working with the source code.</p>
+<p>The
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/unify_readme_user">Unify User Guide</a>
+contains helpful tips on debugging within Unify.</p>
 <section id="development-platform-recommendations">
 <h2>Development Platform Recommendations<a class="headerlink" href="#development-platform-recommendations" title="Permalink to this heading"></a></h2>
 <p>The Unify reference platform is a Raspberry Pi 4 however it is understood that users may not wish to run on a Raspberry Pi in a final product. Porting to Debian based linux should be straightforward.</p>
@@ -112,14 +117,20 @@
 </section>
 <section id="developing-iot-services">
 <h2>Developing IoT Services<a class="headerlink" href="#developing-iot-services" title="Permalink to this heading"></a></h2>
-<p>The IoT or cloud connector must use UCL (MQTT) to communicate with the other components of Unify. See <a class="reference internal" href="how_to_develop_an_iot_service.html"><span class="doc std std-doc">How to Develop an IoT service</span></a> Unify uses MQTT to communicate among each component using the Mosquitto MQTT broker. UCL is the format of the MQTT messages. The <a class="reference internal" href="unify_specifications/index.html"><span class="doc std std-doc">Unify Framework Specification</span></a> contains the definitions for UCL.</p>
-<p>Also see <a href="../reference_ucl_mqtt/index.html">UCL MQTT API</a></p>
+<p>The IoT or cloud connector must use UCL (MQTT) to communicate with the other components of Unify. See <a class="reference internal" href="how_to_develop_an_iot_service.html"><span class="doc std std-doc">How to Develop an IoT service</span></a> Unify uses MQTT to communicate among each component using the Mosquitto MQTT broker. UCL is the format of the MQTT messages.
+The
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/unify_specifications">Unify Specifications</a>
+contains the definitions for UCL.</p>
+<p>Also see
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/reference_ucl_mqtt%22">UCL MQTT API</a></p>
 </section>
 <section id="developing-protocol-controllers">
 <h2>Developing protocol controllers<a class="headerlink" href="#developing-protocol-controllers" title="Permalink to this heading"></a></h2>
-<p>See <a class="reference internal" href="how_to_develop_a_protocol_controller.html"><span class="doc std std-doc">How to Develop a Protocol Controller</span></a></p>
+<p>See
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/how_to_develop_a_protocol_controller">how to develop Protocol Controller</a></p>
 <p>The attribute mapper helps to translate protocol commands to UCL MQTT messages.
-See <a class="reference internal" href="how_to_write_uam_files.html"><span class="doc std std-doc">How to write UAM files</span></a></p>
+See
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/how_to_write_uam_files">How to write UAM files</a></p>
 </section>
 <section id="extend-ucl-clusters">
 <h2>Extend UCL clusters<a class="headerlink" href="#extend-ucl-clusters" title="Permalink to this heading"></a></h2>

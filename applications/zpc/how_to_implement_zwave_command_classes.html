@@ -41,7 +41,7 @@
               <img src="../../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.7.0-RC7
+                ver_1.7.0-RC7-16-g3d888689c2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -56,7 +56,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../doc/getting_started_unify.html">Getting Started with Unify</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../doc/UnifySDK.html">Unify Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/unify_framework_services.html">Framework Services</a></li>
 </ul>
 <ul class="current">
@@ -88,16 +87,13 @@
 <li class="toctree-l3"><a class="reference internal" href="doc/supported_command_classes.html">Supported Z-Wave Command Classes</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../doc/multiprotocol.html">Multiprotocol Host Software</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../doc/unify_iot_services.html">IoT Services</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/getting_started_as_developer.html">Getting Started as a Developer</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../doc/unify_specifications/index.html">Unify Specifications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/system_requirements.html">System Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/standards/known-abbreviations.html">Known Abbreviations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../doc/license.html">License</a></li>
@@ -127,41 +123,41 @@ in Unify. We’ll go trough step by step following a real example :
 implementing the Sound Switch command class.</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#defining-the-z-wave-command-class-attribute-state-data-model" id="id8">Defining the Z-Wave Command Class attribute state data model</a></p></li>
-<li><p><a class="reference internal" href="#create-the-data-model-in-the-attribute-store" id="id9">Create the data model in the Attribute Store</a></p></li>
-<li><p><a class="reference internal" href="#attribute-definition" id="id10">Attribute definition</a></p></li>
-<li><p><a class="reference internal" href="#attribute-registration" id="id11">Attribute registration</a></p></li>
-<li><p><a class="reference internal" href="#write-the-logic-of-the-command-class" id="id12">Write the logic of the command class</a></p></li>
-<li><p><a class="reference internal" href="#base-skeleton-creation" id="id13">Base skeleton creation</a></p></li>
-<li><p><a class="reference internal" href="#implementation" id="id14">Implementation</a></p>
+<li><p><a class="reference internal" href="#defining-the-z-wave-command-class-attribute-state-data-model" id="id7">Defining the Z-Wave Command Class attribute state data model</a></p></li>
+<li><p><a class="reference internal" href="#create-the-data-model-in-the-attribute-store" id="id8">Create the data model in the Attribute Store</a></p></li>
+<li><p><a class="reference internal" href="#attribute-definition" id="id9">Attribute definition</a></p></li>
+<li><p><a class="reference internal" href="#attribute-registration" id="id10">Attribute registration</a></p></li>
+<li><p><a class="reference internal" href="#write-the-logic-of-the-command-class" id="id11">Write the logic of the command class</a></p></li>
+<li><p><a class="reference internal" href="#base-skeleton-creation" id="id12">Base skeleton creation</a></p></li>
+<li><p><a class="reference internal" href="#implementation" id="id13">Implementation</a></p>
 <ul>
-<li><p><a class="reference internal" href="#global-handler" id="id15">Global handler</a></p></li>
-<li><p><a class="reference internal" href="#initialize-attributes" id="id16">Initialize attributes</a></p></li>
-<li><p><a class="reference internal" href="#get-set-command" id="id17">Get/Set command</a></p></li>
-<li><p><a class="reference internal" href="#report-callback" id="id18">Report callback</a></p></li>
-<li><p><a class="reference internal" href="#testing-our-implementation" id="id19">Testing our implementation</a></p></li>
+<li><p><a class="reference internal" href="#global-handler" id="id14">Global handler</a></p></li>
+<li><p><a class="reference internal" href="#initialize-attributes" id="id15">Initialize attributes</a></p></li>
+<li><p><a class="reference internal" href="#get-set-command" id="id16">Get/Set command</a></p></li>
+<li><p><a class="reference internal" href="#report-callback" id="id17">Report callback</a></p></li>
+<li><p><a class="reference internal" href="#testing-our-implementation" id="id18">Testing our implementation</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#mapping-z-wave-to-dotdot-ucl-with-uam-file" id="id20">Mapping Z-Wave to Dotdot UCL with .uam file</a></p></li>
-<li><p><a class="reference internal" href="#map-z-wave-attribute-to-clusters-attributes" id="id21">Map Z-Wave attribute to clusters attributes</a></p>
+<li><p><a class="reference internal" href="#mapping-z-wave-to-dotdot-ucl-with-uam-file" id="id19">Mapping Z-Wave to Dotdot UCL with .uam file</a></p></li>
+<li><p><a class="reference internal" href="#map-z-wave-attribute-to-clusters-attributes" id="id20">Map Z-Wave attribute to clusters attributes</a></p>
 <ul>
-<li><p><a class="reference internal" href="#on-off-cluster" id="id22">On/Off cluster</a></p></li>
-<li><p><a class="reference internal" href="#level-cluster" id="id23">Level cluster</a></p></li>
+<li><p><a class="reference internal" href="#on-off-cluster" id="id21">On/Off cluster</a></p></li>
+<li><p><a class="reference internal" href="#level-cluster" id="id22">Level cluster</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#quirks" id="id24">Quirks</a></p></li>
-<li><p><a class="reference internal" href="#unit-testing" id="id25">Unit Testing</a></p>
+<li><p><a class="reference internal" href="#quirks" id="id23">Quirks</a></p></li>
+<li><p><a class="reference internal" href="#unit-testing" id="id24">Unit Testing</a></p>
 <ul>
-<li><p><a class="reference internal" href="#add-test-file-to-cmake" id="id26">Add test file to CMake</a></p></li>
-<li><p><a class="reference internal" href="#base-test-skeleton" id="id27">Base test skeleton</a></p></li>
-<li><p><a class="reference internal" href="#test-report-z-wave-function" id="id28">Test report Z-Wave function</a></p></li>
-<li><p><a class="reference internal" href="#test-get-set-z-wave-function" id="id29">Test get/set Z-Wave function</a></p></li>
+<li><p><a class="reference internal" href="#add-test-file-to-cmake" id="id25">Add test file to CMake</a></p></li>
+<li><p><a class="reference internal" href="#base-test-skeleton" id="id26">Base test skeleton</a></p></li>
+<li><p><a class="reference internal" href="#test-report-z-wave-function" id="id27">Test report Z-Wave function</a></p></li>
+<li><p><a class="reference internal" href="#test-get-set-z-wave-function" id="id28">Test get/set Z-Wave function</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#z-wave-self-certification-with-the-compliance-test-tool-ctt" id="id30">Z-Wave Self-Certification with the Compliance Test Tool (CTT)</a></p></li>
-<li><p><a class="reference internal" href="#prerequisites" id="id31">Prerequisites</a></p></li>
-<li><p><a class="reference internal" href="#setup-the-ctt-project" id="id32">Setup the CTT project</a></p></li>
-<li><p><a class="reference internal" href="#run-the-tests" id="id33">Run the tests</a></p></li>
+<li><p><a class="reference internal" href="#z-wave-self-certification-with-the-compliance-test-tool-ctt" id="id29">Z-Wave Self-Certification with the Compliance Test Tool (CTT)</a></p></li>
+<li><p><a class="reference internal" href="#prerequisites" id="id30">Prerequisites</a></p></li>
+<li><p><a class="reference internal" href="#setup-the-ctt-project" id="id31">Setup the CTT project</a></p></li>
+<li><p><a class="reference internal" href="#run-the-tests" id="id32">Run the tests</a></p></li>
 </ul>
 </nav>
 <p>The following schema shows you a top level view of all the components we
@@ -1044,8 +1040,8 @@ useful one is <code class="docutils literal notranslate"><span class="pre">attri
 <h2>Mapping Z-Wave to Dotdot UCL with .uam file<a class="headerlink" href="#mapping-z-wave-to-dotdot-ucl-with-uam-file" title="Permalink to this heading"></a></h2>
 <p>You should have some basic knowledge about clusters and UAM files.</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../../doc/unify_specifications/Chapter02-ZCL-in-uic.html"><span class="doc">Cluster attributes</span></a></p></li>
-<li><p><a class="reference internal" href="../../doc/how_to_write_uam_files.html"><span class="doc">.uam file documentation</span></a></p></li>
+<li><p><a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/unify_specifications/Chapter02-ZCL-in-uic">UnifySDK: Cluster attributes</a></p></li>
+<li><p><a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/how_to_write_uam_files">UnifySDK: .uam file documentation</a></p></li>
 <li><p><a class="reference internal" href="how_to_write_uam_files_for_the_zpc.html"><span class="doc">Z-Wave specific .uam files documentation</span></a></p></li>
 </ul>
 <p>Now that our attribute store is correctly defined and sending the right
@@ -1238,9 +1234,11 @@ requires some arbitrary choices. We need to map 2 values :</p>
 </div>
 <p>We see that we have access to 2 int attributes : <code class="docutils literal notranslate"><span class="pre">CurrentLevel</span></code> and
 <code class="docutils literal notranslate"><span class="pre">CurrentFrequency</span></code>. We can decide to map the current volume to
-<code class="docutils literal notranslate"><span class="pre">CurrentLevel</span></code> and current tone ID to <code class="docutils literal notranslate"><span class="pre">CurrentFrequency</span></code> (even if
-its make little sense). We’ll see how to implement our own cluster if we
-need more accuracy <span class="xref std std-doc">here</span>.</p>
+<code class="docutils literal notranslate"><span class="pre">CurrentLevel</span></code> and current tone ID to <code class="docutils literal notranslate"><span class="pre">CurrentFrequency</span></code>
+(even if it makes little sense).
+We’ll see how to implement our own cluster if we need more accuracy check
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK#/doc/how_to_write_new_cluster">UnifySDK: How to write new cluster</a>
+.</p>
 <p>Both ZCL attributes have a min and a max values, so we need to map those
 as well.</p>
 <p>First we’ll create our file <code class="docutils literal notranslate"><span class="pre">Level_to_SoundSwitchCC.uam</span></code> in
@@ -1464,8 +1462,9 @@ the second endpoint, etc.</p>
 <p>This is why we needed to add <code class="docutils literal notranslate"><span class="pre">ep[0]</span></code> before <code class="docutils literal notranslate"><span class="pre">zwMANUFACTURER_ID</span></code> and
 the other attributes in <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">aeotec_doorbell</span></code>. Since its evaluated in
 the <code class="docutils literal notranslate"><span class="pre">ATTRIBUTE_NODE_ID</span></code> context the only attribute directly available
-is the <code class="docutils literal notranslate"><span class="pre">ATTRIBUTE_ENDPOINT_ID</span></code>. You can find more information about
-this in <a class="reference internal" href="../../doc/how_to_write_uam_files.html"><span class="doc">How to write UAM files</span></a></p>
+is the <code class="docutils literal notranslate"><span class="pre">ATTRIBUTE_ENDPOINT_ID</span></code>.
+You can find more information about this in
+<a class="reference external" href="https://siliconlabs.github.io/UnifySDK/doc/how_to_write_uam_files">UnifySDK: .uam file documentation</a></p>
 <p>So we need to map the second endpoint (<code class="docutils literal notranslate"><span class="pre">ep[1]</span></code>) tone play value to
 match the first one (<code class="docutils literal notranslate"><span class="pre">ep[0]</span></code>) but ONLY when the device is the Aoetec
 doorbell :</p>
@@ -1858,7 +1857,7 @@ compliance</p>
 </section>
 </section>
 <section id="z-wave-self-certification-with-the-compliance-test-tool-ctt">
-<span id="id5"></span><h2>Z-Wave Self-Certification with the Compliance Test Tool (CTT)<a class="headerlink" href="#z-wave-self-certification-with-the-compliance-test-tool-ctt" title="Permalink to this heading"></a></h2>
+<span id="id6"></span><h2>Z-Wave Self-Certification with the Compliance Test Tool (CTT)<a class="headerlink" href="#z-wave-self-certification-with-the-compliance-test-tool-ctt" title="Permalink to this heading"></a></h2>
 <p>The Z-Wave Compliance Test Tool (CTT) is provided by the Z-Wave
 Alliance. The CTT is designed to ensure that developers have a tool to
 assist in performing the self-certification tests required for the
@@ -1927,7 +1926,7 @@ want to test a controller we have to select
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you use WSL
-<a href="#id6"><span class="problematic" id="id7">`usbipd&lt;https://learn.microsoft.com/en-us/windows/wsl/connect-usb&gt;`__</span></a>
+<a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/connect-usb">usbipd</a>
 can help you connect your Z-Wave controller to ZPC.</p>
 </div>
 <p><strong>You can skip Step 5 - CTT includes DUT and move to the next step DUR

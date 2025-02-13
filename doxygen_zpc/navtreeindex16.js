@@ -1,7 +1,5 @@
 var NAVTREEINDEX16 =
 {
-"zwave__command__class__central__scene_8c.html#a96550680f64c584cf7ff3ef399aff597":[6,0,0,0,0,17,2,11,18],
-"zwave__command__class__central__scene_8c.html#a97fd0f639218b765c8549cd3fcee6db8":[6,0,0,0,0,17,2,11,40],
 "zwave__command__class__central__scene_8c.html#a9fbc59d4ab7b156178541cae28f3d6e6":[6,0,0,0,0,17,2,11,22],
 "zwave__command__class__central__scene_8c.html#aa270dbfc4f416398c7714328f2bdf956":[6,0,0,0,0,17,2,11,4],
 "zwave__command__class__central__scene_8c.html#aa5ae64b15e4796411b2fbe6dfdcee388":[6,0,0,0,0,17,2,11,13],
@@ -249,5 +247,7 @@ var NAVTREEINDEX16 =
 "zwave__command__class__meter__types_8h.html":[6,0,0,0,0,7,0,0,10],
 "zwave__command__class__meter__types_8h_source.html":[6,0,0,0,0,7,0,0,10],
 "zwave__command__class__multi__channel_8c.html":[6,0,0,0,0,17,2,36],
-"zwave__command__class__multi__channel_8c.html#a1405a6009065363c3f28e170a5cfc4ca":[6,0,0,0,0,17,2,36,2]
+"zwave__command__class__multi__channel_8c.html#a1405a6009065363c3f28e170a5cfc4ca":[6,0,0,0,0,17,2,36,2],
+"zwave__command__class__multi__channel_8c.html#a16daf353476dffd2f848569ce30974b9":[6,0,0,0,0,17,2,36,14],
+"zwave__command__class__multi__channel_8c.html#a20abf4a05614bb1cfe10e7c50e8e6389":[6,0,0,0,0,17,2,36,28]
 };

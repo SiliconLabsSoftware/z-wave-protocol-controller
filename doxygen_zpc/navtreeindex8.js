@@ -1,7 +1,5 @@
 var NAVTREEINDEX8 =
 {
-"group__zwave__controller__component.html#ga0178c4d14827e2028441460f1c9802e3":[3,19,0,6],
-"group__zwave__controller__component.html#ga35c0407648757629f7e74017fe81cfb2":[3,19,0,10],
 "group__zwave__controller__component.html#ga664548dbf9fade0a3416bf7191d3b32b":[3,19,0,8],
 "group__zwave__controller__component.html#ga9bb84d2fd8efe19d2f01cb431b3a3d27":[3,19,0,11],
 "group__zwave__controller__component.html#gae8c7ea4da898ea006175e66032a2b0ff":[3,19,0,7],
@@ -249,5 +247,7 @@ var NAVTREEINDEX8 =
 "group__zwave__network__management__types.html#gga1e4c00e7d35cb0031bae20d80ce8dc4ba72a733134a55501f534c78515b838317":[3,19,2,5,2,5],
 "group__zwave__network__management__types.html#gga1e4c00e7d35cb0031bae20d80ce8dc4ba7a9a06cd94b42fc4fb808d2b4eb157ba":[3,19,2,5,2,4],
 "group__zwave__network__management__types.html#gga1e4c00e7d35cb0031bae20d80ce8dc4ba85fd5d8a4b8e671533745882ebce6cc4":[3,19,2,5,2,1],
-"group__zwave__network__management__types.html#gga1e4c00e7d35cb0031bae20d80ce8dc4ba8df2da2d01942647e146f73cdae9a1a7":[3,19,2,5,2,2]
+"group__zwave__network__management__types.html#gga1e4c00e7d35cb0031bae20d80ce8dc4ba8df2da2d01942647e146f73cdae9a1a7":[3,19,2,5,2,2],
+"group__zwave__network__management__types.html#gga1e4c00e7d35cb0031bae20d80ce8dc4bab5f05b8ec9cdf3943727e84e91627eaa":[3,19,2,5,2,0],
+"group__zwave__network__management__types.html#gga1e4c00e7d35cb0031bae20d80ce8dc4bad60465acbec94077477d0ddba75e4247":[3,19,2,5,2,3]
 };
