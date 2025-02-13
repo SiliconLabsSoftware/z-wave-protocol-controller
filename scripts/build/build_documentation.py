@@ -37,7 +37,7 @@ doctree_dir = os.path.realpath(args.doctree)
 documentation_root = os.path.realpath(args.source)
 output_dir = os.path.realpath(args.output_dir)
 
-sphinx_opt_version = subprocess.check_output(["git", "describe"], cwd=default_project_root, text=True).strip()
+sphinx_opt_version = subprocess.check_output(["git", "describe", "--tags"], cwd=default_project_root, text=True).strip()
 
 print(f"Git Version string: {sphinx_opt_version}")
 
@@ -56,11 +56,7 @@ def setup_doxygen_project(project_name, outdir):
         print("could not find " + doxygen)
 
 # run sphinx builder
-setup_doxygen_project("doxygen_uic",        output_dir)
-setup_doxygen_project("doxygen_zigpc",      output_dir)
 setup_doxygen_project("doxygen_zpc",        output_dir)
-setup_doxygen_project("doxygen_aox",        output_dir)
-setup_doxygen_project("reference_ucl_mqtt", output_dir)
 
 sphinx_build_cmd=f"sphinx-build -b {args.builder} -c {doc_dir} -D root_doc={root_doc} -D version={sphinx_opt_version} -D release={sphinx_opt_version} -d {doctree_dir} {documentation_root} {output_dir}"
 
