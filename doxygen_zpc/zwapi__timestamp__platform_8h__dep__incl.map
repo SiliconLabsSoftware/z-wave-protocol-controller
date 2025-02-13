@@ -1,0 +1,8 @@
+<map id="applications/zpc/components/zwave_api/platform/posix/zwapi_timestamp_platform.h" name="applications/zpc/components/zwave_api/platform/posix/zwapi_timestamp_platform.h">
+<area shape="rect" id="node1" title="Platform specific zwapi timestamp definitions." alt="" coords="369,5,563,61"/>
+<area shape="rect" id="node2" href="$zwapi__timestamp_8h.html" title="Timestamp API allowing to set timestamps and verify if they are past/expired." alt="" coords="353,109,579,151"/>
+<area shape="rect" id="node3" href="$zwapi__timestamp_8c.html" title=" " alt="" coords="5,199,196,255"/>
+<area shape="rect" id="node4" href="$zwapi__connection_8c.html" title=" " alt="" coords="221,206,450,247"/>
+<area shape="rect" id="node5" href="$zwapi__protocol__mem_8c.html" title=" " alt="" coords="474,206,722,247"/>
+<area shape="rect" id="node6" href="$zwapi__session_8c.html" title=" " alt="" coords="746,206,957,247"/>
+</map>

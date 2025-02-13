@@ -1,0 +1,4 @@
+<map id="create_firmware_transfer_attribute" name="create_firmware_transfer_attribute">
+<area shape="rect" id="node1" title="Creates a Firmware Transfer node under an endpoint." alt="" coords="228,13,395,54"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__firmware__update.html#gad39d3d19db09770af92857ed735d0e18" title="Attempts to start a Firmware Update procedure for a node." alt="" coords="5,5,180,61"/>
+</map>

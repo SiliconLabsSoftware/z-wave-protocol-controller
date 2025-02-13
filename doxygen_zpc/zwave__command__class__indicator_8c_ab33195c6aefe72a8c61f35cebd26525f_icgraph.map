@@ -1,0 +1,7 @@
+<map id="publish_generated_identify_command" name="publish_generated_identify_command">
+<area shape="rect" id="node1" title="Publishes that a node has sent us (generated) an identify command." alt="" coords="901,5,1077,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__indicator_8c.html#ae25d2fbb010340256e6872be3884d931" title=" " alt="" coords="689,5,853,47"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__indicator__support.html#ga8953f10489f199eee92bdc7ebae05e3f" title="Handles incoming indicator encapsulated commands." alt="" coords="464,5,641,47"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__indicator__support.html#ga0f4f581c0adc3e8018e4ade3858017fb" title="setup for indicator command class" alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

@@ -92,6 +92,12 @@ $(document).ready(function(){initNavTree('group__zwave__command__class__firmware
 
 <p>Firmware Update Command Class transfer API functions.  
 <a href="#details">More...</a></p>
+<div class="dynheader">
+Collaboration diagram for Firmware Update Command Class:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__zwave__command__class__firmware__update.svg" width="663" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="groups" name="groups"></a>
 Modules</h2></td></tr>
@@ -117,9 +123,22 @@ Functions</h2></td></tr>
 </ul>
 <p >All control of the Firmware Update Command Class relies on the Attribute Store state. 2 Subtrees are used to keep track of everything.</p>
 <p >The following subtree is used to store information about firmwares from supporting nodes:</p>
+<div class="plantumlgraph">
+<object type="image/svg+xml" data="attribute_store_firmware_update.svg"></object>
+<div class="caption">
+Firmware Update information data model</div>
+</div>
 <p >The following subtree is used to keep track of firmware updates image transfers:</p>
+<div class="plantumlgraph">
+<object type="image/svg+xml" data="attribute_store_firmware_update_transfer.svg"></object>
+<div class="caption">
+Firmware Update transfer data model</div>
+</div>
 <p >The following state diagram denotes how state transitions while doing firmware update:</p>
-<h2 class="groupheader">Function Documentation</h2>
+<div class="plantumlgraph">
+<object type="image/svg+xml" data="inline_umlgraph_19.svg"></object>
+</div>
+ <h2 class="groupheader">Function Documentation</h2>
 <a id="ga335f95b87a09e3ae2fa3825a4354e480" name="ga335f95b87a09e3ae2fa3825a4354e480"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga335f95b87a09e3ae2fa3825a4354e480">&#9670;&nbsp;</a></span>command_class_firmware_update_abort_ongoing_firmware_operation()</h2>
 
@@ -155,6 +174,12 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__zwave__command__class__firmware__update_ga335f95b87a09e3ae2fa3825a4354e480_cgraph.svg" width="848" height="111"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -215,6 +240,12 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>SL_STATUS_OK if the request was accepted and will be initiated. Other error codes otherwise. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__zwave__command__class__firmware__update_gad39d3d19db09770af92857ed735d0e18_cgraph.svg" width="852" height="690"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -223,7 +254,7 @@ Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Feb 11 2025 14:33:51 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
+    <li class="footer">Generated on Thu Feb 13 2025 10:45:32 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
   </ul>
 </div>
 </body>

@@ -1,0 +1,12 @@
+<map id="recv_or_send" name="recv_or_send">
+<area shape="rect" id="node1" title=" " alt="" coords="1247,46,1347,73"/>
+<area shape="rect" id="node2" href="$transport__service_8c.html#a5f0608a1e90399ee5782c5df9eb96d4b" title=" " alt="" coords="1060,5,1199,47"/>
+<area shape="rect" id="node7" href="$transport__service_8c.html#a002c0b0e8723a173b49eb5f22d2efcda" title=" " alt="" coords="1060,71,1199,112"/>
+<area shape="rect" id="node3" href="$group__transport__service.html#ga5dec1563c42d06aad70fdc31f3acb603" title="Sending a long frame with Transport service." alt="" coords="823,13,1012,39"/>
+<area shape="rect" id="node4" href="$group__transport__service__transport__wrapper.html#ga6216ae3a018a4028bfc3025695784f0e" title="Sending a frame with Transport service." alt="" coords="417,5,584,47"/>
+<area shape="rect" id="node5" href="$group__transport__service__transport__wrapper.html#gad02263e40b63853166ac8a7601954f33" title=" " alt="" coords="203,39,369,80"/>
+<area shape="rect" id="node6" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="5,46,155,73"/>
+<area shape="rect" id="node8" href="$transport__service_8c.html#afe4b474eca116806850af8ce6182384c" title=" " alt="" coords="824,71,1011,112"/>
+<area shape="rect" id="node9" href="$group__transport__service.html#ga8373376f01c78a3ecfb1941605eb9c1a" title="Transport service RX function." alt="" coords="632,71,775,112"/>
+<area shape="rect" id="node10" href="$group__transport__service__transport__wrapper.html#ga836e1af25a73aef2bc515da73660cd3b" title="Entry point of Transport service frames received from the PHY/radio stack." alt="" coords="417,71,584,112"/>
+</map>

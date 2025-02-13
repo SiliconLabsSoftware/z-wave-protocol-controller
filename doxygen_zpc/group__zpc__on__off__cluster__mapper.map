@@ -1,0 +1,4 @@
+<map id="ZPC OnOff cluster mapper" name="ZPC OnOff cluster mapper">
+<area shape="rect" id="node1" href="$group__dotdot__mapper.html" title="Maps the DotDot clusters to known command classes." alt="" coords="5,5,113,31"/>
+<area shape="rect" id="node2" title="Maps OnOff Cluster incoming Commands to attribute modifications." alt="" coords="161,5,340,31"/>
+</map>

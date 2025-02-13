@@ -94,6 +94,18 @@ $(document).ready(function(){initNavTree('zwapi__serial_8h.html',''); initResiza
 <div class="textblock"><code>#include &lt;stdint.h&gt;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="sl__status_8h_source.html">sl_status.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Include dependency graph for zwapi_serial.h:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h__incl.svg" width="259" height="202"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
+</div><div class="textblock"><div class="dynheader">
+This graph shows which files directly or indirectly include this file:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h__dep__incl.svg" width="671" height="156"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 </div>
 <p><a href="zwapi__serial_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -154,6 +166,12 @@ Functions</h2></td></tr>
 
 <p>De-Initialize the serial port. </p>
 <p >aka SerialClose </p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_aae586785021ac9a605cd77651429f0c9_icgraph.svg" width="2219" height="4047"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -176,6 +194,12 @@ Functions</h2></td></tr>
 <p>Flush the serial output if using buffered output. </p>
 <p >This function calls tcdrain, which waits that the TTY buffer data has been written to the hardware.</p>
 <p >aka SerialFlush </p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_a3f2b3bd848e9fe0e6e137482bed06b46_icgraph.svg" width="2376" height="4203"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -215,6 +239,18 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The length of the data copied in the buffer.</dd></dl>
 <p>aka SerialGetBuffer </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_a538134f9fdbb1ce052667b3a041357bd_cgraph.svg" width="404" height="104"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_a538134f9fdbb1ce052667b3a041357bd_icgraph.svg" width="2414" height="4314"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -243,6 +279,18 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>0 if no characters are available, otherwise this returns 1 (length of the read data)</dd></dl>
 <p>aka SerialGetByte </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_abb082b1e7e727203e3ca5fbeb41f7c2b_cgraph.svg" width="603" height="104"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_abb082b1e7e727203e3ca5fbeb41f7c2b_icgraph.svg" width="2207" height="4499"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -265,6 +313,18 @@ Functions</h2></td></tr>
 <p>Initialize the serial port to 115200 BAUD 8N1. </p>
 <dl class="section return"><dt>Returns</dt><dd>the file descriptor for the serial device.</dd></dl>
 <p>aka SerialInit </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_a3d1a32e0b3c9f3965dae0f7ad8a53464_cgraph.svg" width="336" height="38"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_a3d1a32e0b3c9f3965dae0f7ad8a53464_icgraph.svg" width="2358" height="3970"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -287,6 +347,12 @@ Functions</h2></td></tr>
 <p>Check the file descriptor for the serial device is available for I/O operations. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the file is available, false if not or if an error occurred.</dd></dl>
 <p>aka SerialCheck </p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_a9a952dc2b34d92960246f6dc4e7d58f7_icgraph.svg" width="2191" height="4499"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -308,6 +374,12 @@ Functions</h2></td></tr>
 <p>Disable/stop logging serial data to file. </p>
 <p >This will stop the logging of serial data to file.</p>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__unify__sl__status__codes.html#ga642351dcd77b6c1ffef9d663db8a5714">SL_STATUS_OK</a> on success </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_aace970ac426fe88b9a6e61b275726e17_icgraph.svg" width="576" height="52"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -340,6 +412,18 @@ Functions</h2></td></tr>
 <a class="el" href="group__unify__sl__status__codes.html#ga57d85e0bd5326419118f71404e34a53c">SL_STATUS_ALREADY_INITIALIZED</a> if log to file is already enabled. </dd>
 <dd>
 <a class="el" href="group__unify__sl__status__codes.html#ga8d4ff3e970d8ef29a01f6b5dc3185c20">SL_STATUS_FAIL</a> if other failure (e.g. folder doesn't exist, lacking permissions, etc.). </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_a9be54f19266fab28cce5d6b7cf65e3db_cgraph.svg" width="382" height="52"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_a9be54f19266fab28cce5d6b7cf65e3db_icgraph.svg" width="552" height="52"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -378,6 +462,18 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <p>aka SerialPutBuffer </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_af9054824651df422bab5076d16a80fda_cgraph.svg" width="404" height="104"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_af9054824651df422bab5076d16a80fda_icgraph.svg" width="2464" height="3748"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -399,6 +495,18 @@ Functions</h2></td></tr>
 
 <p>Write a byte to serial port device. </p>
 <p >aka SerialPutByte </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_a7762d0358e9f398b92edbfd6a550984a_cgraph.svg" width="603" height="104"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_a7762d0358e9f398b92edbfd6a550984a_icgraph.svg" width="2398" height="4175"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -421,6 +529,18 @@ Functions</h2></td></tr>
 <p>Closes and re-initialize the last open serial port. </p>
 <dl class="section return"><dt>Returns</dt><dd>the file descriptor for the serial device.</dd></dl>
 <p>aka SerialRestart </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_aadf3397d0bd2c1657d4b1a373599acfe_cgraph.svg" width="536" height="88"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="zwapi__serial_8h_aadf3397d0bd2c1657d4b1a373599acfe_icgraph.svg" width="1988" height="4184"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -429,8 +549,8 @@ Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_a6e4fee11f07c3b70486e88fe92cbbdc.html">applications</a></li><li class="navelem"><a class="el" href="dir_1f99965fdbe101b1a068485db2f23081.html">zpc</a></li><li class="navelem"><a class="el" href="dir_7619deabe98ce62d677c018eac259f19.html">components</a></li><li class="navelem"><a class="el" href="dir_9376f99cbc649c5813b13d9244dc2fa3.html">zwave_api</a></li><li class="navelem"><a class="el" href="dir_997db13a0f767278426e906412983c64.html">src</a></li><li class="navelem"><a class="el" href="zwapi__serial_8h.html">zwapi_serial.h</a></li>
-    <li class="footer">Generated on Tue Feb 11 2025 14:33:50 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
+    <li class="navelem"><a class="el" href="dir_03533b4d21de5f48fa7de63c72628b39.html">applications</a></li><li class="navelem"><a class="el" href="dir_d193c1adccc8c91b3db46704d57b544d.html">zpc</a></li><li class="navelem"><a class="el" href="dir_a9d74fe2658e12bc01226d530457853c.html">components</a></li><li class="navelem"><a class="el" href="dir_5069f7b084fe544be8c98b9141a6d7eb.html">zwave_api</a></li><li class="navelem"><a class="el" href="dir_25c7527dcf5f1ee303ea4adcc421930a.html">src</a></li><li class="navelem"><a class="el" href="zwapi__serial_8h.html">zwapi_serial.h</a></li>
+    <li class="footer">Generated on Thu Feb 13 2025 10:45:32 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
   </ul>
 </div>
 </body>

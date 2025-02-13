@@ -1,0 +1,4 @@
+<map id="zwapi_is_pti_supported" name="zwapi_is_pti_supported">
+<area shape="rect" id="node1" title="Check if PTI supported." alt="" coords="5,5,164,32"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__INIT.html#ga0a823074baec69913d0e8590b46e4e33" title="Check if a command is supported by the connected Z&#45;Wave module." alt="" coords="212,5,415,32"/>
+</map>

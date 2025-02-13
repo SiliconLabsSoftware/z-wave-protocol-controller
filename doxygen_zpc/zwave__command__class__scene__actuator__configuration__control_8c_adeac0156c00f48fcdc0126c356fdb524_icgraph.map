@@ -1,0 +1,6 @@
+<map id="handle_scene_actuator_configuration_report" name="handle_scene_actuator_configuration_report">
+<area shape="rect" id="node1" title="Process an incoming Scene Actuator Configuration Report Command." alt="" coords="740,13,896,54"/>
+<area shape="rect" id="node2" href="$zwave__command__class__scene__actuator__configuration__control_8c.html#af4a4c7c6e3df2399654ca63aac6be8dc" title=" " alt="" coords="500,13,692,54"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__scene__actuator__configuration__control.html#ga92ba47761c17964d4b511e40406ba1f6" title="Initializes the Scene Actuator Configuration Command Class control handler." alt="" coords="253,5,452,61"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

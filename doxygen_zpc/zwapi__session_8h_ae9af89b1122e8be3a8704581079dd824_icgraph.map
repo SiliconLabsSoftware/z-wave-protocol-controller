@@ -1,0 +1,12 @@
+<map id="zwapi_session_flush_queue" name="zwapi_session_flush_queue">
+<area shape="rect" id="node1" title="Flush the zwapi_session receive queue." alt="" coords="784,57,927,98"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__INIT.html#gab39e440bdb6435b04e754771c5ad41b5" title="Refresh the whole zwapi_chip_data_t structure from the Z&#45;Wave module." alt="" coords="561,39,736,65"/>
+<area shape="rect" id="node7" href="$zwapi__session_8c.html#a6f5555814b03c924b3d057d1b4080cf1" title="Close the zwapi_session with the Z&#45;Wave module." alt="" coords="563,89,734,116"/>
+<area shape="rect" id="node3" href="$group__ZWAPI__INIT.html#ga503a76a5835c274e4b7610e2f80f5e6f" title=" " alt="" coords="420,39,500,65"/>
+<area shape="rect" id="node4" href="$group__zpc__ncp__update__fixt.html#gaaca8dd596d6abe6ca27de8d7c93c5cf2" title="This function check if the NCP firmware should be updated." alt="" coords="216,57,359,98"/>
+<area shape="rect" id="node5" href="$group__zwave__rx__internals.html#ga5fb555f285dbe1b21ba750d0443476c8" title="Initialize the Z&#45;Wave Rx component." alt="" coords="236,5,339,32"/>
+<area shape="rect" id="node6" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="15,5,158,32"/>
+<area shape="rect" id="node8" href="$group__ZWAPI__INIT.html#ga87ccde341e5cf630064d51222bf56fb9" title="Shut down the Z&#45;Wave API and close the communication ports." alt="" coords="407,89,513,116"/>
+<area shape="rect" id="node9" href="$group__zwave__rx__internals.html#gaed3606fa8bb6eff34c27efe91c3525a6" title="Shutdown the module." alt="" coords="217,123,358,149"/>
+<area shape="rect" id="node10" href="$group__zwave__rx__fixt.html#ga56465233b7f28429a246ce87b31efe7b" title=" " alt="" coords="5,123,168,149"/>
+</map>

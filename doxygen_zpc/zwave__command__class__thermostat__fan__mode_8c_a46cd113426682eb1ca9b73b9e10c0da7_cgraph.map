@@ -1,0 +1,5 @@
+<map id="is_fan_control_mode_supported" name="is_fan_control_mode_supported">
+<area shape="rect" id="node1" title=" " alt="" coords="5,39,148,80"/>
+<area shape="rect" id="node2" href="$zwave__command__class__thermostat__fan__mode_8c.html#a2d602b7c21ebec120b16b157dd1fc67b" title="Get current thermostat fan version of the CC." alt="" coords="212,5,347,47"/>
+<area shape="rect" id="node3" href="$zwave__command__class__thermostat__fan__mode_8c.html#a95fd24ff5786b3ccf70e74292a98a4ea" title=" " alt="" coords="196,71,363,112"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="zwave_command_class_switch_multilevel_supported_get" name="zwave_command_class_switch_multilevel_supported_get">
+<area shape="rect" id="node1" title=" " alt="" coords="464,5,683,47"/>
+<area shape="rect" id="node2" href="$group__switch__multilevel__command__class.html#ga866d4efa5431c875235b5540a38dcc4c" title="This function initialize the Multilevel Switch Command Class handler." alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

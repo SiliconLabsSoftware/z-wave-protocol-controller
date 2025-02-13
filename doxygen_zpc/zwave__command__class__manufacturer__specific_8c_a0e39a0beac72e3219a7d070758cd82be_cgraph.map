@@ -1,0 +1,8 @@
+<map id="zwave_command_class_manufacturer_specific_handle_device_specific_get" name="zwave_command_class_manufacturer_specific_handle_device_specific_get">
+<area shape="rect" id="node1" title=" " alt="" coords="5,41,195,97"/>
+<area shape="rect" id="node2" href="$group__zpc__config.html#ga4b057e8eb480ccf7000ecdaf97dcc168" title="Get the current configuration. This must only be called after zpc_config_init." alt="" coords="269,5,379,32"/>
+<area shape="rect" id="node3" href="$group__zpc__hex__to__int.html#gac65d45e498620d28f8f66579bf01f45d" title="Convert a hex character to its int value." alt="" coords="278,56,370,83"/>
+<area shape="rect" id="node4" href="$group__command__classes__utils.html#ga9a9c99943bf863fde841149699d15593" title="function to send report frames with default tx options." alt="" coords="243,107,405,149"/>
+<area shape="rect" id="node5" href="$group__zwave__tx__scheme__selector.html#ga8f8d4442ddf4c165d5a79b9a25d6420d" title="Define a Z&#45;Wave frame transmission options." alt="" coords="453,78,609,119"/>
+<area shape="rect" id="node6" href="$group__zwave__tx.html#gad1538f36d226fe8147c5e538625568df" title="Queue and send frames to Z&#45;Wave nodes." alt="" coords="459,144,604,171"/>
+</map>

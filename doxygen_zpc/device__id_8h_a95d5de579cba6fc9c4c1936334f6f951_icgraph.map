@@ -1,0 +1,4 @@
+<map id="get_device_id" name="get_device_id">
+<area shape="rect" id="node1" title="Get unique reboot persistent device id." alt="" coords="163,5,265,32"/>
+<area shape="rect" id="node2" href="$group__zpc__config.html#ga23352eeb4775cdf2d732da8436a29d35" title="Register ZPC configurations in config." alt="" coords="5,5,115,32"/>
+</map>

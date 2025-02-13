@@ -1,0 +1,11 @@
+<map id="zwave_rx_fixt_teardown" name="zwave_rx_fixt_teardown">
+<area shape="rect" id="node1" title=" " alt="" coords="5,42,168,69"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__INIT.html#ga256d0ca55a0e5388cf665a3630d28fe0" title="Disable/stop logging serial data to file." alt="" coords="216,15,387,42"/>
+<area shape="rect" id="node4" href="$group__zwave__rx__internals.html#gaed3606fa8bb6eff34c27efe91c3525a6" title="Shutdown the module." alt="" coords="231,67,372,94"/>
+<area shape="rect" id="node3" href="$zwapi__serial_8c.html#aace970ac426fe88b9a6e61b275726e17" title="Disable/stop logging serial data to file." alt="" coords="435,5,571,47"/>
+<area shape="rect" id="node5" href="$group__ZWAPI__INIT.html#ga87ccde341e5cf630064d51222bf56fb9" title="Shut down the Z&#45;Wave API and close the communication ports." alt="" coords="449,71,556,98"/>
+<area shape="rect" id="node6" href="$zwapi__session_8c.html#a6f5555814b03c924b3d057d1b4080cf1" title="Close the zwapi_session with the Z&#45;Wave module." alt="" coords="619,71,789,98"/>
+<area shape="rect" id="node7" href="$zwapi__connection_8c.html#ad89586e01dc2af5757f767f0bbe6e889" title="Close the zwapi_connection to the Z&#45;Wave module." alt="" coords="837,42,1027,69"/>
+<area shape="rect" id="node9" href="$zwapi__session_8c.html#ae9af89b1122e8be3a8704581079dd824" title="Flush the zwapi_session receive queue." alt="" coords="861,93,1003,135"/>
+<area shape="rect" id="node8" href="$zwapi__serial_8c.html#aae586785021ac9a605cd77651429f0c9" title="De&#45;Initialize the serial port." alt="" coords="1075,42,1207,69"/>
+</map>

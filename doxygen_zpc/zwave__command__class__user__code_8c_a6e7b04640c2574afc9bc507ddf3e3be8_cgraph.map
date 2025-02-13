@@ -1,0 +1,4 @@
+<map id="zwave_command_class_user_code_capabilities_get" name="zwave_command_class_user_code_capabilities_get">
+<area shape="rect" id="node1" title="Generates a (opt. Extended) User Code Get Command." alt="" coords="5,5,192,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__user__code_8c.html#a62be72d1ddcf6636a94643699b20c476" title="Sets all the default capabilities for version 1 supporting nodes." alt="" coords="240,13,419,39"/>
+</map>

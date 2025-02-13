@@ -1,0 +1,4 @@
+<map id="zwapi_log_to_file_disable" name="zwapi_log_to_file_disable">
+<area shape="rect" id="node1" title="Disable/stop logging serial data to file." alt="" coords="5,13,176,39"/>
+<area shape="rect" id="node2" href="$zwapi__serial_8c.html#aace970ac426fe88b9a6e61b275726e17" title="Disable/stop logging serial data to file." alt="" coords="224,5,360,47"/>
+</map>

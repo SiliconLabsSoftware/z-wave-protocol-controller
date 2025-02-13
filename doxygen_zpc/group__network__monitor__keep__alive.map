@@ -1,0 +1,4 @@
+<map id="Network Monitor Keep alive" name="Network Monitor Keep alive">
+<area shape="rect" id="node1" href="$group__network__monitor.html" title="The Network State Monitor." alt="" coords="5,13,124,38"/>
+<area shape="rect" id="node2" title="This module implements a safety mechanism for wake up nodes. It attempts to keep these nodes awake wh..." alt="" coords="172,5,324,45"/>
+</map>

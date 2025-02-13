@@ -1,0 +1,14 @@
+<map id="zwave_duration_to_time" name="zwave_duration_to_time">
+<area shape="rect" id="node1" title="Converts a duration byte encoded for a Z&#45;Wave command class and returns its corresponding value in cl..." alt="" coords="909,126,1072,153"/>
+<area shape="rect" id="node2" href="$zwave__command__class__switch__multilevel_8c.html#aefdc747956727fa542d10bc6fe464140" title=" " alt="" coords="482,152,621,193"/>
+<area shape="rect" id="node5" href="$zwave__command__class__basic_8c.html#a3da5f1f2ae5cfe60e041dea68a68a0ba" title=" " alt="" coords="693,7,855,48"/>
+<area shape="rect" id="node8" href="$zwave__command__class__supervision_8c.html#a033177d7c253b3c99982f2a591dd1180" title=" " alt="" coords="693,213,855,269"/>
+<area shape="rect" id="node11" href="$zwave__command__class__switch__multilevel_8c.html#ab1f99263283de8de6f75fd276f5774d2" title=" " alt="" coords="687,74,861,130"/>
+<area shape="rect" id="node3" href="$group__switch__multilevel__command__class.html#ga866d4efa5431c875235b5540a38dcc4c" title="This function initialize the Multilevel Switch Command Class handler." alt="" coords="253,132,416,173"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,139,205,166"/>
+<area shape="rect" id="node6" href="$zwave__command__class__basic_8c.html#a9bfdc42dbc2abe60e4a0a70ffeb05985" title=" " alt="" coords="470,5,633,47"/>
+<area shape="rect" id="node7" href="$group__zwave__command__class__basic.html#ga6780c7bc2310c30c76e7a54aa101604f" title="Initialize the basic command class handler." alt="" coords="253,27,416,68"/>
+<area shape="rect" id="node9" href="$zwave__command__class__supervision_8c.html#a81051603777138c5a8aa82e61c1a131b" title=" " alt="" coords="470,218,633,274"/>
+<area shape="rect" id="node10" href="$group__zwave__command__class__supervision__handler.html#gaeaff3d9d85a38b52f67f91ea41163a72" title="Setup fixture for the Supervision Command Class." alt="" coords="253,201,416,243"/>
+<area shape="rect" id="node12" href="$zwave__command__class__switch__multilevel_8c.html#ae3088526ca025e0a4f4d75d2c67dab7a" title=" " alt="" coords="464,71,639,127"/>
+</map>

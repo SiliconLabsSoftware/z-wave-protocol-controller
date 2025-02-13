@@ -1,0 +1,9 @@
+<map id="get_zwave_node_role_type" name="get_zwave_node_role_type">
+<area shape="rect" id="node1" title="Provides the Role Type of a node." alt="" coords="5,71,185,98"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__store__network__helpers.html#gae4d15b8e0c61c88d94c8f342bd2014fc" title="Take a UNID/endpoint combination and returns its attribute store node." alt="" coords="233,35,413,76"/>
+<area shape="rect" id="node7" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="235,101,411,127"/>
+<area shape="rect" id="node3" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="461,35,637,76"/>
+<area shape="rect" id="node4" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="685,5,865,47"/>
+<area shape="rect" id="node6" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="695,71,856,98"/>
+<area shape="rect" id="node5" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="913,13,1079,39"/>
+</map>

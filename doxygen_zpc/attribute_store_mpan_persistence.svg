@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="534px" preserveAspectRatio="none" style="width:1549px;height:534px;background:#FFFFFF;" version="1.1" viewBox="0 0 1549 534" width="1549px" zoomAndPan="magnify"><defs><filter height="300%" id="f139dvncmru59t" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacing" textLength="339" x="598.5" y="19.2419">MPAN persistence in the attribute store</text><!--MD5=[ea3d5de2a0d35296bc751d5a1b771698]
+cluster Attribute Store--><path d="M6,40.5158 C6,30.5158 774,30.5158 774,30.5158 C774,30.5158 1542,30.5158 1542,40.5158 L1542,517.5158 C1542,527.5158 774,527.5158 774,527.5158 C774,527.5158 6,527.5158 6,517.5158 L6,40.5158 " fill="#FFFFFF" filter="url(#f139dvncmru59t)" style="stroke:#000000;stroke-width:1.5;"/><path d="M6,40.5158 C6,50.5158 774,50.5158 774,50.5158 C774,50.5158 1542,50.5158 1542,40.5158 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="105" x="721.5" y="67.4818">Attribute Store</text><!--MD5=[5191e8b062a68725aacf43ecf3806121]
+cluster Other Nodes--><polygon fill="#FFFFFF" filter="url(#f139dvncmru59t)" points="968,161.5158,1062,161.5158,1069,186.5838,1518,186.5838,1518,503.5158,968,503.5158,968,161.5158" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="968" x2="1069" y1="186.5838" y2="186.5838"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="88" x="972" y="178.4818">Other Nodes</text><rect fill="#FFFAE6" filter="url(#f139dvncmru59t)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="218" x="859" y="83.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="47" x="944.5" y="98.3439">HomeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="860" x2="1076" y1="103.86" y2="103.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="123" x="865" y="118.55">ID = ATTRIBUTE_HOME_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="206" x="865" y="132.1699">value = Desired: [], Reported: [8C CE FB E6]</text><rect fill="#F2FFE6" filter="url(#f139dvncmru59t)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="193" x="694.5" y="199.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="68" x="757" y="214.3439">ZPC NodeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="695.5" x2="886.5" y1="219.86" y2="219.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="181" x="700.5" y="234.55">Attribute Type = ATTRIBUTE_NODE_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="700.5" y="248.1699">value = Desired: [], Reported: [01]</text><rect fill="#FEFEFE" filter="url(#f139dvncmru59t)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="228" x="613" y="315.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="91" x="681.5" y="330.3439">ZPC MPAN table</text><line style="stroke:#000000;stroke-width:1.5;" x1="614" x2="840" y1="335.86" y2="335.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="216" x="619" y="350.55">Attribute Type = ATTRIBUTE_S2_MPAN_TABLE</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="149" x="619" y="364.1699">value = Desired: [], Reported: []</text><rect fill="#FEFEFE" filter="url(#f139dvncmru59t)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="447" x="22.5" y="431.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="102" x="195" y="446.3439">ZPC MPAN entry 1</text><line style="stroke:#000000;stroke-width:1.5;" x1="23.5" x2="468.5" y1="451.86" y2="451.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="218" x="28.5" y="466.55">Attribute Type = ATTRIBUTE_S2_MPAN_ENTRY</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="435" x="28.5" y="480.1699">value = Desired: [], Reported: [1a,f0,78,62,83,14,bd,42,4c,c5,41,24,f4,02,f2,d4,00,00,01,01]</text><rect fill="#FEFEFE" filter="url(#f139dvncmru59t)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="445" x="504.5" y="431.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="102" x="676" y="446.3439">ZPC MPAN entry 2</text><line style="stroke:#000000;stroke-width:1.5;" x1="505.5" x2="948.5" y1="451.86" y2="451.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="218" x="510.5" y="466.55">Attribute Type = ATTRIBUTE_S2_MPAN_ENTRY</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="433" x="510.5" y="480.1699">value = Desired: [], Reported: [5d,8e,47,ce,df,43,47,1f,f4,72,5d,84,43,6d,44,f3,00,00,02,01]</text><rect fill="#F2FFE6" filter="url(#f139dvncmru59t)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="193" x="1001.5" y="199.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="43" x="1076.5" y="214.3439">NodeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="1002.5" x2="1193.5" y1="219.86" y2="219.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="181" x="1007.5" y="234.55">Attribute Type = ATTRIBUTE_NODE_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="1007.5" y="248.1699">value = Desired: [], Reported: [03]</text><rect fill="#FEFEFE" filter="url(#f139dvncmru59t)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="264" x="984" y="315.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="108" x="1062" y="330.3439">Multicast Group list</text><line style="stroke:#000000;stroke-width:1.5;" x1="985" x2="1247" y1="335.86" y2="335.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="252" x="990" y="350.55">Attribute Type = ATTRIBUTE_MULTICAST_GROUP_LIST</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="149" x="990" y="364.1699">value = Desired: [], Reported: []</text><rect fill="#FEFEFE" filter="url(#f139dvncmru59t)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="241" x="984.5" y="431.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="89" x="1060.5" y="446.3439">Multicast Group</text><line style="stroke:#000000;stroke-width:1.5;" x1="985.5" x2="1224.5" y1="451.86" y2="451.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="229" x="990.5" y="466.55">Attribute Type = ATTRIBUTE_MULTICAST_GROUP</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="990.5" y="480.1699">value = Desired: [], Reported: [01]</text><rect fill="#FEFEFE" filter="url(#f139dvncmru59t)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="241" x="1260.5" y="431.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="89" x="1336.5" y="446.3439">Multicast Group</text><line style="stroke:#000000;stroke-width:1.5;" x1="1261.5" x2="1500.5" y1="451.86" y2="451.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="229" x="1266.5" y="466.55">Attribute Type = ATTRIBUTE_MULTICAST_GROUP</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="1266.5" y="480.1699">value = Desired: [], Reported: [02]</text><!--MD5=[1bea09fc933d9a415fa1ec313e7a7cac]
+reverse link home_id to zpc_node--><path codeLine="123" d="M914.78,146.7958 C888.58,163.6658 857.44,183.7258 832.95,199.4958 " fill="none" id="home_id-backto-zpc_node" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="926.05,139.5358,918.8398,139.4238,915.9631,146.0363,923.1734,146.1483,926.05,139.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[2022f684cee40eedb28d3d7fef3af51c]
+reverse link zpc_node to mpan_table--><path codeLine="125" d="M769.32,267.1258 C760.44,282.9458 750.37,300.8858 742.28,315.2958 " fill="none" id="zpc_node-backto-mpan_table" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="775.83,255.5358,769.4041,258.8081,769.9531,265.9983,776.379,262.726,775.83,255.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[cb284a6c3a18eca8951905738337980e]
+reverse link mpan_table to mpan_entry_1--><path codeLine="126" d="M600.27,374.5558 C525.72,392.2158 432.23,414.3758 360,431.4958 " fill="none" id="mpan_table-backto-mpan_entry_1" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="613.01,371.5358,606.2486,369.0292,601.3342,374.3064,608.0956,376.813,613.01,371.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[98b95f5f93ded1c8c72ca822e4674d43]
+reverse link mpan_table to mpan_entry_2--><path codeLine="127" d="M727,384.9958 C727,400.3458 727,417.4558 727,431.2958 " fill="none" id="mpan_table-backto-mpan_entry_2" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="727,371.5358,723,377.5358,727,383.5358,731,377.5358,727,371.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[4dab04efc5f9b899ccf1fd0853335eeb]
+reverse link home_id to node--><path codeLine="129" d="M1008.61,148.1258 C1027.45,164.6458 1049.48,183.9658 1066.96,199.2958 " fill="none" id="home_id-backto-node" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="998.81,139.5358,1000.6828,146.4995,1007.8311,147.4491,1005.9583,140.4854,998.81,139.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[129d06bb9a0fd1d9b78cc7f59ca5d074]
+reverse link node to multicast_group_list--><path codeLine="130" d="M1104.32,268.5258 C1106.76,284.0058 1109.49,301.3158 1111.7,315.2958 " fill="none" id="node-backto-multicast_group_list" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1102.27,255.5358,1099.2551,262.0864,1104.1422,267.3889,1107.1571,260.8383,1102.27,255.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[afd339b819fcc72878362d761fbd2e8c]
+reverse link multicast_group_list to multicast_group_1--><path codeLine="131" d="M1112.14,384.5258 C1110.65,400.0058 1108.98,417.3158 1107.63,431.2958 " fill="none" id="multicast_group_list-backto-multicast_group_1" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1113.39,371.5358,1108.8342,377.1255,1112.2417,383.4808,1116.7975,377.8911,1113.39,371.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[22482ebabf515ad374898d54e34b0597]
+reverse link multicast_group_list to multicast_group_2--><path codeLine="132" d="M1190.96,376.7658 C1231.13,394.0458 1280.05,415.0858 1318.19,431.4958 " fill="none" id="multicast_group_list-backto-multicast_group_2" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1178.8,371.5358,1182.7348,377.5788,1189.8263,376.2708,1185.8915,370.2279,1178.8,371.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[8efaa2839849ee9d7964af1b7914df1f]
+@startuml attribute_store_mpan_persistence.svg
+title MPAN persistence in the attribute store
+allow_mixing
+skinparam objectBorderColor black
+
+package "Attribute Store" <<Database>> {
+
+  object "HomeID" as home_id #fffae6
+  home_id : ID = ATTRIBUTE_HOME_ID
+  home_id : value = Desired: [], Reported: [8C CE FB E6]
+
+  object "ZPC NodeID" as zpc_node #f2ffe6
+  zpc_node : Attribute Type = ATTRIBUTE_NODE_ID
+  zpc_node : value = Desired: [], Reported: [01]
+
+  object "ZPC MPAN table" as mpan_table #FEFEFE
+  mpan_table : Attribute Type = ATTRIBUTE_S2_MPAN_TABLE
+  mpan_table : value = Desired: [], Reported: []
+
+  object "ZPC MPAN entry 1" as mpan_entry_1 #FEFEFE
+  mpan_entry_1 : Attribute Type = ATTRIBUTE_S2_MPAN_ENTRY
+  mpan_entry_1 : value = Desired: [], Reported: [1a,f0,78,62,83,14,bd,42,4c,c5,41,24,f4,02,f2,d4,00,00,01,01]
+
+  object "ZPC MPAN entry 2" as mpan_entry_2 #FEFEFE
+  mpan_entry_2 : Attribute Type = ATTRIBUTE_S2_MPAN_ENTRY
+  mpan_entry_2 : value = Desired: [], Reported: [5d,8e,47,ce,df,43,47,1f,f4,72,5d,84,43,6d,44,f3,00,00,02,01]
+
+  package "Other Nodes"{
+    object "NodeID" as node #f2ffe6
+    node : Attribute Type = ATTRIBUTE_NODE_ID
+    node : value = Desired: [], Reported: [03]
+
+    object "Multicast Group list" as multicast_group_list #FEFEFE
+    multicast_group_list : Attribute Type = ATTRIBUTE_MULTICAST_GROUP_LIST
+    multicast_group_list : value = Desired: [], Reported: []
+
+    object "Multicast Group" as multicast_group_1 #FEFEFE
+    multicast_group_1 : Attribute Type = ATTRIBUTE_MULTICAST_GROUP
+    multicast_group_1 : value = Desired: [], Reported: [01]
+
+    object "Multicast Group" as multicast_group_2 #FEFEFE
+    multicast_group_2 : Attribute Type = ATTRIBUTE_MULTICAST_GROUP
+    multicast_group_2 : value = Desired: [], Reported: [02]
+  }
+}
+
+home_id *- - zpc_node
+
+zpc_node *- - mpan_table
+mpan_table *- - mpan_entry_1
+mpan_table *- - mpan_entry_2
+
+home_id *- - node
+node *- - multicast_group_list
+multicast_group_list *- - multicast_group_1
+multicast_group_list *- - multicast_group_2
+@enduml
+
+PlantUML version 1.2022.0(Tue Jan 11 17:16:42 CET 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

@@ -1,0 +1,4 @@
+<map id="ZCL Scenes cluster server" name="ZCL Scenes cluster server">
+<area shape="rect" id="node1" href="$group__zcl__cluster__servers.html" title="List of ZCL Clusters that the Protocol Controller provides on behalf of its PAN Nodes." alt="" coords="5,13,147,38"/>
+<area shape="rect" id="node2" title="Pretends that all our (actuator) nodes support the ZCL Scenes cluster." alt="" coords="195,5,332,45"/>
+</map>

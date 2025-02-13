@@ -1,0 +1,4 @@
+<map id="Failing Node Monitor" name="Failing Node Monitor">
+<area shape="rect" id="node1" title="Monitors AL and FL failing nodes, queues NOPs to verify if they started responding again." alt="" coords="172,5,315,31"/>
+<area shape="rect" id="node2" href="$group__network__monitor.html" title="The Network State Monitor." alt="" coords="5,5,124,31"/>
+</map>

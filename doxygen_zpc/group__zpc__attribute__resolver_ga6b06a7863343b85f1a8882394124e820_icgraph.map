@@ -1,0 +1,12 @@
+<map id="register_send_event_handler" name="register_send_event_handler">
+<area shape="rect" id="node1" title="Registers a custom function for sent events. The ZPC Resolver will call this function and will not ex..." alt="" coords="507,249,645,291"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__configuration.html#gacc11ad9afa837acce0d1aada6408e1ce" title="This function initialize the Configuration Command Class handler." alt="" coords="275,5,437,47"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__meter__control.html#gabaf4a36abd7f11c2acd3c0df5575d721" title="This function initialize the Meter Command Class control handler." alt="" coords="275,71,437,112"/>
+<area shape="rect" id="node5" href="$group__zwave__command__class__scene__activation__control.html#ga5c58f90f00a6cf95293a1222ca252ef3" title="Initializes the Scene Activation Command Class control handler." alt="" coords="257,136,455,177"/>
+<area shape="rect" id="node6" href="$group__zwave__command__class__scene__actuator__configuration__control.html#ga92ba47761c17964d4b511e40406ba1f6" title="Initializes the Scene Actuator Configuration Command Class control handler." alt="" coords="257,202,455,258"/>
+<area shape="rect" id="node7" href="$group__zwave__command__class__scene__controller__configuration__control.html#ga368253538863afb43f4b2a37996ef1b0" title="Initializes the Scene Controller Configuration Command Class control handler." alt="" coords="253,282,459,338"/>
+<area shape="rect" id="node8" href="$group__switch__multilevel__command__class.html#ga866d4efa5431c875235b5540a38dcc4c" title="This function initialize the Multilevel Switch Command Class handler." alt="" coords="275,363,437,404"/>
+<area shape="rect" id="node9" href="$group__zwave__command__class__user__code.html#ga3903c1853dfc3b999bcb5570d3355a35" title="Initializes the User Code Command Class handler." alt="" coords="275,428,437,469"/>
+<area shape="rect" id="node10" href="$group__zwave__command__class__wake__up.html#ga11866ec0935bee3fba386bc3ed28e0b6" title="Initializes the Wake Up Command Class handler." alt="" coords="275,493,437,535"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,257,205,283"/>
+</map>

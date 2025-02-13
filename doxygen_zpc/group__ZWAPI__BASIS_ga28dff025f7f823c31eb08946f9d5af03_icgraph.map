@@ -1,0 +1,14 @@
+<map id="zwapi_get_rf_region" name="zwapi_get_rf_region">
+<area shape="rect" id="node1" title="Get the current RF region." alt="" coords="907,71,1045,98"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__INIT.html#gab39e440bdb6435b04e754771c5ad41b5" title="Refresh the whole zwapi_chip_data_t structure from the Z&#45;Wave module." alt="" coords="684,21,859,47"/>
+<area shape="rect" id="node5" href="$group__zwave__rx__internals.html#ga5fb555f285dbe1b21ba750d0443476c8" title="Initialize the Z&#45;Wave Rx component." alt="" coords="257,71,359,98"/>
+<area shape="rect" id="node7" href="$group__zwave__tx__scheme__selector.html#gab15d83efc0084ff753e16826ce063136" title="Computes the maximum number of bytes that can be sent to a given NodeID. (lowest layer)" alt="" coords="693,123,849,164"/>
+<area shape="rect" id="node3" href="$group__ZWAPI__INIT.html#ga503a76a5835c274e4b7610e2f80f5e6f" title=" " alt="" coords="509,21,589,47"/>
+<area shape="rect" id="node4" href="$group__zpc__ncp__update__fixt.html#gaaca8dd596d6abe6ca27de8d7c93c5cf2" title="This function check if the NCP firmware should be updated." alt="" coords="237,5,379,47"/>
+<area shape="rect" id="node6" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="9,71,151,98"/>
+<area shape="rect" id="node8" href="$group__transport__service__transport__wrapper.html#ga6216ae3a018a4028bfc3025695784f0e" title="Sending a frame with Transport service." alt="" coords="465,123,632,164"/>
+<area shape="rect" id="node11" href="$group__zwave__tx__scheme__selector.html#ga6128c675d7c258737616e44ef823516d" title="Computes how long of a frame can be sent to a given NodeID / Endpoint when queuing a frame at the app..." alt="" coords="461,188,636,229"/>
+<area shape="rect" id="node9" href="$group__transport__service__transport__wrapper.html#gad02263e40b63853166ac8a7601954f33" title=" " alt="" coords="225,123,391,164"/>
+<area shape="rect" id="node10" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="5,130,155,157"/>
+<area shape="rect" id="node12" href="$group__zwave__command__class__firmware__update__internals.html#ga1073e79c7ee689cf7b15f15075f3e5d4" title="Gets the theoretical max fragment size with a node/endpoint." alt="" coords="203,188,413,229"/>
+</map>

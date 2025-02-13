@@ -1,0 +1,5 @@
+<map id="zwave_command_class_crc16_abort_send_data" name="zwave_command_class_crc16_abort_send_data">
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,169,47"/>
+<area shape="rect" id="node2" href="$group__crc16__transport.html#ga58f3082ab876a466d61459f15790e5ee" title="Callback function registered to Z&#45;Wave TX zwave_tx_send_data." alt="" coords="217,13,388,39"/>
+<area shape="rect" id="node3" href="$zwave__crc16__transport_8c.html#a0ed4a2b2d10e1b29b1b29df0c53dbd4d" title="Initializes our array of callback settings by setting everything to NULL." alt="" coords="436,13,607,39"/>
+</map>

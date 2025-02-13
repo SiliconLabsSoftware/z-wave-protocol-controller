@@ -1,0 +1,4 @@
+<map id="ZPC Attribute Resolver Group Send" name="ZPC Attribute Resolver Group Send">
+<area shape="rect" id="node1" title="Transmit messages to multiple destinations at once." alt="" coords="211,5,368,45"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__resolver__internals.html" title="Internal functions for the ZPC Attribute Resolver." alt="" coords="5,5,163,45"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="zwapi_memory_get_byte" name="zwapi_memory_get_byte">
+<area shape="rect" id="node1" title="Read one byte from the EEPROM." alt="" coords="228,5,395,32"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__MEM.html#ga8ec9372079a3bd76196bfe41dd92ed04" title="Read the number of bytes from the EEPROM." alt="" coords="5,5,180,32"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="s0_set_callback" name="s0_set_callback">
+<area shape="rect" id="node1" title="Set callback function for the S0 bootstrap. This callback function is copied internally into S0 and c..." alt="" coords="659,13,775,39"/>
+<area shape="rect" id="node2" href="$group__zwave__s0__network.html#ga87da65496dd77458d5c14dbe30209d82" title="Set callback function for the S0 inclusion. This function ptr is saved internally in s0." alt="" coords="452,5,611,47"/>
+<area shape="rect" id="node3" href="$nm__state__machine_8c.html#a4bedb93fa551c5f612efe78db1642309" title="Initialize the Z&#45;Wave network management state machine." alt="" coords="248,13,404,39"/>
+<area shape="rect" id="node4" href="$group__zwave__network__management__fixt.html#gaa8950dbf92037e3ec5e0385641176c98" title="Initialize the Z&#45;Wave Network Management Module." alt="" coords="5,5,200,47"/>
+</map>

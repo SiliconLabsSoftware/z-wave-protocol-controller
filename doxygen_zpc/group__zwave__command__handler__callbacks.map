@@ -1,0 +1,4 @@
+<map id="Callbacks for the Z&#45;Wave Command Handler" name="Callbacks for the Z&#45;Wave Command Handler">
+<area shape="rect" id="node1" href="$group__zwave__command__handler.html" title="Application Command Class handler framework, dispatching incoming Z&#45;Wave Commands to the correspondin..." alt="" coords="5,5,179,45"/>
+<area shape="rect" id="node2" title="List of callback functions that are registered to the Z&#45;Wave Controller." alt="" coords="227,5,399,45"/>
+</map>

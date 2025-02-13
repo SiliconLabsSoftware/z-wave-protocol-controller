@@ -1,0 +1,5 @@
+<map id="zwave_network_management_start_proxy_inclusion" name="zwave_network_management_start_proxy_inclusion">
+<area shape="rect" id="node1" title="Request the NM to perform proxy inclusion." alt="" coords="5,13,200,54"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management__helpers.html#ga49b020a521982049a986e9d0daee026e" title="Checks if all the conditions are fulfilled to start a new network management operation...." alt="" coords="248,5,399,61"/>
+<area shape="rect" id="node3" href="$group__zwave__controller__component.html#gae8c7ea4da898ea006175e66032a2b0ff" title="Tells if we are currently reseting the ZPC." alt="" coords="447,13,584,54"/>
+</map>

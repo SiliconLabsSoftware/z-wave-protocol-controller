@@ -1,0 +1,12 @@
+<map id="zwave_parse_nif" name="zwave_parse_nif">
+<area shape="rect" id="node1" title="Parses a NIF byte array and converts it into a lists of supported/controlled Command Classes." alt="" coords="1123,74,1243,101"/>
+<area shape="rect" id="node2" href="$zwave__command__class__basic_8c.html#a37f575a4f171b8aeaa5b46e94ea197a8" title="Checks if we can use Basic to control a node." alt="" coords="927,39,1049,66"/>
+<area shape="rect" id="node7" href="$zwave__command__class__version_8c.html#a3a093b4b3bddcc0c4d6ece52688531da" title=" " alt="" coords="901,91,1075,147"/>
+<area shape="rect" id="node3" href="$zwave__command__class__basic_8c.html#ae484083357f2a3ed5b7beb6223d93d5a" title=" " alt="" coords="686,29,837,71"/>
+<area shape="rect" id="node4" href="$zwave__command__class__basic_8c.html#a6f16bae2e9206d5fe826d468866deba4" title=" " alt="" coords="489,38,596,65"/>
+<area shape="rect" id="node5" href="$group__zwave__command__class__basic.html#ga6780c7bc2310c30c76e7a54aa101604f" title="Initialize the basic command class handler." alt="" coords="253,31,416,72"/>
+<area shape="rect" id="node6" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,73,205,99"/>
+<area shape="rect" id="node8" href="$zwave__command__class__version_8c.html#af57a48754e9a696d419a8300e75b6efc" title=" " alt="" coords="669,95,853,151"/>
+<area shape="rect" id="node9" href="$zwave__command__class__version_8c.html#a28633a9beb801e9e96b442915fcc7ac2" title=" " alt="" coords="464,106,621,133"/>
+<area shape="rect" id="node10" href="$group__zwave__command__class__version.html#gabae96a5c6c82334f5979f3b407b973e3" title="Intitialize the Version Command Class control APIs." alt="" coords="253,97,416,139"/>
+</map>

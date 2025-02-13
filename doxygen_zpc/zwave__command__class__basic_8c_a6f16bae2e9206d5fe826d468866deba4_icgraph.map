@@ -1,0 +1,5 @@
+<map id="on_nif_created" name="on_nif_created">
+<area shape="rect" id="node1" title=" " alt="" coords="464,13,571,39"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__basic.html#ga6780c7bc2310c30c76e7a54aa101604f" title="Initialize the basic command class handler." alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

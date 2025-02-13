@@ -1,0 +1,4 @@
+<map id="resume_actuator_command_class_resolution" name="resume_actuator_command_class_resolution">
+<area shape="rect" id="node1" title="Resumes resolution and undefines the reported values for the Binary Switch, Color and Multilevel Swit..." alt="" coords="5,13,188,54"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__switch__color.html#ga3c54b415a1cfeee28a787f7d6afaa451" title="Runs a functions for all chidren with a certain type for all color component IDs in the Color Switch ..." alt="" coords="236,5,399,61"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="store_group_membership" name="store_group_membership">
+<area shape="rect" id="node1" title="Saves a Multicast Group under each nodeID that are part of that group." alt="" coords="208,13,376,39"/>
+<area shape="rect" id="node2" href="$group__network__monitor__span__persistence.html#ga55123adecc9117e5326b583f8db189e6" title="Saves all the MPAN data owned by the ZPC from Z&#45;Wave S2 in the Attribute Store." alt="" coords="5,5,160,47"/>
+</map>

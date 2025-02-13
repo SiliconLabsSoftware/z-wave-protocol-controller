@@ -1,0 +1,6 @@
+<map id="set_default_v1_capabilities" name="set_default_v1_capabilities">
+<area shape="rect" id="node1" title="Writes down assumed non&#45;advertised capabilities for a v1 node." alt="" coords="683,13,861,39"/>
+<area shape="rect" id="node2" href="$zwave__command__class__wake__up_8c.html#a8f966daf7a0db642b035c023a4877115" title=" " alt="" coords="464,13,635,39"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__wake__up.html#ga11866ec0935bee3fba386bc3ed28e0b6" title="Initializes the Wake Up Command Class handler." alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

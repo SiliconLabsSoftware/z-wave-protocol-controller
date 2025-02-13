@@ -1,0 +1,5 @@
+<map id="zwave_command_class_crc16_decapsulate" name="zwave_command_class_crc16_decapsulate">
+<area shape="rect" id="node1" title="Decapsulate Multi Channel encapsulation and inject the frame back to the Z&#45;Wave Controller." alt="" coords="432,5,595,47"/>
+<area shape="rect" id="node2" href="$group__crc16__transport.html#ga41d7716fd0dc4dd78d6747b6f8226671" title="Initialize the CRC16 Transport *." alt="" coords="203,13,384,39"/>
+<area shape="rect" id="node3" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="5,13,155,39"/>
+</map>

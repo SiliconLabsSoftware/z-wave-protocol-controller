@@ -1,0 +1,4 @@
+<map id="get_signed_value_from_frame_and_size" name="get_signed_value_from_frame_and_size">
+<area shape="rect" id="node1" title="Extracts a 1,2 or 4 bytes signed value from a frame." alt="" coords="5,5,161,47"/>
+<area shape="rect" id="node2" href="$group__command__classes__utils.html#ga22eef0dea00ab9f526c038009481e814" title="Extracts a 1,2 or 4 bytes unsigned value from a frame." alt="" coords="209,5,364,47"/>
+</map>

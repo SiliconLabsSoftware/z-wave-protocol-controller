@@ -1,0 +1,21 @@
+<map id="on_nif_attribute_update" name="on_nif_attribute_update">
+<area shape="rect" id="node1" title=" " alt="" coords="5,254,163,281"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__store__network__helpers.html#gacd36836093319f5642cf566d6f26cb61" title="Traverse up the tree from a node and finds under which Z&#45;Wave NodeID/endpoint id it is located." alt="" coords="223,159,382,215"/>
+<area shape="rect" id="node3" href="$zwave__command__class__version_8c.html#af57a48754e9a696d419a8300e75b6efc" title=" " alt="" coords="211,239,395,295"/>
+<area shape="rect" id="node17" href="$group__zwave__utils.html#gaaa5d4e371acabd40b10dcf27edd993ff" title="Verify whether a node/endpoint supports a Command Class using the attribute Store." alt="" coords="453,344,605,385"/>
+<area shape="rect" id="node4" href="$zwave__command__class__version_8c.html#a85cd900b1d56399f876ca541ffdcc11e" title=" " alt="" coords="664,104,859,145"/>
+<area shape="rect" id="node9" href="$group__zpc__attribute__store__network__helpers.html#gae4d15b8e0c61c88d94c8f342bd2014fc" title="Take a UNID/endpoint combination and returns its attribute store node." alt="" coords="671,293,851,335"/>
+<area shape="rect" id="node14" href="$zwave__command__class__version_8c.html#a3a093b4b3bddcc0c4d6ece52688531da" title=" " alt="" coords="443,162,616,218"/>
+<area shape="rect" id="node19" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="673,242,849,269"/>
+<area shape="rect" id="node5" href="$group__zpc__attribute__store__network__helpers.html#ga715be25ab9c545f84ff524bc5a7eb7db" title="Traverse up the tree from a node and finds under which Z&#45;Wave NodeID it is." alt="" coords="907,5,1116,47"/>
+<area shape="rect" id="node6" href="$group__zwave__command__class__version.html#ga6d1fd9e5a91e2a18487d313684db45b3" title="Checks we know that the version CC is supported by the node." alt="" coords="941,71,1082,98"/>
+<area shape="rect" id="node7" href="$zwave__command__class__version_8c.html#a17aa4da99252608b85cc6dc34df6092e" title=" " alt="" coords="925,122,1098,178"/>
+<area shape="rect" id="node8" href="$zwave__command__class__version_8c.html#a5110830abc3bb16462ab30a11e48e632" title="Visits other endpoints under the same NodeID and verify if a particular Command Class version is know..." alt="" coords="1164,129,1347,171"/>
+<area shape="rect" id="node10" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="923,293,1099,335"/>
+<area shape="rect" id="node11" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="1165,323,1345,364"/>
+<area shape="rect" id="node13" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="1175,271,1336,298"/>
+<area shape="rect" id="node12" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="1395,330,1560,357"/>
+<area shape="rect" id="node15" href="$group__zwave__controller__utils.html#gae7aa94787eba3ff966f9307d973e43ba" title="Parses a NIF byte array and converts it into a lists of supported/controlled Command Classes." alt="" coords="701,183,821,210"/>
+<area shape="rect" id="node16" href="$zwave__controller__utils_8c.html#aa75fc83b24952e1842b8a5252869b56c" title="Parses a byte array for Command Classes until the end or a COMMAND_CLASS_CONTROL_MARK." alt="" coords="938,203,1085,244"/>
+<area shape="rect" id="node18" href="$group__zwave__controller__utils.html#ga4b9cc899709547a170141ba7e0583e16" title="Verifies if a CC is in a raw array of Command Classes." alt="" coords="686,359,837,400"/>
+</map>

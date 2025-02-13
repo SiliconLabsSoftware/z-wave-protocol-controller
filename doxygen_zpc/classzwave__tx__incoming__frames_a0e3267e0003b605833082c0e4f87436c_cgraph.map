@@ -1,0 +1,4 @@
+<map id="zwave_tx_incoming_frames::empty" name="zwave_tx_incoming_frames::empty">
+<area shape="rect" id="node1" title="Checks if we have any expected frame at all." alt="" coords="5,5,189,47"/>
+<area shape="rect" id="node2" href="$classpriority__queue.html#aaaae65e0f719978138017d58571a42ff" title="returns if the queue is empty. in this case both begin() and end() point to nullptr" alt="" coords="237,13,384,39"/>
+</map>

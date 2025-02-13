@@ -1,0 +1,9 @@
+<map id="zwave_security_validation_set_node_as_s2_capable" name="zwave_security_validation_set_node_as_s2_capable">
+<area shape="rect" id="node1" title="Sets a node as S2 capable, meaning that we know it supports S2, and it will forever do." alt="" coords="5,64,181,105"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__store__network__helpers.html#ga7a3f40a9cbc90f2674b9e9e454fd6207" title="Take a Z&#45;Wave NodeID and return its Attribute Store node representing the NodeID." alt="" coords="229,57,399,113"/>
+<area shape="rect" id="node3" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="447,35,623,76"/>
+<area shape="rect" id="node7" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="447,101,623,127"/>
+<area shape="rect" id="node4" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="671,5,851,47"/>
+<area shape="rect" id="node6" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="680,71,841,98"/>
+<area shape="rect" id="node5" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="899,13,1064,39"/>
+</map>

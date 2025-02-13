@@ -1,5 +1,7 @@
 var NAVTREEINDEX6 =
 {
+"group__unify__sl__status__codes.html#ga7e293ad81575c986a476d3065d7ae49f":[3,34,0,71],
+"group__unify__sl__status__codes.html#ga821fc10a794dc32c07c4353cedd0add5":[3,34,0,12],
 "group__unify__sl__status__codes.html#ga85c8de342f0e78b746e35bf4a0342df6":[3,34,0,38],
 "group__unify__sl__status__codes.html#ga85cf8d0d1e4b34a01219b31b6ec0dc49":[3,34,0,46],
 "group__unify__sl__status__codes.html#ga8866db0f4d574daf9a77213f3bca53ad":[3,34,0,30],
@@ -247,7 +249,5 @@ var NAVTREEINDEX6 =
 "group__zwave__command__class__association__types.html#gae21b908b2b1b88902cc885a23582f399":[3,9,1,1,4],
 "group__zwave__command__class__association__types.html#gga951ecbb8e0fa138495d1553767e06deea15487eda42283ac240079d048bc5cc04":[3,9,1,1,5,0],
 "group__zwave__command__class__association__types.html#gga951ecbb8e0fa138495d1553767e06deea343f3100b8aa50d65ea93ae8e2dd6120":[3,9,1,1,5,1],
-"group__zwave__command__class__basic.html":[3,22,11],
-"group__zwave__command__class__basic.html#ga6780c7bc2310c30c76e7a54aa101604f":[3,22,11,0],
-"group__zwave__command__class__battery.html":[3,22,12]
+"group__zwave__command__class__basic.html":[3,22,11]
 };

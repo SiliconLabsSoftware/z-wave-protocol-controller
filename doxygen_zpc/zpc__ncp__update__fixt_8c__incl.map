@@ -1,0 +1,17 @@
+<map id="applications/zpc/components/zpc_ncp_update/src/zpc_ncp_update_fixt.c" name="applications/zpc/components/zpc_ncp_update/src/zpc_ncp_update_fixt.c">
+<area shape="rect" id="node1" title=" " alt="" coords="381,5,571,61"/>
+<area shape="rect" id="node2" href="$zpc__ncp__update__fixt_8h.html" title=" " alt="" coords="807,184,961,211"/>
+<area shape="rect" id="node5" title=" " alt="" coords="193,109,324,136"/>
+<area shape="rect" id="node6" href="$zpc__config_8h.html" title=" " alt="" coords="7,259,103,285"/>
+<area shape="rect" id="node9" href="$zwapi__init_8h.html" title="Z&#45;Wave API initialization functions." alt="" coords="348,109,439,136"/>
+<area shape="rect" id="node13" title=" " alt="" coords="513,109,577,136"/>
+<area shape="rect" id="node14" title=" " alt="" coords="601,109,668,136"/>
+<area shape="rect" id="node15" title=" " alt="" coords="693,109,758,136"/>
+<area shape="rect" id="node3" href="$sl__status_8h.html" title="SL Status Codes." alt="" coords="645,259,731,285"/>
+<area shape="rect" id="node4" title=" " alt="" coords="493,333,558,360"/>
+<area shape="rect" id="node7" title=" " alt="" coords="167,333,241,360"/>
+<area shape="rect" id="node8" title=" " alt="" coords="5,333,104,360"/>
+<area shape="rect" id="node10" href="$zwapi__protocol__basis_8h.html" title="Z&#45;Wave API for basis controller/end node application interface." alt="" coords="314,184,473,211"/>
+<area shape="rect" id="node11" href="$zwave__rf__region_8h.html" title=" " alt="" coords="177,259,305,285"/>
+<area shape="rect" id="node12" href="$zwave__node__id__definitions_8h.html" title=" " alt="" coords="431,259,620,285"/>
+</map>

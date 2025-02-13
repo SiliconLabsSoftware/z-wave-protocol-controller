@@ -1,0 +1,6 @@
+<map id="on_zwave_api_started" name="on_zwave_api_started">
+<area shape="rect" id="node1" title="Callback function that gets notified whenever a Z&#45;Wave API started call is received." alt="" coords="5,46,157,73"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management.html#ga4f29e019031e0fea2e461121666c10de" title="Abort current state and return to idle if its possible." alt="" coords="205,5,400,47"/>
+<area shape="rect" id="node4" href="$group__zwave__network__management.html#gaaf0ce0b04ebf420e4f7e23e166121a35" title="Get the current state of the network management module." alt="" coords="205,71,400,112"/>
+<area shape="rect" id="node3" href="$zwave__network__management_8c.html#a2dfa2f61588859f45049bc0391d34db0" title=" " alt="" coords="448,5,643,47"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="check_setpoint_value_bounds" name="check_setpoint_value_bounds">
+<area shape="rect" id="node1" title="Check if current value can be set (in bounds of value_min and value_max)" alt="" coords="5,5,153,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__humidity__control__setpoint_8c.html#a5ccf3422e402339de56cefc742a1d4a6" title="Get setpoint real value from raw value and precision." alt="" coords="201,13,332,39"/>
+</map>

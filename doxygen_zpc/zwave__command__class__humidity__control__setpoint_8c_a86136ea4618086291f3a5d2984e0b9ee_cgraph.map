@@ -1,0 +1,7 @@
+<map id="interpret_value_from_report" name="interpret_value_from_report">
+<area shape="rect" id="node1" title="Interpret value from a report frame and store it in the attribute store." alt="" coords="5,39,145,80"/>
+<area shape="rect" id="node2" href="$zwave__command__class__humidity__control__setpoint_8c.html#af2f354d9414e81ab49257fd59a1704e5" title="Check if current value can be set (in bounds of value_min and value_max)" alt="" coords="197,5,345,47"/>
+<area shape="rect" id="node4" href="$group__command__classes__utils.html#ga359fa8c1765274e72fa964e94b772f97" title="Extracts a 1,2 or 4 bytes signed value from a frame." alt="" coords="193,71,349,112"/>
+<area shape="rect" id="node3" href="$zwave__command__class__humidity__control__setpoint_8c.html#a5ccf3422e402339de56cefc742a1d4a6" title="Get setpoint real value from raw value and precision." alt="" coords="409,13,540,39"/>
+<area shape="rect" id="node5" href="$group__command__classes__utils.html#ga22eef0dea00ab9f526c038009481e814" title="Extracts a 1,2 or 4 bytes unsigned value from a frame." alt="" coords="397,71,552,112"/>
+</map>

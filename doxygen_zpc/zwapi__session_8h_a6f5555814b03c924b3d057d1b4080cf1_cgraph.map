@@ -1,0 +1,6 @@
+<map id="zwapi_session_shutdown" name="zwapi_session_shutdown">
+<area shape="rect" id="node1" title="Close the zwapi_session with the Z&#45;Wave module." alt="" coords="5,35,176,61"/>
+<area shape="rect" id="node2" href="$zwapi__connection_8c.html#ad89586e01dc2af5757f767f0bbe6e889" title="Close the zwapi_connection to the Z&#45;Wave module." alt="" coords="224,5,413,32"/>
+<area shape="rect" id="node4" href="$zwapi__session_8c.html#ae9af89b1122e8be3a8704581079dd824" title="Flush the zwapi_session receive queue." alt="" coords="247,57,390,98"/>
+<area shape="rect" id="node3" href="$zwapi__serial_8c.html#aae586785021ac9a605cd77651429f0c9" title="De&#45;Initialize the serial port." alt="" coords="461,5,593,32"/>
+</map>

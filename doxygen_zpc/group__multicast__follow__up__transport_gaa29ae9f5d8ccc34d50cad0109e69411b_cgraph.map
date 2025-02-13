@@ -1,0 +1,16 @@
+<map id="multicast_follow_ups_transport_init" name="multicast_follow_ups_transport_init">
+<area shape="rect" id="node1" title="Initialize the Multicast Follow&#45;Ups Transport *." alt="" coords="5,88,149,129"/>
+<area shape="rect" id="node2" href="$multicast__follow__ups__transport_8c.html#a5d9213a0b8da70555b6612051354e66b" title=" " alt="" coords="430,35,574,76"/>
+<area shape="rect" id="node4" href="$multicast__follow__ups__transport_8c.html#ac6c37112e34db0f1d6d598a07fb92070" title=" " alt="" coords="859,5,1003,47"/>
+<area shape="rect" id="node6" href="$multicast__follow__ups__transport_8c.html#ad20e0ce7d5da14af7d8b379f42845af8" title="Verifies if we want automatic singlecast follow&#45;up for a frame and schedule queueing these frames aut..." alt="" coords="215,159,359,200"/>
+<area shape="rect" id="node14" href="$group__zwave__controller__transport.html#ga7d336fb70a955271e1c958ce52885c9d" title="Must be called to register a transport." alt="" coords="197,224,376,265"/>
+<area shape="rect" id="node3" href="$multicast__follow__ups__transport_8c.html#af49aa146e804e5b95c9b9f7fa740a800" title=" " alt="" coords="628,35,811,76"/>
+<area shape="rect" id="node5" href="$group__zwave__tx__groups.html#ga08693ca0195e6f5921a7065a733ca324" title="Instructs the Z&#45;Wave TX Group that the list of NodeIDs part of a group can be modified." alt="" coords="1051,13,1213,39"/>
+<area shape="rect" id="node7" href="$multicast__follow__ups__transport_8c.html#af78062dfc8f1abab4d7bdba9a42935fb" title=" " alt="" coords="424,176,580,217"/>
+<area shape="rect" id="node12" href="$group__zwave__tx.html#gad1538f36d226fe8147c5e538625568df" title="Queue and send frames to Z&#45;Wave nodes." alt="" coords="647,335,792,362"/>
+<area shape="rect" id="node13" href="$group__zwave__tx__groups.html#ga9e34c87b8d58aba0353252e5e42ef510" title="Instructs the Z&#45;Wave TX Group not to alter the list of NodeIDs part of a group, until the group is un..." alt="" coords="428,293,576,319"/>
+<area shape="rect" id="node8" href="$group__zwave__tx.html#ga94986fad2993d4907968edec03f57d05" title="Returns a pointer to frame data for a given Z&#45;Wave Tx session ID." alt="" coords="648,101,791,127"/>
+<area shape="rect" id="node9" href="$group__zwave__tx.html#gaf669f3e5ba5a01c411842fae2c58637c" title="Returns the length of a frame in the Z&#45;Wave Tx Queue." alt="" coords="648,152,791,193"/>
+<area shape="rect" id="node10" href="$group__zwave__tx__groups.html#ga03f0e364d262928c9617a70b656755e7" title="Returns the list of NodeIDs part of a group." alt="" coords="647,218,792,245"/>
+<area shape="rect" id="node11" href="$group__zwave__tx.html#gaaf93d9d3d5b0961a55f7967fc7628092" title="Returns the total number of responses that a frame (and its parent) will generate *." alt="" coords="643,269,796,311"/>
+</map>

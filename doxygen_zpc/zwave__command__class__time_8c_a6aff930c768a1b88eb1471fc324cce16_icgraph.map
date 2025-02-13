@@ -1,0 +1,5 @@
+<map id="zwave_command_class_time_support_handler" name="zwave_command_class_time_support_handler">
+<area shape="rect" id="node1" title="Handles incoming time encapsulated commands." alt="" coords="464,5,627,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__time_8c.html#aa72fa8c480ed97a0e4e905df5f8536eb" title="setup for time command class" alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

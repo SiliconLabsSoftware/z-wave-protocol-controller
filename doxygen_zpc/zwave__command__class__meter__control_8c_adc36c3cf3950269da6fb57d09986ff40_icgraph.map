@@ -1,0 +1,5 @@
+<map id="zwave_command_class_meter_reset" name="zwave_command_class_meter_reset">
+<area shape="rect" id="node1" title="Prepares a Meter Reset Command." alt="" coords="464,5,627,47"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__meter__control.html#gabaf4a36abd7f11c2acd3c0df5575d721" title="This function initialize the Meter Command Class control handler." alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

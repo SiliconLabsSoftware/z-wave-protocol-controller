@@ -1,0 +1,5 @@
+<map id="attribute_resolver_callbacks_reset" name="attribute_resolver_callbacks_reset">
+<area shape="rect" id="node1" title="Initializes the resources to keep track of ongoing resolutions and process send_data callbacks." alt="" coords="399,5,521,47"/>
+<area shape="rect" id="node2" href="$group__attribute__resolver__send.html#gaa1f49d2c7338a3b7132262f6cecc59ab" title="Initialization function for the attribute_resolver_send subcomponent." alt="" coords="228,5,351,47"/>
+<area shape="rect" id="node3" href="$group__zpc__attribute__resolver__fixt.html#ga50dc081eb97c7ba1ec9259257613cfc4" title="Initialize the ZPC attribute resolver, which in turn calls Unify attribute resolver init." alt="" coords="5,13,180,39"/>
+</map>

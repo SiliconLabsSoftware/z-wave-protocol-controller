@@ -91,6 +91,12 @@ $(document).ready(function(){initNavTree('group__switch__multilevel__command__cl
 
 <p>Switch Multilevel Command Class handlers and control functions.  
 <a href="#details">More...</a></p>
+<div class="dynheader">
+Collaboration diagram for Switch Multilevel Command Class:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__switch__multilevel__command__class.svg" width="427" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -104,7 +110,12 @@ Functions</h2></td></tr>
 <p >The data model used for this command class is tailored to be mapped to the ZCL Level cluster.</p>
 <p >The State attribute is a hook for the Set / Get rule registrations. The actual values being set and resolved are the duration and the value. If the duration and/or the value needs a resolution, the Command Class handler adjusts the state in order to trigger the resolver: state = reported [] for a get resolution state = desired [1] reported [0] for a set resolution state = desired [0] reported [0] for a no resolution</p>
 <p >on_off is a virtual setting directly mapped to the OnOff attribute of the OnOff ZCL cluster. It helps deciding if the command class should take action</p>
-<h2 class="groupheader">Function Documentation</h2>
+<div class="plantumlgraph">
+<object type="image/svg+xml" data="attribute_store_multilevel_switch_command_class.svg"></object>
+<div class="caption">
+Multilevel Switch data model</div>
+</div>
+ <h2 class="groupheader">Function Documentation</h2>
 <a id="ga866d4efa5431c875235b5540a38dcc4c" name="ga866d4efa5431c875235b5540a38dcc4c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga866d4efa5431c875235b5540a38dcc4c">&#9670;&nbsp;</a></span>zwave_command_class_switch_multilevel_init()</h2>
 
@@ -122,6 +133,18 @@ Functions</h2></td></tr>
 
 <p>This function initialize the Multilevel Switch Command Class handler. </p>
 <dl class="section return"><dt>Returns</dt><dd>SL_STATUS_OK on success, any other error code for an error. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__switch__multilevel__command__class_ga866d4efa5431c875235b5540a38dcc4c_cgraph.svg" width="2034" height="875"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__switch__multilevel__command__class_ga866d4efa5431c875235b5540a38dcc4c_icgraph.svg" width="422" height="52"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -130,7 +153,7 @@ Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Feb 11 2025 14:33:51 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
+    <li class="footer">Generated on Thu Feb 13 2025 10:45:32 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
   </ul>
 </div>
 </body>

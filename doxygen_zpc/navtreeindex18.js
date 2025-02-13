@@ -1,5 +1,7 @@
 var NAVTREEINDEX18 =
 {
+"zwave__command__class__scene__actuator__configuration__control_8c.html#ac9cd722211001bdcc02f6266a69e8ced":[6,0,0,0,0,17,2,50,3],
+"zwave__command__class__scene__actuator__configuration__control_8c.html#ad2c55aec9b04c76f33eaf024aee36881":[6,0,0,0,0,17,2,50,7],
 "zwave__command__class__scene__actuator__configuration__control_8c.html#adeac0156c00f48fcdc0126c356fdb524":[6,0,0,0,0,17,2,50,5],
 "zwave__command__class__scene__actuator__configuration__control_8c.html#af2975fbe0d8d610f0c79b176a9a7372b":[6,0,0,0,0,17,2,50,9],
 "zwave__command__class__scene__actuator__configuration__control_8c.html#af4a4c7c6e3df2399654ca63aac6be8dc":[6,0,0,0,0,17,2,50,8],
@@ -247,7 +249,5 @@ var NAVTREEINDEX18 =
 "zwave__command__class__user__code_8c.html#a8d38c4dc3e0db397c9748fa5924bedb9":[6,0,0,0,0,17,2,80,1],
 "zwave__command__class__user__code_8c.html#a9736978b577c242e3d3c9e09889b608c":[6,0,0,0,0,17,2,80,14],
 "zwave__command__class__user__code_8c.html#aa5bec36de4968e46b730b6013812d129":[6,0,0,0,0,17,2,80,36],
-"zwave__command__class__user__code_8c.html#aab7f614cc08c431edb13947ead318558":[6,0,0,0,0,17,2,80,26],
-"zwave__command__class__user__code_8c.html#ab161fcc64adafae5a7aa3d0d6ab00adb":[6,0,0,0,0,17,2,80,5],
-"zwave__command__class__user__code_8c.html#ab55b297e55eb5c9214fba171dc0687f2":[6,0,0,0,0,17,2,80,18]
+"zwave__command__class__user__code_8c.html#aab7f614cc08c431edb13947ead318558":[6,0,0,0,0,17,2,80,26]
 };

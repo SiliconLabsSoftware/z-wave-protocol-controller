@@ -1,0 +1,8 @@
+<map id="zwapi_is_pti_supported" name="zwapi_is_pti_supported">
+<area shape="rect" id="node1" title="Check if PTI supported." alt="" coords="627,53,785,79"/>
+<area shape="rect" id="node2" href="$zcl__rf__telemetry__cluster__server_8c.html#a1e8dfd4a69c7e891fee248299e506299" title=" " alt="" coords="232,5,367,47"/>
+<area shape="rect" id="node4" href="$zcl__rf__telemetry__cluster__server_8c.html#ac29ff666c3782d03a6bc8735c6d0f54a" title=" " alt="" coords="215,71,384,112"/>
+<area shape="rect" id="node5" href="$group__ZWAPI__BASIS.html#ga8ef95c3354c75a1a1207bceabee2cf8f" title="Get the current state of pti." alt="" coords="432,27,579,54"/>
+<area shape="rect" id="node6" href="$group__ZWAPI__BASIS.html#gafc1f4acff537f49394b9eb393344c19c" title="Enable/disable the PTI on Z&#45;Wave Radio." alt="" coords="437,129,574,155"/>
+<area shape="rect" id="node3" href="$group__zcl__rf__telemetry__cluster__server.html#ga5a27d7313f0a22b85af05134a114a799" title="Initialize the ZCL ProtocolController RF Telemetry cluster service." alt="" coords="5,39,167,80"/>
+</map>

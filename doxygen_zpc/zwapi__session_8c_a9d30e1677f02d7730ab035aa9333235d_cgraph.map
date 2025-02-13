@@ -1,0 +1,14 @@
+<map id="zwapi_session_wait_for_response" name="zwapi_session_wait_for_response">
+<area shape="rect" id="node1" title=" " alt="" coords="5,195,144,236"/>
+<area shape="rect" id="node2" href="$zwapi__connection_8c.html#a1e45c6c9695b5e7b415adfad40080720" title="Parses serial data sent from the Z&#45;Wave module to the serial port. Should be frequently called by mai..." alt="" coords="192,202,365,229"/>
+<area shape="rect" id="node3" href="$zwapi__timestamp_8c.html#a3925f2732e344672608db38351236688" title="compare the current timestamp with the timestamp passed as an argument" alt="" coords="418,5,559,47"/>
+<area shape="rect" id="node12" href="$zwapi__timestamp_8c.html#a6ebe1ddfe689bce6ee72fc12f708aece" title="get the timestamp" alt="" coords="414,354,563,381"/>
+<area shape="rect" id="node4" href="$zwapi__serial_8c.html#a3f2b3bd848e9fe0e6e137482bed06b46" title="Flush the serial output if using buffered output." alt="" coords="424,136,553,177"/>
+<area shape="rect" id="node5" href="$zwapi__serial_8c.html#a538134f9fdbb1ce052667b3a041357bd" title="Reads the output of the serial port device and stores the content in a buffer." alt="" coords="612,251,771,278"/>
+<area shape="rect" id="node8" href="$zwapi__serial_8c.html#abb082b1e7e727203e3ca5fbeb41f7c2b" title="Reads a byte from the serial port device." alt="" coords="413,202,564,229"/>
+<area shape="rect" id="node9" href="$zwapi__serial_8c.html#a9a952dc2b34d92960246f6dc4e7d58f7" title="Check the file descriptor for the serial device is available for I/O operations." alt="" coords="421,71,556,112"/>
+<area shape="rect" id="node10" href="$zwapi__serial_8c.html#a7762d0358e9f398b92edbfd6a550984a" title="Write a byte to serial port device." alt="" coords="413,303,564,330"/>
+<area shape="rect" id="node6" href="$zwapi__serial_8c.html#a0accbbf7ddb7aeab10f5df1fe3df6642" title=" " alt="" coords="819,249,1005,275"/>
+<area shape="rect" id="node7" href="$zwapi__serial_8c.html#abf18afb71e14daaf65d937149ef1639f" title="Test if a is less than b + ms." alt="" coords="841,300,983,341"/>
+<area shape="rect" id="node11" href="$zwapi__serial_8c.html#af9054824651df422bab5076d16a80fda" title="Writes the content of a buffer to the serial port device." alt="" coords="612,303,771,330"/>
+</map>

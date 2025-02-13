@@ -1,0 +1,4 @@
+<map id="set_all_parameters_to_their_default_value" name="set_all_parameters_to_their_default_value">
+<area shape="rect" id="node1" title="Set the all Configuration parameters to their default value." alt="" coords="5,5,161,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__configuration__control_8c.html#a9f749ae4cecc27243961595d0b1467d4" title="Verifies if a configuration parameter is read&#45;only." alt="" coords="209,13,369,39"/>
+</map>

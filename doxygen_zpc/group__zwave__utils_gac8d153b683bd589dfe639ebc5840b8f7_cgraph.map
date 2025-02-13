@@ -1,0 +1,11 @@
+<map id="zwave_node_want_supervision_frame" name="zwave_node_want_supervision_frame">
+<area shape="rect" id="node1" title="Verify whether a node/endpoint supports Supervision CC AND wants to use it." alt="" coords="5,100,208,141"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__store__network__helpers.html#gae4d15b8e0c61c88d94c8f342bd2014fc" title="Take a UNID/endpoint combination and returns its attribute store node." alt="" coords="456,35,636,76"/>
+<area shape="rect" id="node7" href="$group__zwave__utils.html#gaaa5d4e371acabd40b10dcf27edd993ff" title="Verify whether a node/endpoint supports a Command Class using the attribute Store." alt="" coords="256,100,408,141"/>
+<area shape="rect" id="node9" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="458,166,634,193"/>
+<area shape="rect" id="node3" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="684,35,860,76"/>
+<area shape="rect" id="node4" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="908,5,1088,47"/>
+<area shape="rect" id="node6" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="917,71,1079,98"/>
+<area shape="rect" id="node5" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="1136,13,1301,39"/>
+<area shape="rect" id="node8" href="$group__zwave__controller__utils.html#ga4b9cc899709547a170141ba7e0583e16" title="Verifies if a CC is in a raw array of Command Classes." alt="" coords="471,100,621,141"/>
+</map>

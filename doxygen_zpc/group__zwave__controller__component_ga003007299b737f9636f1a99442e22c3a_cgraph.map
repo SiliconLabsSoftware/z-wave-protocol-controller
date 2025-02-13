@@ -1,0 +1,4 @@
+<map id="zwave_controller_reset" name="zwave_controller_reset">
+<area shape="rect" id="node1" title="Instructs the Z&#45;Wave Controller to initiate a Set Default / Reset operation." alt="" coords="5,13,161,39"/>
+<area shape="rect" id="node2" href="$group__zwave__controller__callbacks.html#gabc2b2fe46f23b718d3abd1b879a162b2" title="Informs the Z&#45;Wave Controller that a Reset Step is completed." alt="" coords="209,5,360,47"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="zwapi_log_to_file_enable" name="zwapi_log_to_file_enable">
+<area shape="rect" id="node1" title="Enable logging of serial data to a file." alt="" coords="196,5,363,32"/>
+<area shape="rect" id="node2" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="5,5,148,32"/>
+</map>

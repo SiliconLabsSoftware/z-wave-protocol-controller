@@ -1,0 +1,6 @@
+<map id="set_parameter_value_in_buffer" name="set_parameter_value_in_buffer">
+<area shape="rect" id="node1" title="Set the parameter value value in the frame buffer based on the parameter size, MSB first." alt="" coords="675,5,817,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__configuration__control_8c.html#adf7a53c01f5e72568a27c56e932d8cd4" title="Generates a Configuration Set or Bulk Set Command to set the value of a parameter." alt="" coords="464,5,627,47"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__configuration.html#gacc11ad9afa837acce0d1aada6408e1ce" title="This function initialize the Configuration Command Class handler." alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="zwave_command_class_barrier_operator_signal_set" name="zwave_command_class_barrier_operator_signal_set">
+<area shape="rect" id="node1" title="Generates a Barrier Operator Signal Set Command." alt="" coords="464,5,649,47"/>
+<area shape="rect" id="node2" href="$group__barrier__operator__command__class.html#gac5e03a6ca5a68828e6af45d20a5a30c7" title="This function initialize the Barrier Operator Command Class handler." alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

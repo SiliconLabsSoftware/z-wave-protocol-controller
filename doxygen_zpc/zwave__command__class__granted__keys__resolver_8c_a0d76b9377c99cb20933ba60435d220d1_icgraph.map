@@ -1,0 +1,7 @@
+<map id="is_nif_resolved" name="is_nif_resolved">
+<area shape="rect" id="node1" title="Verifies if the Non&#45;secure NIF is already resolved." alt="" coords="696,46,805,73"/>
+<area shape="rect" id="node2" href="$zwave__command__class__granted__keys__resolver_8c.html#a74a98b0cd4bbe97369750b3f46c1fbee" title=" " alt="" coords="485,5,648,47"/>
+<area shape="rect" id="node5" href="$zwave__command__class__granted__keys__resolver_8c.html#a01f00fa8761d22472cefe7c8d53266cf" title=" " alt="" coords="485,71,648,112"/>
+<area shape="rect" id="node3" href="$group__zwave__granted__keys.html#ga1e9daa986c6a8ce94e4301aaa01e74a4" title="Registers callbacks to the attribute store and rules to the attribute resolver to be able to resolve ..." alt="" coords="253,39,437,80"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,46,205,73"/>
+</map>

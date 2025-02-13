@@ -1,0 +1,7 @@
+<map id="set_desired_value" name="set_desired_value">
+<area shape="rect" id="node1" title=" " alt="" coords="909,20,1036,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__switch__multilevel_8c.html#ab1f99263283de8de6f75fd276f5774d2" title=" " alt="" coords="687,5,861,61"/>
+<area shape="rect" id="node3" href="$zwave__command__class__switch__multilevel_8c.html#ae3088526ca025e0a4f4d75d2c67dab7a" title=" " alt="" coords="464,5,639,61"/>
+<area shape="rect" id="node4" href="$group__switch__multilevel__command__class.html#ga866d4efa5431c875235b5540a38dcc4c" title="This function initialize the Multilevel Switch Command Class handler." alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

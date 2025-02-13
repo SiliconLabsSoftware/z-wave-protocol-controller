@@ -1,0 +1,6 @@
+<map id="zwave_command_class_multi_channel_decapsulate" name="zwave_command_class_multi_channel_decapsulate">
+<area shape="rect" id="node1" title="Decapsulate Multi Channel encapsulation and inject the frame back to the Z&#45;Wave Controller." alt="" coords="5,5,192,47"/>
+<area shape="rect" id="node2" href="$group__zwave__controller__internal.html#ga79b433f95d08d541cd2a4d74ed27fd65" title="see zwave_controller_callbacks_t" alt="" coords="240,5,381,47"/>
+<area shape="rect" id="node3" href="$group__zwave__controller__transport__internal.html#gab1d371c3594b30fb5e48405df834696a" title="Entry point of of frame to the transport plugin system ." alt="" coords="429,5,608,47"/>
+<area shape="rect" id="node4" href="$zwave__controller__transport_8c.html#a98ff30ad35d280415fc1d0c576dfcbe2" title="Get the transport by class object." alt="" coords="656,13,813,39"/>
+</map>

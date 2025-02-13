@@ -91,6 +91,12 @@ $(document).ready(function(){initNavTree('group__zwave__command__class__central_
 
 <p>Central Scene Command Class handlers and control functions.  
 <a href="#details">More...</a></p>
+<div class="dynheader">
+Collaboration diagram for Central Scene Command Class:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__zwave__command__class__central__scene.svg" width="411" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -104,7 +110,12 @@ Functions</h2></td></tr>
 <p >The Central Scene scene number and key attribute are mapped into a "unique" scene combination, called active scene.</p>
 <p >This active scene has a special value of 0 (NO_SCENE_ACTIVE), which means that no scene is active. When a Central Scene notification is received a scene will stay active for 5 seconds by default, or 60 seconds if slow refresh is configured and we are receiving key held down key attribute.</p>
 <p >The attribute store model is as follows:</p>
-<h2 class="groupheader">Function Documentation</h2>
+<div class="plantumlgraph">
+<object type="image/svg+xml" data="attribute_store_central_scene_command_class.svg"></object>
+<div class="caption">
+Central Scene data model</div>
+</div>
+ <h2 class="groupheader">Function Documentation</h2>
 <a id="ga0667e3960719fc27dd2b5df9ade52019" name="ga0667e3960719fc27dd2b5df9ade52019"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga0667e3960719fc27dd2b5df9ade52019">&#9670;&nbsp;</a></span>zwave_command_class_central_scene_init()</h2>
 
@@ -122,6 +133,18 @@ Functions</h2></td></tr>
 
 <p>This function initialize the Central Scene Command Class handler. </p>
 <dl class="section return"><dt>Returns</dt><dd>SL_STATUS_OK on success, any other error code for an error. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__zwave__command__class__central__scene_ga0667e3960719fc27dd2b5df9ade52019_cgraph.svg" width="2020" height="678"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__zwave__command__class__central__scene_ga0667e3960719fc27dd2b5df9ade52019_icgraph.svg" width="422" height="52"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -130,7 +153,7 @@ Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Feb 11 2025 14:33:51 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
+    <li class="footer">Generated on Thu Feb 13 2025 10:45:32 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
   </ul>
 </div>
 </body>

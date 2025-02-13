@@ -1,0 +1,8 @@
+<map id="zwave_s0_stop_bootstrapping" name="zwave_s0_stop_bootstrapping">
+<area shape="rect" id="node1" title="Stop the S2 bootstrapping." alt="" coords="663,55,861,81"/>
+<area shape="rect" id="node2" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="463,29,603,56"/>
+<area shape="rect" id="node4" href="$nm__state__machine_8c.html#a920bcc49d14869b40c10158d125bba7b" title=" " alt="" coords="452,80,615,107"/>
+<area shape="rect" id="node3" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="251,29,401,56"/>
+<area shape="rect" id="node5" href="$nm__state__machine_8c.html#a4bedb93fa551c5f612efe78db1642309" title="Initialize the Z&#45;Wave network management state machine." alt="" coords="248,80,404,107"/>
+<area shape="rect" id="node6" href="$group__zwave__network__management__fixt.html#gaa8950dbf92037e3ec5e0385641176c98" title="Initialize the Z&#45;Wave Network Management Module." alt="" coords="5,73,200,114"/>
+</map>

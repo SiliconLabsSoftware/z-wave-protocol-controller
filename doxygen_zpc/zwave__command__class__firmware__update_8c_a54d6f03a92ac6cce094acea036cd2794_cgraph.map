@@ -1,0 +1,4 @@
+<map id="abort_transfer_if_ongoing" name="abort_transfer_if_ongoing">
+<area shape="rect" id="node1" title="Abort a firmware transfer by setting the firmware update state from ONGOING to IDLE,..." alt="" coords="5,13,173,39"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__firmware__update__internals.html#gaceef2cdf638ab78917324cb54fbfcc39" title="Sets the Firmware transfer last status for a Firmware Update." alt="" coords="221,5,369,47"/>
+</map>

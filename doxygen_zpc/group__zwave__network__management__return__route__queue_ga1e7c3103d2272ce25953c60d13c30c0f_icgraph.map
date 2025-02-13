@@ -1,0 +1,6 @@
+<map id="on_assign_return_route_complete" name="on_assign_return_route_complete">
+<area shape="rect" id="node1" title="callback function for zwapi_assign_return_route()" alt="" coords="635,51,792,93"/>
+<area shape="rect" id="node2" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="204,29,344,56"/>
+<area shape="rect" id="node4" href="$group__zwave__network__management__return__route__queue.html#ga532355608af2ba5bb787c509680f24a0" title="Requests the Z&#45;Wave API to assign the Next Return Route in the queue." alt="" coords="392,51,587,93"/>
+<area shape="rect" id="node3" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="5,29,156,56"/>
+</map>

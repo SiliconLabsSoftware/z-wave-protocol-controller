@@ -1,0 +1,6 @@
+<map id="update_node_state" name="update_node_state">
+<area shape="rect" id="node1" title="Sets the state node desired/reported values to match the sub&#45;state." alt="" coords="699,20,831,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__switch__multilevel_8c.html#a5aa473be6384b76cf418b24586a3ac41" title=" " alt="" coords="464,5,651,61"/>
+<area shape="rect" id="node3" href="$group__switch__multilevel__command__class.html#ga866d4efa5431c875235b5540a38dcc4c" title="This function initialize the Multilevel Switch Command Class handler." alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

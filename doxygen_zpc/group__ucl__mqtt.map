@@ -1,0 +1,6 @@
+<map id="UCL MQTT" name="UCL MQTT">
+<area shape="rect" id="node1" title="Component interfacing between UCL states/commands and MQTT." alt="" coords="5,70,95,95"/>
+<area shape="rect" id="node2" href="$group__ucl__mqtt__node__interview.html" title="This submodule provides APIs to initiate a node re&#45;interview *." alt="" coords="143,5,322,45"/>
+<area shape="rect" id="node3" href="$group__ucl__network__management.html" title="Handle ucl/by&#45;unid/&lt;node&gt;/ProtocolController/NetworkManagement topic." alt="" coords="143,70,323,95"/>
+<area shape="rect" id="node4" href="$group__ucl__nm__neighbor__discovery.html" title="This submodule provides APIs to trigger a node neighbor discovery." alt="" coords="143,120,323,160"/>
+</map>

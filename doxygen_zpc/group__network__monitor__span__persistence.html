@@ -91,6 +91,12 @@ $(document).ready(function(){initNavTree('group__network__monitor__span__persist
 
 <p>This sub-module provides an API to save and restore SPAN data.  
 <a href="#details">More...</a></p>
+<div class="dynheader">
+Collaboration diagram for Network Monitor S2 SPAN persistence:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__network__monitor__span__persistence.svg" width="316" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -111,9 +117,19 @@ Functions</h2></td></tr>
 <p >This sub-module provides an API to save and restore SPAN data. </p>
 <p >The SPAN data is saved for each individual NodeID.</p>
 <p >It is saved only at exit, and loaded again at initialization.</p>
-<p >The MPAN data is saved under the ZPC NodeID, and the group membership of each node is saved under each individual node.</p>
+<div class="plantumlgraph">
+<object type="image/svg+xml" data="attribute_store_span_persistence.svg"></object>
+<div class="caption">
+SPAN persistence in the attribute store</div>
+</div>
+<p> The MPAN data is saved under the ZPC NodeID, and the group membership of each node is saved under each individual node.</p>
 <p >It is saved only at exit, and loaded again at initialization.</p>
-<h2 class="groupheader">Function Documentation</h2>
+<div class="plantumlgraph">
+<object type="image/svg+xml" data="attribute_store_mpan_persistence.svg"></object>
+<div class="caption">
+MPAN persistence in the attribute store</div>
+</div>
+ <h2 class="groupheader">Function Documentation</h2>
 <a id="gabb3599077798b268bca9c9fdcaf783e7" name="gabb3599077798b268bca9c9fdcaf783e7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gabb3599077798b268bca9c9fdcaf783e7">&#9670;&nbsp;</a></span>network_monitor_restore_mpan_table_data()</h2>
 
@@ -130,6 +146,12 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Restores all the MPAN data owned by the ZPC to Z-Wave S2 from the Attribute Store. </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__network__monitor__span__persistence_gabb3599077798b268bca9c9fdcaf783e7_cgraph.svg" width="1084" height="302"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -149,6 +171,12 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Restores all the SPAN data to Z-Wave S2 from the Attribute Store. </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__network__monitor__span__persistence_gab9993e21007a2ae5604142a10e0f376e_cgraph.svg" width="1082" height="302"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -168,6 +196,12 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Saves all the MPAN data owned by the ZPC from Z-Wave S2 in the Attribute Store. </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__network__monitor__span__persistence_ga55123adecc9117e5326b583f8db189e6_cgraph.svg" width="1299" height="271"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -187,6 +221,12 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Saves all the SPAN data from Z-Wave S2 in the Attribute Store. </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__network__monitor__span__persistence_gaccbb299fdbe08d6dcd44627516e1b766_cgraph.svg" width="1074" height="302"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -195,7 +235,7 @@ Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Feb 11 2025 14:33:50 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
+    <li class="footer">Generated on Thu Feb 13 2025 10:45:32 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
   </ul>
 </div>
 </body>

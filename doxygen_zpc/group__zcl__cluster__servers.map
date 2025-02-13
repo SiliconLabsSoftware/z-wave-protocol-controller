@@ -1,0 +1,8 @@
+<map id="ZCL Cluster Servers" name="ZCL Cluster Servers">
+<area shape="rect" id="node1" href="$group__configuration__parameter__cluster__server.html" title="The module handlers the Configuration Parmater Cluster commands and update directly the attribute on ..." alt="" coords="195,5,385,45"/>
+<area shape="rect" id="node2" href="$group__user__code__cluster__server.html" title="The module handlers the User Code command mapping." alt="" coords="203,70,377,95"/>
+<area shape="rect" id="node3" title="List of ZCL Clusters that the Protocol Controller provides on behalf of its PAN Nodes." alt="" coords="5,119,147,145"/>
+<area shape="rect" id="node4" href="$group__zcl__cluster__servers__helpers.html" title="Helper functions that all ZCL Cluster servers can use." alt="" coords="217,119,363,145"/>
+<area shape="rect" id="node5" href="$group__zcl__rf__telemetry__cluster__server.html" title="ZCL cluster server providing ProtocolController/RFTelemetry for the ZPC." alt="" coords="203,169,377,209"/>
+<area shape="rect" id="node6" href="$group__zcl__scenes__cluster__server.html" title="Pretends that all our (actuator) nodes support the ZCL Scenes cluster." alt="" coords="221,233,359,273"/>
+</map>

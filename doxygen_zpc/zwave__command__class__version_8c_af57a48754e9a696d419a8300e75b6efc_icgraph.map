@@ -1,0 +1,6 @@
+<map id="zwave_command_class_version_create_cc_version_attributes" name="zwave_command_class_version_create_cc_version_attributes">
+<area shape="rect" id="node1" title=" " alt="" coords="669,5,853,61"/>
+<area shape="rect" id="node2" href="$zwave__command__class__version_8c.html#a28633a9beb801e9e96b442915fcc7ac2" title=" " alt="" coords="464,20,621,47"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__version.html#gabae96a5c6c82334f5979f3b407b973e3" title="Intitialize the Version Command Class control APIs." alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="zwave_s2_set_mpan_data" name="zwave_s2_set_mpan_data">
+<area shape="rect" id="node1" title="Copies an MPAN entry object into an entry of the S2 MPAN table." alt="" coords="219,13,396,39"/>
+<area shape="rect" id="node2" href="$group__network__monitor__span__persistence.html#gabb3599077798b268bca9c9fdcaf783e7" title="Restores all the MPAN data owned by the ZPC to Z&#45;Wave S2 from the Attribute Store." alt="" coords="5,5,171,47"/>
+</map>

@@ -1,0 +1,26 @@
+<map id="zwapi_support_setup_func" name="zwapi_support_setup_func">
+<area shape="rect" id="node1" title="Check if one of the serial API setup commands is supported." alt="" coords="1201,329,1379,355"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__BASIS.html#ga9ae8c8dbc1d120d4d193c967c919266b" title="Get the maximum payload size allowed for sending frames in Z&#45;Wave Long Range." alt="" coords="960,73,1119,115"/>
+<area shape="rect" id="node3" href="$group__ZWAPI__BASIS.html#ga927ba65e7127503c34b0faf28c7e92fb" title="Get the current MAX Long Range TX power level in effect." alt="" coords="708,241,853,283"/>
+<area shape="rect" id="node6" href="$group__ZWAPI__BASIS.html#ga6aa3a1e9927bad535301d95e39e2a6fc" title="Get the maximum payload size allowed for sending frames in Z&#45;Wave." alt="" coords="925,190,1153,217"/>
+<area shape="rect" id="node7" href="$group__ZWAPI__BASIS.html#ga28dff025f7f823c31eb08946f9d5af03" title="Get the current RF region." alt="" coords="970,139,1109,166"/>
+<area shape="rect" id="node17" href="$group__ZWAPI__BASIS.html#ga7adca71d5f09b3ec45a7045eba447676" title="Get the current TX power level in effect." alt="" coords="969,292,1110,333"/>
+<area shape="rect" id="node18" href="$group__ZWAPI__BASIS.html#gadcdc1b53ccb43a7657204b5c35d853df" title="Set the current MAX Long Range TX power level." alt="" coords="708,463,853,504"/>
+<area shape="rect" id="node19" href="$group__ZWAPI__BASIS.html#ga7a2885626cba3bc9d38f21aca3de085e" title="Set the current RF region." alt="" coords="479,529,618,555"/>
+<area shape="rect" id="node20" href="$group__ZWAPI__BASIS.html#gabd5124adf388b89ab3bf7c370ffc1667" title="Set the current TX power level." alt="" coords="710,580,851,621"/>
+<area shape="rect" id="node21" href="$group__ZWAPI__BASIS.html#gac5834e7dd254397c3560aebddafd7504" title="Configure whether zwapi_send_data callbacks should contain tx_status report information." alt="" coords="477,296,620,337"/>
+<area shape="rect" id="node22" href="$group__ZWAPI__BASIS.html#ga17ea6a36c50659bf019a0a7dea77fa9d" title="Return whether the Z&#45;Wave module supports Long Range." alt="" coords="967,409,1111,451"/>
+<area shape="rect" id="node4" href="$group__zwave__rx__internals.html#ga5fb555f285dbe1b21ba750d0443476c8" title="Initialize the Z&#45;Wave Rx component." alt="" coords="257,369,359,395"/>
+<area shape="rect" id="node5" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="9,369,151,395"/>
+<area shape="rect" id="node8" href="$group__ZWAPI__INIT.html#gab39e440bdb6435b04e754771c5ad41b5" title="Refresh the whole zwapi_chip_data_t structure from the Z&#45;Wave module." alt="" coords="693,139,868,166"/>
+<area shape="rect" id="node11" href="$group__zwave__tx__scheme__selector.html#gab15d83efc0084ff753e16826ce063136" title="Computes the maximum number of bytes that can be sent to a given NodeID. (lowest layer)" alt="" coords="703,71,859,112"/>
+<area shape="rect" id="node9" href="$group__ZWAPI__INIT.html#ga503a76a5835c274e4b7610e2f80f5e6f" title=" " alt="" coords="509,139,589,166"/>
+<area shape="rect" id="node10" href="$group__zpc__ncp__update__fixt.html#gaaca8dd596d6abe6ca27de8d7c93c5cf2" title="This function check if the NCP firmware should be updated." alt="" coords="237,136,379,177"/>
+<area shape="rect" id="node12" href="$group__transport__service__transport__wrapper.html#ga6216ae3a018a4028bfc3025695784f0e" title="Sending a frame with Transport service." alt="" coords="465,71,632,112"/>
+<area shape="rect" id="node15" href="$group__zwave__tx__scheme__selector.html#ga6128c675d7c258737616e44ef823516d" title="Computes how long of a frame can be sent to a given NodeID / Endpoint when queuing a frame at the app..." alt="" coords="461,5,636,47"/>
+<area shape="rect" id="node13" href="$group__transport__service__transport__wrapper.html#gad02263e40b63853166ac8a7601954f33" title=" " alt="" coords="225,71,391,112"/>
+<area shape="rect" id="node14" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="5,78,155,105"/>
+<area shape="rect" id="node16" href="$group__zwave__command__class__firmware__update__internals.html#ga1073e79c7ee689cf7b15f15075f3e5d4" title="Gets the theoretical max fragment size with a node/endpoint." alt="" coords="203,5,413,47"/>
+<area shape="rect" id="node23" href="$group__ZWAPI__BASIS.html#ga12e47bedfeb9c2ab4824597f56446a0c" title="Set Z&#45;Wave node ID basetype, either 8 bits or 16 bits used to store a node ID." alt="" coords="684,411,877,438"/>
+<area shape="rect" id="node24" href="$group__zwave__rx__zwapi__callbacks.html#ga716dfa7496a25ae66a5068fc21c3ef0c" title="functions handling when the Z&#45;Wave API is ready to use. This is called after soft reset...." alt="" coords="475,361,622,403"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="on_scene_actuator_configuration_set_send_data_complete" name="on_scene_actuator_configuration_set_send_data_complete">
+<area shape="rect" id="node1" title="Decides what to do after we&#39;ve sent a Scene Actuator Configuration Set Command." alt="" coords="500,13,713,54"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__scene__actuator__configuration__control.html#ga92ba47761c17964d4b511e40406ba1f6" title="Initializes the Scene Actuator Configuration Command Class control handler." alt="" coords="253,5,452,61"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

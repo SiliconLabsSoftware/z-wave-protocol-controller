@@ -1,0 +1,7 @@
+<map id="on_delete_all_send_data_complete" name="on_delete_all_send_data_complete">
+<area shape="rect" id="node1" title="Handles the Send Data Complete for a &quot;delete all user codes&quot;." alt="" coords="5,35,139,76"/>
+<area shape="rect" id="node2" href="$zwave__command__class__user__code_8c.html#ac760e0661dfab5ccfd5defe73c919103" title="Navigates up the tree from a node and makes sure that all user codes are set to &quot;disabled&quot; with no pi..." alt="" coords="202,5,337,47"/>
+<area shape="rect" id="node4" href="$zwave__command__class__user__code_8c.html#a51703dc3e67743e057b64aa954cb6502" title="Navigates under the endpoint node and undefines all the known user code data." alt="" coords="187,71,352,98"/>
+<area shape="rect" id="node3" href="$zwave__command__class__user__code_8c.html#a37bbe28e81c3999783edc49743cf52cd" title="Checks if the user_id_node type is correct and sets the user code data to Available underneath." alt="" coords="400,13,583,39"/>
+<area shape="rect" id="node5" href="$zwave__command__class__user__code_8c.html#a304c1799003f33e9ead44f40d9e3eea4" title="Checks if the User ID node matches what we expect and undefines the User Code data underneath." alt="" coords="422,71,561,98"/>
+</map>

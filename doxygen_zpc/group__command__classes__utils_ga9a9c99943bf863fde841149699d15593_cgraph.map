@@ -1,0 +1,5 @@
+<map id="zwave_command_class_send_report" name="zwave_command_class_send_report">
+<area shape="rect" id="node1" title="function to send report frames with default tx options." alt="" coords="5,35,168,76"/>
+<area shape="rect" id="node2" href="$group__zwave__tx__scheme__selector.html#ga8f8d4442ddf4c165d5a79b9a25d6420d" title="Define a Z&#45;Wave frame transmission options." alt="" coords="216,5,372,47"/>
+<area shape="rect" id="node3" href="$group__zwave__tx.html#gad1538f36d226fe8147c5e538625568df" title="Queue and send frames to Z&#45;Wave nodes." alt="" coords="221,71,367,98"/>
+</map>

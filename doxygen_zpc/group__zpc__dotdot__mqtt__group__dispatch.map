@@ -1,0 +1,4 @@
+<map id="ZPC Group dispatch" name="ZPC Group dispatch">
+<area shape="rect" id="node1" href="$group__zpc__dotdot__mqtt.html" title="ZPC Specific part of the dotdot_mqtt component." alt="" coords="5,5,139,31"/>
+<area shape="rect" id="node2" title="ZPC dispatching component, that will distribute an incoming command to all members of a given group." alt="" coords="187,5,328,31"/>
+</map>

@@ -1,0 +1,46 @@
+<map id="zwapi_send_command" name="zwapi_send_command">
+<area shape="rect" id="node1" title="Verifies that the command is supported by the Z&#45;Wave module." alt="" coords="1328,624,1483,651"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__TRANSPORT.html#gaba4d318f684708cdee3b6cae1a1ce1ba" title="Abort the ongoing transmit started with zwapi_send_data() or zwapi_send_data_bridge()" alt="" coords="1098,64,1257,91"/>
+<area shape="rect" id="node8" href="$group__ZWAPI__CONTROLLER.html#ga0cb52b0caf7e30cb792032c6a814b148" title="Add any type of node to the network." alt="" coords="1082,183,1273,209"/>
+<area shape="rect" id="node16" href="$group__ZWAPI__CONTROLLER.html#gafe2d222c52badfd5264d04f8d7a47dfd" title="Add any type of node to the network and accept prekit inclusion." alt="" coords="858,290,1009,331"/>
+<area shape="rect" id="node17" href="$group__ZWAPI__CONTROLLER.html#ga2a38e3dba5c1528326bfa2747eb0b4c9" title="Create a new primary controller." alt="" coords="1075,573,1280,600"/>
+<area shape="rect" id="node18" href="$group__ZWAPI__BASIS.html#gaedea8c5aed6e5c32a7a24a39ed4bec3b" title="Disable the Watchdog." alt="" coords="1094,624,1261,651"/>
+<area shape="rect" id="node19" href="$group__ZWAPI__BASIS.html#ga130c04a88c85201bb79b98d0e98dd123" title="Enable the Watchdog." alt="" coords="1095,472,1259,499"/>
+<area shape="rect" id="node21" href="$group__ZWAPI__TRANSPORT.html#ga95d031567ad7f9296403d11ce2b9a148" title="Lock and unlock a response route for a specific node." alt="" coords="1116,675,1239,701"/>
+<area shape="rect" id="node22" href="$group__ZWAPI__CONTROLLER.html#ga3e5775eb9485817712be83dc69d644e4" title="Remove any type of node from the network." alt="" coords="1090,234,1265,275"/>
+<area shape="rect" id="node23" href="$group__ZWAPI__CONTROLLER.html#ga7ef8d649ec5781b3d6bb698eb75acd1e" title="Send command completed to primary controller." alt="" coords="1092,726,1263,767"/>
+<area shape="rect" id="node24" href="$group__ZWAPI__CONTROLLER.html#gac2f0350721c0485f44682d9369262528" title="Start neighbor discovery for bNodeID." alt="" coords="852,355,1015,397"/>
+<area shape="rect" id="node25" href="$group__ZWAPI__CONTROLLER.html#gaf87c30a585843d4d452c9ff4e0eab5ec" title="Sends TX status, TX report and session ID of the ongoing protocol command class encryption session to..." alt="" coords="1095,791,1260,833"/>
+<area shape="rect" id="node31" href="$group__ZWAPI__BASIS.html#gaa214b575f39daf6c9bbe6cb7005db3a2" title="Create and transmit a &quot;Node Information&quot; frame." alt="" coords="1079,857,1276,884"/>
+<area shape="rect" id="node32" href="$group__ZWAPI__BASIS.html#ga038003a30b9c967ac79d7ce4b9e42260" title="Set ApplicationNodeInformation data to be used in subsequent calls to zwapi_send_node_information()." alt="" coords="1102,909,1253,950"/>
+<area shape="rect" id="node34" href="$group__ZWAPI__CONTROLLER.html#ga1115444ea0d3fcec24e731f25264836f" title="Remove all Nodes and timers from the EEPROM memory." alt="" coords="1114,421,1241,448"/>
+<area shape="rect" id="node35" href="$group__ZWAPI__CONTROLLER.html#ga9e0642c989ca000cc00bb872d1a5f60d" title="Sets the Application Node Information data for all virtual nodes owned by the Z&#45;Wave API Module." alt="" coords="1079,974,1276,1015"/>
+<area shape="rect" id="node36" href="$group__ZWAPI__INIT.html#ga4b9748e3273a22a02d08e545f8c39d14" title="Sets the desired Z&#45;Wave Long Range Channel configuration." alt="" coords="1107,1039,1247,1081"/>
+<area shape="rect" id="node37" href="$group__ZWAPI__BASIS.html#ga45a7a3a57b78698e53c58625f36c909c" title="Reset the Z&#45;Wave module." alt="" coords="1117,523,1238,549"/>
+<area shape="rect" id="node43" href="$group__ZWAPI__BASIS.html#ga1a62f0dbafe12ce1292e9b629f958bd2" title="Enable Watchdog and start kicking it in the Z&#45;Wave chip." alt="" coords="1101,1105,1253,1132"/>
+<area shape="rect" id="node44" href="$group__ZWAPI__CONTROLLER.html#ga356c149dccb761a880b100cb41e2eea9" title="Transfer the role as primary controller to another controller." alt="" coords="1099,1157,1256,1198"/>
+<area shape="rect" id="node3" href="$zwave__api__transport_8c.html#a28f29771d8fb9a4f34ddd5a53ce2faaf" title=" " alt="" coords="840,5,1027,32"/>
+<area shape="rect" id="node6" href="$zwave__api__transport_8c.html#a83fb6a9eb88c9d9e93e8adff0625a703" title=" " alt="" coords="846,57,1021,98"/>
+<area shape="rect" id="node4" href="$group__zwave__api__transport.html#ga0b879fc413b5e3faaf848287f0d36d22" title="Initialize the Z&#45;Wave API Transport *." alt="" coords="613,5,779,32"/>
+<area shape="rect" id="node5" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="380,5,529,32"/>
+<area shape="rect" id="node7" href="$zwave__api__transport_8c.html#af4d110db034c4c34fbc7b09711dff3d2" title=" " alt="" coords="621,64,771,91"/>
+<area shape="rect" id="node9" href="$group__zwave__network__management__helpers.html#ga33c5212b833d99b82766f4809585537a" title="Makes sure that the Z&#45;Wave API is not performing any network management operation." alt="" coords="847,122,1020,163"/>
+<area shape="rect" id="node10" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="626,297,766,324"/>
+<area shape="rect" id="node12" href="$nm__state__machine_8c.html#a4bedb93fa551c5f612efe78db1642309" title="Initialize the Z&#45;Wave network management state machine." alt="" coords="618,121,774,148"/>
+<area shape="rect" id="node14" href="$nm__state__machine_8c.html#a9cb14e1fc617e0d15c24e08f2474ec5b" title="Teardown the Z&#45;Wave network management state machine Resets network_mgmt_state_t nms Sets the Network..." alt="" coords="600,179,792,205"/>
+<area shape="rect" id="node11" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="379,297,530,324"/>
+<area shape="rect" id="node13" href="$group__zwave__network__management__fixt.html#gaa8950dbf92037e3ec5e0385641176c98" title="Initialize the Z&#45;Wave Network Management Module." alt="" coords="357,110,552,151"/>
+<area shape="rect" id="node15" href="$group__zwave__network__management__fixt.html#gae63db6a62bbb5734f7291465bd18a047" title="Take down fixture for Z&#45;Wave network Management." alt="" coords="357,175,552,217"/>
+<area shape="rect" id="node20" href="$ext__nvm__tools_8c.html#acef510833d69d86e376fa1ef62223e23" title=" " alt="" coords="867,472,1000,499"/>
+<area shape="rect" id="node26" href="$group__zwave__controller__component.html#ga664548dbf9fade0a3416bf7191d3b32b" title="Callback function for requesting protocol Command Class encryption." alt="" coords="848,784,1019,840"/>
+<area shape="rect" id="node27" href="$zwave__s2__protocol__cc__encryption_8c.html#a5e4b6fc48fecdb0b0a171c3a9f489e22" title=" " alt="" coords="618,791,774,833"/>
+<area shape="rect" id="node28" href="$group__zwave__s2__protocol__cc__encryption.html#ga680201d065e78ee3dd75a6b1e778ab37" title="Triggered when a Protocol CC Encryption Request is received." alt="" coords="375,791,535,833"/>
+<area shape="rect" id="node29" href="$zwave__s2__process_8c.html#a51f51bd8129a84a685510bf2aaa812a9" title=" " alt="" coords="204,799,309,825"/>
+<area shape="rect" id="node30" href="$zwave__s2__process_8c.html#afac04df3afbbd6765ef8bc3841257d47" title=" " alt="" coords="5,799,156,825"/>
+<area shape="rect" id="node33" href="$group__zwave__controller__component.html#ga35c0407648757629f7e74017fe81cfb2" title="Set the application part of the node information frame (NIF)." alt="" coords="861,909,1006,950"/>
+<area shape="rect" id="node38" href="$zcl__rf__telemetry__cluster__server_8c.html#ac29ff666c3782d03a6bc8735c6d0f54a" title=" " alt="" coords="849,574,1018,615"/>
+<area shape="rect" id="node40" href="$ext__nvm__tools_8c.html#a13f36a50161b96064bd0d2164820824a" title=" " alt="" coords="868,640,999,667"/>
+<area shape="rect" id="node41" href="$group__zwave__rx__internals.html#ga5fb555f285dbe1b21ba750d0443476c8" title="Initialize the Z&#45;Wave Rx component." alt="" coords="882,691,985,717"/>
+<area shape="rect" id="node39" href="$group__zcl__rf__telemetry__cluster__server.html#ga5a27d7313f0a22b85af05134a114a799" title="Initialize the ZCL ProtocolController RF Telemetry cluster service." alt="" coords="615,574,777,615"/>
+<area shape="rect" id="node42" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="625,691,767,717"/>
+</map>

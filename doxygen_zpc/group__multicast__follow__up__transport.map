@@ -1,0 +1,4 @@
+<map id="Z&#45;Wave Multicast follow&#45;ups Transport" name="Z&#45;Wave Multicast follow&#45;ups Transport">
+<area shape="rect" id="node1" title="Transport for automatic sending of Singlecast follow&#45;ups after a Multicast frame." alt="" coords="187,5,349,45"/>
+<area shape="rect" id="node2" href="$group__zwave__transports.html" title="Encapsulation/Decapsulation Z&#45;Wave Command Class services." alt="" coords="5,13,139,38"/>
+</map>

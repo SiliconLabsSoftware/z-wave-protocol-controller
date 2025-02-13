@@ -1,0 +1,4 @@
+<map id="zwave_controller_on_node_id_assigned" name="zwave_controller_on_node_id_assigned">
+<area shape="rect" id="node1" title="see zwave_controller_callbacks_t" alt="" coords="5,5,147,47"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management.html#ga496a9fcbb21a3ffa39b17eeb532a70fa" title="Verify if we are carrying some network management operations." alt="" coords="195,5,389,47"/>
+</map>

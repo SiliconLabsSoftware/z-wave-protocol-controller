@@ -1,0 +1,18 @@
+<map id="zwapi_get_init_data" name="zwapi_get_init_data">
+<area shape="rect" id="node1" title="Get zwave_api initialization data from the remote side (Enhanced Z&#45;Wave module)." alt="" coords="1552,89,1689,116"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__INIT.html#ga9df52f3ca75c3aa5b8aae50a7f58ad1b" title="Refresh the node list from the Z&#45;Wave protocol and copy in into the node_list pointer." alt="" coords="1347,60,1487,87"/>
+<area shape="rect" id="node12" href="$group__ZWAPI__INIT.html#gab39e440bdb6435b04e754771c5ad41b5" title="Refresh the whole zwapi_chip_data_t structure from the Z&#45;Wave module." alt="" coords="1329,115,1504,141"/>
+<area shape="rect" id="node3" href="$group__ZWAPI__BASIS.html#ga9258a9781ad809166ef8f97a1ab25559" title="Get the entire list of nodes in our network (both Z&#45;Wave and Z&#45;Wave Long Range)" alt="" coords="1117,59,1281,85"/>
+<area shape="rect" id="node4" href="$group__zwave__network__management__helpers.html#ga5227fb50c1c2561cb1e9f4eda182c62c" title="Asks the Z&#45;Wave API about the list of NodeIDs in our network." alt="" coords="892,49,1069,90"/>
+<area shape="rect" id="node5" href="$nm__state__machine_8c.html#af9725af53f46d47041ed76276f01b39c" title="Tell the Z&#45;Wave Controller that a Network Inclusion operation has completed and returns the NM state ..." alt="" coords="451,5,599,32"/>
+<area shape="rect" id="node6" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="231,81,371,108"/>
+<area shape="rect" id="node8" href="$group__zwave__network__management__helpers.html#ga928b8064fa28f0d83d52c176d8dd994b" title="Quick helper function that will refresh all network information (HomeID, NodeID, Node list,..." alt="" coords="651,111,844,153"/>
+<area shape="rect" id="node7" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="5,81,156,108"/>
+<area shape="rect" id="node9" href="$nm__state__machine_8c.html#a4bedb93fa551c5f612efe78db1642309" title="Initialize the Z&#45;Wave network management state machine." alt="" coords="447,208,603,235"/>
+<area shape="rect" id="node11" href="$nm__state__machine_8c.html#abcdc17538148dcf4141793a866836aae" title="This function is called at the end of a set default or after learnmode." alt="" coords="465,157,585,184"/>
+<area shape="rect" id="node10" href="$group__zwave__network__management__fixt.html#gaa8950dbf92037e3ec5e0385641176c98" title="Initialize the Z&#45;Wave Network Management Module." alt="" coords="204,201,399,242"/>
+<area shape="rect" id="node13" href="$group__ZWAPI__INIT.html#ga503a76a5835c274e4b7610e2f80f5e6f" title=" " alt="" coords="1159,121,1239,148"/>
+<area shape="rect" id="node14" href="$group__zpc__ncp__update__fixt.html#gaaca8dd596d6abe6ca27de8d7c93c5cf2" title="This function check if the NCP firmware should be updated." alt="" coords="909,114,1052,155"/>
+<area shape="rect" id="node15" href="$group__zwave__rx__internals.html#ga5fb555f285dbe1b21ba750d0443476c8" title="Initialize the Z&#45;Wave Rx component." alt="" coords="929,180,1032,207"/>
+<area shape="rect" id="node16" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="676,180,819,207"/>
+</map>

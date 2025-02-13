@@ -1,0 +1,8 @@
+<map id="applications/zpc/components/zwave/zwave_definitions/include/zwave_controller_types.h" name="applications/zpc/components/zwave/zwave_definitions/include/zwave_controller_types.h">
+<area shape="rect" id="node1" title=" " alt="" coords="99,5,290,76"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,199,80,225"/>
+<area shape="rect" id="node3" title=" " alt="" coords="294,199,359,225"/>
+<area shape="rect" id="node4" href="$zwave__node__id__definitions_8h.html" title=" " alt="" coords="232,124,421,151"/>
+<area shape="rect" id="node5" href="$zwave__generic__types_8h.html" title=" " alt="" coords="446,124,605,151"/>
+<area shape="rect" id="node6" href="$zwave__rf__region_8h.html" title=" " alt="" coords="29,124,157,151"/>
+</map>

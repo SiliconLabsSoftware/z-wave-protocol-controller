@@ -1,0 +1,11 @@
+<map id="zwapi_tx_report" name="zwapi_tx_report">
+<area shape="rect" id="node1" title="Detailed report and data about Z&#45;Wave transmissions." alt="" coords="501,384,615,461"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,195,73,272"/>
+<area shape="rect" id="node3" title=" " alt="" coords="181,5,242,83"/>
+<area shape="rect" id="node9" href="$struct__S__ROUTE__LINK__.html" title=" " alt="" coords="314,195,450,272"/>
+<area shape="rect" id="node4" title=" " alt="" coords="531,5,585,83"/>
+<area shape="rect" id="node5" href="$structrssi__val.html" title=" " alt="" coords="663,195,730,272"/>
+<area shape="rect" id="node6" title=" " alt="" coords="755,195,969,272"/>
+<area shape="rect" id="node7" title=" " alt="" coords="993,195,1040,272"/>
+<area shape="rect" id="node8" title=" " alt="" coords="1066,195,1223,272"/>
+</map>

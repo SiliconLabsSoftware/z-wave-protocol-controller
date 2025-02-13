@@ -1,0 +1,21 @@
+<map id="handle_wake_up_notification" name="handle_wake_up_notification">
+<area shape="rect" id="node1" title=" " alt="" coords="5,317,195,343"/>
+<area shape="rect" id="node2" href="$zwave__command__class__wake__up_8c.html#ab1683172e412f4f4b4f3090e6e2ac2b8" title="Check if we need and send a Wake Up No more command to a node and puts it in the Tx Queue." alt="" coords="243,225,409,251"/>
+<area shape="rect" id="node13" href="$group__command__classes__utils.html#gaff12f5d1f5b9eed08201efab5854190c" title="Find the Z&#45;Wave Endpoint ID Node attribute based on a const zwave_controller_connection_info_t object..." alt="" coords="245,400,407,441"/>
+<area shape="rect" id="node3" href="$zwave__command__class__wake__up_8c.html#acc185d175a4ebc31e69cd02437d885dd" title="Verifies if we are the Wake Up destination of a NodeID." alt="" coords="481,5,629,47"/>
+<area shape="rect" id="node5" href="$group__zwave__network__management.html#ga38921e3a42a10fc5135615b50f0573cd" title="Checks if the protocol may be sending some frames to a particular NodeID." alt="" coords="457,71,652,127"/>
+<area shape="rect" id="node7" href="$group__zwave__tx.html#gabb799c67f2008618877071e96e2fca77" title="Verifies if we have frames in the queue to send to a NodeID." alt="" coords="478,152,631,193"/>
+<area shape="rect" id="node8" href="$group__zwave__tx__scheme__selector.html#ga2c884bc863b6f63eac2a074fdde828d8" title="Return a connection info parameters for sending a Z&#45;Wave frame." alt="" coords="477,217,633,259"/>
+<area shape="rect" id="node11" href="$group__zwave__tx__scheme__selector.html#ga8f8d4442ddf4c165d5a79b9a25d6420d" title="Define a Z&#45;Wave frame transmission options." alt="" coords="477,283,633,324"/>
+<area shape="rect" id="node12" href="$group__zwave__tx.html#gad1538f36d226fe8147c5e538625568df" title="Queue and send frames to Z&#45;Wave nodes." alt="" coords="482,349,627,375"/>
+<area shape="rect" id="node4" href="$group__zwave__network__management.html#gae265f1e935804f3f0b971755ab0ee61e" title="Get the cached NodeID." alt="" coords="700,5,895,47"/>
+<area shape="rect" id="node6" href="$group__zwave__network__management.html#ga90aba971e0bdba90096c533bcd803dc4" title="Checks if we have return routes to assign for a given NodeID." alt="" coords="719,79,876,120"/>
+<area shape="rect" id="node9" href="$group__zwave__controller__keyset.html#ga43a73c5ae7dc860fa2e5edb9814c432f" title="Get the hight encapsulation supported by a given key set." alt="" coords="718,185,877,227"/>
+<area shape="rect" id="node10" href="$group__zwave__controller__storage.html#ga771d01deff646dfda3f8406d6fbf5736" title="Return the granted keys for a node." alt="" coords="712,251,883,292"/>
+<area shape="rect" id="node14" href="$group__zpc__attribute__store__network__helpers.html#gae4d15b8e0c61c88d94c8f342bd2014fc" title="Take a UNID/endpoint combination and returns its attribute store node." alt="" coords="465,400,645,441"/>
+<area shape="rect" id="node19" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="467,466,643,493"/>
+<area shape="rect" id="node15" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="709,400,885,441"/>
+<area shape="rect" id="node16" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="943,371,1123,412"/>
+<area shape="rect" id="node18" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="952,437,1113,463"/>
+<area shape="rect" id="node17" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="1171,378,1336,405"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="zwave_network_management_set_default" name="zwave_network_management_set_default">
+<area shape="rect" id="node1" title="Reset the controller." alt="" coords="5,5,200,47"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management__return__route__queue.html#ga7c64d5e6e7127021d9f78504413bf14d" title="Clears the Assign Return Route Queue." alt="" coords="248,5,443,47"/>
+<area shape="rect" id="node3" href="$zwave__network__management__return__route__queue_8c.html#abc2d2bfae42621c95cc8a79645173721" title="Resets the value of a queue entry." alt="" coords="491,13,619,39"/>
+</map>

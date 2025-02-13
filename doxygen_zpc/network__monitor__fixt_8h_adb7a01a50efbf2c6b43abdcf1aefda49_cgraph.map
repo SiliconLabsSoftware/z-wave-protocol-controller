@@ -1,0 +1,6 @@
+<map id="network_monitor_setup_fixt" name="network_monitor_setup_fixt">
+<area shape="rect" id="node1" title="Setup fixture for the network monitor." alt="" coords="5,56,188,83"/>
+<area shape="rect" id="node2" href="$group__failing__network__monitor.html#ga13a72bab108bd56eaa823247d14439ad" title="Initializes the failing node monitoring by registering callbacks to the attribute store." alt="" coords="247,5,412,32"/>
+<area shape="rect" id="node3" href="$group__network__monitor.html#ga06ced1749dfbcde823b9ce17aca599da" title="Initializes the Network Monitor." alt="" coords="240,56,419,83"/>
+<area shape="rect" id="node4" href="$group__network__monitor__smart__start.html#gab00ed6ab9f6879ee669f0f45e3825789" title="Intitializes the SmartStart list monitor." alt="" coords="236,107,423,133"/>
+</map>

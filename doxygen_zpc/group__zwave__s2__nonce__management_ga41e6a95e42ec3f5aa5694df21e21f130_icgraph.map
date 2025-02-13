@@ -1,0 +1,4 @@
+<map id="zwave_s2_get_span_data" name="zwave_s2_get_span_data">
+<area shape="rect" id="node1" title="Fetches a Span entry object from the S2 SPAN table." alt="" coords="208,13,381,39"/>
+<area shape="rect" id="node2" href="$group__network__monitor__span__persistence.html#gaccbb299fdbe08d6dcd44627516e1b766" title="Saves all the SPAN data from Z&#45;Wave S2 in the Attribute Store." alt="" coords="5,5,160,47"/>
+</map>

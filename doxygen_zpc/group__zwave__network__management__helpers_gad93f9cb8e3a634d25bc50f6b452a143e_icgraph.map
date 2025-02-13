@@ -1,0 +1,11 @@
+<map id="network_management_refresh_controller_capabilities_bitmask" name="network_management_refresh_controller_capabilities_bitmask">
+<area shape="rect" id="node1" title="Asks the Z&#45;Wave API to tell us what are the controller&#39;s capabilities in this network." alt="" coords="1081,80,1232,136"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management__helpers.html#ga928b8064fa28f0d83d52c176d8dd994b" title="Quick helper function that will refresh all network information (HomeID, NodeID, Node list,..." alt="" coords="651,29,844,70"/>
+<area shape="rect" id="node8" href="$group__zwave__network__management__helpers.html#ga4e9722c15b21c559fd96d7c0d69d9337" title="Attempts to take the SUC/SIS Role, if there is no SUC in the network." alt="" coords="672,95,823,151"/>
+<area shape="rect" id="node9" href="$group__zwave__network__management__callbacks.html#gab508cf96457f21a32bdca2bbbafccb42" title="callback function for zwapi_set_suc_node_id()" alt="" coords="892,87,1033,129"/>
+<area shape="rect" id="node3" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="231,29,371,56"/>
+<area shape="rect" id="node5" href="$nm__state__machine_8c.html#a4bedb93fa551c5f612efe78db1642309" title="Initialize the Z&#45;Wave network management state machine." alt="" coords="447,109,603,136"/>
+<area shape="rect" id="node7" href="$nm__state__machine_8c.html#abcdc17538148dcf4141793a866836aae" title="This function is called at the end of a set default or after learnmode." alt="" coords="465,59,585,85"/>
+<area shape="rect" id="node4" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="5,29,156,56"/>
+<area shape="rect" id="node6" href="$group__zwave__network__management__fixt.html#gaa8950dbf92037e3ec5e0385641176c98" title="Initialize the Z&#45;Wave Network Management Module." alt="" coords="204,102,399,143"/>
+</map>

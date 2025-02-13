@@ -1,0 +1,8 @@
+<map id="zwave_controller_on_frame_reception" name="zwave_controller_on_frame_reception">
+<area shape="rect" id="node1" title="Tell the Z&#45;Wave Controller that we received a frame (Rx) from a NodeID." alt="" coords="767,93,908,135"/>
+<area shape="rect" id="node2" href="$group__zwave__rx__zwapi__callbacks.html#gad4081a8d944b8daad978322699bc01e3" title="application_command_handler function for zwapi_callbacks. Z&#45;Wave API controller libraries will call t..." alt="" coords="572,64,719,105"/>
+<area shape="rect" id="node6" href="$group__zwave__rx__zwapi__callbacks.html#gad8a7864d183b913f74d0f18edbf89f36" title="application_controller_update function for zwapi_callbacks. Incoming NIF from the Z&#45;Wave nodes will b..." alt="" coords="362,123,509,164"/>
+<area shape="rect" id="node3" href="$group__zwave__rx__zwapi__callbacks.html#gaa36427751230efea8a45e11214b73e99" title="application_command_handler_bridge function for zwapi_callbacks. Z&#45;Wave API Bridge libraries will cal..." alt="" coords="347,5,524,47"/>
+<area shape="rect" id="node4" href="$group__zwave__rx__internals.html#ga5fb555f285dbe1b21ba750d0443476c8" title="Initialize the Z&#45;Wave Rx component." alt="" coords="196,71,299,98"/>
+<area shape="rect" id="node5" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="5,71,148,98"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="zwave_command_class_user_code_number_get" name="zwave_command_class_user_code_number_get">
+<area shape="rect" id="node1" title="Generates a Users Number Get Command." alt="" coords="464,5,628,47"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__user__code.html#ga3903c1853dfc3b999bcb5570d3355a35" title="Initializes the User Code Command Class handler." alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="zwave_command_class_multilevel_sensor_on_version_attribute_update" name="zwave_command_class_multilevel_sensor_on_version_attribute_update">
+<area shape="rect" id="node1" title=" " alt="" coords="464,5,635,61"/>
+<area shape="rect" id="node2" href="$group__multilevel__sensor__command__class.html#gae565619d311f1e10a434f87b874b2d64" title="Initialize the Multilevel Sensor Command Class control." alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

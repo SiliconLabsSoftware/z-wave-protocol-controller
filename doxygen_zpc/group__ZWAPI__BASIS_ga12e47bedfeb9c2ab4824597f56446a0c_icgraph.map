@@ -1,0 +1,6 @@
+<map id="zwapi_set_node_id_basetype" name="zwapi_set_node_id_basetype">
+<area shape="rect" id="node1" title="Set Z&#45;Wave node ID basetype, either 8 bits or 16 bits used to store a node ID." alt="" coords="541,5,735,32"/>
+<area shape="rect" id="node2" href="$group__zwave__rx__internals.html#ga5fb555f285dbe1b21ba750d0443476c8" title="Initialize the Z&#45;Wave Rx component." alt="" coords="196,5,299,32"/>
+<area shape="rect" id="node4" href="$group__zwave__rx__zwapi__callbacks.html#ga716dfa7496a25ae66a5068fc21c3ef0c" title="functions handling when the Z&#45;Wave API is ready to use. This is called after soft reset...." alt="" coords="347,27,493,69"/>
+<area shape="rect" id="node3" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="5,5,148,32"/>
+</map>

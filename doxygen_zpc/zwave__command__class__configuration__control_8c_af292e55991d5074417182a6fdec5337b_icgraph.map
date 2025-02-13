@@ -1,0 +1,8 @@
+<map id="is_bulk_supported" name="is_bulk_supported">
+<area shape="rect" id="node1" title="Checks if the node we are talking to supports Bulk Commands." alt="" coords="675,86,801,113"/>
+<area shape="rect" id="node2" href="$zwave__command__class__configuration__control_8c.html#a7dee733a7b593a65010c26663d153d59" title="Generates a Configuration Get or Bulk Get Command to find out the value of a parameter." alt="" coords="464,5,627,47"/>
+<area shape="rect" id="node5" href="$zwave__command__class__configuration__control_8c.html#a0a04783f7eddbfbdd243a4d8ffd4a932" title="Generates a Configuration Properties Get or Configuration Get Command to find out if a parameter ID i..." alt="" coords="464,71,627,127"/>
+<area shape="rect" id="node6" href="$zwave__command__class__configuration__control_8c.html#adf7a53c01f5e72568a27c56e932d8cd4" title="Generates a Configuration Set or Bulk Set Command to set the value of a parameter." alt="" coords="464,152,627,193"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__configuration.html#gacc11ad9afa837acce0d1aada6408e1ce" title="This function initialize the Configuration Command Class handler." alt="" coords="253,79,416,120"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,86,205,113"/>
+</map>

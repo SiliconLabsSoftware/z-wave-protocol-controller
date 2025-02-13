@@ -1,0 +1,21 @@
+<map id="applications/zpc/components/zwave_api/src/zwapi_session.c" name="applications/zpc/components/zwave_api/src/zwapi_session.c">
+<area shape="rect" id="node1" title=" " alt="" coords="509,5,719,47"/>
+<area shape="rect" id="node2" title=" " alt="" coords="273,95,342,121"/>
+<area shape="rect" id="node3" title=" " alt="" coords="367,95,432,121"/>
+<area shape="rect" id="node4" title=" " alt="" coords="457,95,521,121"/>
+<area shape="rect" id="node5" href="$zwapi__session_8h.html" title="Session level handling such as retries and request/response for commands using the zwapi_connection." alt="" coords="665,319,784,345"/>
+<area shape="rect" id="node9" href="$zwapi__connection_8h.html" title="API to connect and send frames to the Z&#45;Wave module using the serial port." alt="" coords="545,95,683,121"/>
+<area shape="rect" id="node16" href="$zwapi__timestamp_8h.html" title="Timestamp API allowing to set timestamps and verify if they are past/expired." alt="" coords="759,95,893,121"/>
+<area shape="rect" id="node19" title=" " alt="" coords="918,95,985,121"/>
+<area shape="rect" id="node6" title=" " alt="" coords="586,468,661,495"/>
+<area shape="rect" id="node7" href="$sl__status_8h.html" title="SL Status Codes." alt="" coords="296,393,383,420"/>
+<area shape="rect" id="node8" title=" " alt="" coords="144,468,209,495"/>
+<area shape="rect" id="node10" href="$zwapi__internal_8h.html" title="Private definitions for the Z&#45;Wave API." alt="" coords="397,169,513,196"/>
+<area shape="rect" id="node11" href="$zwapi__init_8h.html" title="Z&#45;Wave API initialization functions." alt="" coords="410,244,501,271"/>
+<area shape="rect" id="node15" href="$zwapi__protocol__transport_8h.html" title="Z&#45;Wave API for transport application layer interface." alt="" coords="87,319,266,345"/>
+<area shape="rect" id="node12" href="$zwapi__protocol__basis_8h.html" title="Z&#45;Wave API for basis controller/end node application interface." alt="" coords="376,319,535,345"/>
+<area shape="rect" id="node13" href="$zwave__rf__region_8h.html" title=" " alt="" coords="509,393,637,420"/>
+<area shape="rect" id="node14" href="$zwave__node__id__definitions_8h.html" title=" " alt="" coords="82,393,271,420"/>
+<area shape="rect" id="node17" href="$zwapi__timestamp__platform_8h.html" title="Platform specific zwapi timestamp definitions." alt="" coords="859,169,1049,196"/>
+<area shape="rect" id="node18" title=" " alt="" coords="913,244,995,271"/>
+</map>

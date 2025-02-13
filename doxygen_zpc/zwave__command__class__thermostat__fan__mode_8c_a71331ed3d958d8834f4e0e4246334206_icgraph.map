@@ -1,0 +1,5 @@
+<map id="zwave_command_class_thermostat_fan_mode_control_handler" name="zwave_command_class_thermostat_fan_mode_control_handler">
+<area shape="rect" id="node1" title=" " alt="" coords="480,5,643,61"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__thermostat__fan__mode.html#ga7ecf581fff419caff01c80f5934c77c5" title=" " alt="" coords="253,13,432,54"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

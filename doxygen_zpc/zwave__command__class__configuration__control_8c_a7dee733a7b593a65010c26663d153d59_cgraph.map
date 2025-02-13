@@ -1,0 +1,4 @@
+<map id="zwave_command_class_configuration_get" name="zwave_command_class_configuration_get">
+<area shape="rect" id="node1" title="Generates a Configuration Get or Bulk Get Command to find out the value of a parameter." alt="" coords="5,5,168,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__configuration__control_8c.html#af292e55991d5074417182a6fdec5337b" title="Checks if the node we are talking to supports Bulk Commands." alt="" coords="216,13,343,39"/>
+</map>

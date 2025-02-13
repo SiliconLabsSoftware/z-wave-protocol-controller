@@ -1,0 +1,14 @@
+<map id="zwapi_session_restart" name="zwapi_session_restart">
+<area shape="rect" id="node1" title="Closes and re&#45;initializes the zwapi_session to the Z&#45;Wave module." alt="" coords="5,97,157,123"/>
+<area shape="rect" id="node2" href="$zwapi__connection_8c.html#a13b6e6b6c56844f4344fabe490bc5eac" title="Closes and re&#45;initializes the zwapi_connection to the Z&#45;Wave module." alt="" coords="205,97,376,123"/>
+<area shape="rect" id="node3" href="$zwapi__serial_8c.html#a3f2b3bd848e9fe0e6e137482bed06b46" title="Flush the serial output if using buffered output." alt="" coords="435,5,564,47"/>
+<area shape="rect" id="node4" href="$zwapi__serial_8c.html#a7762d0358e9f398b92edbfd6a550984a" title="Write a byte to serial port device." alt="" coords="424,71,575,98"/>
+<area shape="rect" id="node8" href="$zwapi__serial_8c.html#aadf3397d0bd2c1657d4b1a373599acfe" title="Closes and re&#45;initialize the last open serial port." alt="" coords="430,122,569,149"/>
+<area shape="rect" id="node12" href="$zwapi__timestamp_8c.html#a6ebe1ddfe689bce6ee72fc12f708aece" title="get the timestamp" alt="" coords="425,173,574,199"/>
+<area shape="rect" id="node5" href="$zwapi__serial_8c.html#af9054824651df422bab5076d16a80fda" title="Writes the content of a buffer to the serial port device." alt="" coords="623,71,781,98"/>
+<area shape="rect" id="node6" href="$zwapi__serial_8c.html#a0accbbf7ddb7aeab10f5df1fe3df6642" title=" " alt="" coords="829,34,1016,61"/>
+<area shape="rect" id="node7" href="$zwapi__serial_8c.html#abf18afb71e14daaf65d937149ef1639f" title="Test if a is less than b + ms." alt="" coords="851,85,994,127"/>
+<area shape="rect" id="node9" href="$zwapi__serial_8c.html#aae586785021ac9a605cd77651429f0c9" title="De&#45;Initialize the serial port." alt="" coords="636,122,768,149"/>
+<area shape="rect" id="node10" href="$zwapi__serial_8c.html#a07b09de97f4932d882fc77e191c44638" title="Initialize the serial port to 115200 BAUD 8N1." alt="" coords="643,173,761,199"/>
+<area shape="rect" id="node11" href="$zwapi__serial_8c.html#aefeac5909b0bf6411db1492f69c3bc68" title=" " alt="" coords="843,173,1002,199"/>
+</map>

@@ -1,0 +1,93 @@
+<map id="zwave_rx_init" name="zwave_rx_init">
+<area shape="rect" id="node1" title="Initialize the Z&#45;Wave Rx component." alt="" coords="5,606,108,633"/>
+<area shape="rect" id="node2" href="$group__zwave__rf__region.html#gac9961f01e2d6103cd1ba04e2ac203e82" title=" " alt="" coords="173,84,317,110"/>
+<area shape="rect" id="node3" href="$group__ZWAPI__INIT.html#gaa293025465f2d864624cc3f5e853be56" title="Return all information known about the chip after initialization." alt="" coords="173,134,317,161"/>
+<area shape="rect" id="node4" href="$group__ZWAPI__BASIS.html#ga927ba65e7127503c34b0faf28c7e92fb" title="Get the current MAX Long Range TX power level in effect." alt="" coords="670,424,815,466"/>
+<area shape="rect" id="node36" href="$group__ZWAPI__INIT.html#gaf13ded01e7cae8823db451f5526a0dc9" title="Retrieves versioning data from the Z&#45;Wave API Module." alt="" coords="910,624,1045,666"/>
+<area shape="rect" id="node37" href="$group__ZWAPI__BASIS.html#ga28dff025f7f823c31eb08946f9d5af03" title="Get the current RF region." alt="" coords="673,256,812,282"/>
+<area shape="rect" id="node38" href="$group__ZWAPI__INIT.html#ga503a76a5835c274e4b7610e2f80f5e6f" title=" " alt="" coords="205,724,285,750"/>
+<area shape="rect" id="node48" href="$group__ZWAPI__BASIS.html#gadcdc1b53ccb43a7657204b5c35d853df" title="Set the current MAX Long Range TX power level." alt="" coords="670,139,815,180"/>
+<area shape="rect" id="node49" href="$group__ZWAPI__BASIS.html#ga12e47bedfeb9c2ab4824597f56446a0c" title="Set Z&#45;Wave node ID basetype, either 8 bits or 16 bits used to store a node ID." alt="" coords="393,388,586,414"/>
+<area shape="rect" id="node51" href="$group__ZWAPI__BASIS.html#ga7a2885626cba3bc9d38f21aca3de085e" title="Set the current RF region." alt="" coords="673,205,812,232"/>
+<area shape="rect" id="node52" href="$group__ZWAPI__BASIS.html#gabd5124adf388b89ab3bf7c370ffc1667" title="Set the current TX power level." alt="" coords="672,307,813,348"/>
+<area shape="rect" id="node53" href="$group__ZWAPI__BASIS.html#gac5834e7dd254397c3560aebddafd7504" title="Configure whether zwapi_send_data callbacks should contain tx_status report information." alt="" coords="671,8,814,50"/>
+<area shape="rect" id="node54" href="$group__ZWAPI__BASIS.html#ga45a7a3a57b78698e53c58625f36c909c" title="Reset the Z&#45;Wave module." alt="" coords="682,825,803,852"/>
+<area shape="rect" id="node56" href="$group__zwave__rx__zwapi__callbacks.html#gad4081a8d944b8daad978322699bc01e3" title="application_command_handler function for zwapi_callbacks. Z&#45;Wave API controller libraries will call t..." alt="" coords="416,1555,563,1596"/>
+<area shape="rect" id="node61" href="$group__zwave__rx__zwapi__callbacks.html#gaa36427751230efea8a45e11214b73e99" title="application_command_handler_bridge function for zwapi_callbacks. Z&#45;Wave API Bridge libraries will cal..." alt="" coords="156,1244,333,1286"/>
+<area shape="rect" id="node62" href="$group__zwave__rx__zwapi__callbacks.html#gad8a7864d183b913f74d0f18edbf89f36" title="application_controller_update function for zwapi_callbacks. Incoming NIF from the Z&#45;Wave nodes will b..." alt="" coords="171,1127,318,1168"/>
+<area shape="rect" id="node76" href="$group__zwave__rx__zwapi__callbacks.html#ga4330867071a8eb8313b997592fb5d7e9" title="Request call zwapi_poll again." alt="" coords="167,1310,322,1337"/>
+<area shape="rect" id="node77" href="$zwave__rx_8c.html#a6fbf715ed85d614b04983a621f6c568c" title=" " alt="" coords="158,1361,331,1388"/>
+<area shape="rect" id="node78" href="$zwave__rx_8c.html#ac7f59182746624a9c1be51f17015fd3a" title=" " alt="" coords="163,1412,326,1454"/>
+<area shape="rect" id="node79" href="$group__zwave__rx__zwapi__callbacks.html#gac32472427d9ce892c4f04a9f1c339976" title="protocol_cc_encryption_request function for zwapi_callbacks. Z&#45;Wave API controller libraries will cal..." alt="" coords="169,1568,321,1610"/>
+<area shape="rect" id="node81" href="$group__zwave__rx.html#gaf0bda5801b11477480aa34a8e04e4547" title=" " alt="" coords="157,927,333,968"/>
+<area shape="rect" id="node90" href="$group__zwave__rx__zwapi__callbacks.html#ga716dfa7496a25ae66a5068fc21c3ef0c" title="functions handling when the Z&#45;Wave API is ready to use. This is called after soft reset...." alt="" coords="171,439,318,480"/>
+<area shape="rect" id="node5" href="$zwapi__init_8c.html#a5ec89d5817b8ce00454fce891ae8400e" title="Send a command to the Z&#45;Wave module and waits for an ACK." alt="" coords="900,366,1055,407"/>
+<area shape="rect" id="node33" href="$group__ZWAPI__INIT.html#ga0a823074baec69913d0e8590b46e4e33" title="Check if a command is supported by the connected Z&#45;Wave module." alt="" coords="1115,314,1317,341"/>
+<area shape="rect" id="node34" href="$group__ZWAPI__INIT.html#ga647114dcb008816008cf9389548b1a12" title="Check if one of the serial API setup commands is supported." alt="" coords="889,213,1066,240"/>
+<area shape="rect" id="node6" href="$zwapi__session_8c.html#abf613a2ad7710ac80fb239ba55e621d7" title="Send data frame to Z&#45;Wave chip via serial API, wait for ACK and a RES frame." alt="" coords="1139,712,1293,754"/>
+<area shape="rect" id="node7" href="$zwapi__connection_8c.html#a91ce3acd7eff779496789637a9c27f40" title="Provides the data of the serial buffer for the last received frame." alt="" coords="2026,682,2177,723"/>
+<area shape="rect" id="node8" href="$zwapi__connection_8c.html#a86b069d152a5c2f8ac95774a688dff48" title="make the zwapi_connection_status types human readable." alt="" coords="1365,784,1535,826"/>
+<area shape="rect" id="node9" href="$zwapi__session_8c.html#a1f2b3e7c2dcf31708ef8d333747352ba" title=" " alt="" coords="1799,764,1963,806"/>
+<area shape="rect" id="node12" href="$zwapi__session_8c.html#a32577f3500efc3d937dbc68eebb3c370" title="Send data frame to Z&#45;Wave chip via serial port and wait for ACK." alt="" coords="1379,1003,1521,1044"/>
+<area shape="rect" id="node32" href="$zwapi__session_8c.html#a9d30e1677f02d7730ab035aa9333235d" title=" " alt="" coords="1595,1052,1734,1094"/>
+<area shape="rect" id="node10" href="$zwapi__session_8c.html#ad7bac697ee2388b38ed3777b5a3862bc" title=" " alt="" coords="2026,762,2177,803"/>
+<area shape="rect" id="node11" href="$group__ZWAPI__INIT.html#ga438a74c9752197d20d377874d5a61694" title="Returns the pointer to the callbacks registered at init." alt="" coords="2016,828,2187,854"/>
+<area shape="rect" id="node13" href="$zwapi__connection_8c.html#a13b6e6b6c56844f4344fabe490bc5eac" title="Closes and re&#45;initializes the zwapi_connection to the Z&#45;Wave module." alt="" coords="1796,1270,1967,1297"/>
+<area shape="rect" id="node23" href="$zwapi__timestamp_8c.html#a6ebe1ddfe689bce6ee72fc12f708aece" title="get the timestamp" alt="" coords="2027,1112,2176,1138"/>
+<area shape="rect" id="node24" href="$zwapi__connection_8c.html#af47f8cbd93974d5c91d659fdeb7a870b" title="Transmit a frame via serial port by adding SOF, Len, Type, cmd and Checksum." alt="" coords="1809,1212,1953,1238"/>
+<area shape="rect" id="node26" href="$zwapi__timestamp_8c.html#a3925f2732e344672608db38351236688" title="compare the current timestamp with the timestamp passed as an argument" alt="" coords="2031,879,2172,920"/>
+<area shape="rect" id="node27" href="$zwapi__session_8c.html#a2875fbfa250b7b25ecb6bc4f0b032cb8" title="Loads the received frames from the serial device into the zwapi_session receive queue." alt="" coords="1583,935,1747,976"/>
+<area shape="rect" id="node14" href="$zwapi__serial_8c.html#a3f2b3bd848e9fe0e6e137482bed06b46" title="Flush the serial output if using buffered output." alt="" coords="2037,1264,2166,1306"/>
+<area shape="rect" id="node15" href="$zwapi__serial_8c.html#a7762d0358e9f398b92edbfd6a550984a" title="Write a byte to serial port device." alt="" coords="2026,1330,2177,1357"/>
+<area shape="rect" id="node19" href="$zwapi__serial_8c.html#aadf3397d0bd2c1657d4b1a373599acfe" title="Closes and re&#45;initialize the last open serial port." alt="" coords="2032,1381,2171,1408"/>
+<area shape="rect" id="node16" href="$zwapi__serial_8c.html#af9054824651df422bab5076d16a80fda" title="Writes the content of a buffer to the serial port device." alt="" coords="2235,1157,2393,1184"/>
+<area shape="rect" id="node17" href="$zwapi__serial_8c.html#a0accbbf7ddb7aeab10f5df1fe3df6642" title=" " alt="" coords="2441,1154,2628,1181"/>
+<area shape="rect" id="node18" href="$zwapi__serial_8c.html#abf18afb71e14daaf65d937149ef1639f" title="Test if a is less than b + ms." alt="" coords="2463,1078,2606,1119"/>
+<area shape="rect" id="node20" href="$zwapi__serial_8c.html#aae586785021ac9a605cd77651429f0c9" title="De&#45;Initialize the serial port." alt="" coords="2248,1381,2380,1408"/>
+<area shape="rect" id="node21" href="$zwapi__serial_8c.html#a07b09de97f4932d882fc77e191c44638" title="Initialize the serial port to 115200 BAUD 8N1." alt="" coords="2255,1432,2373,1458"/>
+<area shape="rect" id="node22" href="$zwapi__serial_8c.html#aefeac5909b0bf6411db1492f69c3bc68" title=" " alt="" coords="2455,1432,2614,1458"/>
+<area shape="rect" id="node25" href="$zwapi__connection_8c.html#a96d24d537c5b8d6aa0aa6a7638ba2f09" title=" " alt="" coords="2025,1213,2178,1240"/>
+<area shape="rect" id="node28" href="$zwapi__connection_8c.html#a1e45c6c9695b5e7b415adfad40080720" title="Parses serial data sent from the Z&#45;Wave module to the serial port. Should be frequently called by mai..." alt="" coords="1795,1060,1968,1086"/>
+<area shape="rect" id="node29" href="$zwapi__serial_8c.html#a538134f9fdbb1ce052667b3a041357bd" title="Reads the output of the serial port device and stores the content in a buffer." alt="" coords="2235,1064,2393,1090"/>
+<area shape="rect" id="node30" href="$zwapi__serial_8c.html#abb082b1e7e727203e3ca5fbeb41f7c2b" title="Reads a byte from the serial port device." alt="" coords="2026,1010,2177,1037"/>
+<area shape="rect" id="node31" href="$zwapi__serial_8c.html#a9a952dc2b34d92960246f6dc4e7d58f7" title="Check the file descriptor for the serial device is available for I/O operations." alt="" coords="2034,944,2169,986"/>
+<area shape="rect" id="node35" href="$zwapi__init_8c.html#af1ea16c1c68903ed2ac99307e0870929" title=" " alt="" coords="1137,213,1295,240"/>
+<area shape="rect" id="node39" href="$zwapi__init_8c.html#ad6b74219e50e600461d29c191ce07809" title=" " alt="" coords="403,774,576,801"/>
+<area shape="rect" id="node41" href="$group__ZWAPI__INIT.html#gab39e440bdb6435b04e754771c5ad41b5" title="Refresh the whole zwapi_chip_data_t structure from the Z&#45;Wave module." alt="" coords="402,724,577,750"/>
+<area shape="rect" id="node45" href="$zwapi__session_8c.html#ad653c0891822b4877c2c1eaeda3dcd46" title="Initialize a zwapi_session with the Z&#45;Wave module." alt="" coords="1384,1192,1516,1218"/>
+<area shape="rect" id="node47" href="$zwapi__protocol__rx__dispatch_8c.html#af8a0f2e49dcc15d4fd7b84a1704342f3" title="Initialize functions pointers for Z&#45;Wave module callbacks." alt="" coords="421,658,558,699"/>
+<area shape="rect" id="node40" href="$group__ZWAPI__INIT.html#gac747addbb718dc86d958ba5f38bb5ad5" title="Sets the value of &quot;awaiting a Z&#45;Wave API started callback&quot;." alt="" coords="908,860,1047,902"/>
+<area shape="rect" id="node42" href="$group__ZWAPI__INIT.html#gaf72f3e780e6152b385987b0c075675f7" title="Get zwave_api initialization data from the remote side (Enhanced Z&#45;Wave module)." alt="" coords="909,758,1046,785"/>
+<area shape="rect" id="node43" href="$group__ZWAPI__BASIS.html#gad17a2025ad92cd82aaf16bc44da27d7c" title="Get the Z&#45;Wave library basis version." alt="" coords="669,490,816,531"/>
+<area shape="rect" id="node44" href="$zwapi__session_8c.html#ae9af89b1122e8be3a8704581079dd824" title="Flush the zwapi_session receive queue." alt="" coords="671,658,814,699"/>
+<area shape="rect" id="node46" href="$zwapi__connection_8c.html#a8d164694b886daa887b418a0765d6030" title="Initialize the zwapi_connection to the Z&#45;Wave module." alt="" coords="1806,1321,1957,1348"/>
+<area shape="rect" id="node50" href="$group__ZWAPI__BASIS.html#ga17ea6a36c50659bf019a0a7dea77fa9d" title="Return whether the Z&#45;Wave module supports Long Range." alt="" coords="671,74,815,115"/>
+<area shape="rect" id="node55" href="$zwapi__init_8c.html#a67064ee382c07d0af51a9d9339b3fcde" title="Verifies that the command is supported by the Z&#45;Wave module." alt="" coords="900,809,1055,836"/>
+<area shape="rect" id="node57" href="$group__zwave__controller__internal.html#ga79b433f95d08d541cd2a4d74ed27fd65" title="see zwave_controller_callbacks_t" alt="" coords="672,1562,813,1603"/>
+<area shape="rect" id="node60" href="$group__zwave__controller__internal.html#ga0506463c57c08bf5c3782ba7f126c22b" title="Tell the Z&#45;Wave Controller that we received a frame (Rx) from a NodeID." alt="" coords="672,1496,813,1538"/>
+<area shape="rect" id="node58" href="$group__zwave__controller__transport__internal.html#gab1d371c3594b30fb5e48405df834696a" title="Entry point of of frame to the transport plugin system ." alt="" coords="888,1562,1067,1603"/>
+<area shape="rect" id="node59" href="$zwave__controller__transport_8c.html#a98ff30ad35d280415fc1d0c576dfcbe2" title="Get the transport by class object." alt="" coords="1137,1569,1295,1596"/>
+<area shape="rect" id="node63" href="$group__zwave__controller__internal.html#gaa93eec32b28fd4eb3adde58e8f4f9d49" title="see zwave_controller_callbacks_t" alt="" coords="419,1438,560,1479"/>
+<area shape="rect" id="node64" href="$group__zwave__controller__internal.html#ga8cfb4a77017843c63190b2c5c5ddcb3c" title="see zwave_controller_callbacks_t" alt="" coords="419,1095,560,1136"/>
+<area shape="rect" id="node65" href="$group__zwave__controller__internal.html#gadce8e3c18cd1e82f04b34e2f5ec8c0bc" title="see zwave_controller_callbacks_t" alt="" coords="419,1226,560,1267"/>
+<area shape="rect" id="node67" href="$group__zwave__controller__internal.html#gad8a28781923cfb3cea88dbb277fed535" title="see zwave_controller_callbacks_t" alt="" coords="415,1160,563,1202"/>
+<area shape="rect" id="node68" href="$group__zwave__controller__internal.html#ga354c0d4573d2be752dc8529b6daa78c9" title="see zwave_controller_callbacks_t" alt="" coords="419,1372,560,1414"/>
+<area shape="rect" id="node70" href="$group__zwave__controller__internal.html#ga8a10b80b992a01130b65fb44c94f1942" title="see zwave_controller_callbacks_t" alt="" coords="413,1292,566,1348"/>
+<area shape="rect" id="node71" href="$zwave__rx__zwapi__callbacks_8c.html#a3a3728de7575bab7ebbd4f1529f8eae4" title="function that converts the data received from the Z&#45;Wave API to fit in a zwave_node_info_t." alt="" coords="381,1044,597,1070"/>
+<area shape="rect" id="node66" href="$group__zwave__network__management.html#ga496a9fcbb21a3ffa39b17eeb532a70fa" title="Verify if we are carrying some network management operations." alt="" coords="645,1276,840,1318"/>
+<area shape="rect" id="node69" href="$group__zwave__controller__utils.html#ga876f5cc57f782a87e5eceb3d307700e8" title="Log the Z&#45;Wave received NIF using the sl_log system." alt="" coords="665,1380,820,1406"/>
+<area shape="rect" id="node72" href="$group__ZWAPI__CONTROLLER.html#ga36f9cc653f890606e5d482ecef45a6b8" title="Copy the Node&#39;s current protocol information from the non&#45;volatile memory." alt="" coords="661,1094,824,1121"/>
+<area shape="rect" id="node75" href="$group__zwave__controller__utils.html#gaa97ac86e21524642008397f6c3563be2" title="Unpack the given NIF and parse it into command class list in zwave_node_info and fill the length of r..." alt="" coords="661,1211,824,1252"/>
+<area shape="rect" id="node73" href="$zwapi__utils_8c.html#aeea16d7db2f976466a2c0f4aa9b0416f" title="Write the node ID in buffer based on node ID basetype. Note that this helper also advances the index." alt="" coords="906,1078,1049,1105"/>
+<area shape="rect" id="node74" href="$group__ZWAPI__BASIS.html#ga956fbfe63267baacd31dd20aa1c444d1" title="Get the current node ID basetype setting." alt="" coords="1119,1313,1313,1340"/>
+<area shape="rect" id="node80" href="$group__zwave__controller__internal.html#ga3311ea52f5969e89476b2707e56cd269" title="see zwave_controller_callbacks_t" alt="" coords="408,1621,571,1677"/>
+<area shape="rect" id="node82" href="$group__ZWAPI__INIT.html#gaef79cf64fd8514bb63351a3bb6f599eb" title="Checks if we are waiting for a Z&#45;Wave API started message." alt="" coords="403,978,576,1019"/>
+<area shape="rect" id="node83" href="$group__ZWAPI__INIT.html#gad44a77c9f06a6a5b81d5b3fd1f38e6b1" title="Main poll loop for the Z&#45;Wave API." alt="" coords="448,926,531,953"/>
+<area shape="rect" id="node84" href="$zwapi__session_8c.html#a1487322fab4900d52efac24a2042e781" title="Get the next frame from the zwapi_session receive queue." alt="" coords="661,1028,825,1070"/>
+<area shape="rect" id="node85" href="$zwapi__protocol__rx__dispatch_8c.html#adae889855e6d3fcf03c1723303a9ab13" title="Execute a callback based on a received frame from the Z&#45;Wave module." alt="" coords="674,1146,811,1187"/>
+<area shape="rect" id="node86" href="$zwapi__protocol__rx__dispatch_8c.html#affd1799acf38ff38beb2e80c1bf60eca" title="Fills default values in the Tx Report in case it is too short or incomplete coming from the Z&#45;Wave AP..." alt="" coords="908,1130,1047,1171"/>
+<area shape="rect" id="node87" href="$zwapi__protocol__rx__dispatch_8c.html#a96d24d537c5b8d6aa0aa6a7638ba2f09" title=" " alt="" coords="901,1196,1054,1222"/>
+<area shape="rect" id="node88" href="$zwapi__utils_8c.html#a6d88e95211c894df11d77b32fb987108" title="Read the node ID from buffer based on node ID basetype. Note that this helper also advances the index..." alt="" coords="907,1313,1047,1340"/>
+<area shape="rect" id="node89" href="$zwapi__protocol__rx__dispatch_8c.html#a66feac9effd6731812c0d38f9811977e" title=" " alt="" coords="894,1247,1061,1288"/>
+<area shape="rect" id="node91" href="$group__zwave__rx__internals.html#ga39b3186e32abce32d29efe2bc3204d0a" title="Inform other components that Z&#45;Wave RX just receievd a Z&#45;Wave API started notification." alt="" coords="405,439,573,480"/>
+</map>

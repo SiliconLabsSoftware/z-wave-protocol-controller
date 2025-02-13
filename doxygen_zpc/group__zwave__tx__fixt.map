@@ -1,0 +1,4 @@
+<map id="Z&#45;Wave TX Fixture" name="Z&#45;Wave TX Fixture">
+<area shape="rect" id="node1" href="$group__zwave__tx.html" title="This component is responsible transmission of application frames." alt="" coords="5,5,93,31"/>
+<area shape="rect" id="node2" title="Z&#45;Wave TX fixture starts the Z&#45;Wave TX process." alt="" coords="141,5,273,31"/>
+</map>

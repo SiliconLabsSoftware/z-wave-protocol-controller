@@ -1,0 +1,4 @@
+<map id="multicast_follow_ups_reset_state" name="multicast_follow_ups_reset_state">
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,149,47"/>
+<area shape="rect" id="node2" href="$group__zwave__tx__groups.html#ga08693ca0195e6f5921a7065a733ca324" title="Instructs the Z&#45;Wave TX Group that the list of NodeIDs part of a group can be modified." alt="" coords="197,13,360,39"/>
+</map>

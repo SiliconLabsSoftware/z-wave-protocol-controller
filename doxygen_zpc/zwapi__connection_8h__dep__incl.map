@@ -1,0 +1,5 @@
+<map id="applications/zpc/components/zwave_api/src/zwapi_connection.h" name="applications/zpc/components/zwave_api/src/zwapi_connection.h">
+<area shape="rect" id="node1" title="API to connect and send frames to the Z&#45;Wave module using the serial port." alt="" coords="127,5,356,47"/>
+<area shape="rect" id="node2" href="$zwapi__connection_8c.html" title=" " alt="" coords="5,95,235,136"/>
+<area shape="rect" id="node3" href="$zwapi__session_8c.html" title=" " alt="" coords="259,95,469,136"/>
+</map>

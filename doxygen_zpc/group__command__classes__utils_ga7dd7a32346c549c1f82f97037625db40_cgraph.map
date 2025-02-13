@@ -1,0 +1,10 @@
+<map id="is_portable_end_node" name="is_portable_end_node">
+<area shape="rect" id="node1" title="Verifies if a Node is a Portable End Node. (PS / PEN Role type)" alt="" coords="5,71,153,98"/>
+<area shape="rect" id="node2" href="$group__command__classes__utils.html#gaf1fbb6a0e57bf5218e97120ed7adc966" title="Provides the Role Type of a node." alt="" coords="201,71,381,98"/>
+<area shape="rect" id="node3" href="$group__zpc__attribute__store__network__helpers.html#gae4d15b8e0c61c88d94c8f342bd2014fc" title="Take a UNID/endpoint combination and returns its attribute store node." alt="" coords="429,35,609,76"/>
+<area shape="rect" id="node8" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="431,101,607,127"/>
+<area shape="rect" id="node4" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="657,35,833,76"/>
+<area shape="rect" id="node5" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="881,5,1061,47"/>
+<area shape="rect" id="node7" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="891,71,1052,98"/>
+<area shape="rect" id="node6" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="1109,13,1275,39"/>
+</map>

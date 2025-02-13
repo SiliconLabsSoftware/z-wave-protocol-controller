@@ -1,0 +1,5 @@
+<map id="zwapi_set_radio_pti" name="zwapi_set_radio_pti">
+<area shape="rect" id="node1" title="Enable/disable the PTI on Z&#45;Wave Radio." alt="" coords="432,13,569,39"/>
+<area shape="rect" id="node2" href="$zcl__rf__telemetry__cluster__server_8c.html#ac29ff666c3782d03a6bc8735c6d0f54a" title=" " alt="" coords="215,5,384,47"/>
+<area shape="rect" id="node3" href="$group__zcl__rf__telemetry__cluster__server.html#ga5a27d7313f0a22b85af05134a114a799" title="Initialize the ZCL ProtocolController RF Telemetry cluster service." alt="" coords="5,5,167,47"/>
+</map>

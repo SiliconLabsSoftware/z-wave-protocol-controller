@@ -1,0 +1,6 @@
+<map id="zwapi_supports_long_range" name="zwapi_supports_long_range">
+<area shape="rect" id="node1" title="Return whether the Z&#45;Wave module supports Long Range." alt="" coords="5,23,149,65"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__INIT.html#ga0a823074baec69913d0e8590b46e4e33" title="Check if a command is supported by the connected Z&#45;Wave module." alt="" coords="197,5,400,32"/>
+<area shape="rect" id="node3" href="$group__ZWAPI__INIT.html#ga647114dcb008816008cf9389548b1a12" title="Check if one of the serial API setup commands is supported." alt="" coords="210,56,387,83"/>
+<area shape="rect" id="node4" href="$zwapi__init_8c.html#af1ea16c1c68903ed2ac99307e0870929" title=" " alt="" coords="448,56,607,83"/>
+</map>

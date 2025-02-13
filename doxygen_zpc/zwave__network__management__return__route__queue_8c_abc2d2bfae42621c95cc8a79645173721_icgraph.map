@@ -1,0 +1,12 @@
+<map id="clear_queue_entry" name="clear_queue_entry">
+<area shape="rect" id="node1" title="Resets the value of a queue entry." alt="" coords="733,114,861,141"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management__return__route__queue.html#ga67b22179c8284b21e15f4132e7f8cd7a" title="Adds a Return Route request into the queue." alt="" coords="491,40,685,81"/>
+<area shape="rect" id="node4" href="$group__zwave__network__management__return__route__queue.html#ga7c64d5e6e7127021d9f78504413bf14d" title="Clears the Assign Return Route Queue." alt="" coords="491,139,685,180"/>
+<area shape="rect" id="node3" href="$group__zwave__network__management.html#gaea33750f3c0be561e79df3f46fc036cb" title="Assign static return routes to End Nodes." alt="" coords="248,5,443,47"/>
+<area shape="rect" id="node5" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="275,95,415,122"/>
+<area shape="rect" id="node7" href="$nm__state__machine_8c.html#a4bedb93fa551c5f612efe78db1642309" title="Initialize the Z&#45;Wave network management state machine." alt="" coords="267,146,423,173"/>
+<area shape="rect" id="node9" href="$group__zwave__network__management__fixt.html#gae63db6a62bbb5734f7291465bd18a047" title="Take down fixture for Z&#45;Wave network Management." alt="" coords="248,197,443,239"/>
+<area shape="rect" id="node10" href="$group__zwave__network__management.html#ga6228fbce9b19e3ac23d9197b7f6f65c7" title="Reset the controller." alt="" coords="248,263,443,304"/>
+<area shape="rect" id="node6" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="27,95,178,122"/>
+<area shape="rect" id="node8" href="$group__zwave__network__management__fixt.html#gaa8950dbf92037e3ec5e0385641176c98" title="Initialize the Z&#45;Wave Network Management Module." alt="" coords="5,204,200,245"/>
+</map>

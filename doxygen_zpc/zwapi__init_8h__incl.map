@@ -1,0 +1,9 @@
+<map id="applications/zpc/components/zwave_api/include/zwapi_init.h" name="applications/zpc/components/zwave_api/include/zwapi_init.h">
+<area shape="rect" id="node1" title="Z&#45;Wave API initialization functions." alt="" coords="259,5,465,47"/>
+<area shape="rect" id="node2" title=" " alt="" coords="116,244,181,271"/>
+<area shape="rect" id="node3" title=" " alt="" coords="477,244,551,271"/>
+<area shape="rect" id="node4" href="$sl__status_8h.html" title="SL Status Codes." alt="" coords="24,169,111,196"/>
+<area shape="rect" id="node5" href="$zwapi__protocol__basis_8h.html" title="Z&#45;Wave API for basis controller/end node application interface." alt="" coords="283,95,441,121"/>
+<area shape="rect" id="node6" href="$zwave__rf__region_8h.html" title=" " alt="" coords="450,169,578,196"/>
+<area shape="rect" id="node7" href="$zwave__node__id__definitions_8h.html" title=" " alt="" coords="135,169,325,196"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="on_scene_activation_set_send_data_complete" name="on_scene_activation_set_send_data_complete">
+<area shape="rect" id="node1" title="Decides what to do after we&#39;ve sent a Scene Activation Set Command." alt="" coords="499,5,673,47"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__scene__activation__control.html#ga5c58f90f00a6cf95293a1222ca252ef3" title="Initializes the Scene Activation Command Class control handler." alt="" coords="253,5,451,47"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

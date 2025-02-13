@@ -1,0 +1,37 @@
+<map id="zwave_command_handler_register_handler" name="zwave_command_handler_register_handler">
+<area shape="rect" id="node1" title="Register a command class handler." alt="" coords="507,1075,680,1116"/>
+<area shape="rect" id="node2" href="$group__alarm__sensor__command__class.html#gab5b11484f7582b9fac5c147f7ae9517d" title="This function initialize the Alarm Sensor Command Class handler." alt="" coords="275,5,437,47"/>
+<area shape="rect" id="node4" href="$group__barrier__operator__command__class.html#gac5e03a6ca5a68828e6af45d20a5a30c7" title="This function initialize the Barrier Operator Command Class handler." alt="" coords="275,71,437,112"/>
+<area shape="rect" id="node5" href="$group__zwave__command__class__basic.html#ga6780c7bc2310c30c76e7a54aa101604f" title="Initialize the basic command class handler." alt="" coords="275,136,437,177"/>
+<area shape="rect" id="node6" href="$group__zwave__command__class__central__scene.html#ga0667e3960719fc27dd2b5df9ade52019" title="This function initialize the Central Scene Command Class handler." alt="" coords="275,201,437,243"/>
+<area shape="rect" id="node7" href="$group__zwave__command__class__configuration.html#gacc11ad9afa837acce0d1aada6408e1ce" title="This function initialize the Configuration Command Class handler." alt="" coords="275,267,437,308"/>
+<area shape="rect" id="node8" href="$group__zwave__command__class__humidity__control__mode.html#ga4defd78d724f1338489c14c68b22ef54" title=" " alt="" coords="263,332,449,373"/>
+<area shape="rect" id="node9" href="$group__zwave__command__class__humidity__control__operating__state.html#ga8753797ba765001a6bf13d7c6518b111" title=" " alt="" coords="264,398,448,454"/>
+<area shape="rect" id="node10" href="$group__zwave__command__class__humidity__control__setpoint.html#ga4abb01b3b103b452e9d967c16c521f24" title=" " alt="" coords="255,479,457,520"/>
+<area shape="rect" id="node11" href="$group__zwave__command__class__indicator__support.html#ga0f4f581c0adc3e8018e4ade3858017fb" title="setup for indicator command class" alt="" coords="275,544,437,585"/>
+<area shape="rect" id="node12" href="$zwave__command__class__manufacturer__specific_8c.html#a68b75e94eac46dc0380c3f045ab0653b" title="setup for manufacturer specific command class" alt="" coords="265,609,447,651"/>
+<area shape="rect" id="node13" href="$group__zwave__command__class__meter__control.html#gabaf4a36abd7f11c2acd3c0df5575d721" title="This function initialize the Meter Command Class control handler." alt="" coords="275,675,437,716"/>
+<area shape="rect" id="node14" href="$group__multi__channel__command__class.html#ga6abc4c22f5e74b009f78dfe072511cc0" title="Initialize the Multi Channel Command Class (handler) *." alt="" coords="275,740,437,781"/>
+<area shape="rect" id="node15" href="$group__multi__command__command__class.html#ga3991eb1ccdba6d50f4cc6d949c3cb9dc" title="Initialize the Multi Command handler." alt="" coords="275,805,437,847"/>
+<area shape="rect" id="node16" href="$group__multilevel__sensor__command__class.html#gae565619d311f1e10a434f87b874b2d64" title="Initialize the Multilevel Sensor Command Class control." alt="" coords="275,871,437,912"/>
+<area shape="rect" id="node17" href="$zwave__command__class__powerlevel_8c.html#a514166d46bd0d8be676c70d0c506aaca" title="setup for powerelvel command class" alt="" coords="275,936,437,977"/>
+<area shape="rect" id="node18" href="$group__zwave__command__class__scene__activation__control.html#ga5c58f90f00a6cf95293a1222ca252ef3" title="Initializes the Scene Activation Command Class control handler." alt="" coords="257,1001,455,1043"/>
+<area shape="rect" id="node19" href="$group__zwave__command__class__scene__actuator__configuration__control.html#ga92ba47761c17964d4b511e40406ba1f6" title="Initializes the Scene Actuator Configuration Command Class control handler." alt="" coords="257,1067,455,1123"/>
+<area shape="rect" id="node20" href="$group__zwave__command__class__scene__controller__configuration__control.html#ga368253538863afb43f4b2a37996ef1b0" title="Initializes the Scene Controller Configuration Command Class control handler." alt="" coords="253,1147,459,1203"/>
+<area shape="rect" id="node21" href="$group__security__0__command__class.html#ga7460f029f90a343242e45c6233e1cdc2" title="Intitialize the Security 0 Command Class handler." alt="" coords="275,1228,437,1269"/>
+<area shape="rect" id="node22" href="$group__security__2__command__class.html#ga8d46dba73126d88511566e7ae09eced5" title="Intitialize the security 2 command class handler." alt="" coords="275,1293,437,1335"/>
+<area shape="rect" id="node23" href="$group__zwave__command__class__sound__switch.html#ga9288036273fc366b060a837b94bc0ad4" title=" " alt="" coords="275,1359,437,1400"/>
+<area shape="rect" id="node24" href="$group__zwave__command__class__supervision__handler.html#gaeaff3d9d85a38b52f67f91ea41163a72" title="Setup fixture for the Supervision Command Class." alt="" coords="275,1424,437,1465"/>
+<area shape="rect" id="node25" href="$group__switch__multilevel__command__class.html#ga866d4efa5431c875235b5540a38dcc4c" title="This function initialize the Multilevel Switch Command Class handler." alt="" coords="275,1489,437,1531"/>
+<area shape="rect" id="node26" href="$group__zwave__command__class__thermostat__fan__mode.html#ga7ecf581fff419caff01c80f5934c77c5" title=" " alt="" coords="267,1555,445,1596"/>
+<area shape="rect" id="node27" href="$group__zwave__command__class__thermostat__fan__state.html#gaba5752c92485afe3c45d175a24793b84" title=" " alt="" coords="268,1620,444,1661"/>
+<area shape="rect" id="node28" href="$group__thermostat__mode__command__class.html#ga0ab18b0653e4398983bcaa978c963c56" title="Initialize the Thermostat Mode Command Class control." alt="" coords="275,1685,437,1727"/>
+<area shape="rect" id="node29" href="$group__zwave__command__class__thermostat__operating__state.html#ga59d01d7fd66888f028c206b31f718980" title=" " alt="" coords="275,1751,437,1807"/>
+<area shape="rect" id="node30" href="$zwave__command__class__time_8c.html#aa72fa8c480ed97a0e4e905df5f8536eb" title="setup for time command class" alt="" coords="275,1832,437,1873"/>
+<area shape="rect" id="node31" href="$group__zwave__command__class__transport__service.html#gaca6a860db490d9995ea9f2f8a5a8fd33" title=" " alt="" coords="275,1897,437,1939"/>
+<area shape="rect" id="node32" href="$group__zwave__command__class__user__code.html#ga3903c1853dfc3b999bcb5570d3355a35" title="Initializes the User Code Command Class handler." alt="" coords="275,1963,437,2004"/>
+<area shape="rect" id="node33" href="$group__zwave__command__class__version.html#gabae96a5c6c82334f5979f3b407b973e3" title="Intitialize the Version Command Class control APIs." alt="" coords="275,2028,437,2069"/>
+<area shape="rect" id="node34" href="$group__zwave__command__class__wake__up.html#ga11866ec0935bee3fba386bc3ed28e0b6" title="Initializes the Wake Up Command Class handler." alt="" coords="275,2093,437,2135"/>
+<area shape="rect" id="node35" href="$zwave__command__class__zwave__plus__info_8c.html#a3ee4e506c97a88731c178d50bd34b05e" title="setup for Zwave Plus Info command class" alt="" coords="275,2159,437,2200"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,1162,205,1189"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="set_state" name="set_state">
+<area shape="rect" id="node1" title="Save the state (last active scene) of a supporting node in the attribute store." alt="" coords="1076,31,1152,57"/>
+<area shape="rect" id="node2" href="$zwave__command__class__central__scene_8c.html#ad69259a3e8dd0c740822284f48214da6" title="Sets back the current scene to IDLE." alt="" coords="885,5,1028,32"/>
+<area shape="rect" id="node3" href="$zwave__command__class__central__scene_8c.html#ae3848c038cdd30270d8792e81a6a2649" title="Handle incoming Central Scene Notification Commands." alt="" coords="675,16,837,72"/>
+<area shape="rect" id="node4" href="$zwave__command__class__central__scene_8c.html#ac1dbc357bf367e93b7f7e0ef29f85a44" title="Dispatches incoming Central Scene Commands to individual command handlers." alt="" coords="464,16,627,72"/>
+<area shape="rect" id="node5" href="$group__zwave__command__class__central__scene.html#ga0667e3960719fc27dd2b5df9ade52019" title="This function initialize the Central Scene Command Class handler." alt="" coords="253,23,416,65"/>
+<area shape="rect" id="node6" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,31,205,57"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="Network Monitor" name="Network Monitor">
+<area shape="rect" id="node1" href="$group__failing__network__monitor.html" title="Monitors AL and FL failing nodes, queues NOPs to verify if they started responding again." alt="" coords="193,5,336,31"/>
+<area shape="rect" id="node2" title="The Network State Monitor." alt="" coords="5,95,124,120"/>
+<area shape="rect" id="node3" href="$group__network__monitor__keep__alive.html" title="This module implements a safety mechanism for wake up nodes. It attempts to keep these nodes awake wh..." alt="" coords="189,55,341,95"/>
+<area shape="rect" id="node4" href="$group__network__monitor__smart__start.html" title="Monitors network events and updates the SmartStart list accordingly." alt="" coords="172,119,357,159"/>
+<area shape="rect" id="node5" href="$group__network__monitor__span__persistence.html" title="This sub&#45;module provides an API to save and restore SPAN data." alt="" coords="195,183,334,223"/>
+</map>

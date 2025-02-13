@@ -1,0 +1,6 @@
+<map id="time_to_zwave_duration" name="time_to_zwave_duration">
+<area shape="rect" id="node1" title="Converts a clock_time_t duration to a Z&#45;Wave Command Class duration byte." alt="" coords="675,13,837,39"/>
+<area shape="rect" id="node2" href="$zwave__command__class__switch__multilevel_8c.html#abea13be094c4d24c85b84e3cd50f6795" title=" " alt="" coords="464,5,627,47"/>
+<area shape="rect" id="node3" href="$group__switch__multilevel__command__class.html#ga866d4efa5431c875235b5540a38dcc4c" title="This function initialize the Multilevel Switch Command Class handler." alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

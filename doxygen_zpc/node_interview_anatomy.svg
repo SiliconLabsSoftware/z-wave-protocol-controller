@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="612px" preserveAspectRatio="none" style="width:1205px;height:612px;background:#FFFFFF;" version="1.1" viewBox="0 0 1205 612" width="1205px" zoomAndPan="magnify"><defs><filter height="300%" id="f4fl4c2hed670" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacing" textLength="374" x="409" y="19.2419">The anatomy of a Node (Endpoint) interview</text><rect fill="#DDDDDD" height="67.2038" rx="5" ry="5" style="stroke:#000000;stroke-width:1.0;" width="163" x="514" y="32.5158"/><text fill="#118648" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="18" x="520" y="52.4818">--&gt;</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="123" x="542" y="52.4818">Listens to updates</text><text fill="#7D2508" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="26" x="520" y="71.5497">&lt;--&gt;</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="121" x="550" y="71.5497">Resolves attribute</text><text fill="#7E770A" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="18" x="520" y="90.6176">&lt;--</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="114" x="542" y="90.6176">Creates attribute</text><!--MD5=[b65261aef118fb2a779de7bafa1033ab]
+cluster Another Component--><polygon fill="#FFFFFF" filter="url(#f4fl4c2hed670)" points="16,502.7196,165,502.7196,172,527.7875,192,527.7875,192,598.7196,16,598.7196,16,502.7196" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="16" x2="172" y1="527.7875" y2="527.7875"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="143" x="20" y="519.6855">Another Component</text><!--MD5=[ea3d5de2a0d35296bc751d5a1b771698]
+cluster Attribute Store--><path d="M230,124.7196 C230,114.7196 649,114.7196 649,114.7196 C649,114.7196 1068,114.7196 1068,124.7196 L1068,461.7196 C1068,471.7196 649,471.7196 649,471.7196 C649,471.7196 230,471.7196 230,461.7196 L230,124.7196 " fill="#FFFFFF" filter="url(#f4fl4c2hed670)" style="stroke:#000000;stroke-width:1.5;"/><path d="M230,124.7196 C230,134.7196 649,134.7196 649,134.7196 C649,134.7196 1068,134.7196 1068,124.7196 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="105" x="596.5" y="151.6855">Attribute Store</text><!--MD5=[fc38b25e0dadf8f7ce1177fb49ab4991]
+cluster Z-Wave NIF Resolver--><polygon fill="#FFFFFF" filter="url(#f4fl4c2hed670)" points="216,495.7196,364,495.7196,371,520.7875,635,520.7875,635,605.7196,216,605.7196,216,495.7196" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="216" x2="371" y1="520.7875" y2="520.7875"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="142" x="220" y="512.6855">Z-Wave NIF Resolver</text><!--MD5=[f19fed1edcd566d25c8408c335b03061]
+cluster Version Command Class handler--><polygon fill="#FFFFFF" filter="url(#f4fl4c2hed670)" points="659,495.7196,889,495.7196,896,520.7875,1188,520.7875,1188,605.7196,659,605.7196,659,495.7196" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="659" x2="896" y1="520.7875" y2="520.7875"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="224" x="663" y="512.6855">Version Command Class handler</text><rect fill="#FEFECE" filter="url(#f4fl4c2hed670)" height="41.9641" style="stroke:#000000;stroke-width:1.5;" width="144" x="32" y="540.7196"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="111" x="48.5" y="555.5477">Another component</text><line style="stroke:#000000;stroke-width:1.5;" x1="33" x2="175" y1="561.0637" y2="561.0637"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="132" x="38" y="575.7537">Wants an interview to start</text><rect fill="#F2FFE6" filter="url(#f4fl4c2hed670)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="193" x="536.5" y="167.7196"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="43" x="611.5" y="182.5477">NodeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="537.5" x2="728.5" y1="188.0637" y2="188.0637"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="181" x="542.5" y="202.7537">Attribute Type = ATTRIBUTE_NODE_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="542.5" y="216.3737">value = Desired: [], Reported: [03]</text><rect fill="#E6FFF7" filter="url(#f4fl4c2hed670)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="216" x="246" y="283.7196"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="101" x="303.5" y="298.5477">Endpoint Attribute</text><line style="stroke:#000000;stroke-width:1.5;" x1="247" x2="461" y1="304.0637" y2="304.0637"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="204" x="252" y="318.7537">Attribute Type = ATTRIBUTE_ENDPOINT_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="252" y="332.3737">value = Desired: [] - Reported: [04]</text><rect fill="#E8EAF6" filter="url(#f4fl4c2hed670)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="272" x="497" y="283.7196"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="74" x="596" y="298.5477">Granted keys</text><line style="stroke:#000000;stroke-width:1.5;" x1="498" x2="768" y1="304.0637" y2="304.0637"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="260" x="503" y="318.7537">Attribute Type = ATTRIBUTE_GRANTED_SECURITY_KEYS</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="503" y="332.3737">value = Desired: [] - Reported: [83]</text><rect fill="#FFFFFF" filter="url(#f4fl4c2hed670)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="203" x="249.5" y="399.7196"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="19" x="341.5" y="414.5477">NIF</text><line style="stroke:#000000;stroke-width:1.5;" x1="250.5" x2="451.5" y1="420.0637" y2="420.0637"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="191" x="255.5" y="434.7537">Attribute Type = ATTRIBUTE_ZWAVE_NIF</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="149" x="255.5" y="448.3737">value = Desired: [], Reported: []</text><rect fill="#FFFFFF" filter="url(#f4fl4c2hed670)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="243" x="487.5" y="399.7196"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="61" x="578.5" y="414.5477">Secure NIF</text><line style="stroke:#000000;stroke-width:1.5;" x1="488.5" x2="729.5" y1="420.0637" y2="420.0637"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="231" x="493.5" y="434.7537">Attribute Type = ATTRIBUTE_SECURE_ZWAVE_NIF</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="149" x="493.5" y="448.3737">value = Desired: [], Reported: []</text><rect fill="#FFFFFF" filter="url(#f4fl4c2hed670)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="247" x="804.5" y="283.7196"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="98" x="879" y="298.5477">Version CC Found</text><line style="stroke:#000000;stroke-width:1.5;" x1="805.5" x2="1050.5" y1="304.0637" y2="304.0637"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="235" x="810.5" y="318.7537">Attribute Type = ATTRIBUTE_CC_VERSION_FOUND</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="149" x="810.5" y="332.3737">value = Desired: [], Reported: []</text><rect fill="#FEFECE" filter="url(#f4fl4c2hed670)" height="41.9641" style="stroke:#000000;stroke-width:1.5;" width="238" x="232" y="540.7196"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="80" x="311" y="555.5477">NIF Resolution</text><line style="stroke:#000000;stroke-width:1.5;" x1="233" x2="469" y1="561.0637" y2="561.0637"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="226" x="238" y="575.7537">Finds the right command for resolving the NIFs</text><rect fill="#FEFECE" filter="url(#f4fl4c2hed670)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="113" x="505.5" y="533.7196"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="69" x="527.5" y="548.5477">NIF Updates</text><line style="stroke:#000000;stroke-width:1.5;" x1="506.5" x2="617.5" y1="554.0637" y2="554.0637"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="101" x="511.5" y="568.7537">Verifies granted keys</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="86" x="511.5" y="582.3737">Create Secure NIF</text><rect fill="#FEFECE" filter="url(#f4fl4c2hed670)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="200" x="675" y="533.7196"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="69" x="740.5" y="548.5477">NIF Updates</text><line style="stroke:#000000;stroke-width:1.5;" x1="676" x2="874" y1="554.0637" y2="554.0637"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="102" x="681" y="568.7537">Search for Version CC</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="188" x="681" y="582.3737">Create supported CC version attributes</text><rect fill="#FEFECE" filter="url(#f4fl4c2hed670)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="261" x="910.5" y="533.7196"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="119" x="981.5" y="548.5477">Version found update</text><line style="stroke:#000000;stroke-width:1.5;" x1="911.5" x2="1170.5" y1="554.0637" y2="554.0637"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="217" x="916.5" y="568.7537">unresolve CC Versions attribute, when added</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="249" x="916.5" y="582.3737">set back CC Versions attributes to 1, when removed</text><!--MD5=[95477c314ce472250aabd32546a8a81f]
+reverse link node to endpoint--><path codeLine="1732" d="M554.62,228.7496 C512.23,246.0696 460.46,267.2196 420.13,283.6996 " fill="none" id="node-backto-endpoint" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="566.88,223.7396,559.8134,222.303,555.7695,228.2734,562.836,229.71,566.88,223.7396" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[00f2dfa714d7ddd67086c78805db2e60]
+reverse link node to granted_keys--><path codeLine="1733" d="M633,237.1996 C633,252.5496 633,269.6596 633,283.4996 " fill="none" id="node-backto-granted_keys" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="633,223.7396,629,229.7396,633,235.7396,637,229.7396,633,223.7396" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[17251201e8ce9d7773083da4aa1f0f81]
+reverse link endpoint to nif--><path codeLine="1734" d="M352.93,353.1996 C352.53,368.5496 352.08,385.6596 351.72,399.4996 " fill="none" id="endpoint-backto-nif" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="353.29,339.7396,349.1332,345.6321,352.9736,351.7354,357.1304,345.843,353.29,339.7396" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[707220feda4d310dda61e6ef1139c3bb]
+reverse link endpoint to snif--><path codeLine="1735" d="M426.38,345.0796 C464.99,362.3396 511.93,383.3296 548.56,399.6996 " fill="none" id="endpoint-backto-snif" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="414.43,339.7396,418.272,345.842,425.3827,344.6426,421.5407,338.5402,414.43,339.7396" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[b06a32206999eb529e450288589a193a]
+reverse link node to version_found--><path codeLine="1736" d="M715.3,228.5196 C760.22,245.8796 815.25,267.1496 858.08,283.6996 " fill="none" id="node-backto-version_found" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="702.91,223.7396,707.0653,229.6331,714.1037,228.0641,709.9483,222.1706,702.91,223.7396" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[45b3c66052b4f371dafbd4c4b589b969]
+reverse link nif to other_component--><path codeLine="1738" d="M278.38,457.8296 C257.88,466.7496 235.78,477.0496 216,487.7196 C186.38,503.6996 154.38,524.9996 132.2,540.4596 " fill="none" id="nif-backto-other_component" style="stroke:#7E770A;stroke-width:1.0;"/><polygon fill="#7E770A" points="283,455.8296,273.1516,455.7353,278.4117,457.8164,276.3305,463.0765,283,455.8296" style="stroke:#7E770A;stroke-width:1.0;"/><!--MD5=[b9468bba2558b67651b0ba69d4d37840]
+link nif to nif_resolution--><path codeLine="1740" d="M351,460.9196 C351,483.8496 351,514.2396 351,535.4296 " fill="none" id="nif-nif_resolution" style="stroke:#7D2508;stroke-width:1.0;"/><polygon fill="#7D2508" points="351,540.6096,355,531.6096,351,535.6096,347,531.6096,351,540.6096" style="stroke:#7D2508;stroke-width:1.0;"/><polygon fill="#7D2508" points="351,455.7496,347,464.7496,351,460.7496,355,464.7496,351,455.7496" style="stroke:#7D2508;stroke-width:1.0;"/><!--MD5=[b56a44d80cb3bb4fe8cff757eb42cd53]
+link snif to nif_resolution--><path codeLine="1741" d="M547.63,458.1096 C528.46,467.4396 507.29,477.8796 488,487.7196 C455.66,504.2096 419.42,523.5596 392.34,538.1896 " fill="none" id="snif-nif_resolution" style="stroke:#7D2508;stroke-width:1.0;"/><polygon fill="#7D2508" points="387.74,540.6896,397.5584,539.9161,392.1355,538.3063,393.7452,532.8834,387.74,540.6896" style="stroke:#7D2508;stroke-width:1.0;"/><polygon fill="#7D2508" points="552.46,455.7696,542.6168,456.1037,547.9625,457.9541,546.112,463.2998,552.46,455.7696" style="stroke:#7D2508;stroke-width:1.0;"/><!--MD5=[9518322d1804e0be46ca7c0ac4760085]
+link nif to nif_updates--><path codeLine="1743" d="M414.88,455.8396 C448.51,470.2096 483.53,485.3896 487,487.7196 C504.52,499.4696 521.57,515.5696 534.98,529.6596 " fill="none" id="nif-to-nif_updates" style="stroke:#118648;stroke-width:1.0;"/><polygon fill="#118648" points="538.66,533.5796,535.4045,524.2843,535.2332,529.9386,529.5789,529.7673,538.66,533.5796" style="stroke:#118648;stroke-width:1.0;"/><!--MD5=[ef154293f29dbfefd3179e5d453b01f3]
+link nif_updates to snif--><path codeLine="1744" d="M571.77,533.2696 C579.3,512.1296 589.73,482.8496 597.63,460.6596 " fill="none" id="nif_updates-to-snif" style="stroke:#7E770A;stroke-width:1.0;"/><polygon fill="#7E770A" points="599.38,455.7496,592.5833,462.8773,597.6965,460.4577,600.1162,465.5709,599.38,455.7496" style="stroke:#7E770A;stroke-width:1.0;"/><!--MD5=[f9a9398180196a3891cee59cd0f1ae71]
+link nif to version_nif_updates--><path codeLine="1746" d="M402.95,455.7496 C423.31,465.0596 447.22,474.4696 470,479.7196 C541.54,496.2196 564.13,468.5196 635,487.7196 C668.76,496.8696 703.66,515.0296 730.16,530.9596 " fill="none" id="nif-to-version_nif_updates" style="stroke:#118648;stroke-width:1.0;"/><polygon fill="#118648" points="734.68,533.6996,729.072,525.6033,730.409,531.0999,724.9124,532.4369,734.68,533.6996" style="stroke:#118648;stroke-width:1.0;"/><!--MD5=[a82ebae51b3e20f3bf87e3bf31587ece]
+link snif to version_nif_updates--><path codeLine="1747" d="M642.99,455.7496 C670.21,477.3896 708.37,507.7396 736.67,530.2396 " fill="none" id="snif-to-version_nif_updates" style="stroke:#118648;stroke-width:1.0;"/><polygon fill="#118648" points="740.77,533.4996,736.2176,524.766,736.8573,530.3866,731.2367,531.0263,740.77,533.4996" style="stroke:#118648;stroke-width:1.0;"/><!--MD5=[5df2b56f04156e00ec9cf56155aa6b0e]
+link version_nif_updates to version_found--><path codeLine="1748" d="M791.88,533.3596 C820.52,486.9396 878.46,393.0196 908.68,344.0396 " fill="none" id="version_nif_updates-to-version_found" style="stroke:#7E770A;stroke-width:1.0;"/><polygon fill="#7E770A" points="911.34,339.7296,903.2082,345.286,908.7131,343.984,910.0152,349.4889,911.34,339.7296" style="stroke:#7E770A;stroke-width:1.0;"/><!--MD5=[35dbcd194b3c354417d83993f9ade053]
+link version_found to version_found_update--><path codeLine="1749" d="M940.31,339.7296 C961.31,385.8296 1003.97,479.4496 1026.43,528.7396 " fill="none" id="version_found-to-version_found_update" style="stroke:#118648;stroke-width:1.0;"/><polygon fill="#118648" points="1028.54,533.3596,1028.4456,523.5112,1026.4656,528.8102,1021.1666,526.8302,1028.54,533.3596" style="stroke:#118648;stroke-width:1.0;"/><!--MD5=[93214a0d9a08b9d113b74ed7e4072e18]
+@startuml node_interview_anatomy.svg
+title The anatomy of a Node (Endpoint) interview
+allow_mixing
+skinparam objectBorderColor black
+
+legend top
+<font color=#118648>- -></font> Listens to updates
+<font color=#7d2508><- -></font> Resolves attribute
+<font color=#7e770a><- -</font> Creates attribute
+endlegend
+
+package "Another Component" {
+  object "Another component" as other_component
+  other_component : Wants an interview to start
+}
+
+package "Attribute Store" <<Database>> {
+  object "NodeID" as node #f2ffe6
+  node : Attribute Type = ATTRIBUTE_NODE_ID
+  node : value = Desired: [], Reported: [03]
+
+  object "Endpoint Attribute" as endpoint #e6fff7
+  endpoint : Attribute Type = ATTRIBUTE_ENDPOINT_ID
+  endpoint : value = Desired: [] - Reported: [04]
+
+  object "Granted keys" as granted_keys #E8EAF6
+  granted_keys : Attribute Type = ATTRIBUTE_GRANTED_SECURITY_KEYS
+  granted_keys : value = Desired: [] - Reported: [83]
+
+  object "NIF" as nif #FFFFFF
+  nif : Attribute Type = ATTRIBUTE_ZWAVE_NIF
+  nif : value = Desired: [], Reported: []
+
+  object "Secure NIF" as snif #FFFFFF
+  snif : Attribute Type = ATTRIBUTE_SECURE_ZWAVE_NIF
+  snif : value = Desired: [], Reported: []
+
+  object "Version CC Found" as version_found #FFFFFF
+  version_found : Attribute Type = ATTRIBUTE_CC_VERSION_FOUND
+  version_found : value = Desired: [], Reported: []
+}
+
+package "Z-Wave NIF Resolver" {
+  object "NIF Resolution" as nif_resolution
+  nif_resolution : Finds the right command for resolving the NIFs
+
+  object "NIF Updates" as nif_updates
+  nif_updates : Verifies granted keys
+  nif_updates : Create Secure NIF
+}
+
+
+package "Version Command Class handler" {
+  object "NIF Updates" as version_nif_updates
+  version_nif_updates : Search for Version CC
+  version_nif_updates : Create supported CC version attributes
+
+  object "Version found update" as version_found_update
+  version_found_update : unresolve CC Versions attribute, when added
+  version_found_update : set back CC Versions attributes to 1, when removed
+}
+
+node *- - endpoint
+node *- - granted_keys
+endpoint *- - nif
+endpoint *- - snif
+node *- - version_found
+
+nif <-[#7e770a]- other_component
+
+nif <-[#7d2508]-> nif_resolution
+snif <-[#7d2508]-> nif_resolution
+
+nif -[#118648]-> nif_updates
+nif_updates -[#7e770a]-> snif
+
+nif -[#118648]-> version_nif_updates
+snif -[#118648]-> version_nif_updates
+version_nif_updates -[#7e770a]-> version_found
+version_found -[#118648]-> version_found_update
+@enduml
+
+PlantUML version 1.2022.0(Tue Jan 11 17:16:42 CET 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

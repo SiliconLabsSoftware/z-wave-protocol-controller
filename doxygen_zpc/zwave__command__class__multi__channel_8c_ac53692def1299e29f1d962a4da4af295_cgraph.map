@@ -1,0 +1,6 @@
+<map id="check_if_all_individual_endpoints_are_found" name="check_if_all_individual_endpoints_are_found">
+<area shape="rect" id="node1" title="Counts in the attribute store if the number of individual endpoints attribute matches the current lis..." alt="" coords="5,23,157,65"/>
+<area shape="rect" id="node2" href="$zwave__command__class__multi__channel_8c.html#a16daf353476dffd2f848569ce30974b9" title="Creates aggregated endpoints for a Z&#45;Wave Node." alt="" coords="205,5,397,32"/>
+<area shape="rect" id="node4" href="$group__multi__channel__command__class.html#ga0d968501f62f2aad4faf3be6e3d7601a" title="Checks if an endpoints is aggregated." alt="" coords="445,56,604,83"/>
+<area shape="rect" id="node3" href="$zwave__command__class__multi__channel_8c.html#a2d182b7aae379e1581d3df4b0981489e" title="Creates a new endpoint in the attribute store." alt="" coords="452,5,597,32"/>
+</map>

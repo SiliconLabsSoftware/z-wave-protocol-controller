@@ -1,0 +1,23 @@
+<map id="zwave_command_class_multi_channel_init" name="zwave_command_class_multi_channel_init">
+<area shape="rect" id="node1" title="Initialize the Multi Channel Command Class (handler) *." alt="" coords="5,255,168,296"/>
+<area shape="rect" id="node2" href="$zwave__command__class__multi__channel_8c.html#ae65575937ac44471f120d1a469e19d97" title=" " alt="" coords="223,61,403,117"/>
+<area shape="rect" id="node3" href="$zwave__command__class__multi__channel_8c.html#a88ad4dc75b1c623b46ed20d5dc40fced" title=" " alt="" coords="231,141,394,197"/>
+<area shape="rect" id="node18" href="$zwave__command__class__multi__channel_8c.html#a79c087a9d19a6535e6f1e2a7888462af" title=" " alt="" coords="216,221,409,263"/>
+<area shape="rect" id="node19" href="$zwave__command__class__multi__channel_8c.html#a2213ec5e647b57be3a48282c7888d775" title=" " alt="" coords="217,287,408,328"/>
+<area shape="rect" id="node20" href="$zwave__command__class__multi__channel_8c.html#adb5f1d5034240ce5b2bcde775556f133" title=" " alt="" coords="223,353,402,409"/>
+<area shape="rect" id="node21" href="$group__zwave__command__handler.html#gae1313215c0459775bb126a2ba636eb2f" title="Register a command class handler." alt="" coords="226,433,399,475"/>
+<area shape="rect" id="node4" href="$zwave__command__class__multi__channel_8c.html#ae4f7457abe3345a76e9f1273d9af1027" title=" " alt="" coords="457,5,652,76"/>
+<area shape="rect" id="node11" href="$zwave__command__class__multi__channel_8c.html#a7653ba2fd689a4ff2fc7e906d1cb83f7" title=" " alt="" coords="461,101,649,157"/>
+<area shape="rect" id="node12" href="$zwave__command__class__multi__channel_8c.html#ac31f5557f92c30177a3d9d97fb2f70ee" title=" " alt="" coords="473,261,636,332"/>
+<area shape="rect" id="node17" href="$zwave__command__class__multi__channel_8c.html#a8f845bef966dfa5c377b08bb0f7d406a" title=" " alt="" coords="463,181,646,237"/>
+<area shape="rect" id="node5" href="$group__zpc__attribute__store__network__helpers.html#ga7a3f40a9cbc90f2674b9e9e454fd6207" title="Take a Z&#45;Wave NodeID and return its Attribute Store node representing the NodeID." alt="" coords="700,121,869,177"/>
+<area shape="rect" id="node6" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="925,89,1101,131"/>
+<area shape="rect" id="node10" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="925,155,1101,182"/>
+<area shape="rect" id="node7" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="1157,87,1337,128"/>
+<area shape="rect" id="node9" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="1167,153,1328,179"/>
+<area shape="rect" id="node8" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="1385,94,1551,121"/>
+<area shape="rect" id="node13" href="$zwave__command__class__multi__channel_8c.html#ac53692def1299e29f1d962a4da4af295" title="Counts in the attribute store if the number of individual endpoints attribute matches the current lis..." alt="" coords="709,247,861,288"/>
+<area shape="rect" id="node15" href="$zwave__command__class__multi__channel_8c.html#a2d182b7aae379e1581d3df4b0981489e" title="Creates a new endpoint in the attribute store." alt="" coords="1175,291,1320,318"/>
+<area shape="rect" id="node14" href="$zwave__command__class__multi__channel_8c.html#a16daf353476dffd2f848569ce30974b9" title="Creates aggregated endpoints for a Z&#45;Wave Node." alt="" coords="917,262,1109,289"/>
+<area shape="rect" id="node16" href="$group__multi__channel__command__class.html#ga0d968501f62f2aad4faf3be6e3d7601a" title="Checks if an endpoints is aggregated." alt="" coords="1168,215,1327,242"/>
+</map>

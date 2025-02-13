@@ -1,0 +1,4 @@
+<map id="zwave_command_class_supervision_close_session_by_tx_session" name="zwave_command_class_supervision_close_session_by_tx_session">
+<area shape="rect" id="node1" title="Close a supervision session based on the Z&#45;Wave Tx session ID." alt="" coords="252,5,437,61"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__supervision__handler.html#gad32f8e43a689055a0cc346f289f6836f" title="Abort a queued or ongoing transmission." alt="" coords="5,13,204,54"/>
+</map>

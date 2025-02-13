@@ -1,0 +1,12 @@
+<map id="power_level_test" name="power_level_test">
+<area shape="rect" id="node1" title=" " alt="" coords="270,499,390,576"/>
+<area shape="rect" id="node2" href="$structzwave__controller__connection__info.html" title="Structure holding information about the source and destination when transmitting and receiving Z&#45;Wave..." alt="" coords="82,359,301,436"/>
+<area shape="rect" id="node3" href="$structzwave__controller__endpoint__t.html" title=" " alt="" coords="77,167,263,245"/>
+<area shape="rect" id="node4" title=" " alt="" coords="5,5,73,83"/>
+<area shape="rect" id="node5" title=" " alt="" coords="119,5,181,83"/>
+<area shape="rect" id="node6" title=" " alt="" coords="221,5,343,83"/>
+<area shape="rect" id="node7" title=" " alt="" coords="368,5,415,83"/>
+<area shape="rect" id="node8" title=" " alt="" coords="288,160,495,252"/>
+<area shape="rect" id="node9" title=" " alt="" coords="325,359,442,436"/>
+<area shape="rect" id="node10" title=" " alt="" coords="467,359,641,436"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="applications/zpc/components/zwave_command_classes/include/zwave_command_class_multi_channel.h" name="applications/zpc/components/zwave_command_classes/include/zwave_command_class_multi_channel.h">
+<area shape="rect" id="node1" title=" " alt="" coords="43,5,307,61"/>
+<area shape="rect" id="node2" href="$sl__status_8h.html" title="SL Status Codes." alt="" coords="5,191,92,218"/>
+<area shape="rect" id="node4" href="$zwave__controller__connection__info_8h.html" title=" " alt="" coords="288,184,479,225"/>
+<area shape="rect" id="node10" title=" " alt="" coords="165,109,281,136"/>
+<area shape="rect" id="node11" href="$zwave__rx__definitions_8h.html" title=" " alt="" coords="306,109,461,136"/>
+<area shape="rect" id="node3" title=" " alt="" coords="96,423,161,449"/>
+<area shape="rect" id="node5" href="$zwave__controller__types_8h.html" title=" " alt="" coords="302,273,473,300"/>
+<area shape="rect" id="node6" title=" " alt="" coords="523,423,598,449"/>
+<area shape="rect" id="node7" href="$zwave__node__id__definitions_8h.html" title=" " alt="" coords="99,348,289,375"/>
+<area shape="rect" id="node8" href="$zwave__generic__types_8h.html" title=" " alt="" coords="313,348,472,375"/>
+<area shape="rect" id="node9" href="$zwave__rf__region_8h.html" title=" " alt="" coords="547,348,675,375"/>
+</map>

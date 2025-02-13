@@ -89,6 +89,12 @@ $(document).ready(function(){initNavTree('group__network__monitor__keep__alive.h
 
 <p>This module implements a safety mechanism for wake up nodes. It attempts to keep these nodes awake while an interview and/or inclusion is ongoing. Wake up nodes go into sleep mode after a interval of roughly 10 seconds. This means that if the ZPC is busy handling other nodes we might not be in time to talk to the wake up node before it goes into sleep mode.  
 </p>
+<div class="dynheader">
+Collaboration diagram for Network Monitor Keep alive:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__network__monitor__keep__alive.svg" width="330" height="51"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 <p >This module implements a safety mechanism for wake up nodes. It attempts to keep these nodes awake while an interview and/or inclusion is ongoing. Wake up nodes go into sleep mode after a interval of roughly 10 seconds. This means that if the ZPC is busy handling other nodes we might not be in time to talk to the wake up node before it goes into sleep mode. </p>
 <p >By sending NOP frames to this node we try to prevent it from going to sleep. When the interview of this node is done we stop sending NOP frames.</p>
 <p >If the device did not responded for 15 seconds, we give up trying to send NOP frames </p>
@@ -97,7 +103,7 @@ $(document).ready(function(){initNavTree('group__network__monitor__keep__alive.h
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Feb 11 2025 14:33:50 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
+    <li class="footer">Generated on Thu Feb 13 2025 10:45:32 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
   </ul>
 </div>
 </body>

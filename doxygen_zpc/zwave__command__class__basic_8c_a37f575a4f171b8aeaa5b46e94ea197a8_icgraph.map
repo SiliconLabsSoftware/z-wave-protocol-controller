@@ -1,0 +1,7 @@
+<map id="do_not_try_basic" name="do_not_try_basic">
+<area shape="rect" id="node1" title="Checks if we can use Basic to control a node." alt="" coords="817,37,939,63"/>
+<area shape="rect" id="node2" href="$zwave__command__class__basic_8c.html#ae484083357f2a3ed5b7beb6223d93d5a" title=" " alt="" coords="619,29,769,71"/>
+<area shape="rect" id="node3" href="$zwave__command__class__basic_8c.html#a6f16bae2e9206d5fe826d468866deba4" title=" " alt="" coords="464,37,571,63"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__basic.html#ga6780c7bc2310c30c76e7a54aa101604f" title="Initialize the basic command class handler." alt="" coords="253,29,416,71"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,37,205,63"/>
+</map>

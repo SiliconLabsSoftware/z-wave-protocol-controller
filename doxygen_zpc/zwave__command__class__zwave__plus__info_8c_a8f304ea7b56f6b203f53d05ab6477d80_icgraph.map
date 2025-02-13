@@ -1,0 +1,5 @@
+<map id="zwave_command_class_zwave_plus_info_support_handler" name="zwave_command_class_zwave_plus_info_support_handler">
+<area shape="rect" id="node1" title="Handles incoming Zwave Plus Info commands." alt="" coords="464,5,640,61"/>
+<area shape="rect" id="node2" href="$zwave__command__class__zwave__plus__info_8c.html#a3ee4e506c97a88731c178d50bd34b05e" title="setup for Zwave Plus Info command class" alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

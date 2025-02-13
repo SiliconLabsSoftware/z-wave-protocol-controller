@@ -1,0 +1,10 @@
+<map id="parse_nif_and_create_command_class_version_attributes" name="parse_nif_and_create_command_class_version_attributes">
+<area shape="rect" id="node1" title=" " alt="" coords="5,126,179,182"/>
+<area shape="rect" id="node2" href="$zwave__command__class__version_8c.html#a85cd900b1d56399f876ca541ffdcc11e" title=" " alt="" coords="227,97,421,139"/>
+<area shape="rect" id="node7" href="$group__zwave__controller__utils.html#gae7aa94787eba3ff966f9307d973e43ba" title="Parses a NIF byte array and converts it into a lists of supported/controlled Command Classes." alt="" coords="264,170,384,197"/>
+<area shape="rect" id="node3" href="$group__zpc__attribute__store__network__helpers.html#ga715be25ab9c545f84ff524bc5a7eb7db" title="Traverse up the tree from a node and finds under which Z&#45;Wave NodeID it is." alt="" coords="469,5,679,47"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__version.html#ga6d1fd9e5a91e2a18487d313684db45b3" title="Checks we know that the version CC is supported by the node." alt="" coords="503,71,645,98"/>
+<area shape="rect" id="node5" href="$zwave__command__class__version_8c.html#a17aa4da99252608b85cc6dc34df6092e" title=" " alt="" coords="487,122,661,178"/>
+<area shape="rect" id="node6" href="$zwave__command__class__version_8c.html#a5110830abc3bb16462ab30a11e48e632" title="Visits other endpoints under the same NodeID and verify if a particular Command Class version is know..." alt="" coords="727,129,909,171"/>
+<area shape="rect" id="node8" href="$zwave__controller__utils_8c.html#aa75fc83b24952e1842b8a5252869b56c" title="Parses a byte array for Command Classes until the end or a COMMAND_CLASS_CONTROL_MARK." alt="" coords="501,203,647,244"/>
+</map>

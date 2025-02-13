@@ -1,0 +1,8 @@
+<map id="zwapi_get_app_version" name="zwapi_get_app_version">
+<area shape="rect" id="node1" title="Get the application version of the serial API on the Z&#45;Wave module." alt="" coords="925,50,1084,77"/>
+<area shape="rect" id="node2" href="$zwave__command__class__version_8c.html#a49e98971c907a7d4b0ab3b86f941df0e" title=" " alt="" coords="683,5,877,47"/>
+<area shape="rect" id="node6" href="$zwave__command__class__version_8c.html#a56dc326e5f799651f923c5bdf81c79d4" title=" " alt="" coords="692,71,868,127"/>
+<area shape="rect" id="node3" href="$zwave__command__class__version_8c.html#a75a0004cf86479f6896b5b515576d83f" title=" " alt="" coords="464,43,635,84"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__version.html#gabae96a5c6c82334f5979f3b407b973e3" title="Intitialize the Version Command Class control APIs." alt="" coords="253,43,416,84"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,50,205,77"/>
+</map>

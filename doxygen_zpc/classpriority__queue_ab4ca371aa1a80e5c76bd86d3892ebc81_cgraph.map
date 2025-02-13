@@ -1,0 +1,11 @@
+<map id="priority_queue::erase" name="priority_queue::erase">
+<area shape="rect" id="node1" title="removes an item from the queue by iterator. Performance: O(log n)" alt="" coords="5,183,148,210"/>
+<area shape="rect" id="node2" href="$classpriority__queue.html#a45867a21e151e7709b0c0a676404756f" title="if queue != empty() it returns a pointer to the beginning of the queue. The item with the highest pri..." alt="" coords="581,54,724,81"/>
+<area shape="rect" id="node3" href="$classpriority__queue.html#af2cfe02abcc1bb97f1e8c19d275fa59b" title=" " alt="" coords="196,92,349,133"/>
+<area shape="rect" id="node6" href="$classpriority__queue.html#a0969698a8e4fd95156738ef09eb43dc9" title=" " alt="" coords="398,158,533,185"/>
+<area shape="rect" id="node7" href="$classpriority__queue.html#a479561d461dbafc6b7d2813d6344b0d0" title="iterator that points past the last element in the queue." alt="" coords="587,183,719,210"/>
+<area shape="rect" id="node8" href="$classpriority__queue.html#a4c0d7a69f3e7366ba4610874ce7c78d5" title="remove all items from the queue." alt="" coords="203,259,342,286"/>
+<area shape="rect" id="node9" href="$classpriority__queue.html#aaaae65e0f719978138017d58571a42ff" title="returns if the queue is empty. in this case both begin() and end() point to nullptr" alt="" coords="199,310,346,337"/>
+<area shape="rect" id="node4" href="$classpriority__queue.html#a87e7eda50501b61eb4f216c7a82ada37" title=" " alt="" coords="401,27,530,68"/>
+<area shape="rect" id="node5" href="$classpriority__queue.html#a12d267782b2922604cdf7dd8756a491b" title=" " alt="" coords="397,92,533,133"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="zwave_command_classes_version_handler_version_cc_get" name="zwave_command_classes_version_handler_version_cc_get">
+<area shape="rect" id="node1" title=" " alt="" coords="5,93,181,149"/>
+<area shape="rect" id="node2" href="$group__command__classes__utils.html#ga9a9c99943bf863fde841149699d15593" title="function to send report frames with default tx options." alt="" coords="237,35,400,76"/>
+<area shape="rect" id="node5" href="$group__zwave__command__handler.html#gaac5bc2ca2660912ba6bda3ca8a6b1912" title="Get the version of Command Class that the handler handles." alt="" coords="232,100,405,141"/>
+<area shape="rect" id="node6" href="$group__zwave__controller__transport.html#gac2a2517636452c80d8b6384fbc6963ac" title="check if a command class is registered as an encapsulation cc in Z&#45;Wave controller transport framewor..." alt="" coords="229,165,408,207"/>
+<area shape="rect" id="node3" href="$group__zwave__tx__scheme__selector.html#ga8f8d4442ddf4c165d5a79b9a25d6420d" title="Define a Z&#45;Wave frame transmission options." alt="" coords="457,5,613,47"/>
+<area shape="rect" id="node4" href="$group__zwave__tx.html#gad1538f36d226fe8147c5e538625568df" title="Queue and send frames to Z&#45;Wave nodes." alt="" coords="462,71,607,98"/>
+<area shape="rect" id="node7" href="$zwave__controller__transport_8c.html#a98ff30ad35d280415fc1d0c576dfcbe2" title="Get the transport by class object." alt="" coords="456,173,613,199"/>
+</map>

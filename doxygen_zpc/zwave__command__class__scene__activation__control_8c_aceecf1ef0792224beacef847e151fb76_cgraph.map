@@ -1,0 +1,4 @@
+<map id="handle_scene_activation_set" name="handle_scene_activation_set">
+<area shape="rect" id="node1" title="Process an incoming Scene Activation Set Command." alt="" coords="5,5,196,32"/>
+<area shape="rect" id="node2" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="244,5,420,32"/>
+</map>

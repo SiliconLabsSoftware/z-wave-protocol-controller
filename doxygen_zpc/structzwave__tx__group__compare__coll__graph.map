@@ -1,0 +1,3 @@
+<map id="zwave_tx_group_compare" name="zwave_tx_group_compare">
+<area shape="rect" id="node1" title="Helps to sort groups, based on their zwave_multicast_group_id_t Group ID." alt="" coords="5,5,180,83"/>
+</map>

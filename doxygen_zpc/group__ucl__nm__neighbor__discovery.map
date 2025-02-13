@@ -1,0 +1,4 @@
+<map id="UCL Network Management Node Neighbor Discovery" name="UCL Network Management Node Neighbor Discovery">
+<area shape="rect" id="node1" href="$group__ucl__mqtt.html" title="Component interfacing between UCL states/commands and MQTT." alt="" coords="5,13,95,38"/>
+<area shape="rect" id="node2" title="This submodule provides APIs to trigger a node neighbor discovery." alt="" coords="143,5,323,45"/>
+</map>

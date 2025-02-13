@@ -1,0 +1,4 @@
+<map id="zwave_tx_scheme_get_max_application_payload" name="zwave_tx_scheme_get_max_application_payload">
+<area shape="rect" id="node1" title="Computes how long of a frame can be sent to a given NodeID / Endpoint when queuing a frame at the app..." alt="" coords="264,5,439,47"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__firmware__update__internals.html#ga1073e79c7ee689cf7b15f15075f3e5d4" title="Gets the theoretical max fragment size with a node/endpoint." alt="" coords="5,5,216,47"/>
+</map>

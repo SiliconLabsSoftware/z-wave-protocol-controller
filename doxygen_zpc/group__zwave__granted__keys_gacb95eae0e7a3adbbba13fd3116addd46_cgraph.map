@@ -1,0 +1,6 @@
+<map id="zwave_command_class_mark_key_protocol_as_supported" name="zwave_command_class_mark_key_protocol_as_supported">
+<area shape="rect" id="node1" title="Updates the Attribute Store to indicate that the Security key and Protocol that we just used are work..." alt="" coords="5,31,168,87"/>
+<area shape="rect" id="node2" href="$zwave__command__class__granted__keys__resolver_8c.html#a89837c6f52ad963a8943085fec4afa5d" title="Remove some discovery combinations if we know the protocol." alt="" coords="216,5,419,47"/>
+<area shape="rect" id="node4" href="$group__zwave__controller__keyset.html#gad06107f2d1f4698eb96817423dc98d74" title="Get the Z&#45;Wave Key used for a given encapsulation." alt="" coords="232,71,403,112"/>
+<area shape="rect" id="node3" href="$group__zpc__attribute__store__network__helpers.html#ga1148a8bb5e8a4630bf6d6f5361f17770" title="Returns the Attribute Store node for Endpoint 0, under a NodeID node." alt="" coords="467,5,597,47"/>
+</map>

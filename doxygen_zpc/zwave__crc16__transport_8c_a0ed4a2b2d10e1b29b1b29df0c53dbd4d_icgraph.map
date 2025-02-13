@@ -1,0 +1,8 @@
+<map id="reset_send_data_settings" name="reset_send_data_settings">
+<area shape="rect" id="node1" title="Initializes our array of callback settings by setting everything to NULL." alt="" coords="863,107,1033,134"/>
+<area shape="rect" id="node2" href="$group__crc16__transport.html#ga58f3082ab876a466d61459f15790e5ee" title="Callback function registered to Z&#45;Wave TX zwave_tx_send_data." alt="" coords="644,78,815,105"/>
+<area shape="rect" id="node4" href="$group__crc16__transport.html#ga41d7716fd0dc4dd78d6747b6f8226671" title="Initialize the CRC16 Transport *." alt="" coords="203,78,384,105"/>
+<area shape="rect" id="node3" href="$group__crc16__transport.html#gae991c9c8ea9b7ca5823aae7805766615" title=" " alt="" coords="432,5,596,47"/>
+<area shape="rect" id="node6" href="$group__crc16__transport.html#ga40f6f52fe73d5c9efa2fae56082253c3" title="Encapsulates with CRC16." alt="" coords="433,71,595,112"/>
+<area shape="rect" id="node5" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="5,78,155,105"/>
+</map>

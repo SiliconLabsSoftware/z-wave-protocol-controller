@@ -1,0 +1,8 @@
+<map id="get_or_create_firmware_id_node" name="get_or_create_firmware_id_node">
+<area shape="rect" id="node1" title="Retrieves (and create if needed) the firmware ID node for a given ID under the version report data." alt="" coords="900,53,1059,94"/>
+<area shape="rect" id="node2" href="$zwave__command__class__version_8c.html#a5d79c86203fe208104202d66f0ca2399" title=" " alt="" coords="684,5,847,61"/>
+<area shape="rect" id="node6" href="$zwave__command__class__version_8c.html#a0a4414dccf0c308a49bff798b23231aa" title=" " alt="" coords="679,85,852,141"/>
+<area shape="rect" id="node3" href="$zwave__command__class__version_8c.html#accef6ff50ab7cccaa46da3b8699ef072" title=" " alt="" coords="464,53,631,94"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__version.html#gabae96a5c6c82334f5979f3b407b973e3" title="Intitialize the Version Command Class control APIs." alt="" coords="253,53,416,94"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,60,205,87"/>
+</map>

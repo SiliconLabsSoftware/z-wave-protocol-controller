@@ -1,0 +1,16 @@
+<map id="command_class_firmware_update_initiate_firmware_update" name="command_class_firmware_update_initiate_firmware_update">
+<area shape="rect" id="node1" title="Attempts to start a Firmware Update procedure for a node." alt="" coords="5,329,180,385"/>
+<area shape="rect" id="node2" href="$zwave__command__class__firmware__update_8c.html#a22ea388f34a423195982098a86e113fb" title="Creates a Firmware Transfer node under an endpoint." alt="" coords="231,5,397,47"/>
+<area shape="rect" id="node3" href="$zwave__command__class__firmware__update_8c.html#a7ab6f1b95254510376e1bfedd90e2e94" title="Finds the size of a file, in bytes." alt="" coords="267,71,361,98"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__firmware__update__internals.html#ga6e97c4e8a464e17aac66f67ad950cc66" title="Verifies if a Firmware Target value is valid for an endpoint." alt="" coords="249,123,379,164"/>
+<area shape="rect" id="node5" href="$group__zwave__command__class__firmware__update__internals.html#gad6a37e2ff3908af73ad934c91230d3dc" title="Verifies if a Firmware Update is ongoing for an endpoint." alt="" coords="247,188,381,229"/>
+<area shape="rect" id="node6" href="$group__zwave__command__class__firmware__update__internals.html#ga80690516ce672571a3bd71d29b8c16ed" title="Verifies if a node supports Firmware Activation." alt="" coords="232,277,396,319"/>
+<area shape="rect" id="node7" href="$group__zwave__command__class__firmware__update__internals.html#gab86aadb90742bb9d3d954a1def8290ad" title="Sets the Firmware data file for a Firmware Update." alt="" coords="228,343,400,370"/>
+<area shape="rect" id="node8" href="$group__zwave__command__class__firmware__update__internals.html#ga53a41379bc0348edd498d92c04d94cd6" title="Sets the Firmware transfer fragment size for a Firmware Update." alt="" coords="240,395,388,436"/>
+<area shape="rect" id="node9" href="$group__zwave__command__class__firmware__update__internals.html#gaceef2cdf638ab78917324cb54fbfcc39" title="Sets the Firmware transfer last status for a Firmware Update." alt="" coords="240,460,388,501"/>
+<area shape="rect" id="node10" href="$group__zwave__command__class__firmware__update__internals.html#ga486a8bc9a7326482f850262f58e36bc3" title="Sets the current offset for a Firmware Transfer." alt="" coords="249,526,379,553"/>
+<area shape="rect" id="node11" href="$zwave__command__class__firmware__update_8c.html#a8792bec8a1c9b8e482bf7a43c0fa1f12" title="Helper function that starts a firmware update." alt="" coords="239,577,389,619"/>
+<area shape="rect" id="node12" href="$group__zpc__attribute__store__network__helpers.html#ga39def804d7d68ac6f534f61a9528c8be" title="Gets the Attribute Store Endpoint ID node for a given Z&#45;Wave NodeID / Endpoint ID in our network." alt="" coords="233,643,395,684"/>
+<area shape="rect" id="node13" href="$group__zpc__attribute__store.html#gaa77e8f9b18958337bb68279c8c53ccdc" title="Returns the HomeID (attribute store) node of our current network." alt="" coords="448,650,604,677"/>
+<area shape="rect" id="node14" href="$group__zwave__network__management.html#gac01bf38badf30f94eac9a04b486cb967" title="Get the cached HomeID." alt="" coords="652,643,847,684"/>
+</map>

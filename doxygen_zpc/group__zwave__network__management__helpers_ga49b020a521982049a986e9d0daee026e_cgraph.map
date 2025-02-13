@@ -1,0 +1,4 @@
+<map id="network_management_is_ready_for_a_new_operation" name="network_management_is_ready_for_a_new_operation">
+<area shape="rect" id="node1" title="Checks if all the conditions are fulfilled to start a new network management operation...." alt="" coords="5,5,156,61"/>
+<area shape="rect" id="node2" href="$group__zwave__controller__component.html#gae8c7ea4da898ea006175e66032a2b0ff" title="Tells if we are currently reseting the ZPC." alt="" coords="204,13,341,54"/>
+</map>

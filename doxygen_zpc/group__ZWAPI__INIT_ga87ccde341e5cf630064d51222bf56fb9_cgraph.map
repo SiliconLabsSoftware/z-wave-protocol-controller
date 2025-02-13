@@ -1,0 +1,7 @@
+<map id="zwapi_destroy" name="zwapi_destroy">
+<area shape="rect" id="node1" title="Shut down the Z&#45;Wave API and close the communication ports." alt="" coords="5,35,112,61"/>
+<area shape="rect" id="node2" href="$zwapi__session_8c.html#a6f5555814b03c924b3d057d1b4080cf1" title="Close the zwapi_session with the Z&#45;Wave module." alt="" coords="160,35,331,61"/>
+<area shape="rect" id="node3" href="$zwapi__connection_8c.html#ad89586e01dc2af5757f767f0bbe6e889" title="Close the zwapi_connection to the Z&#45;Wave module." alt="" coords="379,5,568,32"/>
+<area shape="rect" id="node5" href="$zwapi__session_8c.html#ae9af89b1122e8be3a8704581079dd824" title="Flush the zwapi_session receive queue." alt="" coords="402,57,545,98"/>
+<area shape="rect" id="node4" href="$zwapi__serial_8c.html#aae586785021ac9a605cd77651429f0c9" title="De&#45;Initialize the serial port." alt="" coords="616,5,748,32"/>
+</map>

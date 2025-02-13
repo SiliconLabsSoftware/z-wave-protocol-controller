@@ -1,0 +1,7 @@
+<map id="priority_queue::biggest_child" name="priority_queue::biggest_child">
+<area shape="rect" id="node1" title=" " alt="" coords="428,71,581,112"/>
+<area shape="rect" id="node2" href="$classpriority__queue.html#ab4ca371aa1a80e5c76bd86d3892ebc81" title="removes an item from the queue by iterator. Performance: O(log n)" alt="" coords="237,78,380,105"/>
+<area shape="rect" id="node3" href="$classzwave__tx__incoming__frames.html#a832a92ea18a6ab0e8b389764e3ecea99" title="Decrements the number of expected frames from a NodeID." alt="" coords="5,5,189,47"/>
+<area shape="rect" id="node4" href="$classpriority__queue.html#a247b598580393c90bfc8f2477018d84b" title="takes the first item in the queue and returns it. The item is deleted from the queue...." alt="" coords="31,71,163,112"/>
+<area shape="rect" id="node5" href="$classzwave__tx__incoming__frames.html#acabcd3234228a480ef137ef1fe13252b" title="Sets the number of expected frames from a NodeID." alt="" coords="5,136,189,177"/>
+</map>

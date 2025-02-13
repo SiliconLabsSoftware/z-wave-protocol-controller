@@ -1,0 +1,4 @@
+<map id="basic_cluster_mapper_teardown" name="basic_cluster_mapper_teardown">
+<area shape="rect" id="node1" title="Teardowns the Basic Cluster mapper." alt="" coords="221,5,371,47"/>
+<area shape="rect" id="node2" href="$group__dotdot__mapper.html#gabd6d03ca79010e6238b1bf52b03f9c9c" title="Tear down the Occupancy cluster mapper from all its content." alt="" coords="5,13,173,39"/>
+</map>

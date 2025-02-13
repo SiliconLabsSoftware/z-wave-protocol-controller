@@ -1,0 +1,4 @@
+<map id="UCL Network Management" name="UCL Network Management">
+<area shape="rect" id="node1" href="$group__ucl__mqtt.html" title="Component interfacing between UCL states/commands and MQTT." alt="" coords="5,5,95,31"/>
+<area shape="rect" id="node2" title="Handle ucl/by&#45;unid/&lt;node&gt;/ProtocolController/NetworkManagement topic." alt="" coords="143,5,323,31"/>
+</map>

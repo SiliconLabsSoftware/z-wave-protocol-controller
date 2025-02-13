@@ -1,0 +1,13 @@
+<map id="zwave_command_class_multi_channel_handle_endpoint_find_report_command" name="zwave_command_class_multi_channel_handle_endpoint_find_report_command">
+<area shape="rect" id="node1" title=" " alt="" coords="5,161,168,232"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__store__network__helpers.html#ga7a3f40a9cbc90f2674b9e9e454fd6207" title="Take a Z&#45;Wave NodeID and return its Attribute Store node representing the NodeID." alt="" coords="216,86,385,142"/>
+<area shape="rect" id="node8" href="$zwave__command__class__multi__channel_8c.html#ac53692def1299e29f1d962a4da4af295" title="Counts in the attribute store if the number of individual endpoints attribute matches the current lis..." alt="" coords="225,176,377,217"/>
+<area shape="rect" id="node10" href="$zwave__command__class__multi__channel_8c.html#a2d182b7aae379e1581d3df4b0981489e" title="Creates a new endpoint in the attribute store." alt="" coords="691,227,836,254"/>
+<area shape="rect" id="node3" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="441,35,617,76"/>
+<area shape="rect" id="node7" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="441,101,617,127"/>
+<area shape="rect" id="node4" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="673,5,853,47"/>
+<area shape="rect" id="node6" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="683,71,844,98"/>
+<area shape="rect" id="node5" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="901,13,1067,39"/>
+<area shape="rect" id="node9" href="$zwave__command__class__multi__channel_8c.html#a16daf353476dffd2f848569ce30974b9" title="Creates aggregated endpoints for a Z&#45;Wave Node." alt="" coords="433,202,625,229"/>
+<area shape="rect" id="node11" href="$group__multi__channel__command__class.html#ga0d968501f62f2aad4faf3be6e3d7601a" title="Checks if an endpoints is aggregated." alt="" coords="684,163,843,190"/>
+</map>

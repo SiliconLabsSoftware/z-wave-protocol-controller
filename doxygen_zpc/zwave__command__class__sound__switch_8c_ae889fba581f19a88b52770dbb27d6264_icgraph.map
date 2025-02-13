@@ -1,0 +1,6 @@
+<map id="get_configuration" name="get_configuration">
+<area shape="rect" id="node1" title=" " alt="" coords="727,13,848,39"/>
+<area shape="rect" id="node2" href="$zwave__command__class__sound__switch_8c.html#aeeca921de4d45f204c9e899bd8fcb101" title=" " alt="" coords="464,5,679,47"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__sound__switch.html#ga9288036273fc366b060a837b94bc0ad4" title=" " alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

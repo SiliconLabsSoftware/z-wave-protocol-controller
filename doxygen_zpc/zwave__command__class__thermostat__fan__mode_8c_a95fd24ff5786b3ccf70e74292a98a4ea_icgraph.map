@@ -1,0 +1,9 @@
+<map id="is_fan_mode_compatible_with_version" name="is_fan_mode_compatible_with_version">
+<area shape="rect" id="node1" title=" " alt="" coords="1109,50,1276,91"/>
+<area shape="rect" id="node2" href="$zwave__command__class__thermostat__fan__mode_8c.html#a46cd113426682eb1ca9b73b9e10c0da7" title=" " alt="" coords="919,50,1061,91"/>
+<area shape="rect" id="node3" href="$zwave__command__class__thermostat__fan__mode_8c.html#ad1867c5d712540df42357ee17c75fe4e" title=" " alt="" coords="708,8,871,64"/>
+<area shape="rect" id="node7" href="$zwave__command__class__thermostat__fan__mode_8c.html#a43155b89f847154d52e7b65d211077d7" title=" " alt="" coords="480,86,660,127"/>
+<area shape="rect" id="node4" href="$zwave__command__class__thermostat__fan__mode_8c.html#a71331ed3d958d8834f4e0e4246334206" title=" " alt="" coords="489,5,651,61"/>
+<area shape="rect" id="node5" href="$group__zwave__command__class__thermostat__fan__mode.html#ga7ecf581fff419caff01c80f5934c77c5" title=" " alt="" coords="253,50,432,91"/>
+<area shape="rect" id="node6" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,57,205,84"/>
+</map>

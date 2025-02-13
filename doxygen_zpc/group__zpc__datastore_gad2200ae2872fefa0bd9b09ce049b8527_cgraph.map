@@ -1,0 +1,4 @@
+<map id="zpc_datastore_fixt_setup" name="zpc_datastore_fixt_setup">
+<area shape="rect" id="node1" title="Fixture for setting up the zpc_datastore component." alt="" coords="5,5,135,47"/>
+<area shape="rect" id="node2" href="$group__zpc__config.html#ga4b057e8eb480ccf7000ecdaf97dcc168" title="Get the current configuration. This must only be called after zpc_config_init." alt="" coords="183,13,293,39"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="return_scene_to_idle" name="return_scene_to_idle">
+<area shape="rect" id="node1" title="Sets back the current scene to IDLE." alt="" coords="5,5,148,32"/>
+<area shape="rect" id="node2" href="$zwave__command__class__central__scene_8c.html#a079a67bbf5e8146531fe23b3d07fa87f" title="Save the state (last active scene) of a supporting node in the attribute store." alt="" coords="196,5,272,32"/>
+</map>

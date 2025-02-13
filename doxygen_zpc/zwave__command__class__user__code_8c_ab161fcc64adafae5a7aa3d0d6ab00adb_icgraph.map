@@ -1,0 +1,9 @@
+<map id="get_user_id_node" name="get_user_id_node">
+<area shape="rect" id="node1" title=" " alt="" coords="1105,32,1229,59"/>
+<area shape="rect" id="node2" href="$zwave__command__class__user__code_8c.html#a7950ee5e786a47a099c4a4a4f74f65bb" title="Process an incoming Extended User Code Report Command." alt="" coords="703,25,855,66"/>
+<area shape="rect" id="node6" href="$zwave__command__class__user__code_8c.html#a218f652c5a7843a728862a5b5d58c016" title="Process an incoming User Code Report Command." alt="" coords="696,91,863,118"/>
+<area shape="rect" id="node7" href="$zwave__command__class__user__code_8c.html#ab55b297e55eb5c9214fba171dc0687f2" title="Sets all users Id in the Range [first_id..last_id[ to available (user code not set)" alt="" coords="911,25,1057,66"/>
+<area shape="rect" id="node3" href="$zwave__command__class__user__code_8c.html#aab7f614cc08c431edb13947ead318558" title="Dispatches incoming User Code Commands to individual command handlers." alt="" coords="464,54,648,96"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__user__code.html#ga3903c1853dfc3b999bcb5570d3355a35" title="Initializes the User Code Command Class handler." alt="" coords="253,54,416,96"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,62,205,88"/>
+</map>

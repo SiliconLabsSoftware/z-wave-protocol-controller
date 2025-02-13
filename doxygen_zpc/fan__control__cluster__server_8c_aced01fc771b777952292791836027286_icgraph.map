@@ -1,0 +1,4 @@
+<map id="zwave_fan_control_turn_off" name="zwave_fan_control_turn_off">
+<area shape="rect" id="node1" title=" " alt="" coords="185,13,368,39"/>
+<area shape="rect" id="node2" href="$group__zpc__on__off__cluster__mapper.html#ga383f246d9f54c075030ecef255ba6bf5" title="Initialize the FanControl cluster server." alt="" coords="5,5,137,47"/>
+</map>

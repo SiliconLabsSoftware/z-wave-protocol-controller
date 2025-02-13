@@ -1,0 +1,4 @@
+<map id="on_multi_channel_send_complete" name="on_multi_channel_send_complete">
+<area shape="rect" id="node1" title="Callback function registered to Z&#45;Wave TX zwave_tx_send_data." alt="" coords="5,5,164,47"/>
+<area shape="rect" id="node2" href="$zwave__multi__channel__transport_8c.html#a0ed4a2b2d10e1b29b1b29df0c53dbd4d" title="Initializes our array of callback settings by setting everything to NULL." alt="" coords="212,13,383,39"/>
+</map>

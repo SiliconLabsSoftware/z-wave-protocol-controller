@@ -1,0 +1,5 @@
+<map id="zwave_command_class_get_inclusion_protocol" name="zwave_command_class_get_inclusion_protocol">
+<area shape="rect" id="node1" title=" " alt="" coords="485,5,648,47"/>
+<area shape="rect" id="node2" href="$group__zwave__granted__keys.html#ga1e9daa986c6a8ce94e4301aaa01e74a4" title="Registers callbacks to the attribute store and rules to the attribute resolver to be able to resolve ..." alt="" coords="253,5,437,47"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

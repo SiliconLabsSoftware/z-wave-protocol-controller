@@ -1,0 +1,5 @@
+<map id="zwapi_send_command_no_ack" name="zwapi_send_command_no_ack">
+<area shape="rect" id="node1" title="Send a command to the Z&#45;Wave module without waiting for any ACK." alt="" coords="471,5,625,47"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__BASIS.html#ga4d7139c89116c14ead2fdbafde825ea5" title="Enable Auto Programming mode." alt="" coords="196,13,423,39"/>
+<area shape="rect" id="node3" href="$group__zpc__ncp__update__fixt.html#gaaca8dd596d6abe6ca27de8d7c93c5cf2" title="This function check if the NCP firmware should be updated." alt="" coords="5,5,148,47"/>
+</map>

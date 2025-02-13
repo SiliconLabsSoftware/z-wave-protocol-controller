@@ -1,0 +1,4 @@
+<map id="zwapi_write_node_id" name="zwapi_write_node_id">
+<area shape="rect" id="node1" title="Write the node ID in buffer based on node ID basetype. Note that this helper also advances the index." alt="" coords="5,5,148,32"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__BASIS.html#ga956fbfe63267baacd31dd20aa1c444d1" title="Get the current node ID basetype setting." alt="" coords="196,5,389,32"/>
+</map>

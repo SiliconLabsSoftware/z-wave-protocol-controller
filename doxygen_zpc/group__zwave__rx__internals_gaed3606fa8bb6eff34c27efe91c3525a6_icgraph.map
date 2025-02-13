@@ -1,0 +1,4 @@
+<map id="zwave_rx_shutdown" name="zwave_rx_shutdown">
+<area shape="rect" id="node1" title="Shutdown the module." alt="" coords="216,5,357,32"/>
+<area shape="rect" id="node2" href="$group__zwave__rx__fixt.html#ga56465233b7f28429a246ce87b31efe7b" title=" " alt="" coords="5,5,168,32"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="s0_bootstrapping_start" name="s0_bootstrapping_start">
+<area shape="rect" id="node1" title="Start the S0 add node process." alt="" coords="639,29,793,56"/>
+<area shape="rect" id="node2" href="$group__zwave__s0__network.html#ga27e4137188b19b88cf40318f7fea87dc" title="Start the S0 add node process." alt="" coords="392,29,591,56"/>
+<area shape="rect" id="node3" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="204,29,344,56"/>
+<area shape="rect" id="node4" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="5,29,156,56"/>
+</map>

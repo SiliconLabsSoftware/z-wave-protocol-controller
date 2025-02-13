@@ -1,0 +1,6 @@
+<map id="zwave_command_class_indicator_handle_supported_getV3" name="zwave_command_class_indicator_handle_supported_getV3">
+<area shape="rect" id="node1" title=" " alt="" coords="689,5,917,47"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__indicator__support.html#ga8953f10489f199eee92bdc7ebae05e3f" title="Handles incoming indicator encapsulated commands." alt="" coords="464,5,641,47"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__indicator__support.html#ga0f4f581c0adc3e8018e4ade3858017fb" title="setup for indicator command class" alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

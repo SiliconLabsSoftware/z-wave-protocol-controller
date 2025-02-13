@@ -1,0 +1,5 @@
+<map id="set_user_code_range_to_available" name="set_user_code_range_to_available">
+<area shape="rect" id="node1" title="Sets all users Id in the Range [first_id..last_id[ to available (user code not set)" alt="" coords="5,23,152,65"/>
+<area shape="rect" id="node2" href="$zwave__command__class__user__code_8c.html#ab161fcc64adafae5a7aa3d0d6ab00adb" title=" " alt="" coords="229,5,353,32"/>
+<area shape="rect" id="node3" href="$zwave__command__class__user__code_8c.html#a37bbe28e81c3999783edc49743cf52cd" title="Checks if the user_id_node type is correct and sets the user code data to Available underneath." alt="" coords="200,56,383,83"/>
+</map>

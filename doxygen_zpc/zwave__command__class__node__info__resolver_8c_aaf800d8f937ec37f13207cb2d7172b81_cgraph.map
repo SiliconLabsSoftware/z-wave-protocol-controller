@@ -1,0 +1,16 @@
+<map id="on_node_information_update" name="on_node_information_update">
+<area shape="rect" id="node1" title=" " alt="" coords="5,181,148,223"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__store__network__helpers.html#gae4d15b8e0c61c88d94c8f342bd2014fc" title="Take a UNID/endpoint combination and returns its attribute store node." alt="" coords="439,5,619,47"/>
+<area shape="rect" id="node7" href="$group__zwave__controller__utils.html#gac6028ff4c772ca1a731dffaf4b530e15" title="Pack the given NIF into a uint8_t array." alt="" coords="212,385,375,427"/>
+<area shape="rect" id="node8" href="$group__zwave__utils.html#gaaa5d4e371acabd40b10dcf27edd993ff" title="Verify whether a node/endpoint supports a Command Class using the attribute Store." alt="" coords="217,144,369,185"/>
+<area shape="rect" id="node10" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="667,151,843,178"/>
+<area shape="rect" id="node11" href="$group__zwave__security__validation.html#ga83d2429dc872b553f71b3ca3d1ff1108" title="Verifies if a the S2 Command Class has disappeared from the NIF, whereas it was reported as supported..." alt="" coords="196,210,391,266"/>
+<area shape="rect" id="node13" href="$group__zwave__utils.html#ga65be55bf46158201858695ec961f5b52" title="Sets a node as S2 capable, meaning that we know it supports S2, and it will forever do." alt="" coords="205,79,381,120"/>
+<area shape="rect" id="node3" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="667,43,843,84"/>
+<area shape="rect" id="node4" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="891,13,1071,55"/>
+<area shape="rect" id="node6" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="900,79,1061,106"/>
+<area shape="rect" id="node5" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="1119,21,1284,47"/>
+<area shape="rect" id="node9" href="$group__zwave__controller__utils.html#ga4b9cc899709547a170141ba7e0583e16" title="Verifies if a CC is in a raw array of Command Classes." alt="" coords="453,203,604,244"/>
+<area shape="rect" id="node12" href="$group__zwave__controller__storage.html#ga893570dd5418a9662eb5af8478580e6f" title="Verify if the registered node is supporting S2." alt="" coords="443,268,614,309"/>
+<area shape="rect" id="node14" href="$group__zpc__attribute__store__network__helpers.html#ga7a3f40a9cbc90f2674b9e9e454fd6207" title="Take a Z&#45;Wave NodeID and return its Attribute Store node representing the NodeID." alt="" coords="444,71,613,127"/>
+</map>

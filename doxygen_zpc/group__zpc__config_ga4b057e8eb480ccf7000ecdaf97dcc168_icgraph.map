@@ -1,0 +1,20 @@
+<map id="zpc_get_config" name="zpc_get_config">
+<area shape="rect" id="node1" title="Get the current configuration. This must only be called after zpc_config_init." alt="" coords="976,317,1087,344"/>
+<area shape="rect" id="node2" href="$zwave__command__class__wake__up_8c.html#aaff9153e6b7f2f12495d4528a1e348f5" title="Configures the Wake Up Interval setting for a node." alt="" coords="723,29,906,56"/>
+<area shape="rect" id="node6" href="$zwave__command__class__wake__up_8c.html#a9a61799d62b6c368681fb8a80b0ddf43" title="Writes down assumed non&#45;advertised capabilities for a v1 node." alt="" coords="725,80,904,107"/>
+<area shape="rect" id="node8" href="$group__zpc__datastore.html#gad2200ae2872fefa0bd9b09ce049b8527" title="Fixture for setting up the zpc_datastore component." alt="" coords="750,131,879,173"/>
+<area shape="rect" id="node9" href="$group__zpc__ncp__update__fixt.html#gaaca8dd596d6abe6ca27de8d7c93c5cf2" title="This function check if the NCP firmware should be updated." alt="" coords="743,197,886,238"/>
+<area shape="rect" id="node10" href="$zwave__command__class__manufacturer__specific_8c.html#a0e39a0beac72e3219a7d070758cd82be" title=" " alt="" coords="720,263,909,319"/>
+<area shape="rect" id="node12" href="$zwave__command__class__manufacturer__specific_8c.html#a68b75e94eac46dc0380c3f045ab0653b" title="setup for manufacturer specific command class" alt="" coords="253,365,435,406"/>
+<area shape="rect" id="node13" href="$zwave__command__class__manufacturer__specific_8c.html#aa8e8e3162f2645861347a93c6a67c916" title="Command handler for the manufacter specific get." alt="" coords="701,343,928,399"/>
+<area shape="rect" id="node14" href="$zwave__command__class__version_8c.html#a49e98971c907a7d4b0ab3b86f941df0e" title=" " alt="" coords="717,474,912,515"/>
+<area shape="rect" id="node17" href="$group__zwave__controller__component.html#ga35c0407648757629f7e74017fe81cfb2" title="Set the application part of the node information frame (NIF)." alt="" coords="742,539,887,581"/>
+<area shape="rect" id="node18" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="743,605,886,632"/>
+<area shape="rect" id="node3" href="$zwave__command__class__wake__up_8c.html#af927fc2e0ebd3d6502c5167a6e8c6e27" title="Verifies if we are resolving capabilities, and if yes, set a resolutio listener to set the Wake Up In..." alt="" coords="487,22,649,63"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__wake__up.html#ga11866ec0935bee3fba386bc3ed28e0b6" title="Initializes the Wake Up Command Class handler." alt="" coords="263,81,425,122"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,372,205,399"/>
+<area shape="rect" id="node7" href="$zwave__command__class__wake__up_8c.html#a8f966daf7a0db642b035c023a4877115" title=" " alt="" coords="483,88,653,115"/>
+<area shape="rect" id="node11" href="$zwave__command__class__manufacturer__specific_8c.html#ad5bb8ee2108954f010636d93e41755f6" title="Handles incoming manufacturer specific encapsulated commands." alt="" coords="487,343,649,399"/>
+<area shape="rect" id="node15" href="$zwave__command__class__version_8c.html#a75a0004cf86479f6896b5b515576d83f" title=" " alt="" coords="483,474,653,515"/>
+<area shape="rect" id="node16" href="$group__zwave__command__class__version.html#gabae96a5c6c82334f5979f3b407b973e3" title="Intitialize the Version Command Class control APIs." alt="" coords="263,459,425,501"/>
+</map>

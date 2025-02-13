@@ -1,0 +1,6 @@
+<map id="zwapi_serial_restart" name="zwapi_serial_restart">
+<area shape="rect" id="node1" title="Closes and re&#45;initialize the last open serial port." alt="" coords="5,31,144,57"/>
+<area shape="rect" id="node2" href="$zwapi__serial_8c.html#aae586785021ac9a605cd77651429f0c9" title="De&#45;Initialize the serial port." alt="" coords="192,5,324,32"/>
+<area shape="rect" id="node3" href="$zwapi__serial_8c.html#a07b09de97f4932d882fc77e191c44638" title="Initialize the serial port to 115200 BAUD 8N1." alt="" coords="199,56,317,83"/>
+<area shape="rect" id="node4" href="$zwapi__serial_8c.html#aefeac5909b0bf6411db1492f69c3bc68" title=" " alt="" coords="372,56,531,83"/>
+</map>

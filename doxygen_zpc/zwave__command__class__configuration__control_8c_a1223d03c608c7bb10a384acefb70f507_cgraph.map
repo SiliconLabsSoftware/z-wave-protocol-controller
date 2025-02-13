@@ -1,0 +1,5 @@
+<map id="set_default_parameter_properties" name="set_default_parameter_properties">
+<area shape="rect" id="node1" title="Sets the default parameters properties for a parameter in case a node does not support Properties Get..." alt="" coords="5,27,156,69"/>
+<area shape="rect" id="node2" href="$zwave__command__class__configuration__control_8c.html#ad053137c859692d75d92873d5847f276" title="Get the configuration parameter size for a given parameter id." alt="" coords="204,5,421,32"/>
+<area shape="rect" id="node3" href="$zwave__command__class__configuration__control_8c.html#af5d4e7a6599363c98f44ec7d97b0e67e" title="Get the configuration parameter value for a given parameter id." alt="" coords="219,57,406,98"/>
+</map>

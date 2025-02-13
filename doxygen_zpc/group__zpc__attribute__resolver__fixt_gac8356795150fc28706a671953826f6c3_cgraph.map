@@ -1,0 +1,4 @@
+<map id="zpc_attribute_resolver_teardown" name="zpc_attribute_resolver_teardown">
+<area shape="rect" id="node1" title="Teardown the ZPC attribute resolver It will also teardown the Unify Attribute resolver." alt="" coords="5,5,156,47"/>
+<area shape="rect" id="node2" href="$group__attribute__resolver__group__send.html#ga75951d7587ecb559f7d48a136e7604ac" title="Teardown the resolver group sub&#45;component." alt="" coords="204,5,355,47"/>
+</map>

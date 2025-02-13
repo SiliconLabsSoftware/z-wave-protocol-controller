@@ -1,0 +1,7 @@
+<map id="ZPC Attribute Resolver Internals" name="ZPC Attribute Resolver Internals">
+<area shape="rect" id="node1" href="$group__attribute__resolver__group__send.html" title="Transmit messages to multiple destinations at once." alt="" coords="432,5,589,45"/>
+<area shape="rect" id="node2" href="$group__attribute__resolver__send.html" title="Send frames when instructed by the attribute_resolver." alt="" coords="416,70,605,95"/>
+<area shape="rect" id="node3" href="$group__zpc__attribute__resolver.html" title="ZPC part of the attribute resolver." alt="" coords="5,70,163,95"/>
+<area shape="rect" id="node5" title="Internal functions for the ZPC Attribute Resolver." alt="" coords="211,63,368,103"/>
+<area shape="rect" id="node4" href="$group__zpc__attribute__resolver__callbacks.html" title="Collects send data callbacks from ZPC Attribute Resolver send and ZPC Attribute Resolver Group Send a..." alt="" coords="432,120,589,160"/>
+</map>

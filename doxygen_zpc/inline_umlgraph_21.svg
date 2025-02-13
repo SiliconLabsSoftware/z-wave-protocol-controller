@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="1484px" preserveAspectRatio="none" style="width:1707px;height:1484px;background:#FFFFFF;" version="1.1" viewBox="0 0 1707 1484" width="1707px" zoomAndPan="magnify"><defs><filter height="300%" id="f1o3hl7hbqwgu4" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacing" textLength="188" x="753.345" y="19.2419">Door Lock data model</text><rect fill="#DDDDDD" height="29.0679" rx="5" ry="5" style="stroke:#000000;stroke-width:1.0;" width="462" x="615.845" y="32.5158"/><text fill="#FEFEFE" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="111" x="621.845" y="52.4818">ATTRIBUTE(type)</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="335" x="736.845" y="52.4818">: ATTRIBUTE_COMMAND_CLASS_DOOR_LOCK_type</text><!--MD5=[ea3d5de2a0d35296bc751d5a1b771698]
+cluster Attribute Store--><path d="M43.69,86.5838 C43.69,76.5838 872.19,76.5838 872.19,76.5838 C872.19,76.5838 1700.69,76.5838 1700.69,86.5838 L1700.69,1467.5838 C1700.69,1477.5838 872.19,1477.5838 872.19,1477.5838 C872.19,1477.5838 43.69,1477.5838 43.69,1467.5838 L43.69,86.5838 " fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" style="stroke:#000000;stroke-width:1.5;"/><path d="M43.69,86.5838 C43.69,96.5838 872.19,96.5838 872.19,96.5838 C872.19,96.5838 1700.69,96.5838 1700.69,86.5838 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="105" x="819.69" y="113.5497">Attribute Store</text><rect fill="#F2FFE6" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="193" x="825.19" y="129.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="43" x="900.19" y="144.4119">NodeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="826.19" x2="1017.19" y1="149.9279" y2="149.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="181" x="831.19" y="164.6179">Attribute Type = ATTRIBUTE_NODE_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="831.19" y="178.2379">value = Desired: [], Reported: [03]</text><rect fill="#E6FFF7" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="216" x="813.69" y="245.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="101" x="871.19" y="260.4119">Endpoint Attribute</text><line style="stroke:#000000;stroke-width:1.5;" x1="814.69" x2="1028.69" y1="265.9279" y2="265.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="204" x="819.69" y="280.6179">Attribute Type = ATTRIBUTE_ENDPOINT_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="819.69" y="294.2379">value = Desired: [] - Reported: [04]</text><rect fill="#FEFEFE" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="342" x="59.69" y="361.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="42" x="209.69" y="376.4119">Version</text><line style="stroke:#000000;stroke-width:1.5;" x1="60.69" x2="400.69" y1="381.9279" y2="381.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="330" x="65.69" y="396.6179">Attribute Type = ATTRIBUTE_COMMAND_CLASS_DOOR_LOCK_VERSION</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="158" x="65.69" y="410.2379">value = Desired: [] - Reported: [2]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="246" x="1031.69" y="361.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="119" x="1095.19" y="376.4119">Operation Lock Mode</text><line style="stroke:#000000;stroke-width:1.5;" x1="1032.69" x2="1276.69" y1="381.9279" y2="381.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="234" x="1037.69" y="396.6179">Attribute Type = OPERATION_DOOR_LOCK_MODE</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="193" x="1037.69" y="410.2379">value = Desired: [0x00], Reported: [0xFF]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="301" x="651.19" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="177" x="713.19" y="492.4119">Operation Inside Handles Mode</text><line style="stroke:#000000;stroke-width:1.5;" x1="652.19" x2="951.19" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="289" x="657.19" y="512.6179">Attribute Type = OPERATION_INSIDE_DOOR_HANDLES_MODE</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="657.19" y="526.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="311" x="665.19" y="593.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="186" x="727.69" y="608.4119">Operation Outside Handles Mode</text><line style="stroke:#000000;stroke-width:1.5;" x1="666.19" x2="975.19" y1="613.9279" y2="613.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="299" x="671.19" y="628.6179">Attribute Type = OPERATION_OUTSIDE_DOOR_HANDLES_MODE</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="671.19" y="642.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="244" x="698.69" y="709.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="112" x="764.69" y="724.4119">Operation Condition</text><line style="stroke:#000000;stroke-width:1.5;" x1="699.69" x2="941.69" y1="729.9279" y2="729.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="232" x="704.69" y="744.6179">Attribute Type = OPERATION_DOOR_CONDITION</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="193" x="704.69" y="758.2379">value = Desired: [0x00], Reported: [0xFF]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="276" x="716.69" y="825.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="157" x="776.19" y="840.4119">Operation Lock Timeout Min</text><line style="stroke:#000000;stroke-width:1.5;" x1="717.69" x2="991.69" y1="845.9279" y2="845.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="264" x="722.69" y="860.6179">Attribute Type = OPERATION_LOCK_TIMEOUT_MINUTES</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="722.69" y="874.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="277" x="716.19" y="941.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="156" x="776.69" y="956.4119">Operation Lock Timeout Sec</text><line style="stroke:#000000;stroke-width:1.5;" x1="717.19" x2="992.19" y1="961.9279" y2="961.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="265" x="722.19" y="976.6179">Attribute Type = OPERATION_LOCK_TIMEOUT_SECONDS</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="722.19" y="990.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="263" x="585.19" y="361.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="106" x="663.69" y="376.4119">Configuration Type</text><line style="stroke:#000000;stroke-width:1.5;" x1="586.19" x2="847.19" y1="381.9279" y2="381.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="251" x="591.19" y="396.6179">Attribute Type = CONFIGURATION_OPERATION_TYPE</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="591.19" y="410.2379">value = Desired: [1] - Reported: [0]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="324" x="133.69" y="593.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="194" x="198.69" y="608.4119">Configuration Inside Handles State</text><line style="stroke:#000000;stroke-width:1.5;" x1="134.69" x2="456.69" y1="613.9279" y2="613.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="312" x="139.69" y="628.6179">Attribute Type = CONFIGURATION_INSIDE_DOOR_HANDLES_STATE</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="193" x="139.69" y="642.2379">value = Desired: [0x00], Reported: [0xFF]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="334" x="170.69" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="203" x="236.19" y="492.4119">Configuration Outside Handles State</text><line style="stroke:#000000;stroke-width:1.5;" x1="171.69" x2="503.69" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="322" x="176.69" y="512.6179">Attribute Type = CONFIGURATION_OUTSIDE_DOOR_HANDLES_STATE</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="176.69" y="526.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="300" x="126.69" y="709.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="201" x="176.19" y="724.4119">Configuration Lock Timeout Minutes</text><line style="stroke:#000000;stroke-width:1.5;" x1="127.69" x2="425.69" y1="729.9279" y2="729.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="288" x="132.69" y="744.6179">Attribute Type = CONFIGURATION_LOCK_TIMEOUT_MINUTES</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="193" x="132.69" y="758.2379">value = Desired: [0x00], Reported: [0xFF]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="301" x="126.19" y="825.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="203" x="175.19" y="840.4119">Configuration Lock Timeout Seconds</text><line style="stroke:#000000;stroke-width:1.5;" x1="127.19" x2="426.19" y1="845.9279" y2="845.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="289" x="132.19" y="860.6179">Attribute Type = CONFIGURATION_LOCK_TIMEOUT_SECONDS</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="132.19" y="874.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="221" x="782.19" y="1057.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="56" x="864.69" y="1072.4119">Operation</text><line style="stroke:#000000;stroke-width:1.5;" x1="783.19" x2="1002.19" y1="1077.9279" y2="1077.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="209" x="788.19" y="1092.6179">Attribute Type = LOCK_OPERATION_REPORT</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="788.19" y="1106.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="205" x="280.19" y="941.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="76" x="344.69" y="956.4119">Configuration</text><line style="stroke:#000000;stroke-width:1.5;" x1="281.19" x2="484.19" y1="961.9279" y2="961.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="162" x="286.19" y="976.6179">Attribute Type = CONFIGURATION</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="193" x="286.19" y="990.2379">value = Desired: [0x00], Reported: [0xFF]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="185" x="1424.19" y="361.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="65" x="1484.19" y="376.4119">Capabilities</text><line style="stroke:#000000;stroke-width:1.5;" x1="1425.19" x2="1608.19" y1="381.9279" y2="381.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="143" x="1430.19" y="396.6179">Attribute Type = CAPABILITIES</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="1430.19" y="410.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="246" x="259.69" y="1057.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="144" x="310.69" y="1072.4119">Configuration Auto Relock</text><line style="stroke:#000000;stroke-width:1.5;" x1="260.69" x2="504.69" y1="1077.9279" y2="1077.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="234" x="265.69" y="1092.6179">Attribute Type = CONFIGURATION_AUTO_RELOCK</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="265.69" y="1106.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="277" x="226.19" y="1173.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="183" x="273.19" y="1188.4119">Configuration Hold Release Time</text><line style="stroke:#000000;stroke-width:1.5;" x1="227.19" x2="502.19" y1="1193.9279" y2="1193.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="265" x="232.19" y="1208.6179">Attribute Type = CONFIGURATION_HOLD_RELEASE_TIME</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="232.19" y="1222.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="198" x="265.69" y="1289.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="102" x="313.69" y="1304.4119">Configuration BTB</text><line style="stroke:#000000;stroke-width:1.5;" x1="266.69" x2="462.69" y1="1309.9279" y2="1309.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="186" x="271.69" y="1324.6179">Attribute Type = CONFIGURATION_BTB</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="271.69" y="1338.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="190" x="357.69" y="1405.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="94" x="405.69" y="1420.4119">Configuration TA</text><line style="stroke:#000000;stroke-width:1.5;" x1="358.69" x2="546.69" y1="1425.9279" y2="1425.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="178" x="363.69" y="1440.6179">Attribute Type = CONFIGURATION_TA</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="363.69" y="1454.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="267" x="759.19" y="1173.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="171" x="807.19" y="1188.4119">Operation Report Target Mode</text><line style="stroke:#000000;stroke-width:1.5;" x1="760.19" x2="1025.19" y1="1193.9279" y2="1193.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="255" x="765.19" y="1208.6179">Attribute Type = OPERATION_REPORT_TARGET_MODE</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="765.19" y="1222.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="247" x="684.19" y="1289.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="148" x="733.69" y="1304.4119">Operation Report Duration</text><line style="stroke:#000000;stroke-width:1.5;" x1="685.19" x2="930.19" y1="1309.9279" y2="1309.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="235" x="690.19" y="1324.6179">Attribute Type = OPERATION_REPORT_DURATION</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="690.19" y="1338.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="290" x="1209.69" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="202" x="1253.69" y="492.4119">Capabilities Operation Type Bitmask</text><line style="stroke:#000000;stroke-width:1.5;" x1="1210.69" x2="1498.69" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="278" x="1215.69" y="512.6179">Attribute Type = CAPABILITIES_OPERATION_TYPE_BITMASK</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="1215.69" y="526.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="218" x="1245.69" y="593.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="128" x="1290.69" y="608.4119">Capabilities Lock Mode</text><line style="stroke:#000000;stroke-width:1.5;" x1="1246.69" x2="1462.69" y1="613.9279" y2="613.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="206" x="1251.69" y="628.6179">Attribute Type = CAPABILITIES_LOCK_MODE</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="1251.69" y="642.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="329" x="1208.19" y="709.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="195" x="1275.19" y="724.4119">Capabilities Outside Handle Modes</text><line style="stroke:#000000;stroke-width:1.5;" x1="1209.19" x2="1536.19" y1="729.9279" y2="729.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="317" x="1214.19" y="744.6179">Attribute Type = CAPABILITIES_OUTSIDE_HANDLE_MODES_BITMASK</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="1214.19" y="758.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="319" x="1254.19" y="825.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="186" x="1320.69" y="840.4119">Capabilities Inside Handle Modes</text><line style="stroke:#000000;stroke-width:1.5;" x1="1255.19" x2="1572.19" y1="845.9279" y2="845.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="307" x="1260.19" y="860.6179">Attribute Type = CAPABILITIES_INSIDE_HANDLE_MODES_BITMASK</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="1260.19" y="874.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="303" x="1285.19" y="941.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="164" x="1354.69" y="956.4119">Capabilities Door Component</text><line style="stroke:#000000;stroke-width:1.5;" x1="1286.19" x2="1587.19" y1="961.9279" y2="961.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="291" x="1291.19" y="976.6179">Attribute Type = CAPABILITIES_DOOR_COMPONENT_BITMASK</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="1291.19" y="990.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="185" x="1344.19" y="1057.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="90" x="1391.69" y="1072.4119">Capabilities ASR</text><line style="stroke:#000000;stroke-width:1.5;" x1="1345.19" x2="1528.19" y1="1077.9279" y2="1077.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="1350.19" y="1092.6179">Attribute Type = CAPABILITIES_ARS</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="1350.19" y="1106.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="185" x="1240.19" y="1173.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="91" x="1287.19" y="1188.4119">Capabilities HRS</text><line style="stroke:#000000;stroke-width:1.5;" x1="1241.19" x2="1424.19" y1="1193.9279" y2="1193.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="165" x="1246.19" y="1208.6179">Attribute Type = CAPABILITIES_HRS</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="1246.19" y="1222.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="185" x="1240.19" y="1289.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="90" x="1287.69" y="1304.4119">Capabilities TAS</text><line style="stroke:#000000;stroke-width:1.5;" x1="1241.19" x2="1424.19" y1="1309.9279" y2="1309.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="1246.19" y="1324.6179">Attribute Type = CAPABILITIES_TAS</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="1246.19" y="1338.2379">value = Desired: [10], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1o3hl7hbqwgu4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="185" x="1123.19" y="1405.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="98" x="1166.69" y="1420.4119">Capabilities BTBS</text><line style="stroke:#000000;stroke-width:1.5;" x1="1124.19" x2="1307.19" y1="1425.9279" y2="1425.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="172" x="1129.19" y="1440.6179">Attribute Type = CAPABILITIES_BTBS</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="1129.19" y="1454.2379">value = Desired: [10], Reported: [10]</text><!--MD5=[95477c314ce472250aabd32546a8a81f]
+reverse link node to endpoint--><path codeLine="1526" d="M921.69,199.0638 C921.69,214.4138 921.69,231.5238 921.69,245.3638 " fill="none" id="node-backto-endpoint" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="921.69,185.6038,917.69,191.6038,921.69,197.6038,925.69,191.6038,921.69,185.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[c4a4e185f2beba9fb9ec0dd52638d41f]
+reverse link endpoint to version--><path codeLine="1528" d="M800.23,294.6238 C687.6,313.2038 519.11,341.0038 394.59,361.5438 " fill="none" id="endpoint-backto-version" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="813.34,292.4638,806.7662,289.4998,801.5019,294.428,808.0757,297.3919,813.34,292.4638" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[05143b156e8b4d63037681fb2673368d]
+reverse link endpoint to operation--><path codeLine="1530" d="M1043.07,283.8838 C1149.99,294.9038 1294.1,317.6038 1329.69,361.5838 C1345.35,380.9338 1345,397.9538 1329.69,417.5838 C1262.33,503.9438 1166.07,398.1338 1090.69,477.5838 C1046.12,524.5638 1062.69,555.8238 1062.69,620.5838 C1062.69,620.5838 1062.69,620.5838 1062.69,854.5838 C1062.69,922.2138 1051.19,943.4238 1010.69,997.5838 C992.47,1021.9438 965.55,1042.5138 942.02,1057.5338 " fill="none" id="endpoint-backto-operation" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1029.9,282.5638,1035.4702,287.1434,1041.8399,283.763,1036.2697,279.1834,1029.9,282.5638" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[47e616c48ab5e5ebda33ac69bc7d4319]
+reverse link endpoint to oper_lock_mode--><path codeLine="1531" d="M988.97,307.5038 C1024.03,324.6538 1066.36,345.3638 1099.47,361.5638 " fill="none" id="endpoint-backto-oper_lock_mode" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="976.91,301.6038,980.5491,307.8293,987.6953,306.8646,984.0563,300.6391,976.91,301.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[20605160bb054407e5cd1f8a4c38766d]
+reverse link endpoint to oper_inside_handles--><path codeLine="1532" d="M950.49,312.5938 C969.48,342.6438 987.5,384.8338 967.69,417.5838 C951.1,445.0038 922.7,464.2038 894.04,477.4538 " fill="none" id="endpoint-backto-oper_inside_handles" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="943.25,301.7138,943.2456,308.9249,949.9003,311.7024,949.9047,304.4913,943.25,301.7138" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[5ef29291aeced62290af8246b660f754]
+reverse link endpoint to oper_outside_handles--><path codeLine="1533" d="M1043.16,280.8638 C1178.84,292.4438 1370.31,325.2138 1295.69,417.5838 C1215.99,516.2438 1125.33,412.1338 1016.69,477.5838 C988.86,494.3538 994.53,512.6338 969.69,533.5838 C941.64,557.2338 906.31,578.1738 877.1,593.5838 " fill="none" id="endpoint-backto-oper_outside_handles" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1029.8,279.7738,1035.4549,284.2484,1041.7603,280.7496,1036.1054,276.2749,1029.8,279.7738" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[23528a3fbd3ac0f081625ef19adb13a9]
+reverse link endpoint to oper_condition--><path codeLine="1534" d="M937.62,314.3238 C947.36,345.8238 953.98,389.1138 930.69,417.5838 C845.41,521.8138 718.97,373.3538 633.69,477.5838 C612.75,503.1738 625.65,618.2138 647.69,649.5838 C666.92,676.9538 697.34,696.1938 727.34,709.4838 " fill="none" id="endpoint-backto-oper_condition" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="933.33,301.6338,931.4592,308.598,937.1682,313.0034,939.039,306.0392,933.33,301.6338" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[64d67f637cd5c222110eec477ddb1b6a]
+reverse link endpoint to oper_lock_min--><path codeLine="1535" d="M1042.94,279.0638 C1184.64,288.8138 1390.48,319.7038 1312.69,417.5838 C1239.17,510.0838 1140.7,397.6438 1053.69,477.5838 C954.64,568.5838 1036.41,654.4138 960.69,765.5838 C944.41,789.4938 919.7,810.3038 898.24,825.5738 " fill="none" id="endpoint-backto-oper_lock_min" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1029.87,278.2138,1035.598,282.5944,1041.8447,278.9919,1036.1167,274.6112,1029.87,278.2138" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[c160364c89fd609e87f5e35a162ae8e1]
+reverse link endpoint to oper_lock_sec--><path codeLine="1536" d="M924.95,315.1438 C925.19,347.1938 919.93,390.8538 893.69,417.5838 C804.84,508.0938 706.21,389.7738 614.69,477.5838 C567.32,523.0338 577.69,554.9338 577.69,620.5838 C577.69,620.5838 577.69,620.5838 577.69,738.5838 C577.69,842.0338 693.46,907.8538 775.31,941.4638 " fill="none" id="endpoint-backto-oper_lock_sec" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="924.53,301.7638,920.7234,307.8883,924.9126,313.7577,928.7193,307.6332,924.53,301.7638" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[3e01678f68138d23dfdd2b2beb0e4269]
+reverse link operation to oper_mode--><path codeLine="1537" d="M880.46,1126.5938 C879.49,1142.0738 879.88,1159.3838 881.63,1173.3638 " fill="none" id="operation-backto-oper_mode" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="881.66,1113.6038,877.1232,1119.2089,880.5522,1125.5525,885.089,1119.9474,881.66,1113.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[3e01678f68138d23dfdd2b2beb0e4269]
+reverse link operation to oper_mode--><!--MD5=[08505cf9d4b42c71e46da18ad74f601e]
+reverse link operation to oper_duration--><path codeLine="1538" d="M800.25,1119.9738 C777.08,1133.0038 755.03,1150.5038 741.69,1173.5838 C719.25,1212.4038 752.65,1260.1738 779.55,1289.4938 " fill="none" id="operation-backto-oper_duration" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="812.06,1113.7538,804.8873,1113.0108,801.4427,1119.346,808.6154,1120.089,812.06,1113.7538" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[7c430fa5ccc07388e6b522ed5005db3a]
+reverse link oper_lock_mode to oper_inside_handles--><!--MD5=[c9ae91a559d2af3dc9880467a4ae2968]
+reverse link oper_inside_handles to oper_outside_handles--><!--MD5=[d43f8a1e675afa5c74eeb75c9c3b58d1]
+reverse link oper_outside_handles to oper_condition--><!--MD5=[5cb54f62510f8fb2c3256666a04fc1e7]
+reverse link oper_condition to oper_lock_min--><!--MD5=[8a87a35c0cebf73fe3f192c1b31cb5f0]
+reverse link oper_lock_min to oper_lock_sec--><!--MD5=[0e19c0772a275b99bea57843bbfc6396]
+reverse link oper_lock_sec to operation--><!--MD5=[ab0b72b933efe304a4a749bff4e3aa50]
+reverse link oper_mode to oper_duration--><!--MD5=[4cc844f41bb6a9c693b86dcd4d72da36]
+reverse link endpoint to configuration--><path codeLine="1549" d="M907.22,314.2438 C892.08,355.3138 869.91,414.0338 865.69,417.5838 C763.64,503.4338 666.56,383.8638 571.69,477.5838 C525.43,523.2838 540.69,555.5538 540.69,620.5838 C540.69,620.5838 540.69,620.5838 540.69,738.5838 C540.69,824.8138 464.3,902.3238 417.76,941.5538 " fill="none" id="endpoint-backto-configuration" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="911.76,301.8738,905.9352,306.1248,907.6189,313.1366,913.4437,308.8855,911.76,301.8738" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[5a0feee21f8d61f92d672a29d847dc84]
+reverse link endpoint to conf_type--><path codeLine="1550" d="M861.68,307.9538 C831,325.0138 794.15,345.5038 765.28,361.5638 " fill="none" id="endpoint-backto-conf_type" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="873.11,301.6038,865.9223,301.0233,862.622,307.4348,869.8097,308.0153,873.11,301.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[9f1f63d93a6062fa38f1c6013a3ab0de]
+reverse link endpoint to conf_outside_handles--><path codeLine="1551" d="M800.24,285.3738 C728.27,296.2238 637.74,317.9738 567.69,361.5838 C540.1,378.7538 546.4,397.7038 520.69,417.5838 C488.27,442.6538 447.46,462.9238 412.61,477.5638 " fill="none" id="endpoint-backto-conf_outside_handles" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="813.45,283.4738,806.9403,280.3716,801.573,285.1874,808.0827,288.2896,813.45,283.4738" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[f17f20d8d97f652aabd1c0b6efd333b9]
+reverse link endpoint to conf_inside_handles--><path codeLine="1552" d="M800.31,289.7438 C698.03,304.4638 561.44,329.3038 516.69,361.5838 C493.26,378.4838 507.38,401.0538 483.69,417.5838 C361.42,502.8638 249.21,363.1338 153.69,477.5838 C137.74,496.6938 141.53,511.8738 153.69,533.5838 C168.67,560.3238 195.59,579.8338 221.99,593.5238 " fill="none" id="endpoint-backto-conf_inside_handles" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="813.23,287.9138,806.727,284.7974,801.3493,289.6016,807.8523,292.7179,813.23,287.9138" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[5bc697e90c52e562c40a53628fa7d557]
+reverse link endpoint to conf_lock_min--><path codeLine="1553" d="M800.4,287.2138 C687.84,300.9138 530.3,325.7338 479.69,361.5838 C456.12,378.2838 470.3,400.9338 446.69,417.5838 C331.67,498.7338 234.24,377.0638 135.69,477.5838 C81.81,532.5438 76.28,583.4838 115.69,649.5838 C131.96,676.8738 160.09,696.1138 188.32,709.4338 " fill="none" id="endpoint-backto-conf_lock_min" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="813.55,285.6438,807.1179,282.3838,801.6347,287.0673,808.0669,290.3273,813.55,285.6438" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[a3ab1c5ea2f217cc2d24b644994d30c4]
+reverse link endpoint to conf_lock_sec--><path codeLine="1554" d="M800.4,283.4138 C676.98,294.6738 496.41,318.1038 442.69,361.5838 C421.77,378.5138 440.6,400.6538 419.69,417.5838 C304.19,511.1338 188.81,365.9438 90.69,477.5838 C6,573.9338 31.92,663.5738 109.69,765.5838 C130.2,792.4938 161.43,811.8638 191.35,825.3938 " fill="none" id="endpoint-backto-conf_lock_sec" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="813.66,282.2338,807.328,278.7833,801.7076,283.3012,808.0396,286.7516,813.66,282.2338" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[b866a2cc227685f4932abd191c14802c]
+reverse link configuration to conf_relock--><path codeLine="1555" d="M370.46,1010.5938 C369.49,1026.0738 369.88,1043.3838 371.63,1057.3638 " fill="none" id="configuration-backto-conf_relock" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="371.66,997.6038,367.1232,1003.2089,370.5522,1009.5525,375.089,1003.9474,371.66,997.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[b866a2cc227685f4932abd191c14802c]
+reverse link configuration to conf_relock--><!--MD5=[cedbf01f0c3052431a651ffac9e7e7a5]
+reverse link configuration to conf_release_time--><path codeLine="1556" d="M298.73,1004.1938 C276.55,1017.3738 255.3,1034.9038 242.69,1057.5838 C230.6,1079.3338 231.29,1091.4538 242.69,1113.5838 C256.03,1139.4838 281.05,1159.3738 304.98,1173.5538 " fill="none" id="configuration-backto-conf_release_time" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="310.37,997.6838,303.1809,997.1209,299.8963,1003.5406,307.0854,1004.1034,310.37,997.6838" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[c0dde796baf7bab5f52444271f1d46c0]
+reverse link configuration to conf_btb--><path codeLine="1557" d="M290.91,1003.5138 C266.13,1016.6638 241.76,1034.3538 225.69,1057.5838 C196.05,1100.4338 212.48,1121.6138 208.69,1173.5838 C206.88,1198.4038 196.09,1208.1238 208.69,1229.5838 C224.63,1256.7238 252.45,1276.0238 280.23,1289.4238 " fill="none" id="configuration-backto-conf_btb" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="302.69,997.5938,295.5333,996.7099,291.9648,1002.9762,299.1215,1003.86,302.69,997.5938" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[103afe46925966f2266abbe5741b28ba]
+reverse link configuration to conf_ta--><path codeLine="1558" d="M467.55,1004.2538 C489.78,1017.4138 511.04,1034.9138 523.69,1057.5838 C588.91,1174.4638 507,1340.3738 469.54,1405.1638 " fill="none" id="configuration-backto-conf_ta" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="455.88,997.7638,459.1776,1004.1767,466.3655,1003.5993,463.0679,997.1864,455.88,997.7638" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[b6f6d548d72cfc4588e666cd00dfdf8a]
+reverse link conf_type to conf_outside_handles--><!--MD5=[eb18fbee7424dc9dafe55747367b33b2]
+reverse link conf_outside_handles to conf_inside_handles--><!--MD5=[273cb8a6dcb31384e7581c9145f719cd]
+reverse link conf_inside_handles to conf_lock_min--><!--MD5=[561a368db478f7d33dddd74d1d386cf8]
+reverse link conf_lock_min to conf_lock_sec--><!--MD5=[2a1646f14864729ed883264c192e7462]
+reverse link conf_lock_sec to configuration--><!--MD5=[0638c8483bfd023c4fc65042852fa8f3]
+reverse link conf_relock to conf_release_time--><!--MD5=[41d961ebb8aaa600875fcf0a3a39e875]
+reverse link conf_release_time to conf_btb--><!--MD5=[0ec7328a91353b81b87577b077f21e8d]
+reverse link conf_btb to conf_ta--><!--MD5=[e8818a659f63f8f3e10410eab5f7f31c]
+reverse link endpoint to capabilities--><path codeLine="1570" d="M1042.92,295.4038 C1139.06,312.2538 1276.73,337.1138 1396.69,361.5838 C1405.58,363.3938 1414.83,365.3538 1424.07,367.3538 " fill="none" id="endpoint-backto-capabilities" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1029.93,293.1338,1035.1496,298.1093,1041.7499,295.2049,1036.5303,290.2294,1029.93,293.1338" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[774865362ab5e319446c95af552b3744]
+reverse link capabilities to capabilities_oper_type--><path codeLine="1571" d="M1456.18,424.8638 C1430.72,441.7338 1402.47,461.7938 1382.06,477.5638 " fill="none" id="capabilities-backto-capabilities_oper_type" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1467.27,417.6038,1460.0592,417.5422,1457.2289,424.1747,1464.4398,424.2362,1467.27,417.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[774865362ab5e319446c95af552b3744]
+reverse link capabilities to capabilities_oper_type--><!--MD5=[60c1d4737075290c2e4811996ebecb18]
+reverse link capabilities to cap_lock_mode--><path codeLine="1572" d="M1411.28,415.6438 C1319.37,437.9938 1199.63,468.5338 1192.69,477.5838 C1177.54,497.3338 1179.92,512.2238 1192.69,533.5838 C1209.08,560.9838 1237.38,580.2538 1265.79,593.5638 " fill="none" id="capabilities-backto-cap_lock_mode" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1424.05,412.5438,1417.2753,410.0732,1412.3892,415.3766,1419.1639,417.8471,1424.05,412.5438" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[4f1fff7be43dbd4d21ee8a1a9a9c2489]
+reverse link capabilities to cap_outside_handles_modes--><path codeLine="1573" d="M1521.75,431.1838 C1526.38,485.7638 1526.76,583.5738 1481.69,649.5838 C1465.24,673.6838 1440.12,694.3638 1418.15,709.5138 " fill="none" id="capabilities-backto-cap_outside_handles_modes" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1520.47,417.9538,1517.0625,424.309,1521.6183,429.8987,1525.0258,423.5435,1520.47,417.9538" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[7f7f014f4e50afe8fffe45fa8af6aa1e]
+reverse link capabilities to cap_inside_handles_modes--><path codeLine="1574" d="M1534.56,429.6938 C1564.45,501.3638 1615.6,656.4238 1554.69,765.5838 C1539.83,792.2138 1513.11,811.7038 1486.88,825.4038 " fill="none" id="capabilities-backto-cap_inside_handles_modes" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1529.44,417.7138,1528.1218,424.8034,1534.1591,428.7469,1535.4773,421.6573,1529.44,417.7138" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[a1057e2317786deff0e043d12db7620a]
+reverse link capabilities to cap_door_component--><path codeLine="1575" d="M1542.79,428.8838 C1570.3,473.0438 1609.69,548.8238 1609.69,620.5838 C1609.69,620.5838 1609.69,620.5838 1609.69,738.5838 C1609.69,802.6938 1626.59,828.4638 1590.69,881.5838 C1572.55,908.4238 1543.21,927.9238 1514.97,941.5638 " fill="none" id="capabilities-backto-cap_door_component" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1535.73,417.8238,1535.5827,425.0334,1542.181,427.9423,1542.3284,420.7327,1535.73,417.8238" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[b735aad2995b688f2c8a506fe99b3562]
+reverse link capabilities to cap_asr--><path codeLine="1576" d="M1553.47,427.5038 C1591.91,470.1838 1646.69,544.3638 1646.69,620.5838 C1646.69,620.5838 1646.69,620.5838 1646.69,854.5838 C1646.69,920.7038 1647.64,946.4738 1605.69,997.5838 C1583.71,1024.3638 1551.33,1043.8138 1520.77,1057.4438 " fill="none" id="capabilities-backto-cap_asr" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1544.58,417.8638,1545.7074,424.9862,1552.7155,426.6849,1551.5882,419.5625,1544.58,417.8638" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[e71468ba741156d9b84be7a478e92f1e]
+reverse link capabilities to cap_hrs--><path codeLine="1577" d="M1411.07,405.3838 C1323.1,419.8138 1207.01,444.4138 1173.69,477.5838 C1127.16,523.8938 1136.69,554.9338 1136.69,620.5838 C1136.69,620.5838 1136.69,620.5838 1136.69,970.5838 C1136.69,1062.1338 1227.76,1135.7438 1285.74,1173.3338 " fill="none" id="capabilities-backto-cap_hrs" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1424.11,403.2838,1417.5491,400.2913,1412.2634,405.1966,1418.8243,408.189,1424.11,403.2838" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[f7259bec44efe20f545c365ef3e2580e]
+reverse link capabilities to cap_tas--><path codeLine="1578" d="M1567.21,425.7438 C1585.44,440.2438 1605.1,458.1938 1619.69,477.5838 C1661.56,533.2238 1683.69,550.9538 1683.69,620.5838 C1683.69,620.5838 1683.69,620.5838 1683.69,1086.5838 C1683.69,1210.2538 1529.36,1271.0438 1425.37,1297.9638 " fill="none" id="capabilities-backto-cap_tas" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1556.68,417.6238,1558.9887,424.4553,1566.1827,424.9518,1563.874,418.1202,1556.68,417.6238" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[1e005316ffbafcc71e8eabfc649111d5]
+reverse link capabilities to cap_btbs--><path codeLine="1579" d="M1411.11,408.4838 C1304.11,427.5538 1151.55,457.6838 1131.69,477.5838 C1085.69,523.6838 1099.69,555.4538 1099.69,620.5838 C1099.69,620.5838 1099.69,620.5838 1099.69,1202.5838 C1099.69,1283.3038 1157.36,1364.5338 1191.37,1405.4338 " fill="none" id="capabilities-backto-cap_btbs" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1423.92,406.2138,1417.3134,403.3236,1412.1046,408.3105,1418.7112,411.2006,1423.92,406.2138" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[915aea0bb270efe7c2bb64ec1a3622e4]
+reverse link capabilities_oper_type to cap_lock_mode--><!--MD5=[c766a6b6fa1adea2a01134734999842c]
+reverse link cap_lock_mode to cap_outside_handles_modes--><!--MD5=[60dc873b4e548edc051459ea2946d4f7]
+reverse link cap_outside_handles_modes to cap_inside_handles_modes--><!--MD5=[e89f3476672a02eb58c9bcb99a3be021]
+reverse link cap_inside_handles_modes to cap_door_component--><!--MD5=[80b0349ee18eb09ffbb9874d87eebefc]
+reverse link cap_door_component to cap_asr--><!--MD5=[81d9fd0f989cd0fbc062c2dd8e9e8692]
+reverse link cap_asr to cap_hrs--><!--MD5=[3d80a80bd307a4f52f032f2952250222]
+reverse link cap_hrs to cap_tas--><!--MD5=[0147bddcc0f30fd0da402dc9c2088841]
+reverse link cap_tas to cap_btbs--><!--MD5=[2477d3686e537eecc1fc35a233d84534]
+@startuml inline_umlgraph_21.svg
+title Door Lock data model
+allow_mixing
+skinparam objectBorderColor black
+
+legend top
+<font color=#FEFEFE>ATTRIBUTE(type)</font> : ATTRIBUTE_COMMAND_CLASS_DOOR_LOCK_type
+endlegend
+
+package "Attribute Store" <<Database>> {
+  object "NodeID" as node #f2ffe6
+  node : Attribute Type = ATTRIBUTE_NODE_ID
+  node : value = Desired: [], Reported: [03]
+
+  object "Endpoint Attribute" as endpoint #e6fff7
+  endpoint : Attribute Type = ATTRIBUTE_ENDPOINT_ID
+  endpoint : value = Desired: [] - Reported: [04]
+
+  object "Version" as version #FEFEFE
+  version : Attribute Type = ATTRIBUTE_COMMAND_CLASS_DOOR_LOCK_VERSION
+  version : value = Desired: [] - Reported: [2]
+
+  object "Operation Lock Mode" as oper_lock_mode #FFFFFF
+  oper_lock_mode : Attribute Type = OPERATION_DOOR_LOCK_MODE
+  oper_lock_mode : value = Desired: [0x00], Reported: [0xFF]
+
+  object "Operation Inside Handles Mode" as oper_inside_handles #FFFFFF
+  oper_inside_handles : Attribute Type = OPERATION_INSIDE_DOOR_HANDLES_MODE
+  oper_inside_handles : value = Desired: [10], Reported: [10]
+
+  object "Operation Outside Handles Mode" as oper_outside_handles #FFFFFF
+  oper_outside_handles : Attribute Type = OPERATION_OUTSIDE_DOOR_HANDLES_MODE
+  oper_outside_handles : value = Desired: [10], Reported: [10]
+
+  object "Operation Condition" as oper_condition #FFFFFF
+  oper_condition : Attribute Type = OPERATION_DOOR_CONDITION
+  oper_condition : value = Desired: [0x00], Reported: [0xFF]
+
+  object "Operation Lock Timeout Min" as oper_lock_min #FFFFFF
+  oper_lock_min : Attribute Type = OPERATION_LOCK_TIMEOUT_MINUTES
+  oper_lock_min : value = Desired: [10], Reported: [10]
+
+  object "Operation Lock Timeout Sec" as oper_lock_sec #FFFFFF
+  oper_lock_sec : Attribute Type = OPERATION_LOCK_TIMEOUT_SECONDS
+  oper_lock_sec : value = Desired: [10], Reported: [10]
+
+  object "Configuration Type" as conf_type #FFFFFF
+  conf_type : Attribute Type = CONFIGURATION_OPERATION_TYPE
+  conf_type : value = Desired: [1] - Reported: [0]
+
+  object "Configuration Inside Handles State" as conf_inside_handles #FFFFFF
+  conf_inside_handles : Attribute Type = CONFIGURATION_INSIDE_DOOR_HANDLES_STATE
+  conf_inside_handles : value = Desired: [0x00], Reported: [0xFF]
+
+  object "Configuration Outside Handles State" as conf_outside_handles #FFFFFF
+  conf_outside_handles : Attribute Type = CONFIGURATION_OUTSIDE_DOOR_HANDLES_STATE
+  conf_outside_handles : value = Desired: [10], Reported: [10]
+
+  object "Configuration Lock Timeout Minutes" as conf_lock_min #FFFFFF
+  conf_lock_min : Attribute Type = CONFIGURATION_LOCK_TIMEOUT_MINUTES
+  conf_lock_min : value = Desired: [0x00], Reported: [0xFF]
+
+  object "Configuration Lock Timeout Seconds" as conf_lock_sec #FFFFFF
+  conf_lock_sec : Attribute Type = CONFIGURATION_LOCK_TIMEOUT_SECONDS
+  conf_lock_sec : value = Desired: [10], Reported: [10]
+
+  object "Operation" as operation #FFFFFF
+  operation : Attribute Type = LOCK_OPERATION_REPORT
+  operation : value = Desired: [10], Reported: [10]
+
+  object "Configuration" as configuration #FFFFFF
+  configuration : Attribute Type = CONFIGURATION
+  configuration : value = Desired: [0x00], Reported: [0xFF]
+
+  object "Capabilities" as capabilities #FFFFFF
+  capabilities : Attribute Type = CAPABILITIES
+  capabilities : value = Desired: [10], Reported: [10]
+
+
+  object "Configuration Auto Relock" as conf_relock #FFFFFF
+  conf_relock : Attribute Type = CONFIGURATION_AUTO_RELOCK
+  conf_relock : value = Desired: [10], Reported: [10]
+
+  object "Configuration Hold Release Time" as conf_release_time #FFFFFF
+  conf_release_time : Attribute Type = CONFIGURATION_HOLD_RELEASE_TIME
+  conf_release_time : value = Desired: [10], Reported: [10]
+
+  object "Configuration BTB" as conf_btb #FFFFFF
+  conf_btb : Attribute Type = CONFIGURATION_BTB
+  conf_btb : value = Desired: [10], Reported: [10]
+
+  object "Configuration TA" as conf_ta #FFFFFF
+  conf_ta : Attribute Type = CONFIGURATION_TA
+  conf_ta : value = Desired: [10], Reported: [10]
+
+
+  object "Operation Report Target Mode" as oper_mode #FFFFFF
+  oper_mode : Attribute Type = OPERATION_REPORT_TARGET_MODE
+  oper_mode : value = Desired: [10], Reported: [10]
+
+  object "Operation Report Duration" as oper_duration #FFFFFF
+  oper_duration : Attribute Type = OPERATION_REPORT_DURATION
+  oper_duration : value = Desired: [10], Reported: [10]
+
+
+  object "Capabilities Operation Type Bitmask" as capabilities_oper_type #FFFFFF
+  capabilities_oper_type : Attribute Type = CAPABILITIES_OPERATION_TYPE_BITMASK
+  capabilities_oper_type : value = Desired: [10], Reported: [10]
+
+  object "Capabilities Lock Mode" as cap_lock_mode #FFFFFF
+  cap_lock_mode : Attribute Type = CAPABILITIES_LOCK_MODE
+  cap_lock_mode : value = Desired: [10], Reported: [10]
+
+  object "Capabilities Outside Handle Modes" as cap_outside_handles_modes #FFFFFF
+  cap_outside_handles_modes : Attribute Type = CAPABILITIES_OUTSIDE_HANDLE_MODES_BITMASK
+  cap_outside_handles_modes : value = Desired: [10], Reported: [10]
+
+  object "Capabilities Inside Handle Modes" as cap_inside_handles_modes #FFFFFF
+  cap_inside_handles_modes : Attribute Type = CAPABILITIES_INSIDE_HANDLE_MODES_BITMASK
+  cap_inside_handles_modes : value = Desired: [10], Reported: [10]
+  
+  object "Capabilities Door Component" as cap_door_component #FFFFFF
+  cap_door_component : Attribute Type = CAPABILITIES_DOOR_COMPONENT_BITMASK
+  cap_door_component : value = Desired: [10], Reported: [10]
+
+  object "Capabilities ASR" as cap_asr #FFFFFF
+  cap_asr : Attribute Type = CAPABILITIES_ARS
+  cap_asr : value = Desired: [10], Reported: [10]
+
+  object "Capabilities HRS" as cap_hrs #FFFFFF
+  cap_hrs : Attribute Type = CAPABILITIES_HRS
+  cap_hrs  : value = Desired: [10], Reported: [10]
+
+  object "Capabilities TAS" as cap_tas #FFFFFF
+  cap_tas : Attribute Type = CAPABILITIES_TAS
+  cap_tas : value = Desired: [10], Reported: [10]
+ 
+  object "Capabilities BTBS" as cap_btbs #FFFFFF
+  cap_btbs : Attribute Type = CAPABILITIES_BTBS
+  cap_btbs : value = Desired: [10], Reported: [10]
+}
+
+node *- - endpoint
+
+endpoint *- - version
+
+endpoint *- - operation 
+endpoint *- - oper_lock_mode
+endpoint *- - oper_inside_handles 
+endpoint *- - oper_outside_handles 
+endpoint *- - oper_condition 
+endpoint *- - oper_lock_min 
+endpoint *- - oper_lock_sec 
+operation *- - oper_mode 
+operation *- - oper_duration 
+
+oper_lock_mode *-[hidden]- oper_inside_handles
+oper_inside_handles *-[hidden]- oper_outside_handles 
+oper_outside_handles *-[hidden]- oper_condition 
+oper_condition *-[hidden]- oper_lock_min
+oper_lock_min *-[hidden]- oper_lock_sec
+oper_lock_sec *-[hidden]- operation 
+operation *-[hidden]- oper_mode
+oper_mode *-[hidden]- oper_duration 
+
+endpoint *- - configuration 
+endpoint *- - conf_type
+endpoint *- - conf_outside_handles 
+endpoint *- - conf_inside_handles
+endpoint *- - conf_lock_min 
+endpoint *- - conf_lock_sec 
+configuration *- - conf_relock
+configuration *- - conf_release_time 
+configuration *- - conf_btb 
+configuration *- - conf_ta
+
+conf_type *-[hidden]- conf_outside_handles 
+conf_outside_handles *-[hidden]- conf_inside_handles
+conf_inside_handles *-[hidden]- conf_lock_min 
+conf_lock_min *-[hidden]- conf_lock_sec 
+conf_lock_sec *-[hidden]- configuration 
+configuration *-[hidden]- conf_relock
+conf_relock *-[hidden]- conf_release_time 
+conf_release_time *-[hidden]- conf_btb 
+conf_btb *-[hidden]- conf_ta
+
+endpoint *- - capabilities 
+capabilities *- - capabilities_oper_type 
+capabilities *- - cap_lock_mode 
+capabilities *- - cap_outside_handles_modes 
+capabilities *- - cap_inside_handles_modes 
+capabilities *- - cap_door_component 
+capabilities *- - cap_asr 
+capabilities *- - cap_hrs  
+capabilities *- - cap_tas 
+capabilities *- - cap_btbs 
+
+capabilities *-[hidden]- capabilities_oper_type 
+capabilities_oper_type *-[hidden]- cap_lock_mode  
+cap_lock_mode *-[hidden]- cap_outside_handles_modes 
+cap_outside_handles_modes *-[hidden]- cap_inside_handles_modes 
+cap_inside_handles_modes *-[hidden]- cap_door_component 
+cap_door_component *-[hidden]- cap_asr 
+cap_asr *-[hidden]- cap_hrs  
+cap_hrs *-[hidden]- cap_tas 
+cap_tas *-[hidden]- cap_btbs 
+@enduml
+
+PlantUML version 1.2022.0(Tue Jan 11 17:16:42 CET 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

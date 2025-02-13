@@ -1,0 +1,4 @@
+<map id="zwave_command_class_thermostat_mode_handle_set" name="zwave_command_class_thermostat_mode_handle_set">
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,205,47"/>
+<area shape="rect" id="node2" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="253,13,429,39"/>
+</map>

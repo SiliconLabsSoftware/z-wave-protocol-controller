@@ -1,0 +1,8 @@
+<map id="Dotdot Mapper" name="Dotdot Mapper">
+<area shape="rect" id="node1" href="$group__basic__cluster__mapper.html" title="Create manual maps between the Basic Cluster and several Z&#45;Wave Attributes." alt="" coords="178,5,326,31"/>
+<area shape="rect" id="node2" href="$group__binding__cluster__mapper.html" title="Sets up the Binding Clusters mapper." alt="" coords="173,55,331,80"/>
+<area shape="rect" id="node3" href="$group__binding__cluster__mapper__helper.html" title="Module mapping bindable cluster to association group properties." alt="" coords="170,105,334,145"/>
+<area shape="rect" id="node4" title="Maps the DotDot clusters to known command classes." alt="" coords="5,112,113,137"/>
+<area shape="rect" id="node5" href="$group__occupancy__sensing__cluster__mapper.html" title="Maps OccupancySensing Cluster incoming Commands to attribute modifications." alt="" coords="161,169,343,209"/>
+<area shape="rect" id="node6" href="$group__zpc__on__off__cluster__mapper.html" title="Maps OnOff Cluster incoming Commands to attribute modifications." alt="" coords="163,233,341,259"/>
+</map>

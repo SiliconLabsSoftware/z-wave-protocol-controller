@@ -1,0 +1,9 @@
+<map id="zwave_security_validation_is_security_valid_for_support" name="zwave_security_validation_is_security_valid_for_support">
+<area shape="rect" id="node1" title="Verifies if a frame supported by us can be accepted based on the security it was received on." alt="" coords="5,57,180,113"/>
+<area shape="rect" id="node2" href="$group__zwave__controller__utils.html#ga088b992329c434ce47df6a017f20ecb3" title="Get the highest Security Class of the ZPC for the current network." alt="" coords="259,31,404,72"/>
+<area shape="rect" id="node3" href="$group__zwave__controller__keyset.html#ga43a73c5ae7dc860fa2e5edb9814c432f" title="Get the hight encapsulation supported by a given key set." alt="" coords="483,31,641,72"/>
+<area shape="rect" id="node5" href="$group__zwave__controller__storage.html#ga771d01deff646dfda3f8406d6fbf5736" title="Return the granted keys for a node." alt="" coords="701,155,872,196"/>
+<area shape="rect" id="node7" href="$group__zwave__controller__keyset.html#gaf257c77b34f1b306368474dffce4950b" title="Function to tell whether scheme k is greater or equal to scheme v." alt="" coords="228,96,435,138"/>
+<area shape="rect" id="node4" href="$group__zwave__tx__scheme__selector.html#ga13b472eb06e679638bad680aa33825db" title="Return a list of security keys which the controller can use." alt="" coords="484,96,640,138"/>
+<area shape="rect" id="node6" href="$group__zwave__network__management.html#gae265f1e935804f3f0b971755ab0ee61e" title="Get the cached NodeID." alt="" coords="689,90,884,131"/>
+</map>

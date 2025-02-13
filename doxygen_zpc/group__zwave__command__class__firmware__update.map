@@ -1,0 +1,5 @@
+<map id="Firmware Update Command Class" name="Firmware Update Command Class">
+<area shape="rect" id="node1" href="$group__command__classes.html" title="List of supported and controlled Z&#45;Wave Command Classes." alt="" coords="5,13,188,38"/>
+<area shape="rect" id="node2" title="Firmware Update Command Class transfer API functions." alt="" coords="236,5,423,45"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__firmware__update__internals.html" title="Internal types and definitions for the Firmware Update Command Class." alt="" coords="471,5,657,45"/>
+</map>

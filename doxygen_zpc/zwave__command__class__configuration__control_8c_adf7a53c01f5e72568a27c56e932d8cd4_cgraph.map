@@ -1,0 +1,8 @@
+<map id="zwave_command_class_configuration_set" name="zwave_command_class_configuration_set">
+<area shape="rect" id="node1" title="Generates a Configuration Set or Bulk Set Command to set the value of a parameter." alt="" coords="5,115,168,156"/>
+<area shape="rect" id="node2" href="$zwave__command__class__configuration__control_8c.html#a5ba696b71ea98cbc17e224bf4b7dad98" title="Get the configuration parameter format for a given parameter id." alt="" coords="231,5,418,47"/>
+<area shape="rect" id="node3" href="$zwave__command__class__configuration__control_8c.html#ad053137c859692d75d92873d5847f276" title="Get the configuration parameter size for a given parameter id." alt="" coords="216,71,433,98"/>
+<area shape="rect" id="node4" href="$zwave__command__class__configuration__control_8c.html#af292e55991d5074417182a6fdec5337b" title="Checks if the node we are talking to supports Bulk Commands." alt="" coords="261,122,388,149"/>
+<area shape="rect" id="node5" href="$zwave__command__class__configuration__control_8c.html#a9f749ae4cecc27243961595d0b1467d4" title="Verifies if a configuration parameter is read&#45;only." alt="" coords="245,173,405,199"/>
+<area shape="rect" id="node6" href="$zwave__command__class__configuration__control_8c.html#a66f66d87963333a409b3645c9f566240" title="Set the parameter value value in the frame buffer based on the parameter size, MSB first." alt="" coords="253,224,396,265"/>
+</map>

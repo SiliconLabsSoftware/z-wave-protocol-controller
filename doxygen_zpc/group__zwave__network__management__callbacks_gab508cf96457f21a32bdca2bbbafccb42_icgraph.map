@@ -1,0 +1,9 @@
+<map id="on_set_suc_node_id_completed" name="on_set_suc_node_id_completed">
+<area shape="rect" id="node1" title="callback function for zwapi_set_suc_node_id()" alt="" coords="849,47,991,88"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management__helpers.html#ga4e9722c15b21c559fd96d7c0d69d9337" title="Attempts to take the SUC/SIS Role, if there is no SUC in the network." alt="" coords="651,39,801,95"/>
+<area shape="rect" id="node3" href="$nm__state__machine_8c.html#a4bedb93fa551c5f612efe78db1642309" title="Initialize the Z&#45;Wave network management state machine." alt="" coords="447,21,603,47"/>
+<area shape="rect" id="node5" href="$nm__state__machine_8c.html#abcdc17538148dcf4141793a866836aae" title="This function is called at the end of a set default or after learnmode." alt="" coords="465,79,585,106"/>
+<area shape="rect" id="node4" href="$group__zwave__network__management__fixt.html#gaa8950dbf92037e3ec5e0385641176c98" title="Initialize the Z&#45;Wave Network Management Module." alt="" coords="204,5,399,47"/>
+<area shape="rect" id="node6" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="231,95,371,122"/>
+<area shape="rect" id="node7" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="5,95,156,122"/>
+</map>

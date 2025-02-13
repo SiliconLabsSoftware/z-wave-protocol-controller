@@ -1,0 +1,12 @@
+<map id="zwapi_get_library_type" name="zwapi_get_library_type">
+<area shape="rect" id="node1" title="returns the cached value of the library type for the module" alt="" coords="929,56,1084,83"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__TRANSPORT.html#ga550a9c5891598a986c28487f36d6e24c" title="Send data to a Z&#45;Wave node or to the broadcast destination." alt="" coords="723,5,845,32"/>
+<area shape="rect" id="node6" href="$group__ZWAPI__TRANSPORT.html#ga117c122b8c680198f198acdf737adf15" title="Send data to a list of Z&#45;Wave Nodes (multicast frame)." alt="" coords="705,56,863,83"/>
+<area shape="rect" id="node7" href="$zwave__command__class__version_8c.html#a49e98971c907a7d4b0ab3b86f941df0e" title=" " alt="" coords="687,107,881,149"/>
+<area shape="rect" id="node3" href="$zwave__api__transport_8c.html#a825851abed8977dfab0e305f7ae30610" title="Encapsulates with Multi Channel and send a frame to the Z&#45;Wave TX queue." alt="" coords="478,31,629,57"/>
+<area shape="rect" id="node4" href="$group__zwave__api__transport.html#ga0b879fc413b5e3faaf848287f0d36d22" title="Initialize the Z&#45;Wave API Transport *." alt="" coords="253,31,420,57"/>
+<area shape="rect" id="node5" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="31,31,180,57"/>
+<area shape="rect" id="node8" href="$zwave__command__class__version_8c.html#a75a0004cf86479f6896b5b515576d83f" title=" " alt="" coords="468,107,639,149"/>
+<area shape="rect" id="node9" href="$group__zwave__command__class__version.html#gabae96a5c6c82334f5979f3b407b973e3" title="Intitialize the Version Command Class control APIs." alt="" coords="255,107,418,149"/>
+<area shape="rect" id="node10" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,115,205,141"/>
+</map>

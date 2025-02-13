@@ -1,0 +1,4 @@
+<map id="on_configuration_get_failure" name="on_configuration_get_failure">
+<area shape="rect" id="node1" title="Deletes the Configuration Parameter ID if we could not get its value for v1&#45;v2 nodes." alt="" coords="5,5,148,47"/>
+<area shape="rect" id="node2" href="$group__command__classes__utils.html#ga0d2a21af7db2d395401331ec806b1bd3" title="Find the version of the command class by navigating up to the endpoint from a given attribute store n..." alt="" coords="196,5,360,47"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="get_zpc_network_node" name="get_zpc_network_node">
+<area shape="rect" id="node1" title="Returns the HomeID (attribute store) node of our current network." alt="" coords="5,13,161,39"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management.html#gac01bf38badf30f94eac9a04b486cb967" title="Get the cached HomeID." alt="" coords="209,5,404,47"/>
+</map>

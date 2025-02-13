@@ -1,0 +1,9 @@
+<map id="zwapi_get_protocol_info" name="zwapi_get_protocol_info">
+<area shape="rect" id="node1" title="Copy the Node&#39;s current protocol information from the non&#45;volatile memory." alt="" coords="809,56,972,83"/>
+<area shape="rect" id="node2" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="583,29,723,56"/>
+<area shape="rect" id="node4" href="$zwave__rx__zwapi__callbacks_8c.html#a3a3728de7575bab7ebbd4f1529f8eae4" title="function that converts the data received from the Z&#45;Wave API to fit in a zwave_node_info_t." alt="" coords="545,81,761,108"/>
+<area shape="rect" id="node3" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="347,27,497,53"/>
+<area shape="rect" id="node5" href="$group__zwave__rx__zwapi__callbacks.html#gad8a7864d183b913f74d0f18edbf89f36" title="application_controller_update function for zwapi_callbacks. Incoming NIF from the Z&#45;Wave nodes will b..." alt="" coords="349,78,495,119"/>
+<area shape="rect" id="node6" href="$group__zwave__rx__internals.html#ga5fb555f285dbe1b21ba750d0443476c8" title="Initialize the Z&#45;Wave Rx component." alt="" coords="196,85,299,112"/>
+<area shape="rect" id="node7" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="5,85,148,112"/>
+</map>

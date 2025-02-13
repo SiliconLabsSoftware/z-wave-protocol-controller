@@ -1,0 +1,5 @@
+<map id="zwave_command_class_get_endpoint_id_node" name="zwave_command_class_get_endpoint_id_node">
+<area shape="rect" id="node1" title="Gets the Attribute Store Endpoint ID node for a given Z&#45;Wave NodeID / Endpoint ID in our network." alt="" coords="5,5,168,47"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__store.html#gaa77e8f9b18958337bb68279c8c53ccdc" title="Returns the HomeID (attribute store) node of our current network." alt="" coords="216,13,372,39"/>
+<area shape="rect" id="node3" href="$group__zwave__network__management.html#gac01bf38badf30f94eac9a04b486cb967" title="Get the cached HomeID." alt="" coords="420,5,615,47"/>
+</map>

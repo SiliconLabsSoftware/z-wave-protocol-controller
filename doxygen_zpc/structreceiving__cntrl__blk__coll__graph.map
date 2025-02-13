@@ -1,0 +1,9 @@
+<map id="receiving_cntrl_blk" name="receiving_cntrl_blk">
+<area shape="rect" id="node1" title=" " alt="" coords="286,340,417,417"/>
+<area shape="rect" id="node2" href="$structcb.html" title=" " alt="" coords="139,173,177,250"/>
+<area shape="rect" id="node3" title=" " alt="" coords="5,5,73,83"/>
+<area shape="rect" id="node4" title=" " alt="" coords="250,5,311,83"/>
+<area shape="rect" id="node6" href="$structrx__timer__expired__data.html" title=" " alt="" coords="443,173,593,250"/>
+<area shape="rect" id="node5" title=" " alt="" coords="617,173,712,250"/>
+<area shape="rect" id="node7" title=" " alt="" coords="737,173,833,250"/>
+</map>

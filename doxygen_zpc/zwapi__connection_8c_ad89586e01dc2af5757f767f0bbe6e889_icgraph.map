@@ -1,0 +1,8 @@
+<map id="zwapi_connection_shutdown" name="zwapi_connection_shutdown">
+<area shape="rect" id="node1" title="Close the zwapi_connection to the Z&#45;Wave module." alt="" coords="780,42,969,69"/>
+<area shape="rect" id="node2" href="$zwapi__session_8c.html#a6f5555814b03c924b3d057d1b4080cf1" title="Close the zwapi_session with the Z&#45;Wave module." alt="" coords="561,42,732,69"/>
+<area shape="rect" id="node3" href="$group__ZWAPI__INIT.html#ga87ccde341e5cf630064d51222bf56fb9" title="Shut down the Z&#45;Wave API and close the communication ports." alt="" coords="407,42,513,69"/>
+<area shape="rect" id="node4" href="$group__zpc__ncp__update__fixt.html#gaaca8dd596d6abe6ca27de8d7c93c5cf2" title="This function check if the NCP firmware should be updated." alt="" coords="216,5,359,47"/>
+<area shape="rect" id="node5" href="$group__zwave__rx__internals.html#gaed3606fa8bb6eff34c27efe91c3525a6" title="Shutdown the module." alt="" coords="217,71,358,98"/>
+<area shape="rect" id="node6" href="$group__zwave__rx__fixt.html#ga56465233b7f28429a246ce87b31efe7b" title=" " alt="" coords="5,71,168,98"/>
+</map>

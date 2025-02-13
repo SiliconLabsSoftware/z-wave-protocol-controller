@@ -1,0 +1,22 @@
+<map id="zwave_command_class_user_code_control_handler" name="zwave_command_class_user_code_control_handler">
+<area shape="rect" id="node1" title="Dispatches incoming User Code Commands to individual command handlers." alt="" coords="5,188,189,229"/>
+<area shape="rect" id="node2" href="$zwave__command__class__user__code_8c.html#a8209dd1a409510f859bc3b44479c8449" title="Process an incoming Admin Code Report Command." alt="" coords="249,71,427,98"/>
+<area shape="rect" id="node11" href="$zwave__command__class__user__code_8c.html#a7950ee5e786a47a099c4a4a4f74f65bb" title="Process an incoming Extended User Code Report Command." alt="" coords="262,5,414,47"/>
+<area shape="rect" id="node15" href="$zwave__command__class__user__code_8c.html#a76a56c3478ad927fe368462699f9c521" title="Process an incoming Keypad Mode Report Command." alt="" coords="264,123,412,164"/>
+<area shape="rect" id="node16" href="$zwave__command__class__user__code_8c.html#a42de381efd0038cf7033c56c2869b6d5" title="Process an incoming User Code Capabilities Report Command." alt="" coords="239,319,437,360"/>
+<area shape="rect" id="node18" href="$zwave__command__class__user__code_8c.html#a218f652c5a7843a728862a5b5d58c016" title="Process an incoming User Code Report Command." alt="" coords="255,385,421,411"/>
+<area shape="rect" id="node19" href="$zwave__command__class__user__code_8c.html#af0286f4df24e062db14dbd0a706cd1c5" title="Process an incoming User Code Checksum Report Command." alt="" coords="237,188,439,229"/>
+<area shape="rect" id="node20" href="$zwave__command__class__user__code_8c.html#af28311593d42e459f9fe15c76a5f1d27" title="Process an incoming User Number Report Command." alt="" coords="263,253,413,295"/>
+<area shape="rect" id="node3" href="$zwave__command__class__user__code_8c.html#a8496f07f3edc07cf184f5ca3c7f3f23c" title=" " alt="" coords="489,195,663,222"/>
+<area shape="rect" id="node4" href="$group__command__classes__utils.html#gaff12f5d1f5b9eed08201efab5854190c" title="Find the Z&#45;Wave Endpoint ID Node attribute based on a const zwave_controller_connection_info_t object..." alt="" coords="723,188,886,229"/>
+<area shape="rect" id="node5" href="$group__zpc__attribute__store__network__helpers.html#gae4d15b8e0c61c88d94c8f342bd2014fc" title="Take a UNID/endpoint combination and returns its attribute store node." alt="" coords="944,159,1124,200"/>
+<area shape="rect" id="node10" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="946,225,1122,251"/>
+<area shape="rect" id="node6" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="1172,159,1348,200"/>
+<area shape="rect" id="node7" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="1396,129,1576,171"/>
+<area shape="rect" id="node9" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="1405,195,1567,222"/>
+<area shape="rect" id="node8" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="1624,137,1789,163"/>
+<area shape="rect" id="node12" href="$zwave__command__class__user__code_8c.html#ab161fcc64adafae5a7aa3d0d6ab00adb" title=" " alt="" coords="743,71,867,98"/>
+<area shape="rect" id="node13" href="$zwave__command__class__user__code_8c.html#ab55b297e55eb5c9214fba171dc0687f2" title="Sets all users Id in the Range [first_id..last_id[ to available (user code not set)" alt="" coords="503,5,649,47"/>
+<area shape="rect" id="node14" href="$zwave__command__class__user__code_8c.html#a37bbe28e81c3999783edc49743cf52cd" title="Checks if the user_id_node type is correct and sets the user code data to Available underneath." alt="" coords="713,13,896,39"/>
+<area shape="rect" id="node17" href="$zwave__command__class__user__code_8c.html#a62be72d1ddcf6636a94643699b20c476" title="Sets all the default capabilities for version 1 supporting nodes." alt="" coords="487,326,665,353"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="scene_activation_control_handler" name="scene_activation_control_handler">
+<area shape="rect" id="node1" title=" " alt="" coords="5,27,172,69"/>
+<area shape="rect" id="node2" href="$zwave__command__class__scene__controller__configuration__control_8c.html#af342ff8d19e2f3ffc4ea90460e356de3" title="Process an incoming Scene Controller Configuration Report Command." alt="" coords="220,27,383,69"/>
+<area shape="rect" id="node3" href="$group__zwave__association__toolbox.html#gaeda2c8118bbec8684159a4833f26f235" title="Get the Attribute store node of a certain type under an association Group ID." alt="" coords="431,5,579,32"/>
+<area shape="rect" id="node4" href="$group__command__classes__utils.html#ga9dfaa3aa52bb9b4ba3effc1d1480b1ea" title="Set the desired and reported value of a command_status_t type of node." alt="" coords="431,57,578,98"/>
+</map>

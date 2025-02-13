@@ -1,0 +1,4 @@
+<map id="zwave_network_management_get_granted_keys" name="zwave_network_management_get_granted_keys">
+<area shape="rect" id="node1" title="Return the currently granted keys." alt="" coords="5,5,200,47"/>
+<area shape="rect" id="node2" href="$group__zwave__s2__keystore.html#ga42cbe7b3856c32fcde78b52c3b0be2ae" title="Get the set of the currently assigned keys." alt="" coords="248,5,411,47"/>
+</map>

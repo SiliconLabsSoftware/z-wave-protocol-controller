@@ -1,0 +1,6 @@
+<map id="zwave_command_class_crc16_is_expecting_crc16_response" name="zwave_command_class_crc16_is_expecting_crc16_response">
+<area shape="rect" id="node1" title="Check if the given node_id and endpoint_id is expecting a CRC16 response." alt="" coords="643,5,805,61"/>
+<area shape="rect" id="node2" href="$group__crc16__transport.html#ga40f6f52fe73d5c9efa2fae56082253c3" title="Encapsulates with CRC16." alt="" coords="432,13,595,54"/>
+<area shape="rect" id="node3" href="$group__crc16__transport.html#ga41d7716fd0dc4dd78d6747b6f8226671" title="Initialize the CRC16 Transport *." alt="" coords="203,20,384,47"/>
+<area shape="rect" id="node4" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="5,20,155,47"/>
+</map>

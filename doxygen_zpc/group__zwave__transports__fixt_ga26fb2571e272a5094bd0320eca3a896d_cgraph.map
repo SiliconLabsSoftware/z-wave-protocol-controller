@@ -1,0 +1,102 @@
+<map id="zwave_transports_init" name="zwave_transports_init">
+<area shape="rect" id="node1" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="5,1873,155,1900"/>
+<area shape="rect" id="node2" href="$group__multicast__follow__up__transport.html#gaa29ae9f5d8ccc34d50cad0109e69411b" title="Initialize the Multicast Follow&#45;Ups Transport *." alt="" coords="221,198,365,239"/>
+<area shape="rect" id="node16" href="$group__zwave__api__transport.html#ga0b879fc413b5e3faaf848287f0d36d22" title="Initialize the Z&#45;Wave API Transport *." alt="" coords="210,1246,377,1273"/>
+<area shape="rect" id="node45" href="$group__crc16__transport.html#ga41d7716fd0dc4dd78d6747b6f8226671" title="Initialize the CRC16 Transport *." alt="" coords="203,1709,384,1736"/>
+<area shape="rect" id="node61" href="$group__zwave__multi__channel__transport.html#ga41f607e54c3aedd8783d43f185df6c0a" title="Initialize the Multi Channel Transport *." alt="" coords="220,2639,367,2680"/>
+<area shape="rect" id="node68" href="$group__zwave__s0__transport.html#ga7fcd7083b5fe3b6b2838d0d64f815f53" title="Initialize the S0 Transport Also calls zwave_s0_network_init() which aborts all tx sessions and frees..." alt="" coords="212,1934,375,1961"/>
+<area shape="rect" id="node88" href="$group__transport__service__transport__wrapper.html#gad02263e40b63853166ac8a7601954f33" title=" " alt="" coords="210,2934,377,2975"/>
+<area shape="rect" id="node3" href="$multicast__follow__ups__transport_8c.html#a5d9213a0b8da70555b6612051354e66b" title=" " alt="" coords="463,103,607,144"/>
+<area shape="rect" id="node5" href="$multicast__follow__ups__transport_8c.html#ac6c37112e34db0f1d6d598a07fb92070" title=" " alt="" coords="1176,16,1320,58"/>
+<area shape="rect" id="node7" href="$multicast__follow__ups__transport_8c.html#ad20e0ce7d5da14af7d8b379f42845af8" title="Verifies if we want automatic singlecast follow&#45;up for a frame and schedule queueing these frames aut..." alt="" coords="463,198,607,239"/>
+<area shape="rect" id="node15" href="$group__zwave__controller__transport.html#ga7d336fb70a955271e1c958ce52885c9d" title="Must be called to register a transport." alt="" coords="445,1868,624,1910"/>
+<area shape="rect" id="node4" href="$multicast__follow__ups__transport_8c.html#af49aa146e804e5b95c9b9f7fa740a800" title=" " alt="" coords="928,46,1111,87"/>
+<area shape="rect" id="node6" href="$group__zwave__tx__groups.html#ga08693ca0195e6f5921a7065a733ca324" title="Instructs the Z&#45;Wave TX Group that the list of NodeIDs part of a group can be modified." alt="" coords="1385,24,1548,50"/>
+<area shape="rect" id="node8" href="$multicast__follow__ups__transport_8c.html#af78062dfc8f1abab4d7bdba9a42935fb" title=" " alt="" coords="705,226,861,267"/>
+<area shape="rect" id="node13" href="$group__zwave__tx.html#gad1538f36d226fe8147c5e538625568df" title="Queue and send frames to Z&#45;Wave nodes." alt="" coords="1394,1922,1539,1949"/>
+<area shape="rect" id="node14" href="$group__zwave__tx__groups.html#ga9e34c87b8d58aba0353252e5e42ef510" title="Instructs the Z&#45;Wave TX Group not to alter the list of NodeIDs part of a group, until the group is un..." alt="" coords="709,150,857,177"/>
+<area shape="rect" id="node9" href="$group__zwave__tx.html#ga94986fad2993d4907968edec03f57d05" title="Returns a pointer to frame data for a given Z&#45;Wave Tx session ID." alt="" coords="948,229,1091,256"/>
+<area shape="rect" id="node10" href="$group__zwave__tx.html#gaf669f3e5ba5a01c411842fae2c58637c" title="Returns the length of a frame in the Z&#45;Wave Tx Queue." alt="" coords="948,280,1091,322"/>
+<area shape="rect" id="node11" href="$group__zwave__tx__groups.html#ga03f0e364d262928c9617a70b656755e7" title="Returns the list of NodeIDs part of a group." alt="" coords="947,346,1092,373"/>
+<area shape="rect" id="node12" href="$group__zwave__tx.html#gaaf93d9d3d5b0961a55f7967fc7628092" title="Returns the total number of responses that a frame (and its parent) will generate *." alt="" coords="943,163,1096,204"/>
+<area shape="rect" id="node17" href="$zwave__api__transport_8c.html#adab0ea89230766532c698f3dfe3c211e" title=" " alt="" coords="459,1024,611,1050"/>
+<area shape="rect" id="node19" href="$zwave__api__transport_8c.html#add367e9875b60a3e2f8e2c470f4ca998" title=" " alt="" coords="1170,1122,1326,1149"/>
+<area shape="rect" id="node21" href="$zwave__api__transport_8c.html#a28f29771d8fb9a4f34ddd5a53ce2faaf" title=" " alt="" coords="441,1108,628,1134"/>
+<area shape="rect" id="node25" href="$zwave__api__transport_8c.html#a825851abed8977dfab0e305f7ae30610" title="Encapsulates with Multi Channel and send a frame to the Z&#45;Wave TX queue." alt="" coords="459,757,610,784"/>
+<area shape="rect" id="node43" href="$group__zwave__controller__callbacks.html#ga12b82fdf317e0eb3bf314a037c7ae855" title="Let another component register its callbacks for Z&#45;Wave Controller events." alt="" coords="449,1522,620,1563"/>
+<area shape="rect" id="node44" href="$group__zwave__rx__callbacks.html#gad8eafc4944cb3ba1603f17533bd58dda" title=" " alt="" coords="448,1327,621,1368"/>
+<area shape="rect" id="node18" href="$zwave__api__transport_8c.html#a4319ec7c7ecc0ff9fd4706f65960d3a9" title=" " alt="" coords="944,1022,1095,1063"/>
+<area shape="rect" id="node20" href="$group__zwave__controller__internal.html#ga37f3eb5b079a43384fe3158cdc563a8d" title="see zwave_controller_callbacks_t" alt="" coords="1177,1022,1319,1063"/>
+<area shape="rect" id="node22" href="$group__ZWAPI__TRANSPORT.html#gaba4d318f684708cdee3b6cae1a1ce1ba" title="Abort the ongoing transmit started with zwapi_send_data() or zwapi_send_data_bridge()" alt="" coords="703,1108,862,1134"/>
+<area shape="rect" id="node24" href="$zwave__api__transport_8c.html#a580a19cca12b07f5f3fae48e985f2eb5" title=" " alt="" coords="698,1042,867,1083"/>
+<area shape="rect" id="node23" href="$zwapi__init_8c.html#a67064ee382c07d0af51a9d9339b3fcde" title="Verifies that the command is supported by the Z&#45;Wave module." alt="" coords="942,1108,1097,1134"/>
+<area shape="rect" id="node26" href="$group__ZWAPI__TRANSPORT.html#ga550a9c5891598a986c28487f36d6e24c" title="Send data to a Z&#45;Wave node or to the broadcast destination." alt="" coords="721,757,844,784"/>
+<area shape="rect" id="node31" href="$group__ZWAPI__TRANSPORT.html#ga117c122b8c680198f198acdf737adf15" title="Send data to a list of Z&#45;Wave Nodes (multicast frame)." alt="" coords="703,706,862,733"/>
+<area shape="rect" id="node33" href="$group__ZWAPI__TRANSPORT.html#gafb9f3e0334388d29478e68a052024f94" title="Send protocol data to a Z&#45;Wave node." alt="" coords="931,549,1107,576"/>
+<area shape="rect" id="node34" href="$group__ZWAPI__BASIS.html#ga00ec87f6642ea55343cf3cf69e4eea82" title="Send a test frame to specified NodeID." alt="" coords="939,650,1099,677"/>
+<area shape="rect" id="node35" href="$zwave__api__transport_8c.html#ad28f67cac4581bb8ab37e8b7ef8998bf" title=" " alt="" coords="707,859,858,900"/>
+<area shape="rect" id="node36" href="$zwave__api__transport_8c.html#a75083a65f2a204cd87e7e55153695e05" title=" " alt="" coords="709,924,857,966"/>
+<area shape="rect" id="node37" href="$zwave__api__transport_8c.html#aa1c7467270218674e9e755e7047eecd6" title=" " alt="" coords="711,511,854,552"/>
+<area shape="rect" id="node40" href="$zwave__api__transport_8c.html#a3015108a79d5482095e898005fdfb063" title=" " alt="" coords="711,1210,854,1251"/>
+<area shape="rect" id="node27" href="$group__ZWAPI__INIT.html#ga347e74a3d3fa874fb48cc294a16a9d05" title="returns the cached value of the library type for the module" alt="" coords="942,818,1097,845"/>
+<area shape="rect" id="node28" href="$zwapi__init_8c.html#a5ec89d5817b8ce00454fce891ae8400e" title="Send a command to the Z&#45;Wave module and waits for an ACK." alt="" coords="1171,688,1325,730"/>
+<area shape="rect" id="node29" href="$group__ZWAPI__TRANSPORT.html#ga49e55cd554c976315f80fa0d605debf9" title="Transmit data buffer to a single ZW&#45;node or all ZW&#45;nodes (broadcast) in bridge mode." alt="" coords="937,920,1102,946"/>
+<area shape="rect" id="node30" href="$zwapi__utils_8c.html#aeea16d7db2f976466a2c0f4aa9b0416f" title="Write the node ID in buffer based on node ID basetype. Note that this helper also advances the index." alt="" coords="1177,612,1319,638"/>
+<area shape="rect" id="node32" href="$group__ZWAPI__TRANSPORT.html#ga98a99d5a85b10bc6bd51e68233142b52" title="Send data to a list of Z&#45;Wave Nodes (multicast frame) in bridge mode." alt="" coords="940,702,1099,743"/>
+<area shape="rect" id="node38" href="$group__ZWAPI__CONTROLLER.html#ga7f0684275070545db6dfb2b534e93b01" title="Request node information from a node." alt="" coords="935,448,1104,474"/>
+<area shape="rect" id="node39" href="$group__ZWAPI__TRANSPORT.html#ga2475e2eb87efe6379c0e58840465cda4" title="Sends a NOP to a NodeID destination." alt="" coords="960,498,1079,525"/>
+<area shape="rect" id="node41" href="$zwave__s0__transport_8c.html#a800e1cc61a01bde0fe6d9a3eddb91b5e" title="Z&#45;Wave Tx Send data callback function." alt="" coords="984,1872,1055,1898"/>
+<area shape="rect" id="node42" href="$zwave__s0__transport_8c.html#ab8425b35b3d704f2108b438158fad2f1" title="Move a S0 Tx Session state to a new state." alt="" coords="1175,1922,1321,1949"/>
+<area shape="rect" id="node46" href="$zwave__crc16__transport_8c.html#a0ed4a2b2d10e1b29b1b29df0c53dbd4d" title="Initializes our array of callback settings by setting everything to NULL." alt="" coords="934,1326,1105,1353"/>
+<area shape="rect" id="node47" href="$group__crc16__transport.html#gae991c9c8ea9b7ca5823aae7805766615" title=" " alt="" coords="453,1414,617,1455"/>
+<area shape="rect" id="node49" href="$group__crc16__transport.html#ga80c8141d0da796e08a58f51d7a6bc625" title="Decapsulate Multi Channel encapsulation and inject the frame back to the Z&#45;Wave Controller." alt="" coords="453,1803,616,1844"/>
+<area shape="rect" id="node53" href="$group__crc16__transport.html#ga40f6f52fe73d5c9efa2fae56082253c3" title="Encapsulates with CRC16." alt="" coords="453,1610,616,1651"/>
+<area shape="rect" id="node48" href="$group__crc16__transport.html#ga58f3082ab876a466d61459f15790e5ee" title="Callback function registered to Z&#45;Wave TX zwave_tx_send_data." alt="" coords="697,1377,868,1404"/>
+<area shape="rect" id="node50" href="$group__zwave__controller__crc16.html#ga13ba4b98080a23413214afb6886b6eec" title="Calculation of CRC16&#45;CCITT with Polynomial 0x1021 on data." alt="" coords="703,1821,862,1848"/>
+<area shape="rect" id="node51" href="$group__zwave__controller__internal.html#ga79b433f95d08d541cd2a4d74ed27fd65" title="see zwave_controller_callbacks_t" alt="" coords="949,2370,1090,2411"/>
+<area shape="rect" id="node52" href="$group__zwave__controller__transport__internal.html#gab1d371c3594b30fb5e48405df834696a" title="Entry point of of frame to the transport plugin system ." alt="" coords="1159,2370,1337,2411"/>
+<area shape="rect" id="node54" href="$group__zwave__command__class__crc16.html#gaaf3d30f1b1c42961d400392d76635b52" title="Clear the CRC16 expecting response flag for a given node and endpoint." alt="" coords="701,1741,864,1797"/>
+<area shape="rect" id="node55" href="$group__zwave__command__class__crc16.html#ga641144f7f07fbb32524bb97293eaf344" title="Check if the given node_id and endpoint_id is expecting a CRC16 response." alt="" coords="701,1529,864,1585"/>
+<area shape="rect" id="node56" href="$group__zwave__command__class__crc16.html#ga1c90ed3e17c6a48d650dd46e4c0f0caa" title="Check if the CRC16 command class is supported by a given node and endpoint." alt="" coords="701,1610,864,1651"/>
+<area shape="rect" id="node57" href="$zwave__crc16__transport_8c.html#ac74ef60931ee4df805153154f13d6feb" title=" " alt="" coords="704,1675,861,1716"/>
+<area shape="rect" id="node58" href="$group__zwave__utils.html#ga6f7851dd2a96668e3a246c0292607579" title="Get endpoint node associated with the ZWave NodeID and Endpoint ID." alt="" coords="695,1478,871,1505"/>
+<area shape="rect" id="node59" href="$group__zpc__attribute__store__network__helpers.html#gae4d15b8e0c61c88d94c8f342bd2014fc" title="Take a UNID/endpoint combination and returns its attribute store node." alt="" coords="929,1530,1109,1571"/>
+<area shape="rect" id="node60" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="931,1478,1107,1505"/>
+<area shape="rect" id="node62" href="$zwave__multi__channel__transport_8c.html#a0ed4a2b2d10e1b29b1b29df0c53dbd4d" title="Initializes our array of callback settings by setting everything to NULL." alt="" coords="934,2828,1105,2854"/>
+<area shape="rect" id="node63" href="$group__multi__channel__transport.html#ga8ad949c643e996faf258815078ecf91d" title=" " alt="" coords="453,2737,616,2793"/>
+<area shape="rect" id="node65" href="$group__multi__channel__transport.html#ga165d494c164d63ae0ad3b95fdc9eb39f" title="Decapsulate Multi Channel encapsulation and inject the frame back to the Z&#45;Wave Controller." alt="" coords="441,2606,628,2647"/>
+<area shape="rect" id="node66" href="$group__multi__channel__transport.html#gadbc0fe6c66a35dcf6c060b166137d3e2" title="Encapsulates with Multi Channel and send a frame to the Z&#45;Wave TX queue." alt="" coords="447,2671,623,2712"/>
+<area shape="rect" id="node64" href="$group__multi__channel__transport.html#gac2dd449dae4a65aeea0d7f537a0a1124" title="Callback function registered to Z&#45;Wave TX zwave_tx_send_data." alt="" coords="703,2766,862,2807"/>
+<area shape="rect" id="node67" href="$zwave__multi__channel__transport_8c.html#a10fed1c2554c33ded64fe48ec70df9a4" title=" " alt="" coords="685,2547,880,2588"/>
+<area shape="rect" id="node69" href="$group__zwave__s0__network.html#ga62613f2673f05d300b1f7c8b09d981da" title="Initialize the S0 network layer." alt="" coords="455,2344,614,2370"/>
+<area shape="rect" id="node82" href="$group__zwave__s0__transport.html#ga397253265d758fee27dfed5a449737b9" title="Z&#45;Wave controller transport callback function which will be triggered when S0 frame tranmission is ab..." alt="" coords="432,1934,637,1961"/>
+<area shape="rect" id="node83" href="$group__zwave__s0__transport.html#ga075cd6959f4f2b9cbd757c5d43f97820" title="Entry point of S0 frames received from the PHY/radio stack." alt="" coords="435,2122,634,2149"/>
+<area shape="rect" id="node85" href="$group__zwave__s0__transport.html#gae1fe787c412080fb3f718d5a18e006ea" title="Sending an S0 encapsulated frame." alt="" coords="461,2004,609,2030"/>
+<area shape="rect" id="node70" href="$group__zwave__s0__internal.html#ga883ef7108e614b9324f5bc8f5abc7151" title="Free all S0 RX sessions." alt="" coords="715,2394,850,2421"/>
+<area shape="rect" id="node72" href="$group__zwave__s0__internal.html#ga663245a3c03fdad09e2876bee239376e" title="Free all S0 Tx sessions." alt="" coords="712,2445,853,2472"/>
+<area shape="rect" id="node73" href="$group__zwave__s0__internal.html#gac0b0b624931932e1b3281a6ea87581c9" title="Free S0 nonce block list." alt="" coords="709,2496,857,2522"/>
+<area shape="rect" id="node74" href="$zwave__s2__keystore_8c.html#a1f1d747c23d661a2e64ebb4812ed2faa" title=" " alt="" coords="690,2664,875,2690"/>
+<area shape="rect" id="node76" href="$group__zwave__s0__internal.html#ga5ee8e04717c754d63b687aca56223930" title="Reset (block_next_elem)s0 block next elem variable." alt="" coords="705,2293,861,2320"/>
+<area shape="rect" id="node77" href="$group__zwave__s0__internal.html#ga81c97c8e96754051245cfa22cc4fcb43" title="Reset nonce timer." alt="" coords="725,2242,840,2269"/>
+<area shape="rect" id="node79" href="$group__zwave__s0__internal.html#gabcc2e68cff658823698aaf43f2170c3f" title="Abort all S0 network TX sessions." alt="" coords="935,2046,1104,2073"/>
+<area shape="rect" id="node80" href="$group__zwave__s0__transport.html#ga0751a5b8e725df3e789789230b886395" title="Set the S0 network key." alt="" coords="738,2344,827,2370"/>
+<area shape="rect" id="node71" href="$zwave__s0__transport_8c.html#a69f94cd5d146cd3350af7dc872fb0961" title=" " alt="" coords="962,2436,1077,2462"/>
+<area shape="rect" id="node75" href="$group__zwave__s2__keystore.html#ga42cbe7b3856c32fcde78b52c3b0be2ae" title="Get the set of the currently assigned keys." alt="" coords="938,2648,1101,2690"/>
+<area shape="rect" id="node78" href="$zwave__s0__transport_8c.html#a23cc9cf50d02cdaa152e984177674bf9" title=" " alt="" coords="948,2242,1091,2269"/>
+<area shape="rect" id="node81" href="$zwave__s0__transport_8c.html#a81a1edfa8dd156b07bbe49d8c85095bf" title=" " alt="" coords="973,2318,1066,2345"/>
+<area shape="rect" id="node84" href="$zwave__s0__transport_8c.html#a03d95837da2b91dfbf98786f7e753fe4" title=" " alt="" coords="698,2176,867,2218"/>
+<area shape="rect" id="node86" href="$zwave__s0__transport_8c.html#ac0f595613ded622cf74daf3471ad1257" title=" " alt="" coords="749,2074,817,2101"/>
+<area shape="rect" id="node87" href="$zwave__s0__transport_8c.html#ae93eb9dcc0a79cf781c4d6143ae54570" title=" " alt="" coords="699,2024,866,2050"/>
+<area shape="rect" id="node89" href="$zwave__transport__service__wrapper_8c.html#a1ecdc6b768ff564a70d88b535b5296db" title=" " alt="" coords="741,3000,824,3026"/>
+<area shape="rect" id="node91" href="$group__transport__service.html#gaccda0665f8cf81da0902333186d0c107" title="Initialize the Transport Service." alt="" coords="461,3000,608,3026"/>
+<area shape="rect" id="node92" href="$zwave__transport__service__wrapper_8c.html#a04926f37c647baa66ef6b553310f24b3" title=" " alt="" coords="458,2868,611,2910"/>
+<area shape="rect" id="node93" href="$group__transport__service__transport__wrapper.html#ga836e1af25a73aef2bc515da73660cd3b" title="Entry point of Transport service frames received from the PHY/radio stack." alt="" coords="451,2934,618,2975"/>
+<area shape="rect" id="node95" href="$group__transport__service__transport__wrapper.html#ga6216ae3a018a4028bfc3025695784f0e" title="Sending a frame with Transport service." alt="" coords="451,3167,618,3208"/>
+<area shape="rect" id="node90" href="$zwave__transport__service__wrapper_8c.html#a37f708fac73bae814b7bef4f7a9fc95b" title=" " alt="" coords="936,3108,1103,3150"/>
+<area shape="rect" id="node94" href="$group__transport__service.html#ga8373376f01c78a3ecfb1941605eb9c1a" title="Transport service RX function." alt="" coords="711,2934,854,2975"/>
+<area shape="rect" id="node96" href="$zwave__transport__service__wrapper_8c.html#a1b8b0c2adaf8a21eec99c59749fa5ed3" title=" " alt="" coords="708,3350,857,3391"/>
+<area shape="rect" id="node97" href="$group__transport__service.html#ga5dec1563c42d06aad70fdc31f3acb603" title="Sending a long frame with Transport service." alt="" coords="688,3050,877,3077"/>
+<area shape="rect" id="node98" href="$group__zwave__controller__storage.html#gaf18892d1ebc79d8dcaf701526502c48a" title="Return the version of a Command Class implemented by a node." alt="" coords="697,3102,868,3143"/>
+<area shape="rect" id="node99" href="$group__zwave__controller__storage.html#ga893570dd5418a9662eb5af8478580e6f" title="Verify if the registered node is supporting S2." alt="" coords="697,3167,868,3208"/>
+<area shape="rect" id="node100" href="$group__zwave__tx__scheme__selector.html#gab15d83efc0084ff753e16826ce063136" title="Computes the maximum number of bytes that can be sent to a given NodeID. (lowest layer)" alt="" coords="705,3284,861,3326"/>
+</map>

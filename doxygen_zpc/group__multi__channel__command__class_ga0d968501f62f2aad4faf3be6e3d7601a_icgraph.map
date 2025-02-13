@@ -1,0 +1,9 @@
+<map id="is_endpoint_aggregated" name="is_endpoint_aggregated">
+<area shape="rect" id="node1" title="Checks if an endpoints is aggregated." alt="" coords="1325,27,1484,54"/>
+<area shape="rect" id="node2" href="$zwave__command__class__multi__channel_8c.html#ac53692def1299e29f1d962a4da4af295" title="Counts in the attribute store if the number of individual endpoints attribute matches the current lis..." alt="" coords="885,20,1037,61"/>
+<area shape="rect" id="node7" href="$zwave__command__class__multi__channel_8c.html#a16daf353476dffd2f848569ce30974b9" title="Creates aggregated endpoints for a Z&#45;Wave Node." alt="" coords="1085,53,1277,79"/>
+<area shape="rect" id="node3" href="$zwave__command__class__multi__channel_8c.html#ac31f5557f92c30177a3d9d97fb2f70ee" title=" " alt="" coords="675,5,837,76"/>
+<area shape="rect" id="node4" href="$zwave__command__class__multi__channel_8c.html#a88ad4dc75b1c623b46ed20d5dc40fced" title=" " alt="" coords="464,13,627,69"/>
+<area shape="rect" id="node5" href="$group__multi__channel__command__class.html#ga6abc4c22f5e74b009f78dfe072511cc0" title="Initialize the Multi Channel Command Class (handler) *." alt="" coords="253,20,416,61"/>
+<area shape="rect" id="node6" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,27,205,54"/>
+</map>

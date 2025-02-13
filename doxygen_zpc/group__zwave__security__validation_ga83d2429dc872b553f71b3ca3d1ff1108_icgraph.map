@@ -1,0 +1,6 @@
+<map id="zwave_security_validation_is_s2_nif_downgrade_attack_detected" name="zwave_security_validation_is_s2_nif_downgrade_attack_detected">
+<area shape="rect" id="node1" title="Verifies if a the S2 Command Class has disappeared from the NIF, whereas it was reported as supported..." alt="" coords="655,5,849,61"/>
+<area shape="rect" id="node2" href="$zwave__command__class__node__info__resolver_8c.html#aaf800d8f937ec37f13207cb2d7172b81" title=" " alt="" coords="464,13,607,54"/>
+<area shape="rect" id="node3" href="$group__zwave__nif__resolver.html#gae3d7718b1013ff52f8ea4984621b762c" title="Registers callbacks to the attribute store and rules to the attribute resolver to be able to resolve ..." alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

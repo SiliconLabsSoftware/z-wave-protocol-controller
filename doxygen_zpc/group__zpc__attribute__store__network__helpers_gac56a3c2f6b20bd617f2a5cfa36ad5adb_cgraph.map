@@ -1,0 +1,6 @@
+<map id="attribute_store_network_helper_create_node_id_node" name="attribute_store_network_helper_create_node_id_node">
+<area shape="rect" id="node1" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="5,35,200,76"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__store__network__helpers.html#ga39c3a479f7c41034ec15e106bf8c51ed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="248,5,447,47"/>
+<area shape="rect" id="node4" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="267,71,428,98"/>
+<area shape="rect" id="node3" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="495,13,660,39"/>
+</map>

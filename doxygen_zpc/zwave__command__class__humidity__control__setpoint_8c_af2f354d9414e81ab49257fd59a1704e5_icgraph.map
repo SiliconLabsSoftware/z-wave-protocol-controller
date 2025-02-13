@@ -1,0 +1,9 @@
+<map id="check_setpoint_value_bounds" name="check_setpoint_value_bounds">
+<area shape="rect" id="node1" title="Check if current value can be set (in bounds of value_min and value_max)" alt="" coords="920,126,1068,167"/>
+<area shape="rect" id="node2" href="$zwave__command__class__humidity__control__setpoint_8c.html#a86136ea4618086291f3a5d2984e0b9ee" title="Interpret value from a report frame and store it in the attribute store." alt="" coords="732,93,872,134"/>
+<area shape="rect" id="node7" href="$zwave__command__class__humidity__control__setpoint_8c.html#a5e0a7b0a327c064542e438d7021ea4fc" title=" " alt="" coords="255,158,457,199"/>
+<area shape="rect" id="node3" href="$zwave__command__class__humidity__control__setpoint_8c.html#a235b71f668cac7ce0b49310ed367e098" title=" " alt="" coords="505,5,684,61"/>
+<area shape="rect" id="node6" href="$zwave__command__class__humidity__control__setpoint_8c.html#ac3c376395a302e0e2cbfe7229b2b6ea6" title=" " alt="" coords="506,85,683,141"/>
+<area shape="rect" id="node4" href="$zwave__command__class__humidity__control__setpoint_8c.html#a7c4650a6c3a4cdb774bf7f88ef4f483f" title=" " alt="" coords="267,77,445,133"/>
+<area shape="rect" id="node5" href="$group__zwave__command__class__humidity__control__setpoint.html#ga4abb01b3b103b452e9d967c16c521f24" title=" " alt="" coords="5,122,207,163"/>
+</map>

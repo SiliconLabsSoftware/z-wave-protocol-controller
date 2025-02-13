@@ -1,0 +1,14 @@
+<map id="zwave_controller_is_reset_ongoing" name="zwave_controller_is_reset_ongoing">
+<area shape="rect" id="node1" title="Tells if we are currently reseting the ZPC." alt="" coords="689,282,827,323"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management__helpers.html#ga49b020a521982049a986e9d0daee026e" title="Checks if all the conditions are fulfilled to start a new network management operation...." alt="" coords="469,237,619,293"/>
+<area shape="rect" id="node12" href="$group__zwave__network__management.html#gaea33750f3c0be561e79df3f46fc036cb" title="Assign static return routes to End Nodes." alt="" coords="447,318,641,359"/>
+<area shape="rect" id="node3" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="231,29,371,56"/>
+<area shape="rect" id="node5" href="$group__zwave__network__management.html#gabcb05aa3686ebc777a52d45f2cc093ad" title="Put the Z&#45;Wave controller in add node mode." alt="" coords="204,81,399,122"/>
+<area shape="rect" id="node6" href="$group__zwave__network__management.html#ga70d33229419c634dfb25b946dbc5eb7d" title="Put the Z&#45;Wave controller in SmartStart add node mode." alt="" coords="204,146,399,187"/>
+<area shape="rect" id="node7" href="$group__zwave__network__management.html#ga9872a0f15f3797e33edc76f73c7972e6" title="Put the Z&#45;Wave controller in learn mode." alt="" coords="204,211,399,253"/>
+<area shape="rect" id="node8" href="$group__zwave__network__management.html#gade18f44167921855f974d5efb34f4837" title="Remove a failed node." alt="" coords="204,277,399,318"/>
+<area shape="rect" id="node9" href="$group__zwave__network__management.html#ga9cf0dfbb0b6c2dcf64ff3d218eb7c839" title="Put the Z&#45;Wave controller in remove node mode." alt="" coords="204,342,399,383"/>
+<area shape="rect" id="node10" href="$group__zwave__network__management.html#ga529c2e3e0edac5ed86f98fe55fc77c57" title="Request Node Neighbor Discovery." alt="" coords="204,408,399,464"/>
+<area shape="rect" id="node11" href="$group__zwave__network__management.html#ga9423226296d636674ffa006952a5f172" title="Request the NM to perform proxy inclusion." alt="" coords="204,489,399,530"/>
+<area shape="rect" id="node4" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="5,29,156,56"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="multicast_follow_ups_send_data" name="multicast_follow_ups_send_data">
+<area shape="rect" id="node1" title="Verifies if we want automatic singlecast follow&#45;up for a frame and schedule queueing these frames aut..." alt="" coords="5,188,149,229"/>
+<area shape="rect" id="node2" href="$multicast__follow__ups__transport_8c.html#af49aa146e804e5b95c9b9f7fa740a800" title=" " alt="" coords="401,5,584,47"/>
+<area shape="rect" id="node5" href="$multicast__follow__ups__transport_8c.html#af78062dfc8f1abab4d7bdba9a42935fb" title=" " alt="" coords="197,159,353,200"/>
+<area shape="rect" id="node10" href="$group__zwave__tx.html#gad1538f36d226fe8147c5e538625568df" title="Queue and send frames to Z&#45;Wave nodes." alt="" coords="420,306,565,333"/>
+<area shape="rect" id="node11" href="$group__zwave__tx__groups.html#ga9e34c87b8d58aba0353252e5e42ef510" title="Instructs the Z&#45;Wave TX Group not to alter the list of NodeIDs part of a group, until the group is un..." alt="" coords="201,275,349,302"/>
+<area shape="rect" id="node3" href="$multicast__follow__ups__transport_8c.html#ac6c37112e34db0f1d6d598a07fb92070" title=" " alt="" coords="632,5,776,47"/>
+<area shape="rect" id="node4" href="$group__zwave__tx__groups.html#ga08693ca0195e6f5921a7065a733ca324" title="Instructs the Z&#45;Wave TX Group that the list of NodeIDs part of a group can be modified." alt="" coords="824,13,987,39"/>
+<area shape="rect" id="node6" href="$group__zwave__tx.html#ga94986fad2993d4907968edec03f57d05" title="Returns a pointer to frame data for a given Z&#45;Wave Tx session ID." alt="" coords="421,71,564,98"/>
+<area shape="rect" id="node7" href="$group__zwave__tx.html#gaf669f3e5ba5a01c411842fae2c58637c" title="Returns the length of a frame in the Z&#45;Wave Tx Queue." alt="" coords="421,123,564,164"/>
+<area shape="rect" id="node8" href="$group__zwave__tx__groups.html#ga03f0e364d262928c9617a70b656755e7" title="Returns the list of NodeIDs part of a group." alt="" coords="420,189,565,215"/>
+<area shape="rect" id="node9" href="$group__zwave__tx.html#gaaf93d9d3d5b0961a55f7967fc7628092" title="Returns the total number of responses that a frame (and its parent) will generate *." alt="" coords="416,240,569,281"/>
+</map>

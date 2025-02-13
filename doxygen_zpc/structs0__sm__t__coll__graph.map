@@ -1,0 +1,12 @@
+<map id="s0_sm_t" name="s0_sm_t">
+<area shape="rect" id="node1" title=" " alt="" coords="212,469,284,547"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,329,149,407"/>
+<area shape="rect" id="node3" href="$structzwave__controller__connection__info.html" title="Structure holding information about the source and destination when transmitting and receiving Z&#45;Wave..." alt="" coords="237,329,456,407"/>
+<area shape="rect" id="node4" href="$structzwave__controller__endpoint__t.html" title=" " alt="" coords="469,167,656,245"/>
+<area shape="rect" id="node5" title=" " alt="" coords="642,5,710,83"/>
+<area shape="rect" id="node6" title=" " alt="" coords="211,5,272,83"/>
+<area shape="rect" id="node7" title=" " alt="" coords="392,5,515,83"/>
+<area shape="rect" id="node8" title=" " alt="" coords="539,5,586,83"/>
+<area shape="rect" id="node9" title=" " alt="" coords="238,160,445,252"/>
+<area shape="rect" id="node10" title=" " alt="" coords="481,329,575,407"/>
+</map>

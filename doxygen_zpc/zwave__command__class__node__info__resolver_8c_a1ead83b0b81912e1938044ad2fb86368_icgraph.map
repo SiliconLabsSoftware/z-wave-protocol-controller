@@ -1,0 +1,7 @@
+<map id="create_secure_nifs_if_missing" name="create_secure_nifs_if_missing">
+<area shape="rect" id="node1" title=" " alt="" coords="689,35,821,76"/>
+<area shape="rect" id="node2" href="$zwave__command__class__node__info__resolver_8c.html#a1432f8191a83b8d0ad5906bc65dfc243" title=" " alt="" coords="483,5,622,47"/>
+<area shape="rect" id="node5" href="$zwave__command__class__node__info__resolver_8c.html#a3922df75d3ca3f6b2feb8ef5c43418f5" title=" " alt="" coords="464,71,641,98"/>
+<area shape="rect" id="node3" href="$group__zwave__nif__resolver.html#gae3d7718b1013ff52f8ea4984621b762c" title="Registers callbacks to the attribute store and rules to the attribute resolver to be able to resolve ..." alt="" coords="253,35,416,76"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,42,205,69"/>
+</map>

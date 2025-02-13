@@ -1,0 +1,7 @@
+<map id="zwapi_send_data_bridge" name="zwapi_send_data_bridge">
+<area shape="rect" id="node1" title="Transmit data buffer to a single ZW&#45;node or all ZW&#45;nodes (broadcast) in bridge mode." alt="" coords="787,5,952,32"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__TRANSPORT.html#ga550a9c5891598a986c28487f36d6e24c" title="Send data to a Z&#45;Wave node or to the broadcast destination." alt="" coords="616,5,739,32"/>
+<area shape="rect" id="node3" href="$zwave__api__transport_8c.html#a825851abed8977dfab0e305f7ae30610" title="Encapsulates with Multi Channel and send a frame to the Z&#45;Wave TX queue." alt="" coords="417,5,568,32"/>
+<area shape="rect" id="node4" href="$group__zwave__api__transport.html#ga0b879fc413b5e3faaf848287f0d36d22" title="Initialize the Z&#45;Wave API Transport *." alt="" coords="203,5,369,32"/>
+<area shape="rect" id="node5" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="5,5,155,32"/>
+</map>

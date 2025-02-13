@@ -1,0 +1,5 @@
+<map id="on_configuration_get_failure" name="on_configuration_get_failure">
+<area shape="rect" id="node1" title="Deletes the Configuration Parameter ID if we could not get its value for v1&#45;v2 nodes." alt="" coords="464,5,607,47"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__configuration.html#gacc11ad9afa837acce0d1aada6408e1ce" title="This function initialize the Configuration Command Class handler." alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

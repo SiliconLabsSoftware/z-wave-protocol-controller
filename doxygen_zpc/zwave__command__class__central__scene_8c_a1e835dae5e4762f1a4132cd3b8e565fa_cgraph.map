@@ -1,0 +1,4 @@
+<map id="calculate_max_supported_attributes" name="calculate_max_supported_attributes">
+<area shape="rect" id="node1" title="Calcuates from a received frame maximum Key attribute used by a node." alt="" coords="5,5,176,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__central__scene_8c.html#acfa50e39c09006b5d15ba37e417279ac" title="Finds the highest bit set in a byte Bits will be denote as 8..1 with 8 the MSB and 1 the LSB." alt="" coords="224,13,367,39"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="zwave_command_class_switch_color_invoke_on_all_attributes" name="zwave_command_class_switch_color_invoke_on_all_attributes">
+<area shape="rect" id="node1" title="Runs a functions for all chidren with a certain type for all color component IDs in the Color Switch ..." alt="" coords="952,5,1115,61"/>
+<area shape="rect" id="node2" href="$zwave__command__class__scene__activation__control_8c.html#ac3dffbb526dc2c83140368a1b7cbe189" title="Resumes resolution and undefines the reported values for the Binary Switch, Color and Multilevel Swit..." alt="" coords="721,13,904,54"/>
+<area shape="rect" id="node3" href="$zwave__command__class__scene__activation__control_8c.html#a4304a57ed1172bc3c1e64f2495527a2e" title="Decides what to do after we&#39;ve sent a Scene Activation Set Command." alt="" coords="499,13,673,54"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__scene__activation__control.html#ga5c58f90f00a6cf95293a1222ca252ef3" title="Initializes the Scene Activation Command Class control handler." alt="" coords="253,13,451,54"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

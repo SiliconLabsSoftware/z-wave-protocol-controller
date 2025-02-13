@@ -1,0 +1,4 @@
+<map id="on_desired_wake_up_setting_update" name="on_desired_wake_up_setting_update">
+<area shape="rect" id="node1" title="Verifies if either NodeID / Wake Up interval settings have changed and need resolution in this case,..." alt="" coords="5,5,149,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__wake__up_8c.html#a719d1633ae7a1ff72a7073da6a741c29" title="Verifies if either NodeID / Wake Up interval settings are still undefined or mismatched and a resolut..." alt="" coords="197,5,371,47"/>
+</map>

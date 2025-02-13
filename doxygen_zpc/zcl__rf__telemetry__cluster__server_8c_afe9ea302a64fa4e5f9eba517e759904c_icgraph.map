@@ -1,0 +1,4 @@
+<map id="publish_rf_telemetry_supported_generated_commands" name="publish_rf_telemetry_supported_generated_commands">
+<area shape="rect" id="node1" title="Publishes the RFTelemetry supported generated commands." alt="" coords="215,5,365,61"/>
+<area shape="rect" id="node2" href="$group__zcl__rf__telemetry__cluster__server.html#ga5a27d7313f0a22b85af05134a114a799" title="Initialize the ZCL ProtocolController RF Telemetry cluster service." alt="" coords="5,13,167,54"/>
+</map>

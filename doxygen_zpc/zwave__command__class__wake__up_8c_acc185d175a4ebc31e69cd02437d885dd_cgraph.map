@@ -1,0 +1,4 @@
+<map id="we_are_the_wake_up_destination" name="we_are_the_wake_up_destination">
+<area shape="rect" id="node1" title="Verifies if we are the Wake Up destination of a NodeID." alt="" coords="5,5,153,47"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management.html#gae265f1e935804f3f0b971755ab0ee61e" title="Get the cached NodeID." alt="" coords="201,5,396,47"/>
+</map>

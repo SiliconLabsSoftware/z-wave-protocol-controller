@@ -1,0 +1,4 @@
+<map id="Binding Cluster Mapper" name="Binding Cluster Mapper">
+<area shape="rect" id="node1" title="Sets up the Binding Clusters mapper." alt="" coords="161,5,320,31"/>
+<area shape="rect" id="node2" href="$group__dotdot__mapper.html" title="Maps the DotDot clusters to known command classes." alt="" coords="5,5,113,31"/>
+</map>

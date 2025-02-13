@@ -1,0 +1,10 @@
+<map id="zwave_api_protocol_rx_dispatch" name="zwave_api_protocol_rx_dispatch">
+<area shape="rect" id="node1" title="Execute a callback based on a received frame from the Z&#45;Wave module." alt="" coords="5,165,143,207"/>
+<area shape="rect" id="node2" href="$zwapi__protocol__rx__dispatch_8c.html#affd1799acf38ff38beb2e80c1bf60eca" title="Fills default values in the Tx Report in case it is too short or incomplete coming from the Z&#45;Wave AP..." alt="" coords="207,5,345,47"/>
+<area shape="rect" id="node3" href="$zwapi__protocol__rx__dispatch_8c.html#a96d24d537c5b8d6aa0aa6a7638ba2f09" title=" " alt="" coords="199,71,353,98"/>
+<area shape="rect" id="node4" href="$group__ZWAPI__BASIS.html#ga956fbfe63267baacd31dd20aa1c444d1" title="Get the current node ID basetype setting." alt="" coords="409,147,603,174"/>
+<area shape="rect" id="node5" href="$zwapi__utils_8c.html#a6d88e95211c894df11d77b32fb987108" title="Read the node ID from buffer based on node ID basetype. Note that this helper also advances the index..." alt="" coords="206,173,346,199"/>
+<area shape="rect" id="node6" href="$group__ZWAPI__INIT.html#gac747addbb718dc86d958ba5f38bb5ad5" title="Sets the value of &quot;awaiting a Z&#45;Wave API started callback&quot;." alt="" coords="207,224,345,265"/>
+<area shape="rect" id="node7" href="$zwapi__protocol__rx__dispatch_8c.html#a66feac9effd6731812c0d38f9811977e" title=" " alt="" coords="193,289,359,331"/>
+<area shape="rect" id="node8" href="$group__ZWAPI__INIT.html#ga438a74c9752197d20d377874d5a61694" title="Returns the pointer to the callbacks registered at init." alt="" coords="191,355,361,382"/>
+</map>

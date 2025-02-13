@@ -1,0 +1,10 @@
+<map id="zwave_command_class_wake_up_supports_wake_up_on_demand" name="zwave_command_class_wake_up_supports_wake_up_on_demand">
+<area shape="rect" id="node1" title="Verifies if a Node supports the Wake Up on demand functionality." alt="" coords="905,49,1081,105"/>
+<area shape="rect" id="node2" href="$zwave__command__class__wake__up_8c.html#aaff9153e6b7f2f12495d4528a1e348f5" title="Configures the Wake Up Interval setting for a node." alt="" coords="675,29,857,56"/>
+<area shape="rect" id="node6" href="$zwave__command__class__supervision_8c.html#a85468b28f17726729253b3e4aa3808d1" title=" " alt="" coords="685,81,847,137"/>
+<area shape="rect" id="node3" href="$zwave__command__class__wake__up_8c.html#af927fc2e0ebd3d6502c5167a6e8c6e27" title="Verifies if we are resolving capabilities, and if yes, set a resolutio listener to set the Wake Up In..." alt="" coords="464,19,627,61"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__wake__up.html#ga11866ec0935bee3fba386bc3ed28e0b6" title="Initializes the Wake Up Command Class handler." alt="" coords="253,22,416,63"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,64,205,91"/>
+<area shape="rect" id="node7" href="$group__zwave__command__class__supervision__handler.html#ga7922aa17b16e759a72874c995c957071" title="Handle incoming Supervision encapsulated commands." alt="" coords="464,85,627,141"/>
+<area shape="rect" id="node8" href="$group__zwave__command__class__supervision__handler.html#gaeaff3d9d85a38b52f67f91ea41163a72" title="Setup fixture for the Supervision Command Class." alt="" coords="253,89,416,130"/>
+</map>

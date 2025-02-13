@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="1405px" preserveAspectRatio="none" style="width:1326px;height:1405px;background:#FFFFFF;" version="1.1" viewBox="0 0 1326 1405" width="1326px" zoomAndPan="magnify"><defs/><g><rect fill="#FFFFFF" height="36.7373" style="stroke:#FFFFFF;stroke-width:0.0;" width="821" x="256.5" y="10"/><text fill="#000000" font-family="Verdana" font-size="22" font-weight="bold" lengthAdjust="spacing" textLength="811" x="261.5" y="37.1182">Z-Wave TX parent frame functionality with transports (example)</text><rect fill="#FFFFFF" height="686.1182" style="stroke:#000000;stroke-width:1.0;" width="986" x="334" y="479.7563"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="130" x2="130" y1="101.7666" y2="1398.0684"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="401" x2="401" y1="101.7666" y2="1398.0684"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="751.5" x2="751.5" y1="101.7666" y2="1398.0684"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="976" x2="976" y1="101.7666" y2="1398.0684"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1090" x2="1090" y1="101.7666" y2="1398.0684"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1217.5" x2="1217.5" y1="101.7666" y2="1398.0684"/><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="130" x="65" y="69.752"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="116" x="72" y="90.8271">User component</text><rect fill="#DEDEDE" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="94" x="354" y="69.752"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="80" x="361" y="90.8271">Z-Wave TX</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="153" x="675.5" y="69.752"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="139" x="682.5" y="90.8271">Z-Wave Transports</text><rect fill="#DEDEDE" height="48.0293" style="stroke:#000000;stroke-width:1.0;" width="70" x="941" y="52.7373"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="56" x="948" y="73.8125">Z-Wave</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="19" x="966.5" y="90.8271">S2</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="98" x="1041" y="69.752"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="84" x="1048" y="90.8271">Z-Wave API</text><rect fill="#DEDEDE" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="95" x="1170.5" y="69.752"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="81" x="1177.5" y="90.8271">Z-Wave RX</text><rect fill="#FFFFFF" height="55" style="stroke:#000000;stroke-width:1.0;" width="115" x="10" y="116.7666"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="97" x="14" y="133.8364">I have a frame</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="107" x="14" y="149.6357">to be encrypted</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="98" x="14" y="165.4351">and then sent.</text><polygon fill="#000000" points="389,210.7632,399,214.7632,389,218.7632,393,214.7632" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="130" x2="395" y1="214.7632" y2="214.7632"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="157" x="137" y="194.2344">zwave_tx_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="247" x="137" y="210.0337">(frame data, encapsulation=S2 Auth)</text><rect fill="#FFFFFF" height="39" style="stroke:#000000;stroke-width:1.0;" width="239" x="406" y="227.7632"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="52" x="410" y="244.833">Queue:</text><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="71" x="410" y="260.6323">- Frame 1</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="160" x="481" y="260.6323">: Encapsulation S2 Auth</text><polygon fill="#000000" points="740,305.9604,750,309.9604,740,313.9604,744,309.9604" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="401" x2="746" y1="309.9604" y2="309.9604"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="289" x="408" y="289.4316">zwave_controller_transport_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="139" x="408" y="305.231">(Frame 1, no parent)</text><polygon fill="#000000" points="964,351.5591,974,355.5591,964,359.5591,968,355.5591" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="752" x2="970" y1="355.5591" y2="355.5591"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="159" x="759" y="335.0303">zwave_s2_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="139" x="759" y="350.8296">(Frame 1, no parent)</text><polygon fill="#000000" points="763,381.3584,753,385.3584,763,389.3584,759,385.3584" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="757" x2="975" y1="385.3584" y2="385.3584"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="104" x="769" y="380.6289">SL_STATUS_OK</text><polygon fill="#000000" points="412,411.1577,402,415.1577,412,419.1577,408,415.1577" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="406" x2="751" y1="415.1577" y2="415.1577"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="104" x="418" y="410.4282">SL_STATUS_OK</text><rect fill="#FFFFFF" height="39" style="stroke:#000000;stroke-width:1.0;" width="230" x="406" y="428.1577"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="128" x="410" y="445.2275">Waits that Z-Wave</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="222" x="410" y="461.0269">Transports callbacks for Frame 1.</text><path d="M334,479.7563 L410,479.7563 L410,486.7563 L400,496.7563 L334,496.7563 L334,479.7563 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><rect fill="none" height="686.1182" style="stroke:#000000;stroke-width:1.0;" width="986" x="334" y="479.7563"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="31" x="349" y="493.8262">loop</text><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="277" x="425" y="492.8154">[for as many encapsulated frames needed</text><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="416" x="425" y="506.1841">(Nonce Get, Encapsulated frame, etc) to get Frame 1 delivered]</text><polygon fill="#000000" points="412,542.8916,402,546.8916,412,550.8916,408,546.8916" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="406" x2="975" y1="546.8916" y2="546.8916"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="157" x="418" y="526.3628">zwave_tx_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="378" x="418" y="542.1621">(Frame 2 data, encapsulation = None, Parent = Frame 1)</text><rect fill="#FFFFFF" height="55" style="stroke:#000000;stroke-width:1.0;" width="334" x="406" y="559.8916"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="52" x="410" y="576.9614">Queue:</text><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="71" x="410" y="592.7607">- Frame 1</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="160" x="481" y="592.7607">: Encapsulation S2 Auth</text><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="71" x="410" y="608.5601">- Frame 2</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="255" x="481" y="608.5601">: Encapsulation None, parent=Frame 1</text><polygon fill="#000000" points="740,653.8882,750,657.8882,740,661.8882,744,657.8882" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="401" x2="746" y1="657.8882" y2="657.8882"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="289" x="408" y="637.3594">zwave_controller_transport_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="190" x="408" y="653.1587">(Frame 2, Parent = Frame 1)</text><polygon fill="#000000" points="964,699.4868,974,703.4868,964,707.4868,968,703.4868" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="752" x2="970" y1="703.4868" y2="703.4868"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="159" x="759" y="682.958">zwave_s2_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="190" x="759" y="698.7573">(Frame 2, Parent = Frame 1)</text><polygon fill="#000000" points="763,729.2861,753,733.2861,763,737.2861,759,733.2861" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="757" x2="975" y1="733.2861" y2="733.2861"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="200" x="769" y="728.5566">SL_STATUS_NOT_SUPPORTED</text><polygon fill="#000000" points="1078,774.8848,1088,778.8848,1078,782.8848,1082,778.8848" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="752" x2="1084" y1="778.8848" y2="778.8848"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="159" x="759" y="758.356">zwave_s2_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="190" x="759" y="774.1553">(Frame 2, Parent = Frame 1)</text><polygon fill="#000000" points="763,804.6841,753,808.6841,763,812.6841,759,808.6841" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="757" x2="1089" y1="808.6841" y2="808.6841"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="104" x="769" y="803.9546">SL_STATUS_OK</text><polygon fill="#000000" points="412,834.4834,402,838.4834,412,842.4834,408,838.4834" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="406" x2="751" y1="838.4834" y2="838.4834"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="104" x="418" y="833.7539">SL_STATUS_OK</text><rect fill="#FFFFFF" height="39" style="stroke:#000000;stroke-width:1.0;" width="230" x="406" y="851.4834"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="128" x="410" y="868.5532">Waits that Z-Wave</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="222" x="410" y="884.3525">Transports callbacks for Frame 2.</text><line style="stroke:#000000;stroke-width:1.0;" x1="1090" x2="1132" y1="933.6807" y2="933.6807"/><line style="stroke:#000000;stroke-width:1.0;" x1="1132" x2="1132" y1="933.6807" y2="946.6807"/><line style="stroke:#000000;stroke-width:1.0;" x1="1091" x2="1132" y1="946.6807" y2="946.6807"/><polygon fill="#000000" points="1101,942.6807,1091,946.6807,1101,950.6807,1097,946.6807" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="114" x="1097" y="913.1519">Frame being sent</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="80" x="1097" y="928.9512">on the radio</text><line style="stroke:#000000;stroke-width:1.0;" x1="1218" x2="1260" y1="1023.8779" y2="1023.8779"/><line style="stroke:#000000;stroke-width:1.0;" x1="1260" x2="1260" y1="1023.8779" y2="1036.8779"/><line style="stroke:#000000;stroke-width:1.0;" x1="1219" x2="1260" y1="1036.8779" y2="1036.8779"/><polygon fill="#000000" points="1229,1032.8779,1219,1036.8779,1229,1040.8779,1225,1036.8779" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="83" x="1225" y="971.7505">continuously</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="56" x="1225" y="987.5498">monitors</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="57" x="1225" y="1003.3491">incoming</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="64" x="1225" y="1019.1484">messages</text><polygon fill="#000000" points="1101,1062.6772,1091,1066.6772,1101,1070.6772,1097,1066.6772" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="1095" x2="1217" y1="1066.6772" y2="1066.6772"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="77" x="1107" y="1061.9478">zwapi_poll</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="12" x="1184" y="1061.9478">()</text><polygon fill="#000000" points="412,1108.2759,402,1112.2759,412,1116.2759,408,1112.2759" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="406" x2="1089" y1="1112.2759" y2="1112.2759"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="128" x="418" y="1091.7471">zwapi_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="53" x="551" y="1091.7471">callback</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="200" x="418" y="1107.5464">(Frame 2 transmission results)</text><polygon fill="#000000" points="964,1153.8745,974,1157.8745,964,1161.8745,968,1157.8745" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="401" x2="970" y1="1157.8745" y2="1157.8745"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="157" x="408" y="1137.3457">zwave_tx_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="53" x="570" y="1137.3457">callback</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="197" x="408" y="1153.145">(frame 2 transmission results)</text><polygon fill="#000000" points="412,1206.4731,402,1210.4731,412,1214.4731,408,1210.4731" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="406" x2="975" y1="1210.4731" y2="1210.4731"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="289" x="418" y="1189.9443">zwave_controller_transport_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="53" x="712" y="1189.9443">callback</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="386" x="418" y="1205.7437">Frame 1 transmission completed (no more to encapsulate)</text><rect fill="#FFFFFF" height="39" style="stroke:#000000;stroke-width:1.0;" width="321" x="406" y="1223.4731"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="52" x="410" y="1240.543">Queue:</text><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="71" x="410" y="1256.3423">- Frame 1</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="242" x="481" y="1256.3423">: Encap. S2 Auth (sent via Frame 2)</text><line style="stroke:#000000;stroke-width:1.0;" x1="401" x2="443" y1="1321.4697" y2="1321.4697"/><line style="stroke:#000000;stroke-width:1.0;" x1="443" x2="443" y1="1321.4697" y2="1334.4697"/><line style="stroke:#000000;stroke-width:1.0;" x1="402" x2="443" y1="1334.4697" y2="1334.4697"/><polygon fill="#000000" points="412,1330.4697,402,1334.4697,412,1338.4697,408,1334.4697" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="198" x="408" y="1285.1416">Process verifies the TX queue</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="159" x="408" y="1300.9409">See that next frame (1)</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="337" x="408" y="1316.7402">is to be discarded because of Frame 2 replacing it.</text><polygon fill="#000000" points="141,1376.0684,131,1380.0684,141,1384.0684,137,1380.0684" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="135" x2="400" y1="1380.0684" y2="1380.0684"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="157" x="147" y="1359.5396">zwave_tx_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="53" x="309" y="1359.5396">callback</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="197" x="147" y="1375.3389">(frame 1 transmission results)</text><!--MD5=[2e9ef637bb8eb7098d17b7ded00e0248]
+@startuml inline_umlgraph_14.svg
+' Style for the diagram
+!theme plain
+hide footbox
+
+title Z-Wave TX parent frame functionality with transports (example)
+
+' List of participants
+participant "User component" as u
+participant "Z-Wave TX" as tx #DEDEDE
+participant "Z-Wave Transports" as zwave_transports
+participant "Z-Wave\nS2" as s2 #DEDEDE
+participant "Z-Wave API" as zwapi
+participant "Z-Wave RX" as rx #DEDEDE
+
+rnote left of u: I have a frame\nto be encrypted\nand then sent.
+u -> tx: <b>zwave_tx_send_data\n(frame data, encapsulation=S2 Auth)
+
+rnote right of tx: <b>Queue:\n<b>- Frame 1</b>: Encapsulation S2 Auth
+
+tx -> zwave_transports: <b>zwave_controller_transport_send_data</b>\n(Frame 1, no parent)
+zwave_transports -> s2: <b>zwave_s2_send_data</b>\n(Frame 1, no parent)
+s2 -> zwave_transports: SL_STATUS_OK
+zwave_transports -> tx: SL_STATUS_OK
+
+rnote right of tx: Waits that Z-Wave\nTransports callbacks for Frame 1.
+
+loop for as many encapsulated frames needed\n(Nonce Get, Encapsulated frame, etc) to get Frame 1 delivered
+  s2 -> tx: <b>zwave_tx_send_data</b>\n(Frame 2 data, encapsulation = None, Parent = Frame 1)
+  rnote right of tx: <b>Queue:\n<b>- Frame 1</b>: Encapsulation S2 Auth\n<b>- Frame 2</b>: Encapsulation None, parent=Frame 1
+  tx -> zwave_transports: <b>zwave_controller_transport_send_data</b>\n(Frame 2, Parent = Frame 1)
+  zwave_transports -> s2: <b>zwave_s2_send_data</b>\n(Frame 2, Parent = Frame 1)
+  s2 -> zwave_transports: SL_STATUS_NOT_SUPPORTED
+  zwave_transports -> zwapi: <b>zwave_s2_send_data</b>\n(Frame 2, Parent = Frame 1)
+  zwapi -> zwave_transports: SL_STATUS_OK
+  zwave_transports -> tx: SL_STATUS_OK
+
+  rnote right of tx: Waits that Z-Wave\nTransports callbacks for Frame 2.
+
+  zwapi -> zwapi: Frame being sent\non the radio
+  rx -> rx: continuously\nmonitors\nincoming\nmessages
+  rx -> zwapi: <b>zwapi_poll</b>()
+  zwapi -> tx: <b>zwapi_send_data</b> callback\n(Frame 2 transmission results)
+
+  tx -> s2: <b>zwave_tx_send_data</b> callback\n(frame 2 transmission results)
+end
+s2 -> tx: <b>zwave_controller_transport_send_data</b> callback\nFrame 1 transmission completed (no more to encapsulate)
+
+rnote right of tx: <b>Queue:\n<b>- Frame 1</b>: Encap. S2 Auth (sent via Frame 2)
+tx -> tx: Process verifies the TX queue\nSee that next frame (1)\nis to be discarded because of Frame 2 replacing it.
+
+tx -> u: <b>zwave_tx_send_data</b> callback\n(frame 1 transmission results)
+@enduml
+
+@startuml inline_umlgraph_14.svg
+
+
+
+
+
+
+
+<style>
+  root {
+    BackgroundColor white
+    FontColor black
+    FontName Verdana
+    HyperLinkColor blue
+    LineColor black
+    LineThickness 1
+    Margin 5
+  }
+  caption {
+    LineThickness 0
+  }
+  footer {
+    LineThickness 0
+  }
+  header {
+    LineThickness 0
+  }
+  node {
+    MaximumWidth 300
+  }
+  title {
+    FontSize 22
+    LineThickness 0
+  }
+</style>
+
+skinparam ArrowLollipopColor black
+skinparam BackgroundColor white
+skinparam DefaultFontName Verdana
+skinparam DefaultMonospacedFontName Courier
+skinparam LifelineStrategy nosolid
+skinparam ParticipantPadding 10
+skinparam SequenceLifeLineBorderColor black
+skinparam Shadowing false
+skinparam UseBetaStyle true
+
+skinparam Activity {
+  BackgroundColor white
+  BarColor black
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam Boundary {
+  FontColor black
+}
+skinparam Box {
+  Padding 5
+}
+skinparam CircledCharacter {
+  FontColor black
+  FontName Courier
+  Radius 9
+}
+skinparam Class {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassAttribute {
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassStereotype {
+  FontColor black
+  FontName Verdana
+}
+skinparam Footer {
+  FontColor black
+  FontName Verdana
+}
+skinparam Header {
+  FontColor black
+  FontName Verdana
+}
+skinparam Hyperlink {
+  Color blue
+}
+skinparam IconPackage {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPrivate {
+  Color black
+  BackgroundColor white
+}
+skinparam IconProtected {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPublic {
+  Color black
+  BackgroundColor white
+}
+skinparam Note {
+  FontColor black
+  FontName Verdana
+}
+skinparam Object {
+  BorderColor black
+}
+skinparam Package {
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam State {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeA {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeC {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeE {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeI {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeN {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam UseCaseStereoType {
+  FontColor black
+  FontName Verdana
+}
+hide footbox
+
+title Z-Wave TX parent frame functionality with transports (example)
+
+participant "User component" as u
+participant "Z-Wave TX" as tx #DEDEDE
+participant "Z-Wave Transports" as zwave_transports
+participant "Z-Wave\nS2" as s2 #DEDEDE
+participant "Z-Wave API" as zwapi
+participant "Z-Wave RX" as rx #DEDEDE
+
+rnote left of u: I have a frame\nto be encrypted\nand then sent.
+u -> tx: <b>zwave_tx_send_data\n(frame data, encapsulation=S2 Auth)
+
+rnote right of tx: <b>Queue:\n<b>- Frame 1</b>: Encapsulation S2 Auth
+
+tx -> zwave_transports: <b>zwave_controller_transport_send_data</b>\n(Frame 1, no parent)
+zwave_transports -> s2: <b>zwave_s2_send_data</b>\n(Frame 1, no parent)
+s2 -> zwave_transports: SL_STATUS_OK
+zwave_transports -> tx: SL_STATUS_OK
+
+rnote right of tx: Waits that Z-Wave\nTransports callbacks for Frame 1.
+
+loop for as many encapsulated frames needed\n(Nonce Get, Encapsulated frame, etc) to get Frame 1 delivered
+  s2 -> tx: <b>zwave_tx_send_data</b>\n(Frame 2 data, encapsulation = None, Parent = Frame 1)
+  rnote right of tx: <b>Queue:\n<b>- Frame 1</b>: Encapsulation S2 Auth\n<b>- Frame 2</b>: Encapsulation None, parent=Frame 1
+  tx -> zwave_transports: <b>zwave_controller_transport_send_data</b>\n(Frame 2, Parent = Frame 1)
+  zwave_transports -> s2: <b>zwave_s2_send_data</b>\n(Frame 2, Parent = Frame 1)
+  s2 -> zwave_transports: SL_STATUS_NOT_SUPPORTED
+  zwave_transports -> zwapi: <b>zwave_s2_send_data</b>\n(Frame 2, Parent = Frame 1)
+  zwapi -> zwave_transports: SL_STATUS_OK
+  zwave_transports -> tx: SL_STATUS_OK
+
+  rnote right of tx: Waits that Z-Wave\nTransports callbacks for Frame 2.
+
+  zwapi -> zwapi: Frame being sent\non the radio
+  rx -> rx: continuously\nmonitors\nincoming\nmessages
+  rx -> zwapi: <b>zwapi_poll</b>()
+  zwapi -> tx: <b>zwapi_send_data</b> callback\n(Frame 2 transmission results)
+
+  tx -> s2: <b>zwave_tx_send_data</b> callback\n(frame 2 transmission results)
+end
+s2 -> tx: <b>zwave_controller_transport_send_data</b> callback\nFrame 1 transmission completed (no more to encapsulate)
+
+rnote right of tx: <b>Queue:\n<b>- Frame 1</b>: Encap. S2 Auth (sent via Frame 2)
+tx -> tx: Process verifies the TX queue\nSee that next frame (1)\nis to be discarded because of Frame 2 replacing it.
+
+tx -> u: <b>zwave_tx_send_data</b> callback\n(frame 1 transmission results)
+@enduml
+
+PlantUML version 1.2022.0(Tue Jan 11 17:16:42 CET 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

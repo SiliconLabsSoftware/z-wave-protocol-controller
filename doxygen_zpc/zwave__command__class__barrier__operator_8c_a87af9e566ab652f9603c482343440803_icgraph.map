@@ -1,0 +1,6 @@
+<map id="zwave_command_class_barrier_operator_handle_report" name="zwave_command_class_barrier_operator_handle_report">
+<area shape="rect" id="node1" title="Handle incoming Barrier Operator Report Commands." alt="" coords="677,5,841,61"/>
+<area shape="rect" id="node2" href="$zwave__command__class__barrier__operator_8c.html#a453a0a4a618c69659ee16b37b521cee7" title=" " alt="" coords="464,5,629,61"/>
+<area shape="rect" id="node3" href="$group__barrier__operator__command__class.html#gac5e03a6ca5a68828e6af45d20a5a30c7" title="This function initialize the Barrier Operator Command Class handler." alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

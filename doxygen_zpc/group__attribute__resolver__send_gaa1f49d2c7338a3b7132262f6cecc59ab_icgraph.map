@@ -1,0 +1,4 @@
+<map id="attribute_resolver_send_init" name="attribute_resolver_send_init">
+<area shape="rect" id="node1" title="Initialization function for the attribute_resolver_send subcomponent." alt="" coords="228,5,351,47"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__resolver__fixt.html#ga50dc081eb97c7ba1ec9259257613cfc4" title="Initialize the ZPC attribute resolver, which in turn calls Unify attribute resolver init." alt="" coords="5,13,180,39"/>
+</map>

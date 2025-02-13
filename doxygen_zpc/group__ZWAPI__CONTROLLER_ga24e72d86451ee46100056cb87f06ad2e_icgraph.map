@@ -1,0 +1,7 @@
+<map id="zwapi_assign_return_route" name="zwapi_assign_return_route">
+<area shape="rect" id="node1" title="Assign static return routes within a Routing End Node." alt="" coords="840,51,981,93"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management__return__route__queue.html#ga532355608af2ba5bb787c509680f24a0" title="Requests the Z&#45;Wave API to assign the Next Return Route in the queue." alt="" coords="597,51,792,93"/>
+<area shape="rect" id="node3" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="204,29,344,56"/>
+<area shape="rect" id="node5" href="$group__zwave__network__management__return__route__queue.html#ga1e7c3103d2272ce25953c60d13c30c0f" title="callback function for zwapi_assign_return_route()" alt="" coords="392,51,549,93"/>
+<area shape="rect" id="node4" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="5,29,156,56"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="set_default_v1_capabilities" name="set_default_v1_capabilities">
+<area shape="rect" id="node1" title="Writes down assumed non&#45;advertised capabilities for a v1 node." alt="" coords="5,71,184,98"/>
+<area shape="rect" id="node2" href="$zwave__command__class__wake__up_8c.html#aafee6942702a86d4aaea1f91c18ccce7" title="Finds the closest supported value for a Wake Up Interval." alt="" coords="245,5,398,47"/>
+<area shape="rect" id="node3" href="$zwave__command__class__wake__up_8c.html#afa3117b84d0ee4baa2ce7d5807d34f9f" title="Writes down assumed non&#45;advertised capabilities for a v2 node." alt="" coords="232,71,411,98"/>
+<area shape="rect" id="node4" href="$group__zpc__config.html#ga4b057e8eb480ccf7000ecdaf97dcc168" title="Get the current configuration. This must only be called after zpc_config_init." alt="" coords="266,122,377,149"/>
+</map>

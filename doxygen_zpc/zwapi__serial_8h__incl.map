@@ -1,0 +1,6 @@
+<map id="applications/zpc/components/zwave_api/src/zwapi_serial.h" name="applications/zpc/components/zwave_api/src/zwapi_serial.h">
+<area shape="rect" id="node1" title="Serial Port API for the Z&#45;Wave module. Used for low level read/write functions to the serial port." alt="" coords="5,5,203,47"/>
+<area shape="rect" id="node2" title=" " alt="" coords="86,169,151,196"/>
+<area shape="rect" id="node3" title=" " alt="" coords="67,95,141,121"/>
+<area shape="rect" id="node4" href="$sl__status_8h.html" title="SL Status Codes." alt="" coords="166,95,253,121"/>
+</map>

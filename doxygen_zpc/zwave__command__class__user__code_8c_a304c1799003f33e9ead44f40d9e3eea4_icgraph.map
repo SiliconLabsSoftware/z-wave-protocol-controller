@@ -1,0 +1,7 @@
+<map id="undefine_user_code" name="undefine_user_code">
+<area shape="rect" id="node1" title="Checks if the User ID node matches what we expect and undefines the User Code data underneath." alt="" coords="859,13,997,39"/>
+<area shape="rect" id="node2" href="$zwave__command__class__user__code_8c.html#a51703dc3e67743e057b64aa954cb6502" title="Navigates under the endpoint node and undefines all the known user code data." alt="" coords="645,13,811,39"/>
+<area shape="rect" id="node3" href="$zwave__command__class__user__code_8c.html#ac1b7b4decaac08fb1c13f86d1f7ce134" title="Handles the Send Data Complete for a &quot;delete all user codes&quot;." alt="" coords="464,5,597,47"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__user__code.html#ga3903c1853dfc3b999bcb5570d3355a35" title="Initializes the User Code Command Class handler." alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

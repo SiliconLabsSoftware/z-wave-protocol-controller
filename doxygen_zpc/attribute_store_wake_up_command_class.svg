@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="733px" preserveAspectRatio="none" style="width:1490px;height:733px;background:#FFFFFF;" version="1.1" viewBox="0 0 1490 733" width="1490px" zoomAndPan="magnify"><defs><filter height="300%" id="f1s93se81fd8pn" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacing" textLength="178" x="649.5" y="19.2419">Wake Up data model</text><rect fill="#DDDDDD" height="29.0679" rx="5" ry="5" style="stroke:#000000;stroke-width:1.0;" width="442" x="517" y="32.5158"/><text fill="#FEFEFE" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="111" x="523" y="52.4818">ATTRIBUTE(type)</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="315" x="638" y="52.4818">: ATTRIBUTE_COMMAND_CLASS_WAKE_UP_type</text><!--MD5=[ea3d5de2a0d35296bc751d5a1b771698]
+cluster Attribute Store--><path d="M6,86.5838 C6,76.5838 744.5,76.5838 744.5,76.5838 C744.5,76.5838 1483,76.5838 1483,86.5838 L1483,716.5838 C1483,726.5838 744.5,726.5838 744.5,726.5838 C744.5,726.5838 6,726.5838 6,716.5838 L6,86.5838 " fill="#FFFFFF" filter="url(#f1s93se81fd8pn)" style="stroke:#000000;stroke-width:1.5;"/><path d="M6,86.5838 C6,96.5838 744.5,96.5838 744.5,96.5838 C744.5,96.5838 1483,96.5838 1483,86.5838 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="105" x="692" y="113.5497">Attribute Store</text><rect fill="#F2FFE6" filter="url(#f1s93se81fd8pn)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="193" x="835.5" y="129.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="43" x="910.5" y="144.4119">NodeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="836.5" x2="1027.5" y1="149.9279" y2="149.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="181" x="841.5" y="164.6179">Attribute Type = ATTRIBUTE_NODE_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="841.5" y="178.2379">value = Desired: [], Reported: [03]</text><rect fill="#E6FFF7" filter="url(#f1s93se81fd8pn)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="216" x="824" y="245.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="101" x="881.5" y="260.4119">Endpoint Attribute</text><line style="stroke:#000000;stroke-width:1.5;" x1="825" x2="1039" y1="265.9279" y2="265.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="204" x="830" y="280.6179">Attribute Type = ATTRIBUTE_ENDPOINT_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="830" y="294.2379">value = Desired: [] - Reported: [04]</text><rect fill="#FEFEFE" filter="url(#f1s93se81fd8pn)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="194" x="1074" y="361.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="42" x="1150" y="376.4119">Version</text><line style="stroke:#000000;stroke-width:1.5;" x1="1075" x2="1267" y1="381.9279" y2="381.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="182" x="1080" y="396.6179">Attribute Type = ATTRIBUTE(VERSION)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="158" x="1080" y="410.2379">value = Desired: [] - Reported: [4]</text><rect fill="#FFFFFF" filter="url(#f1s93se81fd8pn)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="193" x="292.5" y="361.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="39" x="369.5" y="376.4119">Setting</text><line style="stroke:#000000;stroke-width:1.5;" x1="293.5" x2="484.5" y1="381.9279" y2="381.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="181" x="298.5" y="396.6179">Attribute Type = ATTRIBUTE(SETTING)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="298.5" y="410.2379">value = Desired: [0] - Reported: [1]</text><rect fill="#FFFFFF" filter="url(#f1s93se81fd8pn)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="214" x="825" y="361.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="65" x="899.5" y="376.4119">Capabilities</text><line style="stroke:#000000;stroke-width:1.5;" x1="826" x2="1038" y1="381.9279" y2="381.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="202" x="831" y="396.6179">Attribute Type = ATTRIBUTE(CAPABILITIES)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="831" y="410.2379">value = Desired: [], Reported: [01]</text><rect fill="#FFFFFF" filter="url(#f1s93se81fd8pn)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="195" x="21.5" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="96" x="71" y="492.4119">Wake Up NodeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="22.5" x2="215.5" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="183" x="27.5" y="512.6179">Attribute Type = ATTRIBUTE(NODE_ID)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="173" x="27.5" y="526.2379">value = Desired: [01], Reported: [10]</text><rect fill="#FFFFFF" filter="url(#f1s93se81fd8pn)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="275" x="251.5" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="96" x="341" y="492.4119">Wake Up Interval</text><line style="stroke:#000000;stroke-width:1.5;" x1="252.5" x2="525.5" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="186" x="257.5" y="512.6179">Attribute Type = ATTRIBUTE(INTERVAL)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="263" x="257.5" y="526.2379">value = Desired: [80,51,01,00], Reported: [14,00,00,00]</text><rect fill="#FFFFFF" filter="url(#f1s93se81fd8pn)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="251" x="561.5" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="155" x="609.5" y="492.4119">Maximum Wake Up Interval</text><line style="stroke:#000000;stroke-width:1.5;" x1="562.5" x2="811.5" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="239" x="567.5" y="512.6179">Attribute Type = ATTRIBUTE(MAXIMUM_INTERVAL)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="206" x="567.5" y="526.2379">value = Desired: [], Reported: [80,51,01,00]</text><rect fill="#FFFFFF" filter="url(#f1s93se81fd8pn)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="250" x="1217" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="152" x="1266" y="492.4119">Minimum Wake Up Interval</text><line style="stroke:#000000;stroke-width:1.5;" x1="1218" x2="1466" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="238" x="1223" y="512.6179">Attribute Type = ATTRIBUTE(MINIMUM_INTERVAL)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="206" x="1223" y="526.2379">value = Desired: [], Reported: [14,00,00,00]</text><rect fill="#FFFFFF" filter="url(#f1s93se81fd8pn)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="244" x="686" y="654.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="140" x="738" y="669.4119">Default Wake Up Interval</text><line style="stroke:#000000;stroke-width:1.5;" x1="687" x2="929" y1="674.9279" y2="674.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="232" x="692" y="689.6179">Attribute Type = ATTRIBUTE(DEFAULT_INTERVAL)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="205" x="692" y="703.2379">value = Desired: [], Reported: [2c,01,00,00]</text><rect fill="#FFFFFF" filter="url(#f1s93se81fd8pn)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="225" x="1118.5" y="654.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="124" x="1169" y="669.4119">Wake Up Interval Step</text><line style="stroke:#000000;stroke-width:1.5;" x1="1119.5" x2="1342.5" y1="674.9279" y2="674.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="213" x="1124.5" y="689.6179">Attribute Type = ATTRIBUTE(INTERVAL_STEP)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="206" x="1124.5" y="703.2379">value = Desired: [], Reported: [14,00,00,00]</text><rect fill="#FFFFFF" filter="url(#f1s93se81fd8pn)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="260" x="885" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="112" x="959" y="492.4119">Capabilities bitmask</text><line style="stroke:#000000;stroke-width:1.5;" x1="886" x2="1144" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="248" x="891" y="512.6179">Attribute Type = ATTRIBUTE(CAPABILITIES_BITMASK)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="891" y="526.2379">value = Desired: [], Reported: [01]</text><path d="M604,367.0838 L604,412.4958 A0,0 0 0 0 604,412.4958 L790,412.4958 A0,0 0 0 0 790,412.4958 L790,393.5838 L824.8,389.5838 L790,385.5838 L790,377.0838 L780,367.0838 L604,367.0838 A0,0 0 0 0 604,367.0838 " fill="#FFFAE3" filter="url(#f1s93se81fd8pn)" style="stroke:#FF0000;stroke-width:1.0;"/><path d="M780,367.0838 L780,377.0838 L790,377.0838 L780,367.0838 " fill="#FFFAE3" style="stroke:#FF0000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="111" x="610" y="385.9808">Resolution listener</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="165" x="610" y="403.6868">Configure Wake Up Interval</text><path d="M636,135.0838 L636,180.4958 A0,0 0 0 0 636,180.4958 L800,180.4958 A0,0 0 0 0 800,180.4958 L800,161.5838 L835.31,157.5838 L800,153.5838 L800,145.0838 L790,135.0838 L636,135.0838 A0,0 0 0 0 636,135.0838 " fill="#FFFAE3" filter="url(#f1s93se81fd8pn)" style="stroke:#FF0000;stroke-width:1.0;"/><path d="M790,135.0838 L790,145.0838 L800,145.0838 L790,135.0838 " fill="#FFFAE3" style="stroke:#FF0000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="111" x="642" y="153.9808">Resolution listener</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="143" x="642" y="171.6868">Send Wake Up No More</text><!--MD5=[95477c314ce472250aabd32546a8a81f]
+reverse link node to endpoint--><path codeLine="2128" d="M932,199.0638 C932,214.4138 932,231.5238 932,245.3638 " fill="none" id="node-backto-endpoint" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="932,185.6038,928,191.6038,932,197.6038,936,191.6038,932,185.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[c4a4e185f2beba9fb9ec0dd52638d41f]
+reverse link endpoint to version--><path codeLine="2129" d="M1000.55,307.2838 C1036.59,324.4738 1080.25,345.2938 1114.35,361.5638 " fill="none" id="endpoint-backto-version" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="988.64,301.6038,992.331,307.7986,999.469,306.7742,995.778,300.5793,988.64,301.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[4204bd08894dcd6cc0ea342a5fa1a377]
+reverse link endpoint to setting--><path codeLine="2130" d="M810.78,300.0338 C712.73,320.6238 576.5,349.2238 485.68,368.2838 " fill="none" id="endpoint-backto-setting" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="823.75,297.3138,817.0557,294.633,812.0064,299.7812,818.7007,302.462,823.75,297.3138" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[e8818a659f63f8f3e10410eab5f7f31c]
+reverse link endpoint to capabilities--><path codeLine="2131" d="M932,315.0638 C932,330.4138 932,347.5238 932,361.3638 " fill="none" id="endpoint-backto-capabilities" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="932,301.6038,928,307.6038,932,313.6038,936,307.6038,932,301.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[3b7d4572eab6fcc4d799ff3a2f9821e4]
+reverse link setting to wake_up_node_id--><path codeLine="2133" d="M312.89,422.7238 C271.92,440.0238 221.94,461.1238 182.99,477.5638 " fill="none" id="setting-backto-wake_up_node_id" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="325.01,417.6038,317.9264,416.2539,313.9558,422.2734,321.0395,423.6233,325.01,417.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[e3ed1f49d6a7888e776c939ec6bd4600]
+reverse link setting to wake_up_interval--><path codeLine="2134" d="M389,431.0638 C389,446.4138 389,463.5238 389,477.3638 " fill="none" id="setting-backto-wake_up_interval" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="389,417.6038,385,423.6038,389,429.6038,393,423.6038,389,417.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[28df833d114907e8882e58a3b21397fe]
+reverse link capabilities to maximum_wake_up_interval--><path codeLine="2136" d="M861.73,423.2838 C824.78,440.4738 780.03,461.2938 745.07,477.5638 " fill="none" id="capabilities-backto-maximum_wake_up_interval" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="873.94,417.6038,866.8124,416.5092,863.0608,422.6676,870.1883,423.7621,873.94,417.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[f31c899bcea51650f26c9b287f97c356]
+reverse link capabilities to minimum_wake_up_interval--><path codeLine="2137" d="M1042,421.1638 C1105.21,438.7438 1183.9,460.6238 1244.82,477.5638 " fill="none" id="capabilities-backto-minimum_wake_up_interval" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1029.16,417.6038,1033.8667,423.067,1040.7199,420.8237,1036.0133,415.3604,1029.16,417.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[bf6f17b1dc72372f03547eb42831b077]
+reverse link capabilities to default_wake_up_interval--><path codeLine="2138" d="M899.6,428.5538 C888.38,443.1538 876.49,460.4438 868,477.5838 C838.41,537.2838 820.72,614.2138 812.86,654.3938 " fill="none" id="capabilities-backto-default_wake_up_interval" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="907.99,417.9538,901.1286,420.172,900.5372,427.3588,907.3986,425.1406,907.99,417.9538" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[248557c739b1d78d6e551f9f57d0dcc1]
+reverse link capabilities to wake_up_interval_step--><path codeLine="2139" d="M1040.5,421.5838 C1091.41,438.0438 1144.85,458.7238 1163,477.5838 C1210.76,527.2138 1225,611.2638 1229.23,654.3438 " fill="none" id="capabilities-backto-wake_up_interval_step" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1027.98,417.6038,1032.4858,423.2338,1039.4158,421.24,1034.91,415.61,1027.98,417.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[c382c28e4dd080fa694ab3ffedb451a3]
+reverse link capabilities to capabilties_bitmask--><path codeLine="2140" d="M959.43,428.2638 C971.12,444.3138 984.49,462.6738 995.18,477.3638 " fill="none" id="capabilities-backto-capabilties_bitmask" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="951.67,417.6038,951.9623,424.8089,958.7257,427.3103,958.4334,420.1051,951.67,417.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[ab029aa9470730bdc9c1af8d467b6ff6]
+link maximum_wake_up_interval to default_wake_up_interval--><!--MD5=[741aa64502cf889db78cbab9941172fa]
+link minimum_wake_up_interval to wake_up_interval_step--><!--MD5=[14b6caca20bdf2810592f4d4cd2f86b9]
+@startuml attribute_store_wake_up_command_class.svg
+title Wake Up data model
+allow_mixing
+skinparam objectBorderColor black
+skinparam NoteBackgroundColor #fffae3
+skinparam NoteBorderColor red
+
+legend top
+<font color=#FEFEFE>ATTRIBUTE(type)</font> : ATTRIBUTE_COMMAND_CLASS_WAKE_UP_type
+endlegend
+
+package "Attribute Store" <<Database>> {
+  object "NodeID" as node #f2ffe6
+  node : Attribute Type = ATTRIBUTE_NODE_ID
+  node : value = Desired: [], Reported: [03]
+
+  object "Endpoint Attribute" as endpoint #e6fff7
+  endpoint : Attribute Type = ATTRIBUTE_ENDPOINT_ID
+  endpoint : value = Desired: [] - Reported: [04]
+
+  object "Version" as version #FEFEFE
+  version : Attribute Type = ATTRIBUTE(VERSION)
+  version : value = Desired: [] - Reported: [4]
+
+  object "Setting" as setting #FFFFFF
+  setting : Attribute Type = ATTRIBUTE(SETTING)
+  setting : value = Desired: [0] - Reported: [1]
+
+  object "Capabilities" as capabilities #FFFFFF
+  capabilities : Attribute Type = ATTRIBUTE(CAPABILITIES)
+  capabilities : value = Desired: [], Reported: [01]
+
+  object "Wake Up NodeID" as wake_up_node_id #FFFFFF
+  wake_up_node_id : Attribute Type = ATTRIBUTE(NODE_ID)
+  wake_up_node_id : value = Desired: [01], Reported: [10]
+
+  object "Wake Up Interval" as wake_up_interval #FFFFFF
+  wake_up_interval : Attribute Type = ATTRIBUTE(INTERVAL)
+  wake_up_interval : value = Desired: [80,51,01,00], Reported: [14,00,00,00]
+
+  object "Maximum Wake Up Interval" as maximum_wake_up_interval #FFFFFF
+  maximum_wake_up_interval : Attribute Type = ATTRIBUTE(MAXIMUM_INTERVAL)
+  maximum_wake_up_interval : value = Desired: [], Reported: [80,51,01,00]
+
+  object "Minimum Wake Up Interval" as minimum_wake_up_interval #FFFFFF
+  minimum_wake_up_interval : Attribute Type = ATTRIBUTE(MINIMUM_INTERVAL)
+  minimum_wake_up_interval : value = Desired: [], Reported: [14,00,00,00]
+
+  object "Default Wake Up Interval" as default_wake_up_interval #FFFFFF
+  default_wake_up_interval : Attribute Type = ATTRIBUTE(DEFAULT_INTERVAL)
+  default_wake_up_interval : value = Desired: [], Reported: [2c,01,00,00]
+
+  object "Wake Up Interval Step" as wake_up_interval_step #FFFFFF
+  wake_up_interval_step : Attribute Type = ATTRIBUTE(INTERVAL_STEP)
+  wake_up_interval_step : value = Desired: [], Reported: [14,00,00,00]
+
+  object "Capabilities bitmask" as capabilties_bitmask #FFFFFF
+  capabilties_bitmask : Attribute Type = ATTRIBUTE(CAPABILITIES_BITMASK)
+  capabilties_bitmask : value = Desired: [], Reported: [01]
+
+  note left of capabilities
+    Resolution listener
+    Configure Wake Up Interval
+  end note
+
+  note left of node
+    Resolution listener
+    Send Wake Up No More
+  end note
+}
+
+node *- - endpoint
+endpoint *- - version
+endpoint *- - setting
+endpoint *- - capabilities
+
+setting *- - wake_up_node_id
+setting *- - wake_up_interval
+
+capabilities *- - maximum_wake_up_interval
+capabilities *- - minimum_wake_up_interval
+capabilities *- - default_wake_up_interval
+capabilities *- - wake_up_interval_step
+capabilities *- - capabilties_bitmask
+
+maximum_wake_up_interval -[hidden]- -> default_wake_up_interval
+minimum_wake_up_interval -[hidden]- -> wake_up_interval_step
+@enduml
+
+PlantUML version 1.2022.0(Tue Jan 11 17:16:42 CET 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

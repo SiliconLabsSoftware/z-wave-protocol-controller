@@ -1,0 +1,4 @@
+<map id="on_desired_scene_controller_configuration_update" name="on_desired_scene_controller_configuration_update">
+<area shape="rect" id="node1" title="Reacts to desired values updates under the Controller Configuration attribute." alt="" coords="5,5,192,47"/>
+<area shape="rect" id="node2" href="$group__command__classes__utils.html#ga9dfaa3aa52bb9b4ba3effc1d1480b1ea" title="Set the desired and reported value of a command_status_t type of node." alt="" coords="240,5,387,47"/>
+</map>

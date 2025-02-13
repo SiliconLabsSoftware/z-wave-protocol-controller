@@ -1,0 +1,49 @@
+<map id="zwave_controller_get_highest_encapsulation" name="zwave_controller_get_highest_encapsulation">
+<area shape="rect" id="node1" title="Get the hight encapsulation supported by a given key set." alt="" coords="1473,330,1632,371"/>
+<area shape="rect" id="node2" href="$zwave__command__class__node__info__resolver_8c.html#a1ead83b0b81912e1938044ad2fb86368" title=" " alt="" coords="1005,31,1137,73"/>
+<area shape="rect" id="node7" href="$group__command__classes__utils.html#ga9c5cc33bc4f4b02b55abb6d39878d1fe" title="function helper function that determines if a transmission was done using the ZPC&#39;s highest security ..." alt="" coords="1249,477,1395,518"/>
+<area shape="rect" id="node11" href="$zwave__command__class__node__info__resolver_8c.html#a17a378ba062b28606c84948c3fba8559" title=" " alt="" coords="985,97,1158,124"/>
+<area shape="rect" id="node12" href="$zwave__s0__transport_8c.html#a03d95837da2b91dfbf98786f7e753fe4" title=" " alt="" coords="1237,706,1407,747"/>
+<area shape="rect" id="node16" href="$group__zwave__controller__utils.html#ga088b992329c434ce47df6a017f20ecb3" title="Get the highest Security Class of the ZPC for the current network." alt="" coords="1249,265,1395,306"/>
+<area shape="rect" id="node19" href="$group__zwave__security__validation.html#ga8f0224aa1344af06e424ee8e86214f6a" title="Verifies if a frame supported by us can be accepted based on the security it was received on." alt="" coords="984,148,1159,204"/>
+<area shape="rect" id="node20" href="$zwave__command__class__granted__keys__resolver_8c.html#a4a77d9c7e8db594d377beb9145c02274" title=" " alt="" coords="1237,330,1407,371"/>
+<area shape="rect" id="node22" href="$group__zwave__controller__keyset.html#gaf257c77b34f1b306368474dffce4950b" title="Function to tell whether scheme k is greater or equal to scheme v." alt="" coords="1219,147,1425,189"/>
+<area shape="rect" id="node23" href="$group__zwave__security__validation.html#ga88e833788fe114c71de5fca53f572c1e" title="Verifies if a frame supported by another node can be accepted based on the security it was received o..." alt="" coords="1235,772,1409,828"/>
+<area shape="rect" id="node24" href="$group__zwave__tx__scheme__selector.html#ga2c884bc863b6f63eac2a074fdde828d8" title="Return a connection info parameters for sending a Z&#45;Wave frame." alt="" coords="1244,641,1400,682"/>
+<area shape="rect" id="node42" href="$group__zwave__tx__scheme__selector.html#ga0efa34ef87df3cef0f14ac47c733d491" title="Return the Highest security Class of a NodeID." alt="" coords="1223,401,1421,442"/>
+<area shape="rect" id="node3" href="$zwave__command__class__node__info__resolver_8c.html#a1432f8191a83b8d0ad5906bc65dfc243" title=" " alt="" coords="749,57,888,98"/>
+<area shape="rect" id="node6" href="$zwave__command__class__node__info__resolver_8c.html#a3922df75d3ca3f6b2feb8ef5c43418f5" title=" " alt="" coords="730,5,907,32"/>
+<area shape="rect" id="node4" href="$group__zwave__nif__resolver.html#gae3d7718b1013ff52f8ea4984621b762c" title="Registers callbacks to the attribute store and rules to the attribute resolver to be able to resolve ..." alt="" coords="494,86,657,127"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,344,205,371"/>
+<area shape="rect" id="node8" href="$zwave__command__class__security__2_8c.html#ad6cf88ba96647fbb110ad024d13ad927" title=" " alt="" coords="990,476,1153,532"/>
+<area shape="rect" id="node9" href="$zwave__command__class__security__2_8c.html#aa9d9bbdae7f77c34856a744f20f6bd34" title=" " alt="" coords="494,476,657,532"/>
+<area shape="rect" id="node10" href="$group__security__2__command__class.html#ga8d46dba73126d88511566e7ae09eced5" title="Intitialize the security 2 command class handler." alt="" coords="264,483,427,525"/>
+<area shape="rect" id="node13" href="$group__zwave__s0__transport.html#ga075cd6959f4f2b9cbd757c5d43f97820" title="Entry point of S0 frames received from the PHY/radio stack." alt="" coords="972,928,1171,955"/>
+<area shape="rect" id="node14" href="$group__zwave__s0__transport.html#ga7fcd7083b5fe3b6b2838d0d64f815f53" title="Initialize the S0 Transport Also calls zwave_s0_network_init() which aborts all tx sessions and frees..." alt="" coords="737,936,900,963"/>
+<area shape="rect" id="node15" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="501,936,650,963"/>
+<area shape="rect" id="node17" href="$zwave__command__class__manufacturer__specific_8c.html#ad5bb8ee2108954f010636d93e41755f6" title="Handles incoming manufacturer specific encapsulated commands." alt="" coords="737,199,900,255"/>
+<area shape="rect" id="node18" href="$zwave__command__class__manufacturer__specific_8c.html#a68b75e94eac46dc0380c3f045ab0653b" title="setup for manufacturer specific command class" alt="" coords="255,206,436,247"/>
+<area shape="rect" id="node21" href="$group__zwave__granted__keys.html#ga1e9daa986c6a8ce94e4301aaa01e74a4" title="Registers callbacks to the attribute store and rules to the attribute resolver to be able to resolve ..." alt="" coords="253,271,437,313"/>
+<area shape="rect" id="node25" href="$group__attribute__resolver__send.html#ga577f6ba4fa977a389873ee62e02aeead" title="function that the ZPC attribute resolver uses send PAN frames" alt="" coords="993,673,1150,700"/>
+<area shape="rect" id="node27" href="$zwave__command__class__security__2_8c.html#a1b10608a516efe377385f9b6cbc651f3" title=" " alt="" coords="1000,557,1143,598"/>
+<area shape="rect" id="node28" href="$zwave__command__class__security__2_8c.html#abfa810865bff307d3645a0a4e565d91e" title=" " alt="" coords="731,557,906,598"/>
+<area shape="rect" id="node30" href="$zwave__command__class__basic_8c.html#ae8e274d08800f0a57839fb234e31374c" title="Sends a Basic Probe to an endpoint." alt="" coords="1008,873,1135,900"/>
+<area shape="rect" id="node34" href="$zwave__command__class__wake__up_8c.html#ab1683172e412f4f4b4f3090e6e2ac2b8" title="Check if we need and send a Wake Up No more command to a node and puts it in the Tx Queue." alt="" coords="988,748,1155,775"/>
+<area shape="rect" id="node39" href="$group__zwave__s2__protocol__cc__encryption.html#ga680201d065e78ee3dd75a6b1e778ab37" title="Triggered when a Protocol CC Encryption Request is received." alt="" coords="991,799,1151,841"/>
+<area shape="rect" id="node26" href="$group__zpc__attribute__resolver__fixt.html#ga50dc081eb97c7ba1ec9259257613cfc4" title="Initialize the ZPC attribute resolver, which in turn calls Unify attribute resolver init." alt="" coords="731,643,906,669"/>
+<area shape="rect" id="node29" href="$zwave__command__class__security__2_8c.html#acc7d1c62131cdbd36899cf7c21fa4d71" title=" " alt="" coords="485,557,665,598"/>
+<area shape="rect" id="node31" href="$zwave__command__class__basic_8c.html#ae484083357f2a3ed5b7beb6223d93d5a" title=" " alt="" coords="743,870,894,911"/>
+<area shape="rect" id="node32" href="$zwave__command__class__basic_8c.html#a6f16bae2e9206d5fe826d468866deba4" title=" " alt="" coords="522,861,629,888"/>
+<area shape="rect" id="node33" href="$group__zwave__command__class__basic.html#ga6780c7bc2310c30c76e7a54aa101604f" title="Initialize the basic command class handler." alt="" coords="264,798,427,839"/>
+<area shape="rect" id="node35" href="$zwave__command__class__wake__up_8c.html#a37cb450d8a624bde29f877595e193d16" title=" " alt="" coords="724,744,913,771"/>
+<area shape="rect" id="node38" href="$zwave__command__class__wake__up_8c.html#ad2c55aec9b04c76f33eaf024aee36881" title=" " alt="" coords="506,678,645,719"/>
+<area shape="rect" id="node36" href="$zwave__command__class__wake__up_8c.html#a88bb847c5b28073f2eebf61a9c6fe6f6" title=" " alt="" coords="491,744,660,771"/>
+<area shape="rect" id="node37" href="$group__zwave__command__class__wake__up.html#ga11866ec0935bee3fba386bc3ed28e0b6" title="Initializes the Wake Up Command Class handler." alt="" coords="264,678,427,719"/>
+<area shape="rect" id="node40" href="$zwave__s2__process_8c.html#a51f51bd8129a84a685510bf2aaa812a9" title=" " alt="" coords="766,795,871,821"/>
+<area shape="rect" id="node41" href="$zwave__s2__process_8c.html#afac04df3afbbd6765ef8bc3841257d47" title=" " alt="" coords="500,795,651,821"/>
+<area shape="rect" id="node43" href="$zwave__command__class__security__0_8c.html#a5cf6b9b12b9423c27a470a35d57d1a8c" title=" " alt="" coords="990,329,1153,385"/>
+<area shape="rect" id="node46" href="$group__zwave__tx__scheme__selector.html#ga6128c675d7c258737616e44ef823516d" title="Computes how long of a frame can be sent to a given NodeID / Endpoint when queuing a frame at the app..." alt="" coords="984,410,1159,451"/>
+<area shape="rect" id="node44" href="$group__security__0__command__class.html#gaf1dd75d7ea7af6746142a01c7f9aed2e" title=" " alt="" coords="737,329,900,385"/>
+<area shape="rect" id="node45" href="$group__security__0__command__class.html#ga7460f029f90a343242e45c6233e1cdc2" title="Intitialize the Security 0 Command Class handler." alt="" coords="264,337,427,378"/>
+<area shape="rect" id="node47" href="$group__zwave__command__class__firmware__update__internals.html#ga1073e79c7ee689cf7b15f15075f3e5d4" title="Gets the theoretical max fragment size with a node/endpoint." alt="" coords="713,410,924,451"/>
+</map>

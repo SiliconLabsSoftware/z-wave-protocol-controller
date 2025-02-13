@@ -1,0 +1,4 @@
+<map id="zwave_s0_set_network_callbacks" name="zwave_s0_set_network_callbacks">
+<area shape="rect" id="node1" title="Set callback function for the S0 inclusion. This function ptr is saved internally in s0." alt="" coords="5,5,164,47"/>
+<area shape="rect" id="node2" href="$group__zwave__s0__inclusion__state__machine.html#gaeaf5d8d5af75e0b10cf0e6dd2ecba1c1" title="Set callback function for the S0 bootstrap. This callback function is copied internally into S0 and c..." alt="" coords="212,13,328,39"/>
+</map>

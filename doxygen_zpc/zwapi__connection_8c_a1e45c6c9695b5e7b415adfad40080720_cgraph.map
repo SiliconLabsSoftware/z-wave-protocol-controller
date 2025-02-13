@@ -1,0 +1,13 @@
+<map id="zwapi_connection_refresh" name="zwapi_connection_refresh">
+<area shape="rect" id="node1" title="Parses serial data sent from the Z&#45;Wave module to the serial port. Should be frequently called by mai..." alt="" coords="5,187,179,214"/>
+<area shape="rect" id="node2" href="$zwapi__timestamp_8c.html#a3925f2732e344672608db38351236688" title="compare the current timestamp with the timestamp passed as an argument" alt="" coords="231,5,373,47"/>
+<area shape="rect" id="node3" href="$zwapi__serial_8c.html#a3f2b3bd848e9fe0e6e137482bed06b46" title="Flush the serial output if using buffered output." alt="" coords="237,71,367,112"/>
+<area shape="rect" id="node4" href="$zwapi__serial_8c.html#a538134f9fdbb1ce052667b3a041357bd" title="Reads the output of the serial port device and stores the content in a buffer." alt="" coords="425,186,584,213"/>
+<area shape="rect" id="node7" href="$zwapi__serial_8c.html#abb082b1e7e727203e3ca5fbeb41f7c2b" title="Reads a byte from the serial port device." alt="" coords="227,137,377,163"/>
+<area shape="rect" id="node8" href="$zwapi__serial_8c.html#a9a952dc2b34d92960246f6dc4e7d58f7" title="Check the file descriptor for the serial device is available for I/O operations." alt="" coords="235,289,369,331"/>
+<area shape="rect" id="node9" href="$zwapi__serial_8c.html#a7762d0358e9f398b92edbfd6a550984a" title="Write a byte to serial port device." alt="" coords="227,238,377,265"/>
+<area shape="rect" id="node11" href="$zwapi__timestamp_8c.html#a6ebe1ddfe689bce6ee72fc12f708aece" title="get the timestamp" alt="" coords="227,355,377,382"/>
+<area shape="rect" id="node5" href="$zwapi__serial_8c.html#a0accbbf7ddb7aeab10f5df1fe3df6642" title=" " alt="" coords="632,183,819,210"/>
+<area shape="rect" id="node6" href="$zwapi__serial_8c.html#abf18afb71e14daaf65d937149ef1639f" title="Test if a is less than b + ms." alt="" coords="654,235,797,276"/>
+<area shape="rect" id="node10" href="$zwapi__serial_8c.html#af9054824651df422bab5076d16a80fda" title="Writes the content of a buffer to the serial port device." alt="" coords="425,238,584,265"/>
+</map>

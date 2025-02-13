@@ -1,0 +1,6 @@
+<map id="zwave_command_class_sound_switch_handle_configuration_report" name="zwave_command_class_sound_switch_handle_configuration_report">
+<area shape="rect" id="node1" title=" " alt="" coords="675,5,837,61"/>
+<area shape="rect" id="node2" href="$zwave__command__class__sound__switch_8c.html#ad5bba910e2066d06761ef6892281ab06" title=" " alt="" coords="464,5,627,61"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__sound__switch.html#ga9288036273fc366b060a837b94bc0ad4" title=" " alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

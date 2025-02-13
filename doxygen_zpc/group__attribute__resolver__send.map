@@ -1,0 +1,4 @@
+<map id="ZPC Attribute Resolver send" name="ZPC Attribute Resolver send">
+<area shape="rect" id="node1" title="Send frames when instructed by the attribute_resolver." alt="" coords="211,13,400,38"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__resolver__internals.html" title="Internal functions for the ZPC Attribute Resolver." alt="" coords="5,5,163,45"/>
+</map>

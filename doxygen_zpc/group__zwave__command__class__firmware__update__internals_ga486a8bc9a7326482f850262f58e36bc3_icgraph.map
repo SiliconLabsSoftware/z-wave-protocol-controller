@@ -1,0 +1,4 @@
+<map id="set_transfer_offset" name="set_transfer_offset">
+<area shape="rect" id="node1" title="Sets the current offset for a Firmware Transfer." alt="" coords="228,20,359,47"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__firmware__update.html#gad39d3d19db09770af92857ed735d0e18" title="Attempts to start a Firmware Update procedure for a node." alt="" coords="5,5,180,61"/>
+</map>

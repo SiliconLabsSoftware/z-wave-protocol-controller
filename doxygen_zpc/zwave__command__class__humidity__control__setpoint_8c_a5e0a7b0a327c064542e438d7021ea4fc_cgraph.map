@@ -1,0 +1,6 @@
+<map id="zwave_command_class_humidity_control_setpoint_set" name="zwave_command_class_humidity_control_setpoint_set">
+<area shape="rect" id="node1" title=" " alt="" coords="5,35,208,76"/>
+<area shape="rect" id="node2" href="$zwave__command__class__humidity__control__setpoint_8c.html#af2f354d9414e81ab49257fd59a1704e5" title="Check if current value can be set (in bounds of value_min and value_max)" alt="" coords="279,5,427,47"/>
+<area shape="rect" id="node4" href="$zwave__command__class__humidity__control__setpoint_8c.html#a43f0100125a206f1739b87e90f028764" title=" " alt="" coords="256,71,451,98"/>
+<area shape="rect" id="node3" href="$zwave__command__class__humidity__control__setpoint_8c.html#a5ccf3422e402339de56cefc742a1d4a6" title="Get setpoint real value from raw value and precision." alt="" coords="499,13,629,39"/>
+</map>

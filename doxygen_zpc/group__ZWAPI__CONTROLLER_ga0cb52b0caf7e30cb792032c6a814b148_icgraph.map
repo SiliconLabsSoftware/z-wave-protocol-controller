@@ -1,0 +1,10 @@
+<map id="zwapi_add_node_to_network" name="zwapi_add_node_to_network">
+<area shape="rect" id="node1" title="Add any type of node to the network." alt="" coords="709,59,900,85"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management__helpers.html#ga33c5212b833d99b82766f4809585537a" title="Makes sure that the Z&#45;Wave API is not performing any network management operation." alt="" coords="488,81,661,122"/>
+<area shape="rect" id="node3" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="274,29,414,56"/>
+<area shape="rect" id="node5" href="$nm__state__machine_8c.html#a4bedb93fa551c5f612efe78db1642309" title="Initialize the Z&#45;Wave network management state machine." alt="" coords="266,88,422,115"/>
+<area shape="rect" id="node7" href="$nm__state__machine_8c.html#a9cb14e1fc617e0d15c24e08f2474ec5b" title="Teardown the Z&#45;Wave network management state machine Resets network_mgmt_state_t nms Sets the Network..." alt="" coords="248,145,440,172"/>
+<area shape="rect" id="node4" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="27,29,178,56"/>
+<area shape="rect" id="node6" href="$group__zwave__network__management__fixt.html#gaa8950dbf92037e3ec5e0385641176c98" title="Initialize the Z&#45;Wave Network Management Module." alt="" coords="5,81,200,122"/>
+<area shape="rect" id="node8" href="$group__zwave__network__management__fixt.html#gae63db6a62bbb5734f7291465bd18a047" title="Take down fixture for Z&#45;Wave network Management." alt="" coords="5,146,200,187"/>
+</map>

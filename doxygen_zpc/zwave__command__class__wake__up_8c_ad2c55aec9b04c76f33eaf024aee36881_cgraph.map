@@ -1,0 +1,14 @@
+<map id="on_version_attribute_update" name="on_version_attribute_update">
+<area shape="rect" id="node1" title=" " alt="" coords="5,185,144,227"/>
+<area shape="rect" id="node2" href="$zwave__command__class__wake__up_8c.html#ab1683172e412f4f4b4f3090e6e2ac2b8" title="Check if we need and send a Wake Up No more command to a node and puts it in the Tx Queue." alt="" coords="192,193,359,219"/>
+<area shape="rect" id="node3" href="$zwave__command__class__wake__up_8c.html#acc185d175a4ebc31e69cd02437d885dd" title="Verifies if we are the Wake Up destination of a NodeID." alt="" coords="430,5,578,47"/>
+<area shape="rect" id="node5" href="$group__zwave__network__management.html#ga38921e3a42a10fc5135615b50f0573cd" title="Checks if the protocol may be sending some frames to a particular NodeID." alt="" coords="407,71,601,127"/>
+<area shape="rect" id="node7" href="$group__zwave__tx.html#gabb799c67f2008618877071e96e2fca77" title="Verifies if we have frames in the queue to send to a NodeID." alt="" coords="427,152,581,193"/>
+<area shape="rect" id="node8" href="$group__zwave__tx__scheme__selector.html#ga2c884bc863b6f63eac2a074fdde828d8" title="Return a connection info parameters for sending a Z&#45;Wave frame." alt="" coords="426,217,582,259"/>
+<area shape="rect" id="node11" href="$group__zwave__tx__scheme__selector.html#ga8f8d4442ddf4c165d5a79b9a25d6420d" title="Define a Z&#45;Wave frame transmission options." alt="" coords="426,283,582,324"/>
+<area shape="rect" id="node12" href="$group__zwave__tx.html#gad1538f36d226fe8147c5e538625568df" title="Queue and send frames to Z&#45;Wave nodes." alt="" coords="431,349,577,375"/>
+<area shape="rect" id="node4" href="$group__zwave__network__management.html#gae265f1e935804f3f0b971755ab0ee61e" title="Get the cached NodeID." alt="" coords="649,5,844,47"/>
+<area shape="rect" id="node6" href="$group__zwave__network__management.html#ga90aba971e0bdba90096c533bcd803dc4" title="Checks if we have return routes to assign for a given NodeID." alt="" coords="668,79,825,120"/>
+<area shape="rect" id="node9" href="$group__zwave__controller__keyset.html#ga43a73c5ae7dc860fa2e5edb9814c432f" title="Get the hight encapsulation supported by a given key set." alt="" coords="667,185,826,227"/>
+<area shape="rect" id="node10" href="$group__zwave__controller__storage.html#ga771d01deff646dfda3f8406d6fbf5736" title="Return the granted keys for a node." alt="" coords="661,251,832,292"/>
+</map>

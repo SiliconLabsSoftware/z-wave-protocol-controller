@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="696px" preserveAspectRatio="none" style="width:1815px;height:696px;background:#FFFFFF;" version="1.1" viewBox="0 0 1815 696" width="1815px" zoomAndPan="magnify"><defs><filter height="300%" id="frhqyjntuopv4" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacing" textLength="189" x="806.5" y="19.2419">User Code data model</text><rect fill="#DDDDDD" height="29.0679" rx="5" ry="5" style="stroke:#000000;stroke-width:1.0;" width="458" x="671.5" y="32.5158"/><text fill="#FEFEFE" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="111" x="677.5" y="52.4818">ATTRIBUTE(type)</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="331" x="792.5" y="52.4818">: ATTRIBUTE_COMMAND_CLASS_USER_CODE_type</text><!--MD5=[ea3d5de2a0d35296bc751d5a1b771698]
+cluster Attribute Store--><path d="M6,86.5838 C6,76.5838 907,76.5838 907,76.5838 C907,76.5838 1808,76.5838 1808,86.5838 L1808,679.5838 C1808,689.5838 907,689.5838 907,689.5838 C907,689.5838 6,689.5838 6,679.5838 L6,86.5838 " fill="#FFFFFF" filter="url(#frhqyjntuopv4)" style="stroke:#000000;stroke-width:1.5;"/><path d="M6,86.5838 C6,96.5838 907,96.5838 907,96.5838 C907,96.5838 1808,96.5838 1808,86.5838 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="105" x="854.5" y="113.5497">Attribute Store</text><!--MD5=[accabb02f816287b199a63b424d9a2c6]
+cluster For each User ID --><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="110" style="stroke:#000000;stroke-width:1.5;" width="493" x="33" y="555.5838"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="114" x="220.5" y="572.5497">For each User ID</text><rect fill="#F2FFE6" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="193" x="732.5" y="129.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="43" x="807.5" y="144.4119">NodeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="733.5" x2="924.5" y1="149.9279" y2="149.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="181" x="738.5" y="164.6179">Attribute Type = ATTRIBUTE_NODE_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="738.5" y="178.2379">value = Desired: [], Reported: [03]</text><rect fill="#E6FFF7" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="216" x="721" y="245.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="101" x="778.5" y="260.4119">Endpoint Attribute</text><line style="stroke:#000000;stroke-width:1.5;" x1="722" x2="936" y1="265.9279" y2="265.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="204" x="727" y="280.6179">Attribute Type = ATTRIBUTE_ENDPOINT_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="727" y="294.2379">value = Desired: [] - Reported: [04]</text><rect fill="#FEFEFE" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="194" x="622" y="361.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="42" x="698" y="376.4119">Version</text><line style="stroke:#000000;stroke-width:1.5;" x1="623" x2="815" y1="381.9279" y2="381.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="182" x="628" y="396.6179">Attribute Type = ATTRIBUTE(VERSION)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="158" x="628" y="410.2379">value = Desired: [] - Reported: [4]</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="177" x="851.5" y="361.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="89" x="895.5" y="376.4119">User Code Data</text><line style="stroke:#000000;stroke-width:1.5;" x1="852.5" x2="1027.5" y1="381.9279" y2="381.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="165" x="857.5" y="396.6179">Attribute Type = ATTRIBUTE(DATA)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="152" x="857.5" y="410.2379">value = Desired: [] - Reported: []</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="245" x="22.5" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="96" x="97" y="492.4119">Number of Users</text><line style="stroke:#000000;stroke-width:1.5;" x1="23.5" x2="266.5" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="233" x="28.5" y="512.6179">Attribute Type = ATTRIBUTE(NUMBER_OF_USERS)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="28.5" y="526.2379">value = Desired: [] - Reported: [32]</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="269" x="302.5" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="152" x="361" y="492.4119">Delete All Codes requested</text><line style="stroke:#000000;stroke-width:1.5;" x1="303.5" x2="570.5" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="257" x="308.5" y="512.6179">Attribute Type = ATTRIBUTE(DELETE_ALL_REQUESTED)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="152" x="308.5" y="526.2379">value = Desired: [] - Reported: []</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="190" x="607" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="43" x="680.5" y="492.4119">User ID</text><line style="stroke:#000000;stroke-width:1.5;" x1="608" x2="796" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="178" x="613" y="512.6179">Attribute Type = ATTRIBUTE(USER_ID)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="158" x="613" y="526.2379">value = Desired: [] - Reported: [1]</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="216" x="832" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="68" x="906" y="492.4119">Admin Code</text><line style="stroke:#000000;stroke-width:1.5;" x1="833" x2="1047" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="204" x="838" y="512.6179">Attribute Type = ATTRIBUTE(ADMIN_CODE)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="184" x="838" y="526.2379">value = Desired: [] - Reported: ["1234"]</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="211" x="1083.5" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="65" x="1156.5" y="492.4119">Capabilities</text><line style="stroke:#000000;stroke-width:1.5;" x1="1084.5" x2="1293.5" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="199" x="1089.5" y="512.6179">Attribute Type = ATTRIBUTE(CAPABILITES)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="152" x="1089.5" y="526.2379">value = Desired: [] - Reported: []</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="241" x="545.5" y="593.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="90" x="621" y="608.4119">Supported Flags</text><line style="stroke:#000000;stroke-width:1.5;" x1="546.5" x2="785.5" y1="613.9279" y2="613.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="229" x="551.5" y="628.6179">Attribute Type = ATTRIBUTE(SUPPORTED_FLAGS)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="551.5" y="642.2379">value = Desired: [] - Reported: [59]</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="290" x="822" y="593.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="142" x="896" y="608.4119">Supported User ID Status</text><line style="stroke:#000000;stroke-width:1.5;" x1="823" x2="1111" y1="613.9279" y2="613.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="278" x="828" y="628.6179">Attribute Type = ATTRIBUTE(SUPPORTED_USER_ID_STATUS)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="828" y="642.2379">value = Desired: [] - Reported: [03]</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="289" x="1147.5" y="593.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="143" x="1220.5" y="608.4119">Supported Keypad Modes</text><line style="stroke:#000000;stroke-width:1.5;" x1="1148.5" x2="1435.5" y1="613.9279" y2="613.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="277" x="1153.5" y="628.6179">Attribute Type = ATTRIBUTE(SUPPORTED_KEYPAD_MODES)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="1153.5" y="642.2379">value = Desired: [] - Reported: [03]</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="320" x="1472" y="593.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="87" x="1588.5" y="608.4119">Supported Keys</text><line style="stroke:#000000;stroke-width:1.5;" x1="1473" x2="1791" y1="613.9279" y2="613.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="224" x="1478" y="628.6179">Attribute Type = ATTRIBUTE(SUPPORTED_KEYS)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="308" x="1478" y="642.2379">value = Desired: [] - Reported: [00,00,00,00,00,00,ff,03,fe,ff,ff,07]</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="204" x="1330" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="58" x="1403" y="492.4119">Checksum</text><line style="stroke:#000000;stroke-width:1.5;" x1="1331" x2="1533" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="192" x="1336" y="512.6179">Attribute Type = ATTRIBUTE(CHECKSUM)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="182" x="1336" y="526.2379">value = Desired: [] - Reported: [32498]</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="223" x="1569.5" y="477.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="76" x="1643" y="492.4119">Keypad Mode</text><line style="stroke:#000000;stroke-width:1.5;" x1="1570.5" x2="1791.5" y1="497.9279" y2="497.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="211" x="1575.5" y="512.6179">Attribute Type = ATTRIBUTE(KEYPAD_MODE)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="164" x="1575.5" y="526.2379">value = Desired: [2] - Reported: [1]</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="196" x="314" y="593.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="59" x="382.5" y="608.4119">User Code</text><line style="stroke:#000000;stroke-width:1.5;" x1="315" x2="509" y1="613.9279" y2="613.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="178" x="320" y="628.6179">Attribute Type = ATTRIBUTE(USER_ID)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="184" x="320" y="642.2379">value = Desired: [] - Reported: ["1234"]</text><rect fill="#FFFFFF" filter="url(#frhqyjntuopv4)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="229" x="49.5" y="593.5838"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="81" x="123.5" y="608.4119">User ID Status</text><line style="stroke:#000000;stroke-width:1.5;" x1="50.5" x2="277.5" y1="613.9279" y2="613.9279"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="217" x="55.5" y="628.6179">Attribute Type = ATTRIBUTE(USER_ID_STATUS)</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="158" x="55.5" y="642.2379">value = Desired: [] - Reported: [1]</text><!--MD5=[95477c314ce472250aabd32546a8a81f]
+reverse link node to endpoint--><path codeLine="2037" d="M829,199.0638 C829,214.4138 829,231.5238 829,245.3638 " fill="none" id="node-backto-endpoint" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="829,185.6038,825,191.6038,829,197.6038,833,191.6038,829,185.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[c4a4e185f2beba9fb9ec0dd52638d41f]
+reverse link endpoint to version--><path codeLine="2038" d="M793.53,311.3438 C777.84,327.6038 759.71,346.3938 745.26,361.3638 " fill="none" id="endpoint-backto-version" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="802.93,301.6038,795.8853,303.1441,794.5977,310.2393,801.6424,308.699,802.93,301.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[5035b3ac35bee024fc7742abcfa89010]
+reverse link endpoint to user_code_data--><path codeLine="2039" d="M864.79,311.3438 C880.62,327.6038 898.92,346.3938 913.5,361.3638 " fill="none" id="endpoint-backto-user_code_data" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="855.31,301.6038,856.6251,308.6939,863.6757,310.207,862.3606,303.1168,855.31,301.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[fd5d73b40c9ca15e5d96369efc79b361]
+reverse link user_code_data to number_of_codes--><path codeLine="2040" d="M838.57,416.7338 C837.04,417.0238 835.51,417.3138 834,417.5838 C592.47,461.3138 527.71,440.9838 285,477.5838 C279.37,478.4338 273.62,479.3438 267.82,480.3038 " fill="none" id="user_code_data-backto-number_of_codes" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="851.42,414.1238,844.7444,411.3968,839.6597,416.5101,846.3353,419.237,851.42,414.1238" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[4e8c0c26f202dcdda7b2898598d4cbd3]
+reverse link user_code_data to delete_all--><path codeLine="2041" d="M838.52,416.5038 C837.01,416.8738 835.5,417.2338 834,417.5838 C744.57,438.7638 643.37,460.9138 565.53,477.5638 " fill="none" id="user_code_data-backto-delete_all" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="851.27,413.4138,844.4979,410.936,839.6062,416.2342,846.3782,418.7119,851.27,413.4138" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[8f20ba6f98ff792038d524fbb59f8287]
+reverse link user_code_data to user_id--><path codeLine="2042" d="M871.74,423.2838 C835.85,440.4738 792.37,461.2938 758.41,477.5638 " fill="none" id="user_code_data-backto-user_id" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="883.6,417.6038,876.461,416.5864,872.7762,422.785,879.9152,423.8023,883.6,417.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[7d65304bf5a89dddfb022e742126e4b1]
+reverse link user_id to user_code--><path codeLine="2044" d="M593.95,532.5238 C592.29,532.8838 590.64,533.2338 589,533.5838 C555.83,540.6338 545.19,534.2938 514,547.5838 C487.76,558.7638 461.66,577.6238 442.44,593.3638 " fill="none" id="user_id-backto-user_code" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="606.82,529.6838,600.0989,527.071,595.102,532.2702,601.8232,534.8829,606.82,529.6838" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[745605a6439525706235442b29150ebe]
+reverse link user_id to user_id_status--><path codeLine="2045" d="M594,532.8438 C592.32,533.1038 590.66,533.3438 589,533.5838 C524.68,542.7238 359.52,529.9438 297,547.5838 C262.78,557.2338 227.66,577.0138 202.11,593.5438 " fill="none" id="user_id-backto-user_id_status" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="606.99,530.6238,600.4029,527.6896,595.1608,532.6414,601.748,535.5757,606.99,530.6238" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[a56b09ba7e28aa85ade403cafd44f141]
+reverse link user_code_data to admin_code--><path codeLine="2047" d="M940,431.0638 C940,446.4138 940,463.5238 940,477.3638 " fill="none" id="user_code_data-backto-admin_code" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="940,417.6038,936,423.6038,940,429.6038,944,423.6038,940,417.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[b0d550cb8b81f8a2f18157b874c9f6c2]
+reverse link user_code_data to keypad_mode--><path codeLine="2048" d="M1041.66,402.9738 C1163.35,418.2838 1373.14,446.1838 1552,477.5838 C1557.63,478.5738 1563.4,479.6238 1569.21,480.7238 " fill="none" id="user_code_data-backto-keypad_mode" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1028.71,401.3538,1034.1669,406.0678,1040.6171,402.8438,1035.1602,398.1297,1028.71,401.3538" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[0b5a8021aaeac7ecd1ac2e637c82ebdb]
+reverse link user_code_data to checksum--><path codeLine="2049" d="M1041.23,414.0338 C1125.55,433.5738 1245.11,461.2838 1329.73,480.8838 " fill="none" id="user_code_data-backto-checksum" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1028.53,411.0938,1033.4752,416.3421,1040.2218,413.7959,1035.2766,408.5476,1028.53,411.0938" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[9ab89f9115eecfd57e1860698ae41671]
+reverse link user_code_data to capabilities--><path codeLine="2050" d="M1010.93,423.0538 C1048.57,440.2938 1094.3,461.2238 1129.98,477.5638 " fill="none" id="user_code_data-backto-capabilities" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="999.01,417.6038,1002.807,423.7343,1009.9263,422.5873,1006.1293,416.4568,999.01,417.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[c078548f7ab28541388837a6df552d44]
+reverse link capabilities to supported_flags--><path codeLine="2052" d="M1070.25,532.9838 C1068.82,533.1938 1067.41,533.3938 1066,533.5838 C950.89,549.2038 917,516.7538 805,547.5838 C769.65,557.3138 733.08,576.9738 706.32,593.4338 " fill="none" id="capabilities-backto-supported_flags" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1083.19,530.9538,1076.6427,527.9318,1071.3349,532.8131,1077.8823,535.8351,1083.19,530.9538" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[0d64647bc426e0dfbdeea44d17be4373]
+reverse link capabilities to supported_user_id_status--><path codeLine="2053" d="M1124.45,539.7338 C1091.14,556.8338 1051.02,577.4338 1019.62,593.5638 " fill="none" id="capabilities-backto-supported_user_id_status" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1136.39,533.6038,1129.2257,532.7833,1125.7129,539.0809,1132.8772,539.9014,1136.39,533.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[9d94ac660c064efff7548ed3b09f4ff0]
+reverse link capabilities to supported_keypad_modes--><path codeLine="2054" d="M1222.21,543.3438 C1236.9,559.6038 1253.88,578.3938 1267.41,593.3638 " fill="none" id="capabilities-backto-supported_keypad_modes" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1213.41,533.6038,1214.4652,540.7372,1221.4558,542.5069,1220.4006,535.3734,1213.41,533.6038" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[3a6e1dbdfcf5fd984c2362df4e856278]
+reverse link capabilities to supported_keys--><path codeLine="2055" d="M1307.63,532.7138 C1309.43,533.0138 1311.22,533.3038 1313,533.5838 C1375.2,543.4138 1392.89,532.3638 1454,547.5838 C1496.94,558.2838 1543.12,577.4538 1577.67,593.4738 " fill="none" id="capabilities-backto-supported_keys" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1294.71,530.4538,1299.9296,535.4293,1306.5299,532.5249,1301.3103,527.5494,1294.71,530.4538" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[08fabc7445426edcdd831085d171d3fa]
+@startuml attribute_store_user_code_command_class.svg
+title User Code data model
+allow_mixing
+skinparam objectBorderColor black
+skinparam NoteBackgroundColor #fffae3
+skinparam NoteBorderColor red
+
+legend top
+<font color=#FEFEFE>ATTRIBUTE(type)</font> : ATTRIBUTE_COMMAND_CLASS_USER_CODE_type
+endlegend
+
+package "Attribute Store" <<Database>> {
+  object "NodeID" as node #f2ffe6
+  node : Attribute Type = ATTRIBUTE_NODE_ID
+  node : value = Desired: [], Reported: [03]
+
+  object "Endpoint Attribute" as endpoint #e6fff7
+  endpoint : Attribute Type = ATTRIBUTE_ENDPOINT_ID
+  endpoint : value = Desired: [] - Reported: [04]
+
+  object "Version" as version #FEFEFE
+  version : Attribute Type = ATTRIBUTE(VERSION)
+  version : value = Desired: [] - Reported: [4]
+
+  object "User Code Data" as user_code_data #FFFFFF
+  user_code_data : Attribute Type = ATTRIBUTE(DATA)
+  user_code_data : value = Desired: [] - Reported: []
+
+  Object "Number of Users" as number_of_codes #FFFFFF
+  number_of_codes : Attribute Type = ATTRIBUTE(NUMBER_OF_USERS)
+  number_of_codes : value = Desired: [] - Reported: [32]
+
+  Object "Delete All Codes requested" as delete_all #FFFFFF
+  delete_all : Attribute Type = ATTRIBUTE(DELETE_ALL_REQUESTED)
+  delete_all : value = Desired: [] - Reported: []
+
+  Object "User ID" as user_id #FFFFFF
+  user_id : Attribute Type = ATTRIBUTE(USER_ID)
+  user_id : value = Desired: [] - Reported: [1]
+
+  package "For each User ID " <<Rectangle>> {
+    Object "User Code" as user_code #FFFFFF
+    user_code : Attribute Type = ATTRIBUTE(USER_ID)
+    user_code : value = Desired: [] - Reported: ["1234"]
+
+    Object "User ID Status" as user_id_status #FFFFFF
+    user_id_status : Attribute Type = ATTRIBUTE(USER_ID_STATUS)
+    user_id_status : value = Desired: [] - Reported: [1]
+  }
+
+  Object "Admin Code" as admin_code #FFFFFF
+  admin_code : Attribute Type = ATTRIBUTE(ADMIN_CODE)
+  admin_code : value = Desired: [] - Reported: ["1234"]
+
+  Object "Capabilities" as capabilities #FFFFFF
+  capabilities : Attribute Type = ATTRIBUTE(CAPABILITES)
+  capabilities : value = Desired: [] - Reported: []
+
+  Object "Supported Flags" as supported_flags #FFFFFF
+  supported_flags : Attribute Type = ATTRIBUTE(SUPPORTED_FLAGS)
+  supported_flags : value = Desired: [] - Reported: [59]
+
+  Object "Supported User ID Status" as supported_user_id_status #FFFFFF
+  supported_user_id_status : Attribute Type = ATTRIBUTE(SUPPORTED_USER_ID_STATUS)
+  supported_user_id_status : value = Desired: [] - Reported: [03]
+
+  Object "Supported Keypad Modes" as supported_keypad_modes #FFFFFF
+  supported_keypad_modes : Attribute Type = ATTRIBUTE(SUPPORTED_KEYPAD_MODES)
+  supported_keypad_modes : value = Desired: [] - Reported: [03]
+
+  Object "Supported Keys" as supported_keys #FFFFFF
+  supported_keys : Attribute Type = ATTRIBUTE(SUPPORTED_KEYS)
+  supported_keys : value = Desired: [] - Reported: [00,00,00,00,00,00,ff,03,fe,ff,ff,07]
+
+  Object "Checksum" as checksum #FFFFFF
+  checksum : Attribute Type = ATTRIBUTE(CHECKSUM)
+  checksum : value = Desired: [] - Reported: [32498]
+
+  Object "Keypad Mode" as keypad_mode #FFFFFF
+  keypad_mode : Attribute Type = ATTRIBUTE(KEYPAD_MODE)
+  keypad_mode : value = Desired: [2] - Reported: [1]
+}
+
+node *- - endpoint
+endpoint *- - version
+endpoint *- - user_code_data
+user_code_data *- - number_of_codes
+user_code_data *- - delete_all
+user_code_data *- - user_id
+
+user_id *- - user_code
+user_id *- - user_id_status
+
+user_code_data *- - admin_code
+user_code_data *- - keypad_mode
+user_code_data *- - checksum
+user_code_data *- - capabilities
+
+capabilities *- - supported_flags
+capabilities *- - supported_user_id_status
+capabilities *- - supported_keypad_modes
+capabilities *- - supported_keys
+@enduml
+
+PlantUML version 1.2022.0(Tue Jan 11 17:16:42 CET 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

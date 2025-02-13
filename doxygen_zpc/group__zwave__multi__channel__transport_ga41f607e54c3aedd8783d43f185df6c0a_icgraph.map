@@ -1,0 +1,4 @@
+<map id="zwave_multi_channel_transport_init" name="zwave_multi_channel_transport_init">
+<area shape="rect" id="node1" title="Initialize the Multi Channel Transport *." alt="" coords="203,5,349,47"/>
+<area shape="rect" id="node2" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="5,13,155,39"/>
+</map>

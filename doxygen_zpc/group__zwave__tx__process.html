@@ -93,6 +93,12 @@ $(document).ready(function(){initNavTree('group__zwave__tx__process.html',''); i
 
 <p>Z-Wave TX process taking care of the TX Queue and interfaces with the <a class="el" href="group__zwave__api.html">Z-Wave API</a>.  
 <a href="#details">More...</a></p>
+<div class="dynheader">
+Collaboration diagram for Z-Wave TX Process:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__zwave__tx__process.svg" width="287" height="36"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -154,6 +160,9 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p >Z-Wave TX process taking care of the TX Queue and interfaces with the <a class="el" href="group__zwave__api.html">Z-Wave API</a>. </p>
 <p >The Z-Wave TX Process is responsible for looking into the <a class="el" href="group__zwave__tx__queue.html">Z-Wave TX queue</a> and perform transmission requests, monitor callbacks with the <a class="el" href="group__zwave__api.html">Z-Wave API</a>. This process requires the <a class="el" href="group__zwave__api.html">Z-Wave API</a> to be initialized before it will work properly. The TX Process is a small state machine consisting of 3 states, depicted in the following diagram:</p>
+<div class="plantumlgraph">
+<object type="image/svg+xml" data="inline_umlgraph_17.svg"></object>
+</div>
 <p >The <a class="el" href="group__zwave__tx__process.html">Z-Wave TX Process</a> must be started after the <a class="el" href="group__zwave__rx__process.html">Z-Wave RX process</a> </p>
 <h2 class="groupheader">Typedef Documentation</h2>
 <a id="gaf23d19e8b58de89df0b17367f24efd55" name="gaf23d19e8b58de89df0b17367f24efd55"></a>
@@ -466,7 +475,7 @@ Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Feb 11 2025 14:33:50 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
+    <li class="footer">Generated on Thu Feb 13 2025 10:45:32 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
   </ul>
 </div>
 </body>

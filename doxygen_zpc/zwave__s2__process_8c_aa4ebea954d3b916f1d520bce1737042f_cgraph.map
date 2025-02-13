@@ -1,0 +1,4 @@
+<map id="zwave_s2_on_network_address_update" name="zwave_s2_on_network_address_update">
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,160,47"/>
+<area shape="rect" id="node2" href="$group__zwave__s2__network.html#ga665f4be0faa0cefccab962f5c01768a0" title="Update the homeID for the S2 engine." alt="" coords="208,13,392,39"/>
+</map>

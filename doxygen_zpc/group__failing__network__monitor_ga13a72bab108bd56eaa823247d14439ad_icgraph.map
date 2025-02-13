@@ -1,0 +1,4 @@
+<map id="failing_node_monitor_init" name="failing_node_monitor_init">
+<area shape="rect" id="node1" title="Initializes the failing node monitoring by registering callbacks to the attribute store." alt="" coords="236,5,401,32"/>
+<area shape="rect" id="node2" href="$network__monitor__fixt_8c.html#adb7a01a50efbf2c6b43abdcf1aefda49" title="Setup fixture for the network monitor." alt="" coords="5,5,188,32"/>
+</map>

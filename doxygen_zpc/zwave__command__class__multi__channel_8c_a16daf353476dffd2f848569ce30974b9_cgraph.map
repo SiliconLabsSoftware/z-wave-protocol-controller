@@ -1,0 +1,5 @@
+<map id="create_aggregated_endpoints" name="create_aggregated_endpoints">
+<area shape="rect" id="node1" title="Creates aggregated endpoints for a Z&#45;Wave Node." alt="" coords="5,31,197,57"/>
+<area shape="rect" id="node2" href="$zwave__command__class__multi__channel_8c.html#a2d182b7aae379e1581d3df4b0981489e" title="Creates a new endpoint in the attribute store." alt="" coords="252,5,397,32"/>
+<area shape="rect" id="node3" href="$group__multi__channel__command__class.html#ga0d968501f62f2aad4faf3be6e3d7601a" title="Checks if an endpoints is aggregated." alt="" coords="245,56,404,83"/>
+</map>

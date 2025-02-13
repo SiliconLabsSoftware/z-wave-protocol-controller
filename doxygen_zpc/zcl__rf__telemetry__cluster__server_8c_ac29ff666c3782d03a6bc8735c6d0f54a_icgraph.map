@@ -1,0 +1,4 @@
+<map id="on_rf_telemetry_pti_enabled_desired_update" name="on_rf_telemetry_pti_enabled_desired_update">
+<area shape="rect" id="node1" title=" " alt="" coords="215,5,384,47"/>
+<area shape="rect" id="node2" href="$group__zcl__rf__telemetry__cluster__server.html#ga5a27d7313f0a22b85af05134a114a799" title="Initialize the ZCL ProtocolController RF Telemetry cluster service." alt="" coords="5,5,167,47"/>
+</map>

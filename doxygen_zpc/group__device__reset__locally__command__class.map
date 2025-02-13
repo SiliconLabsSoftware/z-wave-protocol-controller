@@ -1,0 +1,4 @@
+<map id="Device Reset Locally Command Class" name="Device Reset Locally Command Class">
+<area shape="rect" id="node1" href="$group__command__classes.html" title="List of supported and controlled Z&#45;Wave Command Classes." alt="" coords="5,13,188,38"/>
+<area shape="rect" id="node2" title="Device Reset Locally Command Class handlers and init functions." alt="" coords="236,5,383,45"/>
+</map>

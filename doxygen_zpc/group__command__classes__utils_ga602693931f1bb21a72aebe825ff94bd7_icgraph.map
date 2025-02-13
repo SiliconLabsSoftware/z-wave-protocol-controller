@@ -1,0 +1,11 @@
+<map id="get_reports_to_follow" name="get_reports_to_follow">
+<area shape="rect" id="node1" title="Gets the number of Reports to Follow for a node." alt="" coords="888,100,1035,127"/>
+<area shape="rect" id="node2" href="$zwave__command__class__configuration__control_8c.html#a1b9bd71581a2b43662357bf5ba5db309" title="Handle incoming Configuration Info Report Commands." alt="" coords="676,5,839,61"/>
+<area shape="rect" id="node6" href="$zwave__command__class__configuration__control_8c.html#af79edd8997b1b51917ac3b53b9d2c0cb" title="Handle incoming Configuration Name Report Commands." alt="" coords="675,85,840,141"/>
+<area shape="rect" id="node7" href="$zwave__command__class__security__0_8c.html#a5cf6b9b12b9423c27a470a35d57d1a8c" title=" " alt="" coords="676,165,839,221"/>
+<area shape="rect" id="node3" href="$zwave__command__class__configuration__control_8c.html#a47d754a17f1ac5b2d479005308d7084f" title="Dispatches incoming Configuration Commands to individual command handlers." alt="" coords="464,85,627,141"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__configuration.html#gacc11ad9afa837acce0d1aada6408e1ce" title="This function initialize the Configuration Command Class handler." alt="" coords="253,97,416,138"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,141,205,168"/>
+<area shape="rect" id="node8" href="$group__security__0__command__class.html#gaf1dd75d7ea7af6746142a01c7f9aed2e" title=" " alt="" coords="464,165,627,221"/>
+<area shape="rect" id="node9" href="$group__security__0__command__class.html#ga7460f029f90a343242e45c6233e1cdc2" title="Intitialize the Security 0 Command Class handler." alt="" coords="253,166,416,207"/>
+</map>

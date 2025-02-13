@@ -1,0 +1,4 @@
+<map id="Network Monitor SmartStart list." name="Network Monitor SmartStart list.">
+<area shape="rect" id="node1" href="$group__network__monitor.html" title="The Network State Monitor." alt="" coords="5,13,124,38"/>
+<area shape="rect" id="node2" title="Monitors network events and updates the SmartStart list accordingly." alt="" coords="172,5,357,45"/>
+</map>

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="751px" preserveAspectRatio="none" style="width:1152px;height:751px;background:#FFFFFF;" version="1.1" viewBox="0 0 1152 751" width="1152px" zoomAndPan="magnify"><defs/><g><rect fill="#FFFFFF" height="63.4746" style="stroke:#FFFFFF;stroke-width:0.0;" width="454" x="351" y="10"/><text fill="#000000" font-family="Verdana" font-size="22" font-weight="bold" lengthAdjust="spacing" textLength="345" x="405.5" y="37.1182">Z-Wave frame transmission</text><text fill="#000000" font-family="Verdana" font-size="22" font-weight="bold" lengthAdjust="spacing" textLength="444" x="356" y="63.8555">Components with processes in grey</text><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="85" x2="85" y1="111.4893" y2="744.6729"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="361" x2="361" y1="111.4893" y2="744.6729"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="673.5" x2="673.5" y1="111.4893" y2="744.6729"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="927" x2="927" y1="111.4893" y2="744.6729"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1054.5" x2="1054.5" y1="111.4893" y2="744.6729"/><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="130" x="20" y="79.4746"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="116" x="27" y="100.5498">User component</text><rect fill="#DEDEDE" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="94" x="314" y="79.4746"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="80" x="321" y="100.5498">Z-Wave TX</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="153" x="597.5" y="79.4746"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="139" x="604.5" y="100.5498">Z-Wave Transports</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="98" x="878" y="79.4746"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="84" x="885" y="100.5498">Z-Wave API</text><rect fill="#DEDEDE" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="95" x="1007.5" y="79.4746"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="81" x="1014.5" y="100.5498">Z-Wave RX</text><polygon fill="#000000" points="349,155.0879,359,159.0879,349,163.0879,353,159.0879" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="85" x2="355" y1="159.0879" y2="159.0879"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="157" x="92" y="138.5591">zwave_tx_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="245" x="92" y="154.3584">(frame data, user_callback_function)</text><line style="stroke:#000000;stroke-width:1.0;" x1="361" x2="403" y1="188.8872" y2="188.8872"/><line style="stroke:#000000;stroke-width:1.0;" x1="403" x2="403" y1="188.8872" y2="201.8872"/><line style="stroke:#000000;stroke-width:1.0;" x1="362" x2="403" y1="201.8872" y2="201.8872"/><polygon fill="#000000" points="372,197.8872,362,201.8872,372,205.8872,368,201.8872" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="118" x="368" y="184.1577">Queues the frame</text><polygon fill="#000000" points="96,243.4858,86,247.4858,96,251.4858,92,247.4858" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="90" x2="360" y1="247.4858" y2="247.4858"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="47" x="102" y="226.957">returns</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="252" x="102" y="242.7563">SL_STATUS_OK, zwave_tx_session_id</text><line style="stroke:#000000;stroke-width:1.0;" x1="361" x2="403" y1="293.0845" y2="293.0845"/><line style="stroke:#000000;stroke-width:1.0;" x1="403" x2="403" y1="293.0845" y2="306.0845"/><line style="stroke:#000000;stroke-width:1.0;" x1="362" x2="403" y1="306.0845" y2="306.0845"/><polygon fill="#000000" points="372,302.0845,362,306.0845,372,310.0845,368,306.0845" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="103" x="368" y="272.5557">Process verifies</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="90" x="368" y="288.355">the TX queue</text><polygon fill="#000000" points="662,347.6831,672,351.6831,662,355.6831,666,351.6831" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="361" x2="668" y1="351.6831" y2="351.6831"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="289" x="368" y="331.1543">zwave_controller_transport_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="229" x="368" y="346.9536">(frame data, Z-Wave TX Callback)</text><polygon fill="#000000" points="915,393.2817,925,397.2817,915,401.2817,919,397.2817" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="674" x2="921" y1="397.2817" y2="397.2817"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="128" x="681" y="376.7529">zwapi_send_data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="229" x="681" y="392.5522">(frame data, Z-Wave TX Callback)</text><polygon fill="#000000" points="685,423.0811,675,427.0811,685,431.0811,681,427.0811" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="679" x2="926" y1="427.0811" y2="427.0811"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="104" x="691" y="422.3516">SL_STATUS_OK</text><polygon fill="#000000" points="372,452.8804,362,456.8804,372,460.8804,368,456.8804" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="366" x2="673" y1="456.8804" y2="456.8804"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="104" x="378" y="452.1509">SL_STATUS_OK</text><line style="stroke:#000000;stroke-width:1.0;" x1="927" x2="969" y1="502.479" y2="502.479"/><line style="stroke:#000000;stroke-width:1.0;" x1="969" x2="969" y1="502.479" y2="515.479"/><line style="stroke:#000000;stroke-width:1.0;" x1="928" x2="969" y1="515.479" y2="515.479"/><polygon fill="#000000" points="938,511.479,928,515.479,938,519.479,934,515.479" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="114" x="934" y="481.9502">Frame being sent</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="80" x="934" y="497.7495">on the radio</text><line style="stroke:#000000;stroke-width:1.0;" x1="1055" x2="1097" y1="592.6763" y2="592.6763"/><line style="stroke:#000000;stroke-width:1.0;" x1="1097" x2="1097" y1="592.6763" y2="605.6763"/><line style="stroke:#000000;stroke-width:1.0;" x1="1056" x2="1097" y1="605.6763" y2="605.6763"/><polygon fill="#000000" points="1066,601.6763,1056,605.6763,1066,609.6763,1062,605.6763" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="83" x="1062" y="540.5488">continuously</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="56" x="1062" y="556.3481">monitors</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="57" x="1062" y="572.1475">incoming</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="64" x="1062" y="587.9468">messages</text><polygon fill="#000000" points="938,631.4756,928,635.4756,938,639.4756,934,635.4756" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="932" x2="1054" y1="635.4756" y2="635.4756"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="77" x="944" y="630.7461">zwapi_poll</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="12" x="1021" y="630.7461">()</text><polygon fill="#000000" points="372,692.8735,362,696.8735,372,700.8735,368,696.8735" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="366" x2="926" y1="696.8735" y2="696.8735"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="135" x="378" y="660.5454">Z-Wave TX Callback</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="219" x="378" y="676.3447">(callback registered with last call</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="139" x="378" y="692.144">to zwapi_send_data)</text><polygon fill="#000000" points="96,722.6729,86,726.6729,96,730.6729,92,726.6729" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="90" x2="360" y1="726.6729" y2="726.6729"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="87" x="102" y="721.9434">User callback</text><!--MD5=[bfa2b19dec7b13e06ec6394a9320755f]
+@startuml inline_umlgraph_13.svg
+' Style for the diagram
+!theme plain
+hide footbox
+title Z-Wave frame transmission\nComponents with processes in grey
+
+' List of participants
+participant "User component" as u
+participant "Z-Wave TX" as tx #DEDEDE
+participant "Z-Wave Transports" as zwave_transports
+participant "Z-Wave API" as zwapi
+participant "Z-Wave RX" as rx #DEDEDE
+
+u -> tx: <b>zwave_tx_send_data\n(frame data, user_callback_function)
+tx -> tx: Queues the frame
+tx -> u: returns\nSL_STATUS_OK, zwave_tx_session_id
+tx -> tx: Process verifies\nthe TX queue
+tx -> zwave_transports: <b>zwave_controller_transport_send_data\n(frame data, Z-Wave TX Callback)
+zwave_transports -> zwapi: <b>zwapi_send_data\n(frame data, Z-Wave TX Callback)
+zwapi -> zwave_transports : SL_STATUS_OK
+zwave_transports -> tx : SL_STATUS_OK
+zwapi -> zwapi: Frame being sent\non the radio
+rx -> rx: continuously\nmonitors\nincoming\nmessages
+rx -> zwapi: <b>zwapi_poll</b>()
+zwapi -> tx: Z-Wave TX Callback\n(callback registered with last call \nto zwapi_send_data)
+tx -> u: User callback
+@enduml
+
+@startuml inline_umlgraph_13.svg
+
+
+
+
+
+
+
+<style>
+  root {
+    BackgroundColor white
+    FontColor black
+    FontName Verdana
+    HyperLinkColor blue
+    LineColor black
+    LineThickness 1
+    Margin 5
+  }
+  caption {
+    LineThickness 0
+  }
+  footer {
+    LineThickness 0
+  }
+  header {
+    LineThickness 0
+  }
+  node {
+    MaximumWidth 300
+  }
+  title {
+    FontSize 22
+    LineThickness 0
+  }
+</style>
+
+skinparam ArrowLollipopColor black
+skinparam BackgroundColor white
+skinparam DefaultFontName Verdana
+skinparam DefaultMonospacedFontName Courier
+skinparam LifelineStrategy nosolid
+skinparam ParticipantPadding 10
+skinparam SequenceLifeLineBorderColor black
+skinparam Shadowing false
+skinparam UseBetaStyle true
+
+skinparam Activity {
+  BackgroundColor white
+  BarColor black
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam Boundary {
+  FontColor black
+}
+skinparam Box {
+  Padding 5
+}
+skinparam CircledCharacter {
+  FontColor black
+  FontName Courier
+  Radius 9
+}
+skinparam Class {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassAttribute {
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassStereotype {
+  FontColor black
+  FontName Verdana
+}
+skinparam Footer {
+  FontColor black
+  FontName Verdana
+}
+skinparam Header {
+  FontColor black
+  FontName Verdana
+}
+skinparam Hyperlink {
+  Color blue
+}
+skinparam IconPackage {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPrivate {
+  Color black
+  BackgroundColor white
+}
+skinparam IconProtected {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPublic {
+  Color black
+  BackgroundColor white
+}
+skinparam Note {
+  FontColor black
+  FontName Verdana
+}
+skinparam Object {
+  BorderColor black
+}
+skinparam Package {
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam State {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeA {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeC {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeE {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeI {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeN {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam UseCaseStereoType {
+  FontColor black
+  FontName Verdana
+}
+hide footbox
+title Z-Wave frame transmission\nComponents with processes in grey
+
+participant "User component" as u
+participant "Z-Wave TX" as tx #DEDEDE
+participant "Z-Wave Transports" as zwave_transports
+participant "Z-Wave API" as zwapi
+participant "Z-Wave RX" as rx #DEDEDE
+
+u -> tx: <b>zwave_tx_send_data\n(frame data, user_callback_function)
+tx -> tx: Queues the frame
+tx -> u: returns\nSL_STATUS_OK, zwave_tx_session_id
+tx -> tx: Process verifies\nthe TX queue
+tx -> zwave_transports: <b>zwave_controller_transport_send_data\n(frame data, Z-Wave TX Callback)
+zwave_transports -> zwapi: <b>zwapi_send_data\n(frame data, Z-Wave TX Callback)
+zwapi -> zwave_transports : SL_STATUS_OK
+zwave_transports -> tx : SL_STATUS_OK
+zwapi -> zwapi: Frame being sent\non the radio
+rx -> rx: continuously\nmonitors\nincoming\nmessages
+rx -> zwapi: <b>zwapi_poll</b>()
+zwapi -> tx: Z-Wave TX Callback\n(callback registered with last call \nto zwapi_send_data)
+tx -> u: User callback
+@enduml
+
+PlantUML version 1.2022.0(Tue Jan 11 17:16:42 CET 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

@@ -1,0 +1,4 @@
+<map id="free_all_rx_session" name="free_all_rx_session">
+<area shape="rect" id="node1" title="Free all S0 RX sessions." alt="" coords="5,5,140,32"/>
+<area shape="rect" id="node2" href="$zwave__s0__transport_8c.html#a69f94cd5d146cd3350af7dc872fb0961" title=" " alt="" coords="188,5,303,32"/>
+</map>

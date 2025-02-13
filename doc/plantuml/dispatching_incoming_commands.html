@@ -39,7 +39,7 @@
               <img src="../../_static/silicon-labs-logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                ver_1.7.0-RC0-91-g5f779a0200
+                ver_1.7.0-RC7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -50,18 +50,23 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../applications/zpc/readme_user.html">ZPC User’s Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../applications/zpc/readme_certification.html">ZPC - Z-Wave (certification) Information</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../applications/zpc/how_to_implement_zwave_command_classes.html">Guideline for implementing Command Classes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../applications/zpc/how_to_write_uam_files_for_the_zpc.html">UAM maps for the ZPC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../applications/zpc/how_to_interact_with_clusters.html">How to interact with clusters</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../applications/zpc/doc/supported_command_classes.html">Supported Z-Wave Command Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Unify Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started_unify.html">Getting Started with Unify</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Z-Wave-Protocol-Controller Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../UnifySDK.html">Unify Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unify_framework_services.html">Framework Services</a></li>
 </ul>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../protocol_controllers.html">Protocol Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unify_iot_services.html">IoT Services</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started_as_developer.html">Getting Started as a Developer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../unify_specifications/index.html">Unify Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system_requirements.html">System Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../standards/known-abbreviations.html">Known Abbreviations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
@@ -83,7 +88,158 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
+  <figure class="align-center">
+<p class="plantuml">
+<img src="../../_images/plantuml-2bc070bdadb7eb3a6ab427c7ad9397f9687bc9fb.png" alt="legend top
+    |Background color | description |
+    |&lt;#ff9999&gt;| Unify Component |
+    |&lt;#acffa0&gt;| Protocol Controller Component |
+endlegend
+
+!theme plain
+title Dispatching incoming UCL commands
+
+Package &quot;Unify DotDot\nAttribute Store&quot; as dotdot_attribute_store #ff9999 {
+  map &quot;Command callbacks&quot; as dotdot_attribute_store_command_callbacks #ff9999 {
+    OnOff_On =&gt; function1
+    OnOff_Off =&gt; function2
+    OnOff_toggle =&gt; function3
+    Level_move =&gt; function4
+  }
+  map &quot;Protocol Controller configuration&quot; as dotdot_attribute_store_configuration #acffa0 {
+    update_attribute_desired_values =&gt; true
+    clear_reported_values =&gt; false
+    supported_commands =&gt; true
+    force_read_attributes =&gt; false
+    write_attributes =&gt; true
+    publish_attributes =&gt; true
+  }
+  map &quot;Protocol Controller functions&quot; as dotdot_attribute_store_functions #acffa0 {
+    get_endpoint_attribute =&gt; function_A
+    get_unid_endpoint_id =&gt; function_B
+  }
+
+   dotdot_attribute_store_command_callbacks -[hidden]down- dotdot_attribute_store_configuration
+   dotdot_attribute_store_configuration -[hidden]down- dotdot_attribute_store_functions
+}
+
+Package &quot;UIC DotDot MQTT&quot; as uic_dotdot_mqtt #ff9999 {
+  object &quot;DotDot MQTT handler&quot; as uic_dotdot_mqtt_component #FFFFFF
+  uic_dotdot_mqtt_component : Saves callbacks for commands from user
+  uic_dotdot_mqtt_component : components, makes the corresponding
+  uic_dotdot_mqtt_component : MQTT subscriptions and dispatches
+  uic_dotdot_mqtt_component : incoming messages
+}
+
+rectangle &quot;Optional if using Attribute Resolver&quot; {
+  Package &quot;Protocol Controller\nCommand Dispatch&quot; as protocol_controller_command_dispatch #acffa0 {
+    map &quot;Command callbacks&quot; as protocol_controller_command_callbacks #acffa0 {
+      OnOff_On =&gt; function1
+      OnOff_Off =&gt; function2
+      OnOff_toggle =&gt; function3
+      Level_move =&gt; function4
+    }
+  }
+  Package &quot;Command Mapper&quot; as command_mapper #acffa0 {
+    object &quot;Command/Address selection&quot; as command_address_selection #FFFFFF
+    command_address_selection : Resolve PAN node address
+    command_address_selection : Maps dotdot command to PAN node command
+  }
+  Package &quot;NCP&quot; as ncp_component #acffa0 {
+    object &quot;Tx/Rx Module&quot; as tx_rx_module #FFFFFF
+    tx_rx_module : send and/or receive
+    tx_rx_module : network messages
+  }
+  package &quot;PAN&quot; &lt;&lt;Cloud&gt;&gt; {
+    package &quot;Node / Endpoint&quot; as pan_node &lt;&lt;Node&gt;&gt; #FFFFFF {
+    }
+  }
+}
+
+Package &quot;Attribute Store&quot; &lt;&lt;Database&gt;&gt; #ff9999 {
+
+  object &quot;Root&quot; as root #DEDEDE
+  object &quot;UNID Attribute&quot; as unid #f2ffe6
+
+  unid : Attribute Type = ATTRIBUTE_UNID
+  unid : value = Desired: [] - Reported: [&quot;unid-123&quot;]
+
+  object &quot;Endpoint Attribute&quot; as ep #e6fff7
+  ep : Attribute Type = ATTRIBUTE_ENDPOINT_ID
+  ep : value = Desired: [] - Reported: [01]
+
+  root *- unid
+  unid *- ep
+
+  Package &quot;DotDot\nAttribute Space&quot; #f3acb1 {
+    map &quot;DotDot Attribute 1&quot; as dotdot_attribute_1 {
+      Reported =&gt; [00]
+      Desired  =&gt; [01]
+    }
+    map &quot;DotDot Attribute 2&quot; as dotdot_attribute_2 {
+      Reported =&gt; [00 01]
+      Desired  =&gt; []
+    }
+    ep *-- dotdot_attribute_1
+    ep *-- dotdot_attribute_2
+  }
+
+  Package &quot;Protocol Controller\nAttribute Space&quot; #acffa0 {
+    map &quot;Proprietary Attribute 1&quot; as attribute_1 #FFFFFF {
+      Reported =&gt; [FF]
+      Desired  =&gt; [00]
+    }
+    map &quot;Proprietary Attribute 2&quot; as attribute_2 #FFFFFF {
+      Reported =&gt; [3C]
+      Desired  =&gt; []
+    }
+    ep *-- attribute_1
+    ep *-- attribute_2
+  }
+}
+
+Package &quot;MQTT Client&quot; as mqtt_client #ff9999 {
+  map &quot;Subscriptions callbacks&quot; as mqtt_client_subscriptions #FFFFFF {
+    topic_filter_1 =&gt; function1
+    topic_filter_2 =&gt; function2
+    topic_filter_3 =&gt; function3
+  }
+}
+
+
+skinparam {
+  ArrowColor #5566FF
+  ArrowFontColor #5566FF
+}
+
+mqtt_client_subscriptions::topic_filter_2 -&gt; uic_dotdot_mqtt_component
+uic_dotdot_mqtt_component -&gt; dotdot_attribute_store_command_callbacks::OnOff_toggle
+uic_dotdot_mqtt_component -down-&gt; protocol_controller_command_callbacks
+
+dotdot_attribute_store_command_callbacks -u-&gt; dotdot_attribute_1 : Write the desired value\nin the DotDot space
+
+() &quot;MQTT DotDot\nCommand Publication&quot; as command_publication #5566FF
+command_publication --&gt; mqtt_client_subscriptions
+
+skinparam {
+  ArrowColor #FF6655
+  ArrowFontColor #FF6655
+}
+
+dotdot_attribute_store_command_callbacks -&gt; uic_dotdot_mqtt_component : Register command handlers
+protocol_controller_command_callbacks -u-&gt; uic_dotdot_mqtt_component : Register additional command callbacks
+uic_dotdot_mqtt_component -&gt; mqtt_client_subscriptions : Subscribe to relevant topics to\nreceving incoming publications
+
+skinparam {
+  ArrowColor #5566FF
+  ArrowFontColor #5566FF
+}
+protocol_controller_command_dispatch -l-&gt; command_address_selection
+command_address_selection -d-&gt; tx_rx_module : Send Command to PAN Node
+tx_rx_module -l-&gt; pan_node : Send Command"/>
+</p>
+</figure>
+
 
            </div>
           </div>

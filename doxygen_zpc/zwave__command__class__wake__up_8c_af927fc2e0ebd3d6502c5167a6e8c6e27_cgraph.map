@@ -1,0 +1,21 @@
+<map id="on_capabilities_attribute_update" name="on_capabilities_attribute_update">
+<area shape="rect" id="node1" title="Verifies if we are resolving capabilities, and if yes, set a resolutio listener to set the Wake Up In..." alt="" coords="5,195,168,236"/>
+<area shape="rect" id="node2" href="$zwave__command__class__wake__up_8c.html#aaff9153e6b7f2f12495d4528a1e348f5" title="Configures the Wake Up Interval setting for a node." alt="" coords="216,202,399,229"/>
+<area shape="rect" id="node3" href="$zwave__command__class__wake__up_8c.html#aafee6942702a86d4aaea1f91c18ccce7" title="Finds the closest supported value for a Wake Up Interval." alt="" coords="467,5,621,47"/>
+<area shape="rect" id="node4" href="$zwave__command__class__wake__up_8c.html#a86fe76f7c6c116734a69cb35ef264f26" title="Finds the value that would lead to the largest time between Wake Ups for a node." alt="" coords="465,71,623,112"/>
+<area shape="rect" id="node5" href="$group__command__classes__utils.html#ga7dd7a32346c549c1f82f97037625db40" title="Verifies if a Node is a Portable End Node. (PS / PEN Role type)" alt="" coords="720,137,868,163"/>
+<area shape="rect" id="node13" href="$group__zpc__config.html#ga4b057e8eb480ccf7000ecdaf97dcc168" title="Get the current configuration. This must only be called after zpc_config_init." alt="" coords="489,267,599,294"/>
+<area shape="rect" id="node14" href="$group__zwave__command__class__wake__up.html#ga3f21bf48988be7063716ec5cbddd37fa" title="Verifies if a Node supports the Wake Up on demand functionality." alt="" coords="456,187,632,243"/>
+<area shape="rect" id="node18" href="$group__zwave__network__management.html#gae265f1e935804f3f0b971755ab0ee61e" title="Get the cached NodeID." alt="" coords="447,319,641,360"/>
+<area shape="rect" id="node19" href="$group__zwave__network__management.html#ga10d248f803b45c70adf8ecec24308109" title="Checks if we have the SIS role in the current network." alt="" coords="447,384,641,425"/>
+<area shape="rect" id="node6" href="$group__command__classes__utils.html#gaf1fbb6a0e57bf5218e97120ed7adc966" title="Provides the Role Type of a node." alt="" coords="947,170,1127,197"/>
+<area shape="rect" id="node7" href="$group__zpc__attribute__store__network__helpers.html#gae4d15b8e0c61c88d94c8f342bd2014fc" title="Take a UNID/endpoint combination and returns its attribute store node." alt="" coords="1175,163,1355,204"/>
+<area shape="rect" id="node12" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="1177,229,1353,255"/>
+<area shape="rect" id="node8" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="1403,163,1579,204"/>
+<area shape="rect" id="node9" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="1627,133,1807,175"/>
+<area shape="rect" id="node11" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="1636,199,1797,226"/>
+<area shape="rect" id="node10" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="1855,141,2020,167"/>
+<area shape="rect" id="node15" href="$group__zpc__attribute__store__network__helpers.html#ga715be25ab9c545f84ff524bc5a7eb7db" title="Traverse up the tree from a node and finds under which Z&#45;Wave NodeID it is." alt="" coords="689,188,899,229"/>
+<area shape="rect" id="node16" href="$group__zwave__utils.html#ga1fb87a67860c11e6e89930eb51fda21f" title="Return the version of a Command Class implemented by a node." alt="" coords="702,253,886,295"/>
+<area shape="rect" id="node17" href="$group__zwave__utils.html#ga6f7851dd2a96668e3a246c0292607579" title="Get endpoint node associated with the ZWave NodeID and Endpoint ID." alt="" coords="949,229,1125,255"/>
+</map>

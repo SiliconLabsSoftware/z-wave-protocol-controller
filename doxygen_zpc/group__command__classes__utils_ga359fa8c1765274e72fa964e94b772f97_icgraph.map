@@ -1,0 +1,22 @@
+<map id="get_signed_value_from_frame_and_size" name="get_signed_value_from_frame_and_size">
+<area shape="rect" id="node1" title="Extracts a 1,2 or 4 bytes signed value from a frame." alt="" coords="1192,213,1348,254"/>
+<area shape="rect" id="node2" href="$group__command__classes__utils.html#gab7746d5f57493bb03d29c539c2fd523d" title="Parse a value and pack it into a uint32." alt="" coords="967,61,1144,102"/>
+<area shape="rect" id="node7" href="$zwave__command__class__humidity__control__setpoint_8c.html#a86136ea4618086291f3a5d2984e0b9ee" title="Interpret value from a report frame and store it in the attribute store." alt="" coords="985,173,1125,214"/>
+<area shape="rect" id="node12" href="$zwave__command__class__configuration__control_8c.html#a244ada7bd51321a86eb2b03a88a957cd" title=" " alt="" coords="979,300,1132,327"/>
+<area shape="rect" id="node18" href="$zwave__command__class__meter__control_8c.html#ad7bccccca0dbb47d88825a10bcfcc06a" title="Process an incoming Meter Report Command." alt="" coords="974,395,1137,451"/>
+<area shape="rect" id="node3" href="$zwave__command__class__multilevel__sensor_8c.html#aab8e97fb91292b61b6d8597ce2b546e0" title=" " alt="" coords="736,5,911,61"/>
+<area shape="rect" id="node4" href="$zwave__command__class__multilevel__sensor_8c.html#a389d2c5d83cce7ddd65d15c522bb45e7" title=" " alt="" coords="503,25,679,81"/>
+<area shape="rect" id="node5" href="$group__multilevel__sensor__command__class.html#gae565619d311f1e10a434f87b874b2d64" title="Initialize the Multilevel Sensor Command Class control." alt="" coords="273,81,435,122"/>
+<area shape="rect" id="node6" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,340,205,367"/>
+<area shape="rect" id="node8" href="$zwave__command__class__humidity__control__setpoint_8c.html#a235b71f668cac7ce0b49310ed367e098" title=" " alt="" coords="734,85,913,141"/>
+<area shape="rect" id="node11" href="$zwave__command__class__humidity__control__setpoint_8c.html#ac3c376395a302e0e2cbfe7229b2b6ea6" title=" " alt="" coords="735,165,912,221"/>
+<area shape="rect" id="node9" href="$zwave__command__class__humidity__control__setpoint_8c.html#a7c4650a6c3a4cdb774bf7f88ef4f483f" title=" " alt="" coords="503,145,680,201"/>
+<area shape="rect" id="node10" href="$group__zwave__command__class__humidity__control__setpoint.html#ga4abb01b3b103b452e9d967c16c521f24" title=" " alt="" coords="253,153,455,194"/>
+<area shape="rect" id="node13" href="$zwave__command__class__configuration__control_8c.html#accd85e03b56e05ab3299ece4ee2f07a3" title="Handle incoming Configuration Bulk Report Commands." alt="" coords="742,245,905,301"/>
+<area shape="rect" id="node16" href="$zwave__command__class__configuration__control_8c.html#ad744ab83042de2b3c67bcc7b9411b874" title="Handle incoming Configuration Properties Report Commands." alt="" coords="728,325,919,381"/>
+<area shape="rect" id="node17" href="$zwave__command__class__configuration__control_8c.html#a442abc571c14d1dce6c70bf877dbac9c" title="Handle incoming Configuration Report Commands." alt="" coords="742,405,905,461"/>
+<area shape="rect" id="node14" href="$zwave__command__class__configuration__control_8c.html#a47d754a17f1ac5b2d479005308d7084f" title="Dispatches incoming Configuration Commands to individual command handlers." alt="" coords="510,325,673,381"/>
+<area shape="rect" id="node15" href="$group__zwave__command__class__configuration.html#gacc11ad9afa837acce0d1aada6408e1ce" title="This function initialize the Configuration Command Class handler." alt="" coords="273,333,435,374"/>
+<area shape="rect" id="node19" href="$zwave__command__class__meter__control_8c.html#a5db19f3e36520975ed363436cb319206" title="Dispatches incoming Meter Commands to individual command handlers." alt="" coords="742,486,905,527"/>
+<area shape="rect" id="node20" href="$group__zwave__command__class__meter__control.html#gabaf4a36abd7f11c2acd3c0df5575d721" title="This function initialize the Meter Command Class control handler." alt="" coords="273,419,435,461"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="zwave_network_management_assign_return_route" name="zwave_network_management_assign_return_route">
+<area shape="rect" id="node1" title="Assign static return routes to End Nodes." alt="" coords="5,39,200,80"/>
+<area shape="rect" id="node2" href="$group__zwave__controller__component.html#gae8c7ea4da898ea006175e66032a2b0ff" title="Tells if we are currently reseting the ZPC." alt="" coords="277,5,414,47"/>
+<area shape="rect" id="node3" href="$group__zwave__network__management__return__route__queue.html#ga67b22179c8284b21e15f4132e7f8cd7a" title="Adds a Return Route request into the queue." alt="" coords="248,71,443,112"/>
+<area shape="rect" id="node4" href="$zwave__network__management__return__route__queue_8c.html#abc2d2bfae42621c95cc8a79645173721" title="Resets the value of a queue entry." alt="" coords="491,78,619,105"/>
+</map>

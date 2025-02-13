@@ -1,0 +1,8 @@
+<map id="priority_queue::biggest_child" name="priority_queue::biggest_child">
+<area shape="rect" id="node1" title=" " alt="" coords="5,71,159,112"/>
+<area shape="rect" id="node2" href="$classpriority__queue.html#a87e7eda50501b61eb4f216c7a82ada37" title=" " alt="" coords="210,5,339,47"/>
+<area shape="rect" id="node3" href="$classpriority__queue.html#a12d267782b2922604cdf7dd8756a491b" title=" " alt="" coords="207,71,343,112"/>
+<area shape="rect" id="node4" href="$classpriority__queue.html#a0969698a8e4fd95156738ef09eb43dc9" title=" " alt="" coords="207,137,342,163"/>
+<area shape="rect" id="node5" href="$classpriority__queue.html#a45867a21e151e7709b0c0a676404756f" title="if queue != empty() it returns a pointer to the beginning of the queue. The item with the highest pri..." alt="" coords="391,111,533,138"/>
+<area shape="rect" id="node6" href="$classpriority__queue.html#a479561d461dbafc6b7d2813d6344b0d0" title="iterator that points past the last element in the queue." alt="" coords="396,162,528,189"/>
+</map>

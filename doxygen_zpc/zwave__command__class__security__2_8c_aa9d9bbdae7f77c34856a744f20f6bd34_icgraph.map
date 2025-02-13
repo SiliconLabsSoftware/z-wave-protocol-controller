@@ -1,0 +1,5 @@
+<map id="zwave_command_class_security_2_control_handler" name="zwave_command_class_security_2_control_handler">
+<area shape="rect" id="node1" title=" " alt="" coords="464,5,627,61"/>
+<area shape="rect" id="node2" href="$group__security__2__command__class.html#ga8d46dba73126d88511566e7ae09eced5" title="Intitialize the security 2 command class handler." alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

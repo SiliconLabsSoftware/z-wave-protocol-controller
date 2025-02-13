@@ -1,0 +1,5 @@
+<map id="is_firmware_update_ongoing" name="is_firmware_update_ongoing">
+<area shape="rect" id="node1" title="Verifies if a Firmware Update is ongoing for an endpoint." alt="" coords="232,50,367,91"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__firmware__update.html#gad39d3d19db09770af92857ed735d0e18" title="Attempts to start a Firmware Update procedure for a node." alt="" coords="7,5,182,61"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__firmware__update__internals.html#ga61f1d6725709f2e14800cccf6ffd909a" title="Postpones the Firmware Update expiry for an Endpoint." alt="" coords="5,86,184,127"/>
+</map>

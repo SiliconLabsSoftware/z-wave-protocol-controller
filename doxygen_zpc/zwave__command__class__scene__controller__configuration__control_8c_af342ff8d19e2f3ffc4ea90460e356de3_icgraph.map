@@ -1,0 +1,6 @@
+<map id="handle_scene_controller_configuration_report" name="handle_scene_controller_configuration_report">
+<area shape="rect" id="node1" title="Process an incoming Scene Controller Configuration Report Command." alt="" coords="721,13,884,54"/>
+<area shape="rect" id="node2" href="$zwave__command__class__scene__controller__configuration__control_8c.html#a52651398e7c2ace0acdaef0235a93d3b" title=" " alt="" coords="507,13,673,54"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__scene__controller__configuration__control.html#ga368253538863afb43f4b2a37996ef1b0" title="Initializes the Scene Controller Configuration Command Class control handler." alt="" coords="253,5,459,61"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

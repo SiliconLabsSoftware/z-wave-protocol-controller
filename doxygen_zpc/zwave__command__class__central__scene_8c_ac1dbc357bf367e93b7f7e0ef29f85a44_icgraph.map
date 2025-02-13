@@ -1,0 +1,5 @@
+<map id="zwave_command_class_central_scene_control_handler" name="zwave_command_class_central_scene_control_handler">
+<area shape="rect" id="node1" title="Dispatches incoming Central Scene Commands to individual command handlers." alt="" coords="464,5,627,61"/>
+<area shape="rect" id="node2" href="$group__zwave__command__class__central__scene.html#ga0667e3960719fc27dd2b5df9ade52019" title="This function initialize the Central Scene Command Class handler." alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

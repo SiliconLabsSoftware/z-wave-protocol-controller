@@ -1,0 +1,4 @@
+<map id="zwapi_supports_nls" name="zwapi_supports_nls">
+<area shape="rect" id="node1" title="Return whether the Z&#45;Wave module supports Network Layer Security." alt="" coords="5,5,143,32"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__INIT.html#ga0a823074baec69913d0e8590b46e4e33" title="Check if a command is supported by the connected Z&#45;Wave module." alt="" coords="191,5,393,32"/>
+</map>

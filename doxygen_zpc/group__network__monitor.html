@@ -92,6 +92,12 @@ $(document).ready(function(){initNavTree('group__network__monitor.html',''); ini
 
 <p>The Network State Monitor.  
 <a href="#details">More...</a></p>
+<div class="dynheader">
+Collaboration diagram for Network Monitor:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__network__monitor.svg" width="363" height="230"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="groups" name="groups"></a>
 Modules</h2></td></tr>
@@ -124,8 +130,18 @@ Functions</h2></td></tr>
 <p >The Network State Monitor. </p>
 <p >The Network Monitor acts as an interface between the attribute_store and <a class="el" href="group__zwave__network__management.html">Z-Wave Network Management</a> and the <a class="el" href="group__zwave__controller.html">Z-Wave Controller</a>. It keeps track of the current state of the network. It reacts to events from the zwave_controller component and add/remove nodes to/from the attribute system. It will also sanitize the HomeID and NodeID list of the controller with the HomeID provided and NodeID list in the attribute system. If a mismatch occurs, the component will update the attribute system to reflect the controller information.</p>
 <p >The network state monitor will also keep track of which nodes in the network are unreachable.</p>
+<div class="plantumlgraph">
+<object type="image/svg+xml" data="inline_umlgraph_1.svg"></object>
+<div class="caption">
+Network Monitor Sequence Diagram</div>
+</div>
 <p >The network monitor will also keep track of the nodes being interviewed by monitoring Z-Wave NIF creations in the attribute store.</p>
-<h2 class="groupheader">Function Documentation</h2>
+<div class="plantumlgraph">
+<object type="image/svg+xml" data="inline_umlgraph_2.svg"></object>
+<div class="caption">
+Network Monitor Interview monitoring</div>
+</div>
+ <h2 class="groupheader">Function Documentation</h2>
 <a id="ga9a95ea4ac0e238d10d5c03a8392ddba5" name="ga9a95ea4ac0e238d10d5c03a8392ddba5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga9a95ea4ac0e238d10d5c03a8392ddba5">&#9670;&nbsp;</a></span>network_monitor_get_cached_current_node_list()</h2>
 
@@ -142,6 +158,12 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Retuns the cached network node list. </p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__network__monitor_ga9a95ea4ac0e238d10d5c03a8392ddba5_icgraph.svg" width="402" height="118"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -161,6 +183,12 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Initializes the Network Monitor. </p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="group__network__monitor_ga06ced1749dfbcde823b9ce17aca599da_icgraph.svg" width="420" height="38"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
+</div>
 
 </div>
 </div>
@@ -190,7 +218,7 @@ Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Feb 11 2025 14:33:50 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
+    <li class="footer">Generated on Thu Feb 13 2025 10:45:32 for Z-Wave Protocol Controller Reference by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.4 </li>
   </ul>
 </div>
 </body>

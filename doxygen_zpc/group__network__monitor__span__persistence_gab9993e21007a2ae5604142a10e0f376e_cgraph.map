@@ -1,0 +1,13 @@
+<map id="network_monitor_restore_span_table_data" name="network_monitor_restore_span_table_data">
+<area shape="rect" id="node1" title="Restores all the SPAN data to Z&#45;Wave S2 from the Attribute Store." alt="" coords="5,167,171,208"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__store__network__helpers.html#ga7a3f40a9cbc90f2674b9e9e454fd6207" title="Take a Z&#45;Wave NodeID and return its Attribute Store node representing the NodeID." alt="" coords="223,57,392,113"/>
+<area shape="rect" id="node8" href="$group__network__monitor.html#ga9a95ea4ac0e238d10d5c03a8392ddba5" title="Retuns the cached network node list." alt="" coords="219,137,396,179"/>
+<area shape="rect" id="node9" href="$group__zwave__network__management.html#gae265f1e935804f3f0b971755ab0ee61e" title="Get the cached NodeID." alt="" coords="668,225,863,267"/>
+<area shape="rect" id="node10" href="$group__zwave__s2__nonce__management.html#gac266476283e7d528976748c4627680cb" title="Copies a Span entry object into an entry of the S2 SPAN table." alt="" coords="219,258,395,285"/>
+<area shape="rect" id="node3" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="444,35,620,76"/>
+<area shape="rect" id="node7" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="444,101,620,127"/>
+<area shape="rect" id="node4" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="675,5,855,47"/>
+<area shape="rect" id="node6" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="685,71,846,98"/>
+<area shape="rect" id="node5" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="911,13,1076,39"/>
+<area shape="rect" id="node11" href="$zwave__s2__nonce__management_8c.html#a6265fa89b97100221624e1abe8d78f1b" title="Copies a Span entry object into an entry of the S2 Context SPAN table." alt="" coords="461,255,603,296"/>
+</map>

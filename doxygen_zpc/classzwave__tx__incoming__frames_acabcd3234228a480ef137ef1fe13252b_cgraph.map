@@ -1,0 +1,17 @@
+<map id="zwave_tx_incoming_frames::set_frames" name="zwave_tx_incoming_frames::set_frames">
+<area shape="rect" id="node1" title="Sets the number of expected frames from a NodeID." alt="" coords="5,275,189,317"/>
+<area shape="rect" id="node2" href="$classpriority__queue.html#a45867a21e151e7709b0c0a676404756f" title="if queue != empty() it returns a pointer to the beginning of the queue. The item with the highest pri..." alt="" coords="885,43,1028,69"/>
+<area shape="rect" id="node3" href="$classpriority__queue.html#a479561d461dbafc6b7d2813d6344b0d0" title="iterator that points past the last element in the queue." alt="" coords="891,312,1023,339"/>
+<area shape="rect" id="node4" href="$classpriority__queue.html#ab4ca371aa1a80e5c76bd86d3892ebc81" title="removes an item from the queue by iterator. Performance: O(log n)" alt="" coords="258,203,401,229"/>
+<area shape="rect" id="node11" href="$classzwave__tx__incoming__frames.html#a8359e5f4e8ceeaa458c372465a94b869" title="Helper function that inserts a NodeID / Frame pair in the frame list." alt="" coords="237,414,421,455"/>
+<area shape="rect" id="node5" href="$classpriority__queue.html#af2cfe02abcc1bb97f1e8c19d275fa59b" title=" " alt="" coords="469,195,623,237"/>
+<area shape="rect" id="node8" href="$classpriority__queue.html#a0969698a8e4fd95156738ef09eb43dc9" title=" " alt="" coords="687,261,821,288"/>
+<area shape="rect" id="node9" href="$classpriority__queue.html#a4c0d7a69f3e7366ba4610874ce7c78d5" title="remove all items from the queue." alt="" coords="477,93,615,120"/>
+<area shape="rect" id="node10" href="$classpriority__queue.html#aaaae65e0f719978138017d58571a42ff" title="returns if the queue is empty. in this case both begin() and end() point to nullptr" alt="" coords="473,144,619,171"/>
+<area shape="rect" id="node6" href="$classpriority__queue.html#a87e7eda50501b61eb4f216c7a82ada37" title=" " alt="" coords="689,195,819,237"/>
+<area shape="rect" id="node7" href="$classpriority__queue.html#a12d267782b2922604cdf7dd8756a491b" title=" " alt="" coords="686,130,822,171"/>
+<area shape="rect" id="node12" href="$classpriority__queue.html#ab60cbadb59c9e35d68f3be8ce76ca8b7" title="inserts a value into the queue. inserts are ordered by their priority. this function takes O(log n) t..." alt="" coords="475,421,617,448"/>
+<area shape="rect" id="node13" href="$classpriority__queue.html#a4c6923892bda36c46ac54443a8da993d" title=" " alt="" coords="690,414,818,455"/>
+<area shape="rect" id="node14" href="$classpriority__queue.html#aac22927a2d0722d40f3d0398ea721060" title=" " alt="" coords="671,480,837,507"/>
+<area shape="rect" id="node15" href="$classpriority__queue.html#a348aed26554afd2b52cda7bef58b232b" title=" " alt="" coords="681,531,827,573"/>
+</map>

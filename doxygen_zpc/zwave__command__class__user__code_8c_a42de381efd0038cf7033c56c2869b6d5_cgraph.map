@@ -1,0 +1,12 @@
+<map id="handle_user_code_capabilities_report" name="handle_user_code_capabilities_report">
+<area shape="rect" id="node1" title="Process an incoming User Code Capabilities Report Command." alt="" coords="5,89,204,131"/>
+<area shape="rect" id="node2" href="$zwave__command__class__user__code_8c.html#a8496f07f3edc07cf184f5ca3c7f3f23c" title=" " alt="" coords="254,71,429,98"/>
+<area shape="rect" id="node10" href="$zwave__command__class__user__code_8c.html#a62be72d1ddcf6636a94643699b20c476" title="Sets all the default capabilities for version 1 supporting nodes." alt="" coords="252,122,431,149"/>
+<area shape="rect" id="node3" href="$group__command__classes__utils.html#gaff12f5d1f5b9eed08201efab5854190c" title="Find the Z&#45;Wave Endpoint ID Node attribute based on a const zwave_controller_connection_info_t object..." alt="" coords="479,64,641,105"/>
+<area shape="rect" id="node4" href="$group__zpc__attribute__store__network__helpers.html#gae4d15b8e0c61c88d94c8f342bd2014fc" title="Take a UNID/endpoint combination and returns its attribute store node." alt="" coords="689,35,869,76"/>
+<area shape="rect" id="node9" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="691,101,867,127"/>
+<area shape="rect" id="node5" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="917,35,1093,76"/>
+<area shape="rect" id="node6" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="1141,5,1321,47"/>
+<area shape="rect" id="node8" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="1151,71,1312,98"/>
+<area shape="rect" id="node7" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="1369,13,1535,39"/>
+</map>

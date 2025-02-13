@@ -1,0 +1,4 @@
+<map id="zwave_s2_set_secure_nif" name="zwave_s2_set_secure_nif">
+<area shape="rect" id="node1" title="Set the secure NIF." alt="" coords="212,13,385,39"/>
+<area shape="rect" id="node2" href="$group__zwave__controller__component.html#ga9bb84d2fd8efe19d2f01cb431b3a3d27" title="Set the secure node information." alt="" coords="5,5,164,47"/>
+</map>

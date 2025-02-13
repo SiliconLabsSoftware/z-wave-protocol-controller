@@ -1,0 +1,4 @@
+<map id="attribute_resolver_send_init" name="attribute_resolver_send_init">
+<area shape="rect" id="node1" title="Initialization function for the attribute_resolver_send subcomponent." alt="" coords="5,5,128,47"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__resolver__callbacks.html#gaca81e0c2fa13985834fdd26ef39bbaa3" title="Initializes the resources to keep track of ongoing resolutions and process send_data callbacks." alt="" coords="176,5,299,47"/>
+</map>

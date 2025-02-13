@@ -1,0 +1,22 @@
+<map id="zwave_command_class_humidity_control_setpoint_control_handler" name="zwave_command_class_humidity_control_setpoint_control_handler">
+<area shape="rect" id="node1" title=" " alt="" coords="5,151,183,207"/>
+<area shape="rect" id="node2" href="$zwave__command__class__humidity__control__setpoint_8c.html#a235b71f668cac7ce0b49310ed367e098" title=" " alt="" coords="231,151,409,207"/>
+<area shape="rect" id="node16" href="$zwave__command__class__humidity__control__setpoint_8c.html#ac3c376395a302e0e2cbfe7229b2b6ea6" title=" " alt="" coords="231,71,409,127"/>
+<area shape="rect" id="node17" href="$zwave__command__class__humidity__control__setpoint_8c.html#a11441c24cfb3418b32e8404ce1f995fa" title=" " alt="" coords="231,231,409,287"/>
+<area shape="rect" id="node3" href="$zwave__command__class__humidity__control__setpoint_8c.html#a9754026f7ea0ba4dda768e557c6b583d" title=" " alt="" coords="477,122,605,149"/>
+<area shape="rect" id="node4" href="$zwave__command__class__humidity__control__setpoint_8c.html#a86136ea4618086291f3a5d2984e0b9ee" title="Interpret value from a report frame and store it in the attribute store." alt="" coords="471,56,611,97"/>
+<area shape="rect" id="node9" href="$group__command__classes__utils.html#gaff12f5d1f5b9eed08201efab5854190c" title="Find the Z&#45;Wave Endpoint ID Node attribute based on a const zwave_controller_connection_info_t object..." alt="" coords="460,173,623,215"/>
+<area shape="rect" id="node5" href="$zwave__command__class__humidity__control__setpoint_8c.html#af2f354d9414e81ab49257fd59a1704e5" title="Check if current value can be set (in bounds of value_min and value_max)" alt="" coords="689,71,837,112"/>
+<area shape="rect" id="node7" href="$group__command__classes__utils.html#ga359fa8c1765274e72fa964e94b772f97" title="Extracts a 1,2 or 4 bytes signed value from a frame." alt="" coords="685,5,841,47"/>
+<area shape="rect" id="node6" href="$zwave__command__class__humidity__control__setpoint_8c.html#a5ccf3422e402339de56cefc742a1d4a6" title="Get setpoint real value from raw value and precision." alt="" coords="924,78,1055,105"/>
+<area shape="rect" id="node8" href="$group__command__classes__utils.html#ga22eef0dea00ab9f526c038009481e814" title="Extracts a 1,2 or 4 bytes unsigned value from a frame." alt="" coords="912,5,1067,47"/>
+<area shape="rect" id="node10" href="$group__zpc__attribute__store__network__helpers.html#gae4d15b8e0c61c88d94c8f342bd2014fc" title="Take a UNID/endpoint combination and returns its attribute store node." alt="" coords="673,217,853,259"/>
+<area shape="rect" id="node15" href="$group__zwave__unid.html#ga421deceb8a12916f049e4f3446774439" title="Form a UNID." alt="" coords="675,166,851,193"/>
+<area shape="rect" id="node11" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="901,217,1077,259"/>
+<area shape="rect" id="node12" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="1125,188,1305,229"/>
+<area shape="rect" id="node14" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="1135,254,1296,281"/>
+<area shape="rect" id="node13" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="1353,195,1519,222"/>
+<area shape="rect" id="node18" href="$zwave__command__class__humidity__control__setpoint_8c.html#a73c3b6669aceee0a35ac471469841d4b" title=" " alt="" coords="460,304,623,345"/>
+<area shape="rect" id="node20" href="$zwave__command__class__humidity__control__setpoint_8c.html#aad3f468e506c98091e99feb3230e16ff" title=" " alt="" coords="457,239,625,280"/>
+<area shape="rect" id="node19" href="$zwave__command__class__humidity__control__setpoint_8c.html#a649c8282d2b6add197a8f077767921d2" title=" " alt="" coords="680,304,847,345"/>
+</map>

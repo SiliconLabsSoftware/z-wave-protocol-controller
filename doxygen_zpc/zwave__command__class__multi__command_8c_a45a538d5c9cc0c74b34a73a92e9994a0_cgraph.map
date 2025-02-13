@@ -1,0 +1,4 @@
+<map id="zwave_command_class_multi_command_support_handler" name="zwave_command_class_multi_command_support_handler">
+<area shape="rect" id="node1" title="Decapsulate Multi Command encapsulation and inject the frames back to the Z&#45;Wave Controller." alt="" coords="5,5,176,61"/>
+<area shape="rect" id="node2" href="$group__zwave__command__handler.html#gadc660fe6ba68c4eb1818a2e4451349e2" title="Dispatches a frame to its respective Command Class handler." alt="" coords="224,13,397,54"/>
+</map>

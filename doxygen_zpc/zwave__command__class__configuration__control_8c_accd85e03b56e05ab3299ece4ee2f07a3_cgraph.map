@@ -1,0 +1,13 @@
+<map id="zwave_command_class_configuration_handle_bulk_report_command" name="zwave_command_class_configuration_handle_bulk_report_command">
+<area shape="rect" id="node1" title="Handle incoming Configuration Bulk Report Commands." alt="" coords="5,145,168,201"/>
+<area shape="rect" id="node2" href="$zwave__command__class__configuration__control_8c.html#a28743bd3db65bb3a92d3495edddaa338" title="Fetch or create a configuration parameter with all its sub&#45;attributes in the attribute store." alt="" coords="228,64,367,105"/>
+<area shape="rect" id="node3" href="$zwave__command__class__configuration__control_8c.html#a244ada7bd51321a86eb2b03a88a957cd" title=" " alt="" coords="221,130,374,157"/>
+<area shape="rect" id="node8" href="$group__zpc__attribute__store__network__helpers.html#ga39def804d7d68ac6f534f61a9528c8be" title="Gets the Attribute Store Endpoint ID node for a given Z&#45;Wave NodeID / Endpoint ID in our network." alt="" coords="216,181,379,223"/>
+<area shape="rect" id="node11" href="$group__zwave__tx.html#gadddb568914e58a17dd75b381133926de" title="Tell the Tx Queue that a remote NodeID is about to send some frames and we should back&#45;off a little m..." alt="" coords="216,247,379,288"/>
+<area shape="rect" id="node4" href="$zwave__command__class__configuration__control_8c.html#a5ba696b71ea98cbc17e224bf4b7dad98" title="Get the configuration parameter format for a given parameter id." alt="" coords="442,5,629,47"/>
+<area shape="rect" id="node5" href="$zwave__command__class__configuration__control_8c.html#ad053137c859692d75d92873d5847f276" title="Get the configuration parameter size for a given parameter id." alt="" coords="427,71,644,98"/>
+<area shape="rect" id="node6" href="$group__command__classes__utils.html#ga359fa8c1765274e72fa964e94b772f97" title="Extracts a 1,2 or 4 bytes signed value from a frame." alt="" coords="457,123,613,164"/>
+<area shape="rect" id="node7" href="$group__command__classes__utils.html#ga22eef0dea00ab9f526c038009481e814" title="Extracts a 1,2 or 4 bytes unsigned value from a frame." alt="" coords="712,145,867,187"/>
+<area shape="rect" id="node9" href="$group__zpc__attribute__store.html#gaa77e8f9b18958337bb68279c8c53ccdc" title="Returns the HomeID (attribute store) node of our current network." alt="" coords="457,239,613,266"/>
+<area shape="rect" id="node10" href="$group__zwave__network__management.html#gac01bf38badf30f94eac9a04b486cb967" title="Get the cached HomeID." alt="" coords="692,232,887,273"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="zwave_command_class_configuration_name_get" name="zwave_command_class_configuration_name_get">
+<area shape="rect" id="node1" title="Generates a Configuration Name Get or fills up data automatically if the command is not supported." alt="" coords="5,5,172,47"/>
+<area shape="rect" id="node2" href="$group__command__classes__utils.html#ga0d2a21af7db2d395401331ec806b1bd3" title="Find the version of the command class by navigating up to the endpoint from a given attribute store n..." alt="" coords="220,5,384,47"/>
+</map>

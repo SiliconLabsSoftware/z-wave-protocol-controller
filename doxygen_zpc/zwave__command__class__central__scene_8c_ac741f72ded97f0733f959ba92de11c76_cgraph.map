@@ -1,0 +1,4 @@
+<map id="get_active_scene" name="get_active_scene">
+<area shape="rect" id="node1" title="Maps the received scene notification / key attribute to a unique active scene." alt="" coords="5,5,129,32"/>
+<area shape="rect" id="node2" href="$zwave__command__class__central__scene_8c.html#ab7e9cf921af30130b291046b8b0aff95" title="Reads from the attribute store the maximum Key attribute used by a node." alt="" coords="177,5,343,32"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="zwave_command_class_multi_channel_endpoint_get" name="zwave_command_class_multi_channel_endpoint_get">
+<area shape="rect" id="node1" title=" " alt="" coords="464,5,655,47"/>
+<area shape="rect" id="node2" href="$group__multi__channel__command__class.html#ga6abc4c22f5e74b009f78dfe072511cc0" title="Initialize the Multi Channel Command Class (handler) *." alt="" coords="253,5,416,47"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

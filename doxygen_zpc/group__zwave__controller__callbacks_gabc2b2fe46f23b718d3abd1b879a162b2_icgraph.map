@@ -1,0 +1,6 @@
+<map id="zwave_controller_on_reset_step_complete" name="zwave_controller_on_reset_step_complete">
+<area shape="rect" id="node1" title="Informs the Z&#45;Wave Controller that a Reset Step is completed." alt="" coords="408,47,559,89"/>
+<area shape="rect" id="node2" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="212,29,352,56"/>
+<area shape="rect" id="node4" href="$group__zwave__controller__component.html#ga003007299b737f9636f1a99442e22c3a" title="Instructs the Z&#45;Wave Controller to initiate a Set Default / Reset operation." alt="" coords="204,80,360,107"/>
+<area shape="rect" id="node3" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="5,29,156,56"/>
+</map>

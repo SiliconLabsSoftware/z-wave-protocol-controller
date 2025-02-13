@@ -1,0 +1,6 @@
+<map id="zwave_controller_transport" name="zwave_controller_transport">
+<area shape="rect" id="node1" title="Hold information about a transport plugin." alt="" coords="99,189,278,267"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,5,73,83"/>
+<area shape="rect" id="node3" title=" " alt="" coords="155,5,223,83"/>
+<area shape="rect" id="node4" title=" " alt="" coords="297,5,358,83"/>
+</map>

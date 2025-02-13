@@ -1,0 +1,4 @@
+<map id="is_mucr_supported" name="is_mucr_supported">
+<area shape="rect" id="node1" title="Checks the nodes capabilities and verifies if it supports MUCR (Multiple User Code Reports)" alt="" coords="5,5,137,32"/>
+<area shape="rect" id="node2" href="$zwave__command__class__user__code_8c.html#a66e5cf57742ff857e566aa153cced09f" title=" " alt="" coords="185,5,400,32"/>
+</map>

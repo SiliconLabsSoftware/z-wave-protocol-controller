@@ -1,0 +1,4 @@
+<map id="zwapi_read_node_id" name="zwapi_read_node_id">
+<area shape="rect" id="node1" title="Read the node ID from buffer based on node ID basetype. Note that this helper also advances the index..." alt="" coords="5,5,145,32"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__BASIS.html#ga956fbfe63267baacd31dd20aa1c444d1" title="Get the current node ID basetype setting." alt="" coords="193,5,387,32"/>
+</map>

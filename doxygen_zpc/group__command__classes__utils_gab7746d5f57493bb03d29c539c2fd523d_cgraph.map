@@ -1,0 +1,5 @@
+<map id="command_class_get_int32_value" name="command_class_get_int32_value">
+<area shape="rect" id="node1" title="Parse a value and pack it into a uint32." alt="" coords="5,5,183,47"/>
+<area shape="rect" id="node2" href="$group__command__classes__utils.html#ga359fa8c1765274e72fa964e94b772f97" title="Extracts a 1,2 or 4 bytes signed value from a frame." alt="" coords="231,5,387,47"/>
+<area shape="rect" id="node3" href="$group__command__classes__utils.html#ga22eef0dea00ab9f526c038009481e814" title="Extracts a 1,2 or 4 bytes unsigned value from a frame." alt="" coords="435,5,589,47"/>
+</map>

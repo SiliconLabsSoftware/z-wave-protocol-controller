@@ -1,0 +1,44 @@
+<map id="zwave_command_class_version_support_handler" name="zwave_command_class_version_support_handler">
+<area shape="rect" id="node1" title=" " alt="" coords="5,232,176,273"/>
+<area shape="rect" id="node2" href="$zwave__command__class__version_8c.html#a5dd14321965d6474d3e3ef0dfe73a561" title=" " alt="" coords="224,195,441,236"/>
+<area shape="rect" id="node6" href="$zwave__command__class__version_8c.html#ab59ed649c84a333b9a7f4e1ebf42a11f" title=" " alt="" coords="245,114,421,170"/>
+<area shape="rect" id="node10" href="$zwave__command__class__version_8c.html#a49e98971c907a7d4b0ab3b86f941df0e" title=" " alt="" coords="235,341,430,383"/>
+<area shape="rect" id="node42" href="$zwave__command__class__version_8c.html#a56dc326e5f799651f923c5bdf81c79d4" title=" " alt="" coords="245,261,421,317"/>
+<area shape="rect" id="node3" href="$group__command__classes__utils.html#ga9a9c99943bf863fde841149699d15593" title="function to send report frames with default tx options." alt="" coords="497,199,660,240"/>
+<area shape="rect" id="node4" href="$group__zwave__tx__scheme__selector.html#ga8f8d4442ddf4c165d5a79b9a25d6420d" title="Define a Z&#45;Wave frame transmission options." alt="" coords="717,224,873,265"/>
+<area shape="rect" id="node5" href="$group__zwave__tx.html#gad1538f36d226fe8147c5e538625568df" title="Queue and send frames to Z&#45;Wave nodes." alt="" coords="722,173,867,199"/>
+<area shape="rect" id="node7" href="$group__zwave__command__handler.html#gaac5bc2ca2660912ba6bda3ca8a6b1912" title="Get the version of Command Class that the handler handles." alt="" coords="492,129,665,171"/>
+<area shape="rect" id="node8" href="$group__zwave__controller__transport.html#gac2a2517636452c80d8b6384fbc6963ac" title="check if a command class is registered as an encapsulation cc in Z&#45;Wave controller transport framewor..." alt="" coords="489,64,668,105"/>
+<area shape="rect" id="node9" href="$zwave__controller__transport_8c.html#a98ff30ad35d280415fc1d0c576dfcbe2" title="Get the transport by class object." alt="" coords="716,71,873,98"/>
+<area shape="rect" id="node11" href="$group__zpc__config.html#ga4b057e8eb480ccf7000ecdaf97dcc168" title="Get the current configuration. This must only be called after zpc_config_init." alt="" coords="523,439,634,466"/>
+<area shape="rect" id="node12" href="$group__ZWAPI__INIT.html#gad82597a6e2fbd2ec943527dbcbc7ba4a" title="Get the application version of the serial API on the Z&#45;Wave module." alt="" coords="499,271,658,298"/>
+<area shape="rect" id="node13" href="$group__ZWAPI__INIT.html#ga347e74a3d3fa874fb48cc294a16a9d05" title="returns the cached value of the library type for the module" alt="" coords="501,389,656,415"/>
+<area shape="rect" id="node14" href="$group__ZWAPI__INIT.html#gaf13ded01e7cae8823db451f5526a0dc9" title="Retrieves versioning data from the Z&#45;Wave API Module." alt="" coords="511,323,646,364"/>
+<area shape="rect" id="node15" href="$zwapi__session_8c.html#abf613a2ad7710ac80fb239ba55e621d7" title="Send data frame to Z&#45;Wave chip via serial API, wait for ACK and a RES frame." alt="" coords="718,323,871,364"/>
+<area shape="rect" id="node16" href="$zwapi__connection_8c.html#a91ce3acd7eff779496789637a9c27f40" title="Provides the data of the serial buffer for the last received frame." alt="" coords="1582,5,1733,47"/>
+<area shape="rect" id="node17" href="$zwapi__connection_8c.html#a86b069d152a5c2f8ac95774a688dff48" title="make the zwapi_connection_status types human readable." alt="" coords="921,440,1091,481"/>
+<area shape="rect" id="node18" href="$zwapi__session_8c.html#a1f2b3e7c2dcf31708ef8d333747352ba" title=" " alt="" coords="1355,129,1519,171"/>
+<area shape="rect" id="node21" href="$zwapi__session_8c.html#a32577f3500efc3d937dbc68eebb3c370" title="Send data frame to Z&#45;Wave chip via serial port and wait for ACK." alt="" coords="935,323,1077,364"/>
+<area shape="rect" id="node41" href="$zwapi__session_8c.html#a9d30e1677f02d7730ab035aa9333235d" title=" " alt="" coords="1151,457,1290,499"/>
+<area shape="rect" id="node19" href="$zwapi__session_8c.html#ad7bac697ee2388b38ed3777b5a3862bc" title=" " alt="" coords="1582,71,1733,112"/>
+<area shape="rect" id="node20" href="$group__ZWAPI__INIT.html#ga438a74c9752197d20d377874d5a61694" title="Returns the pointer to the callbacks registered at init." alt="" coords="1572,137,1743,163"/>
+<area shape="rect" id="node22" href="$zwapi__connection_8c.html#a13b6e6b6c56844f4344fabe490bc5eac" title="Closes and re&#45;initializes the zwapi_connection to the Z&#45;Wave module." alt="" coords="1352,355,1523,382"/>
+<area shape="rect" id="node32" href="$zwapi__timestamp_8c.html#a6ebe1ddfe689bce6ee72fc12f708aece" title="get the timestamp" alt="" coords="1583,406,1732,433"/>
+<area shape="rect" id="node33" href="$zwapi__connection_8c.html#af47f8cbd93974d5c91d659fdeb7a870b" title="Transmit a frame via serial port by adding SOF, Len, Type, cmd and Checksum." alt="" coords="1365,305,1509,331"/>
+<area shape="rect" id="node35" href="$zwapi__timestamp_8c.html#a3925f2732e344672608db38351236688" title="compare the current timestamp with the timestamp passed as an argument" alt="" coords="1587,675,1728,716"/>
+<area shape="rect" id="node36" href="$zwapi__session_8c.html#a2875fbfa250b7b25ecb6bc4f0b032cb8" title="Loads the received frames from the serial device into the zwapi_session receive queue." alt="" coords="1139,239,1303,280"/>
+<area shape="rect" id="node23" href="$zwapi__serial_8c.html#a3f2b3bd848e9fe0e6e137482bed06b46" title="Flush the serial output if using buffered output." alt="" coords="1593,340,1722,381"/>
+<area shape="rect" id="node24" href="$zwapi__serial_8c.html#a7762d0358e9f398b92edbfd6a550984a" title="Write a byte to serial port device." alt="" coords="1582,457,1733,483"/>
+<area shape="rect" id="node28" href="$zwapi__serial_8c.html#aadf3397d0bd2c1657d4b1a373599acfe" title="Closes and re&#45;initialize the last open serial port." alt="" coords="1588,238,1727,265"/>
+<area shape="rect" id="node25" href="$zwapi__serial_8c.html#af9054824651df422bab5076d16a80fda" title="Writes the content of a buffer to the serial port device." alt="" coords="1791,455,1949,482"/>
+<area shape="rect" id="node26" href="$zwapi__serial_8c.html#a0accbbf7ddb7aeab10f5df1fe3df6642" title=" " alt="" coords="1997,513,2184,539"/>
+<area shape="rect" id="node27" href="$zwapi__serial_8c.html#abf18afb71e14daaf65d937149ef1639f" title="Test if a is less than b + ms." alt="" coords="2019,447,2162,488"/>
+<area shape="rect" id="node29" href="$zwapi__serial_8c.html#aae586785021ac9a605cd77651429f0c9" title="De&#45;Initialize the serial port." alt="" coords="1804,213,1936,239"/>
+<area shape="rect" id="node30" href="$zwapi__serial_8c.html#a07b09de97f4932d882fc77e191c44638" title="Initialize the serial port to 115200 BAUD 8N1." alt="" coords="1811,263,1929,290"/>
+<area shape="rect" id="node31" href="$zwapi__serial_8c.html#aefeac5909b0bf6411db1492f69c3bc68" title=" " alt="" coords="2011,263,2170,290"/>
+<area shape="rect" id="node34" href="$zwapi__connection_8c.html#a96d24d537c5b8d6aa0aa6a7638ba2f09" title=" " alt="" coords="1581,187,1734,214"/>
+<area shape="rect" id="node37" href="$zwapi__connection_8c.html#a1e45c6c9695b5e7b415adfad40080720" title="Parses serial data sent from the Z&#45;Wave module to the serial port. Should be frequently called by mai..." alt="" coords="1351,507,1524,534"/>
+<area shape="rect" id="node38" href="$zwapi__serial_8c.html#a538134f9fdbb1ce052667b3a041357bd" title="Reads the output of the serial port device and stores the content in a buffer." alt="" coords="1791,509,1949,535"/>
+<area shape="rect" id="node39" href="$zwapi__serial_8c.html#abb082b1e7e727203e3ca5fbeb41f7c2b" title="Reads a byte from the serial port device." alt="" coords="1582,558,1733,585"/>
+<area shape="rect" id="node40" href="$zwapi__serial_8c.html#a9a952dc2b34d92960246f6dc4e7d58f7" title="Check the file descriptor for the serial device is available for I/O operations." alt="" coords="1590,609,1725,651"/>
+</map>

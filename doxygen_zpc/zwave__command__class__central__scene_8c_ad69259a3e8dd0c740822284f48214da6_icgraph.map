@@ -1,0 +1,7 @@
+<map id="return_scene_to_idle" name="return_scene_to_idle">
+<area shape="rect" id="node1" title="Sets back the current scene to IDLE." alt="" coords="885,20,1028,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__central__scene_8c.html#ae3848c038cdd30270d8792e81a6a2649" title="Handle incoming Central Scene Notification Commands." alt="" coords="675,5,837,61"/>
+<area shape="rect" id="node3" href="$zwave__command__class__central__scene_8c.html#ac1dbc357bf367e93b7f7e0ef29f85a44" title="Dispatches incoming Central Scene Commands to individual command handlers." alt="" coords="464,5,627,61"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__central__scene.html#ga0667e3960719fc27dd2b5df9ade52019" title="This function initialize the Central Scene Command Class handler." alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="zwave_controller_storage_is_node_s2_capable" name="zwave_controller_storage_is_node_s2_capable">
+<area shape="rect" id="node1" title="Verify if the registered node is supporting S2." alt="" coords="921,93,1092,134"/>
+<area shape="rect" id="node2" href="$group__zwave__security__validation.html#ga83d2429dc872b553f71b3ca3d1ff1108" title="Verifies if a the S2 Command Class has disappeared from the NIF, whereas it was reported as supported..." alt="" coords="679,5,873,61"/>
+<area shape="rect" id="node6" href="$group__zwave__security__validation.html#ga88e833788fe114c71de5fca53f572c1e" title="Verifies if a frame supported by another node can be accepted based on the security it was received o..." alt="" coords="689,85,863,141"/>
+<area shape="rect" id="node7" href="$group__transport__service__transport__wrapper.html#ga6216ae3a018a4028bfc3025695784f0e" title="Sending a frame with Transport service." alt="" coords="693,166,859,207"/>
+<area shape="rect" id="node3" href="$zwave__command__class__node__info__resolver_8c.html#aaf800d8f937ec37f13207cb2d7172b81" title=" " alt="" coords="476,13,619,54"/>
+<area shape="rect" id="node4" href="$group__zwave__nif__resolver.html#gae3d7718b1013ff52f8ea4984621b762c" title="Registers callbacks to the attribute store and rules to the attribute resolver to be able to resolve ..." alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+<area shape="rect" id="node8" href="$group__transport__service__transport__wrapper.html#gad02263e40b63853166ac8a7601954f33" title=" " alt="" coords="464,166,631,207"/>
+<area shape="rect" id="node9" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="260,173,409,200"/>
+</map>

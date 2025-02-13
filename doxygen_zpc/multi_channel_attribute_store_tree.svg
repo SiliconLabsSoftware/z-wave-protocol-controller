@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="872px" preserveAspectRatio="none" style="width:899px;height:872px;background:#FFFFFF;" version="1.1" viewBox="0 0 899 872" width="899px" zoomAndPan="magnify"><defs><filter height="300%" id="f1c86vrw531n1z" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacing" textLength="481" x="202.75" y="19.2419">Attribute Store Multi Channel Command Class attributes</text><!--MD5=[81a9b475929ddd4b75f2ec69e5fcfe71]
+cluster For each Individual endpoint--><rect fill="#FFFFFF" filter="url(#f1c86vrw531n1z)" height="110" style="stroke:#000000;stroke-width:1.5;" width="215" x="151" y="225.5158"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="199" x="159" y="242.4818">For each Individual endpoint</text><!--MD5=[afcb44634410a7822277290994aa3612]
+cluster For each Aggregated endpoint--><rect fill="#FFFFFF" filter="url(#f1c86vrw531n1z)" height="226" style="stroke:#000000;stroke-width:1.5;" width="266" x="7" y="634.5158"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="212" x="34" y="651.4818">For each Aggregated endpoint</text><rect fill="#E6FFF7" filter="url(#f1c86vrw531n1z)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="167" x="171.5" y="263.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="59" x="225.5" y="278.3439">Endpoint X</text><line style="stroke:#000000;stroke-width:1.5;" x1="172.5" x2="337.5" y1="283.86" y2="283.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="145" x="177.5" y="298.55">ID = ATTRIBUTE_ENDPOINT_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="155" x="177.5" y="312.1699">value = Desired: [], Reported: [X]</text><rect fill="#E6FFF7" filter="url(#f1c86vrw531n1z)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="167" x="39.5" y="672.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="59" x="93.5" y="687.3439">Endpoint Y</text><line style="stroke:#000000;stroke-width:1.5;" x1="40.5" x2="205.5" y1="692.86" y2="692.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="145" x="45.5" y="707.55">ID = ATTRIBUTE_ENDPOINT_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="155" x="45.5" y="721.1699">value = Desired: [], Reported: [Y]</text><rect fill="#FFFFFF" filter="url(#f1c86vrw531n1z)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="234" x="23" y="788.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="49" x="115.5" y="803.3439">Attribute</text><line style="stroke:#000000;stroke-width:1.5;" x1="24" x2="256" y1="808.86" y2="808.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="222" x="29" y="823.55">ID = MULTI_CHANNEL_AGGREGATED_MEMBERS</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="191" x="29" y="837.1699">value = Desired: [], Reported: [X1 X2 X3]</text><rect fill="#FFFAE6" filter="url(#f1c86vrw531n1z)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="218" x="146" y="31.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="47" x="231.5" y="46.3439">HomeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="147" x2="363" y1="51.86" y2="51.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="123" x="152" y="66.55">ID = ATTRIBUTE_HOME_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="206" x="152" y="80.1699">value = Desired: [], Reported: [8C CE FB E6]</text><rect fill="#F2FFE6" filter="url(#f1c86vrw531n1z)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="173" x="168.5" y="147.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="43" x="233.5" y="162.3439">NodeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="169.5" x2="340.5" y1="167.86" y2="167.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="122" x="174.5" y="182.55">ID = ATTRIBUTE_NODE_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="174.5" y="196.1699">value = Desired: [], Reported: [01]</text><rect fill="#E6FFF7" filter="url(#f1c86vrw531n1z)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="173" x="443.5" y="263.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="59" x="500.5" y="278.3439">Endpoint 0</text><line style="stroke:#000000;stroke-width:1.5;" x1="444.5" x2="615.5" y1="283.86" y2="283.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="145" x="449.5" y="298.55">ID = ATTRIBUTE_ENDPOINT_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="449.5" y="312.1699">value = Desired: [], Reported: [00]</text><rect fill="#FFFFFF" filter="url(#f1c86vrw531n1z)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="173" x="501.5" y="379.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="49" x="563.5" y="394.3439">Attribute</text><line style="stroke:#000000;stroke-width:1.5;" x1="502.5" x2="673.5" y1="399.86" y2="399.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="148" x="507.5" y="414.55">ID = MULTI_CHANNEL_VERSION</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="507.5" y="428.1699">value = Desired: [], Reported: [04]</text><rect fill="#FFFFFF" filter="url(#f1c86vrw531n1z)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="229" x="237.5" y="379.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="49" x="327.5" y="394.3439">Attribute</text><line style="stroke:#000000;stroke-width:1.5;" x1="238.5" x2="465.5" y1="399.86" y2="399.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="217" x="243.5" y="414.55">ID = MULTI_CHANNEL_IDENTICAL_ENDPOINTS</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="243.5" y="428.1699">value = Desired: [], Reported: [00]</text><rect fill="#FFFFFF" filter="url(#f1c86vrw531n1z)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="234" x="512" y="556.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="49" x="604.5" y="571.3439">Attribute</text><line style="stroke:#000000;stroke-width:1.5;" x1="513" x2="745" y1="576.86" y2="576.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="222" x="518" y="591.55">ID = MULTI_CHANNEL_INDIVIDUAL_ENDPOINTS</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="518" y="605.1699">value = Desired: [], Reported: [03]</text><rect fill="#FFFFFF" filter="url(#f1c86vrw531n1z)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="243" x="166.5" y="556.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="49" x="263.5" y="571.3439">Attribute</text><line style="stroke:#000000;stroke-width:1.5;" x1="167.5" x2="408.5" y1="576.86" y2="576.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="231" x="172.5" y="591.55">ID = MULTI_CHANNEL_AGGREGATED_ENDPOINTS</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="172.5" y="605.1699">value = Desired: [], Reported: [02]</text><rect fill="#FFFFFF" filter="url(#f1c86vrw531n1z)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="293" x="592.5" y="788.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="49" x="714.5" y="803.3439">Attribute</text><line style="stroke:#000000;stroke-width:1.5;" x1="593.5" x2="884.5" y1="808.86" y2="808.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="281" x="598.5" y="823.55">ID = MULTI_CHANNEL_ALL_INDIVIDUAL_ENDPOINTS_FOUND</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="598.5" y="837.1699">value = Desired: [], Reported: [01]</text><!--MD5=[a90c3b242f8e092de7417b4eea6e4506]
+reverse link HomeID to NodeID_1--><path codeLine="840" d="M255,100.9958 C255,116.3458 255,133.4558 255,147.2958 " fill="none" id="HomeID-backto-NodeID_1" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="255,87.5358,251,93.5358,255,99.5358,259,93.5358,255,87.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[924daaf5d7d20ef45fbe3dd36a9a49c3]
+reverse link NodeID_1 to endpoint_0--><path codeLine="841" d="M332.46,208.5858 C339.74,211.6058 347.01,214.6158 354,217.5158 C390.67,232.7158 431.63,249.7058 464.81,263.4658 " fill="none" id="NodeID_1-backto-endpoint_0" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="320.24,203.5258,324.2547,209.516,331.3282,208.1141,327.3135,202.1239,320.24,203.5258" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[b44ee9a93d5d19baeb3eaec26ebfa511]
+reverse link NodeID_1 to endpoint_x--><path codeLine="842" d="M255,216.9958 C255,232.3458 255,249.4558 255,263.2958 " fill="none" id="NodeID_1-backto-endpoint_x" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="255,203.5358,251,209.5358,255,215.5358,259,209.5358,255,203.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[2052db06cd1f821f42486b6073d4c8cc]
+reverse link NodeID_1 to endpoint_y--><path codeLine="843" d="M160.84,212.3258 C159.14,213.9758 157.53,215.7058 156,217.5158 C100.44,283.3558 113,320.3658 113,406.5158 C113,406.5158 113,406.5158 113,496.5158 C113,559.5058 117.86,633.3458 120.81,672.2858 " fill="none" id="NodeID_1-backto-endpoint_y" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="171.35,203.6458,164.1768,204.3838,162.099,211.2891,169.2723,210.5511,171.35,203.6458" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[4e18bb9ebffbb5820bac5ecf2f6f7006]
+reverse link endpoint_0 to attribute_1--><path codeLine="844" d="M549.64,331.1258 C557.69,346.9458 566.82,364.8858 574.15,379.2958 " fill="none" id="endpoint_0-backto-attribute_1" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="543.75,319.5358,542.9048,326.6972,549.1902,330.2318,550.0354,323.0704,543.75,319.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[72bd8bb407d372b97db81e8ad3292a67]
+reverse link endpoint_0 to attribute_2--><path codeLine="845" d="M476.84,326.5658 C450.41,343.4858 418.93,363.6558 394.19,379.4958 " fill="none" id="endpoint_0-backto-attribute_2" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="487.82,319.5358,480.6102,319.3995,477.7113,326.0022,484.9211,326.1386,487.82,319.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[a97c37544914a1409ae1f263eb8b2290]
+reverse link endpoint_0 to attribute_3--><path codeLine="846" d="M628.69,324.3758 C653.67,337.3958 677.5,355.2758 692,379.5158 C726.53,437.2558 680.43,515.6658 650.67,556.4158 " fill="none" id="endpoint_0-backto-attribute_3" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="616.77,318.5558,620.3999,324.7867,627.5476,323.8325,623.9177,317.6016,616.77,318.5558" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[0a55fb63d3b1453b61466fad71229a96]
+reverse link endpoint_0 to attribute_4--><path codeLine="847" d="M430.75,321.6458 C405.73,328.8858 378.9,336.5658 354,343.5158 C294.6,360.0958 257.52,330.5758 220,379.5158 C178.43,433.7258 231.04,514.6758 264.42,556.4358 " fill="none" id="endpoint_0-backto-attribute_4" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="443.26,318.0158,436.3844,315.8419,431.7332,321.3525,438.6088,323.5265,443.26,318.0158" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[4a8fd1db582b092f1aee925af2143303]
+reverse link endpoint_0 to attribute_5--><path codeLine="848" d="M628.75,322.4058 C705.5,352.4758 799,407.2158 799,495.5158 C799,495.5158 799,495.5158 799,585.5158 C799,661.0358 768.34,746.1158 750.85,788.4958 " fill="none" id="endpoint_0-backto-attribute_5" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="616.59,317.7958,620.7801,323.6647,627.8091,322.0541,623.6189,316.1853,616.59,317.7958" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[0448c807b38a79db279c9f9e697df017]
+reverse link endpoint_y to attribute_6--><path codeLine="849" d="M128.97,741.5258 C131.27,757.0058 133.86,774.3158 135.94,788.2958 " fill="none" id="endpoint_y-backto-attribute_6" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="127.03,728.5358,123.9643,735.0628,128.8101,740.4031,131.8758,733.8761,127.03,728.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[795526dc15adf07d1aaf2a8f7c4f6cb3]
+link attribute_1 to attribute_3--><!--MD5=[573fb31f7e5bbde298f9f05f1c51df40]
+link attribute_2 to attribute_4--><!--MD5=[d3a8312b93b45e52b5cc850b23881f8f]
+link attribute_3 to attribute_5--><!--MD5=[ba1beccbc6bba0f33283628547daa87b]
+link attribute_4 to attribute_6--><!--MD5=[5ae32c72f37049d5baa6fc47354e885c]
+@startuml multi_channel_attribute_store_tree.svg
+title Attribute Store Multi Channel Command Class attributes
+allow_mixing
+skinparam objectBorderColor black
+
+object HomeID #fffae6
+HomeID : ID = ATTRIBUTE_HOME_ID
+HomeID : value = Desired: [], Reported: [8C CE FB E6]
+
+object "NodeID" as NodeID_1 #f2ffe6
+NodeID_1 : ID = ATTRIBUTE_NODE_ID
+NodeID_1 : value = Desired: [], Reported: [01]
+
+object "Endpoint 0" as endpoint_0 #e6fff7
+endpoint_0 : ID = ATTRIBUTE_ENDPOINT_ID
+endpoint_0 : value = Desired: [], Reported: [00]
+
+object "Attribute" as attribute_1 #FFFFFF
+attribute_1 : ID = MULTI_CHANNEL_VERSION
+attribute_1 : value = Desired: [], Reported: [04]
+
+object "Attribute" as attribute_2 #FFFFFF
+attribute_2 : ID = MULTI_CHANNEL_IDENTICAL_ENDPOINTS
+attribute_2 : value = Desired: [], Reported: [00]
+
+object "Attribute" as attribute_3 #FFFFFF
+attribute_3 : ID = MULTI_CHANNEL_INDIVIDUAL_ENDPOINTS
+attribute_3 : value = Desired: [], Reported: [03]
+
+object "Attribute" as attribute_4 #FFFFFF
+attribute_4 : ID = MULTI_CHANNEL_AGGREGATED_ENDPOINTS
+attribute_4 : value = Desired: [], Reported: [02]
+
+object "Attribute" as attribute_5 #FFFFFF
+attribute_5 : ID = MULTI_CHANNEL_ALL_INDIVIDUAL_ENDPOINTS_FOUND
+attribute_5 : value = Desired: [], Reported: [01]
+
+
+package "For each Individual endpoint" <<Rectangle>> {
+  object "Endpoint X" as endpoint_x #e6fff7
+  endpoint_x : ID = ATTRIBUTE_ENDPOINT_ID
+  endpoint_x : value = Desired: [], Reported: [X]
+}
+
+package "For each Aggregated endpoint" <<Rectangle>> {
+  object "Endpoint Y" as endpoint_y #e6fff7
+  endpoint_y : ID = ATTRIBUTE_ENDPOINT_ID
+  endpoint_y : value = Desired: [], Reported: [Y]
+
+  object "Attribute" as attribute_6 #FFFFFF
+  attribute_6 : ID = MULTI_CHANNEL_AGGREGATED_MEMBERS
+  attribute_6 : value = Desired: [], Reported: [X1 X2 X3]
+}
+
+HomeID *- - NodeID_1
+NodeID_1 *- - endpoint_0
+NodeID_1 *- - endpoint_x
+NodeID_1 *- - endpoint_y
+endpoint_0 *- - attribute_1
+endpoint_0 *- - attribute_2
+endpoint_0 *- - attribute_3
+endpoint_0 *- - attribute_4
+endpoint_0 *- - attribute_5
+endpoint_y *- - attribute_6
+
+attribute_1 -[hidden]- -> attribute_3
+attribute_2 -[hidden]- -> attribute_4
+attribute_3 -[hidden]- -> attribute_5
+attribute_4 -[hidden]- -> attribute_6
+@enduml
+
+PlantUML version 1.2022.0(Tue Jan 11 17:16:42 CET 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

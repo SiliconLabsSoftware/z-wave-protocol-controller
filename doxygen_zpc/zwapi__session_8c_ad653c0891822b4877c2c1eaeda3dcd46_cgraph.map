@@ -1,0 +1,12 @@
+<map id="zwapi_session_init" name="zwapi_session_init">
+<area shape="rect" id="node1" title="Initialize a zwapi_session with the Z&#45;Wave module." alt="" coords="5,97,137,123"/>
+<area shape="rect" id="node2" href="$zwapi__connection_8c.html#a8d164694b886daa887b418a0765d6030" title="Initialize the zwapi_connection to the Z&#45;Wave module." alt="" coords="185,97,336,123"/>
+<area shape="rect" id="node3" href="$zwapi__serial_8c.html#a3f2b3bd848e9fe0e6e137482bed06b46" title="Flush the serial output if using buffered output." alt="" coords="395,5,524,47"/>
+<area shape="rect" id="node4" href="$zwapi__serial_8c.html#a07b09de97f4932d882fc77e191c44638" title="Initialize the serial port to 115200 BAUD 8N1." alt="" coords="400,71,519,98"/>
+<area shape="rect" id="node6" href="$zwapi__serial_8c.html#a7762d0358e9f398b92edbfd6a550984a" title="Write a byte to serial port device." alt="" coords="384,122,535,149"/>
+<area shape="rect" id="node10" href="$zwapi__timestamp_8c.html#a6ebe1ddfe689bce6ee72fc12f708aece" title="get the timestamp" alt="" coords="385,173,534,199"/>
+<area shape="rect" id="node5" href="$zwapi__serial_8c.html#aefeac5909b0bf6411db1492f69c3bc68" title=" " alt="" coords="583,71,741,98"/>
+<area shape="rect" id="node7" href="$zwapi__serial_8c.html#af9054824651df422bab5076d16a80fda" title="Writes the content of a buffer to the serial port device." alt="" coords="583,122,741,149"/>
+<area shape="rect" id="node8" href="$zwapi__serial_8c.html#a0accbbf7ddb7aeab10f5df1fe3df6642" title=" " alt="" coords="789,93,976,119"/>
+<area shape="rect" id="node9" href="$zwapi__serial_8c.html#abf18afb71e14daaf65d937149ef1639f" title="Test if a is less than b + ms." alt="" coords="811,144,954,185"/>
+</map>

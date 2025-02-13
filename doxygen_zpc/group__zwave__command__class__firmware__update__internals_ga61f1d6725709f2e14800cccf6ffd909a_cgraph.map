@@ -1,0 +1,6 @@
+<map id="postpone_firmware_update_expiry" name="postpone_firmware_update_expiry">
+<area shape="rect" id="node1" title="Postpones the Firmware Update expiry for an Endpoint." alt="" coords="5,35,184,76"/>
+<area shape="rect" id="node2" href="$zwave__command__class__firmware__update_8c.html#a54d6f03a92ac6cce094acea036cd2794" title="Abort a firmware transfer by setting the firmware update state from ONGOING to IDLE,..." alt="" coords="232,13,400,39"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__firmware__update__internals.html#gad6a37e2ff3908af73ad934c91230d3dc" title="Verifies if a Firmware Update is ongoing for an endpoint." alt="" coords="249,64,383,105"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__firmware__update__internals.html#gaceef2cdf638ab78917324cb54fbfcc39" title="Sets the Firmware transfer last status for a Firmware Update." alt="" coords="448,5,596,47"/>
+</map>

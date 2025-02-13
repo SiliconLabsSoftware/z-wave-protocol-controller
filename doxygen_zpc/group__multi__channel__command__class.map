@@ -1,0 +1,5 @@
+<map id="Multi Channel Command Class" name="Multi Channel Command Class">
+<area shape="rect" id="node1" href="$group__command__classes.html" title="List of supported and controlled Z&#45;Wave Command Classes." alt="" coords="5,13,188,38"/>
+<area shape="rect" id="node2" title="Multi Channel Command Class implementation." alt="" coords="236,5,403,45"/>
+<area shape="rect" id="node3" href="$group__multi__channel__transport.html" title="Multi Channel encapsulation and decapsulation module." alt="" coords="451,13,612,38"/>
+</map>

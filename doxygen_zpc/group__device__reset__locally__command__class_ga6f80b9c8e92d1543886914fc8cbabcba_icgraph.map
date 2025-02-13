@@ -1,0 +1,4 @@
+<map id="zwave_command_class_device_reset_locally_init" name="zwave_command_class_device_reset_locally_init">
+<area shape="rect" id="node1" title="Intitialize the Device Reset Locally command class control APIs." alt="" coords="253,5,424,47"/>
+<area shape="rect" id="node2" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

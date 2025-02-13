@@ -1,0 +1,6 @@
+<map id="zwave_security_validation_is_security_valid_for_support" name="zwave_security_validation_is_security_valid_for_support">
+<area shape="rect" id="node1" title="Verifies if a frame supported by us can be accepted based on the security it was received on." alt="" coords="693,5,868,61"/>
+<area shape="rect" id="node2" href="$zwave__command__class__manufacturer__specific_8c.html#ad5bb8ee2108954f010636d93e41755f6" title="Handles incoming manufacturer specific encapsulated commands." alt="" coords="483,5,645,61"/>
+<area shape="rect" id="node3" href="$zwave__command__class__manufacturer__specific_8c.html#a68b75e94eac46dc0380c3f045ab0653b" title="setup for manufacturer specific command class" alt="" coords="253,13,435,54"/>
+<area shape="rect" id="node4" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="set_all_user_codes_to_available" name="set_all_user_codes_to_available">
+<area shape="rect" id="node1" title="Navigates up the tree from a node and makes sure that all user codes are set to &quot;disabled&quot; with no pi..." alt="" coords="5,5,140,47"/>
+<area shape="rect" id="node2" href="$zwave__command__class__user__code_8c.html#a37bbe28e81c3999783edc49743cf52cd" title="Checks if the user_id_node type is correct and sets the user code data to Available underneath." alt="" coords="188,13,371,39"/>
+</map>

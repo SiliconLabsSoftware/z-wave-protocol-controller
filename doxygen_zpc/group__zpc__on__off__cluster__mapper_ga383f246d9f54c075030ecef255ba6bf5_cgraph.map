@@ -1,0 +1,9 @@
+<map id="fan_control_cluster_server_init" name="fan_control_cluster_server_init">
+<area shape="rect" id="node1" title="Initialize the FanControl cluster server." alt="" coords="5,35,137,76"/>
+<area shape="rect" id="node2" href="$fan__control__cluster__server_8c.html#aced01fc771b777952292791836027286" title=" " alt="" coords="185,42,368,69"/>
+<area shape="rect" id="node3" href="$group__zpc__attribute__store__network__helpers.html#gae4d15b8e0c61c88d94c8f342bd2014fc" title="Take a UNID/endpoint combination and returns its attribute store node." alt="" coords="416,35,596,76"/>
+<area shape="rect" id="node4" href="$group__zpc__attribute__store__network__helpers.html#gafb993ff484b3c826743c4695d6659cf0" title="Take a UNID and return its attribute store node representing the NodeID." alt="" coords="644,35,820,76"/>
+<area shape="rect" id="node5" href="$group__zpc__attribute__store__network__helpers.html#ga05cb572c96f7dc8e6657f86e135fafed" title="Take a UNID and return its attribute store node representing the HomeID." alt="" coords="868,5,1048,47"/>
+<area shape="rect" id="node7" href="$group__zwave__unid.html#ga76885767debd174e96e6df00b0a368c3" title="Convert a UNID to a node ID." alt="" coords="877,71,1039,98"/>
+<area shape="rect" id="node6" href="$group__zwave__unid.html#ga92f9808a08c2ce1c0a6a9dc2debf3580" title="Convert a UNID to a Home ID." alt="" coords="1096,13,1261,39"/>
+</map>

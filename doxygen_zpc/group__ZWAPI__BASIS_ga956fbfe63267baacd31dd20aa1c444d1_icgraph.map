@@ -1,0 +1,62 @@
+<map id="zwapi_get_node_id_basetype" name="zwapi_get_node_id_basetype">
+<area shape="rect" id="node1" title="Get the current node ID basetype setting." alt="" coords="1609,231,1803,257"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__CONTROLLER.html#gab4889f7c87ff9da037203fb99a6e5189" title="Get the currently registered SUC node ID." alt="" coords="1400,155,1561,181"/>
+<area shape="rect" id="node3" href="$zwapi__utils_8c.html#a6d88e95211c894df11d77b32fb987108" title="Read the node ID from buffer based on node ID basetype. Note that this helper also advances the index..." alt="" coords="1411,256,1551,283"/>
+<area shape="rect" id="node13" href="$zwapi__protocol__rx__dispatch_8c.html#adae889855e6d3fcf03c1723303a9ab13" title="Execute a callback based on a received frame from the Z&#45;Wave module." alt="" coords="1204,190,1341,231"/>
+<area shape="rect" id="node23" href="$zwapi__utils_8c.html#aeea16d7db2f976466a2c0f4aa9b0416f" title="Write the node ID in buffer based on node ID basetype. Note that this helper also advances the index." alt="" coords="1201,1024,1344,1051"/>
+<area shape="rect" id="node4" href="$group__ZWAPI__CONTROLLER.html#ga96d2223f3b07ebcdea76c9719518a83a" title="Get the Last Working Route (LWR) for a destination node if any exist." alt="" coords="983,310,1110,351"/>
+<area shape="rect" id="node5" href="$group__ZWAPI__MEM.html#ga7e303e378a0865e5e9e6b921d4f3ebc6" title="Get the Home ID and Node ID of the Z&#45;Wave module." alt="" coords="1193,256,1352,283"/>
+<area shape="rect" id="node6" href="$group__zwave__network__management__helpers.html#ga5b5936eb9f5a42d143b0c1714d8a7d68" title="Asks the Z&#45;Wave API to tell us our current HomeID and NodeID." alt="" coords="971,245,1122,286"/>
+<area shape="rect" id="node7" href="$group__zwave__network__management__helpers.html#ga928b8064fa28f0d83d52c176d8dd994b" title="Quick helper function that will refresh all network information (HomeID, NodeID, Node list,..." alt="" coords="695,245,889,286"/>
+<area shape="rect" id="node8" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="242,431,382,457"/>
+<area shape="rect" id="node10" href="$nm__state__machine_8c.html#a4bedb93fa551c5f612efe78db1642309" title="Initialize the Z&#45;Wave network management state machine." alt="" coords="469,161,625,188"/>
+<area shape="rect" id="node12" href="$nm__state__machine_8c.html#abcdc17538148dcf4141793a866836aae" title="This function is called at the end of a set default or after learnmode." alt="" coords="487,212,607,239"/>
+<area shape="rect" id="node9" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="11,431,161,457"/>
+<area shape="rect" id="node11" href="$group__zwave__network__management__fixt.html#gaa8950dbf92037e3ec5e0385641176c98" title="Initialize the Z&#45;Wave Network Management Module." alt="" coords="215,183,409,225"/>
+<area shape="rect" id="node14" href="$group__ZWAPI__INIT.html#gad44a77c9f06a6a5b81d5b3fd1f38e6b1" title="Main poll loop for the Z&#45;Wave API." alt="" coords="1005,81,1088,108"/>
+<area shape="rect" id="node15" href="$ext__nvm__tools_8c.html#acef510833d69d86e376fa1ef62223e23" title=" " alt="" coords="725,56,859,83"/>
+<area shape="rect" id="node16" href="$zwave__rx__process_8c.html#a1f0b437f1f0b50eaf5b8f6b046beecb9" title="Polls for incoming messages from the Z&#45;Wave Module." alt="" coords="739,5,845,32"/>
+<area shape="rect" id="node18" href="$group__zwave__rx.html#gaf0bda5801b11477480aa34a8e04e4547" title=" " alt="" coords="459,95,635,137"/>
+<area shape="rect" id="node17" href="$zwave__rx__process_8c.html#a186b6143153fa283a4b45676f3f2f3dd" title=" " alt="" coords="471,5,622,32"/>
+<area shape="rect" id="node19" href="$zcl__rf__telemetry__cluster__server_8c.html#ac29ff666c3782d03a6bc8735c6d0f54a" title=" " alt="" coords="227,66,397,107"/>
+<area shape="rect" id="node21" href="$group__zwave__rx__internals.html#ga5fb555f285dbe1b21ba750d0443476c8" title="Initialize the Z&#45;Wave Rx component." alt="" coords="261,132,363,159"/>
+<area shape="rect" id="node20" href="$group__zcl__rf__telemetry__cluster__server.html#ga5a27d7313f0a22b85af05134a114a799" title="Initialize the ZCL ProtocolController RF Telemetry cluster service." alt="" coords="5,66,167,107"/>
+<area shape="rect" id="node22" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="15,132,157,159"/>
+<area shape="rect" id="node24" href="$group__ZWAPI__CONTROLLER.html#ga24e72d86451ee46100056cb87f06ad2e" title="Assign static return routes within a Routing End Node." alt="" coords="976,1177,1117,1218"/>
+<area shape="rect" id="node27" href="$zwapi__protocol__controller_8c.html#a4e3c0c5c55ebc287e2832e7ea176b6d3" title=" " alt="" coords="962,777,1131,818"/>
+<area shape="rect" id="node28" href="$zwapi__protocol__controller_8c.html#a14e31c9f3ca8205584927dc869425086" title=" " alt="" coords="977,842,1116,883"/>
+<area shape="rect" id="node29" href="$zwapi__protocol__controller_8c.html#abcc94761c80fb2d51a7c36aef39a2277" title=" " alt="" coords="963,907,1130,949"/>
+<area shape="rect" id="node30" href="$group__ZWAPI__CONTROLLER.html#ga8efa0b52dad35d456462947d33f7b149" title="Set the NLS State of the node in the controller NVM." alt="" coords="967,973,1127,1000"/>
+<area shape="rect" id="node32" href="$group__ZWAPI__CONTROLLER.html#ga127f9daefbb194eff787bd4ea253f204" title="Get the NLS State of the node in the controller NVM." alt="" coords="977,1024,1117,1051"/>
+<area shape="rect" id="node33" href="$group__ZWAPI__CONTROLLER.html#gaac34a04ebe6b6ab18a1b755d787aea8c" title="Read out neighbor information." alt="" coords="957,1075,1136,1101"/>
+<area shape="rect" id="node34" href="$group__ZWAPI__CONTROLLER.html#ga36f9cc653f890606e5d482ecef45a6b8" title="Copy the Node&#39;s current protocol information from the non&#45;volatile memory." alt="" coords="965,376,1128,403"/>
+<area shape="rect" id="node37" href="$group__ZWAPI__CONTROLLER.html#gab3e61d986c2d186deb45b535cefabb38" title="Check if a node is in the failed nodes table." alt="" coords="973,1125,1120,1152"/>
+<area shape="rect" id="node38" href="$group__ZWAPI__CONTROLLER.html#gac21344422be9ce06ad84438f12c1e466" title="Remove a node from the failed node list, if it already exist." alt="" coords="457,631,636,657"/>
+<area shape="rect" id="node39" href="$zwapi__protocol__controller_8c.html#a56f0f17e04f7eab5eefa2bf351710e3b" title=" " alt="" coords="957,1243,1136,1269"/>
+<area shape="rect" id="node40" href="$group__ZWAPI__CONTROLLER.html#gac2f0350721c0485f44682d9369262528" title="Start neighbor discovery for bNodeID." alt="" coords="465,482,628,523"/>
+<area shape="rect" id="node41" href="$group__ZWAPI__CONTROLLER.html#ga7f0684275070545db6dfb2b534e93b01" title="Request node information from a node." alt="" coords="962,1512,1131,1539"/>
+<area shape="rect" id="node46" href="$zwapi__protocol__controller_8c.html#a0cfacfa361bdc82ceff98801e9e33307" title=" " alt="" coords="971,1395,1122,1437"/>
+<area shape="rect" id="node47" href="$group__ZWAPI__TRANSPORT.html#ga550a9c5891598a986c28487f36d6e24c" title="Send data to a Z&#45;Wave node or to the broadcast destination." alt="" coords="731,1461,853,1488"/>
+<area shape="rect" id="node48" href="$group__ZWAPI__TRANSPORT.html#ga49e55cd554c976315f80fa0d605debf9" title="Transmit data buffer to a single ZW&#45;node or all ZW&#45;nodes (broadcast) in bridge mode." alt="" coords="964,1461,1129,1488"/>
+<area shape="rect" id="node49" href="$group__ZWAPI__TRANSPORT.html#ga117c122b8c680198f198acdf737adf15" title="Send data to a list of Z&#45;Wave Nodes (multicast frame)." alt="" coords="713,1723,871,1749"/>
+<area shape="rect" id="node50" href="$group__ZWAPI__TRANSPORT.html#ga98a99d5a85b10bc6bd51e68233142b52" title="Send data to a list of Z&#45;Wave Nodes (multicast frame) in bridge mode." alt="" coords="967,1715,1126,1757"/>
+<area shape="rect" id="node51" href="$group__ZWAPI__BASIS.html#gaa214b575f39daf6c9bbe6cb7005db3a2" title="Create and transmit a &quot;Node Information&quot; frame." alt="" coords="948,1664,1145,1691"/>
+<area shape="rect" id="node52" href="$group__ZWAPI__TRANSPORT.html#ga2475e2eb87efe6379c0e58840465cda4" title="Sends a NOP to a NodeID destination." alt="" coords="987,1563,1106,1589"/>
+<area shape="rect" id="node53" href="$group__ZWAPI__TRANSPORT.html#gafb9f3e0334388d29478e68a052024f94" title="Send protocol data to a Z&#45;Wave node." alt="" coords="704,1352,880,1379"/>
+<area shape="rect" id="node54" href="$group__ZWAPI__BASIS.html#ga00ec87f6642ea55343cf3cf69e4eea82" title="Send a test frame to specified NodeID." alt="" coords="712,1605,872,1632"/>
+<area shape="rect" id="node55" href="$group__ZWAPI__CONTROLLER.html#gafb261017b1c4da4fbddf07019b6852ca" title="Set the Last Working Route (LWR) for a destination node." alt="" coords="983,478,1110,519"/>
+<area shape="rect" id="node56" href="$group__ZWAPI__CONTROLLER.html#ga6d91d2887a006b8da28f68961174ae54" title="Enable/disable the Static Update Controller functionality in a specified static controller." alt="" coords="966,185,1127,212"/>
+<area shape="rect" id="node58" href="$group__ZWAPI__CONTROLLER.html#ga9e0642c989ca000cc00bb872d1a5f60d" title="Sets the Application Node Information data for all virtual nodes owned by the Z&#45;Wave API Module." alt="" coords="948,543,1145,585"/>
+<area shape="rect" id="node59" href="$zwapi__protocol__controller_8c.html#ace4e4ff828eb3ef760b1f669f41c08fd" title=" " alt="" coords="967,609,1126,650"/>
+<area shape="rect" id="node60" href="$group__ZWAPI__CONTROLLER.html#gac50fc7d27368607994797858f10b9b9c" title="Transfer a decrypted Protocol Command Class to the controller module." alt="" coords="956,675,1137,701"/>
+<area shape="rect" id="node25" href="$group__zwave__network__management__return__route__queue.html#ga532355608af2ba5bb787c509680f24a0" title="Requests the Z&#45;Wave API to assign the Next Return Route in the queue." alt="" coords="695,937,889,978"/>
+<area shape="rect" id="node26" href="$group__zwave__network__management__return__route__queue.html#ga1e7c3103d2272ce25953c60d13c30c0f" title="callback function for zwapi_assign_return_route()" alt="" coords="468,878,625,919"/>
+<area shape="rect" id="node31" href="$zwave__s2__transport_8c.html#a673e043030c5c3cd9a52cd99808db799" title=" " alt="" coords="723,871,861,913"/>
+<area shape="rect" id="node35" href="$zwave__rx__zwapi__callbacks_8c.html#a3a3728de7575bab7ebbd4f1529f8eae4" title="function that converts the data received from the Z&#45;Wave API to fit in a zwave_node_info_t." alt="" coords="684,315,900,341"/>
+<area shape="rect" id="node36" href="$group__zwave__rx__zwapi__callbacks.html#gad8a7864d183b913f74d0f18edbf89f36" title="application_controller_update function for zwapi_callbacks. Incoming NIF from the Z&#45;Wave nodes will b..." alt="" coords="473,263,620,305"/>
+<area shape="rect" id="node42" href="$zwave__api__transport_8c.html#aa1c7467270218674e9e755e7047eecd6" title=" " alt="" coords="721,1530,863,1571"/>
+<area shape="rect" id="node43" href="$zwave__api__transport_8c.html#a825851abed8977dfab0e305f7ae30610" title="Encapsulates with Multi Channel and send a frame to the Z&#45;Wave TX queue." alt="" coords="471,1537,622,1564"/>
+<area shape="rect" id="node44" href="$group__zwave__api__transport.html#ga0b879fc413b5e3faaf848287f0d36d22" title="Initialize the Z&#45;Wave API Transport *." alt="" coords="229,1537,395,1564"/>
+<area shape="rect" id="node45" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="11,1537,161,1564"/>
+<area shape="rect" id="node57" href="$group__zwave__network__management__helpers.html#ga4e9722c15b21c559fd96d7c0d69d9337" title="Attempts to take the SUC/SIS Role, if there is no SUC in the network." alt="" coords="717,164,867,220"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="zwapi_session_init" name="zwapi_session_init">
+<area shape="rect" id="node1" title="Initialize a zwapi_session with the Z&#45;Wave module." alt="" coords="515,42,647,69"/>
+<area shape="rect" id="node2" href="$group__ZWAPI__INIT.html#ga503a76a5835c274e4b7610e2f80f5e6f" title=" " alt="" coords="387,42,467,69"/>
+<area shape="rect" id="node3" href="$group__zpc__ncp__update__fixt.html#gaaca8dd596d6abe6ca27de8d7c93c5cf2" title="This function check if the NCP firmware should be updated." alt="" coords="196,5,339,47"/>
+<area shape="rect" id="node4" href="$group__zwave__rx__internals.html#ga5fb555f285dbe1b21ba750d0443476c8" title="Initialize the Z&#45;Wave Rx component." alt="" coords="216,71,319,98"/>
+<area shape="rect" id="node5" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="5,71,148,98"/>
+</map>

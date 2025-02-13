@@ -1,0 +1,10 @@
+<map id="zpc_attribute_store_init" name="zpc_attribute_store_init">
+<area shape="rect" id="node1" title="Initialize attribute store specifically for ZPC." alt="" coords="5,115,163,142"/>
+<area shape="rect" id="node2" href="$zpc__attribute__store_8c.html#a1248f0598408f1429212f0faa75d2ce1" title=" " alt="" coords="245,5,387,47"/>
+<area shape="rect" id="node3" href="$zpc__attribute__store_8c.html#aebdd95d6a01728cc094e969460ac397b" title=" " alt="" coords="232,71,400,112"/>
+<area shape="rect" id="node7" href="$group__zpc__attribute__store__register__default__attribute__type__data.html#gaad2b8a4905a053aa3592bccd4bfa4980" title="Register default names and information for all attributes types that are not registerd yet." alt="" coords="230,137,402,193"/>
+<area shape="rect" id="node8" href="$group__zpc__attribute__store__type__registration.html#ga0329102c1ff1a2a5f5895bc23be81e0f" title="Register all known ZPC/Z&#45;Wave attribute types." alt="" coords="211,217,421,259"/>
+<area shape="rect" id="node4" href="$group__zpc__attribute__store.html#gaa77e8f9b18958337bb68279c8c53ccdc" title="Returns the HomeID (attribute store) node of our current network." alt="" coords="469,46,625,73"/>
+<area shape="rect" id="node6" href="$zpc__attribute__store_8c.html#aac2dbb1711b833bfd0158e22dabc8243" title="Finds all NodeIDs network statuses with one value and change them to a new one." alt="" coords="477,97,618,153"/>
+<area shape="rect" id="node5" href="$group__zwave__network__management.html#gac01bf38badf30f94eac9a04b486cb967" title="Get the cached HomeID." alt="" coords="673,39,868,80"/>
+</map>

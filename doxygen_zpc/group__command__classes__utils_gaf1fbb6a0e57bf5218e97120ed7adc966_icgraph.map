@@ -1,0 +1,8 @@
+<map id="get_zwave_node_role_type" name="get_zwave_node_role_type">
+<area shape="rect" id="node1" title="Provides the Role Type of a node." alt="" coords="1101,29,1281,56"/>
+<area shape="rect" id="node2" href="$group__command__classes__utils.html#ga7dd7a32346c549c1f82f97037625db40" title="Verifies if a Node is a Portable End Node. (PS / PEN Role type)" alt="" coords="905,29,1053,56"/>
+<area shape="rect" id="node3" href="$zwave__command__class__wake__up_8c.html#aaff9153e6b7f2f12495d4528a1e348f5" title="Configures the Wake Up Interval setting for a node." alt="" coords="675,29,857,56"/>
+<area shape="rect" id="node4" href="$zwave__command__class__wake__up_8c.html#af927fc2e0ebd3d6502c5167a6e8c6e27" title="Verifies if we are resolving capabilities, and if yes, set a resolutio listener to set the Wake Up In..." alt="" coords="464,22,627,63"/>
+<area shape="rect" id="node5" href="$group__zwave__command__class__wake__up.html#ga11866ec0935bee3fba386bc3ed28e0b6" title="Initializes the Wake Up Command Class handler." alt="" coords="253,22,416,63"/>
+<area shape="rect" id="node6" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,29,205,56"/>
+</map>

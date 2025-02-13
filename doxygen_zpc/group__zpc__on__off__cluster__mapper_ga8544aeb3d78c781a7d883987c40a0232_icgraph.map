@@ -1,0 +1,4 @@
+<map id="on_off_cluster_basic_mapper_init" name="on_off_cluster_basic_mapper_init">
+<area shape="rect" id="node1" title="Intitialise the OnOff cluster mapper." alt="" coords="185,5,328,47"/>
+<area shape="rect" id="node2" href="$group__dotdot__mapper.html#gade4f574e9bce9945ba630a42b0bcc3c5" title="Initialize all known cluster mappers." alt="" coords="5,13,137,39"/>
+</map>

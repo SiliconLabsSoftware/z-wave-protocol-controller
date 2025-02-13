@@ -1,0 +1,11 @@
+<map id="zwapi_get_protocol_version" name="zwapi_get_protocol_version">
+<area shape="rect" id="node1" title="Retrieves versioning data from the Z&#45;Wave API Module." alt="" coords="925,108,1060,149"/>
+<area shape="rect" id="node2" href="$group__zpc__ncp__update__fixt.html#gaaca8dd596d6abe6ca27de8d7c93c5cf2" title="This function check if the NCP firmware should be updated." alt="" coords="709,5,851,47"/>
+<area shape="rect" id="node3" href="$zwave__command__class__version_8c.html#a49e98971c907a7d4b0ab3b86f941df0e" title=" " alt="" coords="683,71,877,112"/>
+<area shape="rect" id="node7" href="$zwave__command__class__version_8c.html#a56dc326e5f799651f923c5bdf81c79d4" title=" " alt="" coords="692,137,868,193"/>
+<area shape="rect" id="node8" href="$group__zwave__rx__internals.html#ga5fb555f285dbe1b21ba750d0443476c8" title="Initialize the Z&#45;Wave Rx component." alt="" coords="729,217,831,243"/>
+<area shape="rect" id="node4" href="$zwave__command__class__version_8c.html#a75a0004cf86479f6896b5b515576d83f" title=" " alt="" coords="464,108,635,149"/>
+<area shape="rect" id="node5" href="$group__zwave__command__class__version.html#gabae96a5c6c82334f5979f3b407b973e3" title="Intitialize the Version Command Class control APIs." alt="" coords="253,108,416,149"/>
+<area shape="rect" id="node6" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,115,205,142"/>
+<area shape="rect" id="node9" href="$group__zwave__rx__fixt.html#ga89a6db07ef29cb6ad8f8cdeec935b442" title=" " alt="" coords="478,217,621,243"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="create_humidity_setpoint_type_node" name="create_humidity_setpoint_type_node">
+<area shape="rect" id="node1" title=" " alt="" coords="916,13,1083,54"/>
+<area shape="rect" id="node2" href="$zwave__command__class__humidity__control__setpoint_8c.html#a73c3b6669aceee0a35ac471469841d4b" title=" " alt="" coords="705,13,868,54"/>
+<area shape="rect" id="node3" href="$zwave__command__class__humidity__control__setpoint_8c.html#a11441c24cfb3418b32e8404ce1f995fa" title=" " alt="" coords="480,5,657,61"/>
+<area shape="rect" id="node4" href="$zwave__command__class__humidity__control__setpoint_8c.html#a7c4650a6c3a4cdb774bf7f88ef4f483f" title=" " alt="" coords="255,5,432,61"/>
+<area shape="rect" id="node5" href="$group__zwave__command__class__humidity__control__setpoint.html#ga4abb01b3b103b452e9d967c16c521f24" title=" " alt="" coords="5,13,207,54"/>
+</map>

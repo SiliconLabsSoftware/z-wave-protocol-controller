@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="418px" preserveAspectRatio="none" style="width:977px;height:418px;background:#FFFFFF;" version="1.1" viewBox="0 0 977 418" width="977px" zoomAndPan="magnify"><defs><filter height="300%" id="flnxpuzcmr4jr" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacing" textLength="333" x="315.5" y="19.2419">SPAN persistence in the attribute store</text><!--MD5=[ea3d5de2a0d35296bc751d5a1b771698]
+cluster Attribute Store--><path d="M6,40.5158 C6,30.5158 488,30.5158 488,30.5158 C488,30.5158 970,30.5158 970,40.5158 L970,401.5158 C970,411.5158 488,411.5158 488,411.5158 C488,411.5158 6,411.5158 6,401.5158 L6,40.5158 " fill="#FFFFFF" filter="url(#flnxpuzcmr4jr)" style="stroke:#000000;stroke-width:1.5;"/><path d="M6,40.5158 C6,50.5158 488,50.5158 488,50.5158 C488,50.5158 970,50.5158 970,40.5158 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="105" x="435.5" y="67.4818">Attribute Store</text><!--MD5=[5191e8b062a68725aacf43ecf3806121]
+cluster Other Nodes--><polygon fill="#FFFFFF" filter="url(#flnxpuzcmr4jr)" points="232,161.5158,326,161.5158,333,186.5838,946,186.5838,946,387.5158,232,387.5158,232,161.5158" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="232" x2="333" y1="186.5838" y2="186.5838"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="88" x="236" y="178.4818">Other Nodes</text><rect fill="#FFFAE6" filter="url(#flnxpuzcmr4jr)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="218" x="130" y="83.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="47" x="215.5" y="98.3439">HomeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="131" x2="347" y1="103.86" y2="103.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="123" x="136" y="118.55">ID = ATTRIBUTE_HOME_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="206" x="136" y="132.1699">value = Desired: [], Reported: [8C CE FB E6]</text><rect fill="#F2FFE6" filter="url(#flnxpuzcmr4jr)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="193" x="22.5" y="199.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="68" x="85" y="214.3439">ZPC NodeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="23.5" x2="214.5" y1="219.86" y2="219.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="181" x="28.5" y="234.55">Attribute Type = ATTRIBUTE_NODE_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="28.5" y="248.1699">value = Desired: [], Reported: [01]</text><rect fill="#F2FFE6" filter="url(#flnxpuzcmr4jr)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="193" x="371.5" y="199.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="43" x="446.5" y="214.3439">NodeID</text><line style="stroke:#000000;stroke-width:1.5;" x1="372.5" x2="563.5" y1="219.86" y2="219.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="181" x="377.5" y="234.55">Attribute Type = ATTRIBUTE_NODE_ID</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="161" x="377.5" y="248.1699">value = Desired: [], Reported: [03]</text><rect fill="#FEFEFE" filter="url(#flnxpuzcmr4jr)" height="55.5841" style="stroke:#000000;stroke-width:1.5;" width="682" x="248" y="315.5158"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="63" x="557.5" y="330.3439">SPAN Entry</text><line style="stroke:#000000;stroke-width:1.5;" x1="249" x2="929" y1="335.86" y2="335.86"/><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="214" x="254" y="350.55">Attribute Type = ATTRIBUTE_S2_SPAN_ENTRY</text><text fill="#000000" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="670" x="254" y="364.1699">value = Desired: [] - Reported: [00,3c,8c,fa,31,85,33,eb,db,70,5f,62,b4,65,95,53,91,fb,82,87,49,88,15,d5,ef,7c,dc,4e,36,ee,28,23,4b,d4,9f,01]</text><!--MD5=[1bea09fc933d9a415fa1ec313e7a7cac]
+reverse link home_id to zpc_node--><path codeLine="73" d="M200.79,148.8158 C183.56,165.1858 163.56,184.1858 147.65,199.2958 " fill="none" id="home_id-backto-zpc_node" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="210.56,139.5358,203.455,140.7683,201.86,147.8008,208.965,146.5683,210.56,139.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[4dab04efc5f9b899ccf1fd0853335eeb]
+reverse link home_id to node--><path codeLine="74" d="M348.4,144.5058 C355.13,147.3258 361.71,150.3258 368,153.5158 C392.54,165.9558 417.54,184.2058 436.41,199.3458 " fill="none" id="home_id-backto-node" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="336.17,139.6358,340.2638,145.5723,347.3181,144.0766,343.2243,138.1402,336.17,139.6358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[e01f3ce942919f544f02bf52f9d83471]
+reverse link node to span_entry--><path codeLine="75" d="M506.53,264.8158 C523.9,281.1858 544.07,300.1858 560.11,315.2958 " fill="none" id="node-backto-span_entry" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="496.68,255.5358,498.3024,262.5621,505.4122,263.7668,503.7898,256.7406,496.68,255.5358" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[040a1a40ffbe73777fd09b93b51d3144]
+@startuml attribute_store_span_persistence.svg
+title SPAN persistence in the attribute store
+allow_mixing
+skinparam objectBorderColor black
+
+package "Attribute Store" <<Database>> {
+  object "HomeID" as home_id #fffae6
+  home_id : ID = ATTRIBUTE_HOME_ID
+  home_id : value = Desired: [], Reported: [8C CE FB E6]
+
+  object "ZPC NodeID" as zpc_node #f2ffe6
+  zpc_node : Attribute Type = ATTRIBUTE_NODE_ID
+  zpc_node : value = Desired: [], Reported: [01]
+
+  package "Other Nodes"{
+    object "NodeID" as node #f2ffe6
+    node : Attribute Type = ATTRIBUTE_NODE_ID
+    node : value = Desired: [], Reported: [03]
+
+    object "SPAN Entry" as span_entry #FEFEFE
+    span_entry : Attribute Type = ATTRIBUTE_S2_SPAN_ENTRY
+    span_entry : value = Desired: [] - Reported: [00,3c,8c,fa,31,85,33,eb,db,70,5f,62,b4,65,95,53,91,fb,82,87,49,88,15,d5,ef,7c,dc,4e,36,ee,28,23,4b,d4,9f,01]
+  }
+}
+home_id *- - zpc_node
+home_id *- - node
+node *- - span_entry
+@enduml
+
+PlantUML version 1.2022.0(Tue Jan 11 17:16:42 CET 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

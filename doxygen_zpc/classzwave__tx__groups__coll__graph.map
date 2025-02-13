@@ -1,0 +1,9 @@
+<map id="zwave_tx_groups" name="zwave_tx_groups">
+<area shape="rect" id="node1" title=" " alt="" coords="5,484,203,781"/>
+<area shape="rect" id="node2" title=" " alt="" coords="139,315,314,421"/>
+<area shape="rect" id="node3" href="$structzwave__tx__group__t.html" title="Group data contained in a Z&#45;Wave Tx Group." alt="" coords="115,160,243,237"/>
+<area shape="rect" id="node4" title=" " alt="" coords="41,5,103,83"/>
+<area shape="rect" id="node5" title=" " alt="" coords="162,5,209,83"/>
+<area shape="rect" id="node6" title=" " alt="" coords="267,160,365,237"/>
+<area shape="rect" id="node7" title=" " alt="" coords="297,5,335,83"/>
+</map>

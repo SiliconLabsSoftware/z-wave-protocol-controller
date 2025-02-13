@@ -1,0 +1,5 @@
+<map id="on_node_info_update" name="on_node_info_update">
+<area shape="rect" id="node1" title="Reacts to Node Info Frame updates and verify that we will search for granted keys/inclusion protocol ..." alt="" coords="485,13,631,39"/>
+<area shape="rect" id="node2" href="$group__zwave__granted__keys.html#ga1e9daa986c6a8ce94e4301aaa01e74a4" title="Registers callbacks to the attribute store and rules to the attribute resolver to be able to resolve ..." alt="" coords="253,5,437,47"/>
+<area shape="rect" id="node3" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,13,205,39"/>
+</map>

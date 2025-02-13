@@ -1,0 +1,4 @@
+<map id="zwapi_serial_init" name="zwapi_serial_init">
+<area shape="rect" id="node1" title="Initialize the serial port to 115200 BAUD 8N1." alt="" coords="5,5,124,32"/>
+<area shape="rect" id="node2" href="$zwapi__serial_8c.html#aefeac5909b0bf6411db1492f69c3bc68" title=" " alt="" coords="172,5,331,32"/>
+</map>

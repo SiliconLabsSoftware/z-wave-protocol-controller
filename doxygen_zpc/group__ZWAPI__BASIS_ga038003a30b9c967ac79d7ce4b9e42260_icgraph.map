@@ -1,0 +1,4 @@
+<map id="zwapi_set_application_node_information" name="zwapi_set_application_node_information">
+<area shape="rect" id="node1" title="Set ApplicationNodeInformation data to be used in subsequent calls to zwapi_send_node_information()." alt="" coords="199,5,349,47"/>
+<area shape="rect" id="node2" href="$group__zwave__controller__component.html#ga35c0407648757629f7e74017fe81cfb2" title="Set the application part of the node information frame (NIF)." alt="" coords="5,5,151,47"/>
+</map>

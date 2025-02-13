@@ -1,0 +1,6 @@
+<map id="on_s2_inclusion_started" name="on_s2_inclusion_started">
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,168,32"/>
+<area shape="rect" id="node2" href="$group__zwave__s0__network.html#gaf05a7068f06036558f3d999b95870e86" title="Stop the S2 bootstrapping." alt="" coords="216,5,415,32"/>
+<area shape="rect" id="node3" href="$group__zwave__s0__inclusion__state__machine.html#ga41bad9eaf9663c6a6f197fd1b334916f" title="Stop the S0 bootstrapping timers." alt="" coords="463,5,616,32"/>
+<area shape="rect" id="node4" href="$zwave__s0__sm_8c.html#add560d910f441570d80bd78fb591f7f0" title=" " alt="" coords="664,5,761,32"/>
+</map>

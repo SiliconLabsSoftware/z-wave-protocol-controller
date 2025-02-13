@@ -1,0 +1,9 @@
+<map id="network_management_refresh_cached_ids" name="network_management_refresh_cached_ids">
+<area shape="rect" id="node1" title="Asks the Z&#45;Wave API to tell us our current HomeID and NodeID." alt="" coords="892,128,1043,169"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management__helpers.html#ga928b8064fa28f0d83d52c176d8dd994b" title="Quick helper function that will refresh all network information (HomeID, NodeID, Node list,..." alt="" coords="651,77,844,119"/>
+<area shape="rect" id="node3" href="$nm__state__machine_8c.html#ac9fe4041f9ca45bad16c9b6ad7bae02f" title=" " alt="" coords="231,114,371,141"/>
+<area shape="rect" id="node5" href="$nm__state__machine_8c.html#a4bedb93fa551c5f612efe78db1642309" title="Initialize the Z&#45;Wave network management state machine." alt="" coords="447,13,603,39"/>
+<area shape="rect" id="node7" href="$nm__state__machine_8c.html#abcdc17538148dcf4141793a866836aae" title="This function is called at the end of a set default or after learnmode." alt="" coords="465,114,585,141"/>
+<area shape="rect" id="node4" href="$zwave__network__management__process_8c.html#a59cf655b084839b45cc25e23b3aef04c" title=" " alt="" coords="5,114,156,141"/>
+<area shape="rect" id="node6" href="$group__zwave__network__management__fixt.html#gaa8950dbf92037e3ec5e0385641176c98" title="Initialize the Z&#45;Wave Network Management Module." alt="" coords="204,5,399,47"/>
+</map>

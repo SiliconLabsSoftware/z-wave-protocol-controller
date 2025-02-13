@@ -1,0 +1,11 @@
+<map id="zwave_controller_register_callbacks" name="zwave_controller_register_callbacks">
+<area shape="rect" id="node1" title="Let another component register its callbacks for Z&#45;Wave Controller events." alt="" coords="468,115,639,156"/>
+<area shape="rect" id="node2" href="$group__zcl__rf__telemetry__cluster__server.html#ga5a27d7313f0a22b85af05134a114a799" title="Initialize the ZCL ProtocolController RF Telemetry cluster service." alt="" coords="256,5,417,47"/>
+<area shape="rect" id="node3" href="$group__zwave__api__transport.html#ga0b879fc413b5e3faaf848287f0d36d22" title="Initialize the Z&#45;Wave API Transport *." alt="" coords="253,71,420,98"/>
+<area shape="rect" id="node5" href="$group__zwave__nif__resolver.html#gae3d7718b1013ff52f8ea4984621b762c" title="Registers callbacks to the attribute store and rules to the attribute resolver to be able to resolve ..." alt="" coords="255,173,418,215"/>
+<area shape="rect" id="node7" href="$group__zwave__s0__transport.html#ga7fcd7083b5fe3b6b2838d0d64f815f53" title="Initialize the S0 Transport Also calls zwave_s0_network_init() which aborts all tx sessions and frees..." alt="" coords="255,122,418,149"/>
+<area shape="rect" id="node8" href="$zwave__s2__process_8c.html#a51f51bd8129a84a685510bf2aaa812a9" title=" " alt="" coords="284,239,389,266"/>
+<area shape="rect" id="node4" href="$group__zwave__transports__fixt.html#ga26fb2571e272a5094bd0320eca3a896d" title="Setup fixture for Z&#45;Wave Transports." alt="" coords="31,97,180,123"/>
+<area shape="rect" id="node6" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,181,205,207"/>
+<area shape="rect" id="node9" href="$zwave__s2__process_8c.html#afac04df3afbbd6765ef8bc3841257d47" title=" " alt="" coords="30,239,181,266"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="zwave_s2_start_add_node" name="zwave_s2_start_add_node">
+<area shape="rect" id="node1" title="Start the S2 add node process." alt="" coords="5,46,183,73"/>
+<area shape="rect" id="node2" href="$group__zwave__network__management.html#gae265f1e935804f3f0b971755ab0ee61e" title="Get the cached NodeID." alt="" coords="231,5,425,47"/>
+<area shape="rect" id="node3" href="$group__zwave__s2__keystore__internals.html#ga0a7d6a1c6107a1eadcdd959fe53dd229" title="Set ecdh key mode for use in zwave_s2_keystore." alt="" coords="247,71,409,112"/>
+</map>

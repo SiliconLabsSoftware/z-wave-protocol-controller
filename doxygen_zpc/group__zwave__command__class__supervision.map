@@ -1,0 +1,7 @@
+<map id="Supervision Command Class" name="Supervision Command Class">
+<area shape="rect" id="node1" href="$group__command__classes.html" title="List of supported and controlled Z&#45;Wave Command Classes." alt="" coords="5,70,188,95"/>
+<area shape="rect" id="node2" title="A Z&#45;Wave Supervision Command Class handlers and control functions." alt="" coords="236,63,391,103"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__supervision__handler.html" title="A Z&#45;Wave Supervision Command Class handlers." alt="" coords="446,5,601,45"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__supervision__internals.html" title="Private types and definitions for the Supervision Command Class." alt="" coords="452,70,595,95"/>
+<area shape="rect" id="node5" href="$group__zwave__command__class__supervision__process.html" title="Process taking care of monitoring Supervision sessions that the ZPC initiated." alt="" coords="439,120,608,160"/>
+</map>

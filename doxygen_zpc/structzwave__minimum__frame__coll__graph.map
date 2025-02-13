@@ -1,0 +1,4 @@
+<map id="zwave_minimum_frame" name="zwave_minimum_frame">
+<area shape="rect" id="node1" title="‍Minimal Z&#45;Wave Frame that can be sent (Command Class / Command)." alt="" coords="5,160,165,237"/>
+<area shape="rect" id="node2" title=" " alt="" coords="55,5,116,83"/>
+</map>

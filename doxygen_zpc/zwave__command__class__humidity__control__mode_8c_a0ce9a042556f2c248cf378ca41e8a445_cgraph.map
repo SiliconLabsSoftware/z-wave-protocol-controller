@@ -1,0 +1,5 @@
+<map id="is_humidity_control_mode_supported" name="is_humidity_control_mode_supported">
+<area shape="rect" id="node1" title=" " alt="" coords="5,43,140,84"/>
+<area shape="rect" id="node2" href="$zwave__command__class__humidity__control__mode_8c.html#a4b93f5ddec722694aa269971adbc95a0" title="Get current humidity control mode version of the CC." alt="" coords="198,5,341,47"/>
+<area shape="rect" id="node3" href="$zwave__command__class__humidity__control__mode_8c.html#a855235dff678ce15fd0cd972f853e7d8" title="Check if the humidity control mode is compatible with the current version." alt="" coords="188,71,351,127"/>
+</map>

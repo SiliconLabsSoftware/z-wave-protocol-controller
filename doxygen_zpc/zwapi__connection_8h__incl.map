@@ -1,0 +1,12 @@
+<map id="applications/zpc/components/zwave_api/src/zwapi_connection.h" name="applications/zpc/components/zwave_api/src/zwapi_connection.h">
+<area shape="rect" id="node1" title="API to connect and send frames to the Z&#45;Wave module using the serial port." alt="" coords="223,5,452,47"/>
+<area shape="rect" id="node2" href="$zwapi__internal_8h.html" title="Private definitions for the Z&#45;Wave API." alt="" coords="280,95,396,121"/>
+<area shape="rect" id="node3" href="$zwapi__init_8h.html" title="Z&#45;Wave API initialization functions." alt="" coords="406,169,496,196"/>
+<area shape="rect" id="node10" href="$zwapi__protocol__transport_8h.html" title="Z&#45;Wave API for transport application layer interface." alt="" coords="75,244,254,271"/>
+<area shape="rect" id="node4" title=" " alt="" coords="294,393,360,420"/>
+<area shape="rect" id="node5" title=" " alt="" coords="523,393,598,420"/>
+<area shape="rect" id="node6" href="$sl__status_8h.html" title="SL Status Codes." alt="" coords="284,319,370,345"/>
+<area shape="rect" id="node7" href="$zwapi__protocol__basis_8h.html" title="Z&#45;Wave API for basis controller/end node application interface." alt="" coords="430,244,589,271"/>
+<area shape="rect" id="node8" href="$zwave__rf__region_8h.html" title=" " alt="" coords="547,319,675,345"/>
+<area shape="rect" id="node9" href="$zwave__node__id__definitions_8h.html" title=" " alt="" coords="70,319,259,345"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="zwapi_nvm_open" name="zwapi_nvm_open">
+<area shape="rect" id="node1" title="Open the NVM (stops the radio) before read or write operation." alt="" coords="187,31,309,57"/>
+<area shape="rect" id="node2" href="$ext__nvm__tools_8c.html#a13f36a50161b96064bd0d2164820824a" title=" " alt="" coords="7,5,137,32"/>
+<area shape="rect" id="node3" href="$ext__nvm__tools_8c.html#acef510833d69d86e376fa1ef62223e23" title=" " alt="" coords="5,56,139,83"/>
+</map>

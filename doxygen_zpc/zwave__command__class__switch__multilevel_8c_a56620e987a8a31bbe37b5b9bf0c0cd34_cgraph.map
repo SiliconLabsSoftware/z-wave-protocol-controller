@@ -1,0 +1,4 @@
+<map id="zwave_command_class_switch_multilevel_on_desired_sub_state_update" name="zwave_command_class_switch_multilevel_on_desired_sub_state_update">
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,187,61"/>
+<area shape="rect" id="node2" href="$group__command__classes__utils.html#ga9dfaa3aa52bb9b4ba3effc1d1480b1ea" title="Set the desired and reported value of a command_status_t type of node." alt="" coords="235,13,381,54"/>
+</map>

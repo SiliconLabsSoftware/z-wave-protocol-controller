@@ -1,0 +1,8 @@
+<map id="set_default_v1_capabilities" name="set_default_v1_capabilities">
+<area shape="rect" id="node1" title="Sets all the default capabilities for version 1 supporting nodes." alt="" coords="945,46,1124,73"/>
+<area shape="rect" id="node2" href="$zwave__command__class__user__code_8c.html#a42de381efd0038cf7033c56c2869b6d5" title="Process an incoming User Code Capabilities Report Command." alt="" coords="699,8,897,49"/>
+<area shape="rect" id="node6" href="$zwave__command__class__user__code_8c.html#a6e7b04640c2574afc9bc507ddf3e3be8" title="Generates a (opt. Extended) User Code Get Command." alt="" coords="464,71,651,112"/>
+<area shape="rect" id="node3" href="$zwave__command__class__user__code_8c.html#aab7f614cc08c431edb13947ead318558" title="Dispatches incoming User Code Commands to individual command handlers." alt="" coords="465,5,649,47"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__user__code.html#ga3903c1853dfc3b999bcb5570d3355a35" title="Initializes the User Code Command Class handler." alt="" coords="253,39,416,80"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,46,205,73"/>
+</map>

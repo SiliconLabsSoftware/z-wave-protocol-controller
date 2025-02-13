@@ -1,0 +1,4 @@
+<map id="zpc_dotdot_mqtt_init" name="zpc_dotdot_mqtt_init">
+<area shape="rect" id="node1" title="Initializes the ZPC dotdot MQTT." alt="" coords="5,13,148,39"/>
+<area shape="rect" id="node2" href="$group__zpc__dotdot__mqtt__group__dispatch.html#gaed3b2599bbdb09c6afd6ec2c7cefc575" title="Initializes the ZPC Group dispatch resources." alt="" coords="196,5,355,47"/>
+</map>

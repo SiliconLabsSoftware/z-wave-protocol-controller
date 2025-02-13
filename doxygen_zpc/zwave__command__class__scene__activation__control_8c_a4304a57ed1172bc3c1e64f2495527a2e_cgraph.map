@@ -1,0 +1,5 @@
+<map id="on_scene_activation_set_send_data_complete" name="on_scene_activation_set_send_data_complete">
+<area shape="rect" id="node1" title="Decides what to do after we&#39;ve sent a Scene Activation Set Command." alt="" coords="5,13,180,54"/>
+<area shape="rect" id="node2" href="$zwave__command__class__scene__activation__control_8c.html#ac3dffbb526dc2c83140368a1b7cbe189" title="Resumes resolution and undefines the reported values for the Binary Switch, Color and Multilevel Swit..." alt="" coords="228,13,411,54"/>
+<area shape="rect" id="node3" href="$group__zwave__command__class__switch__color.html#ga3c54b415a1cfeee28a787f7d6afaa451" title="Runs a functions for all chidren with a certain type for all color component IDs in the Color Switch ..." alt="" coords="459,5,621,61"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="Network Monitor S2 SPAN persistence" name="Network Monitor S2 SPAN persistence">
+<area shape="rect" id="node1" href="$group__network__monitor.html" title="The Network State Monitor." alt="" coords="5,13,124,38"/>
+<area shape="rect" id="node2" title="This sub&#45;module provides an API to save and restore SPAN data." alt="" coords="172,5,311,45"/>
+</map>

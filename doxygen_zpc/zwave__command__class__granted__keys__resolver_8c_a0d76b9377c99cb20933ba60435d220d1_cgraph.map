@@ -1,0 +1,4 @@
+<map id="is_nif_resolved" name="is_nif_resolved">
+<area shape="rect" id="node1" title="Verifies if the Non&#45;secure NIF is already resolved." alt="" coords="5,13,115,39"/>
+<area shape="rect" id="node2" href="$group__zpc__attribute__store__network__helpers.html#ga1148a8bb5e8a4630bf6d6f5361f17770" title="Returns the Attribute Store node for Endpoint 0, under a NodeID node." alt="" coords="163,5,293,47"/>
+</map>

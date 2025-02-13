@@ -1,0 +1,14 @@
+<map id="get_configuration_parameter_size" name="get_configuration_parameter_size">
+<area shape="rect" id="node1" title="Get the configuration parameter size for a given parameter id." alt="" coords="1167,253,1384,280"/>
+<area shape="rect" id="node2" href="$zwave__command__class__configuration__control_8c.html#a244ada7bd51321a86eb2b03a88a957cd" title=" " alt="" coords="961,140,1114,167"/>
+<area shape="rect" id="node9" href="$zwave__command__class__configuration__control_8c.html#a1223d03c608c7bb10a384acefb70f507" title="Sets the default parameters properties for a parameter in case a node does not support Properties Get..." alt="" coords="737,246,888,287"/>
+<area shape="rect" id="node12" href="$zwave__command__class__configuration__control_8c.html#adf7a53c01f5e72568a27c56e932d8cd4" title="Generates a Configuration Set or Bulk Set Command to set the value of a parameter." alt="" coords="956,305,1119,346"/>
+<area shape="rect" id="node3" href="$zwave__command__class__configuration__control_8c.html#accd85e03b56e05ab3299ece4ee2f07a3" title="Handle incoming Configuration Bulk Report Commands." alt="" coords="731,5,894,61"/>
+<area shape="rect" id="node7" href="$zwave__command__class__configuration__control_8c.html#ad744ab83042de2b3c67bcc7b9411b874" title="Handle incoming Configuration Properties Report Commands." alt="" coords="717,85,908,141"/>
+<area shape="rect" id="node8" href="$zwave__command__class__configuration__control_8c.html#a442abc571c14d1dce6c70bf877dbac9c" title="Handle incoming Configuration Report Commands." alt="" coords="731,165,894,221"/>
+<area shape="rect" id="node4" href="$zwave__command__class__configuration__control_8c.html#a47d754a17f1ac5b2d479005308d7084f" title="Dispatches incoming Configuration Commands to individual command handlers." alt="" coords="485,85,648,141"/>
+<area shape="rect" id="node5" href="$group__zwave__command__class__configuration.html#gacc11ad9afa837acce0d1aada6408e1ce" title="This function initialize the Configuration Command Class handler." alt="" coords="253,210,416,251"/>
+<area shape="rect" id="node6" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,217,205,244"/>
+<area shape="rect" id="node10" href="$zwave__command__class__configuration__control_8c.html#a3c833fc536b7107f042ee17ae8e95ac4" title="Attribute callback function listening for Configuration Paramter ID creations and creating all the su..." alt="" coords="464,165,669,221"/>
+<area shape="rect" id="node11" href="$zwave__command__class__configuration__control_8c.html#a8e3d58cc2dd59303c0affd4e8305acc9" title="Generates a Configuration Properties Get or fills up data automatically if the command is not support..." alt="" coords="471,246,663,287"/>
+</map>

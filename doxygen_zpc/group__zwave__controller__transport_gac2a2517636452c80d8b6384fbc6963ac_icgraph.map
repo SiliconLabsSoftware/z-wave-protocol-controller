@@ -1,0 +1,7 @@
+<map id="zwave_controller_transport_is_encapsulation_cc" name="zwave_controller_transport_is_encapsulation_cc">
+<area shape="rect" id="node1" title="check if a command class is registered as an encapsulation cc in Z&#45;Wave controller transport framewor..." alt="" coords="907,13,1085,54"/>
+<area shape="rect" id="node2" href="$zwave__command__class__version_8c.html#ab59ed649c84a333b9a7f4e1ebf42a11f" title=" " alt="" coords="683,5,859,61"/>
+<area shape="rect" id="node3" href="$zwave__command__class__version_8c.html#a75a0004cf86479f6896b5b515576d83f" title=" " alt="" coords="464,13,635,54"/>
+<area shape="rect" id="node4" href="$group__zwave__command__class__version.html#gabae96a5c6c82334f5979f3b407b973e3" title="Intitialize the Version Command Class control APIs." alt="" coords="253,13,416,54"/>
+<area shape="rect" id="node5" href="$group__command__classes__fixt.html#ga5272651939ced1723158340039e8da19" title="Setup fixture for Z&#45;Wave Command Classes." alt="" coords="5,20,205,47"/>
+</map>
