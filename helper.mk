@@ -92,6 +92,7 @@ cmake_options+=-DCARGO_TARGET_TRIPLE="${CARGO_TARGET_TRIPLE}"
 export CMAKE_TARGET_TRIPLE
 endif
 
+run_file?=${build_dir}/applications/zpc/zpc
 
 help: ./helper.mk
 	@echo "# ${project}: ${url}"
@@ -99,7 +100,7 @@ help: ./helper.mk
 	@echo "# Usage:"
 	@echo "#  ${<D}/${<F} setup # To setup developer system (once)"
 	@echo "#  ${<D}/${<F} VERBOSE=1 # Default build tasks verbosely (depends on setup)"
-	@echo "#  ${<D}/${<F} # For more info"
+	@echo "#  ${<D}/${<F} help/all # For more info"
 	@echo "#"
 
 help/all: README.md NEWS.md
@@ -260,6 +261,10 @@ prepare: git/prepare
 all/default: configure prepare all test dist
 	@date -u
 
+run_args?=--help
+run:
+	file -E ${run_file}
+	${run_file} ${run_args}
 
 ### @rootfs is faster than docker for env check
 
