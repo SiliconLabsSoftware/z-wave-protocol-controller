@@ -16,7 +16,7 @@ url?=https://github.com/SiliconLabsSoftware/z-wave-protocol-controller
 # https://gitlab.kitware.com/cmake/cmake/-/issues/22813#note_1620373
 project_test_dir?=applications
 project_docs_api_target?=zpc_doxygen
-version?=$(shell git describe --tags || echo "0")
+version?=$(shell git describe --tags --always 2> /dev/null || echo "0")
 
 # Allow overloading from env if needed
 # VERBOSE?=1
@@ -34,7 +34,7 @@ sudo?=sudo
 debian_codename?=bookworm
 
 packages?=cmake ninja-build build-essential python3-full ruby clang
-packages+=git-lfs unp time file
+packages+=git-lfs unp time file usbutils bsdutils
 packages+=nlohmann-json3-dev
 # TODO: remove for offline build
 packages+=curl wget python3-pip
@@ -92,6 +92,7 @@ cmake_options+=-DCARGO_TARGET_TRIPLE="${CARGO_TARGET_TRIPLE}"
 export CMAKE_TARGET_TRIPLE
 endif
 
+run_file?=${build_dir}/applications/zpc/zpc
 
 help: ./helper.mk
 	@echo "# ${project}: ${url}"
@@ -99,7 +100,7 @@ help: ./helper.mk
 	@echo "# Usage:"
 	@echo "#  ${<D}/${<F} setup # To setup developer system (once)"
 	@echo "#  ${<D}/${<F} VERBOSE=1 # Default build tasks verbosely (depends on setup)"
-	@echo "#  ${<D}/${<F} # For more info"
+	@echo "#  ${<D}/${<F} help/all # For more info"
 	@echo "#"
 
 help/all: README.md NEWS.md
@@ -226,13 +227,16 @@ ${build_dir}/CMakeCache.txt: CMakeLists.txt
 	cmake ${cmake_options}
 
 all: ${build_dir}/CMakeCache.txt
-	cmake --build ${<D} \
-		|| cat ${build_dir}/CMakeFiles/CMakeOutput.log
+#	cmake --build ${<D} \
+#		|| cat ${build_dir}/CMakeFiles/CMakeOutput.log
 	cmake --build ${<D}
 .PHONY: all
 
 ${build_dir}/%: all
 	file -E "$@"
+
+${build_dir}: ${build_dir}/CMakeCache.txt
+	file -E "$<"
 
 test: ${build_dir}
 	ctest --test-dir ${<}/${project_test_dir}
@@ -260,6 +264,10 @@ prepare: git/prepare
 all/default: configure prepare all test dist
 	@date -u
 
+run_args?=--help
+run:
+	file -E ${run_file}
+	${run_file} ${run_args}
 
 ### @rootfs is faster than docker for env check
 
@@ -312,7 +320,7 @@ docker_url?=${url}.git\#${docker_branch}
 docker/%: Dockerfile
 	time docker run "${project}:latest" -C "${docker_workdir}" "${@F}"
 
-test/docker: distclean prepare/docker docker/help docker/test
+test/docker: distclean prepare/docker docker/help docker/test docker/run
 	@echo "# ${project}: log: $@: done: $^"
 
 test/docker/build:
