@@ -1,0 +1,67 @@
+From d7c7701b329a1f8e053cf74a5af1893b2a220fba Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Boris=20Labb=C3=A9?= <boris.labbe@silabs.com>
+Date: Fri, 22 Nov 2024 11:54:34 +0100
+Subject: [PATCH] UIC-3517: core: Add first_child in attribute.hpp to ease
+ debuging
+
+This function will write which attribute type was looked for to allows an easier time debugging stuff
+
+[Philippe Coval]
+
+This change is needed for zpc/zeal, it has been split in 2,
+this part only target core.
+
+Origin: uic/pull-requests/2916
+Forwarded: uic/pull-requests/2983
+Forwarded: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/pull/27
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/6
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ .../uic_attribute_store/include/attribute.hpp | 24 +++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/components/uic_attribute_store/include/attribute.hpp b/components/uic_attribute_store/include/attribute.hpp
+index 466ad9ffef..807f94fdf3 100644
+--- a/components/uic_attribute_store/include/attribute.hpp
++++ b/components/uic_attribute_store/include/attribute.hpp
+@@ -38,6 +38,7 @@
+ #include <functional>
+ #include <cstring>
+ #include <sstream>  // for ostringstream
++
+ namespace attribute_store
+ {
+ /**
+@@ -337,6 +338,29 @@ class attribute
+     return attribute_store_get_node_child_by_type(_n, type, index);
+   }
+ 
++  /**
++   * @brief Get first child of a given type
++   * 
++   * @note If not found, an exception is thrown. Use child_by_type if you don't want an exception.
++   * 
++   * @throw std::invalid_argument if no child of the given type is found
++   * 
++   * @param type Attribute Store Type.
++   * 
++   * @return attribute
++   */
++  attribute first_child(attribute_store_type_t type) const
++  {
++    auto child_node = child_by_type(type);
++    if (!child_node.is_valid()) {
++      throw std::invalid_argument(
++        "No child of type " + std::string(attribute_store_get_type_name(type))
++        + " found under " + name_and_id());
++    }
++
++    return child_node;
++  }
++
+   /**
+    * @brief Returns a vector of children of this attribute
+    *
+-- 
+2.39.5
+
