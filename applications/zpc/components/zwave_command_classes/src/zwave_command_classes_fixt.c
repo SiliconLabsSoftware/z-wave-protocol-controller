@@ -59,6 +59,7 @@
 #include "zwave_command_class_indicator_control.h"
 #include "zwave_command_class_manufacturer_specific_control.h"
 #include "zwave_command_class_humidity_control_mode.h"
+#include "zwave_command_class_protocol.h"
 
 // Generic includes
 #include <stdbool.h>
@@ -129,6 +130,7 @@ sl_status_t zwave_command_classes_init()
   status |= zwave_command_class_version_init();
   status |= zwave_command_class_wake_up_init();
   status |= zwave_command_class_zwave_plus_info_init();
+  status |= zwave_command_class_protocol_init();
 
   // Auto-generated handlers with overrides
   status |= zwave_command_class_indicator_control_init();
