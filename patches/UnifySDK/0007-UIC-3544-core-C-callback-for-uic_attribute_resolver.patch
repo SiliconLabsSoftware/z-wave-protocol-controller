@@ -1,0 +1,782 @@
+From ea4bbf46cac6830b51c749c8af83931cc163f360 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Boris=20Labb=C3=A9?= <boris.labbe@silabs.com>
+Date: Mon, 28 Oct 2024 10:09:07 +0100
+Subject: [PATCH] UIC-3544: core: C++ callback for uic_attribute_resolver
+
+attribute_resolver::register_rules is now available to register rules (set, get).
+
+Since we can't compare callbacks pointers since we are now using std::function, we added attribute_resolver::register_multiple_types_rules that mimic the old behavior for the same callback. You are now able to register the same callback to multiple attributes if needed to avoid to send multiple Get/Set.
+
+[Philippe Coval]
+
+This change is needed for zpc/zeal, it has been split in 2,
+this part only target core.
+
+Origin: uic/pull-requests/2916
+Forwarded: uic/pull-requests/2983
+Forwarded: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/pull/27
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/6
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ .../uic_attribute_resolver/CMakeLists.txt     |   5 +-
+ .../include/attribute_resolver.hpp            | 103 +++++++++++
+ .../include/attribute_resolver_rule.h         |  23 +--
+ .../src/attribute_resolver.cpp                |  49 ++++-
+ .../src/attribute_resolver_rule.cpp           | 168 ++++++++++--------
+ .../src/attribute_resolver_rule_internal.h    |   4 -
+ .../src/attribute_resolver_rule_internal.hpp  |  23 +++
+ .../test/attribute_resolver_common_test.cpp   |  83 ++++-----
+ .../test/attribute_resolver_rule_mock.cpp     |  21 ++-
+ .../test/workaround.hpp                       |   1 +
+ 10 files changed, 324 insertions(+), 156 deletions(-)
+ create mode 100644 components/uic_attribute_resolver/include/attribute_resolver.hpp
+
+diff --git a/components/uic_attribute_resolver/CMakeLists.txt b/components/uic_attribute_resolver/CMakeLists.txt
+index 5921466c51..50e5568ec8 100644
+--- a/components/uic_attribute_resolver/CMakeLists.txt
++++ b/components/uic_attribute_resolver/CMakeLists.txt
+@@ -1,6 +1,7 @@
+ # Attribute resolver
+-add_library(uic_attribute_resolver OBJECT src/attribute_resolver.cpp
+-                                          src/attribute_resolver_rule.cpp)
++add_library(uic_attribute_resolver OBJECT src/attribute_resolver_rule.cpp
++                                          src/attribute_resolver.cpp
++                                          )
+ 
+ target_include_directories(
+   uic_attribute_resolver
+diff --git a/components/uic_attribute_resolver/include/attribute_resolver.hpp b/components/uic_attribute_resolver/include/attribute_resolver.hpp
+new file mode 100644
+index 0000000000..159ef18074
+--- /dev/null
++++ b/components/uic_attribute_resolver/include/attribute_resolver.hpp
+@@ -0,0 +1,103 @@
++/******************************************************************************
++ * # License
++ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
++ ******************************************************************************
++ * The licensor of this software is Silicon Laboratories Inc. Your use of this
++ * software is governed by the terms of Silicon Labs Master Software License
++ * Agreement (MSLA) available at
++ * www.silabs.com/about-us/legal/master-software-license-agreement. This
++ * software is distributed to you in Source Code format and is governed by the
++ * sections of the MSLA applicable to Source Code.
++ *
++ *****************************************************************************/
++
++#ifndef ATTRIBUTE_RESOLVER_HPP
++#define ATTRIBUTE_RESOLVER_HPP
++
++#include "attribute_resolver.h"
++
++#include "sl_status.h"
++#include "attribute_store.h"
++
++#include <functional>
++#include <set>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++namespace attribute_resolver
++{
++
++using attribute_resolver_function
++  = std::function<sl_status_t(attribute_store_node_t, uint8_t*, uint16_t*)>;
++
++/**
++ * @brief Register same rule for multiples types.
++ * 
++ * This allows you to bind multiple attributes to the same rules.
++ * 
++ * @param node_type Attribute type for which these rules apply.
++ * @param set_func  Generator function which will generate the SET command for
++ *                  this attribute type.
++ * @param get_func Generator function which will generate the GET command for
++ *                 this attribute type.
++ * @return sl_status_t
++ */
++sl_status_t register_multiple_types_rules(
++  const std::set<attribute_store_type_t> &node_type,
++  attribute_resolver_function set_func,
++  attribute_resolver_function get_func);
++
++/**
++ * @brief Return the get function for a given attribute type
++ *
++ * @param node_type
++ * @returns         NULL if this attribute type cannot be resolved.
++ *                  Else the attribute_resolver_function_t that can resolve
++ *                  this particular attribute
++ */
++attribute_resolver_function
++  get_function(attribute_store_type_t node_type);
++
++/**
++ * @brief Return the set function for a given attribute type
++ *
++ * @param node_type
++ * @returns         NULL if this attribute type cannot be resolved.
++ *                  Else the attribute_resolver_function_t that can resolve
++ *                  this particular attribute
++ */
++attribute_resolver_function
++  set_function(attribute_store_type_t node_type);
++
++/**
++ * @brief Register an attribute rule.
++ *
++ * This function registers a new rule into the resolver rule book.
++ * Only one rule can exist per attribute type. Some attributes have both a set and get
++ * rule, some only have a set rule, some have only a get rule, some have no
++ * rules.
++ *
++ * @param node_type Attribute type for which these rules apply.
++ * @param set_func  Generator function which will generate the SET command for
++ *                  this attribute type.
++ * @param get_func Generator function which will generate the GET command for
++ *                 this attribute type.
++ * @return sl_status_t
++ */
++sl_status_t register_rules(attribute_store_type_t node_type,
++                           attribute_resolver::attribute_resolver_function set_func,
++                           attribute_resolver::attribute_resolver_function get_func);
++
++}  // namespace attribute_resolver
++
++
++
++
++#ifdef __cplusplus
++} // extern "C"
++#endif
++
++#endif  // ZWAVE_ATTRIBUTE_RESOLVER_H
++/** @} end attribute_resolver */
+diff --git a/components/uic_attribute_resolver/include/attribute_resolver_rule.h b/components/uic_attribute_resolver/include/attribute_resolver_rule.h
+index 74d80e6874..7e699b2a24 100644
+--- a/components/uic_attribute_resolver/include/attribute_resolver_rule.h
++++ b/components/uic_attribute_resolver/include/attribute_resolver_rule.h
+@@ -80,27 +80,6 @@ typedef void (*resolver_on_set_rule_registered_t)(attribute_store_type_t);
+ void attribute_resolver_register_set_rule_listener(
+   resolver_on_set_rule_registered_t function);
+ 
+-/**
+- * @brief Return the get function for a given attribute type
+- *
+- * @param node_type
+- * @returns         NULL if this attribute type cannot be resolved.
+- *                  Else the attribute_resolver_function_t that can resolve
+- *                  this particular attribute
+- */
+-attribute_resolver_function_t
+-  attribute_resolver_get_function(attribute_store_type_t node_type);
+-
+-/**
+- * @brief Return the set function for a given attribute type
+- *
+- * @param node_type
+- * @returns         NULL if this attribute type cannot be resolved.
+- *                  Else the attribute_resolver_function_t that can resolve
+- *                  this particular attribute
+- */
+-attribute_resolver_function_t
+-  attribute_resolver_set_function(attribute_store_type_t node_type);
+ 
+ /**
+  * @brief Returns if the Rule Book can resolve a Set Rule for the attribute type
+@@ -137,7 +116,7 @@ void on_resolver_send_data_complete(resolver_send_status_t status,
+                                     clock_time_t transmit_time,
+                                     attribute_store_node_t node,
+                                     resolver_rule_type_t rule_type);
+-
++                                    
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/components/uic_attribute_resolver/src/attribute_resolver.cpp b/components/uic_attribute_resolver/src/attribute_resolver.cpp
+index e4b6aedd0a..f690aa4ed7 100644
+--- a/components/uic_attribute_resolver/src/attribute_resolver.cpp
++++ b/components/uic_attribute_resolver/src/attribute_resolver.cpp
+@@ -17,6 +17,7 @@
+ #include "attribute_resolver_rule_internal.hpp"
+ 
+ #include "attribute.hpp"
++#include "attribute_resolver.hpp"
+ 
+ // Includes from other components
+ #include "multi_invoke.hpp"
+@@ -950,16 +951,19 @@ void on_resolver_rule_execute_complete(attribute_store_node_t node,
+   }
+ }
+ 
++
++
+ ///////////////////////////////////////////////////////////////////////////////
+-// Attribute Resolver public functions
++// C++ wrapper
+ ///////////////////////////////////////////////////////////////////////////////
+-sl_status_t
+-  attribute_resolver_register_rule(attribute_store_type_t node_type,
+-                                   attribute_resolver_function_t set_func,
+-                                   attribute_resolver_function_t get_func)
++namespace attribute_resolver
+ {
+-  attribute_resolver_rule_register(node_type, set_func, get_func);
+ 
++void create_attribute_store_callbacks(
++  attribute_store_type_t node_type,
++  const attribute_resolver_function &set_func,
++  const attribute_resolver_function &get_func)
++{
+   if (set_func != nullptr) {
+     // Both Get and Set or only Set rule registered, we want to know about both DESIRED and REPORTED updates.
+     attribute_store_register_callback_by_type(&on_resolver_node_update,
+@@ -976,10 +980,43 @@ sl_status_t
+     scan_requested = true;
+     process_post(&attribute_resolver_process, RESOLVER_NEXT_EVENT, nullptr);
+   }
++}
+ 
++sl_status_t register_rules(attribute_store_type_t node_type,
++                           attribute_resolver::attribute_resolver_function set_func,
++                           attribute_resolver::attribute_resolver_function get_func)
++{
++  register_rules_internal(node_type, set_func, get_func);
++  create_attribute_store_callbacks(node_type, set_func, get_func);
+   return SL_STATUS_OK;
+ }
+ 
++sl_status_t register_multiple_types_rules(
++  const std::set<attribute_store_type_t> &node_types,
++  attribute_resolver_function set_func,
++  attribute_resolver_function get_func)
++{
++  register_group_rules_internal(node_types, set_func, get_func);
++
++  for (auto node_type: node_types) {
++    create_attribute_store_callbacks(node_type, set_func, get_func);
++  }
++  return SL_STATUS_OK;
++}
++
++}  // namespace attribute_resolver
++
++///////////////////////////////////////////////////////////////////////////////
++// Attribute Resolver public functions
++///////////////////////////////////////////////////////////////////////////////
++sl_status_t
++  attribute_resolver_register_rule(attribute_store_type_t node_type,
++                                   attribute_resolver_function_t set_func,
++                                   attribute_resolver_function_t get_func)
++{
++  return attribute_resolver::register_rules(node_type, set_func, get_func);
++}
++
+ static sl_status_t
+   attribute_resolver_config_init(attribute_resolver_config_t resolver_config)
+ {
+diff --git a/components/uic_attribute_resolver/src/attribute_resolver_rule.cpp b/components/uic_attribute_resolver/src/attribute_resolver_rule.cpp
+index deb6863996..a3e9c870c2 100644
+--- a/components/uic_attribute_resolver/src/attribute_resolver_rule.cpp
++++ b/components/uic_attribute_resolver/src/attribute_resolver_rule.cpp
+@@ -10,8 +10,12 @@
+  * sections of the MSLA applicable to Source Code.
+  *
+  *****************************************************************************/
++
++#include "attribute_resolver.hpp"
++
+ // Includes from this component
+ #include "attribute_resolver.h"
++
+ #include "attribute_resolver_rule_internal.h"
+ #include "attribute_resolver_rule_internal.hpp"
+ #include "attribute_resolver_rule.h"
+@@ -20,6 +24,7 @@
+ #include <set>
+ #include <map>
+ #include <vector>
++#include <memory>
+ 
+ // Unify Components
+ #include "attribute_store_helper.h"
+@@ -31,10 +36,11 @@ constexpr char LOG_TAG[]                   = "attribute_resolver_rule";
+ constexpr int DEFAULT_GROUPING_DEPTH       = 1;
+ constexpr clock_time_t MAX_RESOLUTION_TIME = 60 * CLOCK_CONF_SECOND;
+ 
+-struct attribute_rule {
+-  attribute_resolver_function_t set_func;
+-  attribute_resolver_function_t get_func;
++struct attribute_rules {
++  attribute_resolver::attribute_resolver_function set_func;
++  attribute_resolver::attribute_resolver_function get_func;
+ };
++using attribute_rules_ptr = std::shared_ptr<attribute_rules>;
+ 
+ static enum {
+   RESOLVER_IDLE,
+@@ -42,16 +48,15 @@ static enum {
+   RESOLVER_EXECUTING_GET_RULE,
+ } resolver_state;
+ 
+-static std::map<attribute_store_type_t, struct attribute_rule> rule_book;
++static std::map<attribute_store_type_t, attribute_rules_ptr> rule_book;
++// To save time we also have an inverted rule book
++// This allows us to quickly find all attributes that belong to the same rule book
++static std::multimap<attribute_rules_ptr, attribute_store_type_t>
++  rule_book_inverted;
++
+ static std::map<attribute_store_type_t, int> relatives;
+ 
+-/* Set of attributes in the same report message, this is deducted form the get function */
+-static std::multimap<attribute_resolver_function_t, attribute_store_type_t>
+-  get_group;
+ 
+-/* Set of attribute in the same set function. */
+-static std::multimap<attribute_resolver_function_t, attribute_store_type_t>
+-  set_group;
+ 
+ static attribute_rule_complete_t compl_func;
+ static attribute_store_node_t node_pending_resolution
+@@ -115,6 +120,7 @@ static const char *
+   }
+ }
+ 
++
+ void on_rule_execution_timeout(void *user)
+ {
+   sl_log_error(LOG_TAG,
+@@ -139,23 +145,17 @@ void on_rule_execution_timeout(void *user)
+ static void
+   attribute_resolver_rule_get_group(resolver_rule_type_t rule_type,
+                                     attribute_store_type_t attribute_type,
+-                                    std::set<attribute_store_type_t> &result)
++                                    std::set<attribute_store_type_t> &output)
+ {
+-  // Start by inserting the node itself.
+-  result.insert(attribute_type);
+-  //do we have the attribute in the rule book
+-  if (rule_book.count(attribute_type)) {
+-    if (rule_type == RESOLVER_GET_RULE) {
+-      attribute_resolver_function_t f = rule_book.at(attribute_type).get_func;
+-      const auto range                = get_group.equal_range(f);
+-      for (auto i = range.first; i != range.second; i++) {
+-        result.insert(i->second);
+-      }
+-    } else if (rule_type == RESOLVER_SET_RULE) {
+-      attribute_resolver_function_t f = rule_book.at(attribute_type).set_func;
+-      const auto range                = set_group.equal_range(f);
+-      for (auto i = range.first; i != range.second; i++) {
+-        result.insert(i->second);
++  auto attribute_rule = rule_book[attribute_type];
++  if (attribute_rule != nullptr) {
++    auto rule_range = rule_book_inverted.equal_range(attribute_rule);
++    for (auto i = rule_range.first; i != rule_range.second; ++i) {
++      if (rule_type == RESOLVER_GET_RULE && i->first->get_func != nullptr) {
++        output.insert(i->second);
++      } else if (rule_type == RESOLVER_SET_RULE
++                 && i->first->set_func != nullptr) {
++        output.insert(i->second);
+       }
+     }
+   }
+@@ -308,7 +308,7 @@ void attribute_resolver_register_set_rule_listener(
+   set_rule_listeners.insert(function);
+   // If they register themselves late, we notify of already existing rules.
+   for (auto it = rule_book.begin(); it != rule_book.end(); ++it) {
+-    if (it->second.set_func != nullptr) {
++    if (it->second->set_func != nullptr) {
+       function(it->first);
+     }
+   }
+@@ -330,10 +330,8 @@ sl_status_t attribute_resolver_rule_execute(attribute_store_node_t node,
+   if (attribute_resolver_rule_busy() == true) {
+     return SL_STATUS_BUSY;
+   }
+-
+-  attribute_resolver_function_t func = set_rule
+-                                         ? rule_book[attribute_type].set_func
+-                                         : rule_book[attribute_type].get_func;
++  const auto rules = rule_book[attribute_type];
++  const auto func = set_rule ? rules->set_func : rules->get_func;
+ 
+   if (func) {
+     try {
+@@ -392,33 +390,9 @@ sl_status_t attribute_resolver_rule_execute(attribute_store_node_t node,
+   return SL_STATUS_NOT_SUPPORTED;
+ }
+ 
+-void attribute_resolver_rule_register(attribute_store_type_t node_type,
+-                                      attribute_resolver_function_t set_func,
+-                                      attribute_resolver_function_t get_func)
+-{
+-  rule_book[node_type] = {set_func, get_func};
+-
+-  if (get_func) {
+-    get_group.insert(std::make_pair(get_func, node_type));
+-  }
+-
+-  if (set_func) {
+-    set_group.insert(std::make_pair(set_func, node_type));
+-  }
+-
+-  // Notify set rule listeners
+-  if (set_func != nullptr) {
+-    for (auto it = set_rule_listeners.begin(); it != set_rule_listeners.end();
+-         ++it) {
+-      (*it)(node_type);
+-    }
+-  }
+-}
+ 
+ void attribute_resolver_rule_init(attribute_rule_complete_t __compl_func)
+ {
+-  get_group.clear();
+-  set_group.clear();
+   relatives.clear();
+   compl_func = __compl_func;
+   rule_book.clear();
+@@ -447,45 +421,95 @@ void attribute_resolver_rule_abort(attribute_store_node_t node)
+   }
+ }
+ 
+-attribute_resolver_function_t
+-  attribute_resolver_set_function(attribute_store_type_t node_type)
++
++bool attribute_resolver_has_set_rule(attribute_store_type_t node_type)
++{
++  return attribute_resolver::set_function(node_type) != nullptr;
++}
++
++bool attribute_resolver_has_get_rule(attribute_store_type_t node_type)
++{
++  return attribute_resolver::get_function(node_type) != nullptr;
++}
++
++sl_status_t
++  attribute_resolver_set_attribute_depth(attribute_store_type_t node_type,
++                                         int depth)
++{
++  if (relatives.count(node_type)) {
++    relatives.erase(node_type);
++  }
++  relatives.insert(std::make_pair(node_type, depth));
++  return SL_STATUS_OK;
++}
++
++
++///////////////////////////////////////////////////////////////////////////
++/// C++ Wrapper
++///////////////////////////////////////////////////////////////////////////
++namespace attribute_resolver
++{
++
++attribute_resolver_function set_function(attribute_store_type_t node_type)
+ {
+   if (rule_book.find(node_type) == rule_book.end()) {
+     // No rule at all for this attribute
+     return nullptr;
+   } else {
+-    return rule_book[node_type].set_func;
++    return rule_book[node_type]->set_func;
+   }
+ }
+ 
+-attribute_resolver_function_t
+-  attribute_resolver_get_function(attribute_store_type_t node_type)
++attribute_resolver_function
++  get_function(attribute_store_type_t node_type)
+ {
+   if (rule_book.find(node_type) == rule_book.end()) {
+     // No rule at all for this attribute
+     return nullptr;
+   } else {
+-    return rule_book[node_type].get_func;
++    return rule_book[node_type]->get_func;
+   }
+ }
+ 
+-bool attribute_resolver_has_set_rule(attribute_store_type_t node_type)
++void helper_register_rules(attribute_store_type_t node_type,
++                           attribute_rules_ptr rules,
++                           bool notify_set_rule_listeners)
+ {
+-  return attribute_resolver_set_function(node_type) != nullptr;
++  rule_book[node_type] = rules;
++  rule_book_inverted.insert({rules, node_type});
++
++  if (notify_set_rule_listeners) {
++    for (auto set_rule_listener : set_rule_listeners) {
++      set_rule_listener(node_type);
++    }
++  }
+ }
+ 
+-bool attribute_resolver_has_get_rule(attribute_store_type_t node_type)
++void register_rules_internal(attribute_store_type_t node_type,
++                             attribute_resolver_function set_func,
++                             attribute_resolver_function get_func)
+ {
+-  return attribute_resolver_get_function(node_type) != nullptr;
++  auto rules      = std::make_shared<attribute_rules>();
++  rules->set_func = set_func;
++  rules->get_func = get_func;
++
++  helper_register_rules(node_type, rules, set_func != nullptr);
+ }
+ 
+-sl_status_t
+-  attribute_resolver_set_attribute_depth(attribute_store_type_t node_type,
+-                                         int depth)
++void register_group_rules_internal(
++  const std::set<attribute_store_type_t> &nodes,
++  attribute_resolver_function set_func,
++  attribute_resolver_function get_func)
+ {
+-  if (relatives.count(node_type)) {
+-    relatives.erase(node_type);
++  auto rules      = std::make_shared<attribute_rules>();
++  rules->set_func = set_func;
++  rules->get_func = get_func;
++
++  for (auto node_type: nodes) {
++    helper_register_rules(node_type, rules, set_func != nullptr);
+   }
+-  relatives.insert(std::make_pair(node_type, depth));
+-  return SL_STATUS_OK;
+ }
++
++} // namespace attribute_resolver
++
++
+diff --git a/components/uic_attribute_resolver/src/attribute_resolver_rule_internal.h b/components/uic_attribute_resolver/src/attribute_resolver_rule_internal.h
+index 4aad50a95f..5fac341f1e 100644
+--- a/components/uic_attribute_resolver/src/attribute_resolver_rule_internal.h
++++ b/components/uic_attribute_resolver/src/attribute_resolver_rule_internal.h
+@@ -53,10 +53,6 @@ typedef void (*attribute_rule_complete_t)(attribute_store_node_t, clock_time_t);
+ sl_status_t attribute_resolver_rule_execute(attribute_store_node_t node,
+                                             bool set_rule);
+ 
+-void attribute_resolver_rule_register(attribute_store_type_t node_type,
+-                                      attribute_resolver_function_t set_func,
+-                                      attribute_resolver_function_t get_func);
+-
+ /**
+  * @brief Initialize the rule book
+  *
+diff --git a/components/uic_attribute_resolver/src/attribute_resolver_rule_internal.hpp b/components/uic_attribute_resolver/src/attribute_resolver_rule_internal.hpp
+index 5247290add..06ce88a367 100644
+--- a/components/uic_attribute_resolver/src/attribute_resolver_rule_internal.hpp
++++ b/components/uic_attribute_resolver/src/attribute_resolver_rule_internal.hpp
+@@ -26,6 +26,11 @@
+ #include <set>
+ 
+ #include "attribute_resolver_rule.h"
++#include "attribute_resolver.hpp"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /**
+  * @brief Get a list of attribute types that has the same resolution method as a
+@@ -44,5 +49,23 @@ std::set<attribute_store_node_t>
+   attribute_resolver_rule_get_group_nodes(resolver_rule_type_t rule_type,
+                                           attribute_store_node_t group);
+ 
++namespace attribute_resolver
++{
++void register_rules_internal(
++  attribute_store_type_t node_type,
++  attribute_resolver_function set_func,
++  attribute_resolver_function get_func);
++
++void register_group_rules_internal(
++  const std::set<attribute_store_type_t> &nodes,
++  attribute_resolver_function set_func,
++  attribute_resolver_function get_func);
++
++}  // namespace attribute_resolver
++
++#ifdef __cplusplus
++}  // extern "C"
++#endif
++
+ #endif  //ATTRIBUTE_RESOLVER_RULE_INTERNAL_HPP
+ /** @} end attribute_resolver_rule_internal */
+diff --git a/components/uic_attribute_resolver/test/attribute_resolver_common_test.cpp b/components/uic_attribute_resolver/test/attribute_resolver_common_test.cpp
+index b138f7ffb8..d2196d285f 100644
+--- a/components/uic_attribute_resolver/test/attribute_resolver_common_test.cpp
++++ b/components/uic_attribute_resolver/test/attribute_resolver_common_test.cpp
+@@ -471,14 +471,12 @@ void test_attribute_resolver_common_get_node_groups()
+   attribute_resolver_set_attribute_depth(attribute_store_get_node_type(node_7),
+                                          1);
+ 
+-  // Register a rule for type 7
+-  attribute_resolver_register_rule(attribute_store_get_node_type(node_7),
+-                                   NULL,
+-                                   &test_get_resolution_function);
+-  // Register the same rule for type 9
+-  attribute_resolver_register_rule(attribute_store_get_node_type(node_9),
+-                                   NULL,
+-                                   &test_get_resolution_function);
++  // Register same rule for type 7 & type 9
++  attribute_resolver::register_multiple_types_rules(
++    {attribute_store_get_node_type(node_7),
++     attribute_store_get_node_type(node_9)},
++    nullptr,
++    &test_get_resolution_function);
+ 
+   // Get the resolver to resolve:
+   attribute_store_undefine_reported(node_7);
+@@ -514,14 +512,12 @@ void test_attribute_resolver_common_set_node_groups_ok_execution_verified()
+   attribute_resolver_set_attribute_depth(attribute_store_get_node_type(node_7),
+                                          1);
+ 
+-  // Register a rule for type 7
+-  attribute_resolver_register_rule(attribute_store_get_node_type(node_7),
+-                                   &test_set_resolution_function,
+-                                   NULL);
+-  // Register the same rule for type 9
+-  attribute_resolver_register_rule(attribute_store_get_node_type(node_9),
+-                                   &test_set_resolution_function,
+-                                   NULL);
++  // Register same rule for type 7 & type 9
++  attribute_resolver::register_multiple_types_rules(
++    {attribute_store_get_node_type(node_7),
++     attribute_store_get_node_type(node_9)},
++    &test_set_resolution_function,
++    NULL);
+ 
+   // Get the resolver to resolve:
+   value = 1;
+@@ -558,14 +554,12 @@ void test_attribute_resolver_common_set_node_groups_ok_execution_failed()
+   attribute_resolver_set_attribute_depth(attribute_store_get_node_type(node_7),
+                                          1);
+ 
+-  // Register a rule for type 7
+-  attribute_resolver_register_rule(attribute_store_get_node_type(node_7),
+-                                   &test_set_resolution_function,
+-                                   NULL);
+-  // Register the same rule for type 9
+-  attribute_resolver_register_rule(attribute_store_get_node_type(node_9),
+-                                   &test_set_resolution_function,
+-                                   NULL);
++  // Register same rule for type 7 & type 9
++  attribute_resolver::register_multiple_types_rules(
++    {attribute_store_get_node_type(node_7),
++     attribute_store_get_node_type(node_9)},
++    &test_set_resolution_function,
++    NULL);
+ 
+   // Get the resolver to resolve:
+   value = 1;
+@@ -995,14 +989,12 @@ void test_attribute_resolver_common_set_node_groups_with_restart()
+   attribute_resolver_set_attribute_depth(attribute_store_get_node_type(node_7),
+                                          1);
+ 
+-  // Register a rule for type 7
+-  attribute_resolver_register_rule(attribute_store_get_node_type(node_7),
+-                                   &test_set_resolution_function,
+-                                   NULL);
+-  // Register the same rule for type 9
+-  attribute_resolver_register_rule(attribute_store_get_node_type(node_9),
+-                                   &test_set_resolution_function,
+-                                   NULL);
++  // Register a rule for type 7 & type 9
++  attribute_resolver::register_multiple_types_rules(
++    {attribute_store_get_node_type(node_7),
++     attribute_store_get_node_type(node_9)},
++    &test_set_resolution_function,
++    NULL);
+ 
+   // Get the resolver to resolve:
+   value = 1;
+@@ -1713,14 +1705,12 @@ void test_attribute_resolver_give_up_on_group_get_rule()
+   attribute_resolver_set_attribute_depth(attribute_store_get_node_type(node_7),
+                                          1);
+ 
+-  // Register a rule for type 7
+-  attribute_resolver_register_rule(attribute_store_get_node_type(node_7),
+-                                   NULL,
+-                                   &test_get_resolution_function);
+-  // Register the same rule for type 9
+-  attribute_resolver_register_rule(attribute_store_get_node_type(node_9),
+-                                   NULL,
+-                                   &test_get_resolution_function);
++  // Register same rule for type 7 & type 9
++  attribute_resolver::register_multiple_types_rules(
++    {attribute_store_get_node_type(node_7),
++     attribute_store_get_node_type(node_9)},
++    nullptr,
++    &test_get_resolution_function);
+ 
+   expected_node_for_listening_notification = node_2;
+   attribute_resolver_set_resolution_listener(
+@@ -1800,15 +1790,10 @@ void test_attribute_resolver_rule_get_group_node()
+   attribute_resolver_rule_init(0);
+   // Let all node types B,C,D be resolved by the same frame
+ 
+-  attribute_resolver_rule_register(0xb,
+-                                   &test_set_resolution_function,
+-                                   &test_get_resolution_function);
+-  attribute_resolver_rule_register(0xc,
+-                                   &test_set_resolution_function,
+-                                   &test_get_resolution_function);
+-  attribute_resolver_rule_register(0xd,
+-                                   &test_set_resolution_function,
+-                                   &test_get_resolution_function);
++  attribute_resolver::register_multiple_types_rules(
++    {0xb, 0xc, 0xd},
++    &test_set_resolution_function,
++    &test_get_resolution_function);
+ 
+   // Depth 0, means the node sits alone in its group
+   attribute_resolver_set_attribute_depth(0xb, 0);
+diff --git a/components/uic_attribute_resolver/test/attribute_resolver_rule_mock.cpp b/components/uic_attribute_resolver/test/attribute_resolver_rule_mock.cpp
+index 2767b28b7c..35b5f3697b 100644
+--- a/components/uic_attribute_resolver/test/attribute_resolver_rule_mock.cpp
++++ b/components/uic_attribute_resolver/test/attribute_resolver_rule_mock.cpp
+@@ -19,4 +19,23 @@ std::set<attribute_store_node_t>
+ {
+   return std::set<attribute_store_node_t>();
+   //NA
+-}
+\ No newline at end of file
++}
++
++namespace attribute_resolver
++{
++void register_rules_internal(attribute_store_type_t node_type,
++                             attribute_resolver_function set_func,
++                             attribute_resolver_function get_func)
++{
++  return;
++};
++
++void register_group_rules_internal(
++  const std::set<attribute_store_type_t> &nodes,
++  attribute_resolver_function set_func,
++  attribute_resolver_function get_func)
++{
++  return;
++};
++
++}  // namespace attribute_resolver
+\ No newline at end of file
+diff --git a/components/uic_attribute_resolver/test/workaround.hpp b/components/uic_attribute_resolver/test/workaround.hpp
+index 3482aa3b73..61c3b27be4 100644
+--- a/components/uic_attribute_resolver/test/workaround.hpp
++++ b/components/uic_attribute_resolver/test/workaround.hpp
+@@ -7,5 +7,6 @@
+ 
+ #ifdef __cplusplus
+ #include "attribute_resolver_rule_internal.hpp"
++#include "attribute_resolver.hpp"
+ #endif
+ #endif
+-- 
+2.39.5
+
