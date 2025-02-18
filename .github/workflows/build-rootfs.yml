@@ -16,9 +16,12 @@ jobs:
           - arm64
           # - armhf # TODO Enable when supported
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
+          # Relate-to: https://github.com/actions/checkout/pull/2081#2025
+          ref: ${{ github.ref }}
+
       - id: describe
         name: Describe HEAD
         run: >-
