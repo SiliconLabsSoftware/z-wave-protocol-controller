@@ -1,0 +1,33 @@
+# .dockerignore
+Dockerfile
+docker-compose.yml
+
+# .gitignore
+# Temporary files
+*~
+tmp
+# All build folders
+/build*/
+# Visual Studio Code
+.vscode/settings.json
+.vscode/launch.json
+.vscode/*.log
+*.code-workspace
+# JetBrains IDE
+.idea/
+# Cmake Projects in root ###
+compile_commands.json
+# Clangd index
+.clangd/
+.cache/
+# BeyondCompare backup files
+*.orig
+# SonarScanner files
+.scannerwork/
+# Generated debconf files
+applications/*/debconf/config
+# Macos fs igores
+*.DS_Store
+# Other files
+*.swp
+*.gcov
