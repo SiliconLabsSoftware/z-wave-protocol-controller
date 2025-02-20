@@ -34,5 +34,12 @@ RUN echo "# log: Build" \
   && ./helper.mk \
   && date -u
 
-ENTRYPOINT [ "/usr/local/opt/z-wave-protocol-controller/helper.mk" ]
-CMD [ "help" ]
+RUN echo "# log: Install to system" \
+  && set -x  \
+  && sudo dpkg -i ./build/${project}_*/*.deb \
+  || sudo apt install -f \
+  && sudo apt-get install -y mosquitto \
+  && date -u
+
+ENTRYPOINT [ "/usr/bin/zpc" ]
+CMD [ "--help" ]
