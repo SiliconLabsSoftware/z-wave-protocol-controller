@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 **Full Changelog**:
 https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commits
 
+## next
+
+Integrate internal changes progressively:
+
+```
+applications/zpc/components/zwave/zwave_transports/s2/libs/zw-libs2: zw-libs2#zwave-sdk-7.21.0-ga-68-gbd9c072a
+```
+
 ## ver_1.7.0
 
 **Full Changelog**:
