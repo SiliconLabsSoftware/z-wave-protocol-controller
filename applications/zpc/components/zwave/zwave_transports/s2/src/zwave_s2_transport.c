@@ -414,7 +414,8 @@ uint8_t S2_send_frame_multi(struct S2 *ctxt,
                                0);
 }
 
-void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, uint8_t nls_capability, uint8_t nls_state)
+
+void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, bool nls_capability, bool nls_state)
 {
   (void)class_id;
 
@@ -442,23 +443,22 @@ void S2_save_nls_state(void)
   // not relevant for ZPC
 }
 
-void S2_nls_node_list_get(node_t srcNode, uint8_t class_id, uint8_t request)
+int8_t S2_get_nls_node_list(node_t srcNode, bool request, bool *is_last_node, uint16_t *node_id, uint8_t *granted_keys, bool *nls_state)
 {
   // to be implemented later on
   (void)srcNode;
-  (void)class_id;
   (void)request;
+  return 0;
 }
 
-void S2_nls_node_list_report(node_t srcNode, uint8_t class_id, uint8_t last_node, uint16_t id_of_node, uint8_t keys_node_bitmask, uint8_t nls_state)
+int8_t S2_notify_nls_node_list_report(node_t srcNode, uint16_t id_of_node, uint8_t keys_node_bitmask, bool nls_state)
 {
   // to be implemented later on
   (void)srcNode;
-  (void)class_id;
-  (void)last_node;
   (void)id_of_node;
   (void)keys_node_bitmask;
   (void)nls_state;
+  return 0;
 }
 
 /************************* Our interface functions ****************************/
