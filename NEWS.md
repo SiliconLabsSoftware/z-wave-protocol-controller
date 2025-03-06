@@ -10,7 +10,7 @@ https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/commits
 Integrate internal changes progressively:
 
 ```
-applications/zpc/components/zwave/zwave_transports/s2/libs/zw-libs2: zw-libs2#zwave-sdk-7.21.0-ga-68-gbd9c072a
+applications/zpc/components/zwave/zwave_transports/s2/libs/zw-libs2: zw-libs2#zwave-sdk-7.24.0-rc0-gd9252947 
 applications/zpc/components/zwave/zwave_transports/s2/libs/zw-libs2/TestFramework: zw-testframework#zwave-sdk-7.20.0-ga-15-gccbd3fb
 ```
 
