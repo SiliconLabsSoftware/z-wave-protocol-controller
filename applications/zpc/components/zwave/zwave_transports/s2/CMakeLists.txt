@@ -18,7 +18,7 @@ set(KEYSTORE_SOURCES "src/zwave_s2_keystore.c")
 add_library(
   zwave_s2
   src/zwave_s2_fixt.c ${KEYSTORE_SOURCES} src/zwave_s2_network.c
-  src/zwave_s2_printf.c src/zwave_s2_process.c src/zwave_s2_transport.c src/zwave_s2_protocol_cc_encryption.c)
+  src/zwave_s2_printf.c src/zwave_s2_process.c src/zwave_s2_transport.c)
 
 set(DEFAULT_ZW-LIBS2_PATH libs/zw-libs2)
 if(EXISTS ${ZW-LIBS2_LOCATION})
@@ -40,13 +40,12 @@ target_include_directories(
   zwave_s2
   PUBLIC include
   PRIVATE ${ZW-LIBS2_PATH}/include src)
-
 install(TARGETS zwave_s2 LIBRARY DESTINATION lib)
 
 target_link_libraries(
   zwave_s2
   PUBLIC zwave_s2_nonce_management unify
-  PRIVATE s2_controller zwave_controller zwave_s0 zpc_attribute_store)
+  PRIVATE s2_controller zwave_controller zwave_s0 zpc_attribute_store zpc_utils)
 
 target_compile_definitions(zwave_s2 PRIVATE ZIPGW ZW_CONTROLLER)
 

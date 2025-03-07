@@ -204,6 +204,7 @@ static uic_fixt_shutdown_step_t uic_fixt_shutdown_steps_list[]
      {&dotdot_mapper_teardown, "DotDot mapper"},
      {NULL, "Terminator"}};
 
+
 int main(int argc, char **argv)
 {
   attribute_mapper_config_init();  //TODO how do we want to do this
