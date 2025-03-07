@@ -1,0 +1,21 @@
+# -*- coding: utf-8 -*-
+# SPDX-License-Identifier: ZLib
+
+version: "2"
+
+services:
+  broker:
+    image: eclipse-mosquitto:1.5.9
+    ports:
+      - '1883:1883'
+    command: mosquitto
+    restart: unless-stopped
+
+  zpc:
+    build: .
+    command: run --mqtt.host=broker
+    devices:
+      - ${DEVICE:-/dev/ttyACM0}:/dev/ttyUSB0
+    depends_on:
+      - broker
+    restart: on-failure
