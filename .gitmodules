@@ -1,3 +1,0 @@
-[submodule "applications/zpc/components/zwave/zwave_transports/s2/libs/zw-libs2/TestFramework/cmock"]
-	path = applications/zpc/components/zwave/zwave_transports/s2/libs/zw-libs2/TestFramework/cmock
-	url = https://github.com/throwtheswitch/cmock
