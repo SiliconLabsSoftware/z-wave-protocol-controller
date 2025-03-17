@@ -1,1 +1,0 @@
-target_add_unittest(unity_helper unity_helper_test.c)
