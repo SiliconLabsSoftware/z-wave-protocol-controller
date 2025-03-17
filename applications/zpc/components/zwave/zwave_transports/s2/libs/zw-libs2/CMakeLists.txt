@@ -51,10 +51,6 @@ if("${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
   set(SKIP_TESTING true)
 endif()
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/inclusion/s2_inclusion_controller.c)
-  set(ENABLE_CONTROLLER true)
-endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/inclusion/s2_inclusion_controller.c)
-
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3")
 if(NOT DEFINED SKIP_TESTING OR CMAKE_BUILD_TYPE STREQUAL Test)
   enable_testing()
@@ -89,11 +85,3 @@ endif(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
 
 target_include_directories(s2_slave
                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-
-if(ENABLE_CONTROLLER)
-  # Library for controllers
-  add_library(s2_controller protocol/S2.c inclusion/s2_inclusion.c inclusion/s2_inclusion_controller.c)
-  set_target_properties(s2_controller PROPERTIES COMPILE_DEFINITIONS "ZW_CONTROLLER")
-  target_link_libraries(s2_controller s2crypto aes)
-  target_include_directories(s2_controller PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-endif(ENABLE_CONTROLLER)
