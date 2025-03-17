@@ -11,6 +11,7 @@
  *
  *****************************************************************************/
 
+#include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
 #include <string.h>
@@ -48,7 +49,9 @@ struct tm test_time_info = {.tm_year  = TEST_YEAR - 1900,
                             .tm_isdst = -1};
 
 /// Setup the test suite (called once before all test_xxx functions are called)
-void suiteSetUp() {}
+void suiteSetUp() {
+  setenv("TZ", "UTC", 1);
+}
 
 /// Teardown the test suite (called once after all test_xxx functions are called)
 int suiteTearDown(int num_failures)

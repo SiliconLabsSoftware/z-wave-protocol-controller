@@ -54,8 +54,10 @@ target_add_unittest(
     zwave_command_class_time_parameters_test.c
     DEPENDS
     zwave_command_class_test_helpers
-    ${MOCK_LIBS})
-if(${BUILD_TESTING_PROPERTY_DISABLED})
+    ${MOCK_LIBS}
+)
+if(${ZPC_BUILD_TESTING_PROPERTY_DISABLED})
+  message(WARNING "Please fix this test")
   set_tests_properties(zwave_command_class_time_parameters_test
     PROPERTIES DISABLED True)
 endif()
