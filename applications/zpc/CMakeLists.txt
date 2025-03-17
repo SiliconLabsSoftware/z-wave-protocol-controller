@@ -33,16 +33,13 @@ include(${COMMON_PATH}/cmake/include/zap.cmake)
 include(${COMMON_PATH}/cmake/include/unittest.cmake)
 include(${COMMON_PATH}/cmake/include/version_file.cmake)
 
-# Overload test system with downstream one (patched for z-wave ?)
-set(UNIFY-TESTFRAMEWORK_PATH
-    ${CMAKE_SOURCE_DIR}/components/testframework)
-message(STATUS "Using: ${UNIFY-TESTFRAMEWORK_PATH}")
-if(NOT EXISTS ${UNIFY-TESTFRAMEWORK_PATH})
-  message(FATAL_ERROR "Path to unify testframework does not exist: ${UNIFY-TESTFRAMEWORK_PATH}")
+message(STATUS "Using: ${ZPC_TESTFRAMEWORK_PATH}")
+if(NOT EXISTS ${ZPC_TESTFRAMEWORK_PATH})
+  message(FATAL_ERROR "Path to unify testframework does not exist: ${ZPC_TESTFRAMEWORK_PATH}")
 endif()
 
-include(${UNIFY-TESTFRAMEWORK_PATH}/add_mock.cmake)
-include(${UNIFY-TESTFRAMEWORK_PATH}/target_add_unittest.cmake)
+include(${ZPC_TESTFRAMEWORK_PATH}/add_mock.cmake)
+include(${ZPC_TESTFRAMEWORK_PATH}/target_add_unittest.cmake)
 
 include_directories(
   include

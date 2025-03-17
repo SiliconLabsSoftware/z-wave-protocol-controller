@@ -22,7 +22,11 @@ if(BUILD_TESTING)
   if(BUILD_TESTING_PROPERTY_DISABLED)
     message(WARNING "TODO: Some tests are bypassed, please help fixing them")
   endif()
-  include(${CMAKE_SOURCE_DIR}/components/testframework/target_add_unittest.cmake)
+  # Testframework deduplicated, only one to be used
+  set(ZPC_TESTFRAMEWORK_PATH
+    ${unifysdk_SOURCE_DIR}/components/testframework
+  )
+  include(${ZPC_TESTFRAMEWORK_PATH}/target_add_unittest.cmake)
   include(cmake/include/unittest.cmake)
 endif()
 
