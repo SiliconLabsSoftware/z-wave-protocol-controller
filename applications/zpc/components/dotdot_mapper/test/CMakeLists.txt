@@ -48,7 +48,8 @@ target_add_unittest(
   zpc_attribute_store_test_helper
   zwave_network_management_mock
   uic_dotdot_mqtt_mock)
-if(${BUILD_TESTING_PROPERTY_DISABLED})
+if(${ZPC_BUILD_TESTING_PROPERTY_DISABLED})
+  message(WARNING "Please fix this test")
   set_tests_properties(binding_cluster_mapper_test
     PROPERTIES DISABLED True)
 endif()
