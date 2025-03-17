@@ -90,3 +90,109 @@ target_add_unittest(
   DEPENDS
   zwave_network_management_mock)
 target_compile_definitions(zwave_s2_nonce_management_test PRIVATE ZW_CONTROLLER)
+
+# ####################### S2 Inclusion Controller test ##################################
+add_definitions(-DDllExport=extern)
+
+add_unity_test(
+  NAME
+    zwave_s2_inclusion_including_node
+  FILES
+    ../${ZW-LIBS2_PATH}/inclusion/s2_inclusion.c
+    ../src/zwave_s2_inclusion_controller.c
+    zwave_s2_inclusion_including_node.c
+  LIBRARIES
+    mock
+    s2_mock
+    s2_inclusion_mocks
+    crypto_mocks
+)
+set_target_properties(
+  zwave_s2_inclusion_including_node
+  PROPERTIES
+    COMPILE_DEFINITIONS "ZW_CONTROLLER"
+)
+target_include_directories(
+  zwave_s2_inclusion_including_node
+  PRIVATE
+  ${ZPC_SOURCE_DIR}/components/zwave/zwave_definitions/include
+  ../${ZW-LIBS2_PATH}/include
+  ../${ZW-LIBS2_PATH}/inclusion
+  src
+)
+
+add_unity_test(
+  NAME
+    zwave_s2_inclusion_joining_node_controller
+  TEST_BASE
+    zwave_s2_inclusion_including_node.c
+  FILES
+    ../${ZW-LIBS2_PATH}/inclusion/s2_inclusion.c
+    ../src/zwave_s2_inclusion_controller.c
+    zwave_s2_inclusion_including_node.c
+  LIBRARIES
+    mock
+    s2_mock
+    s2_inclusion_mocks
+    crypto_mocks
+)
+set_target_properties(
+  zwave_s2_inclusion_joining_node_controller
+  PROPERTIES
+    COMPILE_DEFINITIONS "ZW_CONTROLLER"
+)
+target_include_directories(
+  zwave_s2_inclusion_joining_node_controller
+  PRIVATE
+  ${ZPC_SOURCE_DIR}/components/zwave/zwave_definitions/include
+  ../${ZW-LIBS2_PATH}/include
+  ../${ZW-LIBS2_PATH}/inclusion
+  src
+)
+
+add_unity_test(
+  NAME
+  zwave_s2_inclusion
+  FILES
+    ../${ZW-LIBS2_PATH}/inclusion/s2_inclusion.c
+    ../src/zwave_s2_inclusion_controller.c
+    zwave_s2_inclusion.c
+  LIBRARIES
+    mock
+    s2_mock
+    s2_inclusion_mocks
+    s2crypto
+    aes
+)
+set_target_properties(
+  zwave_s2_inclusion
+  PROPERTIES
+    COMPILE_DEFINITIONS "ZW_CONTROLLER"
+)
+target_include_directories(
+  zwave_s2_inclusion
+  PRIVATE
+  ${ZPC_SOURCE_DIR}/components/zwave/zwave_definitions/include
+  ../${ZW-LIBS2_PATH}/include
+  ../${ZW-LIBS2_PATH}/inclusion
+  src
+)
+
+add_unity_test(
+  NAME
+    zwave_s2_protocol
+  FILES
+    zwave_s2_protocol.c
+  LIBRARIES
+  s2_controller
+  s2crypto
+  aes
+)
+target_include_directories(
+  zwave_s2_protocol
+  PRIVATE
+  ${ZPC_SOURCE_DIR}/components/zwave/zwave_definitions/include
+  ../${ZW-LIBS2_PATH}/include
+  ../${ZW-LIBS2_PATH}/inclusion
+  src
+)

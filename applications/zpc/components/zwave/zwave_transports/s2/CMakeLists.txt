@@ -43,6 +43,33 @@ target_include_directories(
 
 install(TARGETS zwave_s2 LIBRARY DESTINATION lib)
 
+# Z-Wave S2 inclusion library for controller
+add_library(
+  s2_controller
+  ${ZW-LIBS2_PATH}/protocol/S2.c
+  ${ZW-LIBS2_PATH}/inclusion/s2_inclusion.c
+  src/zwave_s2_inclusion_controller.c)
+
+set_target_properties(
+  s2_controller
+  PROPERTIES
+    COMPILE_DEFINITIONS "ZW_CONTROLLER")
+
+target_link_libraries(
+  s2_controller
+  s2crypto
+  aes)
+
+target_include_directories(
+  s2_controller
+  PUBLIC
+  include
+  PRIVATE
+  ${ZPC_SOURCE_DIR}/components/zwave/zwave_definitions/include
+  ${ZW-LIBS2_PATH}/include
+  ${ZW-LIBS2_PATH}/inclusion
+  src)
+
 target_link_libraries(
   zwave_s2
   PUBLIC zwave_s2_nonce_management unify
