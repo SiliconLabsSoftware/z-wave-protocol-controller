@@ -29,6 +29,11 @@ if("${UNIFYSDK_GIT_TAG}" STREQUAL "")
   set(UNIFYSDK_GIT_TAG "main") # Override CMake default ("master")
 endif()
 
+file(GLOB UNIFYSDK_PATCHES
+  LIST_DIRECTORIES false
+  ${PROJECT_SOURCE_DIR}/patches/UnifySDK/*.patch
+)
+
 find_package(Git)
 FetchContent_Declare(
   UnifySDK
@@ -41,9 +46,8 @@ FetchContent_Declare(
   GIT_CONFIG user.email=nobody@UnifySDK.localhost
 
   PATCH_COMMAND ${GIT_EXECUTABLE}
-      -C <SOURCE_DIR>
-      am
-      ${PROJECT_SOURCE_DIR}/patches/UnifySDK/0001-UIC-3202-Relax-compiler-warnings-to-support-more-com.patch
+    -C <SOURCE_DIR> am --ignore-whitespace
+    "${UNIFYSDK_PATCHES}"
 )
 
 message(STATUS "${CMAKE_PROJECT_NAME}: Depends: ${UNIFYSDK_GIT_REPOSITORY}#${UNIFYSDK_GIT_TAG}")
