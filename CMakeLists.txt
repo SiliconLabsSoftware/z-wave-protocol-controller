@@ -18,7 +18,7 @@ if(BUILD_TESTING)
   set(THS-CMOCK_LOCATION "${cmock_SOURCE_DIR}")
   set(THS-UNITY_LOCATION  "${cmock_SOURCE_DIR}/vendor/unity")
   # https://gitlab.kitware.com/cmake/cmake/-/issues/22813#note_1620373
-  option(BUILD_TESTING_PROPERTY_DISABLED "WARNING: Bypass some tests" True)
+  option(BUILD_TESTING_PROPERTY_DISABLED "WARNING: Bypass some tests" false)
   if(BUILD_TESTING_PROPERTY_DISABLED)
     message(WARNING "TODO: Some tests are bypassed, please help fixing them")
   endif()
