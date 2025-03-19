@@ -12,7 +12,6 @@ git                             // cmake. download gecko_skc and cpc-deamon
 git-lfs                         // cmake. download gecko_skc and cpc-deamon
 graphviz                        // For docs generation
 lcov							// code coverage report (for local code coverage report)
-libasound2                      // ZAP generation
 libgbm1                         // ZAP generation
 ninja-build                     // Build system
 nlohmann-json3-dev              // ZigPC, ZPC, testframework, uic_dotdot_mqtt, uic_smartstart_management. Read JSON from a file.
