@@ -1,0 +1,191 @@
+From 21c753f75546c5821503cc3a026a17cf5ac9c927 Mon Sep 17 00:00:00 2001
+From: Philippe Coval <philippe.coval@silabs.com>
+Date: Thu, 6 Feb 2025 10:31:19 +0100
+Subject: [PATCH] tests: build: cmake: Use Upstream cmock
+
+Not this is not latest version but it aligned to the version used at zwa,
+may unify-core align to it and synchronize all projects accordingly,
+or reconsider the archtecture.
+
+cmake: Adjust cmock config
+
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/issues/60
+Bug-SiliconLabs: SWPROT-8953
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/6
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ CMakeLists.txt                                |  3 +
+ cmake/modules/FindCMock.cmake                 | 58 +++++++++++++++++++
+ .../libs/testframework/CMakeLists.txt         | 32 ++++++++--
+ .../testframework/target_add_unittest.cmake   | 26 ++++-----
+ 4 files changed, 100 insertions(+), 19 deletions(-)
+ create mode 100644 cmake/modules/FindCMock.cmake
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1f3b5dcdfa..95951d40cb 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -43,6 +43,9 @@ include(cmake/include/package-helper.cmake)
+ include(cmake/include/uic_helper.cmake)
+ 
+ if(BUILD_TESTING)
++  include(cmake/modules/FindCMock.cmake)
++  set(THS-CMOCK_LOCATION "${cmock_SOURCE_DIR}")
++  set(THS-UNITY_LOCATION "${cmock_SOURCE_DIR}/vendor/unity")
+   include(components/testframework/target_add_unittest.cmake)
+ endif()
+ 
+diff --git a/cmake/modules/FindCMock.cmake b/cmake/modules/FindCMock.cmake
+new file mode 100644
+index 0000000000..3a96950060
+--- /dev/null
++++ b/cmake/modules/FindCMock.cmake
+@@ -0,0 +1,58 @@
++# SPDX-FileCopyrightText: Silicon Laboratories Inc. <https://www.silabs.com/>
++# SPDX-License-Identifier: Zlib
++#
++# This recipe allows to download CMock
++# It can be used by projects which are depending on it
++# Feel free to copy this (up to date) file everywhere it is needed
++
++include(FetchContent)
++
++if(NOT DEFINED CMOCK_GIT_REPOSITORY)
++  if(DEFINED ENV{CMOCK_GIT_REPOSITORY})
++    set(CMOCK_GIT_REPOSITORY $ENV{CMOCK_GIT_REPOSITORY})
++  endif()
++endif()
++if("${CMOCK_GIT_REPOSITORY}" STREQUAL "")
++  set(CMOCK_GIT_REPOSITORY "https://github.com/ThrowTheSwitch/CMock")
++endif()
++
++if(NOT DEFINED CMOCK_GIT_TAG)
++  if(DEFINED ENV{CMOCK_GIT_TAG})
++    set(CMOCK_GIT_TAG $ENV{CMOCK_GIT_TAG})
++  else()
++    set(CMOCK_GIT_TAG "v2.5.3")
++  endif()
++endif()
++
++file(GLOB CMOCK_PATCHES
++  LIST_DIRECTORIES false
++  ${PROJECT_SOURCE_DIR}/patches/cmock/*.patch
++)
++
++find_package(Git)
++FetchContent_Declare(
++  CMock
++  GIT_REPOSITORY ${CMOCK_GIT_REPOSITORY}
++  GIT_TAG        ${CMOCK_GIT_TAG}
++  GIT_SUBMODULES_RECURSE True
++  GIT_SHALLOW 1
++
++  # Prevent "fatal: unable to auto-detect email address"
++  GIT_CONFIG user.email=nobody@${CMAKE_PROJECT_NAME}.localhost
++
++  PATCH_COMMAND ${GIT_EXECUTABLE}
++    -C <SOURCE_DIR> am --ignore-whitespace
++    "${CMOCK_PATCHES}"
++)
++
++message(STATUS "${CMAKE_PROJECT_NAME}: Depends: ${CMOCK_GIT_REPOSITORY}#${CMOCK_GIT_TAG}")
++string(REGEX MATCH ".*/?main/?.*" CMOCK_UNSTABLE_GIT_TAG "${CMOCK_GIT_TAG}")
++if(CMOCK_GIT_TAG STREQUAL "" OR CMOCK_UNSTABLE_GIT_TAG)
++  message(WARNING "${CMAKE_PROJECT_NAME}: Declare CMOCK_GIT_TAG to stable version not: ${CMOCK_UNSTABLE_GIT_TAG}")
++endif()
++
++set(FETCHCONTENT_QUIET FALSE)
++FetchContent_MakeAvailable(CMock)
++
++message(STATUS "CMock Sources: ${cmock_SOURCE_DIR}")
++message(STATUS "CMock Binaries: ${cmock_BINARY_DIR}")
+diff --git a/components/testframework/libs/testframework/CMakeLists.txt b/components/testframework/libs/testframework/CMakeLists.txt
+index 66da6a46fe..afd5b65d7b 100644
+--- a/components/testframework/libs/testframework/CMakeLists.txt
++++ b/components/testframework/libs/testframework/CMakeLists.txt
+@@ -103,14 +103,38 @@ if (NOT COMMAND ADD_UNITY_TEST)
+     endif()
+   endfunction(ADD_UNITY_TEST)
+ 
++set(DEFAULT_THS-CMOCK_PATH libs/cmock)
++if(EXISTS ${THS-CMOCK_LOCATION})
++  set(THS-CMOCK_PATH ${THS-CMOCK_LOCATION})
++else()
++  set(THS-CMOCK_PATH ${DEFAULT_THS-CMOCK_PATH})
++endif()
++if(EXISTS ${THS-CMOCK_PATH})
++  message(STATUS "Found ths-cmock: ${THS-CMOCK_PATH}")
++else()
++  message(STATUS "Did not find ths-cmock at ${THS-CMOCK_PATH}")
++endif()
++
++set(DEFAULT_THS-UNITY_PATH libs/cmock/vendor/unity)
++if(EXISTS ${THS-UNITY_LOCATION})
++  set(THS-UNITY_PATH ${THS-UNITY_LOCATION})
++else()
++  set(THS-UNITY_PATH ${DEFAULT_THS-UNITY_PATH})
++endif()
++if(EXISTS ${THS-UNITY_PATH})
++  message(STATUS "Found ths-unity: ${THS-UNITY_PATH}")
++else()
++  message(STATUS "Did not find ths-unity at ${THS-UNITY_PATH}")
++endif()
++
+   # compile the unity version bundled along with cmock sources.
+-  add_library(unity ../cmock/vendor/unity/src/unity.c)
+-  target_include_directories(unity PUBLIC ../cmock/vendor/unity/src)
++  add_library(unity ${THS-UNITY_PATH}/src/unity.c)
++  target_include_directories(unity PUBLIC ${THS-UNITY_PATH}/src)
+   target_compile_options(unity PRIVATE "-fPIC")
+ 
+   # Build the cmock library and link the above compiled unity with the cmock library
+-  add_library(cmock2 STATIC ../cmock/src/cmock.c)
+-  target_include_directories(cmock2 PUBLIC ../cmock/src)
++  add_library(cmock2 STATIC ${THS-CMOCK_PATH}/src/cmock.c)
++  target_include_directories(cmock2 PUBLIC  ${THS-CMOCK_PATH}/src)
+   target_link_libraries(cmock2 PUBLIC unity)
+   target_compile_options(cmock2 PRIVATE "-fPIC")
+ 
+diff --git a/components/testframework/target_add_unittest.cmake b/components/testframework/target_add_unittest.cmake
+index 7129c27dc6..267393ea7d 100644
+--- a/components/testframework/target_add_unittest.cmake
++++ b/components/testframework/target_add_unittest.cmake
+@@ -24,24 +24,20 @@ function(generate_unity_runner test_runner test_file)
+   endif()
+   if(EXISTS ${THS-UNITY_LOCATION})
+     set(UNITY_DIR ${THS-UNITY_LOCATION})
+-    add_custom_command(
+-      OUTPUT ${TEST_RUNNER}
+-      DEPENDS ${TEST_FILE}
+-      COMMAND
+-        ${UNITY2_RUBY_EXECUTABLE} ${UNITY_DIR}/auto/generate_test_runner.rb
+-        ${ZWAVE_UNITY_CONFIG} ${TEST_FILE} ${TEST_RUNNER}
+-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+   else()
+     set(UNITY_DIR "${DIR_OF_TARGET_ADD_UNIT_TEST}/libs/cmock/vendor/unity")
+-    add_custom_command(
+-      OUTPUT ${TEST_RUNNER}
+-      DEPENDS ${TEST_FILE}
+-      COMMAND
+-        ${UNITY2_RUBY_EXECUTABLE} ${UNITY_DIR}/auto/generate_test_runner.rb
+-        ${DIR_OF_TARGET_ADD_UNIT_TEST}/zwave_unity_config.yml ${TEST_FILE}
+-        ${TEST_RUNNER}
+-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+   endif()
++  if(NOT DEFINED ${UNIFY_UNITY_RUNNER_CONFIG})
++    set(UNIFY_UNITY_RUNNER_CONFIG ${DIR_OF_TARGET_ADD_UNIT_TEST}/zwave_unity_config.yml)
++  endif()
++  add_custom_command(
++    OUTPUT ${TEST_RUNNER}
++    DEPENDS ${TEST_FILE} ${UNIFY_UNITY_RUNNER_CONFIG}
++    COMMAND
++    ${UNITY2_RUBY_EXECUTABLE} ${UNITY_DIR}/auto/generate_test_runner.rb
++    ${UNIFY_UNITY_RUNNER_CONFIG}
++    ${TEST_FILE} ${TEST_RUNNER}
++    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+ endfunction()
+ 
+ # This function creates unity2 test executables. It uses the provided target to setup and import configuration
+-- 
+2.39.5
+
