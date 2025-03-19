@@ -1,0 +1,45 @@
+From d3de9a6bc258eea42ee4b92566713f89e3110cf3 Mon Sep 17 00:00:00 2001
+From: Philippe Coval <philippe.coval@silabs.com>
+Date: Tue, 18 Mar 2025 14:04:40 +0100
+Subject: [PATCH] git: Remove .gitattributes
+
+This change allow building UnifySDK on github.
+
+Removing LFS objects is a good start to slim down UnifySDK repo
+
+Observed issue:
+
+    (...)
+    #11 538.0 100% tests passed, 0 tests failed out of 69
+    #11 538.0 Total Test time (real) = 287.70 sec
+    #11 538.0 cmake --build build --target package
+    (...)
+    #11 538.2 [2/3] Run CPack packaging tool...
+    #11 538.2 CPack: Create package using DEB
+    #11 538.2 CPack: Install projects
+    #11 538.2 CPack: - Install project: uic []
+    #11 538.2 CPack: -   Install component: libunify-dev
+    #11 538.7 CMake Error at /usr/local/opt/unifysdk/build/components/cmake_install.cmake:195 (file):
+    #11 538.7   file INSTALL cannot copy file
+
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/11
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ .gitattributes | 5 -----
+ 1 file changed, 5 deletions(-)
+ delete mode 100644 .gitattributes
+
+diff --git a/.gitattributes b/.gitattributes
+deleted file mode 100644
+index aa8de78071..0000000000
+--- a/.gitattributes
++++ /dev/null
+@@ -1,5 +0,0 @@
+-"zap-2022.1.10.dmg" filter=lfs diff=lfs merge=lfs -text
+-"slc_cli_mac.zip" filter=lfs diff=lfs merge=lfs -text
+-"zap_apack_mac.zip" filter=lfs diff=lfs merge=lfs -text
+-"slc_cli_linux.zip" filter=lfs diff=lfs merge=lfs -text
+-"zap_apack_linux.zip" filter=lfs diff=lfs merge=lfs -text
+-- 
+2.39.5
+
