@@ -313,23 +313,11 @@ void zwave_controller_on_frame_received(
                                                    frame_length);
   //If no transport plugins needs the frame parse it on to upper layers
   if (status == SL_STATUS_NOT_FOUND) {
-    // Check if the frame is a protocol CC
-    if (frame_data[0] == ZWAVE_CMD_CLASS_PROTOCOL || frame_data[0] == ZWAVE_CMD_CLASS_PROTOCOL_LR)
-    {
-      ZWAVE_CONTROLLER_DISPATCH_CALLBACKS(on_protocol_frame_received,
-                                          connection_info,
-                                          rx_options,
-                                          frame_data,
-                                          frame_length);
-    }
-    else
-    {
-      ZWAVE_CONTROLLER_DISPATCH_CALLBACKS(on_application_frame_received,
-                                        connection_info,
-                                        rx_options,
-                                        frame_data,
-                                        frame_length);
-    }
+    ZWAVE_CONTROLLER_DISPATCH_CALLBACKS(on_application_frame_received,
+                                      connection_info,
+                                      rx_options,
+                                      frame_data,
+                                      frame_length);
   }
 }
 

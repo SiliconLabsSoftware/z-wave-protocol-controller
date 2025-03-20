@@ -98,15 +98,6 @@ static void zwave_controller_on_protocol_cc_encryption_request(
   zwave_controller_on_protocol_cc_encryption_request_count += 1;
 }
 
-static void zwave_controller_on_protocol_frame_received(
-  const zwave_controller_connection_info_t *connection_info,
-  const zwave_rx_receive_options_t *rx_options,
-  const uint8_t *frame_data,
-  uint16_t frame_length)
-{
-  zwave_controller_on_protocol_frame_received_count += 1;
-}
-
 static void zwave_controller_on_node_event_test(zwave_node_id_t node_id)
 {
   zwave_controller_on_node_event_test_call_count += 1;
@@ -342,74 +333,6 @@ void test_zwave_controller_on_protocol_cc_encryption_request_received()
   callbacks.on_rx_frame_received              = NULL;
   callbacks.on_application_frame_received     = NULL;
   callbacks.on_protocol_cc_encryption_request = NULL;
-}
-
-void test_zwave_controller_on_controller_protocol_frames()
-{
-  // We need to inject a valid frame, as this will go through the transports
-  zwave_controller_on_frame_received(&info,
-                                     &rx_options,
-                                     protocol_frame_data,
-                                     sizeof(protocol_frame_data));
-  TEST_ASSERT_EQUAL(0, zwave_controller_on_protocol_frame_received_count);
-  TEST_ASSERT_EQUAL(0, zwave_controller_on_rx_frame_received_count);
-  TEST_ASSERT_EQUAL(0, zwave_controller_on_application_frame_received_count);
-
-  callbacks.on_rx_frame_received
-    = &zwave_controller_on_rx_frame_received_callback;
-  callbacks.on_application_frame_received
-    = &zwave_controller_on_application_frame_received;
-  callbacks.on_protocol_frame_received
-    = &zwave_controller_on_protocol_frame_received;
-  TEST_ASSERT_EQUAL(SL_STATUS_OK,
-                    zwave_controller_register_callbacks(&callbacks));
-
-  zwave_controller_on_frame_received(&info,
-                                     &rx_options,
-                                     protocol_frame_data,
-                                     sizeof(protocol_frame_data));
-  TEST_ASSERT_EQUAL(1, zwave_controller_on_protocol_frame_received_count);
-  TEST_ASSERT_EQUAL(0, zwave_controller_on_application_frame_received_count);
-  TEST_ASSERT_EQUAL(0, zwave_controller_on_rx_frame_received_count);
-
-  // remove these callbacks:
-  callbacks.on_rx_frame_received          = NULL;
-  callbacks.on_application_frame_received = NULL;
-  callbacks.on_protocol_frame_received    = NULL;
-}
-
-void test_zwave_controller_on_controller_protocol_lr_frames()
-{
-  // We need to inject a valid frame, as this will go through the transports
-  zwave_controller_on_frame_received(&info,
-                                     &rx_options,
-                                     protocol_lr_frame_data,
-                                     sizeof(protocol_lr_frame_data));
-  TEST_ASSERT_EQUAL(0, zwave_controller_on_protocol_frame_received_count);
-  TEST_ASSERT_EQUAL(0, zwave_controller_on_rx_frame_received_count);
-  TEST_ASSERT_EQUAL(0, zwave_controller_on_application_frame_received_count);
-
-  callbacks.on_rx_frame_received
-    = &zwave_controller_on_rx_frame_received_callback;
-  callbacks.on_application_frame_received
-    = &zwave_controller_on_application_frame_received;
-  callbacks.on_protocol_frame_received
-    = &zwave_controller_on_protocol_frame_received;
-  TEST_ASSERT_EQUAL(SL_STATUS_OK,
-                    zwave_controller_register_callbacks(&callbacks));
-
-  zwave_controller_on_frame_received(&info,
-                                     &rx_options,
-                                     protocol_lr_frame_data,
-                                     sizeof(protocol_lr_frame_data));
-  TEST_ASSERT_EQUAL(1, zwave_controller_on_protocol_frame_received_count);
-  TEST_ASSERT_EQUAL(0, zwave_controller_on_application_frame_received_count);
-  TEST_ASSERT_EQUAL(0, zwave_controller_on_rx_frame_received_count);
-
-  // remove these callbacks:
-  callbacks.on_rx_frame_received          = NULL;
-  callbacks.on_application_frame_received = NULL;
-  callbacks.on_protocol_frame_received    = NULL;
 }
 
 void test_zwave_controller_on_network_address_update()
