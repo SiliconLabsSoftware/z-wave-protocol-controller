@@ -1,0 +1,156 @@
+From 16db739657f86532831c8df72c3fc37574ca5a31 Mon Sep 17 00:00:00 2001
+From: Philippe Coval <philippe.coval@silabs.com>
+Date: Mon, 24 Mar 2025 18:29:16 +0100
+Subject: [PATCH 6/6] git: docker/uic-resources: Removed as not part of
+ UnifyCore (LFS)
+
+This change is motivated by zeal project
+
+Tests are passing, but it fail later on installing package:
+
+  #12 1.646 dpkg: error processing archive ./build/z-wave-protocol-controller_1.7.0_x86_64/libunify_1.7.0-65-gbc86741e_x86_64.deb (--install):
+  Error: No space left on device : '/home/runner/runners/2.323.0/_diag/pages/a643bedf-49e7-4c3e-9568-b498945dda79_dd23db01-cff6-57a4-373a-5c8097a97333_1.log'
+
+I suspect the cause it all the assets in tree, this has to be cleaned up.
+
+This change prevent this problem, further cleaning may be considered.
+
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/11#issuecomment-2748887134
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/issues/77
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/10
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/11
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/7
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ docker/uic-resources/README.md                | 64 -------------------
+ docker/uic-resources/linux/slc_cli_linux.zip  |  3 -
+ .../uic-resources/linux/zap_apack_linux.zip   |  3 -
+ docker/uic-resources/mac/slc_cli_mac.zip      |  3 -
+ docker/uic-resources/mac/zap-2022.1.10.dmg    |  3 -
+ docker/uic-resources/mac/zap_apack_mac.zip    |  3 -
+ 6 files changed, 79 deletions(-)
+ delete mode 100644 docker/uic-resources/README.md
+ delete mode 100644 docker/uic-resources/linux/slc_cli_linux.zip
+ delete mode 100644 docker/uic-resources/linux/zap_apack_linux.zip
+ delete mode 100644 docker/uic-resources/mac/slc_cli_mac.zip
+ delete mode 100644 docker/uic-resources/mac/zap-2022.1.10.dmg
+ delete mode 100644 docker/uic-resources/mac/zap_apack_mac.zip
+
+diff --git a/docker/uic-resources/README.md b/docker/uic-resources/README.md
+deleted file mode 100644
+index cf767433db..0000000000
+--- a/docker/uic-resources/README.md
++++ /dev/null
+@@ -1,64 +0,0 @@
+-This repository holds binary resource dependencies for UIC
+-
+-# Overview of Artifacts
+-
+-## Silicon Labs Configurator(SLC)
+-slc is a tool used to create Silicon Labs Universal Configurator(UC) projects.
+-
+-Artifact paths:
+-- linux/slc_cli_linux.zip
+-- mac/slc_cli_mac.zip
+-
+-See [UG520: Software Project Generation and
+-Configuration with SLC-CLI](https://www.silabs.com/documents/public/user-guides/ug520-software-project-generation-configuration-with-slc-cli.pdf) for more details.
+-
+-
+-## ZCL Configurator (ZAP)
+-zap is a tool used to generate source code to handle ZCL cluster command and attribute consumption.
+-Build information: ZAP internal build #[490](https://jenkins-cbs-gecko-sdk.silabs.net/job/ZAP/job/silabs/490/)
+-
+-Artifact paths:
+-- linux/zap-2022.1.10_amd64.deb
+-- linux/zap_apack_linux.zip
+-- mac/zap-2022.1.10.dmg
+-- mac/zap_apack_mac.zip
+-
+-
+-See [AN1325: Zigbee Cluster Configurator User's Guide](https://www.silabs.com/documents/public/application-notes/an1325-zigbee-cluster-configurator-users-guide.pdf) for more details.
+-
+-> ### **WARNING**: The ZAP adaptor pack archives have been modified according to the changes below. Ensure these changes are made on subsequent updates to these archives.
+-
+-### Modifications Made to Adapter Pack
+-
+-Change in apack.json: Add `--no-sandbox` parameter in the `uc_generate` function:
+-```diff
+-diff --git a/apack.json b/apack.json
+-index cf87a910..8bce7281 100644
+---- a/apack.json
+-+++ b/apack.json
+-@@ -36,7 +36,7 @@
+-       "cmd": "$(zap) --version"
+-     },
+-     "uc_generate": {
+--      "cmd": "$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-temp
+-late/gen-templates.json --in ${contentFolder}"
+-+      "cmd": "$(zap) generate --noUi --noServer --no-sandbox -o ${generationOutput} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app
+-/framework/gen-template/gen-templates.json --in ${contentFolder}"
+-     },
+-     "uc_upgrade": {
+-       "cmd": "$(zap) convert --noUi --noServer --in ${contentFolder} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/g
+-en-templates.json"
+-```
+-
+-#### Instructions to modify zip archives:
+-
+-*ZIP_FILE = zap_apack_linux.zip OR zap_apack_mac.zip*
+-
+-```bash
+-# Extract only apack.json from zip file
+-$ unzip -p ZIP_FILE.zip apack.json > apack.json
+-# Add --no-sandbox parameter to slc zap generate config
+-$ sed -i 's/--noServer -o/--noServer --no-sandbox -o/' apack.json
+-# Update apack.json in zip file
+-$ zip ZIP_FILE.zip apack.json
+-```
+diff --git a/docker/uic-resources/linux/slc_cli_linux.zip b/docker/uic-resources/linux/slc_cli_linux.zip
+deleted file mode 100644
+index c7097892ad..0000000000
+--- a/docker/uic-resources/linux/slc_cli_linux.zip
++++ /dev/null
+@@ -1,3 +0,0 @@
+-version https://git-lfs.github.com/spec/v1
+-oid sha256:4163ec1a48e63dbde26a7e589a1af569f82d9cbbe11fd71742ff0ae2f726e292
+-size 208440392
+diff --git a/docker/uic-resources/linux/zap_apack_linux.zip b/docker/uic-resources/linux/zap_apack_linux.zip
+deleted file mode 100644
+index 0160f70038..0000000000
+--- a/docker/uic-resources/linux/zap_apack_linux.zip
++++ /dev/null
+@@ -1,3 +0,0 @@
+-version https://git-lfs.github.com/spec/v1
+-oid sha256:73119ea68ad6f717e915f4d9854243321d27cd4bce12429548c2510a7ff1bf42
+-size 94376620
+diff --git a/docker/uic-resources/mac/slc_cli_mac.zip b/docker/uic-resources/mac/slc_cli_mac.zip
+deleted file mode 100644
+index 89dbdf641d..0000000000
+--- a/docker/uic-resources/mac/slc_cli_mac.zip
++++ /dev/null
+@@ -1,3 +0,0 @@
+-version https://git-lfs.github.com/spec/v1
+-oid sha256:e95ffb2e21aaa47a2ae220964abd566cac454fe04fcee0ce23c2bbcd86bac7e7
+-size 187615728
+diff --git a/docker/uic-resources/mac/zap-2022.1.10.dmg b/docker/uic-resources/mac/zap-2022.1.10.dmg
+deleted file mode 100644
+index 5cbc724612..0000000000
+--- a/docker/uic-resources/mac/zap-2022.1.10.dmg
++++ /dev/null
+@@ -1,3 +0,0 @@
+-version https://git-lfs.github.com/spec/v1
+-oid sha256:dc580a5b53751749236cab3c3af32a1dcad9fcb96e834300404bdf2e0d0b595e
+-size 94185073
+diff --git a/docker/uic-resources/mac/zap_apack_mac.zip b/docker/uic-resources/mac/zap_apack_mac.zip
+deleted file mode 100644
+index 2d1a47bdbc..0000000000
+--- a/docker/uic-resources/mac/zap_apack_mac.zip
++++ /dev/null
+@@ -1,3 +0,0 @@
+-version https://git-lfs.github.com/spec/v1
+-oid sha256:f5ced7930d5a6289f26e81ed7913e9c02e93f1053a3bfa492bff9f9287b25522
+-size 94020675
+-- 
+2.39.5
+
