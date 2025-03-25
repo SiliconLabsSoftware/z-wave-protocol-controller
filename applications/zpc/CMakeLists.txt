@@ -193,7 +193,7 @@ add_library(
 )
 target_link_libraries(
   testlib
-  PRIVATE zwave_s2
+  PRIVATE zwave_s2_testlib
           zwave_network_management
           zwave_transports
           uic_contiki

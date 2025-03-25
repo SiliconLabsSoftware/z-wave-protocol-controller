@@ -37,7 +37,10 @@
 #include "zwave_rx.h"
 #include "zwave_tx.h"
 #include "zwave_tx_groups.h"
+
+#ifndef ZWAVE_TESTLIB
 #include "zwave_utils.h"
+#endif
 #include "sys/clock.h"
 
 #include "sl_log.h"
@@ -434,6 +437,7 @@ void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, bool nls_capab
 
   sl_log_debug(LOG_TAG, "NLS state report received for node %d, capability : %d, state: %d", srcNode, nls_capability, nls_state);
 
+#ifndef ZWAVE_TESTLIB
   if (zwave_store_nls_support((zwave_node_id_t)srcNode,
                               nls_capability,
                               REPORTED_ATTRIBUTE)
@@ -443,6 +447,7 @@ void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, bool nls_capab
     sl_log_error(LOG_TAG, "Error setting NLS attributes");
     return;
   }
+#endif
 
   if(nls_capability && nls_state) {
     if (SL_STATUS_OK != zwapi_enable_node_nls(srcNode)) {
@@ -455,11 +460,14 @@ void S2_save_nls_state(void)
 {
   zwave_node_id_t node_id = zwave_network_management_get_node_id();
 
-  sl_status_t status = zwave_store_nls_state(node_id, s2_ctx->nls_state, REPORTED_ATTRIBUTE);
+  sl_status_t status = SL_STATUS_FAIL;
+#ifndef ZWAVE_TESTLIB
+   status = zwave_store_nls_state(node_id, s2_ctx->nls_state, REPORTED_ATTRIBUTE);
   if (status != SL_STATUS_OK) {
     sl_log_error(LOG_TAG, "Unable to save NLS state in attribute store for Node ID: %d\n", node_id);
     return;
   }
+#endif
 
   if (s2_ctx->nls_state) {
     status = zwapi_enable_node_nls(node_id);
@@ -563,6 +571,7 @@ int8_t S2_get_nls_node_list(node_t srcNode,
     return -1;
   }
 
+#ifndef ZWAVE_TESTLIB
   zwave_keyset_t keyset = {0};
   status
     = zwave_get_node_granted_keys(node_nls_context.next_sent_node_id, &keyset);
@@ -573,6 +582,7 @@ int8_t S2_get_nls_node_list(node_t srcNode,
     return -1;
   }
   *granted_keys = (uint8_t)keyset;
+#endif
 
   node_nls_context.nls_enabled_node_sent_cnt++;
 
@@ -607,6 +617,7 @@ int8_t S2_notify_nls_node_list_report(node_t srcNode,
       return -1;
     }
 
+#ifndef ZWAVE_TESTLIB
     if (zwave_store_nls_support((zwave_node_id_t)id_of_node,
                                 true,
                                 REPORTED_ATTRIBUTE)
@@ -618,18 +629,19 @@ int8_t S2_notify_nls_node_list_report(node_t srcNode,
                    id_of_node);
       return -1;
     }
-
+    
     status = zwave_set_node_granted_keys((zwave_node_id_t)id_of_node,
-                                         &keys_node_bitmask);
+    &keys_node_bitmask);
     if (SL_STATUS_OK != status) {
       sl_log_error(LOG_TAG,
-                   "Error setting granted keys of the node %d",
-                   id_of_node);
-      return -1;
-    }
-
-    sl_log_debug(LOG_TAG, "Saved NLS state of the node %d", id_of_node);
-    return 0;
+        "Error setting granted keys of the node %d",
+        id_of_node);
+        return -1;
+      }
+#endif
+      
+      sl_log_debug(LOG_TAG, "Saved NLS state of the node %d", id_of_node);
+      return 0;
   }
 
   // Consider the case as error where NLS state is sent as 0. The protocol

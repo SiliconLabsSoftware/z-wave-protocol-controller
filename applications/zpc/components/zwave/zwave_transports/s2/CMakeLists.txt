@@ -14,11 +14,14 @@ target_compile_definitions(zwave_s2_nonce_management PRIVATE ZW_CONTROLLER)
 
 set(KEYSTORE_SOURCES "src/zwave_s2_keystore.c")
 
+set(COMMON_SOURCES
+    src/zwave_s2_fixt.c ${KEYSTORE_SOURCES} src/zwave_s2_network.c
+    src/zwave_s2_printf.c src/zwave_s2_process.c src/zwave_s2_transport.c)
+
 # Z-Wave S2 main library
 add_library(
   zwave_s2
-  src/zwave_s2_fixt.c ${KEYSTORE_SOURCES} src/zwave_s2_network.c
-  src/zwave_s2_printf.c src/zwave_s2_process.c src/zwave_s2_transport.c)
+  ${COMMON_SOURCES})
 
 set(DEFAULT_ZW-LIBS2_PATH libs/zw-libs2)
 if(EXISTS ${ZW-LIBS2_LOCATION})
@@ -89,3 +92,23 @@ if(BUILD_TESTING)
   target_compile_definitions(libs2_mock PUBLIC ZIPGW)
   target_compile_definitions(libs2_external_mock PUBLIC ZIPGW)
 endif()
+
+# ZWAVE_TESTLIB S2 Library
+
+add_library(
+  zwave_s2_testlib
+  ${COMMON_SOURCES})
+
+target_include_directories(
+  zwave_s2_testlib
+  PUBLIC include
+  PRIVATE ${ZW-LIBS2_PATH}/include src)
+  
+install(TARGETS zwave_s2_testlib LIBRARY DESTINATION lib)
+
+target_link_libraries(
+  zwave_s2_testlib
+  PUBLIC zwave_s2_nonce_management unify
+  PRIVATE s2_controller zwave_controller zwave_s0)
+  
+target_compile_definitions(zwave_s2_testlib PRIVATE ZIPGW ZW_CONTROLLER ZWAVE_TESTLIB)

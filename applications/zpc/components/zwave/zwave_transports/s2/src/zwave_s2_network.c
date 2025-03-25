@@ -23,7 +23,10 @@
 #include "zwave_s2_keystore_int.h"
 #include "zwave_helper_macros.h"
 #include "zwapi_protocol_controller.h"
+
+#ifndef ZWAVE_TESTLIB
 #include "zwave_utils.h"
+#endif
 
 #define LOG_TAG "zwave_s2_network"
 
@@ -150,7 +153,9 @@ void zwave_s2_network_init()
   sl_log_info(LOG_TAG, "NLS state %s for Node ID: %d\n", nls_state == 1 ? "active" : "not active", node_id);
 
   S2_load_nls_state(s2_ctx, nls_state);
+#ifndef ZWAVE_TESTLIB
   status = zwave_store_nls_state(node_id, nls_state, REPORTED_ATTRIBUTE);
+#endif
   if (status != SL_STATUS_OK) {
     sl_log_error(LOG_TAG, "Unable to store NLS state in attribute store for Node ID: %d\n", node_id);
   }
