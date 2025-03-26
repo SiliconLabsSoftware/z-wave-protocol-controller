@@ -44,6 +44,9 @@
 #include "zwave_s2_network.h"
 #include "zwave_s2_keystore.h"
 #include "zwave_tx.h"
+#ifndef ZWAVE_TESTLIB
+#include "zwave_smartstart_management.h"
+#endif
 
 // Unify components
 #include "sl_log.h"
@@ -266,8 +269,10 @@ static void on_new_network(zwave_kex_fail_type_t kex_fail)
   network_management_refresh_network_information();
   nms.granted_keys = zwave_s2_keystore_get_assigned_keys();
 
+#ifndef ZWAVE_TESTLIB
   // Take the SUC/SIS role if noboby has it in our new network.
-  // network_management_take_sis_role_if_no_suc_in_network();
+  network_management_take_sis_role_if_no_suc_in_network();
+#endif
 
   //Call the upper layer callbacks
   zwave_controller_on_new_network_entered(nms.cached_home_id,
@@ -335,7 +340,9 @@ void nm_state_machine_init()
     sl_log_info(LOG_TAG, "NodeID %d is present in our network", node_id);
   }
 
-  // network_management_take_sis_role_if_no_suc_in_network();
+#ifndef ZWAVE_TESTLIB
+  network_management_take_sis_role_if_no_suc_in_network();
+#endif
 }
 
 void nm_fsm_post_event(nm_event_t ev, void *event_data)
@@ -788,10 +795,28 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
             zwave_s2_dsk_accept(REJECT_DSK, 0, 0);
           }
         } else {
+#ifndef ZWAVE_TESTLIB
+            if (find_dsk_obfuscated_bytes_from_smart_start_list(
+              nms.reported_dsk,
+              OBFUSCATED_DSK_LEN)) {
+              sl_log_debug(LOG_TAG,
+                          "SmartStart: Input DSK found in provisioning list\n");
+              sl_log_byte_arr(LOG_TAG,
+                              SL_LOG_DEBUG,
+                              nms.reported_dsk,
+                              sizeof(zwave_dsk_t))
+              zwave_s2_dsk_accept(ACCEPT_DSK,
+                                  nms.reported_dsk,
+                                  OBFUSCATED_DSK_LEN);
+              } else {
+#endif
           // Non-SmartStart inclusions sends the request upwards
           zwave_controller_on_dsk_report(nms.reported_dsk_blanked,
                                           nms.reported_dsk,
                                           nms.requested_keys);
+#ifndef ZWAVE_TESTLIB
+            }
+#endif
         }
       } else if (ev == NM_EV_ADD_SECURITY_KEYS_SET) {
         zwave_s2_key_grant(nms.accepted_s2_bootstrapping,
