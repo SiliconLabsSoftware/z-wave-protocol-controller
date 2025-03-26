@@ -18,12 +18,16 @@
 
 // Includes from other components
 #include "sl_status.h"
-// #include "zpc_config.h"
+#ifndef ZWAVE_TESTLIB
+#include "zpc_config.h"
+#endif
 #include "uic_main_externals.h"
 #include "zwave_api.h"
 
 // Includes from this component
+#ifdef ZWAVE_TESTLIB
 #include "zwave_rx_fixt.h"
+#endif
 #include "zwave_rx.h"
 #include "zwave_rx_internals.h"
 #include "zwave_rx_process.h"
@@ -66,20 +70,25 @@ static uint8_t zwave_rx_zpc_config_to_rf_region(const char *region_string)
   return ZWAVE_RX_FIXT_DEFAULT_RF_REGION;
 }
 
+#ifdef ZWAVE_TESTLIB
 static const zwave_rx_config_t *zwave_rx_config = NULL;
 
 void zwave_rx_set_config(const zwave_rx_config_t* config)
 {
   zwave_rx_config = config;
 }
+#endif // ZWAVE_TESTLIB
 
 sl_status_t zwave_rx_fixt_setup(void)
 {
   int zpc_zwave_serial_read_fd = 0;
   sl_status_t rx_init_status   = SL_STATUS_FAIL;
 
-  assert(zwave_rx_config != NULL);
+#ifndef ZWAVE_TESTLIB
+  const zpc_config_t * zwave_rx_config = zpc_get_config();
+#endif
 
+  assert(zwave_rx_config != NULL);
   // Enable serial log before init, so we can see initialization frames too
   rx_init_status = zwapi_log_to_file_enable(zwave_rx_config->serial_log_file);
 

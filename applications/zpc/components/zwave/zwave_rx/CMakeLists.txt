@@ -15,7 +15,8 @@ target_link_libraries(zwave_rx
 
 IF(NOT ZWAVE_BUILD_SYSTEM EQUAL 1)
   target_link_libraries(zwave_rx
-    PRIVATE uic_main_fd)
+    PUBLIC zpc_config
+    PRIVATE unify)
 ENDIF()
 
 IF(ZWAVE_BUILD_SYSTEM EQUAL 1)
@@ -29,3 +30,18 @@ if(BUILD_TESTING)
 
   add_subdirectory(test)
 endif()
+
+# zwave_rx_testlib library
+add_library(zwave_rx_testlib ${SOURCE_LIST} src/zwave_rx_zwapi_callbacks.c)
+
+target_include_directories(zwave_rx_testlib PUBLIC include)
+
+target_link_libraries(zwave_rx_testlib
+  PRIVATE zwave_controller_testlib
+          zwave_definitions
+          unify_testlib)
+  
+target_link_libraries(zwave_rx_testlib
+  PRIVATE uic_main_fd_testlib)
+
+target_compile_definitions(zwave_rx_testlib PRIVATE ZWAVE_TESTLIB)
