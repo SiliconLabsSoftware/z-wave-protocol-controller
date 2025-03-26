@@ -34,3 +34,26 @@ if(BUILD_TESTING)
   # Unit tests
   add_subdirectory(test)
 endif()
+
+# zwave_transports testlib library
+add_library(zwave_transports_testlib src/zwave_transports_fixt.c)
+
+target_include_directories(
+  zwave_transports_testlib
+  PUBLIC include
+  PRIVATE src)
+
+target_link_libraries(
+  zwave_transports_testlib
+  PUBLIC zwave_controller_testlib
+         zwave_tx
+         zwave_rx_testlib
+         zwave_s0
+         zwave_s2_testlib
+         zwave_api_transport
+         zwave_definitions
+         multicast_follow_ups_transport
+         zwave_multi_channel
+         transport_service_wrapper
+         zwave_tx_scheme_selector)
+install(TARGETS zwave_transports_testlib LIBRARY DESTINATION lib)
