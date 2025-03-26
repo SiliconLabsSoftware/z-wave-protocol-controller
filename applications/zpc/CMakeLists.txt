@@ -194,14 +194,15 @@ add_library(
 target_link_libraries(
   testlib
   PRIVATE zwave_s2_testlib
-          zwave_network_management
-          zwave_transports
-          uic_contiki
-          uic_contiki_platform
-          uic_log
+          zwave_network_management_testlib
+          zwave_transports_testlib
+          uic_contiki_testlib
+          uic_contiki_platform_testlib
+          uic_log_testlib
           uic_main_testlib
 )
 target_compile_definitions(
   testlib
   PRIVATE CMAKE_PROJECT_VERSION="${CMAKE_PROJECT_VERSION}"
+  ZWAVE_TESTLIB
 )
