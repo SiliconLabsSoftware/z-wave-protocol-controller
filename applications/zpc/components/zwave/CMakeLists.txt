@@ -35,7 +35,6 @@ uic_add_shared_library(
   zwave_multi_channel
   transport_service_wrapper
   transport_service
-  multicast_follow_ups_transport
   zpc_utils
   zpc_config
   zwave_api)
@@ -43,3 +42,29 @@ uic_add_shared_library(
   target_link_libraries(zwave PUBLIC
 	  zwave_definitions unify)
 
+uic_add_shared_library(
+    zwave_testlib
+    zwave_transports_testlib
+    zwave_network_management_testlib
+    zwave_s2_testlib
+    zwave_controller_testlib
+    zwave_rx_testlib
+    multicast_follow_ups_transport
+    zwave_tx_groups
+    zwave_security_validation
+    zwave_tx
+    zwave_tx_scheme_selector
+    zwave_s0
+    zwave_api_transport
+    zwave_s2_nonce_management
+    s2_controller
+    s2crypto
+    aes
+    zwave_multi_channel
+    transport_service_wrapper
+    transport_service
+    zpc_utils
+    zwave_api)
+  
+target_link_libraries(zwave_testlib PUBLIC
+zwave_definitions unify_testlib)
