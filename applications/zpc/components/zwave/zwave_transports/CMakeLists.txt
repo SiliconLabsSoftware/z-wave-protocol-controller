@@ -11,7 +11,6 @@ target_link_libraries(
   PUBLIC zwave_controller
          zwave_tx
          zwave_rx
-         zwave_crc16
          zwave_s0
          zwave_s2
          zwave_api_transport
@@ -22,7 +21,6 @@ target_link_libraries(
          zwave_tx_scheme_selector)
 install(TARGETS zwave_transports LIBRARY DESTINATION lib)
 
-add_subdirectory(crc16)
 add_subdirectory(s0)
 add_subdirectory(s2)
 add_subdirectory(multi_channel)

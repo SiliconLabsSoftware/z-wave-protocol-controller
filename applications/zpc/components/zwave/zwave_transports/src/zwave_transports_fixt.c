@@ -18,7 +18,6 @@
 #include "zwave_transport_service_wrapper.h"
 #include "multicast_follow_ups_transport.h"
 #include "zwave_api_transport.h"
-#include "zwave_crc16_transport.h"
 
 // Generic includes
 #include <stdbool.h>
@@ -33,7 +32,6 @@ sl_status_t zwave_transports_init(void)
   // Do not abort initialization if some transports fail.
   initialization_status |= zwave_multi_channel_transport_init();
   initialization_status |= zwave_s0_transport_init();
-  initialization_status |= zwave_crc16_transport_init();
   // S2 inits itself with the Contiki process.
   initialization_status |= zwave_transport_service_transport_init();
   initialization_status |= multicast_follow_ups_transport_init();

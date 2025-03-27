@@ -192,7 +192,6 @@ static const std::vector<attribute_schema_t> attribute_schema = {
   // Device Reset Locally Command Class attributes
   /////////////////////////////////////////////////////////////////////
   {ATTRIBUTE_COMMAND_CLASS_CRC16_VERSION,   "CRC16 Version",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
-  {ATTRIBUTE_COMMAND_CLASS_CRC16_DISABLE_CRC16, "Disable CRC16 frames", ATTRIBUTE_ENDPOINT_ID, U8_STORAGE_TYPE},
   /////////////////////////////////////////////////////////////////////
   // Inclusion Controller Command Class attributes
   /////////////////////////////////////////////////////////////////////

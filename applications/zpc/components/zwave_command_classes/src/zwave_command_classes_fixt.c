@@ -20,7 +20,6 @@
 #include "zwave_command_class_binary_switch.h"
 #include "zwave_command_class_central_scene.h"
 #include "zwave_command_class_configuration.h"
-#include "zwave_command_class_crc16.h"
 #include "zwave_command_class_granted_keys_resolver.h"
 #include "zwave_command_class_indicator.h"
 #include "zwave_command_class_manufacturer_specific.h"
@@ -95,7 +94,6 @@ sl_status_t zwave_command_classes_init()
   status |= zwave_command_class_battery_init();
   status |= zwave_command_class_binary_switch_init();
   status |= zwave_command_class_central_scene_init();
-  status |= zwave_command_class_crc16_init();
   status |= zwave_command_class_configuration_init();
   status |= zwave_command_class_device_reset_locally_init();
   status |= zwave_command_class_humidity_control_mode_init();
