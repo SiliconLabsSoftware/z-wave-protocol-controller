@@ -1,8 +1,8 @@
-From 16db739657f86532831c8df72c3fc37574ca5a31 Mon Sep 17 00:00:00 2001
+From 17df372b7ecbf2df59fbe52458bdceff38444bf3 Mon Sep 17 00:00:00 2001
 From: Philippe Coval <philippe.coval@silabs.com>
 Date: Mon, 24 Mar 2025 18:29:16 +0100
-Subject: [PATCH 6/6] git: docker/uic-resources: Removed as not part of
- UnifyCore (LFS)
+Subject: [PATCH] git: docker/uic-resources: Removed as not part of UnifyCore
+ (LFS)
 
 This change is motivated by zeal project
 

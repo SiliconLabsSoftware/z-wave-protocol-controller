@@ -1,7 +1,7 @@
-From 9e212f8578e945598096b90e18b91a662d5f98e6 Mon Sep 17 00:00:00 2001
+From 7395d94e09aa702b568f6a064ae6cac5d849ebb3 Mon Sep 17 00:00:00 2001
 From: Philippe Coval <philippe.coval@silabs.com>
 Date: Tue, 23 Jan 2024 16:27:50 +0100
-Subject: [PATCH] UIC-3202: Relax compiler warnings to support more compilers
+Subject: [PATCH] build: Relax compiler warnings to support more compilers
 
 Threating warning as error is a good practice durring development phase,
 for release it's ok to relax this to support more (future) compilers
@@ -17,8 +17,11 @@ Ideally it should be near to release tags.
 
 Origin: uic/pull-requests/2704/overview
 Relate-to: uic/pull-requests/2705/overview?commentId=796680
-Relate-to: /x/FND4Dg#BrainstormItems-Identifystandardsbreakage
+Relate-to: c.s.com/x/FND4Dg#BrainstormItems-Identifystandardsbreakage
 Forwarded: uic/pull-requests/2704/overview
+Bug-SiliconLabs: UIC-3202
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/6
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/issues/71
 Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
 ---
  cmake/include/compiler_options.cmake | 4 ++--

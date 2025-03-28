@@ -1,4 +1,4 @@
-From 21c753f75546c5821503cc3a026a17cf5ac9c927 Mon Sep 17 00:00:00 2001
+From f838d67ddc1b2975271ca1193dd0cd72804aa07d Mon Sep 17 00:00:00 2001
 From: Philippe Coval <philippe.coval@silabs.com>
 Date: Thu, 6 Feb 2025 10:31:19 +0100
 Subject: [PATCH] tests: build: cmake: Use Upstream cmock
