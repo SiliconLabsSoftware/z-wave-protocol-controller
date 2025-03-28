@@ -1,4 +1,4 @@
-From d3de9a6bc258eea42ee4b92566713f89e3110cf3 Mon Sep 17 00:00:00 2001
+From 0af42e72014d597fd0a51843286533f7da37a5bd Mon Sep 17 00:00:00 2001
 From: Philippe Coval <philippe.coval@silabs.com>
 Date: Tue, 18 Mar 2025 14:04:40 +0100
 Subject: [PATCH] git: Remove .gitattributes

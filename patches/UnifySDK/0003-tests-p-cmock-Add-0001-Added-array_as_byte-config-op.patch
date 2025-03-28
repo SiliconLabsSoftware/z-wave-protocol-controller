@@ -1,4 +1,4 @@
-From b0d6b0ee17f37e57e37bfbeeb08ee6531b8b04f2 Mon Sep 17 00:00:00 2001
+From ce3b93c662d8cfff47c27410850197fc4fe42aa8 Mon Sep 17 00:00:00 2001
 From: Philippe Coval <philippe.coval@silabs.com>
 Date: Fri, 14 Mar 2025 15:42:31 +0100
 Subject: [PATCH] tests: p/cmock: Add
