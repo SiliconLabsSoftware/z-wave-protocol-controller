@@ -20,3 +20,16 @@ if(BUILD_TESTING)
   add_mock(zwave_s0_transport_mock include/zwave_s0_transport.h)
   target_interface_libraries(zwave_s0_transport_mock zwave_controller)
 endif()
+
+# zwave_s0_testlib library
+add_library(zwave_s0_testlib src/zwave_s0_network.c src/zwave_s0_sm.c
+                     src/zwave_s0_transport.c)
+# Make libs2 build as if its built by ZIPGW and ZW_CONTROLLER
+target_compile_definitions(zwave_s0_testlib PRIVATE ZIPGW ZW_CONTROLLER ZWAVE_TESTLIB)
+
+target_include_directories(zwave_s0_testlib PUBLIC include)
+target_link_libraries(
+  zwave_s0_testlib
+  PRIVATE unify_testlib zwave_s2_testlib zwave_controller_testlib
+)
+install(TARGETS zwave_s0_testlib LIBRARY DESTINATION lib)

@@ -46,7 +46,7 @@ target_link_libraries(
   PUBLIC zwave_controller_testlib
          zwave_tx
          zwave_rx_testlib
-         zwave_s0
+         zwave_s0_testlib
          zwave_s2_testlib
          zwave_api_transport
          zwave_definitions

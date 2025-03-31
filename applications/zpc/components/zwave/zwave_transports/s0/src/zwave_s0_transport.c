@@ -1225,7 +1225,8 @@ sl_status_t
       sl_log_debug(LOG_TAG,
                    "supporting_node_scheme = %d\n",
                    supporting_node_scheme);
-      if (false && supporting_node_scheme == ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_0) {
+#ifndef ZWAVE_TESTLIB
+      if (supporting_node_scheme == ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_0) {
         sl_log_error(LOG_TAG,
                      "Not implemented: ZPC's highest security scheme is "
                      "ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_0\n");
@@ -1234,7 +1235,9 @@ sl_status_t
         // never be S0
         // UIC-794: Implement if ZPC has S0 as highest key.
         // Sending S0 supported command class get
-      } else {  // Always respond with empty S0 command supported report for ZPC
+      } else
+#endif
+      {  // Always respond with empty S0 command supported report for ZPC
         zwave_controller_connection_info_t c2;
         memcpy(&c2, c, sizeof(zwave_controller_connection_info_t));
         c2.encapsulation           = ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_0;

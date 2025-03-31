@@ -54,7 +54,7 @@ uic_add_shared_library(
     zwave_security_validation
     zwave_tx
     zwave_tx_scheme_selector
-    zwave_s0
+    zwave_s0_testlib
     zwave_api_transport
     zwave_s2_nonce_management
     s2_controller
