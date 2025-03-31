@@ -1074,7 +1074,7 @@ void test_on_network_ready()
     sizeof(current_node_list));
 
   TEST_ASSERT_NOT_NULL(zwave_callbacks->on_new_network_entered);
-  zwave_callbacks->on_new_network_entered(home_id, zpc_node_id, 2, 3);
+  zwave_callbacks->on_new_network_entered(home_id, zpc_node_id, 2, 3, PROTOCOL_ZWAVE);
   contiki_test_helper_run(1);
 
   // Go around and check our attribute store.

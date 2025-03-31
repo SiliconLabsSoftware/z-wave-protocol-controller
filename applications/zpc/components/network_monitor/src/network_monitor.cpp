@@ -291,8 +291,10 @@ static void
   network_monitor_on_network_ready(zwave_home_id_t home_id,
                                    zwave_node_id_t node_id,
                                    zwave_keyset_t granted_keys,
-                                   zwave_kex_fail_type_t kex_fail_type)
+                                   zwave_kex_fail_type_t kex_fail_type,
+                                   zwave_protocol_t inclusion_protocol)
 {
+  (void) inclusion_protocol;
   network_data *data  = new network_data;
   data->node_id       = node_id;
   data->home_id       = home_id;

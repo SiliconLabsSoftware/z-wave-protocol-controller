@@ -1324,7 +1324,8 @@ void test_set_default()
     home_id,
     node_id,
     0x87,
-    ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE);
+    ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE,
+    PROTOCOL_ZWAVE);
 
   //expect_smart_start_enable();
 

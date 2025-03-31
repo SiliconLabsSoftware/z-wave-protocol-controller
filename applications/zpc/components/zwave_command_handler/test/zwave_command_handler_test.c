@@ -230,6 +230,7 @@ void test_entering_a_new_network()
   zwave_home_id_t home_id             = 0x12345678;
   zwave_node_id_t node_id             = 0x12;
   zwave_kex_fail_type_t kex_fail_type = 0x00;
+  zwave_protocol_t protocol           = PROTOCOL_ZWAVE;
 
   // When entering a new network, we expect the NIF to get set.
   zwave_controller_get_highest_encapsulation_ExpectAndReturn(
@@ -251,7 +252,8 @@ void test_entering_a_new_network()
   zwave_controller_callbacks->on_new_network_entered(home_id,
                                                      node_id,
                                                      our_granted_keys,
-                                                     kex_fail_type);
+                                                     kex_fail_type,
+                                                     protocol);
 
   // No frame should have been received here.
   TEST_ASSERT_EQUAL_UINT8(0, cc_zwave_plus_handle_counter);

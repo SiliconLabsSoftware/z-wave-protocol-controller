@@ -773,7 +773,7 @@ void test_zwave_tx_queue_flush_while_empty()
 
   // Tx queue opens again after entering a new netowrk
   TEST_ASSERT_NOT_NULL(zwave_controller_callbacks->on_new_network_entered);
-  zwave_controller_callbacks->on_new_network_entered(1, 2, 3, 4);
+  zwave_controller_callbacks->on_new_network_entered(1, 2, 3, 4, 5);
 
   // Tx Queue is happy again
   TEST_ASSERT_EQUAL(SL_STATUS_OK,
