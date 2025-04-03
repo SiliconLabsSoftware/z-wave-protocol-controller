@@ -78,6 +78,7 @@ static void
 void test_s2_network_init()
 {
   uint8_t nls_state = false;
+  uint8_t nls_support = false;
 
   S2_destroy_Expect(s2_ctx);
   s2_inclusion_init_IgnoreAndReturn(true);
@@ -87,7 +88,7 @@ void test_s2_network_init()
 
   zwapi_memory_get_buffer_IgnoreAndReturn(SL_STATUS_OK);
 
-  zwapi_get_node_nls_ExpectAndReturn(1, &nls_state, SL_STATUS_OK);
+  zwapi_get_node_nls_ExpectAndReturn(1, &nls_state, &nls_support, SL_STATUS_OK);
   S2_load_nls_state_Ignore();
 
   zwave_s2_network_init();

@@ -65,15 +65,18 @@ void test_zwapi_enable_node_nls(void)
 void test_zwapi_get_node_nls(void)
 {
   zwave_node_id_t node_id = 2;
+  uint8_t nls_supported = 1;
   uint8_t nls_enabled = 1;
   uint8_t response_buffer[]     = {0x04 /* length = len(payload) + 3 */,
                                    0x01 /* type: response */,
                                    FUNC_ID_ZW_GET_NODE_NLS_STATE /* cmd */,
+                                   nls_supported,
                                    nls_enabled /* payload */};
-  uint8_t response_length       = 4;
+  uint8_t response_length       = 5;
   uint8_t payload_buffer[] = {0x02};
   uint8_t payload_buffer_length = 1;
   uint8_t node_nls_state        = 99;
+  uint8_t node_nls_support      = 99;
 
   zwapi_session_send_frame_with_response_ExpectAndReturn(
     FUNC_ID_ZW_GET_NODE_NLS_STATE,
@@ -90,7 +93,7 @@ void test_zwapi_get_node_nls(void)
   zwapi_session_send_frame_with_response_ReturnThruPtr_response_len(
     &response_length);
 
-  TEST_ASSERT_EQUAL(SL_STATUS_OK, zwapi_get_node_nls(node_id, &node_nls_state));
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, zwapi_get_node_nls(node_id, &node_nls_state, &node_nls_support));
   TEST_ASSERT_EQUAL(nls_enabled, node_nls_state);
 }
 
