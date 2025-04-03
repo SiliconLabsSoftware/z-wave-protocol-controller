@@ -334,6 +334,7 @@ void test_handle_nls()
 {
   sl_status_t state;
   uint8_t nls_state = false;
+  uint8_t nls_support = false;
 
   state = uic_stdin_handle_command("zwave_enable_nls");
   TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
@@ -345,8 +346,9 @@ void test_handle_nls()
   state = uic_stdin_handle_command("zwave_get_nls_state");
   TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
 
-  zwapi_get_node_nls_ExpectAndReturn(2, &nls_state, SL_STATUS_OK);
+  zwapi_get_node_nls_ExpectAndReturn(2, &nls_state, &nls_support, SL_STATUS_OK);
   zwave_store_nls_state_ExpectAndReturn(2, nls_state, REPORTED_ATTRIBUTE, SL_STATUS_OK);
+  zwave_store_nls_support_ExpectAndReturn(2, nls_support, REPORTED_ATTRIBUTE, SL_STATUS_OK);
   state = uic_stdin_handle_command("zwave_get_nls_state 2");
   TEST_ASSERT_EQUAL(SL_STATUS_OK, state);
 }

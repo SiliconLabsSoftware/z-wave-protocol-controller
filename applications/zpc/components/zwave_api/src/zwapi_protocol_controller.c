@@ -810,7 +810,8 @@ sl_status_t zwapi_enable_node_nls(const zwave_node_id_t nodeId)
 
 sl_status_t zwapi_get_node_nls(
   const zwave_node_id_t nodeId,
-  uint8_t* nls_state)
+  uint8_t* nls_state,
+  uint8_t* nls_support)
 {
   uint8_t response_length = 0;
   uint8_t index = 0;
@@ -826,8 +827,9 @@ sl_status_t zwapi_get_node_nls(
 
   if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA)
   {
-    *nls_state = response_buffer[IDX_DATA];
-    return SL_STATUS_OK;    
+    *nls_support = response_buffer[IDX_DATA];
+    *nls_state = response_buffer[IDX_DATA + 1];
+    return SL_STATUS_OK;
   }
 
   return SL_STATUS_FAIL;

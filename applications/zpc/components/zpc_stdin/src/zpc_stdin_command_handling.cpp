@@ -878,16 +878,16 @@ static sl_status_t handle_get_nls_state(const handle_args_t &arg)
     zwave_node_id_t node_id
       = static_cast<zwave_node_id_t>(std::stoi(arg[1].c_str(), nullptr, 10));
     uint8_t nls_state = 0;
-    sl_status_t status = zwapi_get_node_nls(node_id, &nls_state);
+    uint8_t nls_support = 0;
+    sl_status_t status = zwapi_get_node_nls(node_id, &nls_state, &nls_support);
     if (SL_STATUS_OK == status)
     {
-      // TODO: Add commented condition below once related SAPI command is updated
-      status = zwave_store_nls_state(node_id, nls_state, REPORTED_ATTRIBUTE) /* || zwave_store_nls_support(node_id, nls_support, REPORTED_ATTRIBUTE) */;
+      status = zwave_store_nls_state(node_id, nls_state, REPORTED_ATTRIBUTE) || zwave_store_nls_support(node_id, nls_support, REPORTED_ATTRIBUTE);
       if (SL_STATUS_OK != status) {
         dprintf(out_stream, "Unable to store NLS state for Node ID: %d\n", node_id);
         return SL_STATUS_FAIL;
       }
-      dprintf(out_stream, "Node ID %d, NLS state: %d\n", node_id, nls_state);
+      dprintf(out_stream, "Node ID %d, NLS Support: %d, NLS state: %d\n", node_id, nls_support, nls_state);
       return SL_STATUS_OK;
     }
     else
