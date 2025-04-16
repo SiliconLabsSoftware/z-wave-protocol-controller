@@ -34,6 +34,7 @@ file(GLOB UNIFYSDK_PATCHES
   ${PROJECT_SOURCE_DIR}/patches/UnifySDK/*.patch
 )
 
+set(ENV{GIT_LFS_SKIP_SMUDGE} "1")
 find_package(Git)
 FetchContent_Declare(
   UnifySDK
@@ -41,6 +42,7 @@ FetchContent_Declare(
   GIT_TAG        ${UNIFYSDK_GIT_TAG}
   GIT_SUBMODULES_RECURSE True
   GIT_SHALLOW 1
+  GIT_PROGRESS True
 
   # Prevent "fatal: unable to auto-detect email address"
   GIT_CONFIG user.email=nobody@UnifySDK.localhost
