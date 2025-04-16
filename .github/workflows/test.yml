@@ -1,0 +1,62 @@
+# YAML -*- mode: yaml; tab-width: 2; indent-tabs-mode: nil; coding: utf-8 -*-
+# SPDX-License-Identifier: Zlib
+# SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
+---
+
+name: test
+
+on:  # yamllint disable-line rule:truthy
+  workflow_run:
+    workflows: ["build"]
+    types:
+      - completed
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Download image
+        uses: ishworkh/container-image-artifact-download@v2.0.0
+        with:
+          image: "${{ github.event.repository.name }}:latest"
+          workflow: "build"
+          token: ${{ secrets.GH_SL_ACCESS_TOKEN }}
+          workflow_run_id: ${{ github.event.workflow_run.id }}
+
+      - uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
+
+      - name: Download embedded applications package
+        uses: robinraju/release-downloader@v1.12
+        with:
+          repository: 'Z-Wave-Alliance/z-wave-stack-binaries'
+          fileName: 'z-wave-stack-binaries-*-Linux.tar.gz'
+          token: ${{ secrets.GH_ZWAVE_ACCESS_TOKEN }}
+          latest: true
+
+      - name: Setup
+        env:
+          debian_packages: time screen docker-compose mosquitto-clients jq wget
+        run: >-
+          set -x
+          && sudo apt update
+          && sudo apt install -y --no-install-recommends
+          ${{ env.debian_packages }}
+          && sudo apt-get clean -y
+          && echo "https://github.com/Z-Wave-Alliance/z-wave-stack/issues/733"
+          && mkdir -p z-wave-stack-binaries
+          && tar xfz z-wave-stack-binaries-*-Linux.tar.gz
+          -C z-wave-stack-binaries
+          && rm z-wave-stack-binaries-*-Linux.tar.gz
+          && date -u
+
+      - name: Run
+        run: |
+          set -x
+          export ZPC_RUN_MODE="docker"
+          export ZPC_COMMAND="docker run ${{ github.event.repository.name }}"
+          $ZPC_COMMAND --version
+          docker-compose pull
+          export ZPC_COMMAND="docker-compose up --abort-on-container-exit"
+          cd z-wave-stack-binaries/bin && file -E *_x86_REALTIME.elf

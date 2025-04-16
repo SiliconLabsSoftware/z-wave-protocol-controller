@@ -1,22 +1,11 @@
-FROM debian:bookworm as builder
+# SPDX-License-Identifier: Zlib
+# SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV LC_ALL en_US.UTF-8
-ENV LANG ${LC_ALL}
+FROM debian:bookworm as builder
 
 ARG UNIFYSDK_GIT_REPOSITORY https://github.com/SiliconLabs/UnifySDK
 ARG UNIFYSDK_GIT_TAG main
 
-RUN echo "# log: Configuring locales" \
-  && set -x  \
-  && apt-get update -y \
-  && apt-get install -y locales \
-  && echo "${LC_ALL} UTF-8" | tee /etc/locale.gen \
-  && locale-gen ${LC_ALL} \
-  && dpkg-reconfigure locales \
-  && TZ=Etc/UTC apt-get -y install tzdata \
-  && date -u
-  
 ENV project z-wave-protocol-controller
 ENV workdir /usr/local/opt/${project}
 ADD . ${workdir}
@@ -26,7 +15,8 @@ WORKDIR ${workdir}
 RUN echo "# log: Setup system" \
   && set -x  \
   && df -h \
-  && apt-get install -y make sudo \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends -- make sudo \
   && ./helper.mk help setup \
   && date -u
 
@@ -52,10 +42,11 @@ RUN echo "# log: Install to system" \
   && set -x  \
   && apt-get update \
   && dpkg -i ./dist/${project}*/*.deb \
-  || apt install -f -y \
-  && apt-get install -y mosquitto \
+  || apt install -f -y --no-install-recommends \
+  && echo "TODO: rm -rf dist # If artifacts are no more needed" \
   && apt-get clean -y \
   && rm -rf /var/lib/{apt,dpkg,cache,log}/ \
+  && df -h \
   && date -u
 
 ENTRYPOINT [ "/usr/bin/zpc" ]

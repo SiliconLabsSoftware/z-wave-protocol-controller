@@ -1,16 +1,17 @@
 # YAML -*- mode: yaml; tab-width: 2; indent-tabs-mode: nil; coding: utf-8 -*-
+# SPDX-License-Identifier: Zlib
+# SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
 ---
 
-name: z-wave-protocol-controller Build in docker
+name: build
 
 on:  # yamllint disable-line rule:truthy
-  pull_request:
   push:
 
 jobs:
   build:
     env:
-      project-name: z-wave-protocol-controller  # This should be lowercase for docker (and aligned)
+      project-name: z-wave-protocol-controller  # Align to docker (lowercase)
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4.1.1
@@ -27,11 +28,19 @@ jobs:
           &&
           docker build
           --tag "${{ env.project-name }}:latest"
-          --build-arg UNIFYSDK_GIT_REPOSITORY=${{ secrets.UNIFYSDK_GIT_REPOSITORY }}
-          --build-arg UNIFYSDK_GIT_TAG=${{ secrets.UNIFYSDK_GIT_TAG }}
+          --build-arg
+          UNIFYSDK_GIT_REPOSITORY=${{ secrets.UNIFYSDK_GIT_REPOSITORY }}
+          --build-arg
+          UNIFYSDK_GIT_TAG=${{ secrets.UNIFYSDK_GIT_TAG }}
           .
           &&
           df -h
+
+      - name: Upload container image
+        uses: ishworkh/container-image-artifact-upload@v2.0.0
+        with:
+          image: "${{ env.project-name }}:latest"
+          retention_days: 10
 
       - name: Extract artifacts
         run: >-
