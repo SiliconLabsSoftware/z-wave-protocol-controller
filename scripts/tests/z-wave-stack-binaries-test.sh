@@ -468,6 +468,29 @@ play_uic_node_OnOff_()
 }
 
 
+play_uic_s2v2_node_()
+{
+    type="OnOff"
+    node_cli_ H
+    node_cli_ n
+    echo "info: Play $type on $nodeunid"
+
+    command="EnableNls"
+    pub="ucl/by-unid/$nodeunid/State/Commands/$command"
+    message="{}"
+    log_ "TODO: Expect response in MQTT, workaround by looking at debug log"
+    log_ "TODO: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/31"
+    pub_ "$pub" "$message" ""
+    sleep 1
+    grep 'on_nls_state_set_v2_send_complete' "${zpc_log}" || die_
+    grep 'on_nls_state_get_v2_send_complete' "${zpc_log}" || die_
+    zpc_cli_ "attribute_store_log_search" "NLS state" \
+        && grep  'NLS state ...............................................      1 ' \
+                 "${zpc_log}" \
+            || die_ # 2 expected
+}
+
+
 play_uic_()
 {
     play_uic_net_add_node_
@@ -475,6 +498,11 @@ play_uic_()
 
     play_uic_net_add_node_
     play_uic_node_OnOff_
+    play_uic_net_remove_node_
+
+    play_uic_net_add_node_
+    play_uic_s2v2_node_
+    play_uic_OnOff_node_
     play_uic_net_remove_node_
 }
 
