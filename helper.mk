@@ -38,7 +38,7 @@ packages+=git-lfs unp time file usbutils bsdutils
 packages+=nlohmann-json3-dev
 # TODO: remove for offline build
 packages+=curl wget python3-pip
-packages+=time
+packages+=expect
 
 # For docs
 packages+=graphviz
@@ -242,6 +242,21 @@ test: ${build_dir}
 	ctest --test-dir ${<}/${project_test_dir}
 
 check: test
+
+mapdir?=applications/zpc/components/dotdot_mapper/rules
+datastore_file?=tmp.db
+cache_path?=tmp/cache/ota
+devel/integration/test: ./scripts/tests/z-wave-stack-binaries-test.sh
+	-reset
+	rm -fv ${datastore_file} *.tmp
+	mkdir -p ${cache_path}
+	-pidof mosquitto
+	ZPC_COMMAND="${run_file} \
+		--mapdir=${mapdir} \
+		--zpc.datastore_file=${datastore_file} \
+		--zpc.ota.cache_path=${cache_path} \
+		--log.level=d" \
+		time $< # Add debug=1 to begining of this line to trace 
 
 dist/cmake: ${build_dir}
 	cmake --build $< --target package
