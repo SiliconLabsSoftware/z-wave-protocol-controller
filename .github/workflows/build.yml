@@ -23,16 +23,21 @@ jobs:
           | tee $GITHUB_OUTPUT
       - name: Build Docker image from sources
         run: >-
+          df -h
+          &&
           docker build
           --tag "${{ env.project-name }}:latest"
           --build-arg UNIFYSDK_GIT_REPOSITORY=${{ secrets.UNIFYSDK_GIT_REPOSITORY }}
           --build-arg UNIFYSDK_GIT_TAG=${{ secrets.UNIFYSDK_GIT_TAG }}
           .
+          &&
+          df -h
+
       - name: Extract artifacts
         run: >-
           container=$(docker create "${{ env.project-name }}:latest")
           && docker cp
-          ${container}:/usr/local/opt/${{ env.project-name }}/build/dist .
+          ${container}:/usr/local/opt/${{ env.project-name }}/dist .
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:

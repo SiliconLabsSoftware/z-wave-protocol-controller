@@ -1,4 +1,4 @@
-FROM debian:bookworm
+FROM debian:bookworm as builder
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV LC_ALL en_US.UTF-8
@@ -25,6 +25,7 @@ WORKDIR ${workdir}
 
 RUN echo "# log: Setup system" \
   && set -x  \
+  && df -h \
   && apt-get install -y make sudo \
   && ./helper.mk help setup \
   && date -u
@@ -32,13 +33,29 @@ RUN echo "# log: Setup system" \
 RUN echo "# log: Build" \
   && set -x  \
   && ./helper.mk \
+  && date -u \
+  && echo "# log: Clean to only keep packages to save space" \
+  && mkdir -p dist \
+  && cd dist \
+  && unzip ../build/dist/${project}*.zip \
+  && cd - \
+  && ./helper.mk distclean \
   && date -u
+
+FROM debian:bookworm
+ENV project z-wave-protocol-controller
+ENV workdir /usr/local/opt/${project}
+COPY --from=builder ${workdir}/dist/ ${workdir}/dist/
+WORKDIR ${workdir}
 
 RUN echo "# log: Install to system" \
   && set -x  \
-  && sudo dpkg -i ./build/${project}_*/*.deb \
-  || sudo apt install -f \
-  && sudo apt-get install -y mosquitto \
+  && apt-get update \
+  && dpkg -i ./dist/${project}*/*.deb \
+  || apt install -f -y \
+  && apt-get install -y mosquitto \
+  && apt-get clean -y \
+  && rm -rf /var/lib/{apt,dpkg,cache,log}/ \
   && date -u
 
 ENTRYPOINT [ "/usr/bin/zpc" ]
