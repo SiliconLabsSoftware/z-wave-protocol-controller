@@ -22,6 +22,7 @@ services:
     devices:
       - ${ZPC_DEVICE:-/dev/ttyACM0}:/dev/ttyUSB0
     depends_on:
-      - broker
+      - broker:
+          conditions: service_started
     environment:
       ZPC_ARGS: "--"

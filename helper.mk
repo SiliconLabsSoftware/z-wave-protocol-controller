@@ -241,6 +241,21 @@ ${build_dir}: ${build_dir}/CMakeCache.txt
 test: ${build_dir}
 	ctest --test-dir ${<}/${project_test_dir}
 
+mapdir?=applications/zpc/components/dotdot_mapper/rules
+datastore_file?=tmp.db
+cache_path?=tmp/cache/ota
+devel/integration/test: ./scripts/tests/z-wave-stack-binaries-test.sh
+	rm -fv ${datastore_file} *.tmp
+	mkdir -p ${cache_path}
+	-pidof mosquitto
+	ZPC_COMMAND="${run_file} \
+		--mapdir=${mapdir} \
+		--zpc.datastore_file=${datastore_file} \
+		--zpc.ota.cache_path=${cache_path} \
+		--log.level=d" \
+		debug=1 \
+		$<
+
 check: test
 
 dist/cmake: ${build_dir}
