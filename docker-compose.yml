@@ -16,12 +16,13 @@ services:
   zpc:
     image: z-wave-protocol-controller
     build: .
-    command: run --mqtt.host=broker --zpc.serial="${ZPC_DEVICE:-/dev/ttyACM0}" ${ZPC_ARGS}
+    command: run --mqtt.host=broker --zpc.serial="${ZPC_DEVICE:-/dev/ttyACM0}" ${ZPC_ARGS:--}
     volumes:
       - /dev/pts:/dev/pts
     devices:
       - ${ZPC_DEVICE:-/dev/ttyACM0}:/dev/ttyUSB0
     depends_on:
-      - broker
+      broker:
+        condition: service_started
     environment:
       ZPC_ARGS: "--"
