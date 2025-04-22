@@ -12,13 +12,15 @@ on:  # yamllint disable-line rule:truthy
       - completed
 jobs:
   test:
+    env:
+      project-name: z-wave-protocol-controller  # Align to docker (lowercase)
     runs-on: ubuntu-24.04
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Download image
         uses: ishworkh/container-image-artifact-download@v2.0.0
         with:
-          image: "${{ github.event.repository.name }}:latest"
+          image: "${{ env.project-name }}:latest"
           workflow: "build"
           token: ${{ secrets.GH_SL_ACCESS_TOKEN }}
           workflow_run_id: ${{ github.event.workflow_run.id }}
@@ -55,7 +57,7 @@ jobs:
         run: |
           set -x
           export ZPC_RUN_MODE="docker"
-          export ZPC_COMMAND="docker run ${{ github.event.repository.name }}"
+          export ZPC_COMMAND="docker run ${{ env.project-name }}"
           $ZPC_COMMAND --version
           docker-compose pull
           export ZPC_COMMAND="docker-compose up --abort-on-container-exit"
