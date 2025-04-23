@@ -127,6 +127,32 @@ ZPC>attribute_store_set_desired 110,1
 (...)
 ```
 
+### WSL2 build
+
+How to use a z-wave controller with ZPC running in WSL2 ?
+
+You can use this [script](./scripts/wslusb.ps1).
+
+Start by installing the usbipd service as described at: https://learn.microsoft.com/en-us/windows/wsl/connect-usb
+
+```sh
+# You can list devices using: 
+
+(Powershell)$ ./wslusb.ps1 -List
+
+# Get the BUSID of the device you want to mount
+
+(Powershell)$ ./wslusb.ps1 -Attach <busid>
+
+# Check that the device is correctly mounted into WSL2
+
+(WSL2)$ lsusb # you should see your device here
+
+# Detach the device with
+
+(Powershell)$ ./wslusb.ps1 -Detach <busid>
+```
+
 ### More
 
 Refer to [./doc](doc) for more (using shell, MQTT, WebApp etc).
