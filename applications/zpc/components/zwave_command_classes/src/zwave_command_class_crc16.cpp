@@ -17,6 +17,7 @@
 // Generic includes
 #include <stdlib.h>
 #include <assert.h>
+#include <algorithm>
 #include <utility> // make_pair
 
 // Includes from other ZPC Components
