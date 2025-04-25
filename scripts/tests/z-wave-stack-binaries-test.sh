@@ -11,6 +11,9 @@ set -o pipefail
 
 # Default configuration can be overloaded from env
 
+# To be explicilty added to env
+sudo="${sudo:=}"
+
 duration=3 # Allocated time in mins until watchdog quit
 
 ZPC_COMMAND="${ZPC_COMMAND:=/usr/bin/zpc}"
@@ -91,7 +94,8 @@ EOF
 
 log_()
 {
-    [ "$debug" != "" ] && echo || clear ||:
+    [ "$debug" != "" ] && echo \
+        || clear >/dev/null 2>&1 || reset >/dev/null 2>&1 || :
     printf "${yellow}info: $@ ${nocol}\n"
 }
 
@@ -103,15 +107,9 @@ exit_()
     sleep 10
     [ -z $debug ] || sleep 1000
     echo $code > $code_log
-    screen -S "$name" -X "quit"
+    screen -S "$name" -X "quit" ||:
+    ls -l *.log.tmp && more *.log.tmp | cat
     exit $code
-}
-
-
-die_()
-{
-    local code=$(( 1 + 0$code))
-    exit_ $code
 }
 
 
@@ -131,12 +129,13 @@ mqtt_()
         pidof mosquitto \
             && mosquitto_sub \
                    -v -t '#' --remove-retained --retained-only -W 1 \
-            && break
+                || [ 27 = $? ] && break ||: # Break on timeout
         sleep .1
-    done > /dev/null 2>&1
+    done 
+    log_ "mqtt: broker is ready, operating for ${duration} mins"
     mosquitto_sub -v -t '#' -W $((60 * ${duration}))
     log_ "mqtt: error: Should have finish before ${duration} may need to update it"
-    die_
+    exit_ 10
 }
 
 
@@ -159,7 +158,7 @@ sub_()
             | head -n1 | grep -F "$expect" 2>&1 > /dev/null \
             || { printf "${red}exp: error:: ${expect}${nocol}\n" ;
                  cat "$mqtt_sub_log"  ;
-                 die_ ; }
+                 exit_ 11; }
     fi
 }
 
@@ -179,7 +178,6 @@ pub_()
 
 pubsub_()
 {
-    # reset
     echo ""
     [ "" = "$debug" ] || log_ "pubsub_: $@"
     local pub="$1"
@@ -236,13 +234,10 @@ controller_cli_()
                       | tail -n 1 | sed -e 's|PTY: \(.*\)|\1|g' )
             ;;
         H)
-            [ -z $debug ] || log_ "TODO: print HOME_ID: from device: https://github.com/Z-Wave-Alliance/z-wave-stack/issues/732"
-            sleep 1
-            while [ ! -e "${mqtt_log}" ] ; do sleep 1; done
-            # [ "$homeid" != "" ]
-            homeid=$(sed -n -e 's|ucl/by-unid/zw-\(.*\)-\([0-9]*\)/.*|\1|gp' "$mqtt_log" | tail -n1)
+            homeid=$(grep 'HOME_ID: ' "${controller_log}" \
+                         | tail -n 1 | sed -e 's|HOME_ID: \(.*\)|\1|g' )
             echo "HOME_ID: ${homeid}"
-            [ ! -z $homeid ] || die_
+            [ ! -z $homeid ] || exit_ 19
             ;;
         n)
             contid=$(grep 'NODE_ID: ' "${controller_log}" \
@@ -319,7 +314,7 @@ zpc_()
     sleep 1
     zpc_cli_ version
     zpc_cli_ help
-    die_
+    exit_ 13
 }
 
 
@@ -346,8 +341,8 @@ zpc_cli_()
 play_uic_net_add_node_()
 {
     log_ "net: controller: Add node (set in learn mode)"
-    controller_cli_ H | grep "^HOME_ID: ........$" || die_
-    controller_cli_ n | grep "^NODE_ID: " || die_
+    controller_cli_ H | grep "^HOME_ID: ........$" || exit_ 14
+    controller_cli_ n | grep "^NODE_ID: " || exit_ 15
 
     sub="ucl/by-mqtt-client/zpc/ApplicationMonitoring/SupportedCommands"
     pub="$sub" # Can be anything
@@ -364,7 +359,7 @@ play_uic_net_add_node_()
     homeid=$(sed -n -e 's|ucl/by-unid/zw-\(.*\)-\([0-9]*\)/.*|\1|gp' "$mqtt_sub_log")
     contid=$(sed -n -e 's|ucl/by-unid/zw-\(.*\)-\([0-9]*\)/.*|\2|gp' "$mqtt_sub_log")
     contunid="zw-$homeid-$contid"
-    node_cli_ n | grep 'NODE_ID: 0' || die_
+    node_cli_ n | grep 'NODE_ID: 0' || exit_ 16
     node_cli_ l
 
     log_ "net: cont: Add node"
@@ -374,7 +369,7 @@ play_uic_net_add_node_()
     count="2" # NODEID=0001 is controller , NODEID=0002 is expected node
     expect="State/SupportedCommands"
     pubsub_ "$pub" "$message" "$sub" "$expect"
-    node_cli_ H | grep "HOME_ID: ${homeid}" || die_
+    node_cli_ H | grep "HOME_ID: ${homeid}" || exit_ 17
     node_cli_ n # Should not be 0
     pub=''
     sub=$(echo "$sub" | sed -e "s|/+/|/$nodeunid/|g")
@@ -413,7 +408,7 @@ play_uic_net_remove_node_()
     expect=$(echo "$sub (null)" | sed -e "s|/+/|/$nodeunid/|g")
     node_cli_ l
     pubsub_ "$pub" "$message" "$sub" "$expect" 3
-    node_cli_ n | grep '^NODE_ID: 0$' || die_
+    node_cli_ n | grep '^NODE_ID: 0$' || exit_ 18
 }
 
 
@@ -487,7 +482,9 @@ play_uic_()
 play_()
 {
     log_ "play: Wait for zpc mqtt ready"
-    while ! grep -- "mqtt_wrapper_mosquitto" "${zpc_log}" ; do sleep 1 ; done
+    while ! grep -- "\[mqtt_wrapper_mosquitto\]" "${zpc_log}" ; do sleep 1 ; done
+    while ! grep -- "\[mqtt_client\] Connection to MQTT broker" "${zpc_log}" ; do sleep 1 ; done
+
     controller_cli_ h
     node_cli_ h
 
@@ -501,12 +498,17 @@ setup_()
     local project="z-wave-stack-binaries"
     local url="https://github.com/Z-Wave-Alliance/${project}"
     local pattern="$project-*.tar.gz" # TODO: Bump latest release
-    pattern="$project-25.1.0-25-g3b1e09d-Linux.tar.gz"
+    local rev="25.1.0-26-g29d304"
+    pattern="$project-${rev}-Linux.tar.gz"
 
     mkdir -p "${project}" && cd "${project}"
     file -E "${pattern}" \
         || gh release download -R "$url" --pattern "$pattern"
     tar xvfz "${project}"*.tar.gz
+    # TODO: https://github.com/eclipse-mosquitto/mosquitto/issues/3267
+    mosquitto_pub --version \
+        || which mosquitto_pub \
+        || $sudo apt install mosquitto-clients
 }
 
 
@@ -514,6 +516,17 @@ default_()
 {
     usage_
     sleep 1
+
+    log_ "Setup check, if failing please setup using:"
+    echo "sudo=sudo $0 setup_"
+
+    [ "" = "$debug" ] || set
+
+    screen --version
+
+    # TODO: https://github.com/eclipse-mosquitto/mosquitto/issues/3267
+    mosquitto_pub --version \
+        || which mosquitto_pub
 
     log_ "z-wave-stack-binaries: Check presence in ${z_wave_stack_binaries_bin_dir}"
     file -E "${z_wave_stack_binaries_bin_dir}/"*"REALTIME"*".elf"
@@ -576,7 +589,7 @@ EOF
     cat "${mqtt_log}"
 
     code=$(cat ${code_log} || echo 254)
-    exit 0$code
+    exit_ 0$code
 }
 
 
