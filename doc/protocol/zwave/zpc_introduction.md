@@ -13,7 +13,7 @@ readme_debug.md
 ../../../applications/zpc/how_to_implement_zwave_command_classes.rst
 ../../../applications/zpc/how_to_write_uam_files_for_the_zpc.md
 ../../../applications/zpc/how_to_interact_with_clusters.rst
-../../../applications/zpc/doc/supported_command_classes.md
+../../../applications/zpc/doc/supported_command_classes.rst
 ```
 
 The [ZPC User Guide](../../../applications/zpc/readme_user.md) explains how to use and configure ZPC.
@@ -28,6 +28,6 @@ The guide [How to write UAM files for ZPC](../../../applications/zpc/how_to_writ
 
 The guide [How to interact with clusters](../../../applications/zpc/how_to_interact_with_clusters.rst) goes into detail about the implementation of Cluster in Unify.
 
-The guide [Supported Command Classes](../../../applications/zpc/doc/supported_command_classes.md) goes into detail about how the command class are implemented. This documents gives specifics about the attributes store and MQTT topics that can interact with the class.
+The guide [Supported Command Classes](../../../applications/zpc/doc/supported_command_classes.rst) goes into detail about how the command class are implemented. This documents gives specifics about the attributes store and MQTT topics that can interact with the class.
 
 The doxygen generated <a href="../../../doxygen_zpc/index.html">ZPC API</a>
