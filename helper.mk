@@ -243,10 +243,28 @@ test: ${build_dir}
 
 check: test
 
+zwa_project?=z-wave-stack-binaries
+zwa_rev?=25.1.0-26-g29d304a
+zwa_file?=${zwa_project}-${zwa_rev}-Linux.tar.gz
+zwa_url?=https://github.com/Z-Wave-Alliance/${zwa_project}
+zwa_dir?=${zwa_project}
+
+${CURDIR}/tmp/${zwa_file}:
+	@echo "TODO: https://github.com/Z-Wave-Alliance/z-wave-stack-binaries/issues/2"
+	mkdir -p ${@D} && cd ${@D} \
+		&& gh release download -R "${zwa_url}" --pattern "${zwa_file}"
+
+${zwa_dir}: ${CURDIR}/tmp/${zwa_file}
+	mkdir -p "$@"
+	tar xfa "$<" -C "$@"
+
+zwa/setup: ${zwa_project}
+	ls ${zwa_project}
+
 mapdir?=applications/zpc/components/dotdot_mapper/rules
 datastore_file?=tmp.db
 cache_path?=tmp/cache/ota
-devel/integration/test: ./scripts/tests/z-wave-stack-binaries-test.sh
+zwa/test: ./scripts/tests/z-wave-stack-binaries-test.sh ${zwa_dir}
 	-reset
 	rm -fv ${datastore_file} *.tmp
 	mkdir -p ${cache_path}
