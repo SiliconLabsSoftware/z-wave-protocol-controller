@@ -333,6 +333,13 @@ bool zwave_network_management_is_busy();
  */
 bool we_have_return_routes_to_assign(zwave_node_id_t node_id);
 
+
+// TODO: documentation
+sl_status_t
+zwave_network_management_set_priority_route(zwave_node_id_t node_id,
+                                            uint8_t priority_route[5]);
+
+
 /* An application MUST time out waiting for the
  * ADD_NODE_STATUS_NODE_FOUND status if it does not receive the indication
  * after calling AddNodeToNetwork(ADD_NODE_ANY).
