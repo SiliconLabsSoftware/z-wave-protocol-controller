@@ -98,6 +98,7 @@ static sl_status_t handle_zwave_reset_mpan(const handle_args_t &arg);
 static sl_status_t handle_zwave_home_id(const handle_args_t &arg);
 static sl_status_t handle_enable_nls(const handle_args_t &arg);
 static sl_status_t handle_get_nls_state(const handle_args_t &arg);
+static sl_status_t handle_set_priority_route(const handle_args_t &arg);
 
 /// Map that holds all the commands (used for printing help)
 ///
@@ -168,6 +169,10 @@ const std::map<std::string, std::pair<std::string, handler_func>> commands = {
     &handle_add_zwave_node_abort}},
   {"zwave_add_node",
    {" :Add a Z-Wave node to the network", &handle_add_zwave_node}},
+  {"zwave_set_priority_route",
+   {" :Set the priority route to a destination node",
+    &handle_set_priority_route}},
+
   {"zwave_grant_keys",
    {COLOR_START
     "<1/0 to accept/reject the requested keys>,<Set of keys to"
@@ -618,6 +623,61 @@ static sl_status_t handle_zwave_learn_mode(const handle_args_t &arg)
     dprintf(out_stream, "Unknown learn mode intent!\n");
   }
   return SL_STATUS_OK;
+}
+
+static sl_status_t handle_set_priority_route(const handle_args_t &arg)
+{
+  zwave_node_id_t dst_node_id        = 0;
+  uint8_t route[PRIORITY_ROUTE_SIZE] = {0};
+  const int max_node_id              = 0xE8;
+
+  if (arg.size() != 7) {
+    dprintf(out_stream,
+            "Invalid number of arguments, expected args:"
+            "<Dst NodeID>,<Hop 1>,<Hop 2>,<Hop 3>,<Hop 4>,<Speed> "
+            "all values in hexadecimal\n");
+
+    return SL_STATUS_FAIL;
+  }
+
+  try {
+    dst_node_id
+      = static_cast<zwave_node_id_t>(std::stoi(arg[1].c_str(), nullptr, 16));
+    for (size_t i = 0; i < 5; ++i) {
+      route[i]
+        = static_cast<uint8_t>(std::stoi(arg[i + 2].c_str(), nullptr, 16));
+    }
+  } catch (const std::invalid_argument &e) {
+    dprintf(out_stream, "Invalid argument: %s\n", e.what());
+    return SL_STATUS_FAIL;
+  }
+
+  if (dst_node_id <= 0 || dst_node_id > max_node_id) {
+    dprintf(out_stream, "Invalid destination node id\n");
+    return SL_STATUS_FAIL;
+  }
+
+  bool previous_hop_was_direct = false;
+  for (size_t i = 0; i < 4; ++i) {
+    if (route[i] < 0 || route[i] > max_node_id) {
+      dprintf(out_stream, "Invalid hop node id\n");
+      return SL_STATUS_FAIL;
+    }
+    if (previous_hop_was_direct && route[i] != 0) {
+      dprintf(out_stream, "Invalid route. Cannot set a node id after a zero\n");
+      return SL_STATUS_FAIL;
+    }
+    if (0 == route[i]) {
+      previous_hop_was_direct = true;
+    }
+  }
+
+  if (route[4] <= 0 || route[4] > 3) {
+    dprintf(out_stream, "Invalid Route Speed.\n");
+    return SL_STATUS_FAIL;
+  }
+
+  return zwave_network_management_set_priority_route(dst_node_id, route);
 }
 
 static sl_status_t handle_add_zwave_node(const handle_args_t &arg)
