@@ -1,5 +1,9 @@
 # ZPC Release Notes
 
+## [Next]
+
+* [Support command Set Priority Route Command](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/pull/96)
+
 ## [1.7.0] - Feb 2025
 
 **BREAKING**: ZPC has been relocated outside of UnifySDK and is now dependent on it.

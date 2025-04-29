@@ -457,6 +457,11 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
             == zwave_network_management_return_route_assign_next()) {
           nms.state = NM_ASSIGNING_RETURN_ROUTE;
         }
+      } else if (ev == NM_EV_SET_PRIORITY_ROUTE) {
+        route_event_data_t *priority_route_data
+          = (route_event_data_t *)(event_data);
+        zwapi_set_priority_route(priority_route_data->node_id,
+                                 priority_route_data->route);
       }
       break;
       // End of case NM_IDLE:

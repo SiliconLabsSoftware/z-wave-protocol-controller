@@ -333,6 +333,24 @@ bool zwave_network_management_is_busy();
  */
 bool we_have_return_routes_to_assign(zwave_node_id_t node_id);
 
+/**
+ * @brief Assign a priority route to a node.
+ *
+ * This function will set a priority route to a given node. The priority route
+ * is a list with the NodeID of the hops that the Z-Wave controller will use as
+ * a preferred route to the node. The last byte is the route speed. See Z-Wave
+ * Host API Specification, section 4.4.3.14 for more information.
+ *
+ * @param node_id         NodeID for which the priority route will be set
+ * @param priority_route  Array of 4 NodeIDs for the priority route + 1 byte
+ * for the route speed.
+ *
+ * @returns sl_status_t SL_STATUS_OK if the operation was accepted, any other
+ * code in case of failure.
+ */
+sl_status_t zwave_network_management_set_priority_route(
+  zwave_node_id_t node_id, const uint8_t *const priority_route);
+
 /* An application MUST time out waiting for the
  * ADD_NODE_STATUS_NODE_FOUND status if it does not receive the indication
  * after calling AddNodeToNetwork(ADD_NODE_ANY).
@@ -368,6 +386,9 @@ bool we_have_return_routes_to_assign(zwave_node_id_t node_id);
  */
 #define ADD_NODE_PROTOCOL_NEIGHBOR_DISCOVERY_TIMEOUT \
   (76000 + ZW_MAX_NODES * (3517 + 732))
+
+/// 4 hops + speed
+#define PRIORITY_ROUTE_SIZE 5
 
 #ifdef __cplusplus
 }

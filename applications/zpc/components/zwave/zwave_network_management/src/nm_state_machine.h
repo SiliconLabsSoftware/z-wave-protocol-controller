@@ -93,6 +93,11 @@ typedef struct smartstart_event_data {
   zwave_protocol_t preferred_inclusion;
 } smartstart_event_data_t;
 
+typedef struct route_event_data {
+  zwave_node_id_t node_id;
+  uint8_t route[PRIORITY_ROUTE_SIZE];
+} route_event_data_t;
+
 void nm_fsm_post_event(nm_event_t ev, void *event_data);
 /*****************************************************************************/
 /**

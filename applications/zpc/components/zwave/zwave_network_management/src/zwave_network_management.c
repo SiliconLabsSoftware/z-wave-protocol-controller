@@ -34,6 +34,7 @@
 #define LOG_TAG "zwave_network_managment"
 
 static smartstart_event_data_t smartstart_event_data;
+static route_event_data_t priority_route_event_data;
 
 void zwave_network_management_enable_smart_start_add_mode(bool enabled)
 {
@@ -332,4 +333,26 @@ void zwave_network_management_get_network_node_list(zwave_nodemask_t node_list)
 zwave_keyset_t zwave_network_management_get_granted_keys()
 {
   return zwave_s2_keystore_get_assigned_keys();
+}
+
+sl_status_t zwave_network_management_set_priority_route(
+  zwave_node_id_t node_id, const uint8_t *const priority_route)
+{
+  if (false == network_management_is_ready_for_a_new_operation()) {
+    sl_log_info(LOG_TAG,
+                "Network management is not ready for a new operation. "
+                "Ignoring Set Priority Route.\n");
+    return SL_STATUS_FAIL;
+  }
+
+  sl_log_info(LOG_TAG, "Setting Priority Route\n");
+  priority_route_event_data.node_id = node_id;
+
+  memcpy(priority_route_event_data.route, priority_route, PRIORITY_ROUTE_SIZE);
+
+  process_post(&zwave_network_management_process,
+               NM_EV_SET_PRIORITY_ROUTE,
+               (void *)&priority_route_event_data);
+
+  return SL_STATUS_OK;
 }
