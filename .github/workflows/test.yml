@@ -35,7 +35,7 @@ jobs:
         uses: robinraju/release-downloader@v1.12
         with:
           repository: 'Z-Wave-Alliance/z-wave-stack-binaries'
-          fileName: 'z-wave-stack-binaries-v25.1.0-26-g29d304ae8-Linux.tar.gz'
+          fileName: 'z-wave-stack-binaries-25.1.0-26-g29d304a-Linux.tar.gz'
           token: ${{ secrets.GH_ZWAVE_ACCESS_TOKEN }}
           latest: true
 
