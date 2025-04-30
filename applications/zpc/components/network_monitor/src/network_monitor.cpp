@@ -716,49 +716,44 @@ static void
   network_initialized = true;
 }
 
-static void network_monitor_handle_event_network_ready(network_data *event_data)
+static void network_monitor_handle_event_network_ready(network_data const &event_data)
 {
   // Make sure that UNID / ZPC UNID are configured correctly.
-  zwave_unid_set_home_id(event_data->home_id);
-  zwave_unid_from_node_id(event_data->node_id, zpc_unid);
+  zwave_unid_set_home_id(event_data.home_id);
+  zwave_unid_from_node_id(event_data.node_id, zpc_unid);
 
   // Save our updated granted keys/KEX fail
   network_monitor_create_attribute_store_network_nodes(
-    event_data->granted_keys,
-    event_data->kex_fail_type);
+    event_data.granted_keys,
+    event_data.kex_fail_type);
 
   // Pause node resolution on any other network than ours in the Attribute Store.
   network_monitor_activate_network_resolution(true);
-
-  delete event_data;
 }
 
 static void network_monitor_handle_event_node_id_assigned(
-  node_id_assigned_event_data *event_data)
+  node_id_assigned_event_data const &event_data)
 {
   network_monitor_add_attribute_store_node(
-    event_data->node_id,
+    event_data.node_id,
     ZCL_NODE_STATE_NETWORK_STATUS_COMMISIONING_STARTED);
-  zwave_store_inclusion_protocol(event_data->node_id,
-                                 event_data->inclusion_protocol);
-
-  delete event_data;
+  zwave_store_inclusion_protocol(event_data.node_id,
+                                 event_data.inclusion_protocol);
 }
 
 static void
-  network_monitor_handle_event_node_added(node_added_event_data *event_data)
+  network_monitor_handle_event_node_added(node_added_event_data const &event_data)
 {
   // Attribute store node should already exist, but in case NODE_ID_ASSIGNED_EVENT
   // did not happen before this event, we ensure the node exists in the attribute store.
-  network_monitor_update_new_node_attribute_store(*event_data);
+  network_monitor_update_new_node_attribute_store(event_data);
 
-  zwave_store_inclusion_protocol(event_data->node_id,
-                                 event_data->inclusion_protocol);
+  zwave_store_inclusion_protocol(event_data.node_id,
+                                 event_data.inclusion_protocol);
 
   // Finally we want to update our local cache of the node list:
   zwave_network_management_get_network_node_list(current_node_list);
   // TODO: Add timeout system to detect node interview failed
-  delete event_data;
 }
 
 static void network_monitor_handle_event_node_interview_initiated(
@@ -1088,18 +1083,33 @@ PROCESS_THREAD(network_monitor_process, ev, data)
         break;
 
       case NETWORK_READY_EVENT:
-        network_monitor_handle_event_network_ready(
-          static_cast<network_data *>(data));
+        if (data) {
+          network_data const *event_data
+            = static_cast<network_data const *>(data);
+          data = NULL;
+          network_monitor_handle_event_network_ready(*event_data);
+          delete event_data;  //< Allocated by network_monitor_on_network_ready
+        };
         break;
 
       case NODE_ID_ASSIGNED_EVENT:
-        network_monitor_handle_event_node_id_assigned(
-          static_cast<node_id_assigned_event_data *>(data));
+        if (data) {
+          node_id_assigned_event_data const *event_data
+            = static_cast<node_id_assigned_event_data const *>(data);
+          data = NULL;
+          network_monitor_handle_event_node_id_assigned(*event_data);
+          delete event_data;  //< Allocated by network_monitor_on_node_id_assigned
+        };
         break;
 
       case NODE_ADDED_EVENT:
-        network_monitor_handle_event_node_added(
-          static_cast<node_added_event_data *>(data));
+        if (data) {
+          node_added_event_data const *event_data
+            = static_cast<node_added_event_data const *>(data);
+          data = NULL;
+          network_monitor_handle_event_node_added(*event_data);
+          delete event_data;  //< Allocated by network_monitor_on_node_added
+        };
         break;
 
       case NODE_INTERVIEW_INITIATED_EVENT:
