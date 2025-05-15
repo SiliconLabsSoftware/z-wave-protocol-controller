@@ -244,15 +244,18 @@ test: ${build_dir}
 check: test
 
 zwa_project?=z-wave-stack-binaries
-zwa_rev?=25.1.0-26-g29d304a
-zwa_file?=${zwa_project}-${zwa_rev}-Linux.tar.gz
+zwa_ver?=25.1.0-28-g7e0b50f
+zwa_rev?=v${zwa_ver}
+zwa_file?=${zwa_project}-${zwa_ver}-Linux.tar.gz
 zwa_url?=https://github.com/Z-Wave-Alliance/${zwa_project}
 zwa_dir?=${zwa_project}
 
 ${CURDIR}/tmp/${zwa_file}:
 	@echo "TODO: https://github.com/Z-Wave-Alliance/z-wave-stack-binaries/issues/2"
 	mkdir -p ${@D} && cd ${@D} \
-		&& gh release download -R "${zwa_url}" --pattern "${zwa_file}"
+		&& gh release download \
+			--repo "${zwa_url}" --pattern "${zwa_file}" \
+			"${zwa_rev}"
 
 ${zwa_dir}: ${CURDIR}/tmp/${zwa_file}
 	mkdir -p "$@"
