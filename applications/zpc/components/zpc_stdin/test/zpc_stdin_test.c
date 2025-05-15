@@ -543,3 +543,63 @@ void test_zwave_command_handler_dispatch()
   TEST_ASSERT_EQUAL(SL_STATUS_OK, state);
 }
 
+void test_zwave_set_priority_route_should_ReturnOkWithValidArguments(void) {
+  sl_status_t state = SL_STATUS_FAIL;
+
+  zwave_network_management_set_priority_route_IgnoreAndReturn(SL_STATUS_OK);
+  state = uic_stdin_handle_command("zwave_set_priority_route 01,02,03,04,05,01");
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, state);
+
+  state = uic_stdin_handle_command("zwave_set_priority_route FC,02,03,04,05,01");
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, state);
+
+  state = uic_stdin_handle_command("zwave_set_priority_route FC,FB,FA,F9,F8,01");
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, state);
+}
+
+void test_zwave_set_priority_route_should_ReturnFailWithInvalidArgumentsCount(void) {
+  sl_status_t state = SL_STATUS_OK;
+
+  state = uic_stdin_handle_command("zwave_set_priority_route");
+  TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
+
+  state = uic_stdin_handle_command("zwave_set_priority_route ,,,,");
+  TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
+
+  state = uic_stdin_handle_command("zwave_set_priority_route 01");
+  TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
+
+  state = uic_stdin_handle_command("zwave_set_priority_route 01,02,03,04,05");
+  TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
+}
+
+void test_zwave_set_priority_route_should_ReturnOkWithValidRoute(void) {
+  uint8_t expected_route[] = {0x2, 0x3, 0x4, 0x5, 0x1};
+  sl_status_t state = SL_STATUS_FAIL;
+
+  zwave_network_management_set_priority_route_ExpectAndReturn(0x01, expected_route, SL_STATUS_OK);
+  state = uic_stdin_handle_command("zwave_set_priority_route 01,02,03,04,05,01");
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, state);
+
+  expected_route[0] = 0xFB;
+  expected_route[1] = 0xFA;
+  expected_route[2] = 0xF9;
+  expected_route[4] = 0xF8;
+  expected_route[3] = 0x01;
+  zwave_network_management_set_priority_route_ExpectAndReturn(0xFC, expected_route, SL_STATUS_OK);
+  state = uic_stdin_handle_command("zwave_set_priority_route FC,FB,FA,F9,F8,01");
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, state);
+}
+
+void test_zwave_set_priority_route_should_ReturnFailWithInvalidNodeId(void) {
+  sl_status_t state = SL_STATUS_OK;
+
+  state = uic_stdin_handle_command("zwave_set_priority_route -1,02,03,04,05,01");
+  TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
+
+  state = uic_stdin_handle_command("zwave_set_priority_route FF,02,03,04,05,01");
+  TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
+
+  state = uic_stdin_handle_command("zwave_set_priority_route 01,FF,03,04,05,01");
+  TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
+}

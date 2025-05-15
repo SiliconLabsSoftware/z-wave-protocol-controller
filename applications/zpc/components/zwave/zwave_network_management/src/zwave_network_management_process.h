@@ -94,6 +94,7 @@ typedef enum {
   NM_EV_REQUEST_NODE_NEIGHBOR_REQUEST_COMPLETE,
   NM_EV_ASSIGN_RETURN_ROUTE_START,
   NM_EV_ASSIGN_RETURN_ROUTE_COMPLETED,
+  NM_EV_SET_PRIORITY_ROUTE,
   NM_EV_MAX,  //This MUST always to be last entry in this enum
 } nm_event_t;
 
