@@ -36,6 +36,7 @@ debian_codename?=bookworm
 packages?=cmake ninja-build build-essential python3-full ruby clang
 packages+=git-lfs unp time file usbutils bsdutils
 packages+=nlohmann-json3-dev
+packages+=python3-defusedxml # For extract_get.py
 # TODO: remove for offline build
 packages+=curl wget python3-pip
 packages+=expect
