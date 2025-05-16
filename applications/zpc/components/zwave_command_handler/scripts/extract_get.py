@@ -3,7 +3,7 @@
 # Copyright (c) 2014 Silicon Laboratories Inc.
 
 from __future__ import print_function
-import xml.dom.minidom
+from defusedxml import minidom
 import sys
 import os.path
 
@@ -15,9 +15,9 @@ supported = []
 
 if __name__ == '__main__':
     if(sys.argv[1] == '-'):
-        x = xml.dom.minidom.parse(sys.stdin)
+        x = minidom.parse(sys.stdin)
     else:
-        x = xml.dom.minidom.parse(sys.argv[1])
+        x = minidom.parse(sys.argv[1])
 
     classes = dict()
 
