@@ -16,7 +16,8 @@ jobs:
           - arm64
           # - armhf # TODO Enable when supported
     steps:
-      - uses: actions/checkout@v4.2.2
+      # yamllint disable-line rule:line-length
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
           # Relate-to: https://github.com/actions/checkout/pull/2081#2025
@@ -34,7 +35,8 @@ jobs:
           UNIFYSDK_GIT_TAG=${{ secrets.UNIFYSDK_GIT_TAG }}
           ./scripts/build-rootfs.sh
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        # yamllint disable-line rule:line-length
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           # yamllint disable-line rule:line-length
           name: ${{ github.event.repository.name }}-${{ steps.describe.outputs.describe }}-${{ matrix.arch }}
@@ -47,8 +49,10 @@ jobs:
         id: upload-release-asset
         env:
           token-defined: ${{ secrets.GH_UNIFY_ACCESS_TOKEN != '' }}
+        # yamllint disable-line rule:line-length
         if: ${{ env.token-defined == true && startsWith(github.ref, 'refs/tags/') }}
-        uses: softprops/action-gh-release@v2
+        # yamllint disable-line rule:line-length
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631  # v2.2.2
         with:
           files: build/dist/*
           # yamllint disable-line rule:line-length
@@ -57,7 +61,8 @@ jobs:
       - name: Upload pages artifact
         id: deployment
         if: startsWith(github.ref, 'refs/tags/') && matrix.arch == 'amd64'
-        uses: actions/upload-pages-artifact@v3.0.1
+        # yamllint disable-line rule:line-length
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
         with:
           path: docs/
   deploy:
@@ -72,5 +77,6 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        # yamllint disable-line rule:line-length
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e  # v4.0.5
         if: startsWith(github.ref, 'refs/tags/')
