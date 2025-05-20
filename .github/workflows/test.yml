@@ -16,6 +16,9 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
   test:
+    permissions:
+      contents: read
+      statuses: write
     env:
       project-name: z-wave-protocol-controller  # Align to docker (lowercase)
     runs-on: ubuntu-24.04
