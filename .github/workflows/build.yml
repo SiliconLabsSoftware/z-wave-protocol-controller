@@ -14,7 +14,8 @@ jobs:
       project-name: z-wave-protocol-controller  # Align to docker (lowercase)
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4.1.1
+      # yamllint disable-line rule:line-length
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
       - id: describe
@@ -37,7 +38,8 @@ jobs:
           df -h
 
       - name: Upload container image
-        uses: ishworkh/container-image-artifact-upload@v2.0.0
+        # yamllint disable-line rule:line-length
+        uses: ishworkh/container-image-artifact-upload@5d71a2417f0576fa11fe770fb04ece58c4587714  # v2.0.0
         with:
           image: "${{ env.project-name }}:latest"
           retention_days: 10
@@ -48,7 +50,8 @@ jobs:
           && docker cp
           ${container}:/usr/local/opt/${{ env.project-name }}/dist .
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        # yamllint disable-line rule:line-length
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           # yamllint disable-line
           name: ${{ github.event.repository.name }}-${{ steps.describe.outputs.describe }}

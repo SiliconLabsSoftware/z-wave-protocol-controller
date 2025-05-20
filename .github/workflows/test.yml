@@ -22,20 +22,23 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Download image
-        uses: ishworkh/container-image-artifact-download@v2.0.0
+        # yamllint disable-line rule:line-length
+        uses: ishworkh/container-image-artifact-download@ccb3671db007622e886a2d7037eb62b119d5ffaf  # v2.0.0
         with:
           image: "${{ env.project-name }}:latest"
           workflow: "build"
           token: ${{ secrets.GH_SL_ACCESS_TOKEN }}
           workflow_run_id: ${{ github.event.workflow_run.id }}
 
-      - uses: actions/checkout@v4.1.1
+      # yamllint disable-line rule:line-length
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
           ref: ${{ github.event.workflow_run.head_commit.id }}
 
       - name: Download embedded applications package
-        uses: robinraju/release-downloader@v1.12
+        # yamllint disable-line rule:line-length
+        uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05  # v1.12
         with:
           repository: 'Z-Wave-Alliance/z-wave-stack-binaries'
           tag: 'v25.1.0-28-g7e0b50f'
@@ -74,7 +77,8 @@ jobs:
         continue-on-error: true
 
       - name: Propagate run status to commit status
-        uses: actions/github-script@v7
+        # yamllint disable-line rule:line-length
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
         if: always()
         env:
           status: ${{ steps.run.outcome }}
