@@ -94,7 +94,6 @@ if(BUILD_TESTING)
 endif()
 
 # ZWAVE_TESTLIB S2 Library
-
 add_library(
   zwave_s2_testlib
   ${COMMON_SOURCES})
@@ -108,7 +107,7 @@ install(TARGETS zwave_s2_testlib LIBRARY DESTINATION lib)
 
 target_link_libraries(
   zwave_s2_testlib
-  PUBLIC zwave_s2_nonce_management unify
-  PRIVATE s2_controller zwave_controller zwave_s0)
+  PUBLIC zwave_s2_nonce_management unify_testlib
+  PRIVATE s2_controller zwave_controller_testlib zwave_s0)
   
 target_compile_definitions(zwave_s2_testlib PRIVATE ZIPGW ZW_CONTROLLER ZWAVE_TESTLIB)
