@@ -199,7 +199,7 @@ target_link_libraries(
           uic_contiki
           uic_contiki_platform
           uic_log
-          uic_main
+          uic_main_testlib
 )
 target_compile_definitions(
   testlib
