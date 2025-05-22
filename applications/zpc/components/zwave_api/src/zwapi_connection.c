@@ -11,6 +11,7 @@
  *
  *****************************************************************************/
 
+#include <assert.h>
 #include <string.h>
 #include "zwapi_connection.h"
 #include "zwapi_serial.h"
@@ -45,19 +46,44 @@ static const char *zwapi_frame_to_string(const uint8_t *buffer,
 {
   static char message[1000] = {'\0'};
   uint16_t index            = 0;
+  int written               = 0;
   for (uint16_t i = 0; i < buffer_length; i++) {
     if (i == 0) {
       // Don't log the SOF byte.
       continue;
     } else if (i == 1) {
-      index += snprintf(message + index, sizeof(message) - index, "Length=");
+      written = snprintf(message + index, sizeof(message) - index, "Length=");
+      if (written < 0 || written >= sizeof(message) - index) {
+        sl_log_error(LOG_TAG, "Overflow in zwapi_frame_to_string\n");
+        assert(false);
+        return NULL;
+      }
+      index += written;
     } else if (i == 2) {
-      index += snprintf(message + index, sizeof(message) - index, "Type=");
+      written = snprintf(message + index, sizeof(message) - index, "Type=");
+      if (written < 0 || written >= sizeof(message) - index) {
+        sl_log_error(LOG_TAG, "Overflow in zwapi_frame_to_string\n");
+        assert(false);
+        return NULL;
+      }
+      index += written;
     } else if (i == 3) {
-      index += snprintf(message + index, sizeof(message) - index, "Cmd=");
+      written = snprintf(message + index, sizeof(message) - index, "Cmd=");
+      if (written < 0 || written >= sizeof(message) - index) {
+        sl_log_error(LOG_TAG, "Overflow in zwapi_frame_to_string\n");
+        assert(false);
+        return NULL;
+      }
+      index += written;
     }
-    index
-      += snprintf(message + index, sizeof(message) - index, "%02X ", buffer[i]);
+    written
+      = snprintf(message + index, sizeof(message) - index, "%02X ", buffer[i]);
+    if (written < 0 || written >= sizeof(message) - index) {
+      sl_log_error(LOG_TAG, "Overflow in zwapi_frame_to_string\n");
+      assert(false);
+      return NULL;
+    }
+    index += written;
   }
   return message;
 }
