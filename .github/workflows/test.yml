@@ -25,6 +25,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Download image
+        id: image
         # yamllint disable-line rule:line-length
         uses: ishworkh/container-image-artifact-download@ccb3671db007622e886a2d7037eb62b119d5ffaf  # v2.0.0
         with:
@@ -32,7 +33,18 @@ jobs:
           workflow: "build"
           token: ${{ secrets.GH_SL_ACCESS_TOKEN }}
           workflow_run_id: ${{ github.event.workflow_run.id }}
-
+      - name: Check downloaded artifact
+        # yamllint disable rule:line-length
+        run: |
+          echo "TODO: https://github.com/ishworkh/container-image-artifact-download/issues/7#issuecomment-2904751460"
+          file="/tmp/action_image_artifact_${{ github.event.repository.name }}_latest/${{ github.event.repository.name }}_latest"
+          echo "TODO: Compare if matching the build artifacts"
+          sha256sum ${{ env.file }}
+          file -E  ${{ env.file }} | grep -E ': POSIX tar archive'
+          tar -xOf ${{ env.file }} manifest.json | jq
+          rm -rfv "${{ env.file }}"
+          echo "TODO: https://docs.docker.com/engine/security/trust/"
+        # yamllint enable rule:line-length
       # yamllint disable-line rule:line-length
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
@@ -59,14 +71,15 @@ jobs:
           ${{ env.debian_packages }}
           && sudo apt-get clean -y
           && echo "https://github.com/Z-Wave-Alliance/z-wave-stack/issues/733"
-          && mkdir -p z-wave-stack-binaries
+          && mkdir -p ${{ runner.temp }}/z-wave-stack-binaries
           && tar xfz z-wave-stack-binaries-*-Linux.tar.gz
-          -C z-wave-stack-binaries
+          -C ${{ runner.temp }}/z-wave-stack-binaries
           && rm z-wave-stack-binaries-*-Linux.tar.gz
           && date -u
 
       - name: Run
         id: run
+        # yamllint disable rule:line-length
         run: |
           set -x
           export ZPC_RUN_MODE="docker"
@@ -74,9 +87,10 @@ jobs:
           $ZPC_COMMAND --version
           docker-compose pull
           export ZPC_COMMAND="docker-compose up --abort-on-container-exit"
-          cd z-wave-stack-binaries/bin && file -E *_x86_REALTIME.elf && cd -
+          export z_wave_stack_binaries_bin_dir="${{ runner.temp }}/z-wave-stack-binaries/bin"
           export ZPC_ARGS="--log.level=d"
           ./scripts/tests/z-wave-stack-binaries-test.sh
+        # yamllint enable rule:line-length
         continue-on-error: true
 
       - name: Propagate run status to commit status
