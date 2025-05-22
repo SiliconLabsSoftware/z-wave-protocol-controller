@@ -333,8 +333,8 @@ void test_handle_cc_versions_log()
 void test_handle_nls()
 {
   sl_status_t state;
-  uint8_t nls_state = false;
-  uint8_t nls_support = false;
+  uint8_t nls_state = 0;
+  uint8_t nls_support = 0;
 
   state = uic_stdin_handle_command("zwave_enable_nls");
   TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);

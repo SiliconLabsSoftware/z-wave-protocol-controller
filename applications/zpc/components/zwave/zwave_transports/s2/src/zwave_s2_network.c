@@ -148,8 +148,7 @@ void zwave_s2_network_init()
     return;
   }
 
-  sl_log_info(LOG_TAG, "NLS support %s for Node ID: %d\n", nls_support == 1 ? "supported" : "not supported", node_id);
-  sl_log_info(LOG_TAG, "NLS state %s for Node ID: %d\n", nls_state == 1 ? "active" : "not active", node_id);
+  sl_log_info(LOG_TAG, "NLS %s, NLS %s for Node ID: %d\n", nls_support == 0 ? "not supported" : "supported", nls_state == 0 ? "not active" : "active", node_id);
 
   S2_load_nls_state(s2_ctx, nls_state);
   status = zwave_store_nls_state(node_id, nls_state, REPORTED_ATTRIBUTE) || zwave_store_nls_support(node_id, nls_support, REPORTED_ATTRIBUTE);
