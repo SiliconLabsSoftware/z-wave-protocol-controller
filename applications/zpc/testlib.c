@@ -58,6 +58,14 @@ PROCESS_THREAD(block_process, ev, data)
   PROCESS_END();
 }
 
+typedef uint32_t (*get_tick_t)(void);
+get_tick_t get_tick_fcn;
+
+void testlib_set_emulated_tick_mode(get_tick_t get_tick)
+{
+  get_tick_fcn = get_tick;
+}
+
 typedef void (*post_init_cb_t)(void);
 
 static post_init_cb_t post_init_cb;
