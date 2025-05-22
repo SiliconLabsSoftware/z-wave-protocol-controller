@@ -829,6 +829,9 @@ sl_status_t zwapi_get_node_nls(
   {
     *nls_support = response_buffer[IDX_DATA];
     *nls_state = response_buffer[IDX_DATA + 1];
+    if (((*nls_support != 0) && (*nls_support != 1)) || ((*nls_state != 0) && (*nls_state != 1))) {
+      return SL_STATUS_FAIL;
+    }
     return SL_STATUS_OK;
   }
 
