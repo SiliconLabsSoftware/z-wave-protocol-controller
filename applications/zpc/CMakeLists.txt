@@ -185,3 +185,23 @@ add_component_to_uic(
     ${CMAKE_BINARY_DIR}/applications/zpc/debconf/conffiles;\
     ${CMAKE_BINARY_DIR}/applications/zpc/debconf/postinst;\
     ${CMAKE_BINARY_DIR}/applications/zpc/debconf/prerm")
+
+
+add_library(
+  testlib
+  SHARED testlib.c
+)
+target_link_libraries(
+  testlib
+  PRIVATE zwave_s2
+          zwave_network_management
+          zwave_transports
+          uic_contiki
+          uic_contiki_platform
+          uic_log
+          uic_main
+)
+target_compile_definitions(
+  testlib
+  PRIVATE CMAKE_PROJECT_VERSION="${CMAKE_PROJECT_VERSION}"
+)

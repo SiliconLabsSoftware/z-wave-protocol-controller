@@ -35,6 +35,7 @@ uic_add_shared_library(
   zwave_multi_channel
   transport_service_wrapper
   transport_service
+  multicast_follow_ups_transport
   zpc_utils
   zpc_config
   zwave_api)
