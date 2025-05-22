@@ -11,6 +11,7 @@
  *
  *****************************************************************************/
 //Generic includes
+#include <assert.h>
 #include <stdlib.h>
 
 // Includes from other components
@@ -89,11 +90,18 @@ static void zwave_rx_print_protocol_version(
   char git_commit_string[GIT_COMMIT_HASH_SIZE * 2 + 1] = {0};
   uint16_t index                                       = 0;
   for (uint8_t i = 0; i < GIT_COMMIT_HASH_SIZE; i++) {
-    index += snprintf(git_commit_string + index,
-                      sizeof(git_commit_string) - index,
-                      "%x",
-                      zwapi_version.git_commit[i]);
-  }
+    int written = snprintf(git_commit_string + index,
+                     sizeof(git_commit_string) - index,
+                     "%x",
+                     zwapi_version.git_commit[i]);
+    if (written < 0 || written >= (int)(sizeof(git_commit_string) - index)) {
+      sl_log_error(LOG_TAG, "Error in zwave_rx_print_protocol_version");
+      assert(false);
+      // Stop processing if snprintf fails or would overflow the buffer
+      break;
+    }
+   index += written;
+ }
 
   sl_log_info(LOG_TAG,
               "Z-Wave API protocol git commit: %s\n",
