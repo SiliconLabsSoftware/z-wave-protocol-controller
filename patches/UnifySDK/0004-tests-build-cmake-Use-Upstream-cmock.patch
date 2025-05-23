@@ -187,5 +187,5 @@ index 7129c27dc6..267393ea7d 100644
  
  # This function creates unity2 test executables. It uses the provided target to setup and import configuration
 -- 
-2.39.5
+2.43.0
 

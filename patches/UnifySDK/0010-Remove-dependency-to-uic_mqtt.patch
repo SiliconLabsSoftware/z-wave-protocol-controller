@@ -1,0 +1,54 @@
+From 8946809a38caad1d7bc82bd01a73fc83b6210897 Mon Sep 17 00:00:00 2001
+From: Adrian Gielniewski <adrian.gielniewski@silabs.com>
+Date: Thu, 25 May 2023 13:29:17 +0200
+Subject: [PATCH] Remove dependency to uic_mqtt.
+
+---
+ components/uic_main/CMakeLists.txt                     | 1 -
+ components/uic_main/src/uic_component_fixtures_array.c | 4 +---
+ 2 files changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/components/uic_main/CMakeLists.txt b/components/uic_main/CMakeLists.txt
+index 43445fdee2..95cde0c35b 100644
+--- a/components/uic_main/CMakeLists.txt
++++ b/components/uic_main/CMakeLists.txt
+@@ -13,7 +13,6 @@ target_link_libraries(
+   uic_main
+   uic_log
+   uic_config
+-  uic_mqtt
+   uic_stdin
+   uic_contiki_platform)
+ 
+diff --git a/components/uic_main/src/uic_component_fixtures_array.c b/components/uic_main/src/uic_component_fixtures_array.c
+index fca5bdd864..ab4a10e0f2 100644
+--- a/components/uic_main/src/uic_component_fixtures_array.c
++++ b/components/uic_main/src/uic_component_fixtures_array.c
+@@ -12,7 +12,6 @@
+ #include <stdbool.h>
+ 
+ #include "sl_log.h"
+-#include "uic_mqtt.h"
+ #include "uic_stdin_process.h"
+ 
+ #include "uic_component_fixtures_internal.h"
+@@ -32,7 +31,6 @@
+  */
+ static uic_fixt_setup_step_t uic_fixt_setup_steps_list[]
+   = {{uic_signal_handler_setup, "Unify Signal Handler"},
+-     {uic_mqtt_setup, "Unify MQTT Client"},
+      {uic_stdin_setup, "Unify STDIN"},
+      {NULL, "Terminator"}};
+ 
+@@ -45,7 +43,7 @@ static uic_fixt_setup_step_t uic_fixt_setup_steps_list[]
+  * been stopped.
+  */
+ static uic_fixt_shutdown_step_t uic_fixt_shutdown_steps_list[]
+-  = {{uic_mqtt_teardown, "Unify MQTT Client"},
++  = {
+      {uic_stdin_teardown, "Unify STDIN"},
+      {NULL, "Terminator"}};
+ 
+-- 
+2.43.0
+

@@ -1,0 +1,80 @@
+From cd7718b017a688a55d7bfc09bbb75486d3ae2a94 Mon Sep 17 00:00:00 2001
+From: Adrian Gielniewski <adrian.gielniewski@silabs.com>
+Date: Tue, 7 Jun 2022 10:10:19 +0000
+Subject: [PATCH] Remove dependency to uic_stdin.
+
+---
+ components/uic_main/CMakeLists.txt                     | 1 -
+ components/uic_main/src/uic_component_fixtures_array.c | 3 ---
+ components/uic_main/src/uic_main.c                     | 6 +++---
+ 3 files changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/components/uic_main/CMakeLists.txt b/components/uic_main/CMakeLists.txt
+index 95cde0c35b..8379bb23d3 100644
+--- a/components/uic_main/CMakeLists.txt
++++ b/components/uic_main/CMakeLists.txt
+@@ -13,7 +13,6 @@ target_link_libraries(
+   uic_main
+   uic_log
+   uic_config
+-  uic_stdin
+   uic_contiki_platform)
+ 
+ target_include_directories(
+diff --git a/components/uic_main/src/uic_component_fixtures_array.c b/components/uic_main/src/uic_component_fixtures_array.c
+index ab4a10e0f2..b50402e5d1 100644
+--- a/components/uic_main/src/uic_component_fixtures_array.c
++++ b/components/uic_main/src/uic_component_fixtures_array.c
+@@ -12,7 +12,6 @@
+ #include <stdbool.h>
+ 
+ #include "sl_log.h"
+-#include "uic_stdin_process.h"
+ 
+ #include "uic_component_fixtures_internal.h"
+ #include "uic_signal_handler.h"
+@@ -31,7 +30,6 @@
+  */
+ static uic_fixt_setup_step_t uic_fixt_setup_steps_list[]
+   = {{uic_signal_handler_setup, "Unify Signal Handler"},
+-     {uic_stdin_setup, "Unify STDIN"},
+      {NULL, "Terminator"}};
+ 
+ /** Final tear-down steps.
+@@ -44,7 +42,6 @@ static uic_fixt_setup_step_t uic_fixt_setup_steps_list[]
+  */
+ static uic_fixt_shutdown_step_t uic_fixt_shutdown_steps_list[]
+   = {
+-     {uic_stdin_teardown, "Unify STDIN"},
+      {NULL, "Terminator"}};
+ 
+ /**
+diff --git a/components/uic_main/src/uic_main.c b/components/uic_main/src/uic_main.c
+index 6f9b42784d..0d75cd153e 100644
+--- a/components/uic_main/src/uic_main.c
++++ b/components/uic_main/src/uic_main.c
+@@ -23,7 +23,7 @@
+ 
+ #define LOG_TAG "uic_main"
+ 
+-extern int uic_stdin_teardown();
++// extern int uic_stdin_teardown();
+ 
+ int uic_main(const uic_fixt_setup_step_t *fixt_app_setup,
+              const uic_fixt_shutdown_step_t *fixt_app_shutdown,
+@@ -36,10 +36,10 @@ int uic_main(const uic_fixt_setup_step_t *fixt_app_setup,
+   sl_status_t status = uic_init(fixt_app_setup, argc, argv, version);
+ 
+   if (status == SL_STATUS_PRINT_INFO_MESSAGE) {
+-    uic_stdin_teardown();
++    // uic_stdin_teardown();
+     return 0;
+   } else if (status != SL_STATUS_OK) {
+-    uic_stdin_teardown();
++    // uic_stdin_teardown();
+     return status == SL_STATUS_ABORT ? 2 : 1;
+   }
+ 
+-- 
+2.43.0
+

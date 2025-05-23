@@ -1,0 +1,89 @@
+From 71590cd24571ae61bd2f996e4a4f72915ff759be Mon Sep 17 00:00:00 2001
+From: Thomas du Boisrouvray <thomas.duboisrouvray@silabs.com>
+Date: Tue, 25 Mar 2025 17:45:13 +0100
+Subject: [PATCH] SWPROT-9418: Restore uic_stdin functionnalities in uic_main
+
+Restore functionnalities removed in cf5f769da to be able to compile
+testlib. Instead create a dedicated library uic_stdin_testlib to be able
+to compile the testlib
+---
+ components/uic_main/CMakeLists.txt                   |  1 +
+ .../uic_main/src/uic_component_fixtures_array.c      |  3 +++
+ components/uic_main/src/uic_main.c                   | 12 +++++++++---
+ 3 files changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/components/uic_main/CMakeLists.txt b/components/uic_main/CMakeLists.txt
+index 932568d34d..4f7c8878c2 100644
+--- a/components/uic_main/CMakeLists.txt
++++ b/components/uic_main/CMakeLists.txt
+@@ -15,6 +15,7 @@ target_link_libraries(
+   uic_main
+   uic_log
+   uic_mqtt
++  uic_stdin
+   uic_contiki_platform)
+ 
+ target_include_directories(
+diff --git a/components/uic_main/src/uic_component_fixtures_array.c b/components/uic_main/src/uic_component_fixtures_array.c
+index 4377a71894..2d01ba54a7 100644
+--- a/components/uic_main/src/uic_component_fixtures_array.c
++++ b/components/uic_main/src/uic_component_fixtures_array.c
+@@ -15,6 +15,7 @@
+ 
+ #ifndef ZWAVE_TESTLIB
+ #include "uic_mqtt.h"
++#include "uic_stdin_process.h"
+ #endif
+ 
+ #include "uic_component_fixtures_internal.h"
+@@ -36,6 +37,7 @@ static uic_fixt_setup_step_t uic_fixt_setup_steps_list[]
+   = {{uic_signal_handler_setup, "Unify Signal Handler"},
+ #ifndef ZWAVE_TESTLIB
+      {uic_mqtt_setup, "Unify MQTT Client"},
++     {uic_stdin_setup, "Unify STDIN"},
+ #endif
+      {NULL, "Terminator"}};
+ 
+@@ -51,6 +53,7 @@ static uic_fixt_shutdown_step_t uic_fixt_shutdown_steps_list[]
+   = {
+ #ifndef ZWAVE_TESTLIB
+      {uic_mqtt_teardown, "Unify MQTT Client"},
++     {uic_stdin_teardown, "Unify STDIN"},
+ #endif
+      {NULL, "Terminator"}};
+ 
+diff --git a/components/uic_main/src/uic_main.c b/components/uic_main/src/uic_main.c
+index 0d75cd153e..b991084440 100644
+--- a/components/uic_main/src/uic_main.c
++++ b/components/uic_main/src/uic_main.c
+@@ -23,7 +23,9 @@
+ 
+ #define LOG_TAG "uic_main"
+ 
+-// extern int uic_stdin_teardown();
++#ifndef ZWAVE_TESTLIB
++extern int uic_stdin_teardown();
++#endif
+ 
+ int uic_main(const uic_fixt_setup_step_t *fixt_app_setup,
+              const uic_fixt_shutdown_step_t *fixt_app_shutdown,
+@@ -36,10 +38,14 @@ int uic_main(const uic_fixt_setup_step_t *fixt_app_setup,
+   sl_status_t status = uic_init(fixt_app_setup, argc, argv, version);
+ 
+   if (status == SL_STATUS_PRINT_INFO_MESSAGE) {
+-    // uic_stdin_teardown();
++#ifndef ZWAVE_TESTLIB
++    uic_stdin_teardown();
++#endif
+     return 0;
+   } else if (status != SL_STATUS_OK) {
+-    // uic_stdin_teardown();
++#ifndef ZWAVE_TESTLIB
++    uic_stdin_teardown();
++#endif
+     return status == SL_STATUS_ABORT ? 2 : 1;
+   }
+ 
+-- 
+2.43.0
+

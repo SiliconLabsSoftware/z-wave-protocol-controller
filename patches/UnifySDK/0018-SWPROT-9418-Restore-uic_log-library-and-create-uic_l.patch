@@ -1,0 +1,131 @@
+From 6451f1ba32941d3b2d86f73e448d45f20062f123 Mon Sep 17 00:00:00 2001
+From: Thomas du Boisrouvray <thomas.duboisrouvray@silabs.com>
+Date: Tue, 25 Mar 2025 17:55:34 +0100
+Subject: [PATCH] SWPROT-9418: Restore uic_log library and create
+ uic_log_testlib
+
+Restore functionnalities removed in f72ef71a6 to be able to compile the
+testlib. Instead create uic_log_testlib library to compile the testlib.
+---
+ components/uic_log/CMakeLists.txt            | 29 +++++++++++++++
+ components/uic_log/platform/posix/sl_log.cpp | 38 ++++++++++++++++++++
+ components/uic_main/CMakeLists.txt           |  2 +-
+ 3 files changed, 68 insertions(+), 1 deletion(-)
+
+diff --git a/components/uic_log/CMakeLists.txt b/components/uic_log/CMakeLists.txt
+index 94ced65c99..fc29ed9ab8 100644
+--- a/components/uic_log/CMakeLists.txt
++++ b/components/uic_log/CMakeLists.txt
+@@ -18,6 +18,7 @@ endif()
+ 
+ target_link_libraries(
+   uic_log
++  PUBLIC uic_config
+   PRIVATE Boost::log Boost::log_setup pthread)
+ 
+ if(BUILD_TESTING)
+@@ -29,3 +30,31 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+   target_compile_options(uic_log PRIVATE -Wno-psabi)
+ endif()
+ install_headers(uic_log uic libuic-dev)
++
++# ZWAVE_TESTLIB uic_log library
++add_library(uic_log_testlib OBJECT platform/${COMPATIBLE_PLATFORM}/sl_log.cpp)
++if(EXISTS ${COMMON_LOCATION})
++  target_include_directories(uic_log_testlib PUBLIC
++    $<INSTALL_INTERFACE:include>
++    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
++    $<BUILD_INTERFACE:${COMMON_LOCATION}/include>)
++else()
++  target_include_directories(uic_log_testlib PUBLIC
++    $<INSTALL_INTERFACE:include>
++    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
++    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../../include>)
++endif()
++
++target_link_libraries(
++  uic_log_testlib
++  PRIVATE Boost::log Boost::log_setup pthread)
++
++# Disable compiler note for ps abi on Linux
++if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
++  target_compile_options(uic_log_testlib PRIVATE -Wno-psabi)
++endif()
++install_headers(uic_log_testlib uic libuic-dev)
++
++target_compile_definitions(
++  uic_log_testlib
++  PRIVATE ZWAVE_TESTLIB)
+\ No newline at end of file
+diff --git a/components/uic_log/platform/posix/sl_log.cpp b/components/uic_log/platform/posix/sl_log.cpp
+index 61b184bc20..2a6f6bd574 100644
+--- a/components/uic_log/platform/posix/sl_log.cpp
++++ b/components/uic_log/platform/posix/sl_log.cpp
+@@ -40,6 +40,9 @@
+ #include <boost/tokenizer.hpp>
+ #include <boost/algorithm/string.hpp>
+ 
++#ifndef ZWAVE_TESTLIB
++#include "config.h"
++#endif
+ #include "sl_status.h"
+ 
+ // Boost logging namespaces
+@@ -200,6 +203,41 @@ sl_status_t sl_log_level_from_string(const char *level, sl_log_level_t *result)
+   return SL_STATUS_OK;
+ }
+ 
++#ifndef ZWAVE_TESTLIB
++void sl_log_read_config()
++{
++  // Read log level from config
++  const char *log_level_str;
++  config_get_as_string(CONFIG_KEY_LOG_LEVEL, &log_level_str);
++  sl_log_level_t log_level;
++  if (CONFIG_STATUS_OK == sl_log_level_from_string(log_level_str, &log_level)) {
++    sl_log_set_level(log_level);
++  }
++  // Read tag_levels from config in format <tag>:<level>, <tag>:<level>, ...
++  const char *tag_level_str;
++  if (CONFIG_STATUS_OK
++      == config_get_as_string(CONFIG_KEY_LOG_TAG_LEVEL, &tag_level_str)) {
++    boost::char_separator<char> sep_list(",");
++    std::string token_string(tag_level_str);
++    boost::tokenizer<boost::char_separator<char>> tokenizer_list(token_string,
++                                                                 sep_list);
++    for (auto &list_entry: tokenizer_list) {
++      std::vector<std::string> v;
++      boost::algorithm::split(v, list_entry, [](char c) { return c == ':'; });
++      if (v.size() == 2) {
++        // Remove trailing and leading whitespaces
++        boost::algorithm::trim(v[0]);
++        boost::algorithm::trim(v[1]);
++        if (CONFIG_STATUS_OK
++            == sl_log_level_from_string(v[1].c_str(), &log_level)) {
++          sl_log_set_tag_level(v[0].c_str(), log_level);
++        }
++      }
++    }
++  }
++}
++#endif
++
+ void sl_log(const char *const tag,
+             sl_log_level_t level,
+             const char *fmtstr,
+diff --git a/components/uic_main/CMakeLists.txt b/components/uic_main/CMakeLists.txt
+index 4f7c8878c2..5bfcb62143 100644
+--- a/components/uic_main/CMakeLists.txt
++++ b/components/uic_main/CMakeLists.txt
+@@ -34,7 +34,7 @@ endif()
+ add_library(uic_main_testlib OBJECT ${UIC_MAIN_SRC})
+ target_link_libraries(
+   uic_main_testlib
+-  uic_log
++  uic_log_testlib
+   uic_main_fd
+   uic_contiki_platform)
+ 
+-- 
+2.43.0
+

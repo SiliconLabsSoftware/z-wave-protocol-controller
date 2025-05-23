@@ -1,0 +1,125 @@
+From bc14d18301bd25f75d96eab081fbcf1fdd536550 Mon Sep 17 00:00:00 2001
+From: Adrian Gielniewski <adrian.gielniewski@silabs.com>
+Date: Tue, 26 Jul 2022 14:49:24 +0000
+Subject: [PATCH] Remove dependency to uic config.
+
+---
+ components/uic_log/CMakeLists.txt            |  1 -
+ components/uic_log/platform/posix/sl_log.cpp | 34 --------------------
+ components/uic_main/CMakeLists.txt           |  1 -
+ components/uic_main/src/uic_init.c           | 13 --------
+ 4 files changed, 49 deletions(-)
+
+diff --git a/components/uic_log/CMakeLists.txt b/components/uic_log/CMakeLists.txt
+index f06736fa34..94ced65c99 100644
+--- a/components/uic_log/CMakeLists.txt
++++ b/components/uic_log/CMakeLists.txt
+@@ -18,7 +18,6 @@ endif()
+ 
+ target_link_libraries(
+   uic_log
+-  PUBLIC uic_config
+   PRIVATE Boost::log Boost::log_setup pthread)
+ 
+ if(BUILD_TESTING)
+diff --git a/components/uic_log/platform/posix/sl_log.cpp b/components/uic_log/platform/posix/sl_log.cpp
+index dce6294784..b7a447de69 100644
+--- a/components/uic_log/platform/posix/sl_log.cpp
++++ b/components/uic_log/platform/posix/sl_log.cpp
+@@ -39,7 +39,6 @@
+ #include <boost/tokenizer.hpp>
+ #include <boost/algorithm/string.hpp>
+ 
+-#include "config.h"
+ #include "sl_status.h"
+ 
+ // Boost logging namespaces
+@@ -187,39 +186,6 @@ sl_status_t sl_log_level_from_string(const char *level, sl_log_level_t *result)
+   return SL_STATUS_OK;
+ }
+ 
+-void sl_log_read_config()
+-{
+-  // Read log level from config
+-  const char *log_level_str;
+-  config_get_as_string(CONFIG_KEY_LOG_LEVEL, &log_level_str);
+-  sl_log_level_t log_level;
+-  if (CONFIG_STATUS_OK == sl_log_level_from_string(log_level_str, &log_level)) {
+-    sl_log_set_level(log_level);
+-  }
+-  // Read tag_levels from config in format <tag>:<level>, <tag>:<level>, ...
+-  const char *tag_level_str;
+-  if (CONFIG_STATUS_OK
+-      == config_get_as_string(CONFIG_KEY_LOG_TAG_LEVEL, &tag_level_str)) {
+-    boost::char_separator<char> sep_list(",");
+-    std::string token_string(tag_level_str);
+-    boost::tokenizer<boost::char_separator<char>> tokenizer_list(token_string,
+-                                                                 sep_list);
+-    for (auto &list_entry: tokenizer_list) {
+-      std::vector<std::string> v;
+-      boost::algorithm::split(v, list_entry, [](char c) { return c == ':'; });
+-      if (v.size() == 2) {
+-        // Remove trailing and leading whitespaces
+-        boost::algorithm::trim(v[0]);
+-        boost::algorithm::trim(v[1]);
+-        if (CONFIG_STATUS_OK
+-            == sl_log_level_from_string(v[1].c_str(), &log_level)) {
+-          sl_log_set_tag_level(v[0].c_str(), log_level);
+-        }
+-      }
+-    }
+-  }
+-}
+-
+ void sl_log(const char *const tag,
+             sl_log_level_t level,
+             const char *fmtstr,
+diff --git a/components/uic_main/CMakeLists.txt b/components/uic_main/CMakeLists.txt
+index 8379bb23d3..31e98fe0c8 100644
+--- a/components/uic_main/CMakeLists.txt
++++ b/components/uic_main/CMakeLists.txt
+@@ -12,7 +12,6 @@ add_library(uic_main OBJECT ${UIC_MAIN_SRC})
+ target_link_libraries(
+   uic_main
+   uic_log
+-  uic_config
+   uic_contiki_platform)
+ 
+ target_include_directories(
+diff --git a/components/uic_main/src/uic_init.c b/components/uic_main/src/uic_init.c
+index c290fada4d..6e21abc85f 100644
+--- a/components/uic_main/src/uic_init.c
++++ b/components/uic_main/src/uic_init.c
+@@ -23,7 +23,6 @@
+ /* Includes from other components */
+ #include "uic_version.h"
+ #include "sl_log.h"
+-#include "config.h"
+ 
+ /* Includes from this component */
+ #include "uic_main.h"
+@@ -60,21 +59,9 @@ sl_status_t uic_init(const uic_fixt_setup_step_t *fixt_app_setup,
+                      char **argv,
+                      const char *version)
+ {
+-  int ret = 0;
+   /* Import the system configuration. */
+   sl_log_info(LOG_TAG, "# Unify build version: %s\n", UIC_VERSION);
+   sl_log_info(LOG_TAG, "# Unify build SHA: %s\n", UIC_VERSION_SHA);
+-  ret = config_parse(argc, argv, version);
+-  if (ret) {
+-    if (ret == CONFIG_STATUS_INFO_MESSAGE) {
+-      return SL_STATUS_PRINT_INFO_MESSAGE;
+-    } else if (ret != CONFIG_STATUS_OK) {
+-      sl_log_critical(LOG_TAG, "Cannot initialize UIC Main - goodbye!\n");
+-      return SL_STATUS_FAIL;
+-    }
+-  }
+-  // Init log as early as possible after parsing config
+-  sl_log_read_config(NULL);
+   uic_main_contiki_setup();
+ 
+   /* Initialize system components.
+-- 
+2.43.0
+

@@ -1,0 +1,58 @@
+From e6e10746876ec45ad6fc4a36d45be010ed43105d Mon Sep 17 00:00:00 2001
+From: Thomas du Boisrouvray <thomas.duboisrouvray@silabs.com>
+Date: Thu, 22 May 2025 11:53:55 +0200
+Subject: [PATCH] uic: SWPROT-9418: Add support for emulated tick mode
+
+---
+ components/uic_contiki/platform/posix/clock.c | 24 ++++++++++++++-----
+ 1 file changed, 18 insertions(+), 6 deletions(-)
+
+diff --git a/components/uic_contiki/platform/posix/clock.c b/components/uic_contiki/platform/posix/clock.c
+index 7e7312ed84..287bafdb1b 100644
+--- a/components/uic_contiki/platform/posix/clock.c
++++ b/components/uic_contiki/platform/posix/clock.c
+@@ -48,23 +48,35 @@
+ #ifndef CLOCK_MONOTONIC_RAW
+ #define CLOCK_MONOTONIC_RAW 4
+ #endif
++
++typedef uint32_t (*get_tick_t)(void);
++extern get_tick_t get_tick_fcn;
++
+ /*---------------------------------------------------------------------------*/
+ clock_time_t
+ clock_time(void)
+ {
+-  struct timespec ts;
+-  clock_gettime(CLOCK_MONOTONIC_RAW,&ts);
++  if (get_tick_fcn) {
++    return get_tick_fcn();
++  } else {
++    struct timespec ts;
++    clock_gettime(CLOCK_MONOTONIC_RAW,&ts);
+ 
+-  return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
++    return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
++  }
+ }
+ /*---------------------------------------------------------------------------*/
+ unsigned long
+ clock_seconds(void)
+ {
+-  struct timespec ts;
+-  clock_gettime(CLOCK_MONOTONIC_RAW,&ts);
++  if (get_tick_fcn) {
++    return get_tick_fcn() / 1000;
++  } else {
++    struct timespec ts;
++    clock_gettime(CLOCK_MONOTONIC_RAW,&ts);
+ 
+-  return ts.tv_sec;
++    return ts.tv_sec;
++  }
+ }
+ #else
+ #include "sys/clock.h"
+-- 
+2.43.0
+

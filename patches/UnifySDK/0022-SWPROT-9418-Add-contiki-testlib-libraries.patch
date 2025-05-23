@@ -1,0 +1,111 @@
+From 310cbf78e2e7a270bf327a0282cb8145fbc4acca Mon Sep 17 00:00:00 2001
+From: Thomas du Boisrouvray <thomas.duboisrouvray@silabs.com>
+Date: Mon, 31 Mar 2025 11:23:32 +0200
+Subject: [PATCH] SWPROT-9418: Add contiki testlib libraries
+
+Testlib can override the default contiki get_time functions with an emulated
+tick. Create _testlib library that support this behavior.
+---
+ components/CMakeLists.txt                     |  4 ++--
+ components/uic_contiki/CMakeLists.txt         | 23 +++++++++++++++++++
+ components/uic_contiki/platform/posix/clock.c | 11 ++++++++-
+ 3 files changed, 35 insertions(+), 3 deletions(-)
+
+diff --git a/components/CMakeLists.txt b/components/CMakeLists.txt
+index 58737a11b9..1f3a1f73b9 100644
+--- a/components/CMakeLists.txt
++++ b/components/CMakeLists.txt
+@@ -287,8 +287,8 @@ endif()
+ add_library(unify_testlib INTERFACE)
+ 
+ set(unify-testlib-components
+-  uic_contiki
+-  uic_contiki_platform
++  uic_contiki_testlib
++  uic_contiki_platform_testlib
+   uic_definitions
+   uic_log_testlib
+   uic_main_testlib
+diff --git a/components/uic_contiki/CMakeLists.txt b/components/uic_contiki/CMakeLists.txt
+index 8a57bcfd5a..23ceb32a22 100644
+--- a/components/uic_contiki/CMakeLists.txt
++++ b/components/uic_contiki/CMakeLists.txt
+@@ -78,3 +78,26 @@ if(BUILD_TESTING)
+ 
+   add_subdirectory(test)
+ endif()
++
++# uic_contiki _testlib libraries
++add_library(uic_contiki_testlib OBJECT ${CONTIKI_SRC} src/rust_process.c)
++target_include_directories(uic_contiki_testlib PUBLIC ${CONTIKI_INC})
++
++add_library(uic_contiki_platform_testlib OBJECT
++            platform/${COMPATIBLE_PLATFORM}/clock.c)
++
++if(NOT APPLE)
++  target_link_libraries(uic_contiki_platform_testlib PRIVATE ${PRIVATE_LIB_LIST})
++endif()
++
++target_include_directories(
++  uic_contiki_platform_testlib
++  PUBLIC
++  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/core>
++  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/platform/${COMPATIBLE_PLATFORM}>
++  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/core/sys>
++  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/cpu/native>)
++
++target_compile_definitions(uic_contiki_platform_testlib PRIVATE ZWAVE_TESTLIB)
++
++target_link_libraries(uic_contiki_testlib PRIVATE uic_contiki_platform_testlib uic_log_testlib)
+diff --git a/components/uic_contiki/platform/posix/clock.c b/components/uic_contiki/platform/posix/clock.c
+index 287bafdb1b..1b36ade70d 100644
+--- a/components/uic_contiki/platform/posix/clock.c
++++ b/components/uic_contiki/platform/posix/clock.c
+@@ -49,34 +49,43 @@
+ #define CLOCK_MONOTONIC_RAW 4
+ #endif
+ 
++#ifdef ZWAVE_TESTLIB
+ typedef uint32_t (*get_tick_t)(void);
+ extern get_tick_t get_tick_fcn;
+-
++#endif
+ /*---------------------------------------------------------------------------*/
+ clock_time_t
+ clock_time(void)
+ {
++#ifdef ZWAVE_TESTLIB
+   if (get_tick_fcn) {
+     return get_tick_fcn();
+   } else {
++#endif
+     struct timespec ts;
+     clock_gettime(CLOCK_MONOTONIC_RAW,&ts);
+ 
+     return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
++#ifdef ZWAVE_TESTLIB
+   }
++#endif
+ }
+ /*---------------------------------------------------------------------------*/
+ unsigned long
+ clock_seconds(void)
+ {
++#ifdef ZWAVE_TESTLIB
+   if (get_tick_fcn) {
+     return get_tick_fcn() / 1000;
+   } else {
++#endif
+     struct timespec ts;
+     clock_gettime(CLOCK_MONOTONIC_RAW,&ts);
+ 
+     return ts.tv_sec;
++#ifdef ZWAVE_TESTLIB
+   }
++#endif
+ }
+ #else
+ #include "sys/clock.h"
+-- 
+2.43.0
+

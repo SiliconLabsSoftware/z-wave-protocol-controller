@@ -1,0 +1,78 @@
+From 2dfcc44f1a9c14928e88985a3a216072e9eb4847 Mon Sep 17 00:00:00 2001
+From: Adrian Gielniewski <adrian.gielniewski@silabs.com>
+Date: Tue, 7 Jun 2022 14:32:18 +0000
+Subject: [PATCH] Log to file.
+
+---
+ components/uic_log/include/sl_log.h          |  2 ++
+ components/uic_log/platform/posix/sl_log.cpp | 26 +++++++++++++++-----
+ 2 files changed, 22 insertions(+), 6 deletions(-)
+
+diff --git a/components/uic_log/include/sl_log.h b/components/uic_log/include/sl_log.h
+index af0de4d4b0..11b834ec95 100644
+--- a/components/uic_log/include/sl_log.h
++++ b/components/uic_log/include/sl_log.h
+@@ -109,6 +109,8 @@ void sl_log_unset_tag_level(const char *tag);
+  */
+ sl_status_t sl_log_level_from_string(const char *level, sl_log_level_t *result);
+ 
++void sl_log_init(const char* log_file);
++
+ /**
+  * @brief Read configuration from config library.
+  */
+diff --git a/components/uic_log/platform/posix/sl_log.cpp b/components/uic_log/platform/posix/sl_log.cpp
+index b7a447de69..61b184bc20 100644
+--- a/components/uic_log/platform/posix/sl_log.cpp
++++ b/components/uic_log/platform/posix/sl_log.cpp
+@@ -21,6 +21,7 @@
+ #include <boost/log/trivial.hpp>
+ #include <boost/log/utility/setup/common_attributes.hpp>
+ #include <boost/log/utility/setup/console.hpp>
++#include <boost/log/utility/setup/file.hpp>
+ #include <boost/log/utility/formatting_ostream.hpp>
+ #include <boost/log/attributes.hpp>
+ #include <boost/log/attributes/scoped_attribute.hpp>
+@@ -113,11 +114,25 @@ void color_formatter(logging::record_view const &rec,
+   strm << "\033[0m";
+ }
+ 
+-// Initialisation of boost logging, wrapped in class to do a static initialisation
+-class sl_log_singleton
++void sl_log_init(const char* log_file)
+ {
+-  public:
+-  sl_log_singleton()
++  if (log_file)
++  {
++    log_level = SL_LOG_DEBUG;
++    logging::add_common_attributes();
++    logging::register_simple_formatter_factory<sl_log_level_t, char>(
++      "Severity");
++
++    auto sink = logging::add_file_log(
++      keywords::file_name = log_file,
++      keywords::target_file_name = log_file,
++      keywords::auto_flush = true
++    );
++    sink->set_formatter(&std_formatter);
++    sink->set_filter(
++      phoenix::bind(&sl_log_filter, severity.or_none(), tag_attr.or_none()));
++  }
++  else
+   {
+     bool in_terminal = isatty(fileno(stderr));
+ 
+@@ -135,8 +150,7 @@ class sl_log_singleton
+     sink->set_filter(
+       phoenix::bind(&sl_log_filter, severity.or_none(), tag_attr.or_none()));
+   }
+-};
+-static sl_log_singleton singletron;
++}
+ 
+ void sl_log_set_level(sl_log_level_t level)
+ {
+-- 
+2.43.0
+

@@ -1,0 +1,28 @@
+From 0b0f087b4cd8a8a1688cf79b36edb8143b0cfff0 Mon Sep 17 00:00:00 2001
+From: Adrian Gielniewski <adrian.gielniewski@silabs.com>
+Date: Thu, 25 May 2023 13:20:54 +0200
+Subject: [PATCH] Set UIC_REPO to script parent dir.
+
+(cherry picked from commit 9b6e3e191c282e6f204ff4f90f8701678d844d47)
+---
+ docker/runDockerUIC.sh | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/docker/runDockerUIC.sh b/docker/runDockerUIC.sh
+index 3db9b2cae5..32e465b5b8 100755
+--- a/docker/runDockerUIC.sh
++++ b/docker/runDockerUIC.sh
+@@ -6,7 +6,8 @@
+ 
+ #UIC_REPO is the directory where the Unify source code is located
+ #this should always be filled in
++SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+ GSDK_LOCATION=""
+-UIC_REPO=""
++UIC_REPO="$(dirname "$SCRIPT_DIR")"
+ 
+-docker run -it --rm --env GSDK_LOCATION -v ${GSDK_LOCATION}:${GSDK_LOCATION}  -v ${UIC_REPO}:${UIC_REPO} zpc bash
++docker run -it --rm --env GSDK_LOCATION=${GSDK_LOCATION} -v ${GSDK_LOCATION}:${GSDK_LOCATION}  -v ${UIC_REPO}:${UIC_REPO} -w ${UIC_REPO} uic_amd64 bash
+-- 
+2.43.0
+

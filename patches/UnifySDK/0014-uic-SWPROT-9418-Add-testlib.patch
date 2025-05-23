@@ -1,0 +1,49 @@
+From 7ac27a73cdfd51a8c0e0b0b0bb166577eb736998 Mon Sep 17 00:00:00 2001
+From: Thomas du Boisrouvray <thomas.duboisrouvray@silabs.com>
+Date: Thu, 22 May 2025 11:52:40 +0200
+Subject: [PATCH] uic: SWPROT-9418: Add testlib
+
+---
+ CMakeLists.txt            |  3 +++
+ components/CMakeLists.txt | 11 +++++++++--
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 95951d40cb..72211639b8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -25,6 +25,9 @@ project(
+   LANGUAGES C CXX
+   VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REV})
+ 
++
++add_compile_options(-g3)
++
+ # Set shared version string to use in filenames (deb packages etc.)
+ set(FILE_NAME_VERSIONING "${CMAKE_PROJECT_VERSION}")
+ if(VERSION_PATCH)
+diff --git a/components/CMakeLists.txt b/components/CMakeLists.txt
+index 4704a689cb..3d8ec1e6c4 100644
+--- a/components/CMakeLists.txt
++++ b/components/CMakeLists.txt
+@@ -167,8 +167,15 @@ set(unify-components
+     unify_validator
+     unify_application_monitoring)
+ 
+-add_library(unify SHARED)
+-add_library(unify_static_non_bundle STATIC)
++add_library(unify INTERFACE)
++target_link_libraries(unify INTERFACE
++  uic_contiki
++  uic_contiki_platform
++  uic_definitions
++  uic_log
++  uic_main
++  uic_main_fd
++)
+ 
+ foreach(component ${unify-components})
+   if(TARGET ${component})
+-- 
+2.43.0
+

@@ -1,0 +1,72 @@
+From b29f61491501530e4ed8c4b067030992540338a9 Mon Sep 17 00:00:00 2001
+From: Thomas du Boisrouvray <thomas.duboisrouvray@silabs.com>
+Date: Thu, 22 May 2025 11:56:19 +0200
+Subject: [PATCH] uic: SWPROT-9418: Add library unify_testlib
+
+---
+ components/CMakeLists.txt          | 31 +++++++++++++++++++++---------
+ components/uic_main/CMakeLists.txt |  2 +-
+ 2 files changed, 23 insertions(+), 10 deletions(-)
+
+diff --git a/components/CMakeLists.txt b/components/CMakeLists.txt
+index 3d8ec1e6c4..58737a11b9 100644
+--- a/components/CMakeLists.txt
++++ b/components/CMakeLists.txt
+@@ -167,15 +167,8 @@ set(unify-components
+     unify_validator
+     unify_application_monitoring)
+ 
+-add_library(unify INTERFACE)
+-target_link_libraries(unify INTERFACE
+-  uic_contiki
+-  uic_contiki_platform
+-  uic_definitions
+-  uic_log
+-  uic_main
+-  uic_main_fd
+-)
++add_library(unify SHARED)
++add_library(unify_static_non_bundle STATIC)
+ 
+ foreach(component ${unify-components})
+   if(TARGET ${component})
+@@ -289,3 +282,23 @@ if (NOT EXISTS ${p})
+ else()
+   include(${p})
+ endif()
++
++# unify testlib library
++add_library(unify_testlib INTERFACE)
++
++set(unify-testlib-components
++  uic_contiki
++  uic_contiki_platform
++  uic_definitions
++  uic_log_testlib
++  uic_main_testlib
++  uic_main_fd_testlib
++)
++
++foreach(component ${unify-testlib-components})
++  if(TARGET ${component})
++    set_property(TARGET ${component} PROPERTY POSITION_INDEPENDENT_CODE 1)
++  endif()
++endforeach()
++
++target_link_libraries(unify_testlib INTERFACE ${unify-testlib-components})
+diff --git a/components/uic_main/CMakeLists.txt b/components/uic_main/CMakeLists.txt
+index 5bfcb62143..9eabca21c6 100644
+--- a/components/uic_main/CMakeLists.txt
++++ b/components/uic_main/CMakeLists.txt
+@@ -35,7 +35,7 @@ add_library(uic_main_testlib OBJECT ${UIC_MAIN_SRC})
+ target_link_libraries(
+   uic_main_testlib
+   uic_log_testlib
+-  uic_main_fd
++  uic_main_fd_testlib
+   uic_contiki_platform)
+ 
+ target_include_directories(
+-- 
+2.43.0
+
