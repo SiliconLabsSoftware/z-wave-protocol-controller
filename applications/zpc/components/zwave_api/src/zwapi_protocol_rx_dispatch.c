@@ -12,6 +12,7 @@
  *****************************************************************************/
 
 // Generic includes
+#include <assert.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -111,15 +112,28 @@ static const char *zwapi_frame_to_string(const uint8_t *buffer,
   static char message[1000] = {'\0'};
   uint16_t index            = 0;
   for (uint16_t i = 0; i < buffer_length; i++) {
+    int written = 0;
     if (i == IDX_LEN) {
-      index += snprintf(message + index, sizeof(message) - index, "Length=");
+      written = snprintf(message + index, sizeof(message) - index, "Length=");
     } else if (i == IDX_TYPE) {
-      index += snprintf(message + index, sizeof(message) - index, "Type=");
+      written = snprintf(message + index, sizeof(message) - index, "Type=");
     } else if (i == IDX_CMD) {
-      index += snprintf(message + index, sizeof(message) - index, "Cmd=");
+      written = snprintf(message + index, sizeof(message) - index, "Cmd=");
     }
-    index
-      += snprintf(message + index, sizeof(message) - index, "%02X ", buffer[i]);
+    if (written < 0 || written >= (int)(sizeof(message) - index)) {
+      assert(false);
+      sl_log_error(LOG_TAG, "Overflow in zwapi_frame_to_string\n");
+      return NULL;
+    }
+    index += written;
+    written
+      = snprintf(message + index, sizeof(message) - index, "%02X ", buffer[i]);
+    if (written < 0 || written >= (int)(sizeof(message) - index)) {
+      assert(false);
+      sl_log_error(LOG_TAG, "Overflow in zwapi_frame_to_string\n");
+      return NULL;
+    }
+    index += written;
   }
   return message;
 }
@@ -650,7 +664,7 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
     case FUNC_ID_ZW_REQUEST_PROTOCOL_CC_ENCRYPTION:
       if (zwave_api_get_callbacks()->protocol_cc_encryption_request != NULL) {
         // ZW->HOST: REQ | 0x6C | destination_node_id | payload_length | payload | protocol_metadata_length | protocol_metadata | use_supervision | session_id
-        uint8_t current_index               = IDX_DATA;
+        uint8_t current_index = IDX_DATA;
         const zwave_node_id_t destination_node_id
           = zwapi_read_node_id(pData, &current_index);
         const uint8_t payload_length = pData[current_index++];
