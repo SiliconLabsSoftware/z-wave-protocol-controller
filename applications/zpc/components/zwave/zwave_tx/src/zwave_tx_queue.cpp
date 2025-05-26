@@ -21,6 +21,7 @@
 #include "sl_log.h"
 
 // Generic includes
+#include <assert.h>
 #include <string.h>  // Using memcpy
 #include <cstdio>    // snprintf
 
@@ -290,6 +291,7 @@ bool zwave_tx_queue::zwave_tx_has_frames_for_node(const zwave_node_id_t node_id)
 void zwave_tx_queue::log(bool log_messages_payload) const
 {
   sl_log_debug(LOG_TAG, "Queue size: %lu\n", (unsigned long)queue.size());
+  int written = 0;
   for (auto it = queue.begin(); it != queue.end(); ++it) {
     sl_log_debug(LOG_TAG,
                  "Entry (id=%p): (address %p)\n",
@@ -337,15 +339,28 @@ void zwave_tx_queue::log(bool log_messages_payload) const
                  it->transmission_time);
     if (true == log_messages_payload) {
       uint16_t index = 0;
-      index += snprintf(message + index,
-                        sizeof(message) - index,
-                        "Frame payload (hex): ");
+      written        = snprintf(message + index,
+                         sizeof(message) - index,
+                         "Frame payload (hex): ");
+      if (written < 0 || written >= static_cast<int>(sizeof(message) - index)) {
+        assert(false);
+        sl_log_error(LOG_TAG, "Overflow in zwave_tx_queue::log\n");
+        return;
+      }
+      index += written;
 
       for (uint16_t i = 0; i < it->data_length; i++) {
-        index += snprintf(message + index,
-                          sizeof(message) - index,
-                          "%02X ",
-                          it->data[i]);
+        written = snprintf(message + index,
+                           sizeof(message) - index,
+                           "%02X ",
+                           it->data[i]);
+        if (written < 0
+            || written >= static_cast<int>(sizeof(message) - index)) {
+          assert(false);
+          sl_log_error(LOG_TAG, "Overflow in zwave_tx_queue::log\n");
+          return;
+        }
+        index += written;
       }
       sl_log_debug(LOG_TAG, "\t%s\n", message);
     }
@@ -355,6 +370,7 @@ void zwave_tx_queue::log(bool log_messages_payload) const
 void zwave_tx_queue::log_element(const zwave_tx_session_id_t session_id,
                                  bool log_frame_payload) const
 {
+  int written = 0;
   for (auto it = queue.begin(); it != queue.end(); ++it) {
     if (it->zwave_tx_session_id == session_id) {
       sl_log_debug(
@@ -382,15 +398,29 @@ void zwave_tx_queue::log_element(const zwave_tx_session_id_t session_id,
         it->transmission_time);
       if (true == log_frame_payload) {
         uint16_t index = 0;
-        index += snprintf(message + index,
-                          sizeof(message) - index,
-                          "Frame payload (hex): ");
+        written        = snprintf(message + index,
+                           sizeof(message) - index,
+                           "Frame payload (hex): ");
+        if (written < 0
+            || written >= static_cast<int>(sizeof(message) - index)) {
+          assert(false);
+          sl_log_error(LOG_TAG, "Overflow in zwave_tx_queue::log_element\n");
+          return;
+        }
+        index += written;
 
         for (uint16_t i = 0; i < it->data_length; i++) {
-          index += snprintf(message + index,
-                            sizeof(message) - index,
-                            "%02X ",
-                            it->data[i]);
+          written = snprintf(message + index,
+                             sizeof(message) - index,
+                             "%02X ",
+                             it->data[i]);
+          if (written < 0
+              || written >= static_cast<int>(sizeof(message) - index)) {
+            assert(false);
+            sl_log_error(LOG_TAG, "Overflow in zwave_tx_queue::log_element\n");
+            return;
+          }
+          index += written;
         }
         sl_log_debug(LOG_TAG, "%s\n", message);
       }
@@ -403,52 +433,93 @@ void zwave_tx_queue::log_element(const zwave_tx_session_id_t session_id,
 void zwave_tx_queue::simple_log(zwave_tx_queue_element_t *e) const
 {
   uint16_t index = 0;
-  index += snprintf(message + index,
-                    sizeof(message) - index,
-                    "Enqueuing new frame (id=%p)",
-                    e->zwave_tx_session_id);
+  int written    = snprintf(message + index,
+                         sizeof(message) - index,
+                         "Enqueuing new frame (id=%p)",
+                         e->zwave_tx_session_id);
+  if (written < 0 || written >= static_cast<int>(sizeof(message) - index)) {
+    assert(false);
+    sl_log_error(LOG_TAG, "Overflow in zwave_tx_queue::simple_log\n");
+    return;
+  }
+  index += written;
 
   if (e->options.transport.valid_parent_session_id == true) {
-    index += snprintf(message + index,
-                      sizeof(message) - index,
-                      " (parent id=%p)",
-                      e->options.transport.parent_session_id);
+    written = snprintf(message + index,
+                       sizeof(message) - index,
+                       " (parent id=%p)",
+                       e->options.transport.parent_session_id);
+    if (written < 0 || written >= static_cast<int>(sizeof(message) - index)) {
+      assert(false);
+      sl_log_error(LOG_TAG, "Overflow in zwave_tx_queue::simple_log\n");
+      return;
+    }
+    index += written;
   }
 
   // Source address
-  index += snprintf(message + index,
-                    sizeof(message) - index,
-                    " - %d:%d -> ",
-                    e->connection_info.local.node_id,
-                    e->connection_info.local.endpoint_id);
+  written = snprintf(message + index,
+                     sizeof(message) - index,
+                     " - %d:%d -> ",
+                     e->connection_info.local.node_id,
+                     e->connection_info.local.endpoint_id);
+  if (written < 0 || written >= static_cast<int>(sizeof(message) - index)) {
+    assert(false);
+    sl_log_error(LOG_TAG, "Overflow in zwave_tx_queue::simple_log\n");
+    return;
+  }
+  index += written;
 
   // Destination
   if (e->connection_info.remote.is_multicast == false) {
-    index += snprintf(message + index,
-                      sizeof(message) - index,
-                      " %d:%d - ",
-                      e->connection_info.remote.node_id,
-                      e->connection_info.remote.endpoint_id);
+    written = snprintf(message + index,
+                       sizeof(message) - index,
+                       " %d:%d - ",
+                       e->connection_info.remote.node_id,
+                       e->connection_info.remote.endpoint_id);
+    if (written < 0 || written >= static_cast<int>(sizeof(message) - index)) {
+      assert(false);
+      sl_log_error(LOG_TAG, "Overflow in zwave_tx_queue::simple_log\n");
+      return;
+    }
+    index += written;
+
   } else {
-    index += snprintf(message + index,
-                      sizeof(message) - index,
-                      "Group ID %d (endpoint=%d) - ",
-                      e->connection_info.remote.multicast_group,
-                      e->connection_info.remote.endpoint_id);
+    written = snprintf(message + index,
+                       sizeof(message) - index,
+                       "Group ID %d (endpoint=%d) - ",
+                       e->connection_info.remote.multicast_group,
+                       e->connection_info.remote.endpoint_id);
+    if (written < 0 || written >= static_cast<int>(sizeof(message) - index)) {
+      assert(false);
+      sl_log_error(LOG_TAG, "Overflow in zwave_tx_queue::simple_log\n");
+      return;
+    }
+    index += written;
   }
 
   // Encapsulation & payload
-  index += snprintf(message + index,
-                    sizeof(message) - index,
-                    "Encapsulation %d - Payload (%d bytes) [",
-                    e->connection_info.encapsulation,
-                    e->data_length);
+  written = snprintf(message + index,
+                     sizeof(message) - index,
+                     "Encapsulation %d - Payload (%d bytes) [",
+                     e->connection_info.encapsulation,
+                     e->data_length);
+  if (written < 0 || written >= static_cast<int>(sizeof(message) - index)) {
+    assert(false);
+    sl_log_error(LOG_TAG, "Overflow in zwave_tx_queue::simple_log\n");
+    return;
+  }
+  index += written;
 
   for (uint16_t i = 0; i < e->data_length; i++) {
-    index += snprintf(message + index,
-                      sizeof(message) - index,
-                      "%02X ",
-                      e->data[i]);
+    written
+      = snprintf(message + index, sizeof(message) - index, "%02X ", e->data[i]);
+    if (written < 0 || written >= static_cast<int>(sizeof(message) - index)) {
+      assert(false);
+      sl_log_error(LOG_TAG, "Overflow in zwave_tx_queue::simple_log\n");
+      return;
+    }
+    index += written;
   }
   sl_log_debug(LOG_TAG, "%s] - Tx Queue size: %d\n", message, queue.size());
 }
