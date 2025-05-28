@@ -1049,9 +1049,11 @@ sl_status_t zwapi_enable_node_nls(const zwave_node_id_t nodeId);
  * @brief Get the NLS State of the node in the controller NVM 
  * 
  * @param nodeId the node ID
+ * @param nls_state NLS state pointer to be filled
+ * @param nls_support NLS support pointer to be filled
  * 
  */
-sl_status_t zwapi_get_node_nls(const zwave_node_id_t nodeId, uint8_t* nls_state);
+sl_status_t zwapi_get_node_nls(const zwave_node_id_t nodeId, uint8_t* nls_state, uint8_t* nls_support);
 
 /**
  * @brief Get the NLS State of the nodes of a network in the controller NVM 
