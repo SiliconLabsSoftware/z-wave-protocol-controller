@@ -854,13 +854,16 @@ void test_meter_report_too_short()
 void test_meter_command_class_no_command()
 {
   // Simulate a frame
-  const uint8_t incoming_frame[] = {COMMAND_CLASS_METER};
+  const uint8_t incoming_frame[] = {COMMAND_CLASS_METER,
+      METER_REPORT_V5, // Add deterministic valid value for overflow check
+    };
 
   TEST_ASSERT_NOT_NULL(meter_handler.control_handler);
   TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
                     meter_handler.control_handler(&info,
                                                   incoming_frame,
-                                                  sizeof(incoming_frame)));
+                                                  sizeof(incoming_frame) -1 // Remove padding
+                        ));
 }
 
 void test_supported_rate_types_unknown_values()

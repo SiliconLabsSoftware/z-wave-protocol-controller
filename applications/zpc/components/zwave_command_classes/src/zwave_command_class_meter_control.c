@@ -742,7 +742,7 @@ static sl_status_t zwave_command_class_meter_control_handler(
   const uint8_t *frame,
   uint16_t frame_length)
 {
-  if (frame_length < COMMAND_INDEX) {
+  if (frame_length <= COMMAND_INDEX) {
     return SL_STATUS_NOT_SUPPORTED;
   }
 
