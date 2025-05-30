@@ -346,13 +346,17 @@ void test_zwave_command_class_central_scene_configuration_set_no_slow_refresh()
 void test_zwave_command_class_central_scene_frame_too_short()
 {
   TEST_ASSERT_NOT_NULL(central_scene_handler.control_handler);
-  const uint8_t incoming_frame[] = {COMMAND_CLASS_CENTRAL_SCENE_V3};
+  const uint8_t incoming_frame[] = {
+    COMMAND_CLASS_CENTRAL_SCENE_V3,
+    CENTRAL_SCENE_NOTIFICATION_V3  // Padding with deterministic valid cmd if overflow
+  };
 
-  TEST_ASSERT_EQUAL(
-    SL_STATUS_NOT_SUPPORTED,
-    central_scene_handler.control_handler(&connection_info,
+  TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
+                    central_scene_handler.control_handler(
+                      &connection_info,
                                           incoming_frame,
-                                          sizeof(incoming_frame)));
+                      sizeof(incoming_frame) - 1  // remove padding
+                      ));
 }
 
 void test_zwave_command_class_central_scene_frame_wrong_command_class()
