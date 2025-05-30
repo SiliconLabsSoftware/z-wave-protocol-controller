@@ -1626,14 +1626,18 @@ void test_zwave_command_class_configuration_unknown_command()
 
 void test_zwave_command_class_configuration_no_command()
 {
-  const uint8_t incoming_frame[] = {COMMAND_CLASS_CONFIGURATION_V4};
+  const uint8_t incoming_frame[] = {
+    COMMAND_CLASS_CONFIGURATION_V4,
+    CONFIGURATION_REPORT_V4  // Add deterministic valid value for overflow check
+  };
 
   TEST_ASSERT_NOT_NULL(configuration_handler.control_handler);
-  TEST_ASSERT_EQUAL(
-    SL_STATUS_NOT_SUPPORTED,
-    configuration_handler.control_handler(&connection_info,
-                                          incoming_frame,
-                                          sizeof(incoming_frame)));
+  TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
+                    configuration_handler.control_handler(
+                      &connection_info,
+                      incoming_frame,
+                      sizeof(incoming_frame) - 1  // Remove padding
+                      ));
 }
 
 void test_zwave_command_class_configuration_non_existing_parameter()
