@@ -186,3 +186,99 @@ void test_send_nop_to_node()
                                            test_callback,
                                            test_user));
 }
+
+void test_zwave_command_class_list_pack_empty()
+{
+  zwave_node_info_t node_info = {.listening_protocol        = 2,
+                                 .optional_protocol         = 3,
+                                 .basic_device_class        = 4,
+                                 .generic_device_class      = 5,
+                                 .specific_device_class     = 6,
+                                 .command_class_list_length = 0,
+                                 .command_class_list        = {0}};
+
+  uint8_t nif[ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH * 2] = {0};
+  uint8_t nif_length                                                  = 0;
+
+  zwave_command_class_list_pack(&node_info, nif, &nif_length);
+  TEST_ASSERT_EQUAL(0, nif_length);
+  zwave_command_class_list_unpack(&node_info, nif, nif_length);
+  TEST_ASSERT_EQUAL(0, node_info.command_class_list_length);
+}
+
+void test_zwave_command_class_list_pack()
+{
+  zwave_node_info_t node_info = {.listening_protocol        = 2,
+                                 .optional_protocol         = 3,
+                                 .basic_device_class        = 4,
+                                 .generic_device_class      = 5,
+                                 .specific_device_class     = 6,
+                                 .command_class_list_length = 3,
+                                 .command_class_list = {0x01, 0xF0, 0xFF}};
+
+  uint8_t nif[ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH] = {0};
+  uint8_t nif_length                                              = 0;
+
+  zwave_command_class_list_pack(&node_info, nif, &nif_length);
+
+  TEST_ASSERT_EQUAL(node_info.command_class_list_length, nif_length);
+  TEST_ASSERT_EQUAL(node_info.command_class_list[0], nif[0]);
+  TEST_ASSERT_EQUAL(node_info.command_class_list[1], nif[1]);
+  TEST_ASSERT_EQUAL(node_info.command_class_list[2], nif[2]);
+}
+
+void test_zwave_command_class_list_pack_extended()
+{
+  zwave_node_info_t node_info = {
+    .listening_protocol        = 2,
+    .optional_protocol         = 3,
+    .basic_device_class        = 4,
+    .generic_device_class      = 5,
+    .specific_device_class     = 6,
+    .command_class_list_length = 3 + 3,
+    .command_class_list = {0x20, 0xEF, 0xF0, 0xF100, 0xF101, 0xFFFF}
+  };
+
+  uint8_t nif[ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH * 2] = {0};
+  uint8_t nif_length                                                  = 0;
+
+  zwave_command_class_list_pack(&node_info, nif, &nif_length);
+
+  TEST_ASSERT_EQUAL(3 + 3 * 2, nif_length);
+
+  TEST_ASSERT_EQUAL(node_info.command_class_list[0], nif[0]);
+  TEST_ASSERT_EQUAL(node_info.command_class_list[1], nif[1]);
+  TEST_ASSERT_EQUAL(node_info.command_class_list[2], nif[2]);
+  TEST_ASSERT_EQUAL(node_info.command_class_list[3], (nif[3] << 8) | nif[4]);
+  TEST_ASSERT_EQUAL(node_info.command_class_list[4], (nif[5] << 8) | nif[6]);
+  TEST_ASSERT_EQUAL(node_info.command_class_list[5], (nif[7] << 8) | nif[8]);
+  zwave_command_class_list_unpack(&node_info, nif, nif_length);
+  TEST_ASSERT_EQUAL(3 + 3, node_info.command_class_list_length);
+}
+
+void test_zwave_command_class_list_pack_extended_full()
+{
+  zwave_node_info_t node_info = {
+    .listening_protocol    = 2,
+    .optional_protocol     = 3,
+    .basic_device_class    = 4,
+    .generic_device_class  = 5,
+    .specific_device_class = 6,
+    .command_class_list_length
+    = ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH,
+  };
+
+  for (int i = 0; i < ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH; i++) {
+    node_info.command_class_list[i] = 0xFFFF;
+  }
+  uint8_t nif[ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH * 2] = {0};
+  uint8_t nif_length                                                  = 0;
+
+  zwave_command_class_list_pack(&node_info, nif, &nif_length);
+  TEST_ASSERT_EQUAL(ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH * 2,
+                    nif_length);
+
+  zwave_command_class_list_unpack(&node_info, nif, nif_length);
+  TEST_ASSERT_EQUAL(ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH,
+                    node_info.command_class_list_length);
+}
