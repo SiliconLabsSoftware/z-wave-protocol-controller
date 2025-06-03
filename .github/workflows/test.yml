@@ -27,22 +27,23 @@ jobs:
       - name: Download image
         id: image
         # yamllint disable-line rule:line-length
-        uses: ishworkh/container-image-artifact-download@ccb3671db007622e886a2d7037eb62b119d5ffaf  # v2.0.0
+        uses: ishworkh/container-image-artifact-download@d5e9b6d62ef3f9762f6553c8178c2d925acc0409  # v2.1.0
         with:
           image: "${{ env.project-name }}:latest"
           workflow: "build"
           token: ${{ secrets.GH_SL_ACCESS_TOKEN }}
           workflow_run_id: ${{ github.event.workflow_run.id }}
+          download_tmp_dir: ${{ runner.temp }}
       - name: Check and remove downloaded artifact
         # yamllint disable rule:line-length
+        env:
+          file: ${{ steps.image.outputs.download_path }}
         run: |
           set -xe
-          file="/tmp/action_image_artifact_${{ github.event.repository.name }}_latest/${{ github.event.repository.name }}_latest"
           echo "Info for comparing to build artifacts"
-          sha256sum "${file}"
-          tar -xOf "${file}" manifest.json | jq
-          echo "TODO: https://github.com/ishworkh/container-image-artifact-download/issues/7#issuecomment-2904751460"
-          rm -rfv "${file}"
+          sha256sum "${{env.file}}"
+          tar -xOf "${{env.file}}" manifest.json | jq
+          rm -rfv "${{env.file}}"
           echo "TODO: https://docs.docker.com/engine/security/trust/"
         # yamllint enable rule:line-length
       # yamllint disable-line rule:line-length
