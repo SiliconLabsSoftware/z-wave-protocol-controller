@@ -103,6 +103,8 @@ void test_zwave_network_management_stop_learn_mode_happy_case()
   zwapi_set_learn_mode_ExpectAndReturn(LEARN_MODE_DISABLE, NULL, SL_STATUS_OK);
   reset_nms_last_operation_data_Expect();
 
+  network_management_refresh_network_information_Expect();
+
   contiki_test_helper_run(1);
   // State must have been updated to IDLE
   TEST_ASSERT_EQUAL(NM_IDLE, zwave_network_management_get_state());
@@ -185,6 +187,7 @@ void test_zwave_network_management_learn_mode_nwi_timeout()
   TEST_ASSERT_EQUAL(NM_LEARN_MODE, zwave_network_management_get_state());
   TEST_ASSERT_EQUAL(ZWAVE_NETWORK_MANAGEMENT_LEARN_NWI, nms.learn_mode_intent);
 
+  network_management_refresh_network_information_Expect();
   // Pass the timeout, it will tell the Z-Wave API to abort
   zwapi_set_learn_mode_ExpectAndReturn(LEARN_MODE_DISABLE, NULL, SL_STATUS_OK);
   reset_nms_last_operation_data_Expect();
@@ -212,6 +215,7 @@ void test_zwave_network_management_learn_mode_nwe_timeout()
   TEST_ASSERT_EQUAL(NM_LEARN_MODE, zwave_network_management_get_state());
   TEST_ASSERT_EQUAL(ZWAVE_NETWORK_MANAGEMENT_LEARN_NWE, nms.learn_mode_intent);
 
+  network_management_refresh_network_information_Expect();
   // Pass the timeout, it will tell the Z-Wave API to abort
   zwapi_set_learn_mode_ExpectAndReturn(LEARN_MODE_DISABLE, NULL, SL_STATUS_OK);
   reset_nms_last_operation_data_Expect();
