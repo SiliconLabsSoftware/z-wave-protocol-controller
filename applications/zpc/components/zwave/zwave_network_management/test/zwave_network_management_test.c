@@ -2427,6 +2427,9 @@ void test_zwave_network_management_learn_mode_abort()
   contiki_test_helper_run(0);
   TEST_ASSERT_EQUAL(NM_LEARN_MODE, zwave_network_management_get_state());
 
+  zwapi_memory_get_ids_ExpectAndReturn(0, 0, SL_STATUS_OK);
+  zwapi_memory_get_ids_IgnoreArg_home_id();
+  zwapi_memory_get_ids_IgnoreArg_node_id();
   zwave_network_management_abort();
   TEST_ASSERT_EQUAL(NM_LEARN_MODE, zwave_network_management_get_state());
 
