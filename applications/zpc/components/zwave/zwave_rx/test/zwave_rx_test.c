@@ -30,6 +30,7 @@
 #include "zwave_controller_callbacks_mock.h"
 #include "zwave_controller_internal_mock.h"
 #include "zwave_controller_utils_mock.h"
+#include "zpc_config_mock.h"
 
 // Includes from this component
 #include "zwave_rx_test.h"
@@ -43,12 +44,13 @@ static zwapi_callbacks_t *registered_zwapi_callbacks              = NULL;
 static zwapi_chip_data_t test_chip_data                           = {0};
 static zwapi_protocol_version_information_t test_protocol_version = {0};
 
-static const zwave_rx_config_t my_test_configuration = {
+static const zpc_config_t my_test_configuration = {
   .serial_log_file = "",
   .serial_port = ZWAVE_RX_TEST_SERIAL_PORT,
   .zwave_normal_tx_power_dbm = ZWAVE_RX_TEST_MAXIMUM_POWER_DBM,
   .zwave_measured_0dbm_power = ZWAVE_RX_TEST_MEASURED_0DBM_POWER,
   .zwave_rf_region = ZWAVE_RX_TEST_RF_REGION_STRING
+  // All other fields will be zero-initialized
 };
 
 // Stub function used for retrieving callbacks registered to the zwapi module
@@ -90,6 +92,7 @@ static void rx_init_successful_test_helper()
   zwapi_init_ExpectAndReturn(ZWAVE_RX_TEST_SERIAL_PORT, 0, 0, SL_STATUS_OK);
   zwapi_init_IgnoreArg_serial_fd();
   zwapi_init_IgnoreArg_callbacks();
+  zpc_get_config_IgnoreAndReturn(&my_test_configuration);
   zwapi_log_to_file_enable_ExpectAndReturn("", SL_STATUS_OK);
   // 2. zwapi_get_chip_data returns a controller library type
   zwapi_get_chip_data_Stub(
@@ -138,7 +141,6 @@ static void rx_init_successful_test_helper()
 
 /// Setup the test suite (called once before all test_xxx functions are called)
 void suiteSetUp() {
-  zwave_rx_set_config(&my_test_configuration);
 }
 
 /// Teardown the test suite (called once after all test_xxx functions are called)
@@ -155,6 +157,7 @@ void setUp()
 /// Test of rx init where enabling the log file fails
 void test_zwave_rx_init_zwapi_init_log_file_fails(void)
 {
+  zpc_get_config_IgnoreAndReturn(&my_test_configuration);
   // Intialize Z-Wave RX, we expect it to call zwapi functions.
   zwapi_log_to_file_enable_ExpectAndReturn("", SL_STATUS_FAIL);
 
@@ -166,6 +169,7 @@ void test_zwave_rx_init_zwapi_init_log_file_fails(void)
 void test_zwave_rx_init_zwapi_init_fails(void)
 {
   // Intialize Z-Wave RX, we expect it to call zwapi functions.
+  zpc_get_config_IgnoreAndReturn(&my_test_configuration);
   zwapi_log_to_file_enable_ExpectAndReturn("", SL_STATUS_OK);
   zwapi_init_ExpectAndReturn(ZWAVE_RX_TEST_SERIAL_PORT, 0, 0, SL_STATUS_FAIL);
   zwapi_init_IgnoreArg_callbacks();
@@ -184,6 +188,8 @@ void test_zwave_rx_init_wrong_library()
         || library == ZWAVE_LIBRARY_TYPE_CONTROLLER_STATIC) {
       continue;
     }
+    zpc_get_config_IgnoreAndReturn(&my_test_configuration);
+
     // Intialize Z-Wave RX, we expect it to call zwapi functions.
     zwapi_log_to_file_enable_ExpectAndReturn("", SL_STATUS_OK);
     zwapi_init_ExpectAndReturn(ZWAVE_RX_TEST_SERIAL_PORT, 0, 0, SL_STATUS_OK);
@@ -211,6 +217,7 @@ void test_zwave_rx_init_not_gecko_chip()
   zwapi_init_ExpectAndReturn(ZWAVE_RX_TEST_SERIAL_PORT, 0, 0, SL_STATUS_OK);
   zwapi_init_IgnoreArg_callbacks();
   zwapi_init_IgnoreArg_serial_fd();
+  zpc_get_config_IgnoreAndReturn(&my_test_configuration);
   zwapi_log_to_file_enable_ExpectAndReturn("", SL_STATUS_OK);
 
   // 2. zwapi_get_chip_data returns a controller library type
@@ -254,6 +261,7 @@ void test_zwave_rx_init_cannot_set_rf_resgion()
   zwapi_init_ExpectAndReturn(ZWAVE_RX_TEST_SERIAL_PORT, 0, 0, SL_STATUS_OK);
   zwapi_init_IgnoreArg_callbacks();
   zwapi_init_IgnoreArg_serial_fd();
+  zpc_get_config_IgnoreAndReturn(&my_test_configuration);
   zwapi_log_to_file_enable_ExpectAndReturn("", SL_STATUS_OK);
 
   // 2. zwapi_get_chip_data returns a controller library type
@@ -293,6 +301,7 @@ void test_zwave_rx_init_failure_lr_max_power()
   zwapi_init_ExpectAndReturn(ZWAVE_RX_TEST_SERIAL_PORT, 0, 0, SL_STATUS_OK);
   zwapi_init_IgnoreArg_callbacks();
   zwapi_init_IgnoreArg_serial_fd();
+  zpc_get_config_IgnoreAndReturn(&my_test_configuration);
   zwapi_log_to_file_enable_ExpectAndReturn("", SL_STATUS_OK);
 
   // 2. zwapi_get_chip_data returns a controller library type
@@ -353,6 +362,7 @@ void test_zwave_rx_init_non_critical_failures()
   zwapi_init_ExpectAndReturn(ZWAVE_RX_TEST_SERIAL_PORT, 0, 0, SL_STATUS_OK);
   zwapi_init_IgnoreArg_callbacks();
   zwapi_init_IgnoreArg_serial_fd();
+  zpc_get_config_IgnoreAndReturn(&my_test_configuration);
   zwapi_log_to_file_enable_ExpectAndReturn("", SL_STATUS_OK);
 
   // 2. zwapi_get_chip_data returns a controller library type
