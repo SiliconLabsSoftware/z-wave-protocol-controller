@@ -206,3 +206,8 @@ target_compile_definitions(
   PRIVATE CMAKE_PROJECT_VERSION="${CMAKE_PROJECT_VERSION}"
   ZWAVE_TESTLIB
 )
+
+install(TARGETS testlib
+        LIBRARY DESTINATION lib
+        COMPONENT uic-zpc)
+
