@@ -12,6 +12,7 @@
  *****************************************************************************/
 #include "unity.h"
 #include "zwave_controller_transport.h"
+#include "zwave_controller_transport_internal.h"
 #include "zwave_controller_transport_test_callbacks_mock.h"
 #include "zwave_controller_internal.h"
 #include "zwave_tx_mock.h"
@@ -216,4 +217,29 @@ void test_encapsulation_cc_versions_test()
   TEST_ASSERT_EQUAL(
     t12.version,
     zwave_controller_transport_is_encapsulation_cc(t12.command_class));
+}
+
+void test_zwave_controller_transport_empty_frame_test()
+{
+  zwave_controller_connection_info_t conn = {};
+  zwave_rx_receive_options_t opt          = {};
+
+  // Test with a NULL frame_data pointer
+  TEST_ASSERT_EQUAL(
+    SL_STATUS_INVALID_PARAMETER,
+    zwave_controller_transport_on_frame_received(&conn, &opt, NULL, 0));
+
+  // Test with frame_length set to 0
+  const uint8_t empty_frame[] = {};
+  TEST_ASSERT_EQUAL(
+    SL_STATUS_INVALID_PARAMETER,
+    zwave_controller_transport_on_frame_received(&conn, &opt, empty_frame, 0));
+
+  // Test with frame_length less than 1
+  const uint8_t invalid_frame[] = {0x01};
+  TEST_ASSERT_EQUAL(SL_STATUS_INVALID_PARAMETER,
+                    zwave_controller_transport_on_frame_received(&conn,
+                                                                 &opt,
+                                                                 invalid_frame,
+                                                                 0));
 }
