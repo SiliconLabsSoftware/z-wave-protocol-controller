@@ -87,6 +87,9 @@ sl_status_t zwave_command_handler_dispatch(
   const uint8_t *frame_data,
   uint16_t frame_length)
 {
+  assert(connection);
+  assert(frame_data);
+  assert(frame_length);
   zwave_command_handler_t handler_to_invoke = {};
   handler_to_invoke.command_class           = frame_data[0];
   sl_status_t rc                            = SL_STATUS_NOT_SUPPORTED;
