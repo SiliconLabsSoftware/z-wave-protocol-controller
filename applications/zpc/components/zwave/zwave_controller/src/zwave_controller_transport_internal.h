@@ -37,8 +37,10 @@ extern "C" {
  * @param rx_options      Receive specific information
  * @param frame_data      Pointer to de-encapsulated data
  * @param frame_length    Length of data
- * @return SL_STATUS_NOT_FOUND if no handler was found. Otherwise the status if
- * the executed hander list returned
+ * @return
+ * SL_STATUS_NOT_FOUND if no handler was found.
+ * SL_STATUS_INVALID_PARAMETER on invalid frames
+ * Otherwise the status if the executed hander list returned
  */
 sl_status_t zwave_controller_transport_on_frame_received(
     const zwave_controller_connection_info_t *connection_info,

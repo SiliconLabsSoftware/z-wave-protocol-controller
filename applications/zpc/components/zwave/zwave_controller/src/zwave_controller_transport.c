@@ -15,6 +15,7 @@
 #include "zwave_controller_transport_internal.h"
 
 // Generic includes
+#include <assert.h>
 #include <string.h>
 
 // ZPC includes
@@ -105,6 +106,11 @@ sl_status_t zwave_controller_transport_on_frame_received(
   uint16_t frame_length)
 {
   const zwave_controller_transport_t *t;
+  assert(frame_data);
+  assert(frame_length >= 1);
+  if (!frame_data || frame_length < 1) {
+    return (SL_STATUS_INVALID_PARAMETER);
+  }
   t = get_transport_by_class(frame_data[0]);
 
   // Do we support this, we decode this only based of the command class
