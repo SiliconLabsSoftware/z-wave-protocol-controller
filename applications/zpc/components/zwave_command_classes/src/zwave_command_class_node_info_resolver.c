@@ -267,8 +267,9 @@ static void on_node_information_update(zwave_node_id_t node_id,
     = attribute_store_get_first_child_by_type(endpoint_id_node,
                                               ATTRIBUTE_ZWAVE_NIF);
 
-  // Pack the NIF data into a nif array:
-  uint8_t nif[ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH];
+  // Pack the NIF data into a nif array
+  // The size is 2 * ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH because Generic Extended Command Classes are 2-byte long
+  uint8_t nif[ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH * 2];
   uint8_t nif_length = 0;
   zwave_command_class_list_pack(node_info, nif, &nif_length);
 
@@ -280,13 +281,14 @@ static void on_node_information_update(zwave_node_id_t node_id,
         node_id,
         nif,
         nif_length)) {
-    if (nif_length >= ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH) {
-      // Overflow, just return and toss the faulty NIF.
-      return;
-    }
-    // Keep S2 in the NIF !
-    nif[nif_length] = COMMAND_CLASS_SECURITY_2;
-    nif_length += 1;
+      if (nif_length < sizeof(nif)) {
+          // Keep S2 in the NIF !
+          nif[nif_length] = COMMAND_CLASS_SECURITY_2;
+          nif_length += 1;
+      } else {
+          // Overflow, just return and toss the faulty NIF.
+          return;
+      }
   }
 
   attribute_store_set_reported(non_secure_nif_node, nif, nif_length);
