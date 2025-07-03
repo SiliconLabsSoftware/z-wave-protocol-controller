@@ -138,7 +138,19 @@ void zwapi_connection_tx(
   uint8_t len,        /* IN the length of DATA to transmit */
   bool ack_needed)
 {
-  uint8_t tx_buffer[255];
+  uint8_t tx_buffer[FRAME_LENGTH_MAX];
+  const size_t MAX_PAYLOAD_LEN_ALLOWED
+    = sizeof(tx_buffer) - 4 - 1;  // 255 - 5 = 250
+  if (len > MAX_PAYLOAD_LEN_ALLOWED) {
+    sl_log_error(LOG_TAG,
+                 "zwapi_connection_tx: Buffer overflow prevented: Payload length (%u) exceeds "
+                 "maximum allowed (%zu).\n",
+                 len,
+                 MAX_PAYLOAD_LEN_ALLOWED);
+    assert(false);
+    return;
+  }
+
   uint8_t *c;
   c = tx_buffer;
 
@@ -151,7 +163,7 @@ void zwapi_connection_tx(
   c += len;
 
   uint8_t tx_checksum = 0xFF;
-  for (uint8_t i = 0; i < len + 3; i++) {
+  for (uint16_t i = 0; i < len + 3; i++) {
     tx_checksum ^= tx_buffer[i + 1];
   }
   *c++ = tx_checksum;

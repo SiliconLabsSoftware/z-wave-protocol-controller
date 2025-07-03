@@ -59,3 +59,13 @@ EXCLUDE zwapi_connection.c
         zwapi_session.c
         zwapi_init.c
 )
+
+target_add_unittest(zwave_api
+NAME zwapi_connection_test
+SOURCES zwapi_connection_test.c
+        zwapi_internal_init_mock.c
+DEPENDS zwapi_internal_mock
+        zwave_api_mock
+EXCLUDE zwapi_session.c 
+        zwapi_init.c
+)
