@@ -4,6 +4,13 @@ project(z-wave-protocol-controller)
 # ##############################################################################
 # Include Configurations
 # ##############################################################################
+set(CMAKE_POSITION_INDEPENDENT_CODE ON) 
+option(COVERAGE "Enable coverage reporting" OFF)
+if(COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    message(STATUS "Building with code coverage")
+    add_compile_options(--coverage -O0 -g)
+    add_link_options(--coverage)
+endif()
 
 include(cmake/include/version.cmake)
 include(cmake/include/build_permutations.cmake)
