@@ -22,10 +22,23 @@
 #include "zwapi_func_ids.h"
 #include "zwapi_session_mock.h"
 #include "zwapi_protocol_basis_mock.h"
+#include "zwapi_internal.h"
 
 // Static variables
 static uint8_t response_length      = 0;
 static uint8_t response_buffer[255] = {0};
+
+// Unmocked stubs functions:
+
+uint8_t *zwapi_get_zw_library_version_stub(uint8_t *dst, int cmock_num_calls)
+{
+  return 0;  //defaut, not valid
+}
+
+zwave_rf_region_t zwapi_get_rf_region_stub(int cmock_num_calls)
+{
+  return 0;  // default
+}
 
 /// Setup the test suite (called once before all test_xxx functions are called)
 void suiteSetUp() {}
@@ -231,6 +244,113 @@ void test_zwapi_init()
 
   zwapi_init("test", &serial_fd, &callbacks);
   TEST_ASSERT_EQUAL(3, serial_fd);
+}
+
+void test_zwapi_refresh_capabilities_bitmask(void)
+{
+  zwapi_chip_data_t chip;
+  uint8_t response_buffer[FRAME_LENGTH_MAX] = {0};
+  uint8_t response_length = IDX_DATA + 7 + sizeof(chip.supported_bitmask);
+  memset(response_buffer,
+         0xAA,
+         sizeof(response_buffer));  // Fill with dummy data
+
+  // Simulate a valid response with sufficient length for supported_bitmask
+  zwapi_session_send_frame_with_response_ExpectAndReturn(
+    FUNC_ID_SERIAL_API_GET_CAPABILITIES,
+    NULL,
+    0,
+    NULL,
+    NULL,
+    SL_STATUS_OK);
+  zwapi_session_send_frame_with_response_IgnoreArg_response_buf();
+  zwapi_session_send_frame_with_response_IgnoreArg_response_len();
+  zwapi_session_send_frame_with_response_ReturnMemThruPtr_response_buf(
+    response_buffer,
+    response_length);
+  zwapi_session_send_frame_with_response_ReturnThruPtr_response_len(
+    &response_length);
+
+  zwapi_get_zw_library_version_Stub(
+    (CMOCK_zwapi_get_zw_library_version_CALLBACK)
+      zwapi_get_zw_library_version_stub);
+
+  zwapi_session_flush_queue_Expect();
+  {
+    uint8_t response_buffer[FRAME_LENGTH_MAX] = {0};
+    uint8_t response_length                   = IDX_DATA + 1;
+
+    zwapi_session_send_frame_with_response_ExpectAndReturn(
+      FUNC_ID_SERIAL_API_GET_INIT_DATA,
+      NULL,
+      0,
+      NULL,
+      NULL,
+      SL_STATUS_OK);
+    zwapi_session_send_frame_with_response_IgnoreArg_response_buf();
+    zwapi_session_send_frame_with_response_IgnoreArg_response_len();
+    zwapi_session_send_frame_with_response_ReturnMemThruPtr_response_buf(
+      response_buffer,
+      response_length);
+    zwapi_session_send_frame_with_response_ReturnThruPtr_response_len(
+      &response_length);
+  }
+
+  zwapi_get_rf_region_Stub(zwapi_get_rf_region_stub);
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, zwapi_refresh_capabilities());
+}
+
+void test_zwapi_refresh_capabilities_bitmask_injection(void)
+{
+  uint8_t response_buffer[FRAME_LENGTH_MAX] = {0};
+  uint8_t response_length                   = FRAME_LENGTH_MAX;
+  memset(response_buffer,
+         0xAA,
+         sizeof(response_buffer));  // Fill with dummy data
+
+  // Simulate a valid response with sufficient length for supported_bitmask
+  zwapi_session_send_frame_with_response_ExpectAndReturn(
+    FUNC_ID_SERIAL_API_GET_CAPABILITIES,
+    NULL,
+    0,
+    NULL,
+    NULL,
+    SL_STATUS_OK);
+  zwapi_session_send_frame_with_response_IgnoreArg_response_buf();
+  zwapi_session_send_frame_with_response_IgnoreArg_response_len();
+  zwapi_session_send_frame_with_response_ReturnMemThruPtr_response_buf(
+    response_buffer,
+    response_length);
+  zwapi_session_send_frame_with_response_ReturnThruPtr_response_len(
+    &response_length);
+
+  zwapi_get_zw_library_version_Stub(
+    (CMOCK_zwapi_get_zw_library_version_CALLBACK)
+      zwapi_get_zw_library_version_stub);
+  zwapi_session_flush_queue_Expect();
+  {
+    uint8_t response_buffer[FRAME_LENGTH_MAX] = {0};
+    uint8_t response_length                   = IDX_DATA + 1;
+
+    zwapi_session_send_frame_with_response_ExpectAndReturn(
+      FUNC_ID_SERIAL_API_GET_INIT_DATA,
+      NULL,
+      0,
+      NULL,
+      NULL,
+      SL_STATUS_OK);
+    zwapi_session_send_frame_with_response_IgnoreArg_response_buf();
+    zwapi_session_send_frame_with_response_IgnoreArg_response_len();
+    zwapi_session_send_frame_with_response_ReturnMemThruPtr_response_buf(
+      response_buffer,
+      response_length);
+    zwapi_session_send_frame_with_response_ReturnThruPtr_response_len(
+      &response_length);
+  }
+
+  zwapi_get_rf_region_Stub(zwapi_get_rf_region_stub);
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, zwapi_refresh_capabilities());
+
 }
 
 void test_zwapi_refresh_capabilities_bad_cases()
