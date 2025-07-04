@@ -1,14 +1,18 @@
 # SPDX-License-Identifier: Zlib
 # SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
 
-FROM debian:bookworm as builder
+FROM debian:bookworm AS builder
 
 ARG UNIFYSDK_GIT_REPOSITORY https://github.com/SiliconLabs/UnifySDK
 ARG UNIFYSDK_GIT_TAG main
 
 ENV project z-wave-protocol-controller
 ENV workdir /usr/local/opt/${project}
+
 ADD . ${workdir}
+ARG HELPER="./helper.mk"
+ARG HELPER_SETUP_RULES=setup
+ARG HELPER_DEFAULT_RULES=default
 
 WORKDIR ${workdir}
 
@@ -17,24 +21,24 @@ RUN echo "# log: Setup system" \
   && df -h \
   && apt-get update \
   && apt-get install -y --no-install-recommends -- make sudo \
-  && ./helper.mk help setup \
+  && ${HELPER} help ${HELPER_SETUP_RULES} \
   && date -u
 
 RUN echo "# log: Build" \
   && set -x  \
-  && ./helper.mk \
+  && ${HELPER} ${HELPER_DEFAULT_RULES} \
   && date -u \
   && echo "# log: Clean to only keep packages to save space" \
   && mkdir -p dist \
   && cd dist \
   && unzip ../build/dist/${project}*.zip \
   && cd - \
-  && ./helper.mk distclean \
+  && ${HELPER} distclean \
   && date -u
 
 FROM debian:bookworm
-ENV project z-wave-protocol-controller
-ENV workdir /usr/local/opt/${project}
+ENV project=z-wave-protocol-controller
+ARG workdir=/usr/local/opt/${project}
 COPY --from=builder ${workdir}/dist/ ${workdir}/dist/
 WORKDIR ${workdir}
 
