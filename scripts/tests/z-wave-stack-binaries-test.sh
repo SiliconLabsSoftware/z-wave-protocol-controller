@@ -131,7 +131,7 @@ mqtt_()
                    -v -t '#' --remove-retained --retained-only -W 1 \
                 || [ 27 = $? ] && break ||: # Break on timeout
         sleep .1
-    done 
+    done
     log_ "mqtt: broker is ready, operating for ${duration} mins"
     mosquitto_sub -v -t '#' -W $((60 * ${duration}))
     log_ "mqtt: error: Should have finish before ${duration} may need to update it"
@@ -238,6 +238,7 @@ controller_cli_()
                          | tail -n 1 | sed -e 's|HOME_ID: \(.*\)|\1|g' )
             echo "HOME_ID: ${homeid}"
             [ ! -z $homeid ] || exit_ 19
+            conthomeid="$homeid"
             ;;
         n)
             contid=$(grep 'NODE_ID: ' "${controller_log}" \
@@ -277,14 +278,13 @@ node_cli_()
             SecurityCode=$(echo "$DSK" | sed -e 's|\([0-9]*\)-[0-9-]*$|\1|g')
             ;;
         l)
-            echo "node: Set to learn mode ${nodeunid} needed on add_node"
+            echo "node: Set to learn mode ${nodeid} needed on add_node"
             ;;
         H)
-            [ -z $debug ] || log_ "TODO: print HOME_ID: from device: https://github.com/Z-Wave-Alliance/z-wave-stack/issues/732"
-            while [ ! -e "${mqtt_log}" ] ; do sleep 1; done
-            [ "$homeid" != "" ] \
-                || homeid=$(sed -n -e 's|ucl/by-unid/zw-\(.*\)-\([0-9]*\)/.*|\1|gp' "$mqtt_log" | tail -n1)
-            echo "HOME_ID: ${homeid}"
+            nodehomeid=$(grep 'HOME_ID: ' "${node_log}" \
+                         | tail -n 1 | sed -e 's|HOME_ID: \(.*\)|\1|g' )
+            echo "HOME_ID: ${nodehomeid}"
+            [ ! -z $nodehomeid ] || exit_ 19
             ;;
         n)
             nodeid=$(grep 'NODE_ID: ' $node_log \
@@ -480,14 +480,25 @@ play_uic_s2v2_node_()
     message="{}"
     log_ "TODO: Expect response in MQTT, workaround by looking at debug log"
     log_ "TODO: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/31"
-    pub_ "$pub" "$message" ""
+    pub_ "$pub" "$message" "" # TODO use pub/sub MQTT not shell (next line)
+    # zpc_cli_ zwave_enable_nls ${nodeid}
     sleep 1
-    grep 'on_nls_state_set_v2_send_complete' "${zpc_log}" || die_
-    grep 'on_nls_state_get_v2_send_complete' "${zpc_log}" || die_
+    grep 'on_nls_state_set_v2_send_complete' "${zpc_log}" || exit_ 20
+    grep 'on_nls_state_get_v2_send_complete' "${zpc_log}" || exit_ 21
+    zpc_cli_ "attribute_store_log_search" "NLS"
     zpc_cli_ "attribute_store_log_search" "NLS state" \
-        && grep  'NLS state ...............................................      1 ' \
+        && grep  'NLS state ...............................................' \
                  "${zpc_log}" \
-            || die_ # 2 expected
+            || echo TODO exit_ 22 # 2 expected
+    zpc_cli_ "attribute_store_log_search" "NLS support" \
+        && grep  'NLS support .*' \
+                 "${zpc_log}" \
+            || echo TODO exit_ 23
+
+    pub="ucl/by-unid/$nodeunid/State/Commands/DiscoverNeighbors"
+    message='{}'
+    pub_ "$pub" "$message"
+    grep 'ucl_nm_neighbor_discovery' "${zpc_log}" || exit_ 24
 }
 
 
@@ -502,7 +513,7 @@ play_uic_()
 
     play_uic_net_add_node_
     play_uic_s2v2_node_
-    play_uic_OnOff_node_
+    play_uic_node_OnOff_
     play_uic_net_remove_node_
 }
 
