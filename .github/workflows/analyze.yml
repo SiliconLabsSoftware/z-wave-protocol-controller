@@ -1,0 +1,72 @@
+# YAML -*- mode: yaml; tab-width: 2; indent-tabs-mode: nil; coding: utf-8 -*-
+# SPDX-License-Identifier: Zlib
+# SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
+---
+
+name: analyze
+
+# yamllint disable-line rule:line-length
+run-name: "analyze: ${{ github.event.workflow_run.head_branch }}#${{ github.event.workflow_run.head_commit.id }}"
+
+on:  # yamllint disable-line rule:truthy
+  workflow_run:
+    workflows: ["build"]
+    types:
+      - completed
+
+jobs:
+  test:
+    permissions:
+      contents: read
+      statuses: write
+    env:
+      SONAR_OUT_DIR: sonar
+    runs-on: ${{ vars.RUNNER || 'ubuntu-24.04' }}
+    # yamllint disable-line rule:line-length
+    if: ${{ vars.SONAR_HOST_URL && github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - id: download
+        name: Download analyze artifacts
+        # yamllint disable-line rule:line-length
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        with:
+          # yamllint disable-line rule:line-length
+          name: ${{ github.event.repository.name }}-analyze
+          github-token: ${{ secrets.GH_SL_ACCESS_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Extract sonar files
+        env:
+          # yamllint disable-line rule:line-length
+          file: ${{ steps.download.outputs.download-path }}/${{ env.SONAR_OUT_DIR }}/dist.tar.gz
+        run: |
+          set -x
+          tar xfva ${{ env.file }}
+          rm -f ${{ env.file }}
+
+      # Check the Quality Gate status.
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        # yamllint disable-line rule:line-length
+        uses: sonarsource/sonarqube-quality-gate-action@cf038b0e0cdecfa9e56c198bbb7d21d751d62c3b  # v1.2.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+        if: ${{ env.SONAR_HOST_URL }}
+
+      - name: Propagate status on fail
+        # yamllint disable-line rule:line-length
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
+        if: failure()
+        env:
+          status: ${{ steps.sonarqube-quality-gate-check.outcome }}
+          sha: ${{ github.event.workflow_run.head_commit.id }}
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            sha: process.env.sha,
+            state: 'failure'
+            })
+            core.setFailed(`Status: ${process.env.status}`);
