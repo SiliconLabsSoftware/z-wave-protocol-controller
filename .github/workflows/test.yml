@@ -103,10 +103,10 @@ jobs:
         # yamllint enable rule:line-length
         continue-on-error: true
 
-      - name: Propagate run status to commit status
+      - name: Propagate status on fail
         # yamllint disable-line rule:line-length
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
-        if: always()
+        if: failure()
         env:
           status: ${{ steps.run.outcome }}
           sha: ${{ github.event.workflow_run.head_commit.id }}
@@ -116,6 +116,6 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             sha: process.env.sha,
-            state: process.env.status
+            state: 'failure'
             })
-            process.exit(process.env.status == 'success' ? 0 : 1);
+            core.setFailed(`Status: ${process.env.status}`);
