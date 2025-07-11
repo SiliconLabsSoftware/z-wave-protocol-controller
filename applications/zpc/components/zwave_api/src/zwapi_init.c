@@ -161,7 +161,8 @@ sl_status_t zwapi_refresh_capabilities(void)
                  "Failed to fetch capabilities from the Z-Wave module\n");
     return capabilities_status;
   }
-  if (response_length > (IDX_DATA + 7)) {
+  if (response_length > (IDX_DATA + 7)
+      && (response_length <= FRAME_LENGTH_MAX)) {
     uint8_t current_index = IDX_DATA;
     chip.version_major    = response_buffer[current_index++];
     chip.version_minor    = response_buffer[current_index++];
@@ -171,9 +172,16 @@ sl_status_t zwapi_refresh_capabilities(void)
     chip.product_type |= response_buffer[current_index++];
     chip.product_id = response_buffer[current_index++] << 8;
     chip.product_id |= response_buffer[current_index++];
-    memcpy(chip.supported_bitmask,
-           &(response_buffer[current_index]),
-           response_length - (current_index - 1));
+    size_t length = response_length - (current_index - 1);
+    if (length > sizeof(chip.supported_bitmask)) {
+      sl_log_warning(
+        LOG_TAG,
+        "zwapi_refresh_capabilities: clamping supported_bitmask response from %d to %d\n",
+        length,
+        sizeof(chip.supported_bitmask));
+      length = sizeof(chip.supported_bitmask);
+    }
+    memcpy(chip.supported_bitmask, &(response_buffer[current_index]), length);
   } else {
     return SL_STATUS_FAIL;
   }
