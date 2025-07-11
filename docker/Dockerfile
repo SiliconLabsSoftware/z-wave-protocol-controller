@@ -87,12 +87,13 @@ RUN curl -L https://github.com/plantuml/plantuml/releases/download/v1.2022.0/pla
 ENV PLANTUML_JAR_PATH=/opt/plantuml.jar
 
 # Install ZAP and dependencies
-RUN wget -O /tmp/zap.deb https://github.com/project-chip/zap/releases/download/v2023.05.04/zap-linux.deb \
-  && echo a9ef0608035a106d4df4dd126490546cf8ba5d7cd13039a18d19cd3edd418a47 /tmp/zap.deb > /tmp/zap.deb.sha256 \
-  && sha256sum -c /tmp/zap.deb.sha256\
-  && apt update \
-  && apt install -y --no-install-recommends /tmp/zap.deb \
-  && rm -rf /var/lib/apt/lists/*
+RUN wget -O /tmp/zap.zip https://github.com/project-chip/zap/releases/download/v2025.06.09/zap-linux-arm64.zip \
+  && echo e0457d340965e153d84ca41addc257a8e4f6b4c1c8dfdb7d105779110e6d8451 /tmp/zap.zip > /tmp/zap.zip.sha256 \
+  && sha256sum -c /tmp/zap.zip.sha256 \
+  && unzip /tmp/zap.zip -d /opt/ \
+  && rm /tmp/zap.zip \
+  && mv /opt/zap-* /opt/zap
+ENV PATH="/opt/zap/bin:${PATH}"
 
 # Install Clang toolchain
 RUN if [ "$CLANG" = true ] ; then \
