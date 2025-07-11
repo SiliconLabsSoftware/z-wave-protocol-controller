@@ -136,8 +136,10 @@ bool zwapi_poll()
   zwapi_session_enqueue_rx_frames();
   bool more_frames = zwapi_session_dequeue_frame(&frame, &len);
 
-  if (frame && len >=1) {
-    zwave_api_protocol_rx_dispatch(frame, len);
+  if (frame) {
+    if (len >= 1) {
+      zwave_api_protocol_rx_dispatch(frame, len);
+    }
     free(frame);
   }
 
