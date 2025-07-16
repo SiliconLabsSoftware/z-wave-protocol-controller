@@ -70,7 +70,7 @@ app_dir?=opt
 
 # To be overloaded from env
 BRANCH_NAME?=tmp/local/${USER}/main
-SONAR_HOST_URL?=https://sonarcloud.io)
+SONAR_HOST_URL?=https://sonarcloud.io
 SONAR_TOKEN?=${USER}
 
 sonar_bw_url?=${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
