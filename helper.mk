@@ -304,7 +304,9 @@ reconfigure: configure/clean configure
 	@date -u
 
 ${build_dir}/CMakeCache.txt: CMakeLists.txt
-	${sonar_bw_cmdline} ${cmake} ${cmake_options}
+	${sonar_bw_cmdline} ${cmake} ${cmake_options} \
+		|| cat ${build_dir}/CMakeFiles/CMakeOutput.log
+	ls -l $@
 
 all: ${build_dir}/CMakeCache.txt
 #	${sonar_bw_cmdline} ${cmake} --build ${<D} \
