@@ -523,6 +523,49 @@ play_node_soc_switch_on_off_()
 }
 
 
+play_node_soc_multilevel_sensor_()
+{
+    local node="soc_multilevel_sensor"
+    node_cli_ "$node" n
+    log_ "$node: Play on $nodeid" # ~T738437 ~T738442
+
+    log_ "$node: Initial state reported after inclusion"
+
+    ep="ep0/Basic/Attributes/PowerSource/Reported"
+    sub="ucl/by-unid/${nodeunid}/$ep"
+    key="value" ; key='"'$key'"' # JSON string
+    value='Battery' ; value='"'$value'"'
+    json='{'$key':'$value'}'
+    expect="$sub $json"
+    sub_ "$sub" "$expect"
+
+    ep='ep0/TemperatureMeasurement/Attributes/MeasuredValue/Reported'
+    sub="ucl/by-unid/${nodeunid}/$ep"
+    value=322
+    json='{'$key':'$value'}'
+    expect="$sub $json"
+    sub_ "$sub" "$expect"
+
+    ep='ep0/RelativityHumidity/Attributes/MeasuredValue/Reported'
+    sub="ucl/by-unid/${nodeunid}/$ep"
+    value=8
+    json='{'$key':'$value'}'
+    expect="$sub $json"
+    sub_ "$sub" "$expect"
+
+    ep="ep0/PowerConfiguration/Attributes/BatteryPercentageRemaining/Reported"
+    sub="ucl/by-unid/${nodeunid}/$ep"
+    value=100
+    json='{'$key':'$value'}'
+    expect="$sub $json"
+    sub_ "$sub" "$expect"
+
+    log_ "$type: Events from device $nodeunid: $node"
+    node_cli_ "$node" 1
+    sub_ "$sub" "$expect"
+}
+
+
 play_node_s2v2_()
 {
     local task="s2v2"
@@ -585,6 +628,7 @@ play_nodes_()
 {
     local nodes=(
         soc_switch_on_off
+        soc_multilevel_sensor
     )
     for node in ${nodes[@]} ; do
         node_cli_ $node h
@@ -681,6 +725,10 @@ screen -t "ncp_serial_api_controller" "1" $0 run_app_ ncp_serial_api_controller
 split -v
 focus right
 screen -t "soc_switch_on_off" "2" $0 run_app_ soc_switch_on_off
+
+split -v
+focus right
+screen -t "soc_multilevel_sensor" "3" $0 run_app_ soc_multilevel_sensor
 
 focus down
 screen -t "zpc" "0" $0 run_ zpc
