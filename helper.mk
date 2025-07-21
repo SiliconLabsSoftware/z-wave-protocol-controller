@@ -30,6 +30,7 @@ export CMAKE_GENERATOR
 
 build_dir?=build
 sudo?=sudo
+cmake?=cmake
 
 debian_codename?=bookworm
 
@@ -40,6 +41,7 @@ packages+=python3-defusedxml # For extract_get.py
 # TODO: remove for offline build
 packages+=curl wget python3-pip
 packages+=expect
+packages+=clang-format
 
 # For docs
 packages+=graphviz
@@ -231,6 +233,10 @@ all: ${build_dir}/CMakeCache.txt
 #	cmake --build ${<D} \
 #		|| cat ${build_dir}/CMakeFiles/CMakeOutput.log
 	cmake --build ${<D}
+
+cmake/%: ${build_dir}/CMakeCache.txt
+	${cmake} --build ${<D} --target=${@F}
+
 .PHONY: all
 
 ${build_dir}/%: all
@@ -298,13 +304,16 @@ prepare: git/prepare
 	git --version
 	cmake --version
 
-all/default: configure prepare all test dist
+all/default: lint configure prepare all test dist
 	@date -u
 
 run_args?=--help
 run:
 	file -E ${run_file}
 	${run_file} ${run_args}
+
+lint: .clang-format cmake/lint
+	git status
 
 ### @rootfs is faster than docker for env check
 

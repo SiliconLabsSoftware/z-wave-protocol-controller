@@ -30,6 +30,7 @@ if(BUILD_TESTING)
   include(cmake/include/unittest.cmake)
 endif()
 
+include(cmake/include/clang-format.cmake)
 include(cmake/include/doxygen.cmake)
 
 # ##############################################################################
