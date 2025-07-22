@@ -17,7 +17,6 @@
 #include "zwave_command_class_version_types.h"
 #include "zwave_command_class_configuration_types.h"
 
-
 // ZPC includes
 #include "zpc_attribute_store.h"
 #include "zpc_attribute_store_network_helper.h"
@@ -610,7 +609,8 @@ void on_configuration_update(attribute_store_node_t updated_node,
   }
 
   // Read the network status, do not publish if it is not online functional:
-  if (unify_attribute_store_node_state_get_status(updated_node) != ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL) {
+  if (unify_attribute_store_node_state_get_status(updated_node)
+      != ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL) {
     return;
   }
 
@@ -693,9 +693,10 @@ sl_status_t configuration_parameter_cluster_server_init(void)
     &configuration_parameter_discover_parameter_range_command);
 
   // Register attribute updates
-  attribute_store_register_callback_by_type_and_state(&on_network_status_update,
-                                                      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
-                                                      REPORTED_ATTRIBUTE);
+  attribute_store_register_callback_by_type_and_state(
+    &on_network_status_update,
+    DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+    REPORTED_ATTRIBUTE);
 
   attribute_store_register_callback_by_type_to_array(
     &on_configuration_update,

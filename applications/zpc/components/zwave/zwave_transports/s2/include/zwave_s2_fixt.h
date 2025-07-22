@@ -44,4 +44,3 @@ sl_status_t zwave_s2_fixt_setup(void);
 
 #endif  //ZWAVE_S2_FIXT_H
 /** @} end zwave_s2_fixt */
-

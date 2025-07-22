@@ -262,7 +262,7 @@ sl_status_t zwapi_send_protocol_data(
   uint8_t response_length = 0, index = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
           response_buffer[FRAME_LENGTH_MAX]   = {0};
-  protocol_metadata_t *protocol_metadata = (protocol_metadata_t *)metadata;
+  protocol_metadata_t *protocol_metadata      = (protocol_metadata_t *)metadata;
   // Check for too long payloads
   if ((data_length + protocol_metadata->data_length + 2)
       > sizeof(request_buffer)) {
@@ -277,7 +277,9 @@ sl_status_t zwapi_send_protocol_data(
   memcpy(&request_buffer[index], data, data_length);
   index += data_length;
   request_buffer[index++] = protocol_metadata->data_length;
-  memcpy(&request_buffer[index], protocol_metadata->data, protocol_metadata->data_length);
+  memcpy(&request_buffer[index],
+         protocol_metadata->data,
+         protocol_metadata->data_length);
   index += protocol_metadata->data_length;
   request_buffer[index++] = protocol_metadata->session_id;
 

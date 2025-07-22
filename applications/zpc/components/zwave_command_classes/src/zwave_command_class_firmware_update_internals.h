@@ -102,8 +102,8 @@ sl_status_t set_transfer_offset(attribute_store_node_t firmware_transfer_node,
  *
  * @returns sl_status_t code.
  */
-uint16_t
-  firmware_transfer_get_theoretical_max_fragment_size(attribute_store_node_t endpoint_node);
+uint16_t firmware_transfer_get_theoretical_max_fragment_size(
+  attribute_store_node_t endpoint_node);
 
 /**
  * @brief Sets the Firmware transfer fragment size for a Firmware Update.

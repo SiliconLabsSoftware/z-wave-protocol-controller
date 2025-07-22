@@ -139,21 +139,31 @@ void zwave_s2_network_init()
   zwave_s2_log_security_keys(SL_LOG_INFO);
 #endif
 
-  uint8_t nls_support = 0;
-  uint8_t nls_state = 0;
+  uint8_t nls_support     = 0;
+  uint8_t nls_state       = 0;
   zwave_node_id_t node_id = zwave_network_management_get_node_id();
   sl_status_t status = zwapi_get_node_nls(node_id, &nls_state, &nls_support);
   if (status != SL_STATUS_OK) {
-    sl_log_error(LOG_TAG, "Unable to read NLS state for Node ID: %d\n", node_id);
+    sl_log_error(LOG_TAG,
+                 "Unable to read NLS state for Node ID: %d\n",
+                 node_id);
     return;
   }
 
-  sl_log_info(LOG_TAG, "NLS %s, NLS %s for Node ID: %d\n", nls_support == 0 ? "not supported" : "supported", nls_state == 0 ? "not active" : "active", node_id);
+  sl_log_info(LOG_TAG,
+              "NLS %s, NLS %s for Node ID: %d\n",
+              nls_support == 0 ? "not supported" : "supported",
+              nls_state == 0 ? "not active" : "active",
+              node_id);
 
   S2_load_nls_state(s2_ctx, nls_state);
-  status = zwave_store_nls_state(node_id, nls_state, REPORTED_ATTRIBUTE) || zwave_store_nls_support(node_id, nls_support, REPORTED_ATTRIBUTE);
+  status = zwave_store_nls_state(node_id, nls_state, REPORTED_ATTRIBUTE)
+           || zwave_store_nls_support(node_id, nls_support, REPORTED_ATTRIBUTE);
   if (status != SL_STATUS_OK) {
-    sl_log_error(LOG_TAG, "Unable to store NLS state/support in attribute store for Node ID: %d\n", node_id);
+    sl_log_error(
+      LOG_TAG,
+      "Unable to store NLS state/support in attribute store for Node ID: %d\n",
+      node_id);
   }
 }
 

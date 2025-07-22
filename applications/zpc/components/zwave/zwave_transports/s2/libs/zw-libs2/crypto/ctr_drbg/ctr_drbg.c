@@ -31,38 +31,37 @@
 #ifdef ZWAVE_PSA_AES
 void AES128_ECB_encrypt(uint8_t *in, const uint8_t *key, uint8_t *out)
 {
-    uint32_t key_id = ZWAVE_ECB_TEMP_ENC_KEY_ID;
-    zw_wrap_aes_key_secure_vault(&key_id, key, ZW_PSA_ALG_ECB_NO_PAD);
-    /* Import key into secure vault */
-    zw_psa_aes_ecb_encrypt(key_id, in, out);
-    /* Remove key from vault */
-    zw_psa_destroy_key(key_id);
+  uint32_t key_id = ZWAVE_ECB_TEMP_ENC_KEY_ID;
+  zw_wrap_aes_key_secure_vault(&key_id, key, ZW_PSA_ALG_ECB_NO_PAD);
+  /* Import key into secure vault */
+  zw_psa_aes_ecb_encrypt(key_id, in, out);
+  /* Remove key from vault */
+  zw_psa_destroy_key(key_id);
 }
 #endif
 
-void AJ_AES_ECB_128_ENCRYPT(uint8_t* key, uint8_t* in, uint8_t* out)
+void AJ_AES_ECB_128_ENCRYPT(uint8_t *key, uint8_t *in, uint8_t *out)
 {
 #ifdef ZWAVE_PSA_AES
-    uint32_t key_id = ZWAVE_ECB_TEMP_ENC_KEY_ID;
-    zw_wrap_aes_key_secure_vault(&key_id, key, ZW_PSA_ALG_ECB_NO_PAD);
-    /* Import key into secure vault */
-    zw_psa_aes_ecb_encrypt(key_id, in, out);
-    /* Remove key from vault */
-    zw_psa_destroy_key(key_id);
+  uint32_t key_id = ZWAVE_ECB_TEMP_ENC_KEY_ID;
+  zw_wrap_aes_key_secure_vault(&key_id, key, ZW_PSA_ALG_ECB_NO_PAD);
+  /* Import key into secure vault */
+  zw_psa_aes_ecb_encrypt(key_id, in, out);
+  /* Remove key from vault */
+  zw_psa_destroy_key(key_id);
 #else
-    AES128_ECB_encrypt(in, key, out);
+  AES128_ECB_encrypt(in, key, out);
 #endif
 }
 
-
-static void AES_CTR_DRBG_Increment(uint8_t* __data, size_t size)
+static void AES_CTR_DRBG_Increment(uint8_t *__data, size_t size)
 {
-    while (size--) {
-        __data[size]++;
-        if (__data[size]) {
-            break;
-        }
+  while (size--) {
+    __data[size]++;
+    if (__data[size]) {
+      break;
     }
+  }
 }
 /*
 CTR_DRBG_Update (provided_data, Key, V):
@@ -77,90 +76,91 @@ Output:
 2.V: The new value for V.
 */
 
-static void AES_CTR_DRBG_Update(CTR_DRBG_CTX* ctx, uint8_t __data[SEEDLEN])
+static void AES_CTR_DRBG_Update(CTR_DRBG_CTX *ctx, uint8_t __data[SEEDLEN])
 {
-    size_t i = 0;
-    uint8_t tmp[SEEDLEN] = { 0 };
-    uint8_t* t = tmp;
+  size_t i             = 0;
+  uint8_t tmp[SEEDLEN] = {0};
+  uint8_t *t           = tmp;
 
-    //AJ_AES_Enable(ctx->k);
-    for (i = 0; i < SEEDLEN; i += OUTLEN) {
-        AES_CTR_DRBG_Increment(ctx->v, OUTLEN); /*V= (V+ 1) mod 2 pow(outlen) */
-        AJ_AES_ECB_128_ENCRYPT(ctx->k, ctx->v, t); /* output_block =  Block_Encrypt(Key, V). */
-        t += OUTLEN; /*temp = temp || ouput_block */
-    }
+  //AJ_AES_Enable(ctx->k);
+  for (i = 0; i < SEEDLEN; i += OUTLEN) {
+    AES_CTR_DRBG_Increment(ctx->v, OUTLEN); /*V= (V+ 1) mod 2 pow(outlen) */
+    AJ_AES_ECB_128_ENCRYPT(ctx->k,
+                           ctx->v,
+                           t); /* output_block =  Block_Encrypt(Key, V). */
+    t += OUTLEN;               /*temp = temp || ouput_block */
+  }
 
-    for (i = 0; i < SEEDLEN; i++) {
-        /* temp = Leftmost seedlen bits of temp.
+  for (i = 0; i < SEEDLEN; i++) {
+    /* temp = Leftmost seedlen bits of temp.
            temp = temp || provided_data;
         */
-        tmp[i] ^= __data[i];
-    }
+    tmp[i] ^= __data[i];
+  }
 
-    memcpy(ctx->k, tmp, KEYLEN);
-    memcpy(ctx->v, tmp + KEYLEN, OUTLEN);
+  memcpy(ctx->k, tmp, KEYLEN);
+  memcpy(ctx->v, tmp + KEYLEN, OUTLEN);
 }
 
-
-void AES_CTR_DRBG_Reseed(CTR_DRBG_CTX* ctx, uint8_t* seed)
+void AES_CTR_DRBG_Reseed(CTR_DRBG_CTX *ctx, uint8_t *seed)
 {
-    AES_CTR_DRBG_Update(ctx, seed);
+  AES_CTR_DRBG_Update(ctx, seed);
 }
 
-
-void AES_CTR_DRBG_Instantiate(CTR_DRBG_CTX* ctx, uint8_t* entropy, const uint8_t* personal)
+void AES_CTR_DRBG_Instantiate(CTR_DRBG_CTX *ctx,
+                              uint8_t *entropy,
+                              const uint8_t *personal)
 {
 #if 1
-    uint8_t i;
+  uint8_t i;
 #else
-    int i;
+  int i;
 #endif
 
-    if(personal != NULL) {
-        for (i = 0; i < SEEDLEN; i++) {
-            /* temp = Leftmost seedlen bits of temp.
+  if (personal != NULL) {
+    for (i = 0; i < SEEDLEN; i++) {
+      /* temp = Leftmost seedlen bits of temp.
             temp = temp || provided_data;
             */
-            entropy[i] ^= personal[i];
-        }
+      entropy[i] ^= personal[i];
     }
-    else {
-        for (i = 0; i < SEEDLEN; i++) {
-            /* temp = Leftmost seedlen bits of temp.
+  } else {
+    for (i = 0; i < SEEDLEN; i++) {
+      /* temp = Leftmost seedlen bits of temp.
             temp = temp || provided_data;
             */
-            entropy[i] ^= 0;
-        }
+      entropy[i] ^= 0;
     }
+  }
 
-    memset(ctx->k, 0, KEYLEN);
-    memset(ctx->v, 0, OUTLEN);
-    ctx->df = 0;
-    AES_CTR_DRBG_Reseed(ctx, entropy);
+  memset(ctx->k, 0, KEYLEN);
+  memset(ctx->v, 0, OUTLEN);
+  ctx->df = 0;
+  AES_CTR_DRBG_Reseed(ctx, entropy);
 }
 
-void AES_CTR_DRBG_Generate(CTR_DRBG_CTX* ctx, uint8_t* rand)
+void AES_CTR_DRBG_Generate(CTR_DRBG_CTX *ctx, uint8_t *rand)
 {
-    uint8_t __data[SEEDLEN] = { 0 };
-    size_t copy;
-    size_t size = RANDLEN;
+  uint8_t __data[SEEDLEN] = {0};
+  size_t copy;
+  size_t size = RANDLEN;
 
-//    /* Needed?? Is uint8_t enough ??? */
-//    uint16_t count = 0;
+  //    /* Needed?? Is uint8_t enough ??? */
+  //    uint16_t count = 0;
 
-    // Reseed interval 2^32 (counter wraps to zero)
-    // See section 10.2.1.5.1. Step 1 in "CTR_DRBG Generate Proces"
-    //AJ_AES_Enable(ctx->k);
-    while (size) {
-        AES_CTR_DRBG_Increment(ctx->v, OUTLEN);
-        AJ_AES_ECB_128_ENCRYPT(ctx->k, ctx->v, __data);
-        copy = (size < OUTLEN) ? size : OUTLEN;
-        memcpy(rand, __data, copy);
-        rand += copy;
-        size -= copy;
-//        count+= copy;
-    }
+  // Reseed interval 2^32 (counter wraps to zero)
+  // See section 10.2.1.5.1. Step 1 in "CTR_DRBG Generate Proces"
+  //AJ_AES_Enable(ctx->k);
+  while (size) {
+    AES_CTR_DRBG_Increment(ctx->v, OUTLEN);
+    AJ_AES_ECB_128_ENCRYPT(ctx->k, ctx->v, __data);
+    copy = (size < OUTLEN) ? size : OUTLEN;
+    memcpy(rand, __data, copy);
+    rand += copy;
+    size -= copy;
+    //        count+= copy;
+  }
 
-    memset(__data, 0, SEEDLEN);
-    AES_CTR_DRBG_Update(ctx, __data);
+  memset(__data, 0, SEEDLEN);
+  AES_CTR_DRBG_Update(ctx, __data);
 }

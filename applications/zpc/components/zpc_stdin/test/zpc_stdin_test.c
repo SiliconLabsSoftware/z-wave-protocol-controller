@@ -75,21 +75,21 @@ void test_zwave_set_default()
 void test_callbacks()
 {
   zwave_dsk_t dsk                                 = {0x00,
-                     0x00,
-                     0xad,
-                     0xde,
-                     0xef,
-                     0xbe,
-                     0x10,
-                     0x01,
-                     0xad,
-                     0xde,
-                     0xef,
-                     0xbe,
-                     0xee,
-                     0xff,
-                     0x01,
-                     0x00};
+                                                     0x00,
+                                                     0xad,
+                                                     0xde,
+                                                     0xef,
+                                                     0xbe,
+                                                     0x10,
+                                                     0x01,
+                                                     0xad,
+                                                     0xde,
+                                                     0xef,
+                                                     0xbe,
+                                                     0xee,
+                                                     0xff,
+                                                     0x01,
+                                                     0x00};
   const zwave_controller_callbacks_t nm_callbacks = get_zpc_stdin_callbacks();
   nm_callbacks.on_keys_report(true, 0x87);
   nm_callbacks.on_dsk_report(2, dsk, 0x87);
@@ -333,13 +333,16 @@ void test_handle_cc_versions_log()
 void test_handle_nls()
 {
   sl_status_t state;
-  uint8_t nls_state = 0;
+  uint8_t nls_state   = 0;
   uint8_t nls_support = 0;
 
   state = uic_stdin_handle_command("zwave_enable_nls");
   TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
 
-  zwave_store_nls_state_ExpectAndReturn(2, true, DESIRED_ATTRIBUTE, SL_STATUS_OK);
+  zwave_store_nls_state_ExpectAndReturn(2,
+                                        true,
+                                        DESIRED_ATTRIBUTE,
+                                        SL_STATUS_OK);
   state = uic_stdin_handle_command("zwave_enable_nls 2");
   TEST_ASSERT_EQUAL(SL_STATUS_OK, state);
 
@@ -347,8 +350,14 @@ void test_handle_nls()
   TEST_ASSERT_EQUAL(SL_STATUS_FAIL, state);
 
   zwapi_get_node_nls_ExpectAndReturn(2, &nls_state, &nls_support, SL_STATUS_OK);
-  zwave_store_nls_state_ExpectAndReturn(2, nls_state, REPORTED_ATTRIBUTE, SL_STATUS_OK);
-  zwave_store_nls_support_ExpectAndReturn(2, nls_support, REPORTED_ATTRIBUTE, SL_STATUS_OK);
+  zwave_store_nls_state_ExpectAndReturn(2,
+                                        nls_state,
+                                        REPORTED_ATTRIBUTE,
+                                        SL_STATUS_OK);
+  zwave_store_nls_support_ExpectAndReturn(2,
+                                          nls_support,
+                                          REPORTED_ATTRIBUTE,
+                                          SL_STATUS_OK);
   state = uic_stdin_handle_command("zwave_get_nls_state 2");
   TEST_ASSERT_EQUAL(SL_STATUS_OK, state);
 }
@@ -544,4 +553,3 @@ void test_zwave_command_handler_dispatch()
   state = uic_stdin_handle_command("zwave_command_handler_dispatch deadbeef42");
   TEST_ASSERT_EQUAL(SL_STATUS_OK, state);
 }
-

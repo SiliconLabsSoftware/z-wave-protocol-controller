@@ -217,12 +217,10 @@ const std::map<std::string, std::pair<std::string, handler_func>> commands = {
   {"zwave_cc_versions_log",
    {"Print the CC version table", &handle_cc_versions_log}},
   {"zwave_enable_nls",
-   {COLOR_START "<NodeID>" COLOR_END
-                "Enable NLS on a given node.",
+   {COLOR_START "<NodeID>" COLOR_END "Enable NLS on a given node.",
     &handle_enable_nls}},
   {"zwave_get_nls_state",
-   {COLOR_START "<NodeID>" COLOR_END
-                "Print the NLS state of the given nodeID",
+   {COLOR_START "<NodeID>" COLOR_END "Print the NLS state of the given nodeID",
     &handle_get_nls_state}},
 };
 
@@ -856,7 +854,7 @@ static sl_status_t handle_enable_nls(const handle_args_t &arg)
   }
   try {
     zwave_node_id_t node_id
-        = static_cast<zwave_node_id_t>(std::stoi(arg[1].c_str(), nullptr, 10));
+      = static_cast<zwave_node_id_t>(std::stoi(arg[1].c_str(), nullptr, 10));
 
     return zwave_store_nls_state(node_id, true, DESIRED_ATTRIBUTE);
   } catch (const std::invalid_argument &e) {
@@ -877,21 +875,26 @@ static sl_status_t handle_get_nls_state(const handle_args_t &arg)
   try {
     zwave_node_id_t node_id
       = static_cast<zwave_node_id_t>(std::stoi(arg[1].c_str(), nullptr, 10));
-    uint8_t nls_state = 0;
+    uint8_t nls_state   = 0;
     uint8_t nls_support = 0;
-    sl_status_t status = zwapi_get_node_nls(node_id, &nls_state, &nls_support);
-    if (SL_STATUS_OK == status)
-    {
-      status = zwave_store_nls_state(node_id, nls_state, REPORTED_ATTRIBUTE) || zwave_store_nls_support(node_id, nls_support, REPORTED_ATTRIBUTE);
+    sl_status_t status  = zwapi_get_node_nls(node_id, &nls_state, &nls_support);
+    if (SL_STATUS_OK == status) {
+      status
+        = zwave_store_nls_state(node_id, nls_state, REPORTED_ATTRIBUTE)
+          || zwave_store_nls_support(node_id, nls_support, REPORTED_ATTRIBUTE);
       if (SL_STATUS_OK != status) {
-        dprintf(out_stream, "Unable to store NLS state for Node ID: %d\n", node_id);
+        dprintf(out_stream,
+                "Unable to store NLS state for Node ID: %d\n",
+                node_id);
         return SL_STATUS_FAIL;
       }
-      dprintf(out_stream, "Node ID %d, NLS Support: %d, NLS state: %d\n", node_id, nls_support, nls_state);
+      dprintf(out_stream,
+              "Node ID %d, NLS Support: %d, NLS state: %d\n",
+              node_id,
+              nls_support,
+              nls_state);
       return SL_STATUS_OK;
-    }
-    else
-    {
+    } else {
       dprintf(out_stream,
               "Unable to read NLS state for Node ID: %d\n",
               node_id);

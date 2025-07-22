@@ -386,21 +386,21 @@ void test_zwave_command_class_indicator_supported_get_v3(void)
 void test_zwave_command_class_indicator_default_set(void)
 {
   uint8_t cmd_frame_get[]       = {COMMAND_CLASS_INDICATOR_V3,
-                             INDICATOR_GET_V3,
-                             INDICATOR_SET_NODE_IDENTIFY_V3};
+                                   INDICATOR_GET_V3,
+                                   INDICATOR_SET_NODE_IDENTIFY_V3};
   uint8_t cmd_frame_blink[]     = {COMMAND_CLASS_INDICATOR_V3,
-                               INDICATOR_SET_V3,
-                               0x00,
-                               0x03,
-                               INDICATOR_SET_NODE_IDENTIFY_V3,
-                               INDICATOR_SET_ON_OFF_PERIOD_V3,
-                               0x0A,
-                               INDICATOR_SET_NODE_IDENTIFY_V3,
-                               INDICATOR_SET_ON_OFF_CYCLES_V3,
-                               0x02,
-                               INDICATOR_SET_NODE_IDENTIFY_V3,
-                               INDICATOR_SET_ONE_TIME_ON_OFF_PERIOD_V3,
-                               0x00};
+                                   INDICATOR_SET_V3,
+                                   0x00,
+                                   0x03,
+                                   INDICATOR_SET_NODE_IDENTIFY_V3,
+                                   INDICATOR_SET_ON_OFF_PERIOD_V3,
+                                   0x0A,
+                                   INDICATOR_SET_NODE_IDENTIFY_V3,
+                                   INDICATOR_SET_ON_OFF_CYCLES_V3,
+                                   0x02,
+                                   INDICATOR_SET_NODE_IDENTIFY_V3,
+                                   INDICATOR_SET_ONE_TIME_ON_OFF_PERIOD_V3,
+                                   0x00};
   uint8_t exp_frame_get_blink[] = {COMMAND_CLASS_INDICATOR_V3,
                                    INDICATOR_REPORT,
                                    0xFF,

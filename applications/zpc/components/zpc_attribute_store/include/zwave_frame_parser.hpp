@@ -304,7 +304,7 @@ class zwave_frame_parser
    * @return The string read from the frame
    */
   std::string read_string();
-    /**
+  /**
    * @brief Convenience function to read a string (ASCII) from the frame and store in in the attribute store
    * 
    * This helper function will read the first byte to determine the string length, then parse the 
@@ -325,7 +325,6 @@ class zwave_frame_parser
    * @return The string read from the frame
    */
   std::string read_string(attribute_store_node_t node);
-
 
   /**
    * @brief Read a sequence of bytes from the frame

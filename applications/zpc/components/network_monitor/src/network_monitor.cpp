@@ -547,8 +547,9 @@ static attribute network_monitor_add_attribute_store_node(
                                      sizeof(endpoint_id));
 
   attribute_store_node_t network_status_node
-    = attribute_store_get_first_child_by_type(node_id_node,
-                                              DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
+    = attribute_store_get_first_child_by_type(
+      node_id_node,
+      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
   if (network_status_node == ATTRIBUTE_STORE_INVALID_NODE) {
     attribute_store_set_child_reported(node_id_node,
                                        DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
@@ -609,11 +610,13 @@ static void
 
   // Don't modify anything if the node is not offline.
   if (network_status != ZCL_NODE_STATE_NETWORK_STATUS_OFFLINE
-      && network_status != ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL) {
+      && network_status
+           != ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL) {
     return;
   }
 
-  NodeStateNetworkStatus new_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+  NodeStateNetworkStatus new_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   if (network_status == ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL) {
     // If the network status was interviewing and the frame transmission failed
     // Set it to Failed interview, so we try again a ful interview when it responds again
@@ -716,7 +719,8 @@ static void
   network_initialized = true;
 }
 
-static void network_monitor_handle_event_network_ready(network_data const &event_data)
+static void
+  network_monitor_handle_event_network_ready(network_data const &event_data)
 {
   // Make sure that UNID / ZPC UNID are configured correctly.
   zwave_unid_set_home_id(event_data.home_id);
@@ -741,8 +745,8 @@ static void network_monitor_handle_event_node_id_assigned(
                                  event_data.inclusion_protocol);
 }
 
-static void
-  network_monitor_handle_event_node_added(node_added_event_data const &event_data)
+static void network_monitor_handle_event_node_added(
+  node_added_event_data const &event_data)
 {
   // Attribute store node should already exist, but in case NODE_ID_ASSIGNED_EVENT
   // did not happen before this event, we ensure the node exists in the attribute store.
@@ -760,9 +764,11 @@ static void network_monitor_handle_event_node_interview_initiated(
   attribute_store_node_t node_id_node)
 {
   attribute_store_node_t network_status_node
-    = attribute_store_get_first_child_by_type(node_id_node,
-                                              DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+    = attribute_store_get_first_child_by_type(
+      node_id_node,
+      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -792,7 +798,8 @@ static void network_monitor_handle_event_node_interview_done(
     node_id_node,
     network_monitor_node_id_resolution_listener);
 
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_child_reported(node_id_node,
                                      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
                                      &network_status,

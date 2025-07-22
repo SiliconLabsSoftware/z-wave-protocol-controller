@@ -22,14 +22,13 @@
 #define KEY_CLASS_S2_ACCESS_LR        0x10
 #define KEY_CLASS_S2_NOT_VALID        0x60
 
-#define KEY_CLASS_ALL                 0xFF
+#define KEY_CLASS_ALL 0xFF
 
 /* Flag used in common wrapper functions
  * to differentiate whether the crypto
  * function is PSA based or otherwise.
  */
-#define ZWAVE_KEY_ID_NONE                0
-
+#define ZWAVE_KEY_ID_NONE 0
 
 /**
  * \defgroup keystore S2 Keystore
@@ -49,7 +48,7 @@
  */
 void keystore_public_key_read(uint8_t *buf);
 
- /**
+/**
   * Fetches the dynamic public Curve25519 key and copies it to buf
   *
   * The dynamic public key is used for no grant and unauthenticated key exchanges, where the
@@ -117,7 +116,7 @@ bool keystore_network_key_read(uint8_t keyclass, uint8_t *buf);
  *                     for key class values.
  * \param[in] keybuf      Network key
  */
-bool keystore_network_key_write(uint8_t keyclass,const uint8_t *keybuf);
+bool keystore_network_key_write(uint8_t keyclass, const uint8_t *keybuf);
 
 /**
 * Clears the specified keyclasses in NVM keystore
@@ -150,4 +149,4 @@ void ZW_s2_keystore_restore_keys(void);
 /**
  * @}
  */
-#endif // _S2_KEYSTORE_H_
+#endif  // _S2_KEYSTORE_H_

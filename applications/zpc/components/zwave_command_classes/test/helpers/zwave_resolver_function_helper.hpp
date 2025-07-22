@@ -64,7 +64,8 @@ struct zwave_functions {
  * @endcode
  *
  */
-using resolver_function_map = std::multimap<attribute_store_type_t, zwave_functions>;
+using resolver_function_map
+  = std::multimap<attribute_store_type_t, zwave_functions>;
 
 /**
  * @brief Helper class to manage resolver functions

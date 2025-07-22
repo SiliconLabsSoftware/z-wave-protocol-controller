@@ -181,51 +181,49 @@ void test_zwave_command_class_multi_channel_capability_get_happy_case()
 
 void test_zwave_command_class_multi_channel_endpoint_find_with_flag()
 {
-  attribute_store_node_t test_node = 0x9485;
+  attribute_store_node_t test_node          = 0x9485;
   attribute_store_node_t test_endpoint_node = 0xf7;
 
   attribute_store_get_first_parent_with_type_ExpectAndReturn(
     test_node,
     ATTRIBUTE_ENDPOINT_ID,
     test_endpoint_node);
-  
+
   // Set legacy flag
   uint8_t legacy_flag = 1;
-  attribute_store_get_child_reported_ExpectAndReturn(test_endpoint_node,
-                                            ATTRIBUTE_COMMAND_CLASS_MULTI_CHANNEL_FLAG_SEND_TARGETED_DEVICE_CLASS,
-                                            NULL,
-                                            sizeof(uint8_t),
-                                            SL_STATUS_OK);
+  attribute_store_get_child_reported_ExpectAndReturn(
+    test_endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_MULTI_CHANNEL_FLAG_SEND_TARGETED_DEVICE_CLASS,
+    NULL,
+    sizeof(uint8_t),
+    SL_STATUS_OK);
   attribute_store_get_child_reported_IgnoreArg_value();
   attribute_store_get_child_reported_ReturnMemThruPtr_value(
     &legacy_flag,
     sizeof(legacy_flag));
 
-
   // Simulate not existing parameter
   uint8_t generic_device_class = 0xFF;
-  attribute_store_get_child_reported_ExpectAndReturn(test_endpoint_node,
-                                            ATTRIBUTE_ZWAVE_GENERIC_DEVICE_CLASS,
-                                            NULL,
-                                            sizeof(uint8_t),
-                                            SL_STATUS_FAIL);
+  attribute_store_get_child_reported_ExpectAndReturn(
+    test_endpoint_node,
+    ATTRIBUTE_ZWAVE_GENERIC_DEVICE_CLASS,
+    NULL,
+    sizeof(uint8_t),
+    SL_STATUS_FAIL);
   attribute_store_get_child_reported_IgnoreArg_value();
-
 
   // Set specific device class
   uint8_t specific_device_class = 0xEE;
-  attribute_store_get_child_reported_ExpectAndReturn(test_endpoint_node,
-                                            ATTRIBUTE_ZWAVE_SPECIFIC_DEVICE_CLASS,
-                                            NULL,
-                                            sizeof(uint8_t),
-                                            SL_STATUS_OK);
+  attribute_store_get_child_reported_ExpectAndReturn(
+    test_endpoint_node,
+    ATTRIBUTE_ZWAVE_SPECIFIC_DEVICE_CLASS,
+    NULL,
+    sizeof(uint8_t),
+    SL_STATUS_OK);
   attribute_store_get_child_reported_IgnoreArg_value();
   attribute_store_get_child_reported_ReturnMemThruPtr_value(
     &specific_device_class,
     sizeof(specific_device_class));
-
-
-
 
   TEST_ASSERT_EQUAL(SL_STATUS_OK,
                     zwave_command_class_multi_channel_endpoint_find(
@@ -244,7 +242,7 @@ void test_zwave_command_class_multi_channel_endpoint_find_with_flag()
 }
 void test_zwave_command_class_multi_channel_endpoint_find_no_flag()
 {
-  attribute_store_node_t test_node = 0x9485;
+  attribute_store_node_t test_node          = 0x9485;
   attribute_store_node_t test_endpoint_node = 0xf7;
 
   attribute_store_get_first_parent_with_type_ExpectAndReturn(
@@ -252,12 +250,12 @@ void test_zwave_command_class_multi_channel_endpoint_find_no_flag()
     ATTRIBUTE_ENDPOINT_ID,
     test_endpoint_node);
 
-
-  attribute_store_get_child_reported_ExpectAndReturn(test_endpoint_node,
-                                            ATTRIBUTE_COMMAND_CLASS_MULTI_CHANNEL_FLAG_SEND_TARGETED_DEVICE_CLASS,
-                                            NULL,
-                                            sizeof(uint8_t),
-                                            SL_STATUS_FAIL);
+  attribute_store_get_child_reported_ExpectAndReturn(
+    test_endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_MULTI_CHANNEL_FLAG_SEND_TARGETED_DEVICE_CLASS,
+    NULL,
+    sizeof(uint8_t),
+    SL_STATUS_FAIL);
   attribute_store_get_child_reported_IgnoreArg_value();
 
   TEST_ASSERT_EQUAL(SL_STATUS_OK,
@@ -278,7 +276,7 @@ void test_zwave_command_class_multi_channel_endpoint_find_no_flag()
 
 void test_zwave_command_class_multi_channel_endpoint_find_flag_but_off()
 {
-  attribute_store_node_t test_node = 0x9485;
+  attribute_store_node_t test_node          = 0x9485;
   attribute_store_node_t test_endpoint_node = 0xf7;
 
   attribute_store_get_first_parent_with_type_ExpectAndReturn(
@@ -288,11 +286,12 @@ void test_zwave_command_class_multi_channel_endpoint_find_flag_but_off()
 
   // Set legacy flag
   uint8_t legacy_flag = 0;
-  attribute_store_get_child_reported_ExpectAndReturn(test_endpoint_node,
-                                            ATTRIBUTE_COMMAND_CLASS_MULTI_CHANNEL_FLAG_SEND_TARGETED_DEVICE_CLASS,
-                                            NULL,
-                                            sizeof(uint8_t),
-                                            SL_STATUS_OK);
+  attribute_store_get_child_reported_ExpectAndReturn(
+    test_endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_MULTI_CHANNEL_FLAG_SEND_TARGETED_DEVICE_CLASS,
+    NULL,
+    sizeof(uint8_t),
+    SL_STATUS_OK);
   attribute_store_get_child_reported_IgnoreArg_value();
   attribute_store_get_child_reported_ReturnMemThruPtr_value(
     &legacy_flag,
@@ -1010,7 +1009,10 @@ void check_if_all_individual_endpoints_are_found_verification(
     ATTRIBUTE_COMMAND_CLASS_MULTI_CHANNEL_ALL_INDIVIDUAL_ENDPOINTS_FOUND,
     0,
     23);
-  attribute_store_set_reported_ExpectAndReturn(23, NULL,sizeof(uint8_t), SL_STATUS_OK);
+  attribute_store_set_reported_ExpectAndReturn(23,
+                                               NULL,
+                                               sizeof(uint8_t),
+                                               SL_STATUS_OK);
   attribute_store_set_reported_IgnoreArg_value();
 
   create_aggregated_endpoints_verification(node_id_node);

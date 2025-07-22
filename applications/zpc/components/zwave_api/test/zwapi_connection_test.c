@@ -38,12 +38,12 @@ void setUp() {}
 
 void test_zwapi_connection_tx_invalid_payload_full()
 {
-  uint8_t cmd  = 0x01;
-  uint8_t type = 0x02;
-  uint8_t buffer [0xFF] = {0}; ///< Maximum of len type
-  uint8_t len     = sizeof(buffer);
-  bool ack_needed = true;
-  
+  uint8_t cmd          = 0x01;
+  uint8_t type         = 0x02;
+  uint8_t buffer[0xFF] = {0};  ///< Maximum of len type
+  uint8_t len          = sizeof(buffer);
+  bool ack_needed      = true;
+
   // Expect the function to detect overflow
   zwapi_connection_tx(cmd, type, buffer, len, ack_needed);
 }

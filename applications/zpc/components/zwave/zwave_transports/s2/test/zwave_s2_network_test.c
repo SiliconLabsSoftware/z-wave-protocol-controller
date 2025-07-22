@@ -77,7 +77,7 @@ static void
 
 void test_s2_network_init()
 {
-  uint8_t nls_state = false;
+  uint8_t nls_state   = false;
   uint8_t nls_support = false;
 
   S2_destroy_Expect(s2_ctx);
@@ -140,20 +140,20 @@ void test_s2_network_callbacks()
   uint8_t buff[100] = {0};
   zwave_event_t *ev = (zwave_event_t *)buff;
   zwave_dsk_t dsk   = {
-    0,
-    0,
-    0x1,
-    0x1,
-    0x1,
-    0x1,
-    0x1,
-    0x1,
-    0x1,
-    0x1,
-    0x1,
-    0x1,
-    0x1,
-    0x1,
+      0,
+      0,
+      0x1,
+      0x1,
+      0x1,
+      0x1,
+      0x1,
+      0x1,
+      0x1,
+      0x1,
+      0x1,
+      0x1,
+      0x1,
+      0x1,
   };
   zwave_s2_network_callbacks_t cb
     = {.on_inclusion_started  = on_inclusion_started,

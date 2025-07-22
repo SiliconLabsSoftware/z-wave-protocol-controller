@@ -60,10 +60,9 @@ const zwave_struct_handler_args command_class_handler
   = {.command_class_id  = COMMAND_CLASS_BATTERY,
      .supported_version = BATTERY_VERSION_V3};
 // Get Set function map
-const resolver_function_map attribute_bindings = {
-  {ATTRIBUTE(BATTERY_LEVEL), {BATTERY_GET, 0}},
-  {ATTRIBUTE(HEALTH_MAXIMUM_CAPACITY), {BATTERY_HEALTH_GET_V2, 0}}
-};
+const resolver_function_map attribute_bindings
+  = {{ATTRIBUTE(BATTERY_LEVEL), {BATTERY_GET, 0}},
+     {ATTRIBUTE(HEALTH_MAXIMUM_CAPACITY), {BATTERY_HEALTH_GET_V2, 0}}};
 
 /// Called before each and every test
 void setUp()
@@ -94,7 +93,6 @@ void helper_test_health_report_attributes(uint8_t expected_max_capacity,
 // Test cases
 ///////////////////////////////////////////////////////////////////////////////
 
-
 void test_battery_interview_v1_happy_case()
 {
   helper_set_version(1);
@@ -121,7 +119,7 @@ void test_battery_interview_v2_happy_case()
        ATTRIBUTE(HEALTH_PRECISION),
        ATTRIBUTE(HEALTH_BATTERY_TEMPERATURE)};
 
-  for (const auto& attribute : tested_attributes) {
+  for (const auto &attribute: tested_attributes) {
     helper_test_node_exists(attribute);
   }
 }
@@ -147,7 +145,7 @@ void test_battery_interview_v3_happy_case()
        // Added in v3
        ATTRIBUTE(LOW_TEMPERATURE)};
 
-  for (const auto& attribute : tested_attributes) {
+  for (const auto &attribute: tested_attributes) {
     helper_test_node_exists(attribute);
   }
 }
@@ -196,8 +194,6 @@ void test_battery_health_report_temperature_size_4_happy_case()
                                        -120000);
 }
 
-
-
 void helper_battery_report(uint8_t expected_battery_level,
                            uint8_t expected_charging_status  = 0,
                            uint8_t rechargeable              = 0,
@@ -233,14 +229,14 @@ void helper_battery_report(uint8_t expected_battery_level,
   }
 }
 
-void test_battery_report_version_1_happy_case() {
+void test_battery_report_version_1_happy_case()
+{
   helper_set_version(1);
 
   uint8_t expected_battery_level = 0x12;
   helper_test_report_frame(BATTERY_REPORT, {expected_battery_level});
 
   helper_battery_report(expected_battery_level);
-
 }
 
 void test_battery_report_version_2_happy_case()
@@ -269,7 +265,6 @@ void test_battery_report_version_3_happy_case()
 
   helper_battery_report(expected_battery_level, 1, 1, 0, 1, 0, 1, 0, 1);
 }
-
 
 void test_battery_get_happy_case()
 {

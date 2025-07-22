@@ -291,7 +291,8 @@ sl_status_t user_code_cluster_server_init()
   // Register the callback for handling commands from IoT service
   uic_mqtt_dotdot_door_lock_set_pin_code_callback_set(&set_pin_code_command);
   uic_mqtt_dotdot_door_lock_get_pin_code_callback_set(&get_pin_code_command);
-  uic_mqtt_dotdot_door_lock_clear_pin_code_callback_set(&clear_pin_code_command);
+  uic_mqtt_dotdot_door_lock_clear_pin_code_callback_set(
+    &clear_pin_code_command);
   uic_mqtt_dotdot_door_lock_clear_all_pin_codes_callback_set(
     &clear_all_pin_codes_command);
   uic_mqtt_dotdot_door_lock_set_user_status_callback_set(

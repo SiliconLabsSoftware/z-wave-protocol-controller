@@ -113,7 +113,7 @@ void zwave_s2_reset_span(zwave_node_id_t node_id)
 }
 
 void zwave_s2_reset_mpan(zwave_node_id_t owner_node_id,
-                                  zwave_multicast_group_id_t group_id)
+                         zwave_multicast_group_id_t group_id)
 {
   for (size_t i = 0; i < MPAN_TABLE_SIZE; i++) {
     if (s2_ctx->mpan_table[i].owner_id == owner_node_id

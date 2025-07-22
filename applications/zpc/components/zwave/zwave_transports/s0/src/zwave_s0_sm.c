@@ -28,7 +28,6 @@
 #include "s2_classcmd.h"
 #include "zwave_helper_macros.h"
 
-
 #define LOG_TAG            "zwave_s0_sm"
 #define S0_INCLUSION_TIMER 10 * CLOCK_SECOND
 #define ELEM_COUNT(ARRAY)  (sizeof(ARRAY) / (sizeof(ARRAY[0])))
@@ -492,6 +491,7 @@ s0_bootstrap_state_t get_s0_sm_state()
   return s0_sm.bootstrap_state;
 }
 
-void s0_bootstrapping_stop() {
+void s0_bootstrapping_stop()
+{
   reset_s0_sm();
 }

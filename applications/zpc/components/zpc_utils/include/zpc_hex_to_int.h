@@ -33,6 +33,5 @@ extern "C" {
  */
 
 int zpc_hex2int(char c);
-#endif //ZPC_HEX_TO_INT_Hf
+#endif  //ZPC_HEX_TO_INT_Hf
 /** @} end zpc_hex_to_int*/
-

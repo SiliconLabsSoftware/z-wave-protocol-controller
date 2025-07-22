@@ -60,14 +60,15 @@ static constexpr uint8_t PUSH_REPORT_STATUS_ENABLED   = 0xFF;
 static constexpr uint8_t PULL_REPORT_STATUS_NOT_EMPTY = 0x00;
 static constexpr uint8_t PULL_REPORT_STATUS_EMPTY     = 0xFE;
 
-static constexpr uint32_t PULL_NODE_PROBE_INTERVAL = 10800000; //in msec (3h * 60m * 60s * 1000ms)
+static constexpr uint32_t PULL_NODE_PROBE_INTERVAL
+  = 10800000;  //in msec (3h * 60m * 60s * 1000ms)
 
 enum class mode_discovery_state_t : uint8_t {
-  PUSH_MODE_DETECTED = 0x00,
-  PULL_MODE_DETECTED = 0x01,
-  AGI_TEST_PENDING   = 0x02,
+  PUSH_MODE_DETECTED        = 0x00,
+  PULL_MODE_DETECTED        = 0x01,
+  AGI_TEST_PENDING          = 0x02,
   NOTIFICATION_TEST_PENDING = 0x03,
-  UNKNOWN   = 0xFF
+  UNKNOWN                   = 0xFF
 };
 
 struct event_queue {
@@ -76,23 +77,28 @@ struct event_queue {
   uint8_t seq;
 };
 
-namespace {
+namespace
+{
 // Private variables
-static mode_discovery_state_t discovery_state; //NOSONAR : false positive since it is warped in a namespace
+static mode_discovery_state_t
+  discovery_state;  //NOSONAR : false positive since it is warped in a namespace
 // probe timer, that will ensure that we probe all pull nodes
 // at least this interval.
-static struct etimer notification_probe_timer; //NOSONAR : false positive since it is warped in a namespace
-static std::map<attribute_store::attribute,std::vector<struct event_queue>> pull_mode_queue;
-}
-
+static struct etimer
+  notification_probe_timer;  //NOSONAR : false positive since it is warped in a namespace
+static std::map<attribute_store::attribute, std::vector<struct event_queue>>
+  pull_mode_queue;
+}  // namespace
 
 // Cpp helpers
 namespace
 {
-zwave_frame_generator frame_generator(COMMAND_CLASS_NOTIFICATION_V8); //NOSONAR - false positive since it is warped in a namespace
+zwave_frame_generator frame_generator(
+  COMMAND_CLASS_NOTIFICATION_V8);  //NOSONAR - false positive since it is warped in a namespace
 }
 
-PROCESS(zwave_command_class_notification_process, "zwave_command_class_notification_process");
+PROCESS(zwave_command_class_notification_process,
+        "zwave_command_class_notification_process");
 
 using namespace attribute_store;
 
@@ -133,8 +139,7 @@ void zwave_command_class_agi_test_perform_discovery(attribute_store_node_t node)
       sl_log_warning(LOG_TAG, "Group with ID %u missing in attribute store", i);
       return;
     }
-    if (!group_node.reported_exists())
-    {
+    if (!group_node.reported_exists()) {
       attribute_resolver_clear_resolution_listener(
         node,
         zwave_command_class_agi_test_perform_discovery);
@@ -149,7 +154,7 @@ void zwave_command_class_agi_test_perform_discovery(attribute_store_node_t node)
       sl_log_warning(LOG_TAG, "Group Cmd List info missing for group %u", i);
       return;
     }
-    auto command_list =  group_cmdlist_node.reported<std::vector<uint8_t>>();
+    auto command_list = group_cmdlist_node.reported<std::vector<uint8_t>>();
 
     if (is_command_in_array(COMMAND_CLASS_NOTIFICATION_V8,
                             NOTIFICATION_REPORT_V3,
@@ -218,9 +223,7 @@ void zwave_command_class_notification_pull_push_discovery(
       attribute_resolver_set_resolution_listener(
         groupings_node,
         zwave_command_class_agi_test_perform_discovery);
-    }
-    else
-    {
+    } else {
       sl_log_warning(LOG_TAG, "supported grouping not yet available");
     }
 
@@ -232,50 +235,49 @@ void zwave_command_class_notification_pull_push_discovery(
 ///////////////////////////////////////////////////////////////////////////////
 // Helpers for Pull mode and probe handling
 ///////////////////////////////////////////////////////////////////////////////
-static void pull_mode_check_and_clear_persistence(attribute ep_node, const uint8_t *frame_data)
+static void pull_mode_check_and_clear_persistence(attribute ep_node,
+                                                  const uint8_t *frame_data)
 {
-  const auto *frame = reinterpret_cast<const ZW_NOTIFICATION_REPORT_1BYTE_V3_FRAME *>(
+  const auto *frame
+    = reinterpret_cast<const ZW_NOTIFICATION_REPORT_1BYTE_V3_FRAME *>(
       frame_data);
   auto prev_events = pull_mode_queue.find(ep_node);
 
-  if (prev_events == pull_mode_queue.cend())
-  {
+  if (prev_events == pull_mode_queue.cend()) {
     std::vector<struct event_queue> queue_entry;
     struct event_queue entry = {frame->notificationType, frame->mevent, 0xFF};
     if ((frame->properties1
-          & NOTIFICATION_REPORT_PROPERTIES1_SEQUENCE_BIT_MASK_V3) != 0)
-          entry.seq = frame->sequenceNumber;
+         & NOTIFICATION_REPORT_PROPERTIES1_SEQUENCE_BIT_MASK_V3)
+        != 0)
+      entry.seq = frame->sequenceNumber;
     queue_entry.emplace(queue_entry.end(), entry);
     pull_mode_queue.emplace(std::make_pair(ep_node, queue_entry));
     return;
   }
-  
+
   // check if current and last event notification have same seq
-  if (prev_events->second[0].type == frame->notificationType && prev_events->second[0].event == frame->mevent)
-  {
+  if (prev_events->second[0].type == frame->notificationType
+      && prev_events->second[0].event == frame->mevent) {
     if (((frame->properties1
-          & NOTIFICATION_REPORT_PROPERTIES1_SEQUENCE_BIT_MASK_V3) != 0
-          && frame->sequenceNumber == prev_events->second[0].seq) 
-          || (prev_events->second.size() == 4))
-    {
+          & NOTIFICATION_REPORT_PROPERTIES1_SEQUENCE_BIT_MASK_V3)
+           != 0
+         && frame->sequenceNumber == prev_events->second[0].seq)
+        || (prev_events->second.size() == 4)) {
       auto notification_type_node = ep_node.child_by_type(ATTRIBUTE(TYPE));
       notification_type_node.set_desired<uint8_t>(
-      notification_type_node.reported<uint8_t>());
+        notification_type_node.reported<uint8_t>());
       pull_mode_queue.erase(ep_node);
-    }
-    else {
+    } else {
       struct event_queue entry = {frame->notificationType, frame->mevent, 0xFF};
       if ((frame->properties1
-            & NOTIFICATION_REPORT_PROPERTIES1_SEQUENCE_BIT_MASK_V3) != 0)
-            entry.seq = frame->sequenceNumber;
+           & NOTIFICATION_REPORT_PROPERTIES1_SEQUENCE_BIT_MASK_V3)
+          != 0)
+        entry.seq = frame->sequenceNumber;
       prev_events->second.insert(prev_events->second.cbegin(), entry);
     }
-  }
-  else
-  {
+  } else {
     pull_mode_queue.erase(ep_node);
   }
-
 }
 
 static void pull_mode_trigger_next_probe(attribute ep_node)
@@ -291,9 +293,8 @@ static void zwave_command_class_notification_trigger_probe()
   attribute_store::attribute home_node = get_zpc_network_node();
   try {
     sl_log_debug(LOG_TAG, "periodic probe started for pull nodes");
-    for (auto end_node : home_node.children(ATTRIBUTE_NODE_ID)) {
-      for (auto ep_node : end_node.children(ATTRIBUTE_ENDPOINT_ID)) 
-      {
+    for (auto end_node: home_node.children(ATTRIBUTE_NODE_ID)) {
+      for (auto ep_node: end_node.children(ATTRIBUTE_ENDPOINT_ID)) {
         // devices which doesn't support Notification CC to be skipped
         if (!ep_node.child_by_type(ATTRIBUTE(VERSION)).is_valid())
           continue;
@@ -301,17 +302,14 @@ static void zwave_command_class_notification_trigger_probe()
         if (ep_node.child_by_type_and_value(ATTRIBUTE(MODE), PUSH_MODE)
               .is_valid())
           continue;
-        
+
         // clear probe active node to start probe process
         pull_mode_trigger_next_probe(ep_node);
       }
     }
   } catch (const std::exception &ex) {
     // continue with next state in case of erorrs
-    sl_log_warning(
-      LOG_TAG,
-      "Failed during probe process: %s",
-      ex.what());
+    sl_log_warning(LOG_TAG, "Failed during probe process: %s", ex.what());
   }
 }
 
@@ -326,38 +324,35 @@ static sl_status_t zwave_command_class_notification_update_state_event(
   if (notification_event == 0xFE) {
     notification_event = 0;
   }
-  auto version_node = notification_type_node.parent().child_by_type(ATTRIBUTE(VERSION));
+  auto version_node
+    = notification_type_node.parent().child_by_type(ATTRIBUTE(VERSION));
   zwave_cc_version_t version = version_node.reported<uint8_t>();
 
   attribute notification_event_node;
-  if (version > 2)
-  {
+  if (version > 2) {
     notification_event_node
-    = attribute_store_get_node_child_by_value(notification_type_node,
-                                              ATTRIBUTE(STATE),
-                                              REPORTED_ATTRIBUTE,
-                                              &state,
-                                              sizeof(state),
-                                              0);
+      = attribute_store_get_node_child_by_value(notification_type_node,
+                                                ATTRIBUTE(STATE),
+                                                REPORTED_ATTRIBUTE,
+                                                &state,
+                                                sizeof(state),
+                                                0);
     notification_event_node
-    = notification_event_node.child_by_type(ATTRIBUTE(EVENT), 0);
+      = notification_event_node.child_by_type(ATTRIBUTE(EVENT), 0);
     sl_log_info(NOTIFICATION_TAG,
-              "<Type: %u> State: %u Event: %u",
-              notification_type_node.reported<uint8_t>(),
-              state,
-              notification_event);
-  }
-  else
-  {
+                "<Type: %u> State: %u Event: %u",
+                notification_type_node.reported<uint8_t>(),
+                state,
+                notification_event);
+  } else {
     // version 1 and 2 do not have a concept of state hence it will be a dummy parent node
     auto state_node = notification_type_node.child_by_type(ATTRIBUTE(STATE));
     notification_event_node = state_node.emplace_node(ATTRIBUTE(EVENT));
     sl_log_info(NOTIFICATION_TAG,
-              "<zwAlarm Type: %u> Event: %u",
-              notification_type_node.reported<uint8_t>(),
-              notification_event);
+                "<zwAlarm Type: %u> Event: %u",
+                notification_type_node.reported<uint8_t>(),
+                notification_event);
   }
-  
 
   if (!notification_event_node.is_valid()) {
     sl_log_debug(LOG_TAG,
@@ -368,7 +363,6 @@ static sl_status_t zwave_command_class_notification_update_state_event(
     return SL_STATUS_OK;
   }
   notification_event_node.set_reported(notification_event);
-
 
   uint8_t state_event_param_len
     = frame->properties1
@@ -390,9 +384,9 @@ static sl_status_t zwave_command_class_notification_update_state_event(
     int32_t state_event = frame->eventParameter1;
     notification_event_param.set_reported(state_event);
     sl_log_info(NOTIFICATION_TAG,
-              "Event: %u Param: %u",
-              notification_event,
-              state_event);
+                "Event: %u Param: %u",
+                notification_event,
+                state_event);
   } else {
     // No Event/state parameter byte added to the payload, we just undefine the
     // value again.
@@ -424,10 +418,9 @@ static sl_status_t zwave_command_class_notification_report_cmd_handler(
       sending_node_unid,
       connection_info->remote.endpoint_id);
     auto mode_node = ep_node.child_by_type(ATTRIBUTE(MODE));
-    uint8_t mode = PUSH_MODE;
+    uint8_t mode   = PUSH_MODE;
 
     if (discovery_state == mode_discovery_state_t::NOTIFICATION_TEST_PENDING) {
-
       if (frame->notificationStatus == PUSH_REPORT_STATUS_ENABLED) {
         mode            = PUSH_MODE;
         discovery_state = mode_discovery_state_t::PUSH_MODE_DETECTED;
@@ -437,8 +430,7 @@ static sl_status_t zwave_command_class_notification_report_cmd_handler(
         ep_node.emplace_node(ATTRIBUTE(PROBE_ACTIVE));
       }
       mode_node.set_reported(mode);
-    }
-    else {
+    } else {
       mode = mode_node.reported<uint8_t>();
     }
 
@@ -475,9 +467,9 @@ static sl_status_t zwave_command_class_notification_report_cmd_handler(
     }
 
     if (mode == PULL_MODE) {
-      if (frame->notificationStatus == PULL_REPORT_STATUS_EMPTY)
-      {
-        sl_log_debug(LOG_TAG, "Pull sensor queue empty, stopped further probing");
+      if (frame->notificationStatus == PULL_REPORT_STATUS_EMPTY) {
+        sl_log_debug(LOG_TAG,
+                     "Pull sensor queue empty, stopped further probing");
         auto probe_active = ep_node.child_by_type(ATTRIBUTE(PROBE_ACTIVE));
         probe_active.set_reported<uint8_t>(false);
         return SL_STATUS_OK;
@@ -752,8 +744,9 @@ static sl_status_t
       &supported_notification_types[i],
       sizeof(supported_notification_types[i]));
     if (version > 2) {
-      auto node = attribute_store_add_node(ATTRIBUTE(SUPPORTED_STATES_OR_EVENTS),
-                                notification_type);
+      auto node
+        = attribute_store_add_node(ATTRIBUTE(SUPPORTED_STATES_OR_EVENTS),
+                                   notification_type);
       /* Wait till last type is completely resolved, to discover pull/push mode*/
       if ((i == (number_of_supported_notification_types - 1))
           && (discovery_state
@@ -762,11 +755,9 @@ static sl_status_t
           node,
           zwave_command_class_continue_mode_discovery);
       }
-    }
-    else if (version > 1)
-    {
+    } else if (version > 1) {
       attribute_store_add_node(ATTRIBUTE(STATE), notification_type);
-    }    
+    }
   }
 
   return SL_STATUS_OK;
@@ -1032,7 +1023,6 @@ void zwave_command_class_notification_on_version_attribute_update(
     = attribute_store_get_node_parent(updated_node);
   // For version 1 Notification Supported Get is not available
   if (version > 1) {
-
     // Verify if there is already supported notification types attribute.
     // Note that updated_node is the ENDPOINT node in the Attribute Store.
     attribute_store_node_t supported_notification_type_node
@@ -1046,34 +1036,31 @@ void zwave_command_class_notification_on_version_attribute_update(
     }
   }
   attribute_store_node_t notification_mode_node
-      = attribute_store_get_first_child_by_type(
-        parent_node, ATTRIBUTE(MODE));
-  if (notification_mode_node == ATTRIBUTE_STORE_INVALID_NODE)
-  {
+    = attribute_store_get_first_child_by_type(parent_node, ATTRIBUTE(MODE));
+  if (notification_mode_node == ATTRIBUTE_STORE_INVALID_NODE) {
     attribute_store_add_node(ATTRIBUTE(MODE), parent_node);
     zwave_command_class_notification_pull_push_discovery(node_id, endpoint_id);
   }
 }
 
-static sl_status_t zwave_command_class_alarm_get(
-  attribute_store_node_t node, uint8_t *frame, uint16_t *frame_len)
+static sl_status_t zwave_command_class_alarm_get(attribute_store_node_t node,
+                                                 uint8_t *frame,
+                                                 uint16_t *frame_len)
 {
-  auto alarm_get_frame
-    = reinterpret_cast<ZW_ALARM_GET_V2_FRAME *>(frame);
+  auto alarm_get_frame = reinterpret_cast<ZW_ALARM_GET_V2_FRAME *>(frame);
 
   attribute_store::attribute ep_node
     = attribute_store_get_first_parent_with_type(node, ATTRIBUTE_ENDPOINT_ID);
   auto version_node          = ep_node.child_by_type(ATTRIBUTE(VERSION));
   zwave_cc_version_t version = version_node.reported<zwave_cc_version_t>();
 
-  if (version > 2)
-  {
+  if (version > 2) {
     sl_log_error(LOG_TAG, "Should not be called for versions > v2");
     return SL_STATUS_FAIL;
   }
-  alarm_get_frame->cmdClass    = COMMAND_CLASS_NOTIFICATION_V8;
-  alarm_get_frame->cmd         = NOTIFICATION_GET_V8;
-  alarm_get_frame->alarmType = 0x00; //v1 AlarmType
+  alarm_get_frame->cmdClass  = COMMAND_CLASS_NOTIFICATION_V8;
+  alarm_get_frame->cmd       = NOTIFICATION_GET_V8;
+  alarm_get_frame->alarmType = 0x00;  //v1 AlarmType
   // read the Notification type
   attribute_store_node_t type_node
     = attribute_store_get_first_parent_with_type(node, ATTRIBUTE(TYPE));
@@ -1085,7 +1072,7 @@ static sl_status_t zwave_command_class_alarm_get(
 
   *frame_len = sizeof(ZW_ALARM_GET_V2_FRAME);
 
-  return SL_STATUS_OK;  
+  return SL_STATUS_OK;
 }
 
 static sl_status_t zwave_command_class_notification_set(
@@ -1093,7 +1080,7 @@ static sl_status_t zwave_command_class_notification_set(
 {
   attribute_store::attribute type_node(node);
   try {
-    auto type = type_node.desired<uint8_t>();
+    auto type      = type_node.desired<uint8_t>();
     auto mode_node = type_node.parent().child_by_type(ATTRIBUTE(MODE));
     frame_generator.initialize_frame(NOTIFICATION_SET_V8,
                                      frame,
@@ -1104,8 +1091,7 @@ static sl_status_t zwave_command_class_notification_set(
       frame_generator.add_raw_byte(0xFF);
     }
     // if pull mode, then send 0x00 to clear persistent notification
-    else if (mode_node.reported<uint8_t>() == PULL_MODE)
-    {
+    else if (mode_node.reported<uint8_t>() == PULL_MODE) {
       frame_generator.add_raw_byte(0x00);
     }
     frame_generator.validate_frame(frame_len);
@@ -1135,17 +1121,16 @@ static sl_status_t zwave_command_class_probe_notification(
   auto ep_node = attribute(node).first_parent(ATTRIBUTE_ENDPOINT_ID);
   uint8_t mode = ep_node.child_by_type(ATTRIBUTE(MODE)).reported<uint8_t>();
 
-  if (mode != PULL_MODE) 
-  {
+  if (mode != PULL_MODE) {
     sl_log_warning(LOG_TAG, "Ignoring probe attempted for push sensor");
     return SL_STATUS_FAIL;
   }
 
-  notification_get_frame->cmdClass    = COMMAND_CLASS_NOTIFICATION_V8;
-  notification_get_frame->cmd         = NOTIFICATION_GET_V8;
-  notification_get_frame->v1AlarmType = 0x00;
+  notification_get_frame->cmdClass         = COMMAND_CLASS_NOTIFICATION_V8;
+  notification_get_frame->cmd              = NOTIFICATION_GET_V8;
+  notification_get_frame->v1AlarmType      = 0x00;
   notification_get_frame->notificationType = 0xFF;
-  notification_get_frame->mevent = 0x00;
+  notification_get_frame->mevent           = 0x00;
 
   *frame_len = sizeof(ZW_NOTIFICATION_GET_V4_FRAME);
   return SL_STATUS_OK;
@@ -1287,7 +1272,7 @@ sl_status_t zwave_command_class_notification_init()
 
   zwave_command_handler_register_handler(handler);
 
-  process_start(&zwave_command_class_notification_process,NULL);
+  process_start(&zwave_command_class_notification_process, NULL);
 
   return SL_STATUS_OK;
 }

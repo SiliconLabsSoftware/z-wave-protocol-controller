@@ -42,14 +42,12 @@ sl_status_t zwave_resolver_function_helper::register_resolver_functions(
   std::string message;
   std::string node_name = attribute_store_get_type_name(node_type);
 
-  if (attributes_binding.count(node_type) == 0)
-  {
+  if (attributes_binding.count(node_type) == 0) {
     return SL_STATUS_OK;
   }
   auto funcs = attributes_binding.equal_range(node_type);
 
-  for (auto &func = funcs.first; func != funcs.second; ++func) 
-  {
+  for (auto &func = funcs.first; func != funcs.second; ++func) {
     if (func->second.get_func_id == 0) {
       message = "GET function should not be defined for " + node_name
                 + ". Did you forget to add it to the binding attribute ?";
@@ -69,7 +67,7 @@ sl_status_t zwave_resolver_function_helper::register_resolver_functions(
       message = "SET function should be defined for " + node_name
                 + ". Did you forget to remove it to the binding attribute ?";
       TEST_ASSERT_NOT_NULL_MESSAGE(set_func, message.c_str());
-        resolver_functions[func->second.set_func_id] = set_func;
+      resolver_functions[func->second.set_func_id] = set_func;
     }
   }
 

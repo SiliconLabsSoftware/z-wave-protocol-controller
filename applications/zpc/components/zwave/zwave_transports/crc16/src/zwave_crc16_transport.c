@@ -214,7 +214,7 @@ static sl_status_t zwave_command_class_crc16_send_data(
 
   // New frame will be a child of original frame
   zwave_tx_options_t multi_channel_tx_options;
-  
+
   if (tx_options) {
     multi_channel_tx_options = *tx_options;
   }

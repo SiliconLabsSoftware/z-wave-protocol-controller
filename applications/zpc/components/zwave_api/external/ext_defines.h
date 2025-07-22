@@ -25,7 +25,6 @@
  */
 #define TRANSMIT_COMPLETE_REQUEUE_QUEUED 0xFD
 
-
 // CLEANUP: chip_descriptor chip_desc belongs in serial_api_process component
 
 /**

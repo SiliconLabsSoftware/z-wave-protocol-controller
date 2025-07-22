@@ -1433,12 +1433,12 @@ sl_status_t zwave_command_class_thermostat_setpoint_init()
   // Resolver functions.
   attribute_resolver_register_rule(
     ATTRIBUTE(SUPPORTED_SETPOINT_TYPES),
-    NULL, // NOSONAR
+    NULL,  // NOSONAR
     &zwave_command_class_thermostat_setpoint_supported_get);
 
   attribute_resolver_register_rule(
     ATTRIBUTE(MIN_VALUE),
-    NULL, // NOSONAR
+    NULL,  // NOSONAR
     &zwave_command_class_thermostat_setpoint_capabilities_get);
 
   attribute_resolver_register_rule(

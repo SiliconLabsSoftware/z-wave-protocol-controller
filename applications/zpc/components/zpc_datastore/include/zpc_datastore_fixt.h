@@ -46,7 +46,7 @@ typedef enum zpc_datastore_version {
    *   uint8_t instead of uint32_t
   */
   DATASTORE_VERSION_V2,
-    /**
+  /**
    * @brief Version 3 of datastore database.
    * Changes from v2:
    * - ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SUPPORTED_MODES & ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SETPOINT_SUPPORTED_SETPOINT_TYPES are now uint32_t instead of array to easier mapping to uam

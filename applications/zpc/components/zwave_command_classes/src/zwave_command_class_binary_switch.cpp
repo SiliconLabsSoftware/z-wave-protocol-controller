@@ -53,16 +53,19 @@ constexpr uint8_t VALUE_OFF = 0x00;
 // Cpp helpers
 namespace
 {
-zwave_frame_generator frame_generator(COMMAND_CLASS_SWITCH_BINARY); //NOSONAR - false positive since it is warped in a namespace
+zwave_frame_generator frame_generator(
+  COMMAND_CLASS_SWITCH_BINARY);  //NOSONAR - false positive since it is warped in a namespace
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Helper functions
 ///////////////////////////////////////////////////////////////////////////////
-zwave_cc_version_t get_current_binary_switch_version(attribute_store_node_t node)
+zwave_cc_version_t
+  get_current_binary_switch_version(attribute_store_node_t node)
 {
   zwave_cc_version_t version
-    = zwave_command_class_get_version_from_node(node, COMMAND_CLASS_SWITCH_BINARY);
+    = zwave_command_class_get_version_from_node(node,
+                                                COMMAND_CLASS_SWITCH_BINARY);
 
   if (version == 0) {
     sl_log_error(LOG_TAG, "Binary Switch Command Class Version not found");
@@ -130,7 +133,8 @@ static sl_status_t zwave_command_class_binary_switch_set(
       auto duration_node
         = value_node.parent().child_by_type(ATTRIBUTE(DURATION));
 
-      auto duration = duration_node.desired_or_reported<binary_switch_duration_t>();
+      auto duration
+        = duration_node.desired_or_reported<binary_switch_duration_t>();
       frame_generator.add_raw_byte(static_cast<uint8_t>(duration));
     }
 

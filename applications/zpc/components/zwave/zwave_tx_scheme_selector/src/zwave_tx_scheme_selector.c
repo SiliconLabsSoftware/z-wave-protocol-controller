@@ -135,9 +135,9 @@ uint16_t zwave_tx_scheme_get_max_payload(zwave_node_id_t node_id)
       maximum_fragment_size -= MAX_ROUTING_HEADER_SIZE_R1_R2;
     }
   } else {
-      // Else we have to assume R1/R2:
-      maximum_fragment_size = MAX_MSDU_SIZE_R1_R2;
-      maximum_fragment_size -= MAX_ROUTING_HEADER_SIZE_R1_R2;
+    // Else we have to assume R1/R2:
+    maximum_fragment_size = MAX_MSDU_SIZE_R1_R2;
+    maximum_fragment_size -= MAX_ROUTING_HEADER_SIZE_R1_R2;
 
     sl_log_warning(LOG_TAG,
                    "Unknown protocol for NodeID %d. Selecting the "

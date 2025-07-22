@@ -2157,7 +2157,6 @@ void test_full_zwave_tx_queue()
   TEST_ASSERT_EQUAL(1, send_done_count);
   TEST_ASSERT_EQUAL(TRANSMIT_COMPLETE_FAIL, send_done_status);
 
-
   // The first frame should be discarded no matter it's timestamp since the queue is full
   TEST_ASSERT_EQUAL(SL_STATUS_OK,
                     zwave_tx_send_data(&test_connection_1,
@@ -2168,9 +2167,8 @@ void test_full_zwave_tx_queue()
                                        (void *)&my_user_pointer,
                                        &test_tx_session_id));
 
-  zwave_controller_transport_abort_send_data_ExpectAndReturn(
-    second_message_id,
-    SL_STATUS_FAIL);
+  zwave_controller_transport_abort_send_data_ExpectAndReturn(second_message_id,
+                                                             SL_STATUS_FAIL);
 
   // Check that we only discarded one frame and that the other frames are still here
   TEST_ASSERT_EQUAL(SL_STATUS_FAIL,
@@ -2233,7 +2231,6 @@ void test_full_zwave_tx_queue_with_timeouts()
   TEST_ASSERT_EQUAL(ZWAVE_TX_QUEUE_BUFFER_SIZE, send_done_count);
   TEST_ASSERT_EQUAL(TRANSMIT_COMPLETE_FAIL, send_done_status);
 
-
   // We filling the queue again and check if everything works as expected
   // By now the queue should be empty since all the frames should have timed out
   for (int i = 1; i < ZWAVE_TX_QUEUE_BUFFER_SIZE; ++i) {
@@ -2247,7 +2244,6 @@ void test_full_zwave_tx_queue_with_timeouts()
                                          &test_tx_session_id));
   }
 }
-
 
 void test_additional_back_off()
 {

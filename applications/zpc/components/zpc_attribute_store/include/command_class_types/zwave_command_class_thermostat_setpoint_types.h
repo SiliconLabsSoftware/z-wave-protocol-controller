@@ -37,6 +37,5 @@ typedef int32_t thermostat_setpoint_value_t;
 typedef uint8_t thermostat_setpoint_scale_t;
 typedef uint8_t thermostat_setpoint_precision_t;
 
-
 #endif  //ZWAVE_COMMAND_CLASS_THERMOSTAT_SETPOINT_TYPES_H
 /** @} end zwave_command_class_thermostat_setpoint_types */

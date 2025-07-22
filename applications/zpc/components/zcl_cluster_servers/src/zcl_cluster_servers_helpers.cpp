@@ -58,14 +58,16 @@ sl_status_t
 NodeStateNetworkStatus get_network_status(attribute_store_node_t node)
 {
   // Default to UNAVAILABLE if the value is undefined in the attribute store
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
 
   attribute_store_node_t node_id_node
     = attribute_store_get_first_parent_with_type(node, ATTRIBUTE_NODE_ID);
 
   attribute_store_node_t network_status_node
-    = attribute_store_get_first_child_by_type(node_id_node,
-                                              DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
+    = attribute_store_get_first_child_by_type(
+      node_id_node,
+      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));

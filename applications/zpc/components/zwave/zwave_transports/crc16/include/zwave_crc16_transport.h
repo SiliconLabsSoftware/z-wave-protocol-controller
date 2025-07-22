@@ -28,7 +28,8 @@
 // We allow to encapsulate the maximum minus our encapsulation command overhead
 #define CRC_16_ENCAPSULATION_HEADER 2
 #define CRC_16_ENCAPSULATION_FOOTER 2
-#define CRC_16_ENCAPSULATION_OVERHEAD (CRC_16_ENCAPSULATION_HEADER + CRC_16_ENCAPSULATION_FOOTER)
+#define CRC_16_ENCAPSULATION_OVERHEAD \
+  (CRC_16_ENCAPSULATION_HEADER + CRC_16_ENCAPSULATION_FOOTER)
 
 #define CRC_16_ENCAPSULATED_COMMAND_MAXIMUM_SIZE \
   (ZWAVE_MAX_FRAME_SIZE - CRC_16_ENCAPSULATION_OVERHEAD)
@@ -38,7 +39,7 @@ typedef struct zwave_crc16_encapsulation_frame {
   uint8_t command;       /* The command */
   uint8_t encapsulated_command
     [CRC_16_ENCAPSULATED_COMMAND_MAXIMUM_SIZE]; /* The checksum will be appended to the command*/
-/* Encapsulated command */
+  /* Encapsulated command */
 } zwave_crc16_encapsulation_frame_t;
 
 #ifdef __cplusplus

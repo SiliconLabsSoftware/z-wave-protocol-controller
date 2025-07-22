@@ -20,21 +20,21 @@
 #include "s2_classcmd.h"
 #include "s2_keystore.h"
 
-void setUpSuite(void) {
+void setUpSuite(void) {}
 
-}
+void tearDownSuite(void) {}
 
-void tearDownSuite(void) {
-
-}
-
-#define ELEM_COUNT(ARRAY)  (sizeof(ARRAY)/(sizeof(ARRAY[0])))
+#define ELEM_COUNT(ARRAY) (sizeof(ARRAY) / (sizeof(ARRAY[0])))
 #ifdef ZW_CONTROLLER
-#define UNIT_TEST_TEMP_KEY_SECURE             5       //< Value identifying index for the temporary key in S2 network key when transmitting secure frames.
-#define UNIT_TEST_NETWORK_KEY                 6       //< Value identifying index for the temporary key in S2 network key when transmitting secure frames.
+#define UNIT_TEST_TEMP_KEY_SECURE \
+  5  //< Value identifying index for the temporary key in S2 network key when transmitting secure frames.
+#define UNIT_TEST_NETWORK_KEY \
+  6  //< Value identifying index for the temporary key in S2 network key when transmitting secure frames.
 #else
-#define UNIT_TEST_TEMP_KEY_SECURE             0       //< Value identifying index for the temporary key in S2 network key when transmitting secure frames.
-#define UNIT_TEST_NETWORK_KEY                 1       //< Value identifying index for the temporary key in S2 network key when transmitting secure frames.
+#define UNIT_TEST_TEMP_KEY_SECURE \
+  0  //< Value identifying index for the temporary key in S2 network key when transmitting secure frames.
+#define UNIT_TEST_NETWORK_KEY \
+  1  //< Value identifying index for the temporary key in S2 network key when transmitting secure frames.
 #endif
 
 /** Overview of behavior which should be implemented:
@@ -71,35 +71,106 @@ void tearDownSuite(void) {
  *  - Key Verify failure.
  *
  */
-#define UNIT_TEST_BUF_SIZE  256
+#define UNIT_TEST_BUF_SIZE 256
 
+static uint8_t m_test_mem_pool
+  [4]
+  [256];  // Statically allocated chunks of memory that can be freely used during the test.
 
-static uint8_t  m_test_mem_pool[4][256];  // Statically allocated chunks of memory that can be freely used during the test.
+static uint8_t m_test_public_key_a[]
+  = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB,
+     0xCC, 0xDD, 0xEE, 0xFF, 0x00, 0x00, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB,
+     0xAA, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11};
 
-static uint8_t  m_test_public_key_a[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,
-                                         0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00,
-                                         0x00, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99,
-                                         0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11};
+static uint8_t m_test_obfuscated_public_key_a[]
+  = {0x00, 0x00, 0x00, 0x00, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB,
+     0xCC, 0xDD, 0xEE, 0xFF, 0x00, 0x00, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB,
+     0xAA, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11};
 
-static uint8_t  m_test_obfuscated_public_key_a[] = {0x00, 0x00, 0x00, 0x00, 0x55, 0x66, 0x77, 0x88,
-                                                    0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00,
-                                                    0x00, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99,
-                                                    0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11};
+static uint8_t m_temp_key[] = {0x7E,
+                               0xFE,
+                               0x12,
+                               0x32,
+                               0x45,
+                               0x65,
+                               0x78,
+                               0x98,
+                               0x7E,
+                               0xFE,
+                               0x12,
+                               0x32,
+                               0x45,
+                               0x65,
+                               0x78,
+                               0x98};
 
-static uint8_t  m_temp_key[] = {0x7E, 0xFE, 0x12, 0x32, 0x45, 0x65, 0x78, 0x98,
-                                0x7E, 0xFE, 0x12, 0x32, 0x45, 0x65, 0x78, 0x98};
+static uint8_t m_test_network_key_s2_class_0[] = {0x88,
+                                                  0x77,
+                                                  0x66,
+                                                  0x55,
+                                                  0x44,
+                                                  0x33,
+                                                  0x22,
+                                                  0x11,
+                                                  0x00,
+                                                  0xFF,
+                                                  0xEE,
+                                                  0xDD,
+                                                  0xCC,
+                                                  0xBB,
+                                                  0xAA,
+                                                  0x99};
 
-static uint8_t  m_test_network_key_s2_class_0[] = {0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
-                                                   0x00, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99};
+static uint8_t m_test_network_key_s2_class_1[] = {0xAA,
+                                                  0x77,
+                                                  0x66,
+                                                  0x55,
+                                                  0x44,
+                                                  0x33,
+                                                  0x22,
+                                                  0x11,
+                                                  0x00,
+                                                  0xFF,
+                                                  0xEE,
+                                                  0xDD,
+                                                  0xCC,
+                                                  0xBB,
+                                                  0xAA,
+                                                  0x99};
 
-static uint8_t  m_test_network_key_s2_class_1[] = {0xAA, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
-                                                   0x00, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99};
+static uint8_t m_test_network_key_s2_class_2[] = {0xBB,
+                                                  0x77,
+                                                  0x66,
+                                                  0x55,
+                                                  0x44,
+                                                  0x33,
+                                                  0x22,
+                                                  0x11,
+                                                  0x00,
+                                                  0xFF,
+                                                  0xEE,
+                                                  0xDD,
+                                                  0xCC,
+                                                  0xBB,
+                                                  0xAA,
+                                                  0x99};
 
-static uint8_t  m_test_network_key_s2_class_2[] = {0xBB, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
-                                                   0x00, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99};
-
-static uint8_t  m_test_network_key_s0[] = {0xCA, 0xFE, 0xBA, 0xBE, 0x44, 0x33, 0x22, 0x11,
-                                           0xCA, 0xFE, 0xBA, 0xBE, 0xCC, 0xBB, 0xAA, 0x99};
+static uint8_t m_test_network_key_s0[] = {0xCA,
+                                          0xFE,
+                                          0xBA,
+                                          0xBE,
+                                          0x44,
+                                          0x33,
+                                          0x22,
+                                          0x11,
+                                          0xCA,
+                                          0xFE,
+                                          0xBA,
+                                          0xBE,
+                                          0xCC,
+                                          0xBB,
+                                          0xAA,
+                                          0x99};
 
 static s2_connection_t s2_con;
 /** Event listener for S2 inclusion.
@@ -111,25 +182,32 @@ static s2_connection_t s2_con;
  *
  *  This forward declares the mock funtion used, because the callback is a function pointer with no named declaration.
  */
-void s2_event_handler(zwave_event_t * p_zwave_evt);
+void s2_event_handler(zwave_event_t *p_zwave_evt);
 
 /** Forward declaration of helper classes.
  *  All helper classes are implemented in buttom of file to easily keep them seperated from the test cases.
  */
-void helper_func_kex_report_frame_expect(uint8_t scheme, uint8_t curve, uint8_t keys);
+void helper_func_kex_report_frame_expect(uint8_t scheme,
+                                         uint8_t curve,
+                                         uint8_t keys);
 void helper_func_kex_get_frame(struct S2 *p_context);
-void helper_func_kex_set_frame(struct S2 *p_context, uint8_t scheme, uint8_t keys);
+void helper_func_kex_set_frame(struct S2 *p_context,
+                               uint8_t scheme,
+                               uint8_t keys);
 void helper_func_pub_key_frame(struct S2 *p_context);
-void helper_func_echo_kex_report_frame(struct S2 *p_context, uint8_t scheme, uint8_t curve, uint8_t keys);
+void helper_func_echo_kex_report_frame(struct S2 *p_context,
+                                       uint8_t scheme,
+                                       uint8_t curve,
+                                       uint8_t keys);
 void helper_func_net_key_report_frame(struct S2 *p_context, uint8_t key);
 void helper_func_transfer_end_frame(struct S2 *p_context);
-void helper_func_verify_idle_state(struct S2 *p_context, uint8_t scheme, uint8_t keys);
+void helper_func_verify_idle_state(struct S2 *p_context,
+                                   uint8_t scheme,
+                                   uint8_t keys);
 void helper_func_idle_state(struct S2 *p_context);
 void helper_func_inclusion_initiated_event(void);
 static void helper_func_init_s2_conn(void);
 static void helper_func_init_s2_conn_lr(void);
-
-
 
 /** Verification that the normal flow succeeds in inclusion of a new node when using CSA.
  *
@@ -138,19 +216,19 @@ static void helper_func_init_s2_conn_lr(void);
  * When a node is to be included securely it is expected that a ZW_SendData is send.
  * For this the common S2_send_frame(...) defined in s2.h is used, which will be implemented elsewhere.
  */
-void test_kex_joining_node_state_machine_csa(void) {
+void test_kex_joining_node_state_machine_csa(void)
+{
   int test_flavour;
-  for (test_flavour = 0; test_flavour < 2; test_flavour++)
-  {
-    uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key.
-                              0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                              0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                              0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  for (test_flavour = 0; test_flavour < 2; test_flavour++) {
+    uint8_t public_key_b[] = {
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Public key.
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+      0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-    uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                               0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                               0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                               0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+    uint8_t private_key_b[] = {
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+      0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
     mock_calls_clear();
     mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -193,24 +271,29 @@ void test_kex_joining_node_state_machine_csa(void) {
      *    e) Joining node shall reply with a 'Transfer End' if no more keys shall be exchanged.
      *
      */
-    mock_t * p_mock;
+    mock_t *p_mock;
 
     // When secure learn mode is started then the following event is expected when the joining node receives a KEX Get from including node.
-    zwave_event_t  * p_expected_inc_init_event = (zwave_event_t *)m_test_mem_pool[2];
+    zwave_event_t *p_expected_inc_init_event
+      = (zwave_event_t *)m_test_mem_pool[2];
     p_expected_inc_init_event->event_type = S2_NODE_INCLUSION_INITIATED_EVENT;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_init_event;
 
     // Expect a S2 KEX Get to be sent.
-    uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                     0x06, // reserved | NLS support | Request CSA | Echo
-                                     0x02, // Supported schemes. Scheme 0 and 2.
-                                     0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-                                     0x82};// Requested keys bits. Security 2 class 1, Security 0 network key.
+    uint8_t S2_kex_report_frame[] = {
+      COMMAND_CLASS_SECURITY_2,
+      KEX_REPORT,
+      0x06,   // reserved | NLS support | Request CSA | Echo
+      0x02,   // Supported schemes. Scheme 0 and 2.
+      0x01,   // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+      0x82};  // Requested keys bits. Security 2 class 1, Security 0 network key.
 
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
     p_mock->return_code.value     = 1;
@@ -219,23 +302,38 @@ void test_kex_joining_node_state_machine_csa(void) {
     mock_call_expect(TO_STR(keystore_dynamic_public_key_read), &p_mock);
     p_mock->output_arg[0].pointer = public_key_b;
 
-    uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, 0x00, 0x00}; // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
+    uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {
+      COMMAND_CLASS_SECURITY_2,
+      PUBLIC_KEY_REPORT,
+      0x00,
+      0x00,
+      0x00};  // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
     memcpy(&s2_public_key_frame[3], &public_key_b[0], sizeof(public_key_b));
 
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = s2_public_key_frame;
     p_mock->expect_arg[3].value   = sizeof(s2_public_key_frame);
     p_mock->return_code.value     = 1;
 
     // When receiving public key A, then we expect an event to be pushed up and both our public and private keys are requested from the keystore.
-    zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-    p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_obfuscated_public_key_a);
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x82;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0x04;
-    memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_obfuscated_public_key_a, sizeof(m_test_obfuscated_public_key_a));
+    zwave_event_t *p_expected_inc_req_event
+      = (zwave_event_t *)m_test_mem_pool[0];
+    p_expected_inc_req_event->event_type
+      = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+      = sizeof(m_test_obfuscated_public_key_a);
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+      = 0x82;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length
+      = 0x04;
+    memcpy(
+      p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+      m_test_obfuscated_public_key_a,
+      sizeof(m_test_obfuscated_public_key_a));
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
 
@@ -245,10 +343,14 @@ void test_kex_joining_node_state_machine_csa(void) {
     p_mock->output_arg[0].pointer = public_key_b;
 
     // Expect Echo(KEX Report) to be sent.
-    uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x03, 0x02, 0x01, 0x82}; // Note: Echo flag set.
+    uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2,
+                                       KEX_SET,
+                                       0x03,
+                                       0x02,
+                                       0x01,
+                                       0x82};  // Note: Echo flag set.
 
-    if (test_flavour == 1)
-    {
+    if (test_flavour == 1) {
       /* Test the special case where a reserved bit is set in the KEX_SET */
 
       /* Expect the reserved bit 0x10 to be set in the KEX_SET_ECHO */
@@ -256,79 +358,108 @@ void test_kex_joining_node_state_machine_csa(void) {
     }
 
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value    = sizeof(S2_echo_kex_set_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+    p_mock->return_code.value   = 1;
 
-    uint8_t s2_net_key_get_2_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};   // Keys requested, Security2, class 2 - Security0, network key.
+    uint8_t s2_net_key_get_2_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         SECURITY_2_NETWORK_KEY_GET,
+         0x02};  // Keys requested, Security2, class 2 - Security0, network key.
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_get_2_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value   = sizeof(s2_net_key_get_2_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_get_2_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_get_2_frame);
+    p_mock->return_code.value   = 1;
 
-  //  // After receiving the network key, we expect to get a call to update the context to use the new key when transmitting Net key verify.
-  //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  //  p_mock->expect_arg[1].pointer = m_test_network_key_s2_class_1;
+    //  // After receiving the network key, we expect to get a call to update the context to use the new key when transmitting Net key verify.
+    //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+    //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    //  p_mock->expect_arg[1].pointer = m_test_network_key_s2_class_1;
 
-    uint8_t s2_net_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+    uint8_t s2_net_key_verify_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_verify_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value    = sizeof(s2_net_key_verify_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_verify_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_frame);
+    p_mock->return_code.value   = 1;
 
-  //  // After transmitting Net key verify, we switch back to the tempporary key.
-  //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  //  p_mock->expect_arg[1].pointer = m_temp_key;
+    //  // After transmitting Net key verify, we switch back to the tempporary key.
+    //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+    //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    //  p_mock->expect_arg[1].pointer = m_temp_key;
 
-    uint8_t s2_net_key_get_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x80};   // Keys requested, Security2, class 2 - Security0, network key.
+    uint8_t s2_net_key_get_0_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         SECURITY_2_NETWORK_KEY_GET,
+         0x80};  // Keys requested, Security2, class 2 - Security0, network key.
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_get_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value    = sizeof(s2_net_key_get_0_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_get_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_get_0_frame);
+    p_mock->return_code.value   = 1;
 
     // After receiving the network key, we expect to get a call to update the context to use the new key when transmitting Net key verify.
-  //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  //  p_mock->expect_arg[1].pointer = m_test_network_key_s0;
+    //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+    //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    //  p_mock->expect_arg[1].pointer = m_test_network_key_s0;
 
-    uint8_t s2_net_key_verify_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+    uint8_t s2_net_key_verify_0_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_verify_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value   = sizeof(s2_net_key_verify_0_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_verify_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_0_frame);
+    p_mock->return_code.value   = 1;
 
     // After transmitting Net key verify, we switch back to the tempporary key.
-  //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  //  p_mock->expect_arg[1].pointer = m_temp_key;
+    //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+    //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    //  p_mock->expect_arg[1].pointer = m_temp_key;
 
     // Expect S2 Transfer End to be sent.
-    uint8_t S2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
+    uint8_t S2_transfer_end_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_transfer_end_frame;
-    p_mock->expect_arg[3].value    = sizeof(S2_transfer_end_frame);
+    p_mock->expect_arg[3].value   = sizeof(S2_transfer_end_frame);
     p_mock->return_code.value     = 1;
 
     // When S2 Transfer End is received, we expect a corresponding Node inclusion complete event from libs2.
-    zwave_event_t  * p_expected_complete_event = (zwave_event_t *)m_test_mem_pool[1];
+    zwave_event_t *p_expected_complete_event
+      = (zwave_event_t *)m_test_mem_pool[1];
     p_expected_complete_event->event_type = S2_NODE_JOINING_COMPLETE_EVENT;
-    p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete.exchanged_keys = 0x82;
+    p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete
+      .exchanged_keys
+      = 0x82;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
-    p_mock->expect_arg[0].pointer = p_expected_complete_event ;
+    p_mock->expect_arg[0].pointer = p_expected_complete_event;
 
     /**
      *  Test execution.
@@ -346,9 +477,9 @@ void test_kex_joining_node_state_machine_csa(void) {
 
     // KEX Get frame received.
     uint8_t S2_kex_get_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_GET};
-    s2_context.buf           = S2_kex_get_frame;
-    s2_context.length        = sizeof(S2_kex_get_frame);
-    s2_con.class_id = 0xFF;
+    s2_context.buf             = S2_kex_get_frame;
+    s2_context.length          = sizeof(S2_kex_get_frame);
+    s2_con.class_id            = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // KEX report is expeted to be transmitted. Let's make the s2_send_frame a success.
@@ -359,30 +490,40 @@ void test_kex_joining_node_state_machine_csa(void) {
     // Selected schemes: scheme 0 and scheme 2.
     // Selected curve25519
     // Keys to exchange, Security2, class 2 - Security0, network key.
-    uint8_t s2_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x02, 0x02, 0x01, 0x82};
+    uint8_t s2_kex_set_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x02, 0x02, 0x01, 0x82};
 
-    if (test_flavour == 1)
-    {
+    if (test_flavour == 1) {
       /* Test the special case where a reserved bit is set in the KEX_SET */
       s2_kex_set_frame[2] |= 0x10;
     }
 
     s2_context.buf    = s2_kex_set_frame;
     s2_context.length = sizeof(s2_kex_set_frame);
-    s2_con.class_id = 0xFF;
+    s2_con.class_id   = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
-    uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x01}; // Key exchange received from slave - public key for secure exchange of LTK.
-    memcpy(&public_key_frame[3], m_test_obfuscated_public_key_a, sizeof(m_test_obfuscated_public_key_a));
+    uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {
+      COMMAND_CLASS_SECURITY_2,
+      PUBLIC_KEY_REPORT,
+      0x01};  // Key exchange received from slave - public key for secure exchange of LTK.
+    memcpy(&public_key_frame[3],
+           m_test_obfuscated_public_key_a,
+           sizeof(m_test_obfuscated_public_key_a));
     s2_context.buf    = public_key_frame;
     s2_context.length = sizeof(public_key_frame);
-    s2_con.class_id = 0xFF;
+    s2_con.class_id   = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // After the received public key is pushed upwards in the system, then it is expected to receive a challenge response from the upper level.
     // The challenge response should result in correct pub key being set on the context.
-    s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, DSK_CSA_CHALLENGE_LENGTH);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+    s2_inclusion_challenge_response(&s2_context,
+                                    1,
+                                    m_test_public_key_a,
+                                    DSK_CSA_CHALLENGE_LENGTH);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key,
+                                  m_test_public_key_a,
+                                  sizeof(m_test_public_key_a));
 
     // After receiving public key from joining node, the upper layer must specify our public key to be send. (This can also be done on initialization, but must happen no later than the received event).
 
@@ -391,37 +532,52 @@ void test_kex_joining_node_state_machine_csa(void) {
     // Selected schemes: scheme 0 and scheme 2.
     // Selected curve25519
     // Keys to exchange, Security2, class 2 - Security0, network key.
-    uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x07, 0x02, 0x01, 0x82};
+    uint8_t s2_echo_kex_report_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x07, 0x02, 0x01, 0x82};
 
     s2_context.buf    = s2_echo_kex_report_frame;
     s2_context.length = sizeof(s2_echo_kex_report_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // Network Key Report frame received.
-    uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_REPORT, 0x02, };   // Keys requested, Security2, class 2 - Security0, network key.
-    memcpy(&s2_net_key_report_frame[3], m_test_network_key_s2_class_1, sizeof(m_test_network_key_s2_class_1));
+    uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)]
+      = {
+        COMMAND_CLASS_SECURITY_2,
+        SECURITY_2_NETWORK_KEY_REPORT,
+        0x02,
+      };  // Keys requested, Security2, class 2 - Security0, network key.
+    memcpy(&s2_net_key_report_frame[3],
+           m_test_network_key_s2_class_1,
+           sizeof(m_test_network_key_s2_class_1));
     s2_context.buf    = s2_net_key_report_frame;
     s2_context.length = sizeof(s2_net_key_report_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // S2 Transfer end frame received.
     // bit0: Key request complete not set,
     // bit1: Key verified set,
     // bit2-7: Reserved.
-    uint8_t s2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
+    uint8_t s2_transfer_end_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
     s2_context.buf    = s2_transfer_end_frame;
     s2_context.length = sizeof(s2_transfer_end_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // Network Key Report frame received.
-    uint8_t s2_net_key_report_0_frame[3 + sizeof(m_test_network_key_s0)] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_REPORT, 0x80, };   // Keys requested, Security2, class 2 - Security0, network key.
-    memcpy(&s2_net_key_report_0_frame[3], m_test_network_key_s0, sizeof(m_test_network_key_s0));
+    uint8_t s2_net_key_report_0_frame[3 + sizeof(m_test_network_key_s0)] = {
+      COMMAND_CLASS_SECURITY_2,
+      SECURITY_2_NETWORK_KEY_REPORT,
+      0x80,
+    };  // Keys requested, Security2, class 2 - Security0, network key.
+    memcpy(&s2_net_key_report_0_frame[3],
+           m_test_network_key_s0,
+           sizeof(m_test_network_key_s0));
     s2_context.buf    = s2_net_key_report_0_frame;
     s2_context.length = sizeof(s2_net_key_report_0_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // S2 Transfer end frame received.
@@ -430,7 +586,7 @@ void test_kex_joining_node_state_machine_csa(void) {
     // bit2-7: Reserved.
     s2_context.buf    = s2_transfer_end_frame;
     s2_context.length = sizeof(s2_transfer_end_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     s2_inclusion_send_done(&s2_context, true);
@@ -439,20 +595,19 @@ void test_kex_joining_node_state_machine_csa(void) {
   } /* for(test_flavour) */
 }
 
-
-void test_kex_joining_node_state_machine_authenticated_lr(void) {
+void test_kex_joining_node_state_machine_authenticated_lr(void)
+{
   int test_flavour;
-  for (test_flavour = 0; test_flavour < 2; test_flavour++)
-  {
-    uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key.
-                              0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                              0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                              0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  for (test_flavour = 0; test_flavour < 2; test_flavour++) {
+    uint8_t public_key_b[] = {
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Public key.
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+      0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-    uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                               0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                               0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                               0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+    uint8_t private_key_b[] = {
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+      0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
     mock_calls_clear();
     mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -495,24 +650,29 @@ void test_kex_joining_node_state_machine_authenticated_lr(void) {
      *    e) Joining node shall reply with a 'Transfer End' if no more keys shall be exchanged.
      *
      */
-    mock_t * p_mock;
+    mock_t *p_mock;
 
     // When secure learn mode is started then the following event is expected when the joining node receives a KEX Get from including node.
-    zwave_event_t  * p_expected_inc_init_event = (zwave_event_t *)m_test_mem_pool[2];
+    zwave_event_t *p_expected_inc_init_event
+      = (zwave_event_t *)m_test_mem_pool[2];
     p_expected_inc_init_event->event_type = S2_NODE_INCLUSION_INITIATED_EVENT;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_init_event;
 
     // Expect a S2 KEX Get to be sent.
-    uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                     0x04, // reserved | NLS support | Request CSA | Echo
-                                     0x02, // Supported schemes. Scheme 0 and 2.
-                                     0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-                                     0x02};// Requested keys bits. Security 2 class 3 (Long Range Authenticated uses normal Authenticated bit on the radio)
+    uint8_t S2_kex_report_frame[] = {
+      COMMAND_CLASS_SECURITY_2,
+      KEX_REPORT,
+      0x04,   // reserved | NLS support | Request CSA | Echo
+      0x02,   // Supported schemes. Scheme 0 and 2.
+      0x01,   // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+      0x02};  // Requested keys bits. Security 2 class 3 (Long Range Authenticated uses normal Authenticated bit on the radio)
 
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
     p_mock->return_code.value     = 1;
@@ -521,23 +681,37 @@ void test_kex_joining_node_state_machine_authenticated_lr(void) {
     mock_call_expect(TO_STR(keystore_public_key_read), &p_mock);
     p_mock->output_arg[0].pointer = public_key_b;
 
-    uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, 0x00, 0x00}; // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
+    uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {
+      COMMAND_CLASS_SECURITY_2,
+      PUBLIC_KEY_REPORT,
+      0x00,
+      0x00,
+      0x00};  // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
     memcpy(&s2_public_key_frame[5], &public_key_b[2], sizeof(public_key_b) - 2);
 
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = s2_public_key_frame;
     p_mock->expect_arg[3].value   = sizeof(s2_public_key_frame);
     p_mock->return_code.value     = 1;
 
     // When receiving public key A, then we expect an event to be pushed up and both our public and private keys are requested from the keystore.
-    zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-    p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x02;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-    memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+    zwave_event_t *p_expected_inc_req_event
+      = (zwave_event_t *)m_test_mem_pool[0];
+    p_expected_inc_req_event->event_type
+      = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+      = sizeof(m_test_public_key_a);
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+      = 0x02;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+    memcpy(
+      p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+      m_test_public_key_a,
+      sizeof(m_test_public_key_a));
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
 
@@ -547,10 +721,14 @@ void test_kex_joining_node_state_machine_authenticated_lr(void) {
     p_mock->output_arg[0].pointer = public_key_b;
 
     // Expect Echo(KEX Report) to be sent.
-    uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x02}; // Note: Echo flag set.
+    uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2,
+                                       KEX_SET,
+                                       0x01,
+                                       0x02,
+                                       0x01,
+                                       0x02};  // Note: Echo flag set.
 
-    if (test_flavour == 1)
-    {
+    if (test_flavour == 1) {
       /* Test the special case where a reserved bit is set in the KEX_SET */
 
       /* Expect the reserved bit 0x10 to be set in the KEX_SET_ECHO */
@@ -558,53 +736,72 @@ void test_kex_joining_node_state_machine_authenticated_lr(void) {
     }
 
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value    = sizeof(S2_echo_kex_set_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+    p_mock->return_code.value   = 1;
 
-    uint8_t s2_net_key_get_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};   // Keys requested, Security2, class 3
+    uint8_t s2_net_key_get_0_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         SECURITY_2_NETWORK_KEY_GET,
+         0x02};  // Keys requested, Security2, class 3
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_get_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value    = sizeof(s2_net_key_get_0_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_get_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_get_0_frame);
+    p_mock->return_code.value   = 1;
 
     // After receiving the network key, we expect to get a call to update the context to use the new key when transmitting Net key verify.
-  //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  //  p_mock->expect_arg[1].pointer = m_test_network_key_s0;
+    //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+    //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    //  p_mock->expect_arg[1].pointer = m_test_network_key_s0;
 
-    uint8_t s2_net_key_verify_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+    uint8_t s2_net_key_verify_0_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_verify_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value   = sizeof(s2_net_key_verify_0_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_verify_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_0_frame);
+    p_mock->return_code.value   = 1;
 
     // After transmitting Net key verify, we switch back to the tempporary key.
-  //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  //  p_mock->expect_arg[1].pointer = m_temp_key;
+    //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+    //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    //  p_mock->expect_arg[1].pointer = m_temp_key;
 
     // Expect S2 Transfer End to be sent.
-    uint8_t S2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
+    uint8_t S2_transfer_end_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_transfer_end_frame;
-    p_mock->expect_arg[3].value    = sizeof(S2_transfer_end_frame);
+    p_mock->expect_arg[3].value   = sizeof(S2_transfer_end_frame);
     p_mock->return_code.value     = 1;
 
     // When S2 Transfer End is received, we expect a corresponding Node inclusion complete event from libs2.
-    zwave_event_t  * p_expected_complete_event = (zwave_event_t *)m_test_mem_pool[1];
+    zwave_event_t *p_expected_complete_event
+      = (zwave_event_t *)m_test_mem_pool[1];
     p_expected_complete_event->event_type = S2_NODE_JOINING_COMPLETE_EVENT;
-    p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete.exchanged_keys = 0x02;
+    p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete
+      .exchanged_keys
+      = 0x02;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
-    p_mock->expect_arg[0].pointer = p_expected_complete_event ;
+    p_mock->expect_arg[0].pointer = p_expected_complete_event;
 
     /**
      *  Test execution.
@@ -622,9 +819,9 @@ void test_kex_joining_node_state_machine_authenticated_lr(void) {
 
     // KEX Get frame received.
     uint8_t S2_kex_get_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_GET};
-    s2_context.buf           = S2_kex_get_frame;
-    s2_context.length        = sizeof(S2_kex_get_frame);
-    s2_con.class_id = 0xFF;
+    s2_context.buf             = S2_kex_get_frame;
+    s2_context.length          = sizeof(S2_kex_get_frame);
+    s2_con.class_id            = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // KEX report is expeted to be transmitted. Let's make the s2_send_frame a success.
@@ -635,30 +832,37 @@ void test_kex_joining_node_state_machine_authenticated_lr(void) {
     // Selected schemes: scheme 0 and scheme 2.
     // Selected curve25519
     // Keys to exchange, Security2, class 3 (Long Range Authenticated)
-    uint8_t s2_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x02};
+    uint8_t s2_kex_set_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x02};
 
-    if (test_flavour == 1)
-    {
+    if (test_flavour == 1) {
       /* Test the special case where a reserved bit is set in the KEX_SET */
       s2_kex_set_frame[2] |= 0x10;
     }
 
     s2_context.buf    = s2_kex_set_frame;
     s2_context.length = sizeof(s2_kex_set_frame);
-    s2_con.class_id = 0xFF;
+    s2_con.class_id   = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
-    uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x01}; // Key exchange received from slave - public key for secure exchange of LTK.
-    memcpy(&public_key_frame[3], m_test_public_key_a, sizeof(m_test_public_key_a));
+    uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {
+      COMMAND_CLASS_SECURITY_2,
+      PUBLIC_KEY_REPORT,
+      0x01};  // Key exchange received from slave - public key for secure exchange of LTK.
+    memcpy(&public_key_frame[3],
+           m_test_public_key_a,
+           sizeof(m_test_public_key_a));
     s2_context.buf    = public_key_frame;
     s2_context.length = sizeof(public_key_frame);
-    s2_con.class_id = 0xFF;
+    s2_con.class_id   = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // After the received public key is pushed upwards in the system, then it is expected to receive a challenge response from the upper level.
     // The challenge response should result in correct pub key being set on the context.
     s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key,
+                                  m_test_public_key_a,
+                                  sizeof(m_test_public_key_a));
 
     // After receiving public key from joining node, the upper layer must specify our public key to be send. (This can also be done on initialization, but must happen no later than the received event).
 
@@ -667,50 +871,58 @@ void test_kex_joining_node_state_machine_authenticated_lr(void) {
     // Selected schemes: scheme 0 and scheme 2.
     // Selected curve25519
     // Keys to exchange, Security2, class 3 (Long Range Authenticated)
-    uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x02};
+    uint8_t s2_echo_kex_report_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x02};
 
     s2_context.buf    = s2_echo_kex_report_frame;
     s2_context.length = sizeof(s2_echo_kex_report_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // Network Key Report frame received.
-    uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_REPORT, 0x02, };   // Keys requested, Security2, class 3 using non-LR bits even for LR
-    memcpy(&s2_net_key_report_frame[3], m_test_network_key_s2_class_1, sizeof(m_test_network_key_s2_class_1));
+    uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)]
+      = {
+        COMMAND_CLASS_SECURITY_2,
+        SECURITY_2_NETWORK_KEY_REPORT,
+        0x02,
+      };  // Keys requested, Security2, class 3 using non-LR bits even for LR
+    memcpy(&s2_net_key_report_frame[3],
+           m_test_network_key_s2_class_1,
+           sizeof(m_test_network_key_s2_class_1));
     s2_context.buf    = s2_net_key_report_frame;
     s2_context.length = sizeof(s2_net_key_report_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // S2 Transfer end frame received.
     // bit0: Key request complete not set,
     // bit1: Key verified set,
     // bit2-7: Reserved.
-    uint8_t s2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
+    uint8_t s2_transfer_end_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
     s2_context.buf    = s2_transfer_end_frame;
     s2_context.length = sizeof(s2_transfer_end_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     s2_inclusion_send_done(&s2_context, true);
 
     mock_calls_verify();
   } /* for(test_flavour) */
-
 }
-void test_kex_joining_node_state_machine_ssa(void) {
+void test_kex_joining_node_state_machine_ssa(void)
+{
   int test_flavour;
-  for (test_flavour = 0; test_flavour < 2; test_flavour++)
-  {
-    uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key.
-                              0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                              0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                              0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  for (test_flavour = 0; test_flavour < 2; test_flavour++) {
+    uint8_t public_key_b[] = {
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Public key.
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+      0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-    uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                               0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                               0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                               0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+    uint8_t private_key_b[] = {
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+      0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
     mock_calls_clear();
     mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -753,24 +965,29 @@ void test_kex_joining_node_state_machine_ssa(void) {
      *    e) Joining node shall reply with a 'Transfer End' if no more keys shall be exchanged.
      *
      */
-    mock_t * p_mock;
+    mock_t *p_mock;
 
     // When secure learn mode is started then the following event is expected when the joining node receives a KEX Get from including node.
-    zwave_event_t  * p_expected_inc_init_event = (zwave_event_t *)m_test_mem_pool[2];
+    zwave_event_t *p_expected_inc_init_event
+      = (zwave_event_t *)m_test_mem_pool[2];
     p_expected_inc_init_event->event_type = S2_NODE_INCLUSION_INITIATED_EVENT;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_init_event;
 
     // Expect a S2 KEX Get to be sent.
-    uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                     0x04, // reserved | NLS support | Request CSA | Echo
-                                     0x02, // Supported schemes. Scheme 0 and 2.
-                                     0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-                                     0x82};// Requested keys bits. Security 2 class 1, Security 0 network key.
+    uint8_t S2_kex_report_frame[] = {
+      COMMAND_CLASS_SECURITY_2,
+      KEX_REPORT,
+      0x04,   // reserved | NLS support | Request CSA | Echo
+      0x02,   // Supported schemes. Scheme 0 and 2.
+      0x01,   // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+      0x82};  // Requested keys bits. Security 2 class 1, Security 0 network key.
 
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
     p_mock->return_code.value     = 1;
@@ -779,23 +996,37 @@ void test_kex_joining_node_state_machine_ssa(void) {
     mock_call_expect(TO_STR(keystore_public_key_read), &p_mock);
     p_mock->output_arg[0].pointer = public_key_b;
 
-    uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, 0x00, 0x00}; // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
+    uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {
+      COMMAND_CLASS_SECURITY_2,
+      PUBLIC_KEY_REPORT,
+      0x00,
+      0x00,
+      0x00};  // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
     memcpy(&s2_public_key_frame[5], &public_key_b[2], sizeof(public_key_b) - 2);
 
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = s2_public_key_frame;
     p_mock->expect_arg[3].value   = sizeof(s2_public_key_frame);
     p_mock->return_code.value     = 1;
 
     // When receiving public key A, then we expect an event to be pushed up and both our public and private keys are requested from the keystore.
-    zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-    p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x82;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-    memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+    zwave_event_t *p_expected_inc_req_event
+      = (zwave_event_t *)m_test_mem_pool[0];
+    p_expected_inc_req_event->event_type
+      = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+      = sizeof(m_test_public_key_a);
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+      = 0x82;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+    memcpy(
+      p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+      m_test_public_key_a,
+      sizeof(m_test_public_key_a));
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
 
@@ -805,10 +1036,14 @@ void test_kex_joining_node_state_machine_ssa(void) {
     p_mock->output_arg[0].pointer = public_key_b;
 
     // Expect Echo(KEX Report) to be sent.
-    uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82}; // Note: Echo flag set.
+    uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2,
+                                       KEX_SET,
+                                       0x01,
+                                       0x02,
+                                       0x01,
+                                       0x82};  // Note: Echo flag set.
 
-    if (test_flavour == 1)
-    {
+    if (test_flavour == 1) {
       /* Test the special case where a reserved bit is set in the KEX_SET */
 
       /* Expect the reserved bit 0x10 to be set in the KEX_SET_ECHO */
@@ -816,79 +1051,108 @@ void test_kex_joining_node_state_machine_ssa(void) {
     }
 
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value    = sizeof(S2_echo_kex_set_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+    p_mock->return_code.value   = 1;
 
-    uint8_t s2_net_key_get_2_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};   // Keys requested, Security2, class 2 - Security0, network key.
+    uint8_t s2_net_key_get_2_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         SECURITY_2_NETWORK_KEY_GET,
+         0x02};  // Keys requested, Security2, class 2 - Security0, network key.
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_get_2_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value   = sizeof(s2_net_key_get_2_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_get_2_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_get_2_frame);
+    p_mock->return_code.value   = 1;
 
-  //  // After receiving the network key, we expect to get a call to update the context to use the new key when transmitting Net key verify.
-  //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  //  p_mock->expect_arg[1].pointer = m_test_network_key_s2_class_1;
+    //  // After receiving the network key, we expect to get a call to update the context to use the new key when transmitting Net key verify.
+    //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+    //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    //  p_mock->expect_arg[1].pointer = m_test_network_key_s2_class_1;
 
-    uint8_t s2_net_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+    uint8_t s2_net_key_verify_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_verify_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value    = sizeof(s2_net_key_verify_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_verify_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_frame);
+    p_mock->return_code.value   = 1;
 
-  //  // After transmitting Net key verify, we switch back to the tempporary key.
-  //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  //  p_mock->expect_arg[1].pointer = m_temp_key;
+    //  // After transmitting Net key verify, we switch back to the tempporary key.
+    //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+    //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    //  p_mock->expect_arg[1].pointer = m_temp_key;
 
-    uint8_t s2_net_key_get_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x80};   // Keys requested, Security2, class 2 - Security0, network key.
+    uint8_t s2_net_key_get_0_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         SECURITY_2_NETWORK_KEY_GET,
+         0x80};  // Keys requested, Security2, class 2 - Security0, network key.
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_get_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value    = sizeof(s2_net_key_get_0_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_get_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_get_0_frame);
+    p_mock->return_code.value   = 1;
 
     // After receiving the network key, we expect to get a call to update the context to use the new key when transmitting Net key verify.
-  //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  //  p_mock->expect_arg[1].pointer = m_test_network_key_s0;
+    //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+    //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    //  p_mock->expect_arg[1].pointer = m_test_network_key_s0;
 
-    uint8_t s2_net_key_verify_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+    uint8_t s2_net_key_verify_0_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_verify_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value   = sizeof(s2_net_key_verify_0_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_verify_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_0_frame);
+    p_mock->return_code.value   = 1;
 
     // After transmitting Net key verify, we switch back to the tempporary key.
-  //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  //  p_mock->expect_arg[1].pointer = m_temp_key;
+    //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+    //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    //  p_mock->expect_arg[1].pointer = m_temp_key;
 
     // Expect S2 Transfer End to be sent.
-    uint8_t S2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
+    uint8_t S2_transfer_end_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_transfer_end_frame;
-    p_mock->expect_arg[3].value    = sizeof(S2_transfer_end_frame);
+    p_mock->expect_arg[3].value   = sizeof(S2_transfer_end_frame);
     p_mock->return_code.value     = 1;
 
     // When S2 Transfer End is received, we expect a corresponding Node inclusion complete event from libs2.
-    zwave_event_t  * p_expected_complete_event = (zwave_event_t *)m_test_mem_pool[1];
+    zwave_event_t *p_expected_complete_event
+      = (zwave_event_t *)m_test_mem_pool[1];
     p_expected_complete_event->event_type = S2_NODE_JOINING_COMPLETE_EVENT;
-    p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete.exchanged_keys = 0x82;
+    p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete
+      .exchanged_keys
+      = 0x82;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
-    p_mock->expect_arg[0].pointer = p_expected_complete_event ;
+    p_mock->expect_arg[0].pointer = p_expected_complete_event;
 
     /**
      *  Test execution.
@@ -906,9 +1170,9 @@ void test_kex_joining_node_state_machine_ssa(void) {
 
     // KEX Get frame received.
     uint8_t S2_kex_get_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_GET};
-    s2_context.buf           = S2_kex_get_frame;
-    s2_context.length        = sizeof(S2_kex_get_frame);
-    s2_con.class_id = 0xFF;
+    s2_context.buf             = S2_kex_get_frame;
+    s2_context.length          = sizeof(S2_kex_get_frame);
+    s2_con.class_id            = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // KEX report is expeted to be transmitted. Let's make the s2_send_frame a success.
@@ -919,30 +1183,37 @@ void test_kex_joining_node_state_machine_ssa(void) {
     // Selected schemes: scheme 0 and scheme 2.
     // Selected curve25519
     // Keys to exchange, Security2, class 2 - Security0, network key.
-    uint8_t s2_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x82};
+    uint8_t s2_kex_set_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x82};
 
-    if (test_flavour == 1)
-    {
+    if (test_flavour == 1) {
       /* Test the special case where a reserved bit is set in the KEX_SET */
       s2_kex_set_frame[2] |= 0x10;
     }
 
     s2_context.buf    = s2_kex_set_frame;
     s2_context.length = sizeof(s2_kex_set_frame);
-    s2_con.class_id = 0xFF;
+    s2_con.class_id   = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
-    uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x01}; // Key exchange received from slave - public key for secure exchange of LTK.
-    memcpy(&public_key_frame[3], m_test_public_key_a, sizeof(m_test_public_key_a));
+    uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {
+      COMMAND_CLASS_SECURITY_2,
+      PUBLIC_KEY_REPORT,
+      0x01};  // Key exchange received from slave - public key for secure exchange of LTK.
+    memcpy(&public_key_frame[3],
+           m_test_public_key_a,
+           sizeof(m_test_public_key_a));
     s2_context.buf    = public_key_frame;
     s2_context.length = sizeof(public_key_frame);
-    s2_con.class_id = 0xFF;
+    s2_con.class_id   = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // After the received public key is pushed upwards in the system, then it is expected to receive a challenge response from the upper level.
     // The challenge response should result in correct pub key being set on the context.
     s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key,
+                                  m_test_public_key_a,
+                                  sizeof(m_test_public_key_a));
 
     // After receiving public key from joining node, the upper layer must specify our public key to be send. (This can also be done on initialization, but must happen no later than the received event).
 
@@ -951,37 +1222,52 @@ void test_kex_joining_node_state_machine_ssa(void) {
     // Selected schemes: scheme 0 and scheme 2.
     // Selected curve25519
     // Keys to exchange, Security2, class 2 - Security0, network key.
-    uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x82};
+    uint8_t s2_echo_kex_report_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x82};
 
     s2_context.buf    = s2_echo_kex_report_frame;
     s2_context.length = sizeof(s2_echo_kex_report_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // Network Key Report frame received.
-    uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_REPORT, 0x02, };   // Keys requested, Security2, class 2 - Security0, network key.
-    memcpy(&s2_net_key_report_frame[3], m_test_network_key_s2_class_1, sizeof(m_test_network_key_s2_class_1));
+    uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)]
+      = {
+        COMMAND_CLASS_SECURITY_2,
+        SECURITY_2_NETWORK_KEY_REPORT,
+        0x02,
+      };  // Keys requested, Security2, class 2 - Security0, network key.
+    memcpy(&s2_net_key_report_frame[3],
+           m_test_network_key_s2_class_1,
+           sizeof(m_test_network_key_s2_class_1));
     s2_context.buf    = s2_net_key_report_frame;
     s2_context.length = sizeof(s2_net_key_report_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // S2 Transfer end frame received.
     // bit0: Key request complete not set,
     // bit1: Key verified set,
     // bit2-7: Reserved.
-    uint8_t s2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
+    uint8_t s2_transfer_end_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
     s2_context.buf    = s2_transfer_end_frame;
     s2_context.length = sizeof(s2_transfer_end_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // Network Key Report frame received.
-    uint8_t s2_net_key_report_0_frame[3 + sizeof(m_test_network_key_s0)] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_REPORT, 0x80, };   // Keys requested, Security2, class 2 - Security0, network key.
-    memcpy(&s2_net_key_report_0_frame[3], m_test_network_key_s0, sizeof(m_test_network_key_s0));
+    uint8_t s2_net_key_report_0_frame[3 + sizeof(m_test_network_key_s0)] = {
+      COMMAND_CLASS_SECURITY_2,
+      SECURITY_2_NETWORK_KEY_REPORT,
+      0x80,
+    };  // Keys requested, Security2, class 2 - Security0, network key.
+    memcpy(&s2_net_key_report_0_frame[3],
+           m_test_network_key_s0,
+           sizeof(m_test_network_key_s0));
     s2_context.buf    = s2_net_key_report_0_frame;
     s2_context.length = sizeof(s2_net_key_report_0_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // S2 Transfer end frame received.
@@ -990,7 +1276,7 @@ void test_kex_joining_node_state_machine_ssa(void) {
     // bit2-7: Reserved.
     s2_context.buf    = s2_transfer_end_frame;
     s2_context.length = sizeof(s2_transfer_end_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     s2_inclusion_send_done(&s2_context, true);
@@ -1007,16 +1293,17 @@ void test_kex_joining_node_state_machine_ssa(void) {
  * When a node is to be included securely it is expected that a ZW_SendData is send.
  * For this the common S2_send_frame(...) defined in s2.h is used, which will be implemented elsewhere.
  */
-void test_kex_joining_node_state_machine_unauthenticated(void) {
-  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key.
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_joining_node_state_machine_unauthenticated(void)
+{
+  uint8_t public_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Public key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -1059,23 +1346,28 @@ void test_kex_joining_node_state_machine_unauthenticated(void) {
    *    e) Joining node shall reply with a 'Transfer End' if no more keys shall be exchanged.
    *
    */
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   // When secure learn mode is started then the following event is expected when the joining node receives a KEX Get from including node.
-  zwave_event_t  * p_expected_inc_init_event = (zwave_event_t *)m_test_mem_pool[2];
+  zwave_event_t *p_expected_inc_init_event
+    = (zwave_event_t *)m_test_mem_pool[2];
   p_expected_inc_init_event->event_type = S2_NODE_INCLUSION_INITIATED_EVENT;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_init_event;
 
   // Expect a S2 KEX Get to be sent.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                   0x04, // reserved | NLS support | Request CSA | Echo
-                                   0x02, // Supported schemes. Scheme 0 and 2.
-                                   0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-                                   0x01};// Requested keys bits. Security 2 class 0 key.
+  uint8_t S2_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       KEX_REPORT,
+       0x04,   // reserved | NLS support | Request CSA | Echo
+       0x02,   // Supported schemes. Scheme 0 and 2.
+       0x01,   // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+       0x01};  // Requested keys bits. Security 2 class 0 key.
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;      // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
   p_mock->return_code.value     = 1;
@@ -1084,22 +1376,33 @@ void test_kex_joining_node_state_machine_unauthenticated(void) {
   mock_call_expect(TO_STR(keystore_dynamic_public_key_read), &p_mock);
   p_mock->output_arg[0].pointer = public_key_b;
 
-  uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00}; // Key exchange received from slave - public key for secure exchange of LTK.
+  uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {
+    COMMAND_CLASS_SECURITY_2,
+    PUBLIC_KEY_REPORT,
+    0x00};  // Key exchange received from slave - public key for secure exchange of LTK.
   memcpy(&s2_public_key_frame[3], public_key_b, sizeof(public_key_b));
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = s2_public_key_frame;
   p_mock->expect_arg[3].value   = sizeof(s2_public_key_frame);
   p_mock->return_code.value     = 1;
 
   // When receiving public key A, then we expect an event to be pushed up and both our public and private keys are requested from the keystore.
-  zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-  p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x01;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-  memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  zwave_event_t *p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_inc_req_event->event_type
+    = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+    = sizeof(m_test_public_key_a);
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+    = 0x01;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+  memcpy(
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+    m_test_public_key_a,
+    sizeof(m_test_public_key_a));
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
 
@@ -1109,50 +1412,74 @@ void test_kex_joining_node_state_machine_unauthenticated(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // Expect Echo(KEX Report) to be sent.
-  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x01}; // Note: Echo flag set.
+  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2,
+                                     KEX_SET,
+                                     0x01,
+                                     0x02,
+                                     0x01,
+                                     0x01};  // Note: Echo flag set.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(S2_echo_kex_set_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+  p_mock->return_code.value   = 1;
 
-  uint8_t s2_net_key_get_2_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x01};   // Keys requested, Security2, class 2 - Security0, network key.
+  uint8_t s2_net_key_get_2_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       SECURITY_2_NETWORK_KEY_GET,
+       0x01};  // Keys requested, Security2, class 2 - Security0, network key.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_get_2_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value   = sizeof(s2_net_key_get_2_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_get_2_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_get_2_frame);
+  p_mock->return_code.value   = 1;
 
-//  // After receiving the network key, we expect to get a call to update the context to use the new key when transmitting Net key verify.
-//  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-//  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-//  p_mock->expect_arg[1].pointer = m_test_network_key_s2_class_1;
+  //  // After receiving the network key, we expect to get a call to update the context to use the new key when transmitting Net key verify.
+  //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+  //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  //  p_mock->expect_arg[1].pointer = m_test_network_key_s2_class_1;
 
-  uint8_t s2_net_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t s2_net_key_verify_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_verify_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(s2_net_key_verify_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_verify_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_frame);
+  p_mock->return_code.value   = 1;
 
   // Expect S2 Transfer End to be sent.
-  uint8_t S2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
+  uint8_t S2_transfer_end_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_transfer_end_frame;
-  p_mock->expect_arg[3].value    = sizeof(S2_transfer_end_frame);
+  p_mock->expect_arg[3].value   = sizeof(S2_transfer_end_frame);
   p_mock->return_code.value     = 1;
 
   // When S2 Transfer End is received, we expect a corresponding Node inclusion complete event from libs2.
-  zwave_event_t  * p_expected_complete_event = (zwave_event_t *)m_test_mem_pool[1];
+  zwave_event_t *p_expected_complete_event
+    = (zwave_event_t *)m_test_mem_pool[1];
   p_expected_complete_event->event_type = S2_NODE_JOINING_COMPLETE_EVENT;
-  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete.exchanged_keys = 0x01;
+  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete
+    .exchanged_keys
+    = 0x01;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
-  p_mock->expect_arg[0].pointer = p_expected_complete_event ;
+  p_mock->expect_arg[0].pointer = p_expected_complete_event;
 
   /**
    *  Test execution.
@@ -1166,13 +1493,13 @@ void test_kex_joining_node_state_machine_unauthenticated(void) {
   s2_inclusion_set_event_handler(s2_event_handler);
   helper_func_init_s2_conn();
 
-  s2_inclusion_joining_start(&s2_context, &s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   // KEX Get frame received.
   uint8_t S2_kex_get_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_GET};
-  s2_context.buf           = S2_kex_get_frame;
-  s2_context.length        = sizeof(S2_kex_get_frame);
-  s2_con.class_id = 0xFF;
+  s2_context.buf             = S2_kex_get_frame;
+  s2_context.length          = sizeof(S2_kex_get_frame);
+  s2_con.class_id            = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // KEX report is expeted to be transmitted. Let's make the s2_send_frame a success.
@@ -1183,17 +1510,23 @@ void test_kex_joining_node_state_machine_unauthenticated(void) {
   // Selected schemes: scheme 0 and scheme 2.
   // Selected curve25519
   // Keys to exchange, Security2, class 2 - Security0, network key.
-  uint8_t s2_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x01};
+  uint8_t s2_kex_set_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x01};
   s2_context.buf    = s2_kex_set_frame;
   s2_context.length = sizeof(s2_kex_set_frame);
-  s2_con.class_id = 0xFF;
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
-  uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x01}; // Key exchange received from slave - public key for secure exchange of LTK.
-  memcpy(&public_key_frame[3], m_test_public_key_a, sizeof(m_test_public_key_a));
+  uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {
+    COMMAND_CLASS_SECURITY_2,
+    PUBLIC_KEY_REPORT,
+    0x01};  // Key exchange received from slave - public key for secure exchange of LTK.
+  memcpy(&public_key_frame[3],
+         m_test_public_key_a,
+         sizeof(m_test_public_key_a));
   s2_context.buf    = public_key_frame;
   s2_context.length = sizeof(public_key_frame);
-  s2_con.class_id = 0xFF;
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
@@ -1205,38 +1538,46 @@ void test_kex_joining_node_state_machine_unauthenticated(void) {
   // Selected schemes: scheme 0 and scheme 2.
   // Selected curve25519
   // Keys to exchange, Security2, class 2 - Security0, network key.
-  uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x01};
+  uint8_t s2_echo_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x01};
   s2_context.buf    = s2_echo_kex_report_frame;
   s2_context.length = sizeof(s2_echo_kex_report_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // Network Key Report frame received.
-  uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_REPORT, 0x01, };   // Keys requested, Security2, class 2 - Security0, network key.
-  memcpy(&s2_net_key_report_frame[3], m_test_network_key_s2_class_1, sizeof(m_test_network_key_s2_class_0));
+  uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)] = {
+    COMMAND_CLASS_SECURITY_2,
+    SECURITY_2_NETWORK_KEY_REPORT,
+    0x01,
+  };  // Keys requested, Security2, class 2 - Security0, network key.
+  memcpy(&s2_net_key_report_frame[3],
+         m_test_network_key_s2_class_1,
+         sizeof(m_test_network_key_s2_class_0));
   s2_context.buf    = s2_net_key_report_frame;
   s2_context.length = sizeof(s2_net_key_report_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // S2 Transfer end frame received.
   // bit0: Key request complete not set,
   // bit1: Key verified set,
   // bit2-7: Reserved.
-  uint8_t s2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
+  uint8_t s2_transfer_end_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
   s2_context.buf    = s2_transfer_end_frame;
   s2_context.length = sizeof(s2_transfer_end_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
-//  // S2 Transfer end frame received.
-//  // bit0: Key request complete not set,
-//  // bit1: Key verified set,
-//  // bit2-7: Reserved.
-//  s2_context.buf    = s2_transfer_end_frame;
-//  s2_context.length = sizeof(s2_transfer_end_frame);
-//  s2_con.class_id = 0x00;
-//  s2_inclusion_post_event_peer(&s2_context, &s2_con);
+  //  // S2 Transfer end frame received.
+  //  // bit0: Key request complete not set,
+  //  // bit1: Key verified set,
+  //  // bit2-7: Reserved.
+  //  s2_context.buf    = s2_transfer_end_frame;
+  //  s2_context.length = sizeof(s2_transfer_end_frame);
+  //  s2_con.class_id = 0x00;
+  //  s2_inclusion_post_event_peer(&s2_context, &s2_con);
 
   s2_inclusion_send_done(&s2_context, true);
 
@@ -1254,10 +1595,11 @@ void test_kex_joining_node_state_machine_unauthenticated(void) {
  *               relevant for this test as they are verified in: test_kex_joining_node_state_machine()
  *               NOTE: messages related to Timeout will be verified in this test.
  */
-void test_kex_joining_timer_handling(void) {
-  mock_t *    p_mock;
-  uint8_t     frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2   s2_context;
+void test_kex_joining_timer_handling(void)
+{
+  mock_t *p_mock;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(S2_send_frame));
@@ -1369,10 +1711,9 @@ void test_kex_joining_timer_handling(void) {
   // When receiving send done as confirmation of the final transfer end, we expect the timer to be stopped.
   mock_call_expect(TO_STR(s2_inclusion_stop_timeout), &p_mock);
 
-
   // Node id (first step in inclusion) has been assigned.
   // Continue with secure inclusion.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   s2_inclusion_neighbor_discovery_complete(&s2_context);
 
@@ -1434,21 +1775,24 @@ void test_kex_joining_timer_handling(void) {
  *        As this test case must covers timeout in ANY state, it will loop over the expectations and
  *        decrement a counter to go one step further on each loop.
  */
- #define NO_OF_STATES 6
-void test_kex_inclusion_timeout_all_states(void) {
-  mock_t    * p_mock;
-  uint32_t    i;
-  uint8_t     frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2   s2_context;
-  uint8_t     public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                                0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+#define NO_OF_STATES 6
+void test_kex_inclusion_timeout_all_states(void)
+{
+  mock_t *p_mock;
+  uint32_t i;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22,  // Public key as being fetch from the keystore.
+                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                            0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                            0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -1467,52 +1811,54 @@ void test_kex_inclusion_timeout_all_states(void) {
   s2_inclusion_init(0x02, 0x01, 0x82);
 
   /** The loop which will set up the expectation based on the round. */
-  for (i = 0; i < NO_OF_STATES; i++)
-  {
+  for (i = 0; i < NO_OF_STATES; i++) {
     // Node id (first step in inclusion) has been assigned.
     // Continue with secure inclusion.
-    s2_inclusion_joining_start(&s2_context,&s2_con,0);
+    s2_inclusion_joining_start(&s2_context, &s2_con, 0);
     /* State is now S2_AWAITING_KEX_GET */
-    if (i == 0){
+    if (i == 0) {
       // This test will trigger a timeout to the inclusion module after which we expect to receive a
       // callback event with a S2_NODE_INCLUSION_FAILED_EVENT.
-      zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-      p_expected_event->event_type = S2_JOINING_COMPLETE_NEVER_STARTED_EVENT;
-      p_expected_event->evt.s2_event.s2_data.inclusion_complete.exchanged_keys = 0;
+      zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+      p_expected_event->event_type    = S2_JOINING_COMPLETE_NEVER_STARTED_EVENT;
+      p_expected_event->evt.s2_event.s2_data.inclusion_complete.exchanged_keys
+        = 0;
       mock_call_expect(TO_STR(s2_event_handler), &p_mock);
       p_mock->expect_arg[0].pointer = p_expected_event;
-      p_mock->compare_rule_arg[0] = COMPARE_STRICT;
+      p_mock->compare_rule_arg[0]   = COMPARE_STRICT;
 
       // Trigger a timeout.
       s2_inclusion_notify_timeout(&s2_context);
-      continue; // if first iteration, continue here to test timeout for timeout.
+      continue;  // if first iteration, continue here to test timeout for timeout.
     }
 
     helper_func_inclusion_initiated_event();
     /* State is now S2_AWAITING_KEX_SET */
 
     // Expect a S2 KEX Report to be sent.
-    uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
+    uint8_t S2_kex_report_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
 
     helper_func_kex_get_frame(&s2_context);
     s2_inclusion_post_event(&s2_context, &s2_con);
-    if (i == 1)
-    {
+    if (i == 1) {
       // This test will trigger a timeout to the inclusion module after which we expect to receive a
       // callback event with a S2_NODE_INCLUSION_FAILED_EVENT.
-      zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-      p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
+      zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+      p_expected_event->event_type    = S2_NODE_INCLUSION_FAILED_EVENT;
       mock_call_expect(TO_STR(s2_event_handler), &p_mock);
       p_mock->expect_arg[0].pointer = p_expected_event;
 
       // Trigger a timeout.
       s2_inclusion_notify_timeout(&s2_context);
-      continue; // if second iteration, break here to test timeout for timeout.
+      continue;  // if second iteration, break here to test timeout for timeout.
     }
 
     // When the KEX Set is received, we expect a call to the keystore in order to obtain our public key.
@@ -1520,41 +1866,81 @@ void test_kex_inclusion_timeout_all_states(void) {
     p_mock->output_arg[0].pointer = public_key_b;
 
     // When the KEX Set is received, we expect public keys to be exchanges.
-    uint8_t S2_pub_key_B_frame[] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, // Including node bit not set
-                                    0x00, 0x00, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,   // Public key as being fetch from keystore.
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+    uint8_t S2_pub_key_B_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         PUBLIC_KEY_REPORT,
+         0x00,  // Including node bit not set
+         0x00,
+         0x00,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22,  // Public key as being fetch from keystore.
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22,
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22,
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22};
 
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_pub_key_B_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_pub_key_B_frame);
 
     helper_func_kex_set_frame(&s2_context, 0x02, 0x82);
     s2_inclusion_post_event(&s2_context, &s2_con);
-    if (i == 2){
+    if (i == 2) {
       // This test will trigger a timeout to the inclusion module after which we expect to receive a
       // callback event with a S2_NODE_INCLUSION_FAILED_EVENT.
-      zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-      p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
+      zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+      p_expected_event->event_type    = S2_NODE_INCLUSION_FAILED_EVENT;
       mock_call_expect(TO_STR(s2_event_handler), &p_mock);
       p_mock->expect_arg[0].pointer = p_expected_event;
 
       // Trigger a timeout.
       s2_inclusion_notify_timeout(&s2_context);
-      continue; // if third iteration, break here to test timeout for timeout.
+      continue;  // if third iteration, break here to test timeout for timeout.
     }
 
     // When the public key A is received, we expect that the event from libs2 contains the key in order to present it for the operator.
     // Therefore we copy the key minus header frame into expected data and push an event upwards.
-    zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[1];
-    p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x82;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-    memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+    zwave_event_t *p_expected_inc_req_event
+      = (zwave_event_t *)m_test_mem_pool[1];
+    p_expected_inc_req_event->event_type
+      = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+      = sizeof(m_test_public_key_a);
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+      = 0x82;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+    memcpy(
+      p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+      m_test_public_key_a,
+      sizeof(m_test_public_key_a));
 
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
@@ -1566,30 +1952,37 @@ void test_kex_inclusion_timeout_all_states(void) {
     p_mock->output_arg[0].pointer = public_key_b;
 
     // When public key is received we expect an echo(KEX Set) to be sent.
-    uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
+    uint8_t S2_echo_kex_set_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-    p_mock->expect_arg[3].value   = sizeof(S2_echo_kex_set_frame);
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+    p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
 
     helper_func_pub_key_frame(&s2_context);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
-    if (i == 3){
+    if (i == 3) {
       uint8_t i;
       // The ECHO Kex Set is a special case where both a send done/failed can be returned but packet is dropped by remote side in case it waits for user input.
       // Each timeoyt/time between retry is 10 seconds. User input timeout is 240 seconds, thus the system should not abort inclusion until 240s/10s = 24 timeouts has occured.
-      for (i = 0; i < 23; i++)
-      {
+      for (i = 0; i < 23; i++) {
         // When timeout occurs we expect a retry of the echo(KEX Set) to be sent.
-        uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
+        uint8_t S2_echo_kex_set_frame[]
+          = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
         mock_call_expect(TO_STR(S2_send_data), &p_mock);
-        p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-        p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-        p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-        p_mock->expect_arg[3].value   = sizeof(S2_echo_kex_set_frame);
+        p_mock->compare_rule_arg[0]
+          = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+        p_mock->compare_rule_arg[1]
+          = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+        p_mock->expect_arg[2].pointer
+          = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+        p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
 
         // Trigger a timeout.
         s2_inclusion_notify_timeout(&s2_context);
@@ -1597,60 +1990,66 @@ void test_kex_inclusion_timeout_all_states(void) {
 
       // This test will trigger a timeout to the inclusion module after which we expect to receive a
       // callback event with a S2_NODE_INCLUSION_FAILED_EVENT.
-      zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-      p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
+      zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+      p_expected_event->event_type    = S2_NODE_INCLUSION_FAILED_EVENT;
       mock_call_expect(TO_STR(s2_event_handler), &p_mock);
       p_mock->expect_arg[0].pointer = p_expected_event;
 
       // Trigger the final timeout.
       s2_inclusion_notify_timeout(&s2_context);
-      continue; // if fourth iteration, break here to test timeout for timeout.
+      continue;  // if fourth iteration, break here to test timeout for timeout.
     }
 
     // Expect Net Key Get to be sent.
-    uint8_t S2_net_key_get_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
+    uint8_t S2_net_key_get_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_net_key_get_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_net_key_get_frame);
 
     helper_func_echo_kex_report_frame(&s2_context, 0x02, 0x01, 0x82);
     s2_inclusion_post_event(&s2_context, &s2_con);
-    if (i == 4){
+    if (i == 4) {
       // This test will trigger a timeout to the inclusion module after which we expect to receive a
       // callback event with a S2_NODE_INCLUSION_FAILED_EVENT.
-      zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-      p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
+      zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+      p_expected_event->event_type    = S2_NODE_INCLUSION_FAILED_EVENT;
       mock_call_expect(TO_STR(s2_event_handler), &p_mock);
       p_mock->expect_arg[0].pointer = p_expected_event;
 
       // Trigger a timeout.
       s2_inclusion_notify_timeout(&s2_context);
-      continue; // if fifth iteration, break here to test timeout for timeout.
+      continue;  // if fifth iteration, break here to test timeout for timeout.
     }
 
     // Expect Net Key Verify to be sent.
-    uint8_t S2_network_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+    uint8_t S2_network_key_verify_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_network_key_verify_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_network_key_verify_frame);
 
     helper_func_net_key_report_frame(&s2_context, 0x02);
     s2_inclusion_post_event(&s2_context, &s2_con);
-    if (i == 5){
+    if (i == 5) {
       // This test will trigger a timeout to the inclusion module after which we expect to receive a
       // callback event with a S2_NODE_INCLUSION_FAILED_EVENT.
-      zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-      p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
+      zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+      p_expected_event->event_type    = S2_NODE_INCLUSION_FAILED_EVENT;
       mock_call_expect(TO_STR(s2_event_handler), &p_mock);
       p_mock->expect_arg[0].pointer = p_expected_event;
 
       // Trigger a timeout.
       s2_inclusion_notify_timeout(&s2_context);
-      continue; // if sixth iteration, break here to test timeout for timeout.
+      continue;  // if sixth iteration, break here to test timeout for timeout.
     }
   }
 
@@ -1667,20 +2066,23 @@ void test_kex_inclusion_timeout_all_states(void) {
  *
  *  An error should still be returned upwards to the application.
  */
-void test_kex_inclusion_invalid_frame_order_all_states(void) {
-  mock_t       * p_mock;
-  uint32_t       i;
-  uint8_t        frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2      s2_context;
-  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_inclusion_invalid_frame_order_all_states(void)
+{
+  mock_t *p_mock;
+  uint32_t i;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22,  // Public key as being fetch from the keystore.
+                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                            0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                            0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -1698,59 +2100,62 @@ void test_kex_inclusion_invalid_frame_order_all_states(void) {
   s2_inclusion_init(0x02, 0x01, 0x82);
 
   /** The loop which will set up the expectation based on the round. */
-  for (i = 0; i < 5; i++)
-  {
+  for (i = 0; i < 5; i++) {
     // Node id (first step in inclusion) has been assigned.
     // Continue with secure inclusion.
-    s2_inclusion_joining_start(&s2_context,&s2_con,0);
-    if (i == 0){
-      uint8_t s2_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x01};
+    s2_inclusion_joining_start(&s2_context, &s2_con, 0);
+    if (i == 0) {
+      uint8_t s2_frame[]
+        = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x01};
 
       // This test will trigger a timeout to the inclusion module after which we expect to receive a
       // callback event with a S2_NODE_INCLUSION_FAILED_EVENT.
-      zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-      p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
+      zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+      p_expected_event->event_type    = S2_NODE_INCLUSION_FAILED_EVENT;
       mock_call_expect(TO_STR(s2_event_handler), &p_mock);
       p_mock->expect_arg[0].pointer = p_expected_event;
 
       // Let's try to directly got to KEX Set.
       memcpy((uint8_t *)s2_context.buf, s2_frame, sizeof(s2_frame));
       s2_context.length = sizeof(s2_frame);
-      s2_con.class_id = 0xFF;
+      s2_con.class_id   = 0xFF;
       s2_inclusion_post_event(&s2_context, &s2_con);
-      continue; // if first iteration, continue here to test timeout for timeout.
+      continue;  // if first iteration, continue here to test timeout for timeout.
     }
 
     helper_func_inclusion_initiated_event();
 
     // Expect a S2 KEX Report to be sent.
-    uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
+    uint8_t S2_kex_report_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
 
     helper_func_kex_get_frame(&s2_context);
     s2_inclusion_post_event(&s2_context, &s2_con);
-    if (i == 1)
-    {
+    if (i == 1) {
       // The invalid frame - Let's send a KEX Report the opposite direction.
-      uint8_t s2_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x03};
+      uint8_t s2_frame[]
+        = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x00, 0x02, 0x01, 0x03};
 
       // This test will trigger a timeout to the inclusion module after which we expect to receive a
       // callback event with a S2_NODE_INCLUSION_FAILED_EVENT.
-      zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-      p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
+      zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+      p_expected_event->event_type    = S2_NODE_INCLUSION_FAILED_EVENT;
       mock_call_expect(TO_STR(s2_event_handler), &p_mock);
       p_mock->expect_arg[0].pointer = p_expected_event;
 
       // Send the invalid frame.
       memcpy((uint8_t *)s2_context.buf, s2_frame, sizeof(s2_frame));
       s2_context.length = sizeof(s2_frame);
-      s2_con.class_id = 0xFF;
+      s2_con.class_id   = 0xFF;
       s2_inclusion_post_event(&s2_context, &s2_con);
-      continue; // if second iteration, break here to test timeout for timeout.
+      continue;  // if second iteration, break here to test timeout for timeout.
     }
 
     // When the KEX Set is received, we expect a call to the keystore in order to obtain our public key.
@@ -1758,46 +2163,87 @@ void test_kex_inclusion_invalid_frame_order_all_states(void) {
     p_mock->output_arg[0].pointer = public_key_b;
 
     // When the KEX Set is received, we expect public keys to be exchanges.
-    uint8_t S2_pub_key_B_frame[] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, // Including node bit not set
-                                    0x00, 0x00, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,   // Public key as being fetch from keystore.
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+    uint8_t S2_pub_key_B_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         PUBLIC_KEY_REPORT,
+         0x00,  // Including node bit not set
+         0x00,
+         0x00,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22,  // Public key as being fetch from keystore.
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22,
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22,
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22};
 
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_pub_key_B_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_pub_key_B_frame);
 
     helper_func_kex_set_frame(&s2_context, 0x02, 0x82);
     s2_inclusion_post_event(&s2_context, &s2_con);
-    if (i == 2){
+    if (i == 2) {
       // In case including node has for unknown reason (could be timeout) has restarted the
       // inclusion, we could experience an unexpected KEX Get.
-      uint8_t s2_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x01, 0x02, 0x01, 0x82};
+      uint8_t s2_frame[]
+        = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x01, 0x02, 0x01, 0x82};
 
-      zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-      p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
+      zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+      p_expected_event->event_type    = S2_NODE_INCLUSION_FAILED_EVENT;
       mock_call_expect(TO_STR(s2_event_handler), &p_mock);
       p_mock->expect_arg[0].pointer = p_expected_event;
 
       // Send the invalid frame.
       memcpy((uint8_t *)s2_context.buf, s2_frame, sizeof(s2_frame));
       s2_context.length = sizeof(s2_frame);
-      s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+      s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
       s2_inclusion_post_event(&s2_context, &s2_con);
-      continue; // if third iteration, break here to test timeout for timeout.
+      continue;  // if third iteration, break here to test timeout for timeout.
     }
 
     // When the public key A is received, we expect that the event from libs2 contains the key in order to present it for the operator.
     // Therefore we copy the key minus header frame into expected data and push an event upwards.
-    zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[1];
-    p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x82;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-    memcpy((uint8_t *)p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+    zwave_event_t *p_expected_inc_req_event
+      = (zwave_event_t *)m_test_mem_pool[1];
+    p_expected_inc_req_event->event_type
+      = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+      = sizeof(m_test_public_key_a);
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+      = 0x82;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+    memcpy((uint8_t *)p_expected_inc_req_event->evt.s2_event.s2_data
+             .challenge_req.public_key,
+           m_test_public_key_a,
+           sizeof(m_test_public_key_a));
 
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
@@ -1809,11 +2255,14 @@ void test_kex_inclusion_invalid_frame_order_all_states(void) {
     p_mock->output_arg[0].pointer = public_key_b;
 
     // When public key is received we expect an echo(KEX Set) to be sent.
-    uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
+    uint8_t S2_echo_kex_set_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
     S2_echo_kex_set_frame[0] = COMMAND_CLASS_SECURITY_2;
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_echo_kex_set_frame);
 
@@ -1821,57 +2270,67 @@ void test_kex_inclusion_invalid_frame_order_all_states(void) {
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
-    if (i == 3){
-      uint8_t s2_frame[19] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_REPORT, 0x02, };
+    if (i == 3) {
+      uint8_t s2_frame[19] = {
+        COMMAND_CLASS_SECURITY_2,
+        SECURITY_2_NETWORK_KEY_REPORT,
+        0x02,
+      };
 
       // This test will trigger a timeout to the inclusion module after which we expect to receive a
       // callback event with a S2_NODE_INCLUSION_FAILED_EVENT.
-      zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-      p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
+      zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+      p_expected_event->event_type    = S2_NODE_INCLUSION_FAILED_EVENT;
       mock_call_expect(TO_STR(s2_event_handler), &p_mock);
       p_mock->expect_arg[0].pointer = p_expected_event;
 
       // Send the invalid frame.
       memcpy((uint8_t *)s2_context.buf, s2_frame, sizeof(s2_frame));
       s2_context.length = sizeof(s2_frame);
-      s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+      s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
       s2_inclusion_post_event(&s2_context, &s2_con);
       continue;
     }
 
     // Expect Net Key Get to be sent.
-    uint8_t S2_net_key_get_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
+    uint8_t S2_net_key_get_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_net_key_get_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_net_key_get_frame);
 
     helper_func_echo_kex_report_frame(&s2_context, 0x02, 0x01, 0x82);
     s2_inclusion_post_event(&s2_context, &s2_con);
-    if (i == 4){
+    if (i == 4) {
       uint8_t s2_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END};
 
       // This test will trigger a timeout to the inclusion module after which we expect to receive a
       // callback event with a S2_NODE_INCLUSION_FAILED_EVENT.
-      zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-      p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
+      zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+      p_expected_event->event_type    = S2_NODE_INCLUSION_FAILED_EVENT;
       mock_call_expect(TO_STR(s2_event_handler), &p_mock);
       p_mock->expect_arg[0].pointer = p_expected_event;
 
       // Send the invalid frame.
       memcpy((uint8_t *)s2_context.buf, s2_frame, sizeof(s2_frame));
       s2_context.length = sizeof(s2_frame);
-      s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+      s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
       s2_inclusion_post_event(&s2_context, &s2_con);
       continue;
     }
 
     // Expect Net Key Verify to be sent.
-    uint8_t S2_network_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+    uint8_t S2_network_key_verify_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_network_key_verify_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_network_key_verify_frame);
 
@@ -1889,20 +2348,23 @@ void test_kex_inclusion_invalid_frame_order_all_states(void) {
 /** Test case for ensuring that the inclusion state machine will not abort if an older inclusion
  *  frame is received multiple times, as example due to retransmission or routing.
  */
-void test_kex_inclusion_duplicate_frame_all_states(void) {
-  mock_t       * p_mock;
-  uint32_t       i;
-  uint8_t        frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2      s2_context;
-  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_inclusion_duplicate_frame_all_states(void)
+{
+  mock_t *p_mock;
+  uint32_t i;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22,  // Public key as being fetch from the keystore.
+                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                            0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                            0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -1928,10 +2390,13 @@ void test_kex_inclusion_duplicate_frame_all_states(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
+  uint8_t S2_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
   p_mock->return_code.value     = 1;
@@ -1941,27 +2406,66 @@ void test_kex_inclusion_duplicate_frame_all_states(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // When the KEX Set is received, we expect public keys to be exchanges.
-  uint8_t S2_pub_key_B_frame[] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, // Including node bit not set
-                                  0x00, 0x00, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,   // Public key as being fetch from keystore.
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t S2_pub_key_B_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       PUBLIC_KEY_REPORT,
+       0x00,  // Including node bit not set
+       0x00,
+       0x00,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,  // Public key as being fetch from keystore.
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22};
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_pub_key_B_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_pub_key_B_frame);
   p_mock->return_code.value     = 1;
 
   // When the public key A is received, we expect that the event from libs2 contains the key in order to present it for the operator.
   // Therefore we copy the key minus header frame into expected data and push an event upwards.
-  zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-  p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x82;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-  memcpy((uint8_t *)p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  zwave_event_t *p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_inc_req_event->event_type
+    = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+    = sizeof(m_test_public_key_a);
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+    = 0x82;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+  memcpy((uint8_t *)p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req
+           .public_key,
+         m_test_public_key_a,
+         sizeof(m_test_public_key_a));
 
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
@@ -1973,62 +2477,88 @@ void test_kex_inclusion_duplicate_frame_all_states(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // When public key is received we expect an echo(KEX Set) to be sent.
-  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
+  uint8_t S2_echo_kex_set_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
   S2_echo_kex_set_frame[0] = COMMAND_CLASS_SECURITY_2;
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-  p_mock->expect_arg[3].value   = sizeof(S2_echo_kex_set_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+  p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+  p_mock->return_code.value   = 1;
 
   // Expect Net Key Get to be sent.
-  uint8_t S2_net_key_get_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
+  uint8_t S2_net_key_get_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_net_key_get_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_net_key_get_frame);
   p_mock->return_code.value     = 1;
 
   // Expect Net Key Verify to be sent.
-  uint8_t S2_network_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t S2_network_key_verify_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_network_key_verify_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_network_key_verify_frame);
   p_mock->return_code.value     = 1;
 
-  uint8_t s2_net_key_get_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x80};   // Keys requested, Security2, class 2 - Security0, network key.
+  uint8_t s2_net_key_get_0_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       SECURITY_2_NETWORK_KEY_GET,
+       0x80};  // Keys requested, Security2, class 2 - Security0, network key.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_get_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(s2_net_key_get_0_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_get_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_get_0_frame);
+  p_mock->return_code.value   = 1;
 
-  uint8_t s2_net_key_verify_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t s2_net_key_verify_0_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_verify_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value   = sizeof(s2_net_key_verify_0_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_verify_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_0_frame);
+  p_mock->return_code.value   = 1;
 
   // Expect S2 Transfer End to be sent.
-  uint8_t S2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
+  uint8_t S2_transfer_end_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_transfer_end_frame;
-  p_mock->expect_arg[3].value    = sizeof(S2_transfer_end_frame);
+  p_mock->expect_arg[3].value   = sizeof(S2_transfer_end_frame);
   p_mock->return_code.value     = 1;
 
   // When S2 Transfer End is received, we expect a corresponding Node inclusion complete event from libs2.
-  zwave_event_t  * p_expected_complete_event = (zwave_event_t *)m_test_mem_pool[1];
+  zwave_event_t *p_expected_complete_event
+    = (zwave_event_t *)m_test_mem_pool[1];
   p_expected_complete_event->event_type = S2_NODE_JOINING_COMPLETE_EVENT;
-  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete.exchanged_keys = 0x82;
+  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete
+    .exchanged_keys
+    = 0x82;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_complete_event;
 
@@ -2038,12 +2568,11 @@ void test_kex_inclusion_duplicate_frame_all_states(void) {
 
   // Node id (first step in inclusion) has been assigned.
   // Continue with secure inclusion.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
-    /** The loop which will set up the expectation based on the round. */
-//  for (i = 4; i < NO_OF_STATES; i++)
-  for (i = 0; i < 7; i++)
-  {
+  /** The loop which will set up the expectation based on the round. */
+  //  for (i = 4; i < NO_OF_STATES; i++)
+  for (i = 0; i < 7; i++) {
     helper_func_kex_get_frame(&s2_context);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
@@ -2059,8 +2588,7 @@ void test_kex_inclusion_duplicate_frame_all_states(void) {
     helper_func_pub_key_frame(&s2_context);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
-    if (i == 2)
-    {
+    if (i == 2) {
       // After the received public key is pushed upwards in the system, then it is expected to receive a challenge response from the upper level.
       s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
 
@@ -2110,22 +2638,44 @@ void test_kex_inclusion_duplicate_frame_all_states(void) {
  *           schemes supported by both inclusion and joining node. If this cannot be established
  *           between the node, then it must be ensured that appropriate failure is returned.
  */
-void test_kex_inclusion_error_schemes(void) {
-  mock_t    * p_mock;
-  uint32_t    i;
-  uint8_t     frame_buffer[UNIT_TEST_BUF_SIZE];
-  uint8_t     s2_kex_report_frame[6];
-  uint8_t     s2_kex_set_frame[6];
-  struct S2   s2_context;
+void test_kex_inclusion_error_schemes(void)
+{
+  mock_t *p_mock;
+  uint32_t i;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  uint8_t s2_kex_report_frame[6];
+  uint8_t s2_kex_set_frame[6];
+  struct S2 s2_context;
 
   uint8_t scheme_scheme_fail_test_vector[][4] = {
-    {0x02, 0x01, 0x00, 0x01}, // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
-    {0x02, 0x01, 0x01, 0x01}, // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
-    {0x02, 0x01, 0x03, 0x01}, // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
-    {0x02, 0x01, 0x04, 0x01}, // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
-    {0x02, 0x01, 0x06, 0x01}, // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
-    {0x02, 0x01, 0x80, 0x01}, // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
-    {0x02, 0x01, 0xFF, 0x01}, // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
+    {0x02,
+     0x01,
+     0x00,
+     0x01},  // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
+    {0x02,
+     0x01,
+     0x01,
+     0x01},  // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
+    {0x02,
+     0x01,
+     0x03,
+     0x01},  // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
+    {0x02,
+     0x01,
+     0x04,
+     0x01},  // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
+    {0x02,
+     0x01,
+     0x06,
+     0x01},  // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
+    {0x02,
+     0x01,
+     0x80,
+     0x01},  // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
+    {0x02,
+     0x01,
+     0xFF,
+     0x01},  // Requested Scheme 1 = true, key request don't care. Invalid scheme in Set, This should return FAIL_KEY_REPORT.
   };
 
   mock_calls_clear();
@@ -2139,39 +2689,49 @@ void test_kex_inclusion_error_schemes(void) {
   s2_context.buf             = frame_buffer;
   s2_inclusion_set_event_handler(s2_event_handler);
 
-  for (i = 0; i < ELEM_COUNT(scheme_scheme_fail_test_vector); i++)
-  {
-
+  for (i = 0; i < ELEM_COUNT(scheme_scheme_fail_test_vector); i++) {
     /****************************
      * Mock expectation section *
      ****************************/
-    s2_inclusion_init(scheme_scheme_fail_test_vector[i][0], 0x01, scheme_scheme_fail_test_vector[i][1]);
+    s2_inclusion_init(scheme_scheme_fail_test_vector[i][0],
+                      0x01,
+                      scheme_scheme_fail_test_vector[i][1]);
 
     helper_func_inclusion_initiated_event();
 
     // After including node has sent a KEX Get, a response with above settings is expected.
     s2_kex_report_frame[0] = COMMAND_CLASS_SECURITY_2;
     s2_kex_report_frame[1] = KEX_REPORT;
-    s2_kex_report_frame[2] = 0x04, // reserved | NLS support | Request CSA | Echo
-    s2_kex_report_frame[3] = scheme_scheme_fail_test_vector[i][0]; // Supported schemes.
-    s2_kex_report_frame[4] = 0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-    s2_kex_report_frame[5] = scheme_scheme_fail_test_vector[i][1]; // Requested keys bit.
+    s2_kex_report_frame[2]
+      = 0x04,  // reserved | NLS support | Request CSA | Echo
+      s2_kex_report_frame[3]
+      = scheme_scheme_fail_test_vector[i][0];  // Supported schemes.
+    s2_kex_report_frame[4]
+      = 0x01,  // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+      s2_kex_report_frame[5]
+      = scheme_scheme_fail_test_vector[i][1];  // Requested keys bit.
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = s2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(s2_kex_report_frame);
 
     // Expect a S2 KEX Fail as the including node received an unsupported combination of security schemes.
-    uint8_t S2_kex_set_error_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, 0x02}; // KEX_FAIL_KEX_SCHEME = 0x02
+    uint8_t S2_kex_set_error_frame[] = {COMMAND_CLASS_SECURITY_2,
+                                        KEX_FAIL,
+                                        0x02};  // KEX_FAIL_KEX_SCHEME = 0x02
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_set_error_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_set_error_frame);
 
-    zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-    p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
+    zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+    p_expected_event->event_type    = S2_NODE_INCLUSION_FAILED_EVENT;
     p_expected_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type = 0x02;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_event;
@@ -2182,7 +2742,7 @@ void test_kex_inclusion_error_schemes(void) {
 
     // Node id (first step in inclusion) has been assigned.
     // Continue with secure inclusion.
-    s2_inclusion_joining_start(&s2_context,&s2_con,0);
+    s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
     // KEX Get frame received.
     helper_func_kex_get_frame(&s2_context);
@@ -2191,14 +2751,17 @@ void test_kex_inclusion_error_schemes(void) {
     // KEX Set frame received - With an unsupported/not requested scheme set.
     s2_kex_set_frame[0] = COMMAND_CLASS_SECURITY_2;
     s2_kex_set_frame[1] = KEX_SET;
-    s2_kex_set_frame[2] = 0x04, // reserved | NLS support | Request CSA | Echo
-    s2_kex_set_frame[3] = scheme_scheme_fail_test_vector[i][2]; // Supported schemes.
-    s2_kex_set_frame[4] = 0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-    s2_kex_set_frame[5] = scheme_scheme_fail_test_vector[i][3]; // Requested keys bit.
+    s2_kex_set_frame[2] = 0x04,  // reserved | NLS support | Request CSA | Echo
+      s2_kex_set_frame[3]
+      = scheme_scheme_fail_test_vector[i][2];  // Supported schemes.
+    s2_kex_set_frame[4]
+      = 0x01,  // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+      s2_kex_set_frame[5]
+      = scheme_scheme_fail_test_vector[i][3];  // Requested keys bit.
 
-    s2_context.buf           = s2_kex_set_frame;
-    s2_context.length        = sizeof(s2_kex_set_frame);
-    s2_con.class_id = 0xFF;
+    s2_context.buf    = s2_kex_set_frame;
+    s2_context.length = sizeof(s2_kex_set_frame);
+    s2_con.class_id   = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     s2_inclusion_send_done(&s2_context, 1);
@@ -2208,7 +2771,7 @@ void test_kex_inclusion_error_schemes(void) {
   helper_func_verify_idle_state(&s2_context, 0x02, 0x01);
 
   mock_calls_verify();
-//  s2_kex_set_frame[0] = s2_kex_set_frame[0];
+  //  s2_kex_set_frame[0] = s2_kex_set_frame[0];
 }
 
 /** Test case for ensuring that a proper error message is returned in case the inclusion state
@@ -2218,54 +2781,43 @@ void test_kex_inclusion_init_errors(void)
 {
   uint8_t ret_val;
 
-  uint8_t valid_schemes_bits = 0x02; // Scheme 1 supported.
-  uint8_t valid_curve_bits = 0x01;   // Curve25519 supported.
-  uint8_t valid_keys_bits = SECURITY_2_KEY_MASK;    // Security 2, class 0, 1, 2, 3(LR), 4(LR) keys and Security 0 network key.
+  uint8_t valid_schemes_bits = 0x02;  // Scheme 1 supported.
+  uint8_t valid_curve_bits   = 0x01;  // Curve25519 supported.
+  uint8_t valid_keys_bits
+    = SECURITY_2_KEY_MASK;  // Security 2, class 0, 1, 2, 3(LR), 4(LR) keys and Security 0 network key.
   uint8_t i;
 
-  for (i = 0; i < 255; i++)
-  {
-    if ((~valid_schemes_bits & i) || (i == 0))
-    {
+  for (i = 0; i < 255; i++) {
+    if ((~valid_schemes_bits & i) || (i == 0)) {
       ret_val = s2_inclusion_init(i, 0x01, 0x81);
       TEST_ASSERT_EQUAL_UINT8(0x02, ret_val);
     }
 
-    if (((~valid_schemes_bits & i) == 0) &&
-        (valid_schemes_bits & i))
-    {
+    if (((~valid_schemes_bits & i) == 0) && (valid_schemes_bits & i)) {
       ret_val = s2_inclusion_init(i, 0x01, 0x81);
       TEST_ASSERT_EQUAL_UINT8(0x00, ret_val);
     }
   }
 
-  for (i = 0; i < 255; i++)
-  {
-    if ((~valid_curve_bits & i) || (i == 0))
-    {
+  for (i = 0; i < 255; i++) {
+    if ((~valid_curve_bits & i) || (i == 0)) {
       ret_val = s2_inclusion_init(0x02, i, 0x81);
       TEST_ASSERT_EQUAL_UINT8(0x03, ret_val);
     }
 
-    if ((~valid_curve_bits & i) == 0 &&
-        (valid_curve_bits & i))
-    {
+    if ((~valid_curve_bits & i) == 0 && (valid_curve_bits & i)) {
       ret_val = s2_inclusion_init(0x02, i, 0x81);
       TEST_ASSERT_EQUAL_UINT8(0x00, ret_val);
     }
   }
 
-  for (i = 0; i < 255; i++)
-  {
-    if ((~valid_keys_bits & i) || (i == 0))
-    {
+  for (i = 0; i < 255; i++) {
+    if ((~valid_keys_bits & i) || (i == 0)) {
       ret_val = s2_inclusion_init(0x02, 0x01, i);
       TEST_ASSERT_EQUAL_UINT8(0x01, ret_val);
     }
 
-    if ((~valid_keys_bits & i) == 0 &&
-        (valid_keys_bits & i))
-    {
+    if ((~valid_keys_bits & i) == 0 && (valid_keys_bits & i)) {
       ret_val = s2_inclusion_init(0x02, 0x01, i);
       TEST_ASSERT_EQUAL_UINT8(0x00, ret_val);
     }
@@ -2281,20 +2833,25 @@ void test_kex_inclusion_init_errors(void)
  *
  *  Test: This test case will a KEX_FAIL_CURVES is returned when invalid set of schemes is requested.
  */
-void test_kex_inclusion_error_curves(void) {
-  mock_t         * p_mock;
-  zwave_event_t  * p_expected_event;
-  uint8_t          frame_buffer[UNIT_TEST_BUF_SIZE];
-  uint8_t          i;
-  struct S2        s2_context;
+void test_kex_inclusion_error_curves(void)
+{
+  mock_t *p_mock;
+  zwave_event_t *p_expected_event;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  uint8_t i;
+  struct S2 s2_context;
 
-  uint8_t          s2_kex_report_frame[6];
-  uint8_t          s2_kex_set_frame[6];
+  uint8_t s2_kex_report_frame[6];
+  uint8_t s2_kex_set_frame[6];
   uint8_t curves_fail_test_vector[][2] = {
-    {0x01, 0x00}, // Supported curve25519 = true, No curves selected, This should return FAIL_KEY_CURVES.
-    {0x01, 0x02}, // Supported curve25519 = true, Unknown/unsupported curve selected, This should return FAIL_KEY_CURVES.
-    {0x01, 0xF0}, // Supported curve25519 = true, Multiple unknown/unsupported curve selected, This should return FAIL_KEY_CURVES.
-    {0x01, 0x11}, // Supported curve25519 = true, Multiple unknown/unsupported but also a supported curve selected, This should return FAIL_KEY_CURVES.
+    {0x01,
+     0x00},  // Supported curve25519 = true, No curves selected, This should return FAIL_KEY_CURVES.
+    {0x01,
+     0x02},  // Supported curve25519 = true, Unknown/unsupported curve selected, This should return FAIL_KEY_CURVES.
+    {0x01,
+     0xF0},  // Supported curve25519 = true, Multiple unknown/unsupported curve selected, This should return FAIL_KEY_CURVES.
+    {0x01,
+     0x11},  // Supported curve25519 = true, Multiple unknown/unsupported but also a supported curve selected, This should return FAIL_KEY_CURVES.
   };
 
   mock_calls_clear();
@@ -2308,9 +2865,7 @@ void test_kex_inclusion_error_curves(void) {
   s2_context.buf             = frame_buffer;
   s2_inclusion_set_event_handler(s2_event_handler);
 
-  for (i = 0; i < ELEM_COUNT(curves_fail_test_vector); i++)
-  {
-
+  for (i = 0; i < ELEM_COUNT(curves_fail_test_vector); i++) {
     /****************************
      * Mock expectation section *
      ****************************/
@@ -2321,25 +2876,33 @@ void test_kex_inclusion_error_curves(void) {
     // After including node has sent a KEX Get, a response with above settings is expected.
     s2_kex_report_frame[0] = COMMAND_CLASS_SECURITY_2;
     s2_kex_report_frame[1] = KEX_REPORT;
-    s2_kex_report_frame[2] = 0x04, // reserved | NLS support | Request CSA | Echo
-    s2_kex_report_frame[3] = 0x02; // Supported schemes.
-    s2_kex_report_frame[4] = curves_fail_test_vector[i][0], // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-    s2_kex_report_frame[5] = 0x01; // Requested keys bit, Class1.
+    s2_kex_report_frame[2]
+      = 0x04,  // reserved | NLS support | Request CSA | Echo
+      s2_kex_report_frame[3] = 0x02;  // Supported schemes.
+    s2_kex_report_frame[4]   = curves_fail_test_vector
+      [i][0],  // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+      s2_kex_report_frame[5] = 0x01;  // Requested keys bit, Class1.
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = s2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(s2_kex_report_frame);
 
     // Expect a S2 KEX Fail as the including node received an unsupported combination of security schemes.
-    uint8_t S2_kex_set_error_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, 0x03}; // KEX_FAIL_KEX_CURVES = 0x03
+    uint8_t S2_kex_set_error_frame[] = {COMMAND_CLASS_SECURITY_2,
+                                        KEX_FAIL,
+                                        0x03};  // KEX_FAIL_KEX_CURVES = 0x03
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_set_error_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_set_error_frame);
 
-    p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+    p_expected_event             = (zwave_event_t *)m_test_mem_pool[0];
     p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
     p_expected_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type = 0x03;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
@@ -2351,23 +2914,24 @@ void test_kex_inclusion_error_curves(void) {
 
     // Node id (first step in inclusion) has been assigned.
     // Continue with secure inclusion.
-    s2_inclusion_joining_start(&s2_context,&s2_con,0);
+    s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
     // KEX Get frame received.
     helper_func_kex_get_frame(&s2_context);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // KEX Set frame received - With an unsupported/not requested scheme set.
-    s2_kex_set_frame[0] = COMMAND_CLASS_SECURITY_2;
-    s2_kex_set_frame[1] = KEX_SET;
-    s2_kex_set_frame[2] = 0x00, // bit 0 is echo field, rest are reserved
-    s2_kex_set_frame[3] = 0x02; // Supported schemes.
-    s2_kex_set_frame[4] = curves_fail_test_vector[i][1], // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-    s2_kex_set_frame[5] = 0x01; // Requested keys bit.
+    s2_kex_set_frame[0]   = COMMAND_CLASS_SECURITY_2;
+    s2_kex_set_frame[1]   = KEX_SET;
+    s2_kex_set_frame[2]   = 0x00,  // bit 0 is echo field, rest are reserved
+      s2_kex_set_frame[3] = 0x02;  // Supported schemes.
+    s2_kex_set_frame[4]   = curves_fail_test_vector
+      [i][1],  // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+      s2_kex_set_frame[5] = 0x01;  // Requested keys bit.
 
-    s2_context.buf           = s2_kex_set_frame;
-    s2_context.length        = sizeof(s2_kex_set_frame);
-    s2_con.class_id = 0xFF;
+    s2_context.buf    = s2_kex_set_frame;
+    s2_context.length = sizeof(s2_kex_set_frame);
+    s2_con.class_id   = 0xFF;
 
     s2_inclusion_post_event(&s2_context, &s2_con);
 
@@ -2378,7 +2942,7 @@ void test_kex_inclusion_error_curves(void) {
   helper_func_verify_idle_state(&s2_context, 0x02, 0x01);
 
   mock_calls_verify();
-//  s2_kex_set_frame[0] = s2_kex_set_frame[0];
+  //  s2_kex_set_frame[0] = s2_kex_set_frame[0];
 
   mock_calls_verify();
 }
@@ -2391,26 +2955,37 @@ void test_kex_inclusion_error_curves(void) {
  *
  *  Test: This test case will a KEX_FAIL_KEY is returned when invalid set of schemes/keys is requested.
  */
-void test_kex_inclusion_error_keys(void) {
-  uint32_t         i;
-  mock_t         * p_mock;
-  zwave_event_t  * p_expected_event;
-  uint8_t          frame_buffer[UNIT_TEST_BUF_SIZE];
-  uint8_t          s2_kex_report_frame[6];
-  uint8_t          s2_kex_set_frame[6];
-  struct S2        s2_context;
+void test_kex_inclusion_error_keys(void)
+{
+  uint32_t i;
+  mock_t *p_mock;
+  zwave_event_t *p_expected_event;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  uint8_t s2_kex_report_frame[6];
+  uint8_t s2_kex_set_frame[6];
+  struct S2 s2_context;
 
-  uint8_t          s2_kex_error_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, 0x01}; // KEX_FAIL_KEX_KEY = 0x01
-  uint8_t          key_request_fail_test_vector[][2] = {
-    {0x80, 0x83},   // Key request S2 = no,   key request S0 = yes. Keys granted, S2 = yes, S0 = yes. This should return FAIL_KEY_REPORT.
-    {0x01, 0x03},   // Key request S2 = some, key request S0 = no.  Keys granted, S2 = all, S0 = no.  This should return FAIL_KEY_REPORT.
-    {0x02, 0x03},   // Key request S2 = some, key request S0 = no.  Keys granted, S2 = all, S0 = no.  This should return FAIL_KEY_REPORT.
-    {0x81, 0x03},   // Key request S2 = some, key request S0 = yes. Keys granted, S2 = all, S0 = no.  This should return FAIL_KEY_REPORT.
-    {0x82, 0x03},   // Key request S2 = some, key request S0 = yes. Keys granted, S2 = all, S0 = no.  This should return FAIL_KEY_REPORT.
-    {0x83, 0x04},   // Key request S2 = yes,  key request S0 = yes. Keys granted, Sx = yes, S0 = no.  This should return FAIL_KEY_REPORT.  };
-    {0x83, 0xFF},   // Key request S2 = yes,  key request S0 = yes. Keys granted, Sx = yes, S0 = no.  This should return FAIL_KEY_REPORT.  };
-    {0x83, 0x7C},   // Key request S2 = yes,  key request S0 = yes. Keys granted, Sx = yes, S0 = no.  This should return FAIL_KEY_REPORT.  };
-    {0x03, 0x07},   // Key request S2 = yes , key request S0 = no.  Keys granted, S2 = yes, Sx = yes. This should return FAIL_KEY_REPORT.
+  uint8_t s2_kex_error_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, 0x01};  // KEX_FAIL_KEX_KEY = 0x01
+  uint8_t key_request_fail_test_vector[][2] = {
+    {0x80,
+     0x83},  // Key request S2 = no,   key request S0 = yes. Keys granted, S2 = yes, S0 = yes. This should return FAIL_KEY_REPORT.
+    {0x01,
+     0x03},  // Key request S2 = some, key request S0 = no.  Keys granted, S2 = all, S0 = no.  This should return FAIL_KEY_REPORT.
+    {0x02,
+     0x03},  // Key request S2 = some, key request S0 = no.  Keys granted, S2 = all, S0 = no.  This should return FAIL_KEY_REPORT.
+    {0x81,
+     0x03},  // Key request S2 = some, key request S0 = yes. Keys granted, S2 = all, S0 = no.  This should return FAIL_KEY_REPORT.
+    {0x82,
+     0x03},  // Key request S2 = some, key request S0 = yes. Keys granted, S2 = all, S0 = no.  This should return FAIL_KEY_REPORT.
+    {0x83,
+     0x04},  // Key request S2 = yes,  key request S0 = yes. Keys granted, Sx = yes, S0 = no.  This should return FAIL_KEY_REPORT.  };
+    {0x83,
+     0xFF},  // Key request S2 = yes,  key request S0 = yes. Keys granted, Sx = yes, S0 = no.  This should return FAIL_KEY_REPORT.  };
+    {0x83,
+     0x7C},  // Key request S2 = yes,  key request S0 = yes. Keys granted, Sx = yes, S0 = no.  This should return FAIL_KEY_REPORT.  };
+    {0x03,
+     0x07},  // Key request S2 = yes , key request S0 = no.  Keys granted, S2 = yes, Sx = yes. This should return FAIL_KEY_REPORT.
   };
 
   mock_calls_clear();
@@ -2424,9 +2999,7 @@ void test_kex_inclusion_error_keys(void) {
   s2_context.buf             = frame_buffer;
   s2_inclusion_set_event_handler(s2_event_handler);
 
-  for (i = 0; i < ELEM_COUNT(key_request_fail_test_vector); i++)
-  {
-
+  for (i = 0; i < ELEM_COUNT(key_request_fail_test_vector); i++) {
     /****************************
      * Mock expectation section *
      ****************************/
@@ -2437,24 +3010,31 @@ void test_kex_inclusion_error_keys(void) {
     // After including node has sent a KEX Get, a response with above settings is expected.
     s2_kex_report_frame[0] = COMMAND_CLASS_SECURITY_2;
     s2_kex_report_frame[1] = KEX_REPORT;
-    s2_kex_report_frame[2] = 0x04, // reserved | NLS support | Request CSA | Echo
-    s2_kex_report_frame[3] = 0x02; // Supported schemes.
-    s2_kex_report_frame[4] = 0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-    s2_kex_report_frame[5] = key_request_fail_test_vector[i][0]; // Requested keys bit.
+    s2_kex_report_frame[2]
+      = 0x04,  // reserved | NLS support | Request CSA | Echo
+      s2_kex_report_frame[3] = 0x02;  // Supported schemes.
+    s2_kex_report_frame[4]
+      = 0x01,  // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+      s2_kex_report_frame[5]
+      = key_request_fail_test_vector[i][0];  // Requested keys bit.
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = s2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(s2_kex_report_frame);
 
     // Expect a S2 KEX Fail as the including node received an unsupported combination of security schemes.
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = s2_kex_error_frame;
     p_mock->expect_arg[3].value   = sizeof(s2_kex_error_frame);
 
-    p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+    p_expected_event             = (zwave_event_t *)m_test_mem_pool[0];
     p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
     p_expected_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type = 0x01;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
@@ -2466,23 +3046,25 @@ void test_kex_inclusion_error_keys(void) {
 
     // Node id (first step in inclusion) has been assigned.
     // Continue with secure inclusion.
-    s2_inclusion_joining_start(&s2_context,&s2_con,0);
+    s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
     // KEX Get frame received.
     helper_func_kex_get_frame(&s2_context);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     // KEX Set frame received - With an unsupported/not requested scheme set.
-    s2_kex_set_frame[0] = COMMAND_CLASS_SECURITY_2;
-    s2_kex_set_frame[1] = KEX_SET;
-    s2_kex_set_frame[2] = 0x00, // bit 0 is echo field, rest are reserved
-    s2_kex_set_frame[3] = 0x02; // Supported schemes.
-    s2_kex_set_frame[4] = 0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-    s2_kex_set_frame[5] = key_request_fail_test_vector[i][1]; // Granted keys bit.
+    s2_kex_set_frame[0]   = COMMAND_CLASS_SECURITY_2;
+    s2_kex_set_frame[1]   = KEX_SET;
+    s2_kex_set_frame[2]   = 0x00,  // bit 0 is echo field, rest are reserved
+      s2_kex_set_frame[3] = 0x02;  // Supported schemes.
+    s2_kex_set_frame[4]
+      = 0x01,  // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+      s2_kex_set_frame[5]
+      = key_request_fail_test_vector[i][1];  // Granted keys bit.
 
-    s2_context.buf           = s2_kex_set_frame;
-    s2_context.length        = sizeof(s2_kex_set_frame);
-    s2_con.class_id = 0xFF;
+    s2_context.buf    = s2_kex_set_frame;
+    s2_context.length = sizeof(s2_kex_set_frame);
+    s2_con.class_id   = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     s2_inclusion_send_done(&s2_context, 1);
@@ -2492,7 +3074,7 @@ void test_kex_inclusion_error_keys(void) {
   helper_func_verify_idle_state(&s2_context, 0x02, 0x03);
 
   mock_calls_verify();
-//  s2_kex_set_frame[0] = s2_kex_set_frame[0];
+  //  s2_kex_set_frame[0] = s2_kex_set_frame[0];
 }
 
 /** Test case for ensuring correct handling of node inclusion in case the including node is
@@ -2504,15 +3086,18 @@ void test_kex_inclusion_error_keys(void) {
  *  Test: This test case will ensure that the state machine returns to idle as the wrong including
  *  bit is identical to a unexpected frame at this stages in the state machine.
  */
-void test_kex_inclusion_error_public_key_including_bit(void) {
-  mock_t         * p_mock;
-  zwave_event_t  * p_expected_event;
-  uint8_t          frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2        s2_context;
-  static uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_inclusion_error_public_key_including_bit(void)
+{
+  mock_t *p_mock;
+  zwave_event_t *p_expected_event;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  static uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                                   0x11, 0x22,  // Public key as being fetch from the keystore.
+                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                                   0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                                   0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                                   0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -2536,10 +3121,13 @@ void test_kex_inclusion_error_public_key_including_bit(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent.
-  static uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x83};
+  static uint8_t S2_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x83};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
 
@@ -2548,21 +3136,53 @@ void test_kex_inclusion_error_public_key_including_bit(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // When the KEX Set is received, we expect public keys to be exchanges.
-  static uint8_t S2_pub_key_B_frame[] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, // Including node bit not set
-                                  0x00, 0x00, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,   // Public key as being fetch from keystore.
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  static uint8_t S2_pub_key_B_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       PUBLIC_KEY_REPORT,
+       0x00,  // Including node bit not set
+       0x00,
+       0x00,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,  // Public key as being fetch from keystore.
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22};
   // If the node uses only unauthenticated keys, then full public key is expected, else the first two bytes are zero'ed out.
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_pub_key_B_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_pub_key_B_frame);
 
-
-  p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_event             = (zwave_event_t *)m_test_mem_pool[0];
   p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
   p_expected_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type = 0;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
@@ -2574,7 +3194,7 @@ void test_kex_inclusion_error_public_key_including_bit(void) {
 
   // Node id (first step in inclusion) has been assigned.
   // Continue with secure inclusion.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   helper_func_kex_get_frame(&s2_context);
   s2_inclusion_post_event(&s2_context, &s2_con);
@@ -2586,10 +3206,9 @@ void test_kex_inclusion_error_public_key_including_bit(void) {
   frame_buffer[1] = PUBLIC_KEY_REPORT;
   frame_buffer[2] = 0x00;
   memcpy(&frame_buffer[3], m_test_public_key_a, sizeof(m_test_public_key_a));
-  s2_context.length = 3  + sizeof(m_test_public_key_a);
-  s2_con.class_id = 0xFF;
+  s2_context.length = 3 + sizeof(m_test_public_key_a);
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
-
 
   helper_func_verify_idle_state(&s2_context, 0x02, 0x83);
 
@@ -2599,19 +3218,22 @@ void test_kex_inclusion_error_public_key_including_bit(void) {
 /** Test case for ensuring correct handling of node inclusion in case the including node is
  *  transmitting frames with reserved bits set (which should be ignored).
  */
-void test_kex_inclusion_public_key_reserved_bits(void) {
-  mock_t       * p_mock;
-  uint8_t        frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2      s2_context;
-  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_inclusion_public_key_reserved_bits(void)
+{
+  mock_t *p_mock;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22,  // Public key as being fetch from the keystore.
+                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                            0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                            0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -2637,10 +3259,13 @@ void test_kex_inclusion_public_key_reserved_bits(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
+  uint8_t S2_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
   p_mock->return_code.value     = 1;
@@ -2650,27 +3275,66 @@ void test_kex_inclusion_public_key_reserved_bits(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // When the KEX Set is received, we expect public keys to be exchanges.
-  uint8_t S2_pub_key_B_frame[] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, // Including node bit not set
-                                  0x00, 0x00, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,   // Public key as being fetch from keystore.
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t S2_pub_key_B_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       PUBLIC_KEY_REPORT,
+       0x00,  // Including node bit not set
+       0x00,
+       0x00,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,  // Public key as being fetch from keystore.
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22};
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_pub_key_B_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_pub_key_B_frame);
   p_mock->return_code.value     = 1;
 
   // When the public key A is received, we expect that the event from libs2 contains the key in order to present it for the operator.
   // Therefore we copy the key minus header frame into expected data and push an event upwards.
-  zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-  p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x82;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-  memcpy((uint8_t *)p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  zwave_event_t *p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_inc_req_event->event_type
+    = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+    = sizeof(m_test_public_key_a);
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+    = 0x82;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+  memcpy((uint8_t *)p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req
+           .public_key,
+         m_test_public_key_a,
+         sizeof(m_test_public_key_a));
 
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
@@ -2682,62 +3346,88 @@ void test_kex_inclusion_public_key_reserved_bits(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // When public key is received we expect an echo(KEX Set) to be sent.
-  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
+  uint8_t S2_echo_kex_set_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
   S2_echo_kex_set_frame[0] = COMMAND_CLASS_SECURITY_2;
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-  p_mock->expect_arg[3].value   = sizeof(S2_echo_kex_set_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+  p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+  p_mock->return_code.value   = 1;
 
   // Expect Net Key Get to be sent.
-  uint8_t S2_net_key_get_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
+  uint8_t S2_net_key_get_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_net_key_get_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_net_key_get_frame);
   p_mock->return_code.value     = 1;
 
   // Expect Net Key Verify to be sent.
-  uint8_t S2_network_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t S2_network_key_verify_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_network_key_verify_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_network_key_verify_frame);
   p_mock->return_code.value     = 1;
 
-  uint8_t s2_net_key_get_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x80};   // Keys requested, Security2, class 2 - Security0, network key.
+  uint8_t s2_net_key_get_0_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       SECURITY_2_NETWORK_KEY_GET,
+       0x80};  // Keys requested, Security2, class 2 - Security0, network key.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_get_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(s2_net_key_get_0_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_get_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_get_0_frame);
+  p_mock->return_code.value   = 1;
 
-  uint8_t s2_net_key_verify_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t s2_net_key_verify_0_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_verify_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value   = sizeof(s2_net_key_verify_0_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_verify_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_0_frame);
+  p_mock->return_code.value   = 1;
 
   // Expect S2 Transfer End to be sent.
-  uint8_t S2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
+  uint8_t S2_transfer_end_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_transfer_end_frame;
-  p_mock->expect_arg[3].value    = sizeof(S2_transfer_end_frame);
+  p_mock->expect_arg[3].value   = sizeof(S2_transfer_end_frame);
   p_mock->return_code.value     = 1;
 
   // When S2 Transfer End is received, we expect a corresponding Node inclusion complete event from libs2.
-  zwave_event_t  * p_expected_complete_event = (zwave_event_t *)m_test_mem_pool[1];
+  zwave_event_t *p_expected_complete_event
+    = (zwave_event_t *)m_test_mem_pool[1];
   p_expected_complete_event->event_type = S2_NODE_JOINING_COMPLETE_EVENT;
-  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete.exchanged_keys = 0x82;
+  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete
+    .exchanged_keys
+    = 0x82;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_complete_event;
 
@@ -2747,7 +3437,7 @@ void test_kex_inclusion_public_key_reserved_bits(void) {
 
   // Node id (first step in inclusion) has been assigned.
   // Continue with secure inclusion.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   helper_func_kex_get_frame(&s2_context);
   s2_inclusion_post_event(&s2_context, &s2_con);
@@ -2757,11 +3447,12 @@ void test_kex_inclusion_public_key_reserved_bits(void) {
 
   frame_buffer[0] = COMMAND_CLASS_SECURITY_2;
   frame_buffer[1] = PUBLIC_KEY_REPORT;
-  frame_buffer[2] = 0xA5; // Setting a couple of reserved bits which should be ignored on remote side.
+  frame_buffer[2]
+    = 0xA5;  // Setting a couple of reserved bits which should be ignored on remote side.
   memcpy(&frame_buffer[3], m_test_public_key_a, sizeof(m_test_public_key_a));
-  s2_context.buf = frame_buffer;
-  s2_context.length = 3  + sizeof(m_test_public_key_a);
-  s2_con.class_id = 0xFF;
+  s2_context.buf    = frame_buffer;
+  s2_context.length = 3 + sizeof(m_test_public_key_a);
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // After the received public key is pushed upwards in the system, then it is expected to receive a challenge response from the upper level.
@@ -2795,113 +3486,356 @@ void test_kex_inclusion_public_key_reserved_bits(void) {
  *
  *  Test: This test case will verify that a KEX_FAIL_AUTH is returned if the echo'ed KEX Report dod not match.
  */
-void test_kex_inclusion_error_echo_kex_report(void) {
-  uint32_t         i;
-  mock_t         * p_mock;
-  zwave_event_t  * p_expected_event;
-  uint8_t          frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2        s2_context;
-  static uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_inclusion_error_echo_kex_report(void)
+{
+  uint32_t i;
+  mock_t *p_mock;
+  zwave_event_t *p_expected_event;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  static uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                                   0x11, 0x22,  // Public key as being fetch from the keystore.
+                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                                   0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                                   0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                                   0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t          echo_kex_report_fail_test_vector[][4] = {
+  uint8_t echo_kex_report_fail_test_vector[][4] = {
     // Scheme errors.
-    {0x83, 0x00, 0x01, 0x83},   // Key request S2 = yes, key request S0 = yes. Echo report, scheme=unknown/mixed, curve=curve25519, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
-    {0x83, 0x01, 0x01, 0x83},   // Key request S2 = yes, key request S0 = yes. Echo report, scheme=unknown/mixed, curve=curve25519, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
-    {0x83, 0x03, 0x01, 0x83},   // Key request S2 = yes, key request S0 = yes. Echo report, scheme=unknown/mixed, curve=curve25519, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
-    {0x83, 0x80, 0x01, 0x83},   // Key request S2 = yes, key request S0 = yes. Echo report, scheme=unknown/mixed, curve=curve25519, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
-    {0x83, 0xFF, 0x01, 0x83},   // Key request S2 = yes, key request S0 = yes. Echo report, scheme=unknown/mixed, curve=curve25519, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x00,
+     0x01,
+     0x83},  // Key request S2 = yes, key request S0 = yes. Echo report, scheme=unknown/mixed, curve=curve25519, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x01,
+     0x01,
+     0x83},  // Key request S2 = yes, key request S0 = yes. Echo report, scheme=unknown/mixed, curve=curve25519, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x03,
+     0x01,
+     0x83},  // Key request S2 = yes, key request S0 = yes. Echo report, scheme=unknown/mixed, curve=curve25519, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x80,
+     0x01,
+     0x83},  // Key request S2 = yes, key request S0 = yes. Echo report, scheme=unknown/mixed, curve=curve25519, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0xFF,
+     0x01,
+     0x83},  // Key request S2 = yes, key request S0 = yes. Echo report, scheme=unknown/mixed, curve=curve25519, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
     // Curve errors.
-    {0x83, 0x02, 0x00, 0x82},   // Key request S2 = yes, key request S0 = yes. Echo report, scheme=1, curve=unknown/mixed, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0x02, 0x82},   // Key request S2 = yes, key request S0 = yes. Echo report, scheme=1, curve=unknown/mixed, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0x03, 0x82},   // Key request S2 = yes, key request S0 = yes. Echo report, scheme=1, curve=unknown/mixed, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0x80, 0x82},   // Key request S2 = yes, key request S0 = yes. Echo report, scheme=1, curve=unknown/mixed, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0xFF, 0x82},   // Key request S2 = yes, key request S0 = yes. Echo report, scheme=1, curve=unknown/mixed, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x00,
+     0x82},  // Key request S2 = yes, key request S0 = yes. Echo report, scheme=1, curve=unknown/mixed, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x02,
+     0x82},  // Key request S2 = yes, key request S0 = yes. Echo report, scheme=1, curve=unknown/mixed, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x03,
+     0x82},  // Key request S2 = yes, key request S0 = yes. Echo report, scheme=1, curve=unknown/mixed, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x80,
+     0x82},  // Key request S2 = yes, key request S0 = yes. Echo report, scheme=1, curve=unknown/mixed, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0xFF,
+     0x82},  // Key request S2 = yes, key request S0 = yes. Echo report, scheme=1, curve=unknown/mixed, keys=S2 - class 0/1, S0. This should return KEX_FAIL_AUTH.
 
     // Key errors.
-    {0x83, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0x01, 0x80},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0x01, 0x81},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0x01, 0x82},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0x01, 0x01},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0x01, 0x02},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0x01, 0x03},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0x01, 0xFF},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x83, 0x02, 0x01, 0x7C},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x01,
+     0x80},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x01,
+     0x81},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x01,
+     0x82},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x01,
+     0x01},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x01,
+     0x02},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x01,
+     0x03},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x01,
+     0xFF},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x83,
+     0x02,
+     0x01,
+     0x7C},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
 
-    {0x81, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x81, 0x02, 0x01, 0x80},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x81, 0x02, 0x01, 0x82},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x81, 0x02, 0x01, 0x83},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x81, 0x02, 0x01, 0x01},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x81, 0x02, 0x01, 0x02},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x81, 0x02, 0x01, 0x03},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x81, 0x02, 0x01, 0xFF},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x81, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x81, 0x02, 0x01, 0x7C},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x81,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x81,
+     0x02,
+     0x01,
+     0x80},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x81,
+     0x02,
+     0x01,
+     0x82},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x81,
+     0x02,
+     0x01,
+     0x83},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x81,
+     0x02,
+     0x01,
+     0x01},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x81,
+     0x02,
+     0x01,
+     0x02},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x81,
+     0x02,
+     0x01,
+     0x03},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x81,
+     0x02,
+     0x01,
+     0xFF},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x81,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x81,
+     0x02,
+     0x01,
+     0x7C},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
 
-    {0x82, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x82, 0x02, 0x01, 0x80},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x82, 0x02, 0x01, 0x81},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x82, 0x02, 0x01, 0x83},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x82, 0x02, 0x01, 0x01},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x82, 0x02, 0x01, 0x02},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x82, 0x02, 0x01, 0x03},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x82, 0x02, 0x01, 0xFF},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x82, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x82, 0x02, 0x01, 0x7C},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x82,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x82,
+     0x02,
+     0x01,
+     0x80},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x82,
+     0x02,
+     0x01,
+     0x81},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x82,
+     0x02,
+     0x01,
+     0x83},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x82,
+     0x02,
+     0x01,
+     0x01},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x82,
+     0x02,
+     0x01,
+     0x02},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x82,
+     0x02,
+     0x01,
+     0x03},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x82,
+     0x02,
+     0x01,
+     0xFF},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x82,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x82,
+     0x02,
+     0x01,
+     0x7C},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
 
-    {0x80, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x80, 0x02, 0x01, 0x81},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x80, 0x02, 0x01, 0x82},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x80, 0x02, 0x01, 0x83},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x80, 0x02, 0x01, 0x01},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x80, 0x02, 0x01, 0x02},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x80, 0x02, 0x01, 0x03},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x80, 0x02, 0x01, 0xFF},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x80, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x80, 0x02, 0x01, 0x7C},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x80,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x80,
+     0x02,
+     0x01,
+     0x81},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x80,
+     0x02,
+     0x01,
+     0x82},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x80,
+     0x02,
+     0x01,
+     0x83},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x80,
+     0x02,
+     0x01,
+     0x01},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x80,
+     0x02,
+     0x01,
+     0x02},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x80,
+     0x02,
+     0x01,
+     0x03},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x80,
+     0x02,
+     0x01,
+     0xFF},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x80,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x80,
+     0x02,
+     0x01,
+     0x7C},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
 
-    {0x01, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x01, 0x02, 0x01, 0x80},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x01, 0x02, 0x01, 0x81},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x01, 0x02, 0x01, 0x82},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x01, 0x02, 0x01, 0x83},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x01, 0x02, 0x01, 0x02},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x01, 0x02, 0x01, 0x03},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x01, 0x02, 0x01, 0xFF},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x01, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x01, 0x02, 0x01, 0x7C},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x01,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x01,
+     0x02,
+     0x01,
+     0x80},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x01,
+     0x02,
+     0x01,
+     0x81},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x01,
+     0x02,
+     0x01,
+     0x82},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x01,
+     0x02,
+     0x01,
+     0x83},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x01,
+     0x02,
+     0x01,
+     0x02},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x01,
+     0x02,
+     0x01,
+     0x03},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x01,
+     0x02,
+     0x01,
+     0xFF},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x01,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x01,
+     0x02,
+     0x01,
+     0x7C},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
 
-    {0x02, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x02, 0x02, 0x01, 0x80},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x02, 0x02, 0x01, 0x81},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x02, 0x02, 0x01, 0x82},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x02, 0x02, 0x01, 0x83},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x02, 0x02, 0x01, 0x01},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x02, 0x02, 0x01, 0x03},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x02, 0x02, 0x01, 0xFF},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x02, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x02, 0x02, 0x01, 0x7C},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x02,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x02,
+     0x02,
+     0x01,
+     0x80},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x02,
+     0x02,
+     0x01,
+     0x81},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x02,
+     0x02,
+     0x01,
+     0x82},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x02,
+     0x02,
+     0x01,
+     0x83},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x02,
+     0x02,
+     0x01,
+     0x01},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x02,
+     0x02,
+     0x01,
+     0x03},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x02,
+     0x02,
+     0x01,
+     0xFF},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x02,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x02,
+     0x02,
+     0x01,
+     0x7C},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
 
-    {0x03, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x03, 0x02, 0x01, 0x80},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x03, 0x02, 0x01, 0x81},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x03, 0x02, 0x01, 0x82},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x03, 0x02, 0x01, 0x83},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x03, 0x02, 0x01, 0x01},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x03, 0x02, 0x01, 0x02},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x03, 0x02, 0x01, 0xFF},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x03, 0x02, 0x01, 0x00},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
-    {0x03, 0x02, 0x01, 0x7C},   // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x03,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x03,
+     0x02,
+     0x01,
+     0x80},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x03,
+     0x02,
+     0x01,
+     0x81},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x03,
+     0x02,
+     0x01,
+     0x82},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x03,
+     0x02,
+     0x01,
+     0x83},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x03,
+     0x02,
+     0x01,
+     0x01},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x03,
+     0x02,
+     0x01,
+     0x02},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x03,
+     0x02,
+     0x01,
+     0xFF},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x03,
+     0x02,
+     0x01,
+     0x00},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
+    {0x03,
+     0x02,
+     0x01,
+     0x7C},  // ECHO KEX Report - Error in key field. This should return KEX_FAIL_AUTH.
   };
 
   mock_calls_clear();
@@ -2919,9 +3853,7 @@ void test_kex_inclusion_error_echo_kex_report(void) {
   s2_inclusion_set_event_handler(s2_event_handler);
 
   /** The loop which will set up the expectation based on the round. */
-  for (i = 0; i < ELEM_COUNT(echo_kex_report_fail_test_vector); i++)
-  {
-
+  for (i = 0; i < ELEM_COUNT(echo_kex_report_fail_test_vector); i++) {
     /****************************
      * Mock expectation section *
      ****************************/
@@ -2930,104 +3862,148 @@ void test_kex_inclusion_error_echo_kex_report(void) {
     helper_func_inclusion_initiated_event();
 
     // Expect a S2 KEX Report to be sent.
-    static uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x00};
+    static uint8_t S2_kex_report_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x00};
     S2_kex_report_frame[5] = echo_kex_report_fail_test_vector[i][0];
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
 
     // When the KEX Set is received, we expect a call to the keystore in order to obtain our public key.
     // Use dynamic keypair if only S0 and/or S2 unauthenticated are requested
-    if(0 != (echo_kex_report_fail_test_vector[i][0] & ~(KEY_CLASS_S0 | KEY_CLASS_S2_UNAUTHENTICATED)))
-    {
+    if (0
+        != (echo_kex_report_fail_test_vector[i][0]
+            & ~(KEY_CLASS_S0 | KEY_CLASS_S2_UNAUTHENTICATED))) {
       mock_call_expect(TO_STR(keystore_public_key_read), &p_mock);
-    }
-    else
-    {
+    } else {
       mock_call_expect(TO_STR(keystore_dynamic_public_key_read), &p_mock);
     }
     p_mock->output_arg[0].pointer = public_key_b;
 
     // When the KEX Set is received, we expect public keys to be exchanges.
-    static uint8_t S2_pub_key_B_frame[] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, // Including node bit not set
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,   // Public key as being fetch from keystore.
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+    static uint8_t S2_pub_key_B_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         PUBLIC_KEY_REPORT,
+         0x00,  // Including node bit not set
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22,  // Public key as being fetch from keystore.
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22,
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22,
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22};
     // If the node uses only unauthenticated keys, then full public key is expected, else the first two bytes are zero'ed out.
-    if (0x06 & echo_kex_report_fail_test_vector[i][0])
-    {
+    if (0x06 & echo_kex_report_fail_test_vector[i][0]) {
       S2_pub_key_B_frame[3] = 0x00;
       S2_pub_key_B_frame[4] = 0x00;
-    }
-    else
-    {
+    } else {
       S2_pub_key_B_frame[3] = 0xAA;
       S2_pub_key_B_frame[4] = 0xBB;
     }
 
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_pub_key_B_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_pub_key_B_frame);
 
     // When the public key A is received, we expect that the event from libs2 contains the key in order to present it for the operator.
     // Therefore we copy the key minus header frame into expected data and push an event upwards.
-    zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[1];
-    p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-//    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.security_keys = echo_kex_report_fail_test_vector[i][0];
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = echo_kex_report_fail_test_vector[i][0];
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-    memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+    zwave_event_t *p_expected_inc_req_event
+      = (zwave_event_t *)m_test_mem_pool[1];
+    p_expected_inc_req_event->event_type
+      = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+    //    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.security_keys = echo_kex_report_fail_test_vector[i][0];
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+      = sizeof(m_test_public_key_a);
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+      = echo_kex_report_fail_test_vector[i][0];
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+    memcpy(
+      p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+      m_test_public_key_a,
+      sizeof(m_test_public_key_a));
 
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
 
     // When receiving public key A, then we expect that both our public and private keys are requested from the keystore.
     // Use dynamic keypair if only S0 and/or S2 unauthenticated are requested
-    if(0 != (echo_kex_report_fail_test_vector[i][0] & ~(KEY_CLASS_S0 | KEY_CLASS_S2_UNAUTHENTICATED)))
-    {
+    if (0
+        != (echo_kex_report_fail_test_vector[i][0]
+            & ~(KEY_CLASS_S0 | KEY_CLASS_S2_UNAUTHENTICATED))) {
       mock_call_expect(TO_STR(keystore_private_key_read), &p_mock);
-    }
-    else
-    {
+    } else {
       mock_call_expect(TO_STR(keystore_dynamic_private_key_read), &p_mock);
     }
     p_mock->output_arg[0].pointer = private_key_b;
 
     // Use dynamic keypair if only S0 and/or S2 unauthenticated are requested
-    if(0 != (echo_kex_report_fail_test_vector[i][0] & ~(KEY_CLASS_S0 | KEY_CLASS_S2_UNAUTHENTICATED)))
-    {
+    if (0
+        != (echo_kex_report_fail_test_vector[i][0]
+            & ~(KEY_CLASS_S0 | KEY_CLASS_S2_UNAUTHENTICATED))) {
       mock_call_expect(TO_STR(keystore_public_key_read), &p_mock);
-    }
-    else
-    {
+    } else {
       mock_call_expect(TO_STR(keystore_dynamic_public_key_read), &p_mock);
     }
     p_mock->output_arg[0].pointer = public_key_b;
 
     // When public key is received we expect an echo(KEX Set) to be sent.
-    static uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x00};
+    static uint8_t S2_echo_kex_set_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x00};
     S2_echo_kex_set_frame[5] = echo_kex_report_fail_test_vector[i][0];
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-    p_mock->expect_arg[3].value   = sizeof(S2_echo_kex_set_frame);
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+    p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
 
     // Expect a S2 KEX Fail as the including node received an Key Set command.
-    uint8_t S2_kex_set_error_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, 0x07}; // KEX_FAIL_AUTH = 0x07
+    uint8_t S2_kex_set_error_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, 0x07};  // KEX_FAIL_AUTH = 0x07
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_set_error_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_set_error_frame);
 
-    p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+    p_expected_event             = (zwave_event_t *)m_test_mem_pool[0];
     p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
     p_expected_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type = 0x07;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
@@ -3039,12 +4015,14 @@ void test_kex_inclusion_error_echo_kex_report(void) {
 
     // Node id (first step in inclusion) has been assigned.
     // Continue with secure inclusion.
-    s2_inclusion_joining_start(&s2_context,&s2_con,0);
+    s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
     helper_func_kex_get_frame(&s2_context);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
-    helper_func_kex_set_frame(&s2_context, 0x02, echo_kex_report_fail_test_vector[i][0]);
+    helper_func_kex_set_frame(&s2_context,
+                              0x02,
+                              echo_kex_report_fail_test_vector[i][0]);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     helper_func_pub_key_frame(&s2_context);
@@ -3052,9 +4030,10 @@ void test_kex_inclusion_error_echo_kex_report(void) {
 
     s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
 
-    helper_func_echo_kex_report_frame(&s2_context, echo_kex_report_fail_test_vector[i][1],
-                                                   echo_kex_report_fail_test_vector[i][2],
-                                                   echo_kex_report_fail_test_vector[i][3]);
+    helper_func_echo_kex_report_frame(&s2_context,
+                                      echo_kex_report_fail_test_vector[i][1],
+                                      echo_kex_report_fail_test_vector[i][2],
+                                      echo_kex_report_fail_test_vector[i][3]);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     s2_inclusion_send_done(&s2_context, 1);
@@ -3062,42 +4041,57 @@ void test_kex_inclusion_error_echo_kex_report(void) {
 
   // After receiving a timeout it is expected that the inclusion state machine is back in idle and
   // that we can initiate a new inclusion which will also trigger a new set timeout call.
-//  helper_func_verify_idle_state(&s2_context, 0x02, 0x82);
+  //  helper_func_verify_idle_state(&s2_context, 0x02, 0x82);
 
   mock_calls_verify();
 }
 
 /**
  */
-void test_kex_inclusion_invalid_key_report_set(void) {
-  mock_t       * p_mock;
-  zwave_event_t  * p_expected_event;
-  uint32_t       i;
-  uint8_t        frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2      s2_context;
-  static uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_inclusion_invalid_key_report_set(void)
+{
+  mock_t *p_mock;
+  zwave_event_t *p_expected_event;
+  uint32_t i;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  static uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                                   0x11, 0x22,  // Public key as being fetch from the keystore.
+                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                                   0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                                   0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                                   0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   uint8_t key_report_fail_test_vector[][2] = {
-    {0x80, 0x83},   // Key request S0. Key report multiple. This should return KEX_FAIL_KEY_SET.
-    {0x80, 0x01},   // Key request S0. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
-    {0x80, 0x02},   // Key request S0. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
-    {0x80, 0x08},   // Key request S0. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
-    {0x01, 0x83},   // Key request S2 - class 0. Key report multiple. This should return KEX_FAIL_KEY_SET.
-    {0x01, 0x02},   // Key request S2 - class 0. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
-    {0x01, 0x03},   // Key request S2 - class 0. Key report multiple. This should return KEX_FAIL_KEY_SET.
-    {0x01, 0x80},   // Key request S2 - class 0. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
-    {0x02, 0x83},   // Key request S2 - class 1. Key report multiple. This should return KEX_FAIL_KEY_SET.
-    {0x02, 0x01},   // Key request S2 - class 1. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
-    {0x02, 0x03},   // Key request S2 - class 1. Key report multiple. This should return KEX_FAIL_KEY_SET.
-    {0x02, 0x80},   // Key request S2 - class 1. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
+    {0x80,
+     0x83},  // Key request S0. Key report multiple. This should return KEX_FAIL_KEY_SET.
+    {0x80,
+     0x01},  // Key request S0. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
+    {0x80,
+     0x02},  // Key request S0. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
+    {0x80,
+     0x08},  // Key request S0. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
+    {0x01,
+     0x83},  // Key request S2 - class 0. Key report multiple. This should return KEX_FAIL_KEY_SET.
+    {0x01,
+     0x02},  // Key request S2 - class 0. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
+    {0x01,
+     0x03},  // Key request S2 - class 0. Key report multiple. This should return KEX_FAIL_KEY_SET.
+    {0x01,
+     0x80},  // Key request S2 - class 0. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
+    {0x02,
+     0x83},  // Key request S2 - class 1. Key report multiple. This should return KEX_FAIL_KEY_SET.
+    {0x02,
+     0x01},  // Key request S2 - class 1. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
+    {0x02,
+     0x03},  // Key request S2 - class 1. Key report multiple. This should return KEX_FAIL_KEY_SET.
+    {0x02,
+     0x80},  // Key request S2 - class 1. Key report single, wrong key. This should return KEX_FAIL_KEY_SET.
   };
 
   mock_calls_clear();
@@ -3114,9 +4108,7 @@ void test_kex_inclusion_invalid_key_report_set(void) {
   s2_inclusion_set_event_handler(s2_event_handler);
 
   /** The loop which will set up the expectation based on the round. */
-  for (i = 0; i < ELEM_COUNT(key_report_fail_test_vector); i++)
-  {
-
+  for (i = 0; i < ELEM_COUNT(key_report_fail_test_vector); i++) {
     /****************************
      * Mock expectation section *
      ****************************/
@@ -3125,111 +4117,157 @@ void test_kex_inclusion_invalid_key_report_set(void) {
     helper_func_inclusion_initiated_event();
 
     // Expect a S2 KEX Report to be sent.
-    static uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x00};
+    static uint8_t S2_kex_report_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x00};
     S2_kex_report_frame[5] = key_report_fail_test_vector[i][0];
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
 
     // When the KEX Set is received, we expect a call to the keystore in order to obtain our public key.
     // If any of the authenticated keys are requested, we expect the primary keypair to be used. Otherwise
     // the dynamic keypair.
-    if ((KEY_CLASS_S2_ACCESS | KEY_CLASS_S2_AUTHENTICATED) & key_report_fail_test_vector[i][0])
-    {
+    if ((KEY_CLASS_S2_ACCESS | KEY_CLASS_S2_AUTHENTICATED)
+        & key_report_fail_test_vector[i][0]) {
       mock_call_expect(TO_STR(keystore_public_key_read), &p_mock);
-    }
-    else
-    {
+    } else {
       mock_call_expect(TO_STR(keystore_dynamic_public_key_read), &p_mock);
     }
     p_mock->output_arg[0].pointer = public_key_b;
 
     // When the KEX Set is received, we expect public keys to be exchanges.
-    static uint8_t S2_pub_key_B_frame[] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, // Including node bit not set
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,   // Public key as being fetch from keystore.
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                    0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+    static uint8_t S2_pub_key_B_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         PUBLIC_KEY_REPORT,
+         0x00,  // Including node bit not set
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22,  // Public key as being fetch from keystore.
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22,
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22,
+         0xAA,
+         0xBB,
+         0xCC,
+         0xDD,
+         0xEE,
+         0xFF,
+         0x11,
+         0x22};
     // If the node uses only unauthenticated keys, then full public key is expected, else the first two bytes are zero'ed out.
-    if ((KEY_CLASS_S2_ACCESS | KEY_CLASS_S2_AUTHENTICATED) & key_report_fail_test_vector[i][0])
-    {
+    if ((KEY_CLASS_S2_ACCESS | KEY_CLASS_S2_AUTHENTICATED)
+        & key_report_fail_test_vector[i][0]) {
       S2_pub_key_B_frame[3] = 0x00;
       S2_pub_key_B_frame[4] = 0x00;
-    }
-    else
-    {
+    } else {
       S2_pub_key_B_frame[3] = 0xAA;
       S2_pub_key_B_frame[4] = 0xBB;
     }
 
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_pub_key_B_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_pub_key_B_frame);
 
     // When the public key A is received, we expect that the event from libs2 contains the key in order to present it for the operator.
     // Therefore we copy the key minus header frame into expected data and push an event upwards.
-    zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[1];
-    p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = key_report_fail_test_vector[i][0];
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-    memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+    zwave_event_t *p_expected_inc_req_event
+      = (zwave_event_t *)m_test_mem_pool[1];
+    p_expected_inc_req_event->event_type
+      = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+      = sizeof(m_test_public_key_a);
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+      = key_report_fail_test_vector[i][0];
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+    memcpy(
+      p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+      m_test_public_key_a,
+      sizeof(m_test_public_key_a));
 
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
 
     // When receiving public key A, then we expect that both our public and private keys are requested from the keystore.
-    if ((KEY_CLASS_S2_ACCESS | KEY_CLASS_S2_AUTHENTICATED) & key_report_fail_test_vector[i][0])
-    {
+    if ((KEY_CLASS_S2_ACCESS | KEY_CLASS_S2_AUTHENTICATED)
+        & key_report_fail_test_vector[i][0]) {
       mock_call_expect(TO_STR(keystore_private_key_read), &p_mock);
-    }
-    else
-    {
+    } else {
       mock_call_expect(TO_STR(keystore_dynamic_private_key_read), &p_mock);
     }
     p_mock->output_arg[0].pointer = private_key_b;
-    if ((KEY_CLASS_S2_ACCESS | KEY_CLASS_S2_AUTHENTICATED) & key_report_fail_test_vector[i][0])
-    {
+    if ((KEY_CLASS_S2_ACCESS | KEY_CLASS_S2_AUTHENTICATED)
+        & key_report_fail_test_vector[i][0]) {
       mock_call_expect(TO_STR(keystore_public_key_read), &p_mock);
-    }
-    else
-    {
+    } else {
       mock_call_expect(TO_STR(keystore_dynamic_public_key_read), &p_mock);
     }
     p_mock->output_arg[0].pointer = public_key_b;
 
     // When public key is received we expect an echo(KEX Set) to be sent.
-    static uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x00};
+    static uint8_t S2_echo_kex_set_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x00};
     S2_echo_kex_set_frame[5] = key_report_fail_test_vector[i][0];
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-    p_mock->expect_arg[3].value   = sizeof(S2_echo_kex_set_frame);
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+    p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
 
     // Expect Net Key Get to be sent.
-    static uint8_t S2_net_key_get_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x00};
+    static uint8_t S2_net_key_get_frame[]
+      = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x00};
     S2_net_key_get_frame[2] = key_report_fail_test_vector[i][0];
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_net_key_get_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_net_key_get_frame);
 
     // Expect a S2 KEX Fail as the including node received an Key Set command.
-    uint8_t S2_kex_set_error_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, 0x0A}; // KEX_FAIL_KEY_REPORT = 0x0A
+    uint8_t S2_kex_set_error_frame[] = {COMMAND_CLASS_SECURITY_2,
+                                        KEX_FAIL,
+                                        0x0A};  // KEX_FAIL_KEY_REPORT = 0x0A
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_set_error_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_set_error_frame);
 
     // This event is not expected, until a send frame done (or failed) is received.
-    p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+    p_expected_event             = (zwave_event_t *)m_test_mem_pool[0];
     p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
     p_expected_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type = 0x0A;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
@@ -3241,12 +4279,14 @@ void test_kex_inclusion_invalid_key_report_set(void) {
 
     // Node id (first step in inclusion) has been assigned.
     // Continue with secure inclusion.
-    s2_inclusion_joining_start(&s2_context,&s2_con,0);
+    s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
     helper_func_kex_get_frame(&s2_context);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
-    helper_func_kex_set_frame(&s2_context, 0x02, key_report_fail_test_vector[i][0]);
+    helper_func_kex_set_frame(&s2_context,
+                              0x02,
+                              key_report_fail_test_vector[i][0]);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     helper_func_pub_key_frame(&s2_context);
@@ -3254,10 +4294,14 @@ void test_kex_inclusion_invalid_key_report_set(void) {
 
     s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
 
-    helper_func_echo_kex_report_frame(&s2_context, 0x02, 0x01, key_report_fail_test_vector[i][0]);
+    helper_func_echo_kex_report_frame(&s2_context,
+                                      0x02,
+                                      0x01,
+                                      key_report_fail_test_vector[i][0]);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
-    helper_func_net_key_report_frame(&s2_context, key_report_fail_test_vector[i][1]);
+    helper_func_net_key_report_frame(&s2_context,
+                                     key_report_fail_test_vector[i][1]);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     s2_inclusion_send_done(&s2_context, 1);
@@ -3265,11 +4309,10 @@ void test_kex_inclusion_invalid_key_report_set(void) {
 
   // After receiving a timeout it is expected that the inclusion state machine is back in idle and
   // that we can initiate a new inclusion which will also trigger a new set timeout call.
-//  helper_func_verify_idle_state(&s2_context, 0x02, 0x82);
+  //  helper_func_verify_idle_state(&s2_context, 0x02, 0x82);
 
   mock_calls_verify();
 }
-
 
 /** Test case for ensuring correct handling of node inclusion in all cases when there is a valid combination
  *  of scheme support and key request.
@@ -3279,41 +4322,101 @@ void test_kex_inclusion_invalid_key_report_set(void) {
  *
  *  Test: This test case will ensure a KEX Set is transmitted when a valid set of schemes/keys is requested.
  */
-void test_kex_inclusion_valid_keys(void) {
-  uint32_t         i;
-  mock_t         * p_mock;
-  uint8_t          frame_buffer[UNIT_TEST_BUF_SIZE];
-  uint8_t          s2_kex_report_frame[6];
-  uint8_t          s2_kex_set_frame[6];
-  struct S2        s2_context;
+void test_kex_inclusion_valid_keys(void)
+{
+  uint32_t i;
+  mock_t *p_mock;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  uint8_t s2_kex_report_frame[6];
+  uint8_t s2_kex_set_frame[6];
+  struct S2 s2_context;
 
-//  uint8_t S2_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x03, 0x01, 0x84}; // Scheme 0 and 2, curve25519, S2, key 2, and S0 network key.
-  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being set by upper layer.
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  //  uint8_t S2_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x03, 0x01, 0x84}; // Scheme 0 and 2, curve25519, S2, key 2, and S0 network key.
+  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22,  // Public key as being set by upper layer.
+                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                            0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                            0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   uint8_t key_request_pass_test_vector[][4] = {
-    {0x02, 0x01, 0x02, 0x01},  // Scheme 1 = true, key request S2 = yes, key request S0 = no.  Valid request.
-    {0x02, 0x02, 0x02, 0x02},  // Scheme 1 = true, key request S2 = yes, key request S0 = no.  Valid request.
-    {0x02, 0x03, 0x02, 0x03},  // Scheme 1 = true, key request S2 = yes, key request S0 = no.  Valid request.
-    {0x02, 0x80, 0x02, 0x80},  // Scheme 1 = true, key request S2 = no,  key request S0 = yes.   Valid request.
-    {0x02, 0x81, 0x02, 0x81},  // Scheme 1 = true, key request S2 = yes, key request S0 = yes. Valid request.
-    {0x02, 0x82, 0x02, 0x82},  // Scheme 1 = true, key request S2 = yes, key request S0 = yes. Valid request.
-    {0x02, 0x83, 0x02, 0x83},  // Scheme 1 = true, key request S2 = yes, key request S0 = yes. Valid request.
+    {0x02,
+     0x01,
+     0x02,
+     0x01},  // Scheme 1 = true, key request S2 = yes, key request S0 = no.  Valid request.
+    {0x02,
+     0x02,
+     0x02,
+     0x02},  // Scheme 1 = true, key request S2 = yes, key request S0 = no.  Valid request.
+    {0x02,
+     0x03,
+     0x02,
+     0x03},  // Scheme 1 = true, key request S2 = yes, key request S0 = no.  Valid request.
+    {0x02,
+     0x80,
+     0x02,
+     0x80},  // Scheme 1 = true, key request S2 = no,  key request S0 = yes.   Valid request.
+    {0x02,
+     0x81,
+     0x02,
+     0x81},  // Scheme 1 = true, key request S2 = yes, key request S0 = yes. Valid request.
+    {0x02,
+     0x82,
+     0x02,
+     0x82},  // Scheme 1 = true, key request S2 = yes, key request S0 = yes. Valid request.
+    {0x02,
+     0x83,
+     0x02,
+     0x83},  // Scheme 1 = true, key request S2 = yes, key request S0 = yes. Valid request.
     // Subset only granted
-    {0x02, 0x03, 0x02, 0x01},  // Key request S2 = yes, key request S0 = no.  Granted S2 = yes, S0 = no.  Valid request.
-    {0x02, 0x03, 0x02, 0x02},  // Key request S2 = yes, key request S0 = no.  Granted S2 = yes, S0 = no.  Valid request.
-    {0x02, 0x81, 0x02, 0x80},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = yes. Valid request.
-    {0x02, 0x82, 0x02, 0x80},  // Key request S2 = yes, key request S0 = yes. Granted S2 = no,  S0 = yes. Valid request.
-    {0x02, 0x81, 0x02, 0x01},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = no.  Valid request.
-    {0x02, 0x82, 0x02, 0x02},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = no.  Valid request.
-    {0x02, 0x83, 0x02, 0x81},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = yes. Valid request.
-    {0x02, 0x83, 0x02, 0x82},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = yes. Valid request.
-    {0x02, 0x83, 0x02, 0x03},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = no.  Valid request.
-    {0x02, 0x83, 0x02, 0x80},  // Key request S2 = yes, key request S0 = yes. Granted S2 = no,  S0 = yes. Valid request.
-    {0x02, 0x83, 0x02, 0x01},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = no.  Valid request.
-    {0x02, 0x83, 0x02, 0x02},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = no.  Valid request.
+    {0x02,
+     0x03,
+     0x02,
+     0x01},  // Key request S2 = yes, key request S0 = no.  Granted S2 = yes, S0 = no.  Valid request.
+    {0x02,
+     0x03,
+     0x02,
+     0x02},  // Key request S2 = yes, key request S0 = no.  Granted S2 = yes, S0 = no.  Valid request.
+    {0x02,
+     0x81,
+     0x02,
+     0x80},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = yes. Valid request.
+    {0x02,
+     0x82,
+     0x02,
+     0x80},  // Key request S2 = yes, key request S0 = yes. Granted S2 = no,  S0 = yes. Valid request.
+    {0x02,
+     0x81,
+     0x02,
+     0x01},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = no.  Valid request.
+    {0x02,
+     0x82,
+     0x02,
+     0x02},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = no.  Valid request.
+    {0x02,
+     0x83,
+     0x02,
+     0x81},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = yes. Valid request.
+    {0x02,
+     0x83,
+     0x02,
+     0x82},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = yes. Valid request.
+    {0x02,
+     0x83,
+     0x02,
+     0x03},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = no.  Valid request.
+    {0x02,
+     0x83,
+     0x02,
+     0x80},  // Key request S2 = yes, key request S0 = yes. Granted S2 = no,  S0 = yes. Valid request.
+    {0x02,
+     0x83,
+     0x02,
+     0x01},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = no.  Valid request.
+    {0x02,
+     0x83,
+     0x02,
+     0x02},  // Key request S2 = yes, key request S0 = yes. Granted S2 = yes, S0 = no.  Valid request.
   };
 
   mock_calls_clear();
@@ -3328,52 +4431,61 @@ void test_kex_inclusion_valid_keys(void) {
   s2_context.buf             = frame_buffer;
   s2_inclusion_set_event_handler(s2_event_handler);
 
-  for (i = 0; i < ELEM_COUNT(key_request_pass_test_vector); i++)
-  {
-
+  for (i = 0; i < ELEM_COUNT(key_request_pass_test_vector); i++) {
     /****************************
      * Mock expectation section *
      ****************************/
-    s2_inclusion_init( key_request_pass_test_vector[i][0], 0x01, key_request_pass_test_vector[i][1]);
+    s2_inclusion_init(key_request_pass_test_vector[i][0],
+                      0x01,
+                      key_request_pass_test_vector[i][1]);
 
     // After including node has sent a KEX Get, a response with above settings is expected.
     s2_kex_report_frame[0] = COMMAND_CLASS_SECURITY_2;
     s2_kex_report_frame[1] = KEX_REPORT;
-    s2_kex_report_frame[2] = 0x04, // reserved | NLS support | Request CSA | Echo
-    s2_kex_report_frame[3] = key_request_pass_test_vector[i][0]; // Supported schemes.
-    s2_kex_report_frame[4] = 0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-    s2_kex_report_frame[5] = key_request_pass_test_vector[i][1]; // Requested keys bit.
+    s2_kex_report_frame[2]
+      = 0x04,  // reserved | NLS support | Request CSA | Echo
+      s2_kex_report_frame[3]
+      = key_request_pass_test_vector[i][0];  // Supported schemes.
+    s2_kex_report_frame[4]
+      = 0x01,  // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+      s2_kex_report_frame[5]
+      = key_request_pass_test_vector[i][1];  // Requested keys bit.
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = s2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(s2_kex_report_frame);
 
     // Before exchange of public keys, then we expect that our public key is requested from the keystore.
     // If any of the authenticated keys are requested, we expect the primary keypair to be used. Otherwise
     // the dynamic keypair.
-    if ((KEY_CLASS_S2_ACCESS | KEY_CLASS_S2_AUTHENTICATED) & key_request_pass_test_vector[i][3])
-    {
+    if ((KEY_CLASS_S2_ACCESS | KEY_CLASS_S2_AUTHENTICATED)
+        & key_request_pass_test_vector[i][3]) {
       mock_call_expect(TO_STR(keystore_public_key_read), &p_mock);
-    }
-    else
-    {
+    } else {
       mock_call_expect(TO_STR(keystore_dynamic_public_key_read), &p_mock);
     }
     p_mock->output_arg[0].pointer = public_key_b;
 
-    uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00}; // Key exchange received from slave - public key for secure exchange of LTK.
+    uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {
+      COMMAND_CLASS_SECURITY_2,
+      PUBLIC_KEY_REPORT,
+      0x00};  // Key exchange received from slave - public key for secure exchange of LTK.
     memcpy(&s2_public_key_frame[3], public_key_b, sizeof(public_key_b));
     // If the node uses only unauthenticated keys, then full public key is expected, else the first two bytes are zero'ed out.
-    if ((KEY_CLASS_S2_ACCESS | KEY_CLASS_S2_AUTHENTICATED) & key_request_pass_test_vector[i][3])
-    {
+    if ((KEY_CLASS_S2_ACCESS | KEY_CLASS_S2_AUTHENTICATED)
+        & key_request_pass_test_vector[i][3]) {
       s2_public_key_frame[3] = 0x00;
       s2_public_key_frame[4] = 0x00;
     }
 
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = s2_public_key_frame;
     p_mock->expect_arg[3].value   = sizeof(s2_public_key_frame);
 
@@ -3383,7 +4495,7 @@ void test_kex_inclusion_valid_keys(void) {
 
     // Node id (first step in inclusion) has been assigned.
     // Continue with secure inclusion.
-    s2_inclusion_joining_start(&s2_context,&s2_con,0);
+    s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
     // KEX Get frame received.
     helper_func_kex_get_frame(&s2_context);
@@ -3392,14 +4504,17 @@ void test_kex_inclusion_valid_keys(void) {
     // KEX Set frame received - With an unsupported/not requested scheme set.
     s2_kex_set_frame[0] = COMMAND_CLASS_SECURITY_2;
     s2_kex_set_frame[1] = KEX_SET;
-    s2_kex_set_frame[2] = 0x00, // bit 0 is echo field, rest are reserved
-    s2_kex_set_frame[3] = key_request_pass_test_vector[i][2]; // Supported schemes.
-    s2_kex_set_frame[4] = 0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-    s2_kex_set_frame[5] = key_request_pass_test_vector[i][3]; // Granted keys bit.
+    s2_kex_set_frame[2] = 0x00,  // bit 0 is echo field, rest are reserved
+      s2_kex_set_frame[3]
+      = key_request_pass_test_vector[i][2];  // Supported schemes.
+    s2_kex_set_frame[4]
+      = 0x01,  // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+      s2_kex_set_frame[5]
+      = key_request_pass_test_vector[i][3];  // Granted keys bit.
 
-    s2_context.buf           = s2_kex_set_frame;
-    s2_context.length        = sizeof(s2_kex_set_frame);
-    s2_con.class_id = 0xFF;
+    s2_context.buf    = s2_kex_set_frame;
+    s2_context.length = sizeof(s2_kex_set_frame);
+    s2_con.class_id   = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
     helper_func_idle_state(&s2_context);
@@ -3408,9 +4523,10 @@ void test_kex_inclusion_valid_keys(void) {
 
 /** Test case for ensuring correct timer handling on timeout while in idle.
  */
-void test_kex_inclusion_timeout_when_idle(void) {
-  mock_t  * p_mock;
-  uint8_t   frame_buffer[UNIT_TEST_BUF_SIZE];
+void test_kex_inclusion_timeout_when_idle(void)
+{
+  mock_t *p_mock;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
   struct S2 s2_context;
 
   mock_calls_clear();
@@ -3430,10 +4546,13 @@ void test_kex_inclusion_timeout_when_idle(void) {
 
   // After timeout we will issue a node inclusion just to insure we were in idle and that a node
   // may be included after timeout.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04,0x02, 0x01, 0x01};
+  uint8_t S2_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x01};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
 
@@ -3446,7 +4565,7 @@ void test_kex_inclusion_timeout_when_idle(void) {
 
   // Node id (first step in inclusion) has been assigned.
   // Let's initiate a secure inclusion after the timeout to verify the state of the system.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   // KEX Get frame received.
   helper_func_kex_get_frame(&s2_context);
@@ -3460,12 +4579,14 @@ void test_kex_inclusion_timeout_when_idle(void) {
  *
  *  Such frame should be silently ignored.
  */
-void test_kex_inclusion_invalid_frame_idle(void) {
-  uint8_t         frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2       s2_context;
+void test_kex_inclusion_invalid_frame_idle(void)
+{
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
 
   // Invalid joining start frame.
-  uint8_t s2_invalid_joining_frame[] = {COMMAND_CLASS_SECURITY_2, 0x02, 0x01, 0x00, 0x00, 0x00};
+  uint8_t s2_invalid_joining_frame[]
+    = {COMMAND_CLASS_SECURITY_2, 0x02, 0x01, 0x00, 0x00, 0x00};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -3476,9 +4597,11 @@ void test_kex_inclusion_invalid_frame_idle(void) {
   s2_inclusion_set_event_handler(s2_event_handler);
   s2_inclusion_init(0x02, 0x01, 0x82);
 
-  memcpy((uint8_t *)s2_context.buf, s2_invalid_joining_frame, sizeof(s2_invalid_joining_frame));
+  memcpy((uint8_t *)s2_context.buf,
+         s2_invalid_joining_frame,
+         sizeof(s2_invalid_joining_frame));
   s2_context.length = sizeof(s2_invalid_joining_frame);
-  s2_con.class_id = 0xFF;
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // Let's try to see if we can get the system to join us (should not be possible).
@@ -3491,22 +4614,26 @@ void test_kex_inclusion_invalid_frame_idle(void) {
 /** This test case ensure that the system continues to send ECHO KEX Set until a ECHO KEX Report is received regardless if send done fails or succeeds.
  *  When ECHO KEX Report is received the state machine continues.
  */
-void test_kex_inclusion_echo_kex_set_retry(void) {
-  mock_t       * p_mock;
-//  zwave_event_t  * p_expected_event;
-  uint8_t        frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2      s2_context;
-  static uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_inclusion_echo_kex_set_retry(void)
+{
+  mock_t *p_mock;
+  //  zwave_event_t  * p_expected_event;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  static uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                                   0x11, 0x22,  // Public key as being fetch from the keystore.
+                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                                   0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                                   0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                                   0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t s2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x81};
+  uint8_t s2_echo_kex_set_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x81};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -3521,7 +4648,6 @@ void test_kex_inclusion_echo_kex_set_retry(void) {
   s2_context.buf             = frame_buffer;
   s2_inclusion_set_event_handler(s2_event_handler);
 
-
   /****************************
    * Mock expectation section *
    ****************************/
@@ -3530,10 +4656,13 @@ void test_kex_inclusion_echo_kex_set_retry(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent.
-  static uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x81};
+  static uint8_t S2_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x81};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
 
@@ -3542,26 +4671,65 @@ void test_kex_inclusion_echo_kex_set_retry(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // When the KEX Set is received, we expect public keys to be exchanges.
-  static uint8_t S2_pub_key_B_frame[] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, // Including node bit not set
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,   // Public key as being fetch from keystore.
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  static uint8_t S2_pub_key_B_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       PUBLIC_KEY_REPORT,
+       0x00,  // Including node bit not set
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,  // Public key as being fetch from keystore.
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22};
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_pub_key_B_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_pub_key_B_frame);
 
   // When the public key A is received, we expect that the event from libs2 contains the key in order to present it for the operator.
   // Therefore we copy the key minus header frame into expected data and push an event upwards.
-  zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[1];
-  p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x81;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-  memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  zwave_event_t *p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[1];
+  p_expected_inc_req_event->event_type
+    = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+    = sizeof(m_test_public_key_a);
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+    = 0x81;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+  memcpy(
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+    m_test_public_key_a,
+    sizeof(m_test_public_key_a));
 
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
@@ -3574,41 +4742,57 @@ void test_kex_inclusion_echo_kex_set_retry(void) {
 
   // When public key is received we expect an echo(KEX Set) to be sent.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-  p_mock->expect_arg[3].value   = sizeof(s2_echo_kex_set_frame);
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+  p_mock->expect_arg[3].value = sizeof(s2_echo_kex_set_frame);
 
   // First echo succeeds but as no ECHO KEX Report is received we still expect an second echo(KEX Set) to be sent.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-  p_mock->expect_arg[3].value   = sizeof(s2_echo_kex_set_frame);
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+  p_mock->expect_arg[3].value = sizeof(s2_echo_kex_set_frame);
 
   // Second echo fails (other side is probably busy calculating)so we expect an third echo(KEX Set) to be sent.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-  p_mock->expect_arg[3].value   = sizeof(s2_echo_kex_set_frame);
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+  p_mock->expect_arg[3].value = sizeof(s2_echo_kex_set_frame);
 
   // Expect Net Key Get to be sent.
-  static uint8_t S2_net_key_get_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x01};
+  static uint8_t S2_net_key_get_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x01};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_net_key_get_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_net_key_get_frame);
 
   // Second echo fails so we expect an third echo(KEX Set) to be sent.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->compare_rule_arg[2]   = COMPARE_ANY; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->compare_rule_arg[3]   = COMPARE_ANY; // This shall be updated once excact frame is defined for S2 frames.
-//  p_mock->expect_arg[2].pointer = s2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-//  p_mock->expect_arg[3].value   = sizeof(s2_echo_kex_set_frame);
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[2]
+    = COMPARE_ANY;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[3]
+    = COMPARE_ANY;  // This shall be updated once excact frame is defined for S2 frames.
+  //  p_mock->expect_arg[2].pointer = s2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
+  //  p_mock->expect_arg[3].value   = sizeof(s2_echo_kex_set_frame);
 
   /*******************
    * Testing section *
@@ -3616,7 +4800,7 @@ void test_kex_inclusion_echo_kex_set_retry(void) {
 
   // Node id (first step in inclusion) has been assigned.
   // Continue with secure inclusion.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   helper_func_kex_get_frame(&s2_context);
   s2_inclusion_post_event(&s2_context, &s2_con);
@@ -3649,7 +4833,7 @@ void test_kex_inclusion_echo_kex_set_retry(void) {
 
   // After receiving a timeout it is expected that the inclusion state machine is back in idle and
   // that we can initiate a new inclusion which will also trigger a new set timeout call.
-//  helper_func_verify_idle_state(&s2_context, 0x02, 0x82);
+  //  helper_func_verify_idle_state(&s2_context, 0x02, 0x82);
 
   mock_calls_verify();
 }
@@ -3662,25 +4846,28 @@ void test_kex_inclusion_echo_kex_set_retry(void) {
  *  - Writing of network keys to keystore when receiving them.
  *  - Restore of all keys when inclusion is complete.
  */
-void test_inclusion_keystore_handling(void) {
-  mock_t       * p_mock;
-//  zwave_event_t  * p_expected_event;
-  uint8_t        frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2      s2_context;
-  static uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_inclusion_keystore_handling(void)
+{
+  mock_t *p_mock;
+  //  zwave_event_t  * p_expected_event;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  static uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                                   0x11, 0x22,  // Public key as being fetch from the keystore.
+                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                                   0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                                   0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                                   0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t shared_secret[] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
-                             0x0F, 0xED, 0xCB, 0xA9, 0x87, 0x65, 0x43, 0x21,
-                             0x10, 0x29, 0x38, 0x47, 0x56, 0x65, 0x74, 0x83,
-                             0x38, 0x63, 0x97, 0x47, 0x82, 0x12, 0x53, 0xc4};
+  uint8_t shared_secret[]
+    = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x0F, 0xED, 0xCB,
+       0xA9, 0x87, 0x65, 0x43, 0x21, 0x10, 0x29, 0x38, 0x47, 0x56, 0x65,
+       0x74, 0x83, 0x38, 0x63, 0x97, 0x47, 0x82, 0x12, 0x53, 0xc4};
 
   uint8_t expected_auth_tag[64];
 
@@ -3689,17 +4876,16 @@ void test_inclusion_keystore_handling(void) {
   mock_call_use_as_stub(TO_STR(S2_send_frame));
   mock_call_use_as_stub(TO_STR(S2_send_data));
   mock_call_use_as_stub(TO_STR(s2_event_handler));
-//  mock_call_use_as_stub(TO_STR(S2_network_key_update));
-//  mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
-//  mock_call_use_as_stub(TO_STR(tempkey_extract));
-//  mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
-//  mock_call_use_as_stub(TO_STR(keystore_network_key_write));
+  //  mock_call_use_as_stub(TO_STR(S2_network_key_update));
+  //  mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
+  //  mock_call_use_as_stub(TO_STR(tempkey_extract));
+  //  mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
+  //  mock_call_use_as_stub(TO_STR(keystore_network_key_write));
 
   memset(&s2_context, 0, sizeof(s2_context));
   s2_context.inclusion_state = S2_INC_IDLE;
   s2_context.buf             = frame_buffer;
   s2_inclusion_set_event_handler(s2_event_handler);
-
 
   /****************************
    * Mock expectation section *
@@ -3737,8 +4923,9 @@ void test_inclusion_keystore_handling(void) {
 
   // S2 protocol should be updated with the temporary key.
   mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;
-  p_mock->expect_arg[1].value   = UNIT_TEST_TEMP_KEY_SECURE; // Temp key is expected to be stored @0 on slave and @3 on a controller index.
+  p_mock->compare_rule_arg[0] = COMPARE_ANY;
+  p_mock->expect_arg[1].value
+    = UNIT_TEST_TEMP_KEY_SECURE;  // Temp key is expected to be stored @0 on slave and @3 on a controller index.
   p_mock->expect_arg[2].pointer = m_temp_key;
   p_mock->expect_arg[3].value   = 1;  // Temp key expansion.
 
@@ -3748,8 +4935,9 @@ void test_inclusion_keystore_handling(void) {
   p_mock->expect_arg[1].pointer = m_test_network_key_s2_class_0;
 
   mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;
-  p_mock->expect_arg[1].value   = UNIT_TEST_NETWORK_KEY; // Network key is expected to be stored index @1 on slave and index @4 on controller.
+  p_mock->compare_rule_arg[0] = COMPARE_ANY;
+  p_mock->expect_arg[1].value
+    = UNIT_TEST_NETWORK_KEY;  // Network key is expected to be stored index @1 on slave and index @4 on controller.
   p_mock->expect_arg[2].pointer = m_test_network_key_s2_class_0;
   p_mock->expect_arg[3].value   = 0;  // No network key expansion.
 
@@ -3759,8 +4947,9 @@ void test_inclusion_keystore_handling(void) {
   p_mock->expect_arg[1].pointer = m_test_network_key_s0;
 
   mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;
-  p_mock->expect_arg[1].value   = UNIT_TEST_NETWORK_KEY; // Network key is expected to be stored index @1 on slave and index @4 on controller.
+  p_mock->compare_rule_arg[0] = COMPARE_ANY;
+  p_mock->expect_arg[1].value
+    = UNIT_TEST_NETWORK_KEY;  // Network key is expected to be stored index @1 on slave and index @4 on controller.
   p_mock->expect_arg[2].pointer = m_test_network_key_s0;
   p_mock->expect_arg[3].value   = 0;  // No network key expansion.
 
@@ -3771,36 +4960,36 @@ void test_inclusion_keystore_handling(void) {
   mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
   p_mock->expect_arg[0].value   = 0x01;
   p_mock->output_arg[1].pointer = m_test_network_key_s2_class_0;
-  p_mock->return_code.value         = true;
+  p_mock->return_code.value     = true;
 
   mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;
-  p_mock->expect_arg[1].value   = 0; // Network key 0x01 is expected to be stored @0 index.
+  p_mock->compare_rule_arg[0] = COMPARE_ANY;
+  p_mock->expect_arg[1].value
+    = 0;  // Network key 0x01 is expected to be stored @0 index.
   p_mock->expect_arg[2].pointer = m_test_network_key_s2_class_0;
   p_mock->expect_arg[3].value   = 0;  // No network key expansion.
 
   mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
   p_mock->expect_arg[0].value   = 0x02;
   p_mock->output_arg[1].pointer = m_test_mem_pool[0];
-  p_mock->return_code.value         = false;
+  p_mock->return_code.value     = false;
 
   mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
   p_mock->expect_arg[0].value   = 0x04;
   p_mock->output_arg[1].pointer = m_test_mem_pool[1];
-  p_mock->return_code.value         = false;
+  p_mock->return_code.value     = false;
 
 #ifdef ZW_CONTROLLER
   mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
   p_mock->expect_arg[0].value   = 0x08;
   p_mock->output_arg[1].pointer = m_test_mem_pool[0];
-  p_mock->return_code.value         = false;
+  p_mock->return_code.value     = false;
 
   mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
   p_mock->expect_arg[0].value   = 0x10;
   p_mock->output_arg[1].pointer = m_test_mem_pool[1];
-  p_mock->return_code.value         = false;
+  p_mock->return_code.value     = false;
 #endif
-
 
   /*******************
    * Testing section *
@@ -3808,7 +4997,7 @@ void test_inclusion_keystore_handling(void) {
 
   // Node id (first step in inclusion) has been assigned.
   // Continue with secure inclusion.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   helper_func_kex_get_frame(&s2_context);
   s2_inclusion_post_event(&s2_context, &s2_con);
@@ -3849,14 +5038,17 @@ void test_inclusion_keystore_handling(void) {
  *
  *  Test: This test case will a KEX_FAIL_KEY is returned when invalid set of schemes/keys is requested.
  */
-void test_kex_inclusion_received_kex_fail_frame(void) {
-  mock_t         * p_mock;
-  zwave_event_t  * p_expected_event;
-  uint8_t          frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2        s2_context;
+void test_kex_inclusion_received_kex_fail_frame(void)
+{
+  mock_t *p_mock;
+  zwave_event_t *p_expected_event;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
 
-  uint8_t          s2_kex_report_frame[6] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x84};
-  uint8_t          s2_kex_error_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, 0x01}; // KEX_FAIL_KEX_KEY = 0x01
+  uint8_t s2_kex_report_frame[6]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x84};
+  uint8_t s2_kex_error_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, 0x01};  // KEX_FAIL_KEX_KEY = 0x01
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -3878,12 +5070,14 @@ void test_kex_inclusion_received_kex_fail_frame(void) {
 
   // After including node has sent a KEX Get, a response is expected.
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = s2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(s2_kex_report_frame);
 
-  p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_event             = (zwave_event_t *)m_test_mem_pool[0];
   p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
   p_expected_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type = 0x01;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
@@ -3895,15 +5089,15 @@ void test_kex_inclusion_received_kex_fail_frame(void) {
 
   // Node id (first step in inclusion) has been assigned.
   // Continue with secure inclusion.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   // KEX Get frame received.
   helper_func_kex_get_frame(&s2_context);
   s2_inclusion_post_event(&s2_context, &s2_con);
 
-  s2_context.buf           = s2_kex_error_frame;
-  s2_context.length        = sizeof(s2_kex_error_frame);
-  s2_con.class_id = 0xFF;
+  s2_context.buf    = s2_kex_error_frame;
+  s2_context.length = sizeof(s2_kex_error_frame);
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // Retry node inclusion.
@@ -3916,9 +5110,10 @@ void test_kex_inclusion_received_kex_fail_frame(void) {
  *  This feature is requested on nodes that might support both Security 0 and security 2, but where
  *  it is unknown which inclusion mode will be activated.
  */
-void test_kex_inclusion_abort(void) {
-  struct S2        s2_context;
-  uint8_t          frame_buffer[UNIT_TEST_BUF_SIZE];
+void test_kex_inclusion_abort(void)
+{
+  struct S2 s2_context;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -3936,14 +5131,13 @@ void test_kex_inclusion_abort(void) {
    ****************************/
   s2_inclusion_init(0x02, 0x01, 0x84);
 
-
   /*******************
    * Testing section *
    *******************/
 
   // Node id (first step in inclusion) has been assigned.
   // Continue with secure inclusion.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   // Security 0 learn mode was initiated, abort current inclusion.
   s2_inclusion_abort(&s2_context);
@@ -3962,16 +5156,17 @@ void test_kex_inclusion_abort(void) {
  *
  *  This failure should result in a KEX Fail - TBD to be transmitted to the inclusion_peer.
  */
-void test_kex_joining_node_wrong_dsk_input(void) {
-  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key.
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_joining_node_wrong_dsk_input(void)
+{
+  uint8_t public_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Public key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -3985,7 +5180,7 @@ void test_kex_joining_node_wrong_dsk_input(void) {
   /**
    *  Test expectation setup.
    */
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   // When secure learn mode is started then the following event is expected when the joining node receives a KEX Get from including node.
   helper_func_inclusion_initiated_event();
@@ -3997,22 +5192,35 @@ void test_kex_joining_node_wrong_dsk_input(void) {
   mock_call_expect(TO_STR(keystore_public_key_read), &p_mock);
   p_mock->output_arg[0].pointer = public_key_b;
 
-  uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, 0x00, 0x00}; // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
+  uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {
+    COMMAND_CLASS_SECURITY_2,
+    PUBLIC_KEY_REPORT,
+    0x00,
+    0x00,
+    0x00};  // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
   memcpy(&s2_public_key_frame[5], &public_key_b[2], sizeof(public_key_b) - 2);
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = s2_public_key_frame;
   p_mock->expect_arg[3].value   = sizeof(s2_public_key_frame);
   p_mock->return_code.value     = 1;
 
   // When receiving public key A, then we expect an event to be pushed up and both our public and private keys are requested from the keystore.
-  zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-  p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x82;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-  memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  zwave_event_t *p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_inc_req_event->event_type
+    = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+    = sizeof(m_test_public_key_a);
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+    = 0x82;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+  memcpy(
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+    m_test_public_key_a,
+    sizeof(m_test_public_key_a));
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
 
@@ -4022,17 +5230,27 @@ void test_kex_joining_node_wrong_dsk_input(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // Expect Echo(KEX Report) to be sent.
-  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82}; // Note: Echo flag set.
+  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2,
+                                     KEX_SET,
+                                     0x01,
+                                     0x02,
+                                     0x01,
+                                     0x82};  // Note: Echo flag set.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(S2_echo_kex_set_frame);
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
 
   // When a KEX Fail decrypt is received, then inclusion should be aborted.
-  zwave_event_t  * p_expected_inc_fail_event = (zwave_event_t *)m_test_mem_pool[1];
+  zwave_event_t *p_expected_inc_fail_event
+    = (zwave_event_t *)m_test_mem_pool[1];
   p_expected_inc_fail_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
-  p_expected_inc_fail_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type = 0x05;
+  p_expected_inc_fail_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type
+    = 0x05;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_fail_event;
 
@@ -4047,13 +5265,13 @@ void test_kex_joining_node_wrong_dsk_input(void) {
   s2_inclusion_init(0x02, 0x01, 0x82);
   s2_inclusion_set_event_handler(s2_event_handler);
 
-  s2_inclusion_joining_start(&s2_context, &s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   // KEX Get frame received.
   uint8_t S2_kex_get_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_GET};
-  s2_context.buf           = S2_kex_get_frame;
-  s2_context.length        = sizeof(S2_kex_get_frame);
-  s2_con.class_id = 0xFF;
+  s2_context.buf             = S2_kex_get_frame;
+  s2_context.length          = sizeof(S2_kex_get_frame);
+  s2_con.class_id            = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // KEX report is expeted to be transmitted. Let's make the s2_send_frame a success.
@@ -4064,26 +5282,32 @@ void test_kex_joining_node_wrong_dsk_input(void) {
   // Selected schemes: scheme 0 and scheme 2.
   // Selected curve25519
   // Keys to exchange, Security2, class 2 - Security0, network key.
-  uint8_t s2_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x82};
+  uint8_t s2_kex_set_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x82};
   s2_context.buf    = s2_kex_set_frame;
   s2_context.length = sizeof(s2_kex_set_frame);
-  s2_con.class_id = 0xFF;
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
-  uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x01}; // Key exchange received from slave - public key for secure exchange of LTK.
-  memcpy(&public_key_frame[3], m_test_public_key_a, sizeof(m_test_public_key_a));
+  uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {
+    COMMAND_CLASS_SECURITY_2,
+    PUBLIC_KEY_REPORT,
+    0x01};  // Key exchange received from slave - public key for secure exchange of LTK.
+  memcpy(&public_key_frame[3],
+         m_test_public_key_a,
+         sizeof(m_test_public_key_a));
   s2_context.buf    = public_key_frame;
   s2_context.length = sizeof(public_key_frame);
-  s2_con.class_id = 0xFF;
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
 
   // If wrong DSK is provided by end-user, then it is expected that a KEX Fail event is received.
   uint8_t s2_kex_fail_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, 0x05};
-  s2_context.buf    = s2_kex_fail_frame;
-  s2_context.length = sizeof(s2_kex_fail_frame);
-  s2_con.class_id = 0xFF;
+  s2_context.buf              = s2_kex_fail_frame;
+  s2_context.length           = sizeof(s2_kex_fail_frame);
+  s2_con.class_id             = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   helper_func_verify_idle_state(&s2_context, 0x02, 0x82);
@@ -4101,25 +5325,28 @@ void test_kex_joining_node_wrong_dsk_input(void) {
  *  - Writing of network keys to keystore when receiving them.
  *  - Restore of all keys when inclusion is complete.
  */
-void test_keystore_doorlock(void) {
-  mock_t       * p_mock;
-//  zwave_event_t  * p_expected_event;
-  uint8_t        frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2      s2_context;
-  static uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_keystore_doorlock(void)
+{
+  mock_t *p_mock;
+  //  zwave_event_t  * p_expected_event;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  static uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                                   0x11, 0x22,  // Public key as being fetch from the keystore.
+                                   0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                                   0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                                   0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                                   0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t shared_secret[] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
-                             0x0F, 0xED, 0xCB, 0xA9, 0x87, 0x65, 0x43, 0x21,
-                             0x10, 0x29, 0x38, 0x47, 0x56, 0x65, 0x74, 0x83,
-                             0x38, 0x63, 0x97, 0x47, 0x82, 0x12, 0x53, 0xc4};
+  uint8_t shared_secret[]
+    = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x0F, 0xED, 0xCB,
+       0xA9, 0x87, 0x65, 0x43, 0x21, 0x10, 0x29, 0x38, 0x47, 0x56, 0x65,
+       0x74, 0x83, 0x38, 0x63, 0x97, 0x47, 0x82, 0x12, 0x53, 0xc4};
 
   uint8_t expected_auth_tag[64];
 
@@ -4133,7 +5360,6 @@ void test_keystore_doorlock(void) {
   s2_context.inclusion_state = S2_INC_IDLE;
   s2_context.buf             = frame_buffer;
   s2_inclusion_set_event_handler(s2_event_handler);
-
 
   /****************************
    * Mock expectation section *
@@ -4171,8 +5397,9 @@ void test_keystore_doorlock(void) {
 
   // S2 protocol should be updated with the temporary key.
   mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;
-  p_mock->expect_arg[1].value   = UNIT_TEST_TEMP_KEY_SECURE; // Temp key is expected to be stored index @0 on slave and index @3 on controller..
+  p_mock->compare_rule_arg[0] = COMPARE_ANY;
+  p_mock->expect_arg[1].value
+    = UNIT_TEST_TEMP_KEY_SECURE;  // Temp key is expected to be stored index @0 on slave and index @3 on controller..
   p_mock->expect_arg[2].pointer = m_temp_key;
   p_mock->expect_arg[3].value   = 1;  // Temp key expansion.
 
@@ -4182,8 +5409,9 @@ void test_keystore_doorlock(void) {
   p_mock->expect_arg[1].pointer = m_test_network_key_s2_class_2;
 
   mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;
-  p_mock->expect_arg[1].value   = UNIT_TEST_NETWORK_KEY; // Network key is expected to be stored index @1 on slave and index @4 on controller.
+  p_mock->compare_rule_arg[0] = COMPARE_ANY;
+  p_mock->expect_arg[1].value
+    = UNIT_TEST_NETWORK_KEY;  // Network key is expected to be stored index @1 on slave and index @4 on controller.
   p_mock->expect_arg[2].pointer = m_test_network_key_s2_class_2;
   p_mock->expect_arg[3].value   = 0;  // No network key expansion.
 
@@ -4193,8 +5421,9 @@ void test_keystore_doorlock(void) {
   p_mock->expect_arg[1].pointer = m_test_network_key_s0;
 
   mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;
-  p_mock->expect_arg[1].value   = UNIT_TEST_NETWORK_KEY; // Network key is expected to be stored index @1 on slave and index @4 on controller.
+  p_mock->compare_rule_arg[0] = COMPARE_ANY;
+  p_mock->expect_arg[1].value
+    = UNIT_TEST_NETWORK_KEY;  // Network key is expected to be stored index @1 on slave and index @4 on controller.
   p_mock->expect_arg[2].pointer = m_test_network_key_s0;
   p_mock->expect_arg[3].value   = 0;  // No network key expansion.
 
@@ -4205,34 +5434,34 @@ void test_keystore_doorlock(void) {
   mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
   p_mock->expect_arg[0].value   = 0x01;
   p_mock->output_arg[1].pointer = m_test_mem_pool[0];
-  p_mock->return_code.value         = false;
+  p_mock->return_code.value     = false;
 
   mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
   p_mock->expect_arg[0].value   = 0x02;
   p_mock->output_arg[1].pointer = m_test_mem_pool[0];
-  p_mock->return_code.value         = false;
+  p_mock->return_code.value     = false;
 
   mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
   p_mock->expect_arg[0].value   = 0x04;
   p_mock->output_arg[1].pointer = m_test_network_key_s2_class_2;
-  p_mock->return_code.value         = true;
+  p_mock->return_code.value     = true;
 
 #ifdef ZW_CONTROLLER
   mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
   p_mock->expect_arg[0].value   = 0x08;
   p_mock->output_arg[1].pointer = m_test_mem_pool[0];
-  p_mock->return_code.value         = false;
+  p_mock->return_code.value     = false;
 
   mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
   p_mock->expect_arg[0].value   = 0x10;
   p_mock->output_arg[1].pointer = m_test_mem_pool[0];
-  p_mock->return_code.value         = false;
+  p_mock->return_code.value     = false;
 #endif
 
-
   mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;
-  p_mock->expect_arg[1].value   = 2; // Network key 0x04 is expected to be stored @2 index.
+  p_mock->compare_rule_arg[0] = COMPARE_ANY;
+  p_mock->expect_arg[1].value
+    = 2;  // Network key 0x04 is expected to be stored @2 index.
   p_mock->expect_arg[2].pointer = m_test_network_key_s2_class_2;
   p_mock->expect_arg[3].value   = 0;  // No network key expansion.
 
@@ -4242,7 +5471,7 @@ void test_keystore_doorlock(void) {
 
   // Node id (first step in inclusion) has been assigned.
   // Continue with secure inclusion.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   helper_func_kex_get_frame(&s2_context);
   s2_inclusion_post_event(&s2_context, &s2_con);
@@ -4282,8 +5511,8 @@ void test_keystore_doorlock(void) {
 /** Verification that in case the inclusion state machine is in idle, then AUTH Failed should not
  *  be returned for an invalid encrypted frame. TO#06510
  */
-void test_kex_invalid_crypt_frame_idle(void) {
-
+void test_kex_invalid_crypt_frame_idle(void)
+{
   mock_calls_clear();
 
   /**
@@ -4293,7 +5522,7 @@ void test_kex_invalid_crypt_frame_idle(void) {
   /**
    *  Test execution.
    */
-  struct S2     s2_context;
+  struct S2 s2_context;
 
   memset(&s2_context, 0, sizeof(s2_context));
   s2_context.inclusion_state = S2_INC_IDLE;
@@ -4303,10 +5532,11 @@ void test_kex_invalid_crypt_frame_idle(void) {
   // bit0: Key request complete set,
   // bit1: Key verified not set,
   // bit2-7: Reserved.
-  uint8_t s2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
+  uint8_t s2_transfer_end_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
   s2_context.buf    = s2_transfer_end_frame;
   s2_context.length = sizeof(s2_transfer_end_frame);
-  s2_con.class_id = 0xFF;
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   mock_calls_verify();
@@ -4315,19 +5545,22 @@ void test_kex_invalid_crypt_frame_idle(void) {
 /** Test case for ensuring that the inclusion state machine will not abort if an older inclusion
  *  frame is received multiple times, as example due to retransmission or routing.
  */
-void test_kex_inclusion_tx_queue_full(void) {
-  mock_t       * p_mock;
-  uint8_t        frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2      s2_context;
-  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_inclusion_tx_queue_full(void)
+{
+  mock_t *p_mock;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22,  // Public key as being fetch from the keystore.
+                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                            0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                            0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -4353,19 +5586,25 @@ void test_kex_inclusion_tx_queue_full(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent. Calls fails as TX is full.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
+  uint8_t S2_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
   p_mock->return_code.value     = 0;
 
   // After send done / failed is received the inclusion shoud retry sending the frame and succeed.
-  uint8_t S2_kex_report_frame_retry[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
+  uint8_t S2_kex_report_frame_retry[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_kex_report_frame_retry;
   p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame_retry);
   p_mock->return_code.value     = 1;
@@ -4375,32 +5614,72 @@ void test_kex_inclusion_tx_queue_full(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // When the KEX Set is received, we expect public keys to be exchanges.
-  uint8_t S2_pub_key_B_frame[] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, // Including node bit not set
-                                  0x00, 0x00, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,   // Public key as being fetch from keystore.
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t S2_pub_key_B_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       PUBLIC_KEY_REPORT,
+       0x00,  // Including node bit not set
+       0x00,
+       0x00,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,  // Public key as being fetch from keystore.
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22};
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_pub_key_B_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_pub_key_B_frame);
   p_mock->return_code.value     = 0;
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_pub_key_B_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_pub_key_B_frame);
   p_mock->return_code.value     = 1;
 
   // When the public key A is received, we expect that the event from libs2 contains the key in order to present it for the operator.
   // Therefore we copy the key minus header frame into expected data and push an event upwards.
-  zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-  p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length = sizeof(m_test_public_key_a);
-  memcpy((uint8_t *)p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  zwave_event_t *p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_inc_req_event->event_type
+    = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+    = sizeof(m_test_public_key_a);
+  memcpy((uint8_t *)p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req
+           .public_key,
+         m_test_public_key_a,
+         sizeof(m_test_public_key_a));
 
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
@@ -4412,105 +5691,146 @@ void test_kex_inclusion_tx_queue_full(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // When public key is received we expect an echo(KEX Set) to be sent.
-  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
+  uint8_t S2_echo_kex_set_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
   S2_echo_kex_set_frame[0] = COMMAND_CLASS_SECURITY_2;
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-  p_mock->expect_arg[3].value   = sizeof(S2_echo_kex_set_frame);
-  p_mock->return_code.value     = 0;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+  p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+  p_mock->return_code.value   = 0;
 
   S2_echo_kex_set_frame[0] = COMMAND_CLASS_SECURITY_2;
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-  p_mock->expect_arg[3].value   = sizeof(S2_echo_kex_set_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+  p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+  p_mock->return_code.value   = 1;
 
   // Expect Net Key Get to be sent.
-  uint8_t S2_net_key_get_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
+  uint8_t S2_net_key_get_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_net_key_get_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_net_key_get_frame);
   p_mock->return_code.value     = 0;
 
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_net_key_get_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_net_key_get_frame);
   p_mock->return_code.value     = 1;
 
   // Expect Net Key Verify to be sent.
-  uint8_t S2_network_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t S2_network_key_verify_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_network_key_verify_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_network_key_verify_frame);
   p_mock->return_code.value     = 0;
 
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_network_key_verify_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_network_key_verify_frame);
   p_mock->return_code.value     = 1;
 
-  uint8_t s2_net_key_get_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x80};   // Keys requested, Security2, class 2 - Security0, network key.
+  uint8_t s2_net_key_get_0_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       SECURITY_2_NETWORK_KEY_GET,
+       0x80};  // Keys requested, Security2, class 2 - Security0, network key.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_get_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(s2_net_key_get_0_frame);
-  p_mock->return_code.value      = 0;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_get_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_get_0_frame);
+  p_mock->return_code.value   = 0;
 
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_get_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(s2_net_key_get_0_frame);
-  p_mock->return_code.value      = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_get_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_get_0_frame);
+  p_mock->return_code.value   = 1;
 
-  uint8_t s2_net_key_verify_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t s2_net_key_verify_0_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_verify_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value   = sizeof(s2_net_key_verify_0_frame);
-  p_mock->return_code.value     = 0;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_verify_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_0_frame);
+  p_mock->return_code.value   = 0;
 
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_verify_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value   = sizeof(s2_net_key_verify_0_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_verify_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_0_frame);
+  p_mock->return_code.value   = 1;
 
   // Expect S2 Transfer End to be sent.
-  uint8_t S2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
+  uint8_t S2_transfer_end_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_transfer_end_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_transfer_end_frame);
   p_mock->return_code.value     = 0;
 
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_transfer_end_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_transfer_end_frame);
   p_mock->return_code.value     = 1;
 
   // When S2 Transfer End is received, we expect a corresponding Node inclusion complete event from libs2.
-  zwave_event_t  * p_expected_complete_event = (zwave_event_t *)m_test_mem_pool[1];
+  zwave_event_t *p_expected_complete_event
+    = (zwave_event_t *)m_test_mem_pool[1];
   p_expected_complete_event->event_type = S2_NODE_JOINING_COMPLETE_EVENT;
-  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete.exchanged_keys = 0x82;
+  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete
+    .exchanged_keys
+    = 0x82;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_complete_event;
 
@@ -4520,7 +5840,7 @@ void test_kex_inclusion_tx_queue_full(void) {
 
   // Node id (first step in inclusion) has been assigned.
   // Continue with secure inclusion.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   helper_func_kex_get_frame(&s2_context);
   s2_inclusion_post_event(&s2_context, &s2_con);
@@ -4572,7 +5892,6 @@ void test_kex_inclusion_tx_queue_full(void) {
   s2_inclusion_send_done(&s2_context, 1);
   s2_inclusion_send_done(&s2_context, true);
 
-
   mock_calls_verify();
 }
 
@@ -4580,19 +5899,22 @@ void test_kex_inclusion_tx_queue_full(void) {
  *  SECURITY_2_TRANSFER_END is returned but KeyVerified bit is set to 0.
  *  TO#7507
  */
-void test_kex_inclusion_transfer_end_key_not_verified_TO7507(void) {
-  mock_t       * p_mock;
-  uint8_t        frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2      s2_context;
-  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_inclusion_transfer_end_key_not_verified_TO7507(void)
+{
+  mock_t *p_mock;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22,  // Public key as being fetch from the keystore.
+                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                            0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                            0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -4618,10 +5940,13 @@ void test_kex_inclusion_transfer_end_key_not_verified_TO7507(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
+  uint8_t S2_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
   p_mock->return_code.value     = 1;
@@ -4631,27 +5956,66 @@ void test_kex_inclusion_transfer_end_key_not_verified_TO7507(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // When the KEX Set is received, we expect public keys to be exchanges.
-  uint8_t S2_pub_key_B_frame[] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, // Including node bit not set
-                                  0x00, 0x00, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,   // Public key as being fetch from keystore.
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t S2_pub_key_B_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       PUBLIC_KEY_REPORT,
+       0x00,  // Including node bit not set
+       0x00,
+       0x00,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,  // Public key as being fetch from keystore.
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22};
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_pub_key_B_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_pub_key_B_frame);
   p_mock->return_code.value     = 1;
 
   // When the public key A is received, we expect that the event from libs2 contains the key in order to present it for the operator.
   // Therefore we copy the key minus header frame into expected data and push an event upwards.
-  zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-  p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x82;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-  memcpy((uint8_t *)p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  zwave_event_t *p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_inc_req_event->event_type
+    = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+    = sizeof(m_test_public_key_a);
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+    = 0x82;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+  memcpy((uint8_t *)p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req
+           .public_key,
+         m_test_public_key_a,
+         sizeof(m_test_public_key_a));
 
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
@@ -4663,47 +6027,61 @@ void test_kex_inclusion_transfer_end_key_not_verified_TO7507(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // When public key is received we expect an echo(KEX Set) to be sent.
-  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
+  uint8_t S2_echo_kex_set_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
   S2_echo_kex_set_frame[0] = COMMAND_CLASS_SECURITY_2;
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-  p_mock->expect_arg[3].value   = sizeof(S2_echo_kex_set_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+  p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+  p_mock->return_code.value   = 1;
 
   // Expect Net Key Get to be sent.
-  uint8_t S2_net_key_get_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
+  uint8_t S2_net_key_get_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_net_key_get_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_net_key_get_frame);
   p_mock->return_code.value     = 1;
 
   // Expect Net Key Verify to be sent.
-  uint8_t S2_network_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t S2_network_key_verify_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_network_key_verify_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_network_key_verify_frame);
   p_mock->return_code.value     = 1;
 
   // Expect KEX FAIL to be sent.
-  uint8_t S2_network_kex_fail_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, KEX_FAIL_KEY_VERIFY};
+  uint8_t S2_network_kex_fail_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, KEX_FAIL_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_network_kex_fail_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_network_kex_fail_frame);
   p_mock->return_code.value     = 1;
 
-
   // When S2 Transfer End is received, we expect a corresponding Node inclusion complete event from libs2.
-  zwave_event_t  * p_expected_inc_fail_event = (zwave_event_t *)m_test_mem_pool[1];
+  zwave_event_t *p_expected_inc_fail_event
+    = (zwave_event_t *)m_test_mem_pool[1];
   p_expected_inc_fail_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
-  p_expected_inc_fail_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type = KEX_FAIL_KEY_VERIFY;
+  p_expected_inc_fail_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type
+    = KEX_FAIL_KEY_VERIFY;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_fail_event;
 
@@ -4713,7 +6091,7 @@ void test_kex_inclusion_transfer_end_key_not_verified_TO7507(void) {
 
   // Node id (first step in inclusion) has been assigned.
   // Continue with secure inclusion.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   /** The loop which will set up the expectation based on the round. */
   helper_func_kex_get_frame(&s2_context);
@@ -4737,9 +6115,10 @@ void test_kex_inclusion_transfer_end_key_not_verified_TO7507(void) {
   // silently abort (push error internally).
   frame_buffer[0] = COMMAND_CLASS_SECURITY_2;
   frame_buffer[1] = SECURITY_2_TRANSFER_END;
-  frame_buffer[2] = 0x00; // Verify bit not set. Normally this packet will look as 0x02.
+  frame_buffer[2]
+    = 0x00;  // Verify bit not set. Normally this packet will look as 0x02.
   s2_context.length = 3;
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   mock_calls_verify();
@@ -4748,19 +6127,22 @@ void test_kex_inclusion_transfer_end_key_not_verified_TO7507(void) {
 /** Test case for ensuring that in the (including node misbehaving) event where a
  *  SECURITY_2_TRANSFER_END is returned by including node with KeyRequestComplete bit is set to 1.
  */
-void test_kex_inclusion_transfer_end_key_request_complete_error(void) {
-  mock_t       * p_mock;
-  uint8_t        frame_buffer[UNIT_TEST_BUF_SIZE];
-  struct S2      s2_context;
-  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key as being fetch from the keystore.
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_inclusion_transfer_end_key_request_complete_error(void)
+{
+  mock_t *p_mock;
+  uint8_t frame_buffer[UNIT_TEST_BUF_SIZE];
+  struct S2 s2_context;
+  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22,  // Public key as being fetch from the keystore.
+                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+                            0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+                            0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB,
+                            0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -4786,10 +6168,13 @@ void test_kex_inclusion_transfer_end_key_request_complete_error(void) {
   helper_func_inclusion_initiated_event();
 
   // Expect a S2 KEX Report to be sent.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
+  uint8_t S2_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x82};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
   p_mock->return_code.value     = 1;
@@ -4799,27 +6184,66 @@ void test_kex_inclusion_transfer_end_key_request_complete_error(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // When the KEX Set is received, we expect public keys to be exchanges.
-  uint8_t S2_pub_key_B_frame[] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, // Including node bit not set
-                                  0x00, 0x00, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,   // Public key as being fetch from keystore.
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                                  0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t S2_pub_key_B_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       PUBLIC_KEY_REPORT,
+       0x00,  // Including node bit not set
+       0x00,
+       0x00,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,  // Public key as being fetch from keystore.
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22,
+       0xAA,
+       0xBB,
+       0xCC,
+       0xDD,
+       0xEE,
+       0xFF,
+       0x11,
+       0x22};
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_pub_key_B_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_pub_key_B_frame);
   p_mock->return_code.value     = 1;
 
   // When the public key A is received, we expect that the event from libs2 contains the key in order to present it for the operator.
   // Therefore we copy the key minus header frame into expected data and push an event upwards.
-  zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-  p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x82;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-  memcpy((uint8_t *)p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  zwave_event_t *p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_inc_req_event->event_type
+    = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+    = sizeof(m_test_public_key_a);
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+    = 0x82;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+  memcpy((uint8_t *)p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req
+           .public_key,
+         m_test_public_key_a,
+         sizeof(m_test_public_key_a));
 
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
@@ -4831,47 +6255,61 @@ void test_kex_inclusion_transfer_end_key_request_complete_error(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // When public key is received we expect an echo(KEX Set) to be sent.
-  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
+  uint8_t S2_echo_kex_set_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82};
   S2_echo_kex_set_frame[0] = COMMAND_CLASS_SECURITY_2;
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Set.
-  p_mock->expect_arg[3].value   = sizeof(S2_echo_kex_set_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Set.
+  p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+  p_mock->return_code.value   = 1;
 
   // Expect Net Key Get to be sent.
-  uint8_t S2_net_key_get_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
+  uint8_t S2_net_key_get_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_net_key_get_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_net_key_get_frame);
   p_mock->return_code.value     = 1;
 
   // Expect Net Key Verify to be sent.
-  uint8_t S2_network_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t S2_network_key_verify_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_network_key_verify_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_network_key_verify_frame);
   p_mock->return_code.value     = 1;
 
   // Expect KEX FAIL to be sent.
-  uint8_t S2_network_kex_fail_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, KEX_FAIL_KEY_VERIFY};
+  uint8_t S2_network_kex_fail_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, KEX_FAIL_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_network_kex_fail_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_network_kex_fail_frame);
   p_mock->return_code.value     = 1;
 
-
   // When S2 Transfer End is received, we expect a corresponding Node inclusion complete event from libs2.
-  zwave_event_t  * p_expected_inc_fail_event = (zwave_event_t *)m_test_mem_pool[1];
+  zwave_event_t *p_expected_inc_fail_event
+    = (zwave_event_t *)m_test_mem_pool[1];
   p_expected_inc_fail_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
-  p_expected_inc_fail_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type = KEX_FAIL_KEY_VERIFY;
+  p_expected_inc_fail_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type
+    = KEX_FAIL_KEY_VERIFY;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_fail_event;
 
@@ -4881,7 +6319,7 @@ void test_kex_inclusion_transfer_end_key_request_complete_error(void) {
 
   // Node id (first step in inclusion) has been assigned.
   // Continue with secure inclusion.
-  s2_inclusion_joining_start(&s2_context,&s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   /** The loop which will set up the expectation based on the round. */
   helper_func_kex_get_frame(&s2_context);
@@ -4905,9 +6343,10 @@ void test_kex_inclusion_transfer_end_key_request_complete_error(void) {
   // silently abort (push error internally).
   frame_buffer[0] = COMMAND_CLASS_SECURITY_2;
   frame_buffer[1] = SECURITY_2_TRANSFER_END;
-  frame_buffer[2] = 0x03; // Verify bit not set. Normally this packet will look as 0x02.
+  frame_buffer[2]
+    = 0x03;  // Verify bit not set. Normally this packet will look as 0x02.
   s2_context.length = 3;
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   mock_calls_verify();
@@ -4919,16 +6358,17 @@ void test_kex_inclusion_transfer_end_key_request_complete_error(void) {
  *              The joining node sends its full public key
  *              CSA is disabled on the S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT event.
  */
-void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void) {
-  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key.
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void)
+{
+  uint8_t public_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Public key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -4971,24 +6411,29 @@ void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void) 
    *    e) Joining node shall reply with a 'Transfer End' if no more keys shall be exchanged.
    *
    */
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   // When secure learn mode is started then the following event is expected when the joining node receives a KEX Get from including node.
-  zwave_event_t  * p_expected_inc_init_event = (zwave_event_t *)m_test_mem_pool[2];
+  zwave_event_t *p_expected_inc_init_event
+    = (zwave_event_t *)m_test_mem_pool[2];
   p_expected_inc_init_event->event_type = S2_NODE_INCLUSION_INITIATED_EVENT;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_init_event;
 
   // Expect a S2 KEX Get to be sent.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                   0x06, // bit 0 is echo field, bit 1 is CSA, rest are reserved
-                                   0x02, // Supported schemes. Scheme 0 and 2.
-                                   0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-                                   0x87};// Requested keys bits. Security 2 class 0, 1, 2, Security 0 network key.
+  uint8_t S2_kex_report_frame[] = {
+    COMMAND_CLASS_SECURITY_2,
+    KEX_REPORT,
+    0x06,  // bit 0 is echo field, bit 1 is CSA, rest are reserved
+    0x02,  // Supported schemes. Scheme 0 and 2.
+    0x01,  // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+    0x87};  // Requested keys bits. Security 2 class 0, 1, 2, Security 0 network key.
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
   p_mock->return_code.value     = 1;
@@ -4997,23 +6442,37 @@ void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void) 
   mock_call_expect(TO_STR(keystore_dynamic_public_key_read), &p_mock);
   p_mock->output_arg[0].pointer = public_key_b;
 
-  uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, 0x00, 0x00}; // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
+  uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {
+    COMMAND_CLASS_SECURITY_2,
+    PUBLIC_KEY_REPORT,
+    0x00,
+    0x00,
+    0x00};  // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
   memcpy(&s2_public_key_frame[3], &public_key_b[0], sizeof(public_key_b));
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = s2_public_key_frame;
   p_mock->expect_arg[3].value   = sizeof(s2_public_key_frame);
   p_mock->return_code.value     = 1;
 
   // When receiving public key A, then we expect an event to be pushed up and both our public and private keys are requested from the keystore.
-  zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-  p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x81; // Only S2 unauthenticated and S0 keys were granted
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;    // CSA was disabled by including node.
-  memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  zwave_event_t *p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_inc_req_event->event_type
+    = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+    = sizeof(m_test_public_key_a);
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+    = 0x81;  // Only S2 unauthenticated and S0 keys were granted
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length
+    = 0;  // CSA was disabled by including node.
+  memcpy(
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+    m_test_public_key_a,
+    sizeof(m_test_public_key_a));
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
 
@@ -5023,62 +6482,96 @@ void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void) 
   p_mock->output_arg[0].pointer = public_key_b;
 
   // Expect Echo(KEX Report) to be sent.
-  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x81}; // Note: Echo flag set.
+  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2,
+                                     KEX_SET,
+                                     0x01,
+                                     0x02,
+                                     0x01,
+                                     0x81};  // Note: Echo flag set.
 
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(S2_echo_kex_set_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+  p_mock->return_code.value   = 1;
 
-  uint8_t s2_net_key_get_2_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x01};   // Keys requested, Security2, class 2 - Security0, network key.
+  uint8_t s2_net_key_get_2_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       SECURITY_2_NETWORK_KEY_GET,
+       0x01};  // Keys requested, Security2, class 2 - Security0, network key.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_get_2_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value   = sizeof(s2_net_key_get_2_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_get_2_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_get_2_frame);
+  p_mock->return_code.value   = 1;
 
-  uint8_t s2_net_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t s2_net_key_verify_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_verify_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(s2_net_key_verify_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_verify_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_frame);
+  p_mock->return_code.value   = 1;
 
-  uint8_t s2_net_key_get_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x80};   // Keys requested, Security2, class 2 - Security0, network key.
+  uint8_t s2_net_key_get_0_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       SECURITY_2_NETWORK_KEY_GET,
+       0x80};  // Keys requested, Security2, class 2 - Security0, network key.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_get_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(s2_net_key_get_0_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_get_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_get_0_frame);
+  p_mock->return_code.value   = 1;
 
-  uint8_t s2_net_key_verify_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t s2_net_key_verify_0_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_verify_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value   = sizeof(s2_net_key_verify_0_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_verify_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_0_frame);
+  p_mock->return_code.value   = 1;
 
   // Expect S2 Transfer End to be sent.
-  uint8_t S2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
+  uint8_t S2_transfer_end_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_transfer_end_frame;
-  p_mock->expect_arg[3].value    = sizeof(S2_transfer_end_frame);
+  p_mock->expect_arg[3].value   = sizeof(S2_transfer_end_frame);
   p_mock->return_code.value     = 1;
 
   // When S2 Transfer End is received, we expect a corresponding Node inclusion complete event from libs2.
-  zwave_event_t  * p_expected_complete_event = (zwave_event_t *)m_test_mem_pool[1];
+  zwave_event_t *p_expected_complete_event
+    = (zwave_event_t *)m_test_mem_pool[1];
   p_expected_complete_event->event_type = S2_NODE_JOINING_COMPLETE_EVENT;
-  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete.exchanged_keys = 0x81;
+  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete
+    .exchanged_keys
+    = 0x81;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
-  p_mock->expect_arg[0].pointer = p_expected_complete_event ;
+  p_mock->expect_arg[0].pointer = p_expected_complete_event;
 
   /**
    *  Test execution.
@@ -5095,9 +6588,9 @@ void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void) 
 
   // KEX Get frame received.
   uint8_t S2_kex_get_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_GET};
-  s2_context.buf           = S2_kex_get_frame;
-  s2_context.length        = sizeof(S2_kex_get_frame);
-  s2_con.class_id = 0xFF;
+  s2_context.buf             = S2_kex_get_frame;
+  s2_context.length          = sizeof(S2_kex_get_frame);
+  s2_con.class_id            = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // KEX report is expected to be transmitted. Let's make the s2_send_frame a success.
@@ -5108,25 +6601,33 @@ void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void) 
   // Selected schemes: scheme 0.
   // Selected curve25519
   // Keys to exchange, Security2, class 1 - Security0, network key.
-  uint8_t s2_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x81};
+  uint8_t s2_kex_set_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x81};
 
   s2_context.buf    = s2_kex_set_frame;
   s2_context.length = sizeof(s2_kex_set_frame);
-  s2_con.class_id = 0xFF;
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // As CSA was disabled, we expected that full public key was received.
-  uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x01}; // Key exchange received from slave - public key for secure exchange of LTK.
-  memcpy(&public_key_frame[3], m_test_public_key_a, sizeof(m_test_public_key_a));
+  uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {
+    COMMAND_CLASS_SECURITY_2,
+    PUBLIC_KEY_REPORT,
+    0x01};  // Key exchange received from slave - public key for secure exchange of LTK.
+  memcpy(&public_key_frame[3],
+         m_test_public_key_a,
+         sizeof(m_test_public_key_a));
   s2_context.buf    = public_key_frame;
   s2_context.length = sizeof(public_key_frame);
-  s2_con.class_id = 0xFF;
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // After the received public key is pushed upwards in the system, then it is expected to receive a challenge response from the upper level.
   // The challenge response should result in correct pub key being set on the context.
   s2_inclusion_challenge_response(&s2_context, 1, NULL, 0);
-  TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key,
+                                m_test_public_key_a,
+                                sizeof(m_test_public_key_a));
 
   // After receiving public key from joining node, the upper layer must specify our public key to be send. (This can also be done on initialization, but must happen no later than the received event).
 
@@ -5135,37 +6636,51 @@ void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void) 
   // Selected schemes: scheme 0 and scheme 2.
   // Selected curve25519
   // Keys to exchange, Security2, class 2 - Security0, network key.
-  uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x07, 0x02, 0x01, 0x87};
+  uint8_t s2_echo_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x07, 0x02, 0x01, 0x87};
 
   s2_context.buf    = s2_echo_kex_report_frame;
   s2_context.length = sizeof(s2_echo_kex_report_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // Network Key Report frame received.
-  uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_REPORT, 0x01, };   // Keys requested, Security2, class 1 - Security0, network key.
-  memcpy(&s2_net_key_report_frame[3], m_test_network_key_s2_class_1, sizeof(m_test_network_key_s2_class_1));
+  uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)] = {
+    COMMAND_CLASS_SECURITY_2,
+    SECURITY_2_NETWORK_KEY_REPORT,
+    0x01,
+  };  // Keys requested, Security2, class 1 - Security0, network key.
+  memcpy(&s2_net_key_report_frame[3],
+         m_test_network_key_s2_class_1,
+         sizeof(m_test_network_key_s2_class_1));
   s2_context.buf    = s2_net_key_report_frame;
   s2_context.length = sizeof(s2_net_key_report_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // S2 Transfer end frame received.
   // bit0: Key request complete not set,
   // bit1: Key verified set,
   // bit2-7: Reserved.
-  uint8_t s2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
+  uint8_t s2_transfer_end_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
   s2_context.buf    = s2_transfer_end_frame;
   s2_context.length = sizeof(s2_transfer_end_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // Network Key Report frame received.
-  uint8_t s2_net_key_report_0_frame[3 + sizeof(m_test_network_key_s0)] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_REPORT, 0x80, };   // Keys requested, Security2, class 2 - Security0, network key.
-  memcpy(&s2_net_key_report_0_frame[3], m_test_network_key_s0, sizeof(m_test_network_key_s0));
+  uint8_t s2_net_key_report_0_frame[3 + sizeof(m_test_network_key_s0)] = {
+    COMMAND_CLASS_SECURITY_2,
+    SECURITY_2_NETWORK_KEY_REPORT,
+    0x80,
+  };  // Keys requested, Security2, class 2 - Security0, network key.
+  memcpy(&s2_net_key_report_0_frame[3],
+         m_test_network_key_s0,
+         sizeof(m_test_network_key_s0));
   s2_context.buf    = s2_net_key_report_0_frame;
   s2_context.length = sizeof(s2_net_key_report_0_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // S2 Transfer end frame received.
@@ -5174,7 +6689,7 @@ void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void) 
   // bit2-7: Reserved.
   s2_context.buf    = s2_transfer_end_frame;
   s2_context.length = sizeof(s2_transfer_end_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   s2_inclusion_send_done(&s2_context, true);
@@ -5186,17 +6701,18 @@ void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void) 
  *  is received by the S2 layer which should result in a retransmission of the frame.
  *
  */
-void test_kex_joining_node_state_machine_retry_all_states(void) {
+void test_kex_joining_node_state_machine_retry_all_states(void)
+{
   uint32_t send_frame_tries;
-  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key.
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t public_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Public key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
 
@@ -5240,25 +6756,29 @@ void test_kex_joining_node_state_machine_retry_all_states(void) {
    *    e) Joining node shall reply with a 'Transfer End' if no more keys shall be exchanged.
    *
    */
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   // When secure learn mode is started then the following event is expected when the joining node receives a KEX Get from including node.
-  zwave_event_t  * p_expected_inc_init_event = (zwave_event_t *)m_test_mem_pool[2];
+  zwave_event_t *p_expected_inc_init_event
+    = (zwave_event_t *)m_test_mem_pool[2];
   p_expected_inc_init_event->event_type = S2_NODE_INCLUSION_INITIATED_EVENT;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_init_event;
 
-  for (send_frame_tries = 0; send_frame_tries < 2; send_frame_tries++)
-  {
+  for (send_frame_tries = 0; send_frame_tries < 2; send_frame_tries++) {
     // Expect a S2 KEX Get to be sent.
-    uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                     0x04, // reserved | NLS support | Request CSA | Echo
-                                     0x02, // Supported schemes. Scheme 0 and 2.
-                                     0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-                                     0x01};// Requested keys bits. Security 2 class 0 key.
+    uint8_t S2_kex_report_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         KEX_REPORT,
+         0x04,   // reserved | NLS support | Request CSA | Echo
+         0x02,   // Supported schemes. Scheme 0 and 2.
+         0x01,   // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+         0x01};  // Requested keys bits. Security 2 class 0 key.
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;      // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
     p_mock->return_code.value     = 1;
@@ -5268,25 +6788,35 @@ void test_kex_joining_node_state_machine_retry_all_states(void) {
   mock_call_expect(TO_STR(keystore_dynamic_public_key_read), &p_mock);
   p_mock->output_arg[0].pointer = public_key_b;
 
-  uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00}; // Key exchange received from slave - public key for secure exchange of LTK.
+  uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {
+    COMMAND_CLASS_SECURITY_2,
+    PUBLIC_KEY_REPORT,
+    0x00};  // Key exchange received from slave - public key for secure exchange of LTK.
   memcpy(&s2_public_key_frame[3], public_key_b, sizeof(public_key_b));
-  for (send_frame_tries = 0; send_frame_tries < 2; send_frame_tries++)
-  {
+  for (send_frame_tries = 0; send_frame_tries < 2; send_frame_tries++) {
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = s2_public_key_frame;
     p_mock->expect_arg[3].value   = sizeof(s2_public_key_frame);
     p_mock->return_code.value     = 1;
   }
 
   // When receiving public key A, then we expect an event to be pushed up and both our public and private keys are requested from the keystore.
-  zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-  p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x01;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-  memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  zwave_event_t *p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_inc_req_event->event_type
+    = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+    = sizeof(m_test_public_key_a);
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+    = 0x01;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+  memcpy(
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+    m_test_public_key_a,
+    sizeof(m_test_public_key_a));
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
 
@@ -5296,61 +6826,81 @@ void test_kex_joining_node_state_machine_retry_all_states(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // Expect Echo(KEX Set) to be sent.
-  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x01}; // Note: Echo flag set.
-  for (send_frame_tries = 0; send_frame_tries < 3; send_frame_tries++)
-  {
+  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2,
+                                     KEX_SET,
+                                     0x01,
+                                     0x02,
+                                     0x01,
+                                     0x01};  // Note: Echo flag set.
+  for (send_frame_tries = 0; send_frame_tries < 3; send_frame_tries++) {
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value    = sizeof(S2_echo_kex_set_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+    p_mock->return_code.value   = 1;
   }
 
-  uint8_t s2_net_key_get_2_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x01};   // Keys requested, Security2, class 2 - Security0, network key.
-  for (send_frame_tries = 0; send_frame_tries < 3; send_frame_tries++)
-  {
+  uint8_t s2_net_key_get_2_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       SECURITY_2_NETWORK_KEY_GET,
+       0x01};  // Keys requested, Security2, class 2 - Security0, network key.
+  for (send_frame_tries = 0; send_frame_tries < 3; send_frame_tries++) {
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_get_2_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value   = sizeof(s2_net_key_get_2_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_get_2_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_get_2_frame);
+    p_mock->return_code.value   = 1;
   }
-//  // After receiving the network key, we expect to get a call to update the context to use the new key when transmitting Net key verify.
-//  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
-//  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-//  p_mock->expect_arg[1].pointer = m_test_network_key_s2_class_1;
+  //  // After receiving the network key, we expect to get a call to update the context to use the new key when transmitting Net key verify.
+  //  mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+  //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  //  p_mock->expect_arg[1].pointer = m_test_network_key_s2_class_1;
 
-  uint8_t s2_net_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
-  for (send_frame_tries = 0; send_frame_tries < 2; send_frame_tries++)
-  {
+  uint8_t s2_net_key_verify_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  for (send_frame_tries = 0; send_frame_tries < 2; send_frame_tries++) {
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_verify_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value    = sizeof(s2_net_key_verify_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_verify_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_frame);
+    p_mock->return_code.value   = 1;
   }
 
   // Expect S2 Transfer End to be sent.
-  uint8_t S2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
-  for (send_frame_tries = 0; send_frame_tries < 2; send_frame_tries++)
-  {
+  uint8_t S2_transfer_end_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
+  for (send_frame_tries = 0; send_frame_tries < 2; send_frame_tries++) {
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_transfer_end_frame;
-    p_mock->expect_arg[3].value    = sizeof(S2_transfer_end_frame);
+    p_mock->expect_arg[3].value   = sizeof(S2_transfer_end_frame);
     p_mock->return_code.value     = 1;
   }
 
   // When S2 Transfer End is received, we expect a corresponding Node inclusion complete event from libs2.
-  zwave_event_t  * p_expected_complete_event = (zwave_event_t *)m_test_mem_pool[1];
+  zwave_event_t *p_expected_complete_event
+    = (zwave_event_t *)m_test_mem_pool[1];
   p_expected_complete_event->event_type = S2_NODE_JOINING_COMPLETE_EVENT;
-  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete.exchanged_keys = 0x01;
+  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete
+    .exchanged_keys
+    = 0x01;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
-  p_mock->expect_arg[0].pointer = p_expected_complete_event ;
+  p_mock->expect_arg[0].pointer = p_expected_complete_event;
 
   /**
    *  Test execution.
@@ -5363,15 +6913,14 @@ void test_kex_joining_node_state_machine_retry_all_states(void) {
   s2_inclusion_init(0x02, 0x01, 0x01);
   s2_inclusion_set_event_handler(s2_event_handler);
 
-  s2_inclusion_joining_start(&s2_context, &s2_con,0);
+  s2_inclusion_joining_start(&s2_context, &s2_con, 0);
 
   // KEX Get frame received.
   uint8_t S2_kex_get_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_GET};
-  s2_context.buf           = S2_kex_get_frame;
-  s2_context.length        = sizeof(S2_kex_get_frame);
-  s2_con.class_id = 0xFF;
-  s2_inclusion_post_event(&s2_context,&s2_con);
-
+  s2_context.buf             = S2_kex_get_frame;
+  s2_context.length          = sizeof(S2_kex_get_frame);
+  s2_con.class_id            = 0xFF;
+  s2_inclusion_post_event(&s2_context, &s2_con);
 
   // KEX report is expected to be transmitted. Let's make the the first frame fail to verify a resent is transmitted.
   s2_inclusion_send_done(&s2_context, 0);
@@ -5384,21 +6933,27 @@ void test_kex_joining_node_state_machine_retry_all_states(void) {
   // Selected schemes: scheme 0 and scheme 2.
   // Selected curve25519
   // Keys to exchange, Security2, class 2 - Security0, network key.
-  uint8_t s2_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x01};
+  uint8_t s2_kex_set_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x01};
   s2_context.buf    = s2_kex_set_frame;
   s2_context.length = sizeof(s2_kex_set_frame);
-  s2_con.class_id = 0xFF;
-  s2_inclusion_post_event(&s2_context,&s2_con);
+  s2_con.class_id   = 0xFF;
+  s2_inclusion_post_event(&s2_context, &s2_con);
 
   // KEX report is expected to be transmitted. Let's make the the first frame fail to verify a resent is transmitted.
   s2_inclusion_send_done(&s2_context, 0);
 
-  uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x01}; // Key exchange received from slave - public key for secure exchange of LTK.
-  memcpy(&public_key_frame[3], m_test_public_key_a, sizeof(m_test_public_key_a));
+  uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {
+    COMMAND_CLASS_SECURITY_2,
+    PUBLIC_KEY_REPORT,
+    0x01};  // Key exchange received from slave - public key for secure exchange of LTK.
+  memcpy(&public_key_frame[3],
+         m_test_public_key_a,
+         sizeof(m_test_public_key_a));
   s2_context.buf    = public_key_frame;
   s2_context.length = sizeof(public_key_frame);
-  s2_con.class_id = 0xFF;
-  s2_inclusion_post_event(&s2_context,&s2_con);
+  s2_con.class_id   = 0xFF;
+  s2_inclusion_post_event(&s2_context, &s2_con);
 
   s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
 
@@ -5407,7 +6962,7 @@ void test_kex_joining_node_state_machine_retry_all_states(void) {
   // After exchanging the keys, the other side might wait for user acceptance.
   // Therefore frames are retried per timeout basis instead send frame basis.
   // So a send done shoud not do any thing, only the timeout shoud result in retry.
-  s2_inclusion_send_done(&s2_context, 0); // Should do nothing
+  s2_inclusion_send_done(&s2_context, 0);  // Should do nothing
   s2_inclusion_notify_timeout(&s2_context);
 
   // Successful transmission, however, retries are expected until ECHO KEX Report is received (or 'n' retries due to timeouts).
@@ -5422,12 +6977,12 @@ void test_kex_joining_node_state_machine_retry_all_states(void) {
   // Selected schemes: scheme 0 and scheme 2.
   // Selected curve25519
   // Keys to exchange, Security2, class 2 - Security0, network key.
-  uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x01};
+  uint8_t s2_echo_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x01};
   s2_context.buf    = s2_echo_kex_report_frame;
   s2_context.length = sizeof(s2_echo_kex_report_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
-  s2_inclusion_post_event(&s2_context,&s2_con);
-
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_inclusion_post_event(&s2_context, &s2_con);
 
   // KEY get is expected to be transmitted. Let's make the the first two frames fail to verify that resents are transmitted.
   s2_inclusion_send_done(&s2_context, 0);
@@ -5435,12 +6990,18 @@ void test_kex_joining_node_state_machine_retry_all_states(void) {
   s2_inclusion_send_done(&s2_context, 1);
 
   // Network Key Report frame received.
-  uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_REPORT, 0x01, };   // Keys requested, Security2, class 2 - Security0, network key.
-  memcpy(&s2_net_key_report_frame[3], m_test_network_key_s2_class_1, sizeof(m_test_network_key_s2_class_0));
+  uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)] = {
+    COMMAND_CLASS_SECURITY_2,
+    SECURITY_2_NETWORK_KEY_REPORT,
+    0x01,
+  };  // Keys requested, Security2, class 2 - Security0, network key.
+  memcpy(&s2_net_key_report_frame[3],
+         m_test_network_key_s2_class_1,
+         sizeof(m_test_network_key_s2_class_0));
   s2_context.buf    = s2_net_key_report_frame;
   s2_context.length = sizeof(s2_net_key_report_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
-  s2_inclusion_post_event(&s2_context,&s2_con);
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_inclusion_post_event(&s2_context, &s2_con);
 
   // KEY verify is expected to be transmitted. Let's make the first frame fail to verify that a resent is transmitted.
   s2_inclusion_send_done(&s2_context, 0);
@@ -5450,11 +7011,12 @@ void test_kex_joining_node_state_machine_retry_all_states(void) {
   // bit0: Key request complete not set,
   // bit1: Key verified set,
   // bit2-7: Reserved.
-  uint8_t s2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
+  uint8_t s2_transfer_end_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
   s2_context.buf    = s2_transfer_end_frame;
   s2_context.length = sizeof(s2_transfer_end_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
-  s2_inclusion_post_event(&s2_context,&s2_con);
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_inclusion_post_event(&s2_context, &s2_con);
 
   // Transfer end complete is expected to be transmitted. Let's make the first frame fail to verify that a resent is transmitted.
   s2_inclusion_send_done(&s2_context, 0);
@@ -5465,43 +7027,45 @@ void test_kex_joining_node_state_machine_retry_all_states(void) {
   mock_calls_verify();
 }
 
-
 /** Test that S2_inclusion_init() rejects LR key bits as it should. */
 void test_setting_LR_key_bits_in_init(void)
 {
-    uint8_t retval = s2_inclusion_init(0x02, 0x01, 0x9F);
-    TEST_ASSERT_EQUAL_INT8(1, retval); // KEX_FAIL_KEX_KEY = 1
+  uint8_t retval = s2_inclusion_init(0x02, 0x01, 0x9F);
+  TEST_ASSERT_EQUAL_INT8(1, retval);  // KEX_FAIL_KEX_KEY = 1
 
-    retval = s2_inclusion_init(0x02, 0x01, 0x0F);
-    TEST_ASSERT_EQUAL_INT8(1, retval); // KEX_FAIL_KEX_KEY = 1
+  retval = s2_inclusion_init(0x02, 0x01, 0x0F);
+  TEST_ASSERT_EQUAL_INT8(1, retval);  // KEX_FAIL_KEX_KEY = 1
 
-    retval = s2_inclusion_init(0x02, 0x01, 0x097);
-    TEST_ASSERT_EQUAL_INT8(1, retval); // KEX_FAIL_KEX_KEY = 1
+  retval = s2_inclusion_init(0x02, 0x01, 0x097);
+  TEST_ASSERT_EQUAL_INT8(1, retval);  // KEX_FAIL_KEX_KEY = 1
 
-    retval = s2_inclusion_init(0x02, 0x01, 0x0F);
-    TEST_ASSERT_EQUAL_INT8(1, retval); // KEX_FAIL_KEX_KEY = 1
+  retval = s2_inclusion_init(0x02, 0x01, 0x0F);
+  TEST_ASSERT_EQUAL_INT8(1, retval);  // KEX_FAIL_KEX_KEY = 1
 
-    /* Clean up global m_keys and friends so subsequent test cases that don't call s2_inclusion_init continue to work */
-    s2_inclusion_init(0x02, 0x01, 0x87);
+  /* Clean up global m_keys and friends so subsequent test cases that don't call s2_inclusion_init continue to work */
+  s2_inclusion_init(0x02, 0x01, 0x87);
 }
-
-
 
 ///** Helper function sections - Start */
 //
 /** This helper function set up an expected KEX get frame to be send (through the mock). */
-void helper_func_kex_report_frame_expect(uint8_t scheme, uint8_t curve, uint8_t keys)
+void helper_func_kex_report_frame_expect(uint8_t scheme,
+                                         uint8_t curve,
+                                         uint8_t keys)
 {
-  mock_t         * p_mock;
+  mock_t *p_mock;
   // Static to keep in scope for complete test.
-  static uint8_t   s2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x00, 0x00, 0x00};
+  static uint8_t s2_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x00, 0x00, 0x00};
   s2_kex_report_frame[3] = scheme;
   s2_kex_report_frame[4] = curve;
   s2_kex_report_frame[5] = keys;
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = s2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(s2_kex_report_frame);
   p_mock->return_code.value     = 1;
@@ -5513,76 +7077,84 @@ void helper_func_kex_get_frame(struct S2 *p_context)
   uint8_t s2_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_GET};
   memcpy((uint8_t *)p_context->buf, s2_frame, sizeof(s2_frame));
   p_context->length = sizeof(s2_frame);
-  s2_con.class_id = 0xFF;
+  s2_con.class_id   = 0xFF;
 }
 
 /** This helper function constructs a KEX Set frame and update p_context */
-void helper_func_kex_set_frame(struct S2 *p_context, uint8_t scheme, uint8_t keys)
+void helper_func_kex_set_frame(struct S2 *p_context,
+                               uint8_t scheme,
+                               uint8_t keys)
 {
-  uint8_t * p_tmp = (uint8_t *)p_context->buf;
-  p_tmp[0] = COMMAND_CLASS_SECURITY_2;
-  p_tmp[1] = KEX_SET;
-  p_tmp[2] = 0x00;
-  p_tmp[3] = scheme;
-  p_tmp[4] = 0x01;
-  p_tmp[5] = keys;
+  uint8_t *p_tmp = (uint8_t *)p_context->buf;
+  p_tmp[0]       = COMMAND_CLASS_SECURITY_2;
+  p_tmp[1]       = KEX_SET;
+  p_tmp[2]       = 0x00;
+  p_tmp[3]       = scheme;
+  p_tmp[4]       = 0x01;
+  p_tmp[5]       = keys;
 
   p_context->length = 6;
-  s2_con.class_id = 0xFF;
+  s2_con.class_id   = 0xFF;
 }
 
 void helper_func_pub_key_frame(struct S2 *p_context)
 {
-  uint8_t * p_tmp = (uint8_t *)p_context->buf;
-  p_tmp[0] = COMMAND_CLASS_SECURITY_2;
-  p_tmp[1] = PUBLIC_KEY_REPORT;
-  p_tmp[2] = 0x01;
+  uint8_t *p_tmp = (uint8_t *)p_context->buf;
+  p_tmp[0]       = COMMAND_CLASS_SECURITY_2;
+  p_tmp[1]       = PUBLIC_KEY_REPORT;
+  p_tmp[2]       = 0x01;
   memcpy(&p_tmp[3], m_test_public_key_a, sizeof(m_test_public_key_a));
-  p_context->length = 3  + sizeof(m_test_public_key_a);
-  s2_con.class_id = 0xFF;
+  p_context->length = 3 + sizeof(m_test_public_key_a);
+  s2_con.class_id   = 0xFF;
 }
 
-void helper_func_echo_kex_report_frame(struct S2 *p_context, uint8_t scheme, uint8_t curve, uint8_t keys)
+void helper_func_echo_kex_report_frame(struct S2 *p_context,
+                                       uint8_t scheme,
+                                       uint8_t curve,
+                                       uint8_t keys)
 {
-  uint8_t s2_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x00, 0x00, 0x00}; // This data must be compared to earlier sent data. As long as frames are not defined, this data is unknown.
+  uint8_t s2_frame[] = {
+    COMMAND_CLASS_SECURITY_2,
+    KEX_REPORT,
+    0x05,
+    0x00,
+    0x00,
+    0x00};  // This data must be compared to earlier sent data. As long as frames are not defined, this data is unknown.
   s2_frame[3] = scheme;
   s2_frame[4] = curve;
   s2_frame[5] = keys;
 
   memcpy((uint8_t *)p_context->buf, s2_frame, sizeof(s2_frame));
   p_context->length = sizeof(s2_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
 }
 
 void helper_func_net_key_report_frame(struct S2 *p_context, uint8_t key)
 {
-//  uint8_t s2_frame[3];
-  uint8_t * p_tmp = (uint8_t *)p_context->buf;
-  p_tmp[0] = COMMAND_CLASS_SECURITY_2;
-  p_tmp[1] = SECURITY_2_NETWORK_KEY_REPORT;
-  p_tmp[2] = key;
-  if (key & 0x01)
-  {
-    memcpy(&p_tmp[3], m_test_network_key_s2_class_0, sizeof(m_test_network_key_s2_class_0));
+  //  uint8_t s2_frame[3];
+  uint8_t *p_tmp = (uint8_t *)p_context->buf;
+  p_tmp[0]       = COMMAND_CLASS_SECURITY_2;
+  p_tmp[1]       = SECURITY_2_NETWORK_KEY_REPORT;
+  p_tmp[2]       = key;
+  if (key & 0x01) {
+    memcpy(&p_tmp[3],
+           m_test_network_key_s2_class_0,
+           sizeof(m_test_network_key_s2_class_0));
     p_context->length = 3 + sizeof(m_test_network_key_s2_class_0);
-  }
-  else if (key & 0x02)
-  {
-    memcpy(&p_tmp[3], m_test_network_key_s2_class_1, sizeof(m_test_network_key_s2_class_1));
+  } else if (key & 0x02) {
+    memcpy(&p_tmp[3],
+           m_test_network_key_s2_class_1,
+           sizeof(m_test_network_key_s2_class_1));
     p_context->length = 3 + sizeof(m_test_network_key_s2_class_1);
-  }
-  else if (key & 0x04)
-  {
-    memcpy(&p_tmp[3], m_test_network_key_s2_class_2, sizeof(m_test_network_key_s2_class_2));
+  } else if (key & 0x04) {
+    memcpy(&p_tmp[3],
+           m_test_network_key_s2_class_2,
+           sizeof(m_test_network_key_s2_class_2));
     p_context->length = 3 + sizeof(m_test_network_key_s2_class_2);
-  }
-  else if (key & 0x80)
-  {
+  } else if (key & 0x80) {
     memcpy(&p_tmp[3], m_test_network_key_s0, sizeof(m_test_network_key_s0));
     p_context->length = 3 + sizeof(m_test_network_key_s0);
-  }
-  else
-  {
+  } else {
     memcpy(&p_tmp[3], m_test_network_key_s0, sizeof(m_test_network_key_s0));
     p_context->length = 3 + sizeof(m_test_network_key_s0);
   }
@@ -5591,20 +7163,21 @@ void helper_func_net_key_report_frame(struct S2 *p_context, uint8_t key)
 
 void helper_func_transfer_end_frame(struct S2 *p_context)
 {
-  uint8_t s2_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
+  uint8_t s2_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
   memcpy((uint8_t *)p_context->buf, s2_frame, sizeof(s2_frame));
   p_context->length = sizeof(s2_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
 }
 
 void helper_func_idle_state(struct S2 *p_context)
 {
-  mock_t         * p_mock;
+  mock_t *p_mock;
 
   // This test will trigger a timeout to the inclusion module after which we expect to receive a
   // callback event with a S2_NODE_INCLUSION_FAILED_EVENT.
-  zwave_event_t  * p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
-  p_expected_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
+  zwave_event_t *p_expected_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_event->event_type    = S2_NODE_INCLUSION_FAILED_EVENT;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_event;
 
@@ -5612,33 +7185,38 @@ void helper_func_idle_state(struct S2 *p_context)
   s2_inclusion_notify_timeout(p_context);
 }
 
-void helper_func_verify_idle_state(struct S2 *p_context, uint8_t scheme, uint8_t keys)
+void helper_func_verify_idle_state(struct S2 *p_context,
+                                   uint8_t scheme,
+                                   uint8_t keys)
 {
-  mock_t * p_mock;
+  mock_t *p_mock;
 
-  if (!mock_call_used_as_stub(TO_STR(s2_event_handler), "s2_event_handler_mock.c"))
-  {
+  if (!mock_call_used_as_stub(TO_STR(s2_event_handler),
+                              "s2_event_handler_mock.c")) {
     // When secure learn mode is started then the following event is expected when the joining node receives a KEX Get from including node.
-    zwave_event_t  * p_expected_inc_init_event = (zwave_event_t *)m_test_mem_pool[3];
+    zwave_event_t *p_expected_inc_init_event
+      = (zwave_event_t *)m_test_mem_pool[3];
     p_expected_inc_init_event->event_type = S2_NODE_INCLUSION_INITIATED_EVENT;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_init_event;
   }
 
-  if (!mock_call_used_as_stub(TO_STR(S2_send_frame), "s2_extern_mock.c"))
-  {
-    static uint8_t S2_kex_report_frame_retry[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x00, 0x01, 0x00};
+  if (!mock_call_used_as_stub(TO_STR(S2_send_frame), "s2_extern_mock.c")) {
+    static uint8_t S2_kex_report_frame_retry[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x00, 0x01, 0x00};
     S2_kex_report_frame_retry[3] = scheme;
     S2_kex_report_frame_retry[5] = keys;
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_report_frame_retry;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame_retry);
   }
 
-  if (!mock_call_used_as_stub(TO_STR(s2_inclusion_set_timeout), "s2_inclusion_extern_mock.c"))
-  {
+  if (!mock_call_used_as_stub(TO_STR(s2_inclusion_set_timeout),
+                              "s2_inclusion_extern_mock.c")) {
     mock_call_expect(TO_STR(s2_inclusion_set_timeout), &p_mock);
     p_mock->compare_rule_arg[0] = COMPARE_ANY;
     p_mock->expect_arg[1].value = 1000;
@@ -5646,7 +7224,7 @@ void helper_func_verify_idle_state(struct S2 *p_context, uint8_t scheme, uint8_t
   }
 
   // At final stage retry node inclusion to ensure we are in idle stage.
-  s2_inclusion_joining_start(p_context,&s2_con,0);
+  s2_inclusion_joining_start(p_context, &s2_con, 0);
 
   helper_func_kex_get_frame(p_context);
   s2_inclusion_post_event(p_context, &s2_con);
@@ -5654,10 +7232,11 @@ void helper_func_verify_idle_state(struct S2 *p_context, uint8_t scheme, uint8_t
 
 void helper_func_inclusion_initiated_event(void)
 {
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   // When secure learn mode is started then the following event is expected when the joining node receives a KEX Get from including node.
-  zwave_event_t  * p_expected_inc_init_event = (zwave_event_t *)m_test_mem_pool[3];
+  zwave_event_t *p_expected_inc_init_event
+    = (zwave_event_t *)m_test_mem_pool[3];
   p_expected_inc_init_event->event_type = S2_NODE_INCLUSION_INITIATED_EVENT;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_init_event;
@@ -5665,36 +7244,34 @@ void helper_func_inclusion_initiated_event(void)
 
 static void helper_func_init_s2_conn(void)
 {
-  s2_con.l_node = 2;
-  s2_con.r_node = 1;
-  s2_con.class_id = 0xFF;
+  s2_con.l_node     = 2;
+  s2_con.r_node     = 1;
+  s2_con.class_id   = 0xFF;
   s2_con.rx_options = 0x00;
 }
 static void helper_func_init_s2_conn_lr(void)
 {
-  s2_con.l_node = 2;
-  s2_con.r_node = 0x101;
-  s2_con.class_id = 0xFF;
+  s2_con.l_node     = 2;
+  s2_con.r_node     = 0x101;
+  s2_con.class_id   = 0xFF;
   s2_con.rx_options = 0x00;
 }
-
 
 /* The node(libs2 here) will be initialized s2_inclusion_init(0x87) will all the keys
  * but as the node id is LR, libs2 will send only 0x06 (LR keys) in kex report */
 void test_kex_joining_node_state_machine_lr_requeesting_classic_keys(void)
 {
   int test_flavour;
-  for (test_flavour = 0; test_flavour < 2; test_flavour++)
-  {
-    uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key.
-                              0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                              0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                              0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  for (test_flavour = 0; test_flavour < 2; test_flavour++) {
+    uint8_t public_key_b[] = {
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Public key.
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+      0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-    uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                               0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                               0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                               0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+    uint8_t private_key_b[] = {
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+      0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
     mock_calls_clear();
     mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -5737,34 +7314,41 @@ void test_kex_joining_node_state_machine_lr_requeesting_classic_keys(void)
      *    e) Joining node shall reply with a 'Transfer End' if no more keys shall be exchanged.
      *
      */
-    mock_t * p_mock;
+    mock_t *p_mock;
     struct S2 s2_context;
 
     s2_context.inclusion_state = S2_INC_IDLE;
     //memcpy(s2_context.temp_network_key, m_temp_key, sizeof(s2_context.temp_network_key));
 
-    s2_inclusion_init(0x02, 0x01, 0x87); //libs2 is joining node and its initialized with all keys
+    s2_inclusion_init(
+      0x02,
+      0x01,
+      0x87);  //libs2 is joining node and its initialized with all keys
     s2_inclusion_set_event_handler(s2_event_handler);
-    s2_con.l_node = 0x101; //libs2 node id
-    s2_con.r_node = 1; //unit test node id
+    s2_con.l_node   = 0x101;  //libs2 node id
+    s2_con.r_node   = 1;      //unit test node id
     s2_con.class_id = 0xFF;
 
-
     // When secure learn mode is started then the following event is expected when the joining node receives a KEX Get from including node.
-    zwave_event_t  * p_expected_inc_init_event = (zwave_event_t *)m_test_mem_pool[2];
+    zwave_event_t *p_expected_inc_init_event
+      = (zwave_event_t *)m_test_mem_pool[2];
     p_expected_inc_init_event->event_type = S2_NODE_INCLUSION_INITIATED_EVENT;
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_init_event;
 
     // Expect a S2 KEX report frame (libs2 will send it)
-    uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                     0x04, // reserved | NLS support | Request CSA | Echo
-                                     0x02, // Supported schemes. Scheme 0 and 2.
-                                     0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-                                     0x06};// Requested keys bits. Authenticated and Acess keys 
+    uint8_t S2_kex_report_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         KEX_REPORT,
+         0x04,   // reserved | NLS support | Request CSA | Echo
+         0x02,   // Supported schemes. Scheme 0 and 2.
+         0x01,   // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+         0x06};  // Requested keys bits. Authenticated and Acess keys
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = S2_kex_report_frame;
     p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
     p_mock->return_code.value     = 1;
@@ -5772,22 +7356,28 @@ void test_kex_joining_node_state_machine_lr_requeesting_classic_keys(void)
     s2_inclusion_joining_start(&s2_context, &s2_con, 0x00);
     // Inject KEX Get frame
     uint8_t S2_kex_get_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_GET};
-    s2_context.buf           = S2_kex_get_frame;
-    s2_context.length        = sizeof(S2_kex_get_frame);
-    s2_con.class_id = 0xFF;
+    s2_context.buf             = S2_kex_get_frame;
+    s2_context.length          = sizeof(S2_kex_get_frame);
+    s2_con.class_id            = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
-
 
     // Before exchange of public keys, then we expect that our public key is requested from the keystore.
     mock_call_expect(TO_STR(keystore_public_key_read), &p_mock);
     p_mock->output_arg[0].pointer = public_key_b;
 
-    uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, 0x00, 0x00}; // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
+    uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {
+      COMMAND_CLASS_SECURITY_2,
+      PUBLIC_KEY_REPORT,
+      0x00,
+      0x00,
+      0x00};  // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
     memcpy(&s2_public_key_frame[5], &public_key_b[2], sizeof(public_key_b) - 2);
 
     mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-    p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
     p_mock->expect_arg[2].pointer = s2_public_key_frame;
     p_mock->expect_arg[3].value   = sizeof(s2_public_key_frame);
     p_mock->return_code.value     = 1;
@@ -5799,26 +7389,32 @@ void test_kex_joining_node_state_machine_lr_requeesting_classic_keys(void)
     // Selected schemes: scheme 0 and scheme 2.
     // Selected curve25519
     // Keys to exchange, Security2, class 2 - Security0, network key.
-    uint8_t s2_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x06};
+    uint8_t s2_kex_set_frame[]
+      = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x06};
 
-    if (test_flavour == 1)
-    {
+    if (test_flavour == 1) {
       /* Test the special case where a reserved bit is set in the KEX_SET */
       s2_kex_set_frame[2] |= 0x10;
     }
     s2_context.buf    = s2_kex_set_frame;
     s2_context.length = sizeof(s2_kex_set_frame);
-    s2_con.class_id = 0xFF;
+    s2_con.class_id   = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
-
     // When receiving public key A, then we expect an event to be pushed up and both our public and private keys are requested from the keystore.
-    zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-    p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x06;
-    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-    memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+    zwave_event_t *p_expected_inc_req_event
+      = (zwave_event_t *)m_test_mem_pool[0];
+    p_expected_inc_req_event->event_type
+      = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+      = sizeof(m_test_public_key_a);
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+      = 0x06;
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+    memcpy(
+      p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+      m_test_public_key_a,
+      sizeof(m_test_public_key_a));
     mock_call_expect(TO_STR(s2_event_handler), &p_mock);
     p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
 
@@ -5828,44 +7424,62 @@ void test_kex_joining_node_state_machine_lr_requeesting_classic_keys(void)
     p_mock->output_arg[0].pointer = public_key_b;
 
     //Inject Public key report frame
-    uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x01}; // Key exchange received from slave - public key for secure exchange of LTK.
-    memcpy(&public_key_frame[3], m_test_public_key_a, sizeof(m_test_public_key_a));
+    uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {
+      COMMAND_CLASS_SECURITY_2,
+      PUBLIC_KEY_REPORT,
+      0x01};  // Key exchange received from slave - public key for secure exchange of LTK.
+    memcpy(&public_key_frame[3],
+           m_test_public_key_a,
+           sizeof(m_test_public_key_a));
     s2_context.buf    = public_key_frame;
     s2_context.length = sizeof(public_key_frame);
-    s2_con.class_id = 0xFF;
+    s2_con.class_id   = 0xFF;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
-
     // Expect Echo(KEX Report) (libs2 will send it)
-    uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x06}; // Note: Echo flag set.
-    if (test_flavour == 1)
-    {
+    uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2,
+                                       KEX_SET,
+                                       0x01,
+                                       0x02,
+                                       0x01,
+                                       0x06};  // Note: Echo flag set.
+    if (test_flavour == 1) {
       /* Test the special case where a reserved bit is set in the KEX_SET */
 
       /* Expect the reserved bit 0x10 to be set in the KEX_SET_ECHO */
       S2_echo_kex_set_frame[2] |= 0x10;
     }
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value    = sizeof(S2_echo_kex_set_frame);
-    p_mock->return_code.value     = 1;
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+    p_mock->return_code.value   = 1;
 
     // Expect Network Key get (libs2 will send it)
-    uint8_t s2_net_key_get_2_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};   // Keys requested, Security2, class 2 - Security0, network key.
+    uint8_t s2_net_key_get_2_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         SECURITY_2_NETWORK_KEY_GET,
+         0x02};  // Keys requested, Security2, class 2 - Security0, network key.
     mock_call_expect(TO_STR(S2_send_data), &p_mock);
-    p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-    p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-    p_mock->expect_arg[2].pointer = s2_net_key_get_2_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-    p_mock->expect_arg[3].value   = sizeof(s2_net_key_get_2_frame);
-    p_mock->return_code.value     = 1;
-
+    p_mock->compare_rule_arg[0]
+      = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+    p_mock->compare_rule_arg[1]
+      = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+    p_mock->expect_arg[2].pointer
+      = s2_net_key_get_2_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+    p_mock->expect_arg[3].value = sizeof(s2_net_key_get_2_frame);
+    p_mock->return_code.value   = 1;
 
     // After the received public key is pushed upwards in the system, then it is expected to receive a challenge response from the upper level.
     // The challenge response should result in correct pub key being set on the context.
     s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key,
+                                  m_test_public_key_a,
+                                  sizeof(m_test_public_key_a));
 
     // After receiving public key from joining node, the upper layer must specify our public key to be send. (This can also be done on initialization, but must happen no later than the received event).
 
@@ -5874,14 +7488,20 @@ void test_kex_joining_node_state_machine_lr_requeesting_classic_keys(void)
     // Selected schemes: scheme 0 and scheme 2.
     // Selected curve25519
     // Keys to exchange, Security2, class 2 - Security0, network key.
-    uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x06}; // this is being sent from unit test to libs2
+    uint8_t s2_echo_kex_report_frame[]
+      = {COMMAND_CLASS_SECURITY_2,
+         KEX_REPORT,
+         0x05,
+         0x02,
+         0x01,
+         0x06};  // this is being sent from unit test to libs2
 
     s2_context.buf    = s2_echo_kex_report_frame;
     s2_context.length = sizeof(s2_echo_kex_report_frame);
-    s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+    s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
     s2_inclusion_post_event(&s2_context, &s2_con);
 
- } /* for(test_flavour) */
+  } /* for(test_flavour) */
 }
 
 /**
@@ -5889,17 +7509,17 @@ void test_kex_joining_node_state_machine_lr_requeesting_classic_keys(void)
  * except that in this test, last S2 Transfer End received by joining node,
  * has Verify Key flag set to 0, which should stop the inclusion
  */
-void test_kex_joining_node_error_transfer_end(void) {
+void test_kex_joining_node_error_transfer_end(void)
+{
+  uint8_t public_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Public key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-  uint8_t public_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Public key.
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                            0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
-
-  uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, // Private key.
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,
-                             0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+  uint8_t private_key_b[]
+    = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
+       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD,
+       0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
   mock_calls_clear();
   mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -5942,24 +7562,29 @@ void test_kex_joining_node_error_transfer_end(void) {
    *    e) Joining node aborts inclusion process.
    *
    */
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   // When secure learn mode is started then the following event is expected when the joining node receives a KEX Get from including node.
-  zwave_event_t  * p_expected_inc_init_event = (zwave_event_t *)m_test_mem_pool[2];
+  zwave_event_t *p_expected_inc_init_event
+    = (zwave_event_t *)m_test_mem_pool[2];
   p_expected_inc_init_event->event_type = S2_NODE_INCLUSION_INITIATED_EVENT;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_init_event;
 
   // Expect a S2 KEX Get to be sent.
-  uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT,
-                                   0x04, // reserved | NLS support | Request CSA | Echo
-                                   0x02, // Supported schemes. Scheme 0 and 2.
-                                   0x01, // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-                                   0x82};// Requested keys bits. Security 2 class 1, Security 0 network key.
+  uint8_t S2_kex_report_frame[] = {
+    COMMAND_CLASS_SECURITY_2,
+    KEX_REPORT,
+    0x04,   // reserved | NLS support | Request CSA | Echo
+    0x02,   // Supported schemes. Scheme 0 and 2.
+    0x01,   // Supported ECDH Profiles, bit0=1 is curve 25519 value.
+    0x82};  // Requested keys bits. Security 2 class 1, Security 0 network key.
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_kex_report_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_kex_report_frame);
   p_mock->return_code.value     = 1;
@@ -5968,23 +7593,36 @@ void test_kex_joining_node_error_transfer_end(void) {
   mock_call_expect(TO_STR(keystore_public_key_read), &p_mock);
   p_mock->output_arg[0].pointer = public_key_b;
 
-  uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00, 0x00, 0x00}; // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
+  uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {
+    COMMAND_CLASS_SECURITY_2,
+    PUBLIC_KEY_REPORT,
+    0x00,
+    0x00,
+    0x00};  // Key exchange received from slave - public key for secure exchange of LTK. Note the first two bytes should not be transmitted on authenticated/access keys.
   memcpy(&s2_public_key_frame[5], &public_key_b[2], sizeof(public_key_b) - 2);
 
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = s2_public_key_frame;
   p_mock->expect_arg[3].value   = sizeof(s2_public_key_frame);
   p_mock->return_code.value     = 1;
 
   // When receiving public key A, then we expect an event to be pushed up and both our public and private keys are requested from the keystore.
-  zwave_event_t  * p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
-  p_expected_inc_req_event->event_type = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length       = sizeof(m_test_public_key_a);
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys = 0x82;
-  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length   = 0;
-  memcpy(p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  zwave_event_t *p_expected_inc_req_event = (zwave_event_t *)m_test_mem_pool[0];
+  p_expected_inc_req_event->event_type
+    = S2_NODE_INCLUSION_PUBLIC_KEY_CHALLENGE_EVENT;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.length
+    = sizeof(m_test_public_key_a);
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.granted_keys
+    = 0x82;
+  p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.dsk_length = 0;
+  memcpy(
+    p_expected_inc_req_event->evt.s2_event.s2_data.challenge_req.public_key,
+    m_test_public_key_a,
+    sizeof(m_test_public_key_a));
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
   p_mock->expect_arg[0].pointer = p_expected_inc_req_event;
 
@@ -5994,54 +7632,86 @@ void test_kex_joining_node_error_transfer_end(void) {
   p_mock->output_arg[0].pointer = public_key_b;
 
   // Expect Echo(KEX Report) to be sent.
-  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x82}; // Note: Echo flag set.
+  uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2,
+                                     KEX_SET,
+                                     0x01,
+                                     0x02,
+                                     0x01,
+                                     0x82};  // Note: Echo flag set.
 
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = S2_echo_kex_set_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(S2_echo_kex_set_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = S2_echo_kex_set_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(S2_echo_kex_set_frame);
+  p_mock->return_code.value   = 1;
 
-  uint8_t s2_net_key_get_2_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x02};   // Keys requested, Security2, class 2 - Security0, network key.
+  uint8_t s2_net_key_get_2_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       SECURITY_2_NETWORK_KEY_GET,
+       0x02};  // Keys requested, Security2, class 2 - Security0, network key.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_get_2_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value   = sizeof(s2_net_key_get_2_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_get_2_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_get_2_frame);
+  p_mock->return_code.value   = 1;
 
-  uint8_t s2_net_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t s2_net_key_verify_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_verify_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(s2_net_key_verify_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_verify_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_frame);
+  p_mock->return_code.value   = 1;
 
-  uint8_t s2_net_key_get_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x80};   // Keys requested, Security2, class 2 - Security0, network key.
+  uint8_t s2_net_key_get_0_frame[]
+    = {COMMAND_CLASS_SECURITY_2,
+       SECURITY_2_NETWORK_KEY_GET,
+       0x80};  // Keys requested, Security2, class 2 - Security0, network key.
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_get_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value    = sizeof(s2_net_key_get_0_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_get_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_get_0_frame);
+  p_mock->return_code.value   = 1;
 
-  uint8_t s2_net_key_verify_0_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+  uint8_t s2_net_key_verify_0_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_data), &p_mock);
-  p_mock->compare_rule_arg[0] = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1] = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
-  p_mock->expect_arg[2].pointer = s2_net_key_verify_0_frame; // Ideally, this should be updated to be identically to replayed received KEX Report.
-  p_mock->expect_arg[3].value   = sizeof(s2_net_key_verify_0_frame);
-  p_mock->return_code.value     = 1;
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->expect_arg[2].pointer
+    = s2_net_key_verify_0_frame;  // Ideally, this should be updated to be identically to replayed received KEX Report.
+  p_mock->expect_arg[3].value = sizeof(s2_net_key_verify_0_frame);
+  p_mock->return_code.value   = 1;
 
   // When S2 Transfer End with Key Verify set to 0 is received, we expect a joining node to abort inclusion
-  zwave_event_t  * p_expected_complete_event = (zwave_event_t *)m_test_mem_pool[1];
+  zwave_event_t *p_expected_complete_event
+    = (zwave_event_t *)m_test_mem_pool[1];
   p_expected_complete_event->event_type = S2_NODE_INCLUSION_FAILED_EVENT;
-  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete.exchanged_keys = 0x0;
-  p_expected_complete_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type = KEX_FAIL_KEY_VERIFY;
+  p_expected_complete_event->evt.s2_event.s2_data.inclusion_complete
+    .exchanged_keys
+    = 0x0;
+  p_expected_complete_event->evt.s2_event.s2_data.inclusion_fail.kex_fail_type
+    = KEX_FAIL_KEY_VERIFY;
   mock_call_expect(TO_STR(s2_event_handler), &p_mock);
-  p_mock->expect_arg[0].pointer = p_expected_complete_event ;
+  p_mock->expect_arg[0].pointer = p_expected_complete_event;
 
   /**
    *  Test execution.
@@ -6057,9 +7727,9 @@ void test_kex_joining_node_error_transfer_end(void) {
 
   // KEX Get frame received.
   uint8_t S2_kex_get_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_GET};
-  s2_context.buf           = S2_kex_get_frame;
-  s2_context.length        = sizeof(S2_kex_get_frame);
-  s2_con.class_id = 0xFF;
+  s2_context.buf             = S2_kex_get_frame;
+  s2_context.length          = sizeof(S2_kex_get_frame);
+  s2_con.class_id            = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // KEX report is expeted to be transmitted. Let's make the s2_send_frame a success.
@@ -6070,24 +7740,32 @@ void test_kex_joining_node_error_transfer_end(void) {
   // Selected schemes: scheme 0 and scheme 2.
   // Selected curve25519
   // Keys to exchange, Security2, class 2 - Security0, network key.
-  uint8_t s2_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x82};
+  uint8_t s2_kex_set_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x00, 0x02, 0x01, 0x82};
 
   s2_context.buf    = s2_kex_set_frame;
   s2_context.length = sizeof(s2_kex_set_frame);
-  s2_con.class_id = 0xFF;
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
-  uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x01}; // Key exchange received from slave - public key for secure exchange of LTK.
-  memcpy(&public_key_frame[3], m_test_public_key_a, sizeof(m_test_public_key_a));
+  uint8_t public_key_frame[3 + sizeof(m_test_public_key_a)] = {
+    COMMAND_CLASS_SECURITY_2,
+    PUBLIC_KEY_REPORT,
+    0x01};  // Key exchange received from slave - public key for secure exchange of LTK.
+  memcpy(&public_key_frame[3],
+         m_test_public_key_a,
+         sizeof(m_test_public_key_a));
   s2_context.buf    = public_key_frame;
   s2_context.length = sizeof(public_key_frame);
-  s2_con.class_id = 0xFF;
+  s2_con.class_id   = 0xFF;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // After the received public key is pushed upwards in the system, then it is expected to receive a challenge response from the upper level.
   // The challenge response should result in correct pub key being set on the context.
   s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
-  TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key,
+                                m_test_public_key_a,
+                                sizeof(m_test_public_key_a));
 
   // After receiving public key from joining node, the upper layer must specify our public key to be send. (This can also be done on initialization, but must happen no later than the received event).
 
@@ -6096,44 +7774,61 @@ void test_kex_joining_node_error_transfer_end(void) {
   // Selected schemes: scheme 0 and scheme 2.
   // Selected curve25519
   // Keys to exchange, Security2, class 2 - Security0, network key.
-  uint8_t s2_echo_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x82};
+  uint8_t s2_echo_kex_report_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x05, 0x02, 0x01, 0x82};
 
   s2_context.buf    = s2_echo_kex_report_frame;
   s2_context.length = sizeof(s2_echo_kex_report_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // Network Key Report frame received.
-  uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_REPORT, 0x02, };   // Keys requested, Security2, class 2 - Security0, network key.
-  memcpy(&s2_net_key_report_frame[3], m_test_network_key_s2_class_1, sizeof(m_test_network_key_s2_class_1));
+  uint8_t s2_net_key_report_frame[3 + sizeof(m_test_network_key_s2_class_1)] = {
+    COMMAND_CLASS_SECURITY_2,
+    SECURITY_2_NETWORK_KEY_REPORT,
+    0x02,
+  };  // Keys requested, Security2, class 2 - Security0, network key.
+  memcpy(&s2_net_key_report_frame[3],
+         m_test_network_key_s2_class_1,
+         sizeof(m_test_network_key_s2_class_1));
   s2_context.buf    = s2_net_key_report_frame;
   s2_context.length = sizeof(s2_net_key_report_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // S2 Transfer end frame received.
   // bit0: Key request complete not set,
   // bit1: Key verified set,
   // bit2-7: Reserved.
-  uint8_t s2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
+  uint8_t s2_transfer_end_frame[]
+    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x02};
   s2_context.buf    = s2_transfer_end_frame;
   s2_context.length = sizeof(s2_transfer_end_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // Network Key Report frame received.
-  uint8_t s2_net_key_report_0_frame[3 + sizeof(m_test_network_key_s0)] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_REPORT, 0x80, };   // Keys requested, Security2, class 2 - Security0, network key.
-  memcpy(&s2_net_key_report_0_frame[3], m_test_network_key_s0, sizeof(m_test_network_key_s0));
+  uint8_t s2_net_key_report_0_frame[3 + sizeof(m_test_network_key_s0)] = {
+    COMMAND_CLASS_SECURITY_2,
+    SECURITY_2_NETWORK_KEY_REPORT,
+    0x80,
+  };  // Keys requested, Security2, class 2 - Security0, network key.
+  memcpy(&s2_net_key_report_0_frame[3],
+         m_test_network_key_s0,
+         sizeof(m_test_network_key_s0));
   s2_context.buf    = s2_net_key_report_0_frame;
   s2_context.length = sizeof(s2_net_key_report_0_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // Expect KEX FAIL to be sent.
-  uint8_t S2_network_kex_fail_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, KEX_FAIL_KEY_VERIFY};
+  uint8_t S2_network_kex_fail_frame[]
+    = {COMMAND_CLASS_SECURITY_2, KEX_FAIL, KEX_FAIL_KEY_VERIFY};
   mock_call_expect(TO_STR(S2_send_frame), &p_mock);
-  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
-  p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL; // This shall be updated once excact frame is defined for S2 frames.
+  p_mock->compare_rule_arg[0]
+    = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
+  p_mock->compare_rule_arg[1]
+    = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
   p_mock->expect_arg[2].pointer = S2_network_kex_fail_frame;
   p_mock->expect_arg[3].value   = sizeof(S2_network_kex_fail_frame);
   p_mock->return_code.value     = 1;
@@ -6144,10 +7839,11 @@ void test_kex_joining_node_error_transfer_end(void) {
   // bit0: Key request complete not set,
   // bit1: Key verified not set,
   // bit2-7: Reserved.
-  s2_transfer_end_frame[2] = 0x00; // {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x00}
+  s2_transfer_end_frame[2]
+    = 0x00;  // {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x00}
   s2_context.buf    = s2_transfer_end_frame;
   s2_context.length = sizeof(s2_transfer_end_frame);
-  s2_con.class_id = UNIT_TEST_TEMP_KEY_SECURE;
+  s2_con.class_id   = UNIT_TEST_TEMP_KEY_SECURE;
   s2_inclusion_post_event(&s2_context, &s2_con);
 
   // S2 inclusion is aborted now

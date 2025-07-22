@@ -61,7 +61,7 @@
 //#include <ZW_typedefs.h>
 #include <platform.h>
 
-#define CLOCK_SECOND 1000   // 1 ms ticks
+#define CLOCK_SECOND 1000  // 1 ms ticks
 
 typedef uint32_t clock_time_t;
 
@@ -72,7 +72,6 @@ struct ctimer {
   VOID_CALLBACKFUNC(f)(void *);
   void *ptr;
 };
-
 
 /**
  * \brief      Reset a callback timer with the same interval as was
@@ -120,8 +119,10 @@ void ctimer_restart(struct ctimer *c);
  *             the callback function f will be called with ptr as argument.
  *
  */
-void ctimer_set(struct ctimer *c, clock_time_t t,
-		VOID_CALLBACKFUNC(f)(void *), void *ptr);
+void ctimer_set(struct ctimer *c,
+                clock_time_t t,
+                VOID_CALLBACKFUNC(f)(void *),
+                void *ptr);
 
 /**
  * \brief      Stop a pending callback timer.

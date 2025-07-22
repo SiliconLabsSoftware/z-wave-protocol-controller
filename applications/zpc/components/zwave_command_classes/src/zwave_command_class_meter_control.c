@@ -253,10 +253,10 @@ static sl_status_t zwave_command_class_meter_supported_get(
     = zwave_command_class_get_version_from_node(node, COMMAND_CLASS_METER);
 
   if (supporting_node_version == 1) {
-    ZW_METER_GET_FRAME *get_frame    = (ZW_METER_GET_FRAME *)frame;
-    get_frame->cmdClass              = COMMAND_CLASS_METER;
-    get_frame->cmd                   = METER_GET;
-    *frame_length                    = sizeof(ZW_METER_GET_FRAME);
+    ZW_METER_GET_FRAME *get_frame = (ZW_METER_GET_FRAME *)frame;
+    get_frame->cmdClass           = COMMAND_CLASS_METER;
+    get_frame->cmd                = METER_GET;
+    *frame_length                 = sizeof(ZW_METER_GET_FRAME);
     return SL_STATUS_OK;
   }
 

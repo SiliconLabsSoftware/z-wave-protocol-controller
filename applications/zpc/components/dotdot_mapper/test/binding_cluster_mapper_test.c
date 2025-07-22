@@ -221,10 +221,12 @@ void test_publish_commands_for_supporting_node()
   setup_groups_for_supporting_node();
 
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
 
   // Nothing happens here as long as we are not online functional.
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -267,10 +269,12 @@ void test_publish_commands_for_supporting_node_cannot_read_unid()
   setup_groups_for_supporting_node();
 
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
 
   // Nothing happens here as long as we are not online functional.
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -287,10 +291,12 @@ void test_publish_commands_for_supporting_node_cannot_read_unid()
 void test_no_publish_commands_for_zpc()
 {
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, zpc_node_id_node);
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               zpc_node_id_node);
 
   // Set to online functional, nothing should happen.
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -317,10 +323,12 @@ void test_publish_central_scene_commands_for_supporting_node()
                                sizeof(command_list_1));
 
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
 
   // Nothing happens here as long as we are not online functional.
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -375,10 +383,12 @@ void test_publish_on_off_commands_for_supporting_node()
                                sizeof(command_list_1));
 
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
 
   // Nothing happens here as long as we are not online functional.
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));

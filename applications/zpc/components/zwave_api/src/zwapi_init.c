@@ -136,7 +136,7 @@ bool zwapi_poll()
   zwapi_session_enqueue_rx_frames();
   bool more_frames = zwapi_session_dequeue_frame(&frame, &len);
 
-  if (frame && len >=1) {
+  if (frame && len >= 1) {
     zwave_api_protocol_rx_dispatch(frame, len);
     free(frame);
   }
@@ -190,8 +190,8 @@ sl_status_t zwapi_refresh_capabilities(void)
   *   One or more Serial API Request(s) could have been stored during the execution of:
   *   zwapi_session_send_frame_with_response(FUNC_ID_SERIAL_API_GET_CAPABILITIES, ...)
   *   (in the case of a FUNC_ID_SERIAL_API_STARTED request, this can break ZPC network management state machine later)
-  */ 
-  
+  */
+
   zwapi_session_flush_queue();
 
   if (zwapi_support_command_func(FUNC_ID_SERIAL_API_SETUP)) {

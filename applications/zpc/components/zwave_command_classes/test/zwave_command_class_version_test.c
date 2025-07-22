@@ -884,9 +884,9 @@ void test_zwave_command_class_version_command_class_report_happy_case()
   // Simulate an incoming report with version cc data
   zwave_cc_version_t received_version = 34;
   const uint8_t incoming_frame[]      = {COMMAND_CLASS_VERSION_V3,
-                                    VERSION_COMMAND_CLASS_REPORT_V3,
-                                    COMMAND_CLASS_DOOR_LOCK,
-                                    received_version};
+                                         VERSION_COMMAND_CLASS_REPORT_V3,
+                                         COMMAND_CLASS_DOOR_LOCK,
+                                         received_version};
 
   TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
                     version_handler.support_handler(&connection_info,

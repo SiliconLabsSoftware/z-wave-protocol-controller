@@ -26,7 +26,6 @@
 
 // Interfaces/definitions
 
-
 // ZPC Components
 #include "zwave_unid.h"
 #include "attribute_store_defined_attribute_types.h"

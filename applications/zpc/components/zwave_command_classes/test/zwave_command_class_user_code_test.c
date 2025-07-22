@@ -56,10 +56,10 @@ static attribute_resolver_function_t user_code_set    = NULL;
 static zpc_resolver_event_notification_function_t
   on_delete_all_send_data_complete
   = NULL;
-static zwave_command_handler_t handler = {};
+static zwave_command_handler_t handler         = {};
 static zwave_controller_connection_info_t info = {};
-static uint8_t received_frame[255]     = {};
-static uint16_t received_frame_size    = 0;
+static uint8_t received_frame[255]             = {};
+static uint16_t received_frame_size            = 0;
 
 #define KEY_BITMASK_SIZE 16
 static const uint8_t V1_SUPPORTED_KEYS[KEY_BITMASK_SIZE] = {0x00,

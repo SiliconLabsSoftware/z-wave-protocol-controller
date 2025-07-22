@@ -70,16 +70,16 @@ static sl_status_t attribute_timeout_set_callback_stub(
   attribute_timeout_callback_t callback_function,
   int cmock_num_calls)
 {
-  TEST_ASSERT_EQUAL(ATTRIBUTE_COMMAND_CLASS_SWITCH_COLOR_STATE, attribute_store_get_node_type(node));
+  TEST_ASSERT_EQUAL(ATTRIBUTE_COMMAND_CLASS_SWITCH_COLOR_STATE,
+                    attribute_store_get_node_type(node));
   switch_color_undefine_reported = callback_function;
   return SL_STATUS_OK;
 }
 
-
 /// Setup the test suite (called once before all test_xxx functions are called)
 void suiteSetUp()
 {
-  on_send_complete = NULL;
+  on_send_complete               = NULL;
   switch_color_undefine_reported = NULL;
 
   datastore_init(":memory:");
@@ -198,8 +198,10 @@ void test_zwave_command_class_on_send_complete()
   attribute_store_node_t duration_node
     = attribute_store_add_node(ATTRIBUTE_COMMAND_CLASS_SWITCH_COLOR_DURATION,
                                state_node);
-  attribute_store_set_desired(duration_node, &duration_value, sizeof(duration_value));
-  
+  attribute_store_set_desired(duration_node,
+                              &duration_value,
+                              sizeof(duration_value));
+
   attribute_timeout_set_callback_ExpectAndReturn(
     state_node,
     zwave_duration_to_time(duration_value) + PROBE_BACK_OFF,

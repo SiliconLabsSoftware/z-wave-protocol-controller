@@ -14,17 +14,16 @@
 #define LOG_TAG "zpc_hex2int"
 
 #include "zpc_hex_to_int.h"
-int zpc_hex2int(char c) {
-  if(c >= '0' && c <= '9') {
-    return c-'0';
-  } else if(c >= 'a' && c <= 'f') {
-    return c-'a' + 0xa;
-  } else if(c >= 'A' && c <= 'F') {
-    return c-'A' + 0xa;
+int zpc_hex2int(char c)
+{
+  if (c >= '0' && c <= '9') {
+    return c - '0';
+  } else if (c >= 'a' && c <= 'f') {
+    return c - 'a' + 0xa;
+  } else if (c >= 'A' && c <= 'F') {
+    return c - 'A' + 0xa;
   } else {
     sl_log_error(LOG_TAG, "Trying to convert non hex character to hexi\n");
     return 0;
   }
 }
-
-

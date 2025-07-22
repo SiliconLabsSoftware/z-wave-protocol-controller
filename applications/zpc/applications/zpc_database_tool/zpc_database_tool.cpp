@@ -146,8 +146,9 @@ static void import_data_store(attribute &parent, nlohmann::json &jsn)
     sl_log_error("zpc_database_tool", "Missing type attribute in json");
     return;
   }
-  std::string type_str        = jsn["type"].get<std::string>();
-  attribute_store_type_t type = attribute_store_get_type_by_name(type_str.c_str());
+  std::string type_str = jsn["type"].get<std::string>();
+  attribute_store_type_t type
+    = attribute_store_get_type_by_name(type_str.c_str());
   attribute node;
 
   if (type == ATTRIBUTE_TREE_ROOT) {

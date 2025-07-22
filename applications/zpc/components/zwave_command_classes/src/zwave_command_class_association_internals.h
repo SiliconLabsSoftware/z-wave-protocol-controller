@@ -30,9 +30,8 @@
 #include "attribute_store.h"
 
 // First index of the frame containing association data for (Multi Channel) Association Reports
-#define REPORT_ASSOCIATION_BYTES_INDEX 5
+#define REPORT_ASSOCIATION_BYTES_INDEX        5
 #define ASSOCIATION_REPORTS_REPORTS_TO_FOLLOW 4
-
 
 ///< Maximum content (number of bytes) for a Association group. This is aligned
 ///< with the storage capacity of the attribute store.

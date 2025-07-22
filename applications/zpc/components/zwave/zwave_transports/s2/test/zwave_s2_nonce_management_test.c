@@ -93,7 +93,6 @@ void test_zwave_s2_nonce_management_get_span_data()
                                 sizeof(span_data.key));
   zwave_s2_reset_span(node_id);
   TEST_ASSERT_EQUAL(test_ctx.span_table[1].state, SPAN_NOT_USED);
-
 }
 
 void test_zwave_s2_nonce_management_zwave_s2_set_span_table()

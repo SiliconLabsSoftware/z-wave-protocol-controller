@@ -87,14 +87,17 @@ static attribute_store_node_t create_al_node(zwave_node_id_t node_id)
                                      sizeof(listening_protocol));
 
   attribute_store_node_t network_status_node
-    = attribute_store_get_node_child_by_type(node_id_node,
-                                             DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
-                                             0);
+    = attribute_store_get_node_child_by_type(
+      node_id_node,
+      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+      0);
   if (network_status_node == ATTRIBUTE_STORE_INVALID_NODE) {
     network_status_node
-      = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
+      = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                                 node_id_node);
   }
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -162,7 +165,8 @@ void test_monitoring_failed_al_node_happy_case()
 
   // Set the node to just included
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
   NodeStateNetworkStatus network_status
     = ZCL_NODE_STATE_NETWORK_STATUS_COMMISIONING_STARTED;
   attribute_store_set_reported(network_status_node,
@@ -256,8 +260,10 @@ void test_monitoring_failed_fl_node_happy_case()
 
   // Set the node to interviewing
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING;
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -528,7 +534,8 @@ void test_monitoring_failed_unknown_operating_mode_not_monitored()
 {
   // Add a network status
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
   NodeStateNetworkStatus network_status
     = ZCL_NODE_STATE_NETWORK_STATUS_COMMISIONING_STARTED;
   attribute_store_set_reported(network_status_node,

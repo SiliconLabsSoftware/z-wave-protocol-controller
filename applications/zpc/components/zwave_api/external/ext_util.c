@@ -9,8 +9,7 @@
  */
 unsigned int min(unsigned int x, unsigned int y)
 {
-  if (y < x)
-  {
+  if (y < x) {
     return y;
   }
   return x;

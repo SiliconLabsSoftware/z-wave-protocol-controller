@@ -572,12 +572,17 @@ bool find_dsk_obfuscated_bytes_from_smart_start_list(zwave_dsk_t dsk,
                                               dsk_internal)) {
       sl_log_debug(LOG_TAG, "Comparing\n");
       sl_log_byte_arr(LOG_TAG, SL_LOG_DEBUG, dsk_internal, sizeof(zwave_dsk_t))
-      sl_log_debug(LOG_TAG, "with sent: \n");
-      sl_log_byte_arr(LOG_TAG, SL_LOG_DEBUG, dsk, sizeof(zwave_dsk_t))
-      if (memcmp(dsk + obfuscated_bytes,
-                 dsk_internal + obfuscated_bytes,
-                 (sizeof(zwave_dsk_t) - obfuscated_bytes))
-          == 0) {
+        sl_log_debug(LOG_TAG, "with sent: \n");
+      sl_log_byte_arr(
+        LOG_TAG,
+        SL_LOG_DEBUG,
+        dsk,
+        sizeof(
+          zwave_dsk_t)) if (memcmp(dsk + obfuscated_bytes,
+                                   dsk_internal + obfuscated_bytes,
+                                   (sizeof(zwave_dsk_t) - obfuscated_bytes))
+                            == 0)
+      {
         memcpy(dsk, dsk_internal, obfuscated_bytes);
         return true;
       }

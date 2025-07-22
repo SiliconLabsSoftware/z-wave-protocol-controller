@@ -34,7 +34,7 @@
 // Shared variables from the Z-Wave TX Process
 extern zwave_tx_queue tx_queue;
 extern zwave_tx_session_id_t current_tx_session_id;
-extern bool is_protocol_frame; // NOSONAR
+extern bool is_protocol_frame;  // NOSONAR
 
 // Static variables
 zwave_controller_connection_info_t last_received_connection_info;
@@ -58,7 +58,7 @@ void on_zwave_transport_send_data_complete(uint8_t status,
   void *session_id = user;
   if (is_protocol_frame) {
     protocol_metadata_t *protocol_metadata = (protocol_metadata_t *)user;
-    session_id = protocol_metadata->tx_session_id;
+    session_id                             = protocol_metadata->tx_session_id;
   }
 
   // Copy the transmission results to the session_id (user pointer)

@@ -22,14 +22,13 @@
  * you use the same encapsulation as the sender.
  * @{
  */
- 
+
 #ifndef ZWAVE_COMMAND_CLASS_CRC16_H
 #define ZWAVE_COMMAND_CLASS_CRC16_H
 
 #include "sl_status.h"
 #include "zwave_node_id_definitions.h"
 #include "attribute_store.h"
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,7 +83,7 @@ bool zwave_command_class_crc16_is_expecting_crc16_response(
 sl_status_t zwave_command_class_crc16_init();
 
 #ifdef __cplusplus
-} // extern "C"
+}  // extern "C"
 #endif
 
 #endif  //ZWAVE_COMMAND_CLASS_CRC16_H

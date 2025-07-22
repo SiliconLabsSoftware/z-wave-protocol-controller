@@ -265,10 +265,10 @@ static void
   fields.route_changed
     = (tx_report->route_scheme_state == ROUTINGSCHEME_CACHED_ROUTE) ? false
                                                                     : true;
-  fields.transmission_speed           = transmission_speed;
-  fields.measured_noise_floord_bm     = tx_report->measured_noise_floor;
-  fields.last_route_repeaters_count   = tx_report->number_of_repeaters;
-  fields.last_route_repeaters         = (const char **)repeaters_unid;
+  fields.transmission_speed            = transmission_speed;
+  fields.measured_noise_floord_bm      = tx_report->measured_noise_floor;
+  fields.last_route_repeaters_count    = tx_report->number_of_repeaters;
+  fields.last_route_repeaters          = (const char **)repeaters_unid;
   fields.incoming_rssi_repeaters_count = tx_report->number_of_repeaters;
   fields.incoming_rssi_repeaters
     = (const int8_t *)tx_report->rssi_values.incoming;

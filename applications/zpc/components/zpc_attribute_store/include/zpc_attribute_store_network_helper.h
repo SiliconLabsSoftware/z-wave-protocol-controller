@@ -22,7 +22,6 @@
 #include "zwave_unid.h"
 #include "zwave_controller_types.h"  // for zwave_endpoint_id_t
 
-
 /**
  * @defgroup zpc_attribute_store_network_helpers ZPC Attribute Store Z-Wave Network Helpers
  * @ingroup zpc_attribute_store

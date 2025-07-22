@@ -286,17 +286,17 @@ void zwave_command_class_list_unpack(zwave_node_info_t *node_info,
          && (i < ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH)) {
     // Check if it's extended CC format (2 bytes length). Check
     // CC:0000.00.00.11.001 for more details
-    if (nif[nif_index] >= 0xF1) {  // Belong to extended range
-      if (nif_index < nif_length - 1) { // Prevent read beyond
+    if (nif[nif_index] >= 0xF1) {        // Belong to extended range
+      if (nif_index < nif_length - 1) {  // Prevent read beyond
         node_info->command_class_list[i]
           = ((nif[nif_index] & 0xFF) << 8) | nif[nif_index + 1];
         i++;
         nif_index += 2;
       } else {
-          sl_log_warning(
-              LOG_TAG,
-              "warning: zwave_command_class_list_unpack: invalid input: skipping");
-          assert(false);
+        sl_log_warning(
+          LOG_TAG,
+          "warning: zwave_command_class_list_unpack: invalid input: skipping");
+        assert(false);
       }
     } else {
       node_info->command_class_list[i++] = nif[nif_index++];

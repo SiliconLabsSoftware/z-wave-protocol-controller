@@ -24,7 +24,8 @@
 #include "attribute.hpp"
 #include <vector>
 
-namespace zpc_database_updater {
+namespace zpc_database_updater
+{
 
 /**
  * @brief Update the datastore to the target version

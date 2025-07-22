@@ -48,9 +48,7 @@ static uic_mqtt_dotdot_state_interview_callback_t interview_command = NULL;
 static uic_mqtt_dotdot_state_discover_security_callback_t
   discover_security_command
   = NULL;
-static uic_mqtt_dotdot_state_enable_nls_callback_t
-  enable_nls_command
-  = NULL;
+static uic_mqtt_dotdot_state_enable_nls_callback_t enable_nls_command = NULL;
 
 // Stub functions
 static void uic_mqtt_dotdot_state_remove_offline_callback_set_stub(

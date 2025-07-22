@@ -79,18 +79,14 @@ void suiteSetUp()
 /// Teardown the test suite (called once after all test_xxx functions are called)
 int suiteTearDown(int num_failures)
 {
-    return num_failures;
+  return num_failures;
 }
 
 /// Called before each and every test
-void setUp()
-{
-
-}
+void setUp() {}
 
 /// Called after each and every test
-void tearDown() {
-}
+void tearDown() {}
 
 // WARNING : This test is here to cover the v1 to v2 function.
 // No test was done by the time, so we don't have a v1 database to test.
@@ -98,11 +94,11 @@ void tearDown() {
 void test_migration_v1_v2_test()
 {
   // Current database version
-  constexpr int64_t BASE_VERSION        = 1;
+  constexpr int64_t BASE_VERSION = 1;
   // New version
   constexpr int64_t DESTINATION_VERSION = 2;
 
-  // This test is here to 
+  // This test is here to
   helper_setup_database(":memory:", 1);
 
   // Migrate the datastore
@@ -116,12 +112,11 @@ void test_migration_v1_v2_test()
 void test_migration_v2_v3()
 {
   // Current database version
-  constexpr int64_t BASE_VERSION        = 2;
+  constexpr int64_t BASE_VERSION = 2;
   // New version
   constexpr int64_t DESTINATION_VERSION = 3;
 
   helper_setup_database(TEST_DB_V2_BASE_NAME, BASE_VERSION);
-
 
   attribute_store_log();
 
@@ -142,40 +137,41 @@ void test_migration_v2_v3()
 
   // Test new attributes
 
-  // First of all get the correct endpoint 
-  // attribute_store_log() extract : 
+  // First of all get the correct endpoint
+  // attribute_store_log() extract :
   //
   // 59: 2024-Jul-09 14:20:25.685584 <d> [attribute_store] ID: 1 - Root node - Reported (hex): []
   // 59: 2024-Jul-09 14:20:25.685690 <d> [attribute_store]   ID: 55 - HomeID - Reported (hex): [DF AF 03 F7]
   // 59: 2024-Jul-09 14:20:25.685750 <d> [attribute_store]     ID: 56 - NodeID - Reported (hex): [01 00]
   // 59: 2024-Jul-09 14:20:25.687162 <d> [attribute_store]     ID: 73 - NodeID - Reported (hex): [02 00]
   // 59: 2024-Jul-09 14:20:25.687233 <d> [attribute_store]       ID: 74 - Endpoint ID - Reported (hex): [00]
-  // 59: 2024-Jul-09 14:29:39.847599 <d> [attribute_store]       ID: 75 - Unknown 0xFD020001 - Reported (hex): [00 00 00 00] 
-  // 59: 2024-Jul-09 14:29:39.847676 <d> [attribute_store]       ID: 76 - Inclusion protocol - Reported (hex): [00 00 00 00] 
-  // 59: 2024-Jul-09 14:29:39.847755 <d> [attribute_store]       ID: 79 - Granted keys - Reported (hex): [00] 
-  // 59: 2024-Jul-09 14:29:39.847828 <d> [attribute_store]       ID: 80 - KEX Fail type - Reported (hex): [00 00 00 00] 
-  // 59: 2024-Jul-09 14:29:39.847905 <d> [attribute_store]       ID: 81 - NIF: Protocol Listening byte - Reported (hex): [53] 
-  // 59: 2024-Jul-09 14:29:39.847978 <d> [attribute_store]       ID: 82 - NIF: Optional Protocol byte - Reported (hex): [DC] 
-  // 59: 2024-Jul-09 14:29:39.848061 <d> [attribute_store]       ID: 85 - Version CC is supported - Reported (hex): [01] 
-  // 59: 2024-Jul-09 14:29:39.848135 <d> [attribute_store]       ID: 111 - Last Rx/Tx timestamp - Reported (hex): [AF 56 00 00 00 00 00 00] 
+  // 59: 2024-Jul-09 14:29:39.847599 <d> [attribute_store]       ID: 75 - Unknown 0xFD020001 - Reported (hex): [00 00 00 00]
+  // 59: 2024-Jul-09 14:29:39.847676 <d> [attribute_store]       ID: 76 - Inclusion protocol - Reported (hex): [00 00 00 00]
+  // 59: 2024-Jul-09 14:29:39.847755 <d> [attribute_store]       ID: 79 - Granted keys - Reported (hex): [00]
+  // 59: 2024-Jul-09 14:29:39.847828 <d> [attribute_store]       ID: 80 - KEX Fail type - Reported (hex): [00 00 00 00]
+  // 59: 2024-Jul-09 14:29:39.847905 <d> [attribute_store]       ID: 81 - NIF: Protocol Listening byte - Reported (hex): [53]
+  // 59: 2024-Jul-09 14:29:39.847978 <d> [attribute_store]       ID: 82 - NIF: Optional Protocol byte - Reported (hex): [DC]
+  // 59: 2024-Jul-09 14:29:39.848061 <d> [attribute_store]       ID: 85 - Version CC is supported - Reported (hex): [01]
+  // 59: 2024-Jul-09 14:29:39.848135 <d> [attribute_store]       ID: 111 - Last Rx/Tx timestamp - Reported (hex): [AF 56 00 00 00 00 00 00]
   // 59: 2024-Jul-09 14:20:25.696159 <d> [attribute_store]       ID: 175 - Endpoint ID - Reported (hex): [01] << We want him
-  auto root_node = attribute_store_get_root();
+  auto root_node    = attribute_store_get_root();
   auto home_id_node = attribute_store_get_node_child(root_node, 0);
   auto node_id_node = attribute_store_get_node_child(home_id_node, 1);
   const zwave_endpoint_id_t endpoint_id = 1;
   // Need to specify the endpoint ID here
-  auto endpoint_id_node =  attribute_store_get_node_child_by_value(node_id_node,
-                                                 ATTRIBUTE_ENDPOINT_ID,
-                                                 REPORTED_ATTRIBUTE,
-                                                 &endpoint_id,
-                                                 sizeof(endpoint_id),
-                                                 0);
+  auto endpoint_id_node
+    = attribute_store_get_node_child_by_value(node_id_node,
+                                              ATTRIBUTE_ENDPOINT_ID,
+                                              REPORTED_ATTRIBUTE,
+                                              &endpoint_id,
+                                              sizeof(endpoint_id),
+                                              0);
 
   // Test new bitmask values
-  const std::map<attribute_store_type_t, uint32_t> bitmask_attributes = {
-    {ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SUPPORTED_MODES, 0x180F },
-    {ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SETPOINT_SUPPORTED_SETPOINT_TYPES, 0x0186 }
-  };
+  const std::map<attribute_store_type_t, uint32_t> bitmask_attributes
+    = {{ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SUPPORTED_MODES, 0x180F},
+       {ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SETPOINT_SUPPORTED_SETPOINT_TYPES,
+        0x0186}};
 
   for (const auto &[attribute_type, expected_value]: bitmask_attributes) {
     printf("Testing attribute %s\n",
@@ -196,8 +192,6 @@ void test_migration_v2_v3()
                               "New bitmask value mismatch.");
   }
 
-
-
   // Test new attribute ID values
   struct setpoint_value {
     int32_t value;
@@ -206,7 +200,8 @@ void test_migration_v2_v3()
   };
 
   // Expected value in each fields
-  const std::map<uint8_t, std::vector<setpoint_value>> expected_setpoint_attributes
+  const std::map<uint8_t, std::vector<setpoint_value>>
+    expected_setpoint_attributes
     = {{0x01, {{73000, 1, 3}, {-10000, 0, 3}, {100000, 0, 3}}},
        {0x02, {{73000, 1, 3}, {-10000, 0, 3}, {100000, 0, 3}}},
        {0x0B, {{62000, 1, 3}, {-10000, 0, 3}, {100000, 0, 3}}},
@@ -225,7 +220,8 @@ void test_migration_v2_v3()
   // MAX_VALUE_PRECISION_TYPE : 0x430C
   const attribute_store_type_t START_VALUE_TYPE = 0x4304;
 
-  for (const auto &[setpoint_type, expected_values]: expected_setpoint_attributes) {
+  for (const auto &[setpoint_type, expected_values]:
+       expected_setpoint_attributes) {
     printf("Testing setpoint type %d\n", setpoint_type);
 
     auto setpoint_type_node = attribute_store_get_node_child_by_value(
@@ -262,14 +258,13 @@ void test_migration_v2_v3()
                                 reported_values.value,
                                 "New setpoint value mismatch.");
 
-
       // Get scale
       // TODO : use defined offset in thermostat setpoint header when available
-      status
-        = attribute_store_get_child_reported(setpoint_type_node,
-                                             START_VALUE_TYPE + CURRENT_OFFSET + 1,
-                                             &reported_values.scale,
-                                             sizeof(reported_values.scale));
+      status = attribute_store_get_child_reported(
+        setpoint_type_node,
+        START_VALUE_TYPE + CURRENT_OFFSET + 1,
+        &reported_values.scale,
+        sizeof(reported_values.scale));
       TEST_ASSERT_EQUAL_MESSAGE(SL_STATUS_OK,
                                 status,
                                 "Failed to get new setpoint scale.");
@@ -279,11 +274,11 @@ void test_migration_v2_v3()
                                 "New setpoint scale mismatch.");
 
       // Get precision
-      status
-        = attribute_store_get_child_reported(setpoint_type_node,
-                                             START_VALUE_TYPE + CURRENT_OFFSET + 2,
-                                             &reported_values.precision,
-                                             sizeof(reported_values.precision));
+      status = attribute_store_get_child_reported(
+        setpoint_type_node,
+        START_VALUE_TYPE + CURRENT_OFFSET + 2,
+        &reported_values.precision,
+        sizeof(reported_values.precision));
       TEST_ASSERT_EQUAL_MESSAGE(SL_STATUS_OK,
                                 status,
                                 "Failed to get new setpoint precision.");
@@ -295,6 +290,4 @@ void test_migration_v2_v3()
   }
 }
 
-
-
-} // extern "C"
+}  // extern "C"

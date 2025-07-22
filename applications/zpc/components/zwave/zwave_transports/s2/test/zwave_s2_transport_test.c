@@ -64,7 +64,7 @@ extern const unify_dotdot_attribute_store_configuration_t zpc_configuration;
 static void create_basic_network(void)
 {
   const zwave_home_id_t home_id = 0xcafecafe;
-  zwave_keyset_t granted_keys = 0xFF;
+  zwave_keyset_t granted_keys   = 0xFF;
 
   unify_dotdot_attribute_store_set_configuration(&zpc_configuration);
 
@@ -88,13 +88,15 @@ static void create_basic_network(void)
   node_id      = 3;  // Z-Wave node
   node_id_node = attribute_store_add_node(ATTRIBUTE_NODE_ID, home_id_node);
   attribute_store_set_reported(node_id_node, &node_id, sizeof(node_id));
-  node_id_node = attribute_store_add_node(ATTRIBUTE_GRANTED_SECURITY_KEYS, node_id_node);
+  node_id_node
+    = attribute_store_add_node(ATTRIBUTE_GRANTED_SECURITY_KEYS, node_id_node);
   zwave_set_node_granted_keys(node_id, &granted_keys);
 
   node_id      = 4;  // Z-Wave node
   node_id_node = attribute_store_add_node(ATTRIBUTE_NODE_ID, home_id_node);
   attribute_store_set_reported(node_id_node, &node_id, sizeof(node_id));
-  node_id_node = attribute_store_add_node(ATTRIBUTE_GRANTED_SECURITY_KEYS, node_id_node);
+  node_id_node
+    = attribute_store_add_node(ATTRIBUTE_GRANTED_SECURITY_KEYS, node_id_node);
   zwave_set_node_granted_keys(node_id, &granted_keys);
 }
 
@@ -607,14 +609,17 @@ void test_zwave_s2_nls_node_list_report_test_happy_case()
   uint8_t granted_keys;
   bool nls_state;
 
-  src_node = 1;
-  node_id = 3;
+  src_node     = 1;
+  node_id      = 3;
   granted_keys = 0xFF;
-  nls_state = true;
+  nls_state    = true;
 
   zwapi_enable_node_nls_ExpectAndReturn(node_id, SL_STATUS_OK);
 
-  status = S2_notify_nls_node_list_report(src_node, node_id, granted_keys, nls_state);
+  status = S2_notify_nls_node_list_report(src_node,
+                                          node_id,
+                                          granted_keys,
+                                          nls_state);
 
   TEST_ASSERT_EQUAL(0, status);
 }
@@ -629,14 +634,17 @@ void test_zwave_s2_nls_node_list_report_test_node_does_not_exist()
   uint8_t granted_keys;
   bool nls_state;
 
-  src_node = 1;
-  node_id = 6; // Non existant node
+  src_node     = 1;
+  node_id      = 6;  // Non existant node
   granted_keys = 0xFF;
-  nls_state = true;
+  nls_state    = true;
 
   zwapi_enable_node_nls_ExpectAndReturn(node_id, SL_STATUS_OK);
 
-  status = S2_notify_nls_node_list_report(src_node, node_id, granted_keys, nls_state);
+  status = S2_notify_nls_node_list_report(src_node,
+                                          node_id,
+                                          granted_keys,
+                                          nls_state);
 
   TEST_ASSERT_EQUAL(-1, status);
 }
@@ -651,12 +659,15 @@ void test_zwave_s2_nls_node_list_report_test_nls_state_not_set()
   uint8_t granted_keys;
   bool nls_state;
 
-  src_node = 1;
-  node_id = 3; // Non existant node
+  src_node     = 1;
+  node_id      = 3;  // Non existant node
   granted_keys = 0xFF;
-  nls_state = false;
+  nls_state    = false;
 
-  status = S2_notify_nls_node_list_report(src_node, node_id, granted_keys, nls_state);
+  status = S2_notify_nls_node_list_report(src_node,
+                                          node_id,
+                                          granted_keys,
+                                          nls_state);
 
   TEST_ASSERT_EQUAL(-1, status);
 }

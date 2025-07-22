@@ -51,7 +51,7 @@ int suiteTearDown(int num_failures)
 /// Called before each and every test
 void SetUp() {}
 
-void callback_test(attribute_changed_event_t* change)
+void callback_test(attribute_changed_event_t *change)
 {
   if (change->change == ATTRIBUTE_UPDATED) {
     callback_counter++;

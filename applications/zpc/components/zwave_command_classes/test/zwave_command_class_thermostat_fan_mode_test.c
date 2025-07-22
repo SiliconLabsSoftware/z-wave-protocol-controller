@@ -47,7 +47,6 @@
 // Value that is unsupported for all Thermostat Fan Mode versions
 #define THERMOSTAT_FAN_MODE_UNSUPPORTED 0x0F
 
-
 static zwave_command_handler_t handler = {};
 
 static attribute_resolver_function_t current_fan_mode_get = NULL;
@@ -241,7 +240,8 @@ void helper_fan_mode_set(zwave_cc_version_t version, bool happy_case)
       supported_fan_mode_type[2]
         = THERMOSTAT_FAN_MODE_SET_FAN_MODE_AUTO_MEDIUM_V2;
       supported_fan_mode_type[3] = THERMOSTAT_FAN_MODE_SET_FAN_MODE_QUIET_V4;
-      supported_fan_mode_type[4] = THERMOSTAT_FAN_MODE_REPORT_FAN_MODE_EXTERNAL_CIRCULATION_V5;
+      supported_fan_mode_type[4]
+        = THERMOSTAT_FAN_MODE_REPORT_FAN_MODE_EXTERNAL_CIRCULATION_V5;
       break;
       TEST_FAIL_MESSAGE("Version not supported in helper_fan_mode_set()");
   }
@@ -265,9 +265,8 @@ void helper_fan_mode_set(zwave_cc_version_t version, bool happy_case)
         endpoint_id_node,
         ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_FAN_MODE_CURRENT_MODE,
         0);
-    sl_status_t result = attribute_store_set_desired(fan_mode_node,
-                                                      &fan_mode,
-                                                      sizeof(fan_mode));
+    sl_status_t result
+      = attribute_store_set_desired(fan_mode_node, &fan_mode, sizeof(fan_mode));
     TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
 
     // Not existant in v1
@@ -281,8 +280,8 @@ void helper_fan_mode_set(zwave_cc_version_t version, bool happy_case)
       TEST_ASSERT_EQUAL(ATTRIBUTE_STORE_INVALID_NODE, off_flag_node);
     } else {
       result = attribute_store_set_desired(off_flag_node,
-                                            &off_flag,
-                                            sizeof(off_flag));
+                                           &off_flag,
+                                           sizeof(off_flag));
       TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
       TEST_ASSERT_NOT_EQUAL(ATTRIBUTE_STORE_INVALID_NODE, off_flag_node);
     }
@@ -325,21 +324,19 @@ void helper_fan_mode_set(zwave_cc_version_t version, bool happy_case)
                                 set_reported_status,
                                 "Set function should NOT have worked");
 
-
-      // Now we want to test version mismatch 
+      // Now we want to test version mismatch
       // Set all supported modes
       set_supported_modes(0xFFFF);
       // Set fan mode to one that isn't supported by any of the version
-      fan_mode = THERMOSTAT_FAN_MODE_UNSUPPORTED;  
-      result = attribute_store_set_desired(fan_mode_node,
-                                            &fan_mode,
-                                            sizeof(fan_mode));
+      fan_mode = THERMOSTAT_FAN_MODE_UNSUPPORTED;
+      result   = attribute_store_set_desired(fan_mode_node,
+                                           &fan_mode,
+                                           sizeof(fan_mode));
       TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
 
-      set_reported_status
-        = current_fan_mode_set(fan_mode_node,
-                               received_frame,
-                               &received_frame_size);
+      set_reported_status = current_fan_mode_set(fan_mode_node,
+                                                 received_frame,
+                                                 &received_frame_size);
       TEST_ASSERT_EQUAL_MESSAGE(SL_STATUS_NOT_SUPPORTED,
                                 set_reported_status,
                                 "Set function should NOT have worked");
@@ -349,8 +346,7 @@ void helper_fan_mode_set(zwave_cc_version_t version, bool happy_case)
   }
 }
 
-void helper_fan_mode_report(zwave_cc_version_t version,
-                                       bool happy_case)
+void helper_fan_mode_report(zwave_cc_version_t version, bool happy_case)
 {
   set_version(version);
 
@@ -363,13 +359,13 @@ void helper_fan_mode_report(zwave_cc_version_t version,
   TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
                     handler.control_handler(&info, NULL, 0));
 
-  thermostat_fan_mode_t fan_mode = 0;
-  thermostat_fan_mode_off_flag_t off_flag = 0;
+  thermostat_fan_mode_t fan_mode                             = 0;
+  thermostat_fan_mode_off_flag_t off_flag                    = 0;
   thermostat_fan_supported_modes_t current_supported_bitmask = 0;
 
   switch (version) {
     case 1:
-      fan_mode = THERMOSTAT_FAN_MODE_SET_FAN_MODE_HIGH;
+      fan_mode                  = THERMOSTAT_FAN_MODE_SET_FAN_MODE_HIGH;
       current_supported_bitmask = 0x08;
       // Set to 0 to ignore value (not supported)
       off_flag = 0;
@@ -383,25 +379,25 @@ void helper_fan_mode_report(zwave_cc_version_t version,
     case 3:
       fan_mode = THERMOSTAT_FAN_MODE_SET_FAN_MODE_CIRCULATION_V3;
       current_supported_bitmask = 0x40;
-      off_flag = 1;
+      off_flag                  = 1;
       break;
     case 4:
       fan_mode = THERMOSTAT_FAN_MODE_SET_FAN_MODE_LEFT_RIGHT_V4;
       current_supported_bitmask = 0x100;
-      off_flag = 0;
+      off_flag                  = 0;
       break;
     case 5:
       fan_mode = THERMOSTAT_FAN_MODE_REPORT_FAN_MODE_EXTERNAL_CIRCULATION_V5;
       current_supported_bitmask = 0x800;
-      off_flag = 1;
+      off_flag                  = 1;
       break;
     default:
       TEST_FAIL_MESSAGE("Version not supported in helper_fan_mode_set");
   }
 
   uint8_t frame[] = {COMMAND_CLASS_THERMOSTAT_FAN_MODE,
-                      THERMOSTAT_FAN_MODE_REPORT,
-                      fan_mode | (off_flag << 7)};
+                     THERMOSTAT_FAN_MODE_REPORT,
+                     fan_mode | (off_flag << 7)};
 
   attribute_store_node_t current_fan_mode_node
     = attribute_store_get_node_child_by_type(
@@ -452,19 +448,19 @@ void helper_fan_mode_report(zwave_cc_version_t version,
                       attribute_store_get_reported(current_fan_mode_node,
                                                    &reported_fan_mode,
                                                    sizeof(reported_fan_mode)));
-    
-    // Now we support all but we test version mismatch
-    set_supported_modes(0xFFFF);                                               
-    uint8_t frame[] = {COMMAND_CLASS_THERMOSTAT_FAN_MODE,
-                      THERMOSTAT_FAN_MODE_REPORT,
-                      THERMOSTAT_FAN_MODE_UNSUPPORTED | (off_flag << 7)};
 
-     TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
+    // Now we support all but we test version mismatch
+    set_supported_modes(0xFFFF);
+    uint8_t frame[] = {COMMAND_CLASS_THERMOSTAT_FAN_MODE,
+                       THERMOSTAT_FAN_MODE_REPORT,
+                       THERMOSTAT_FAN_MODE_UNSUPPORTED | (off_flag << 7)};
+
+    TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
                       handler.control_handler(&info, frame, sizeof(frame)));
-     TEST_ASSERT_EQUAL(SL_STATUS_FAIL,
-                       attribute_store_get_reported(current_fan_mode_node,
-                                                    &reported_fan_mode,
-                                                    sizeof(reported_fan_mode)));
+    TEST_ASSERT_EQUAL(SL_STATUS_FAIL,
+                      attribute_store_get_reported(current_fan_mode_node,
+                                                   &reported_fan_mode,
+                                                   sizeof(reported_fan_mode)));
   }
 }
 
@@ -630,7 +626,6 @@ void test_thermostat_fan_mode_set_v5_not_supported_types()
 {
   helper_fan_mode_set(THERMOSTAT_FAN_MODE_VERSION_V5, false);
 }
-
 
 void test_thermostat_fan_mode_report_v1_happy_case()
 {

@@ -141,7 +141,6 @@ void test_zwave_security_validation_is_security_valid_for_support()
   TEST_ASSERT_FALSE(
     zwave_security_validation_is_security_valid_for_support(minimal_scheme,
                                                             &connection));
-
 }
 
 void test_zwave_security_validation_is_security_valid_for_control()
@@ -212,7 +211,6 @@ void test_zwave_security_validation_is_security_valid_for_control()
     &dummy_keyset);
   TEST_ASSERT_TRUE(
     zwave_security_validation_is_security_valid_for_control(&connection));
-
 }
 
 void test_zwave_security_validation_is_s2_nif_downgrade_attack_detected()

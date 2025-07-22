@@ -951,7 +951,9 @@ static void on_delete_all_send_data_complete(attribute_store_node_t node,
       sl_log_debug(LOG_TAG,
                    "Erasing all user code failed. "
                    "User Code database will be read again.");
-      undefine_all_user_codes(attribute_store_get_first_parent_with_type(node,ATTRIBUTE_ENDPOINT_ID));
+      undefine_all_user_codes(
+        attribute_store_get_first_parent_with_type(node,
+                                                   ATTRIBUTE_ENDPOINT_ID));
       break;
 
     //FRAME_SENT_EVENT_OK_NO_SUPERVISION
@@ -1044,9 +1046,9 @@ static sl_status_t
     return SL_STATUS_OK;
   }
 
-  uint16_t user_id                 = frame[2];
-  uint8_t user_id_status           = frame[3];
-  attribute_store_node_t data_node = get_user_code_data_node(info);
+  uint16_t user_id                    = frame[2];
+  uint8_t user_id_status              = frame[3];
+  attribute_store_node_t data_node    = get_user_code_data_node(info);
   attribute_store_node_t user_id_node = get_user_id_node(data_node, user_id);
 
   // Save the user ID Status

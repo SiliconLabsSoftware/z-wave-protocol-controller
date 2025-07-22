@@ -77,10 +77,12 @@ zwave_report_bitmask_t zwave_frame_parser::read_bitmask(uint8_t bitmask_length)
   constexpr uint8_t BITMASK_SIZE         = SUPPORT_BITMASK_SIZE * 8;
 
   if (bitmask_length > BITMASK_SIZE) {
-    sl_log_critical(LOG_TAG,
-                    "Invalid bitmask size in read_bitmask, must be less than or equal to %d",
-                    SUPPORT_BITMASK_SIZE);
-    throw std::runtime_error("Critical error in read_bitmask. This should not happen.");
+    sl_log_critical(
+      LOG_TAG,
+      "Invalid bitmask size in read_bitmask, must be less than or equal to %d",
+      SUPPORT_BITMASK_SIZE);
+    throw std::runtime_error(
+      "Critical error in read_bitmask. This should not happen.");
   }
 
   // Read the first byte if the length is not provided

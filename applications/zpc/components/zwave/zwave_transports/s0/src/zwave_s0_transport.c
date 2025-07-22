@@ -1014,7 +1014,8 @@ static uint8_t
   uint8_t frame_length;
   // Allocate a buffer that's large enough for the largest frame size that's valid
   // Maximum valid size is MAX_ENCRYPTED_MSG_SIZE + 20 bytes overhead + auth header size
-  uint8_t auth_buff[MAX_ENCRYPTED_MSG_SIZE + S0_ENCAP_HEADER_LEN + sizeof(auth_data_t)];
+  uint8_t auth_buff[MAX_ENCRYPTED_MSG_SIZE + S0_ENCAP_HEADER_LEN
+                    + sizeof(auth_data_t)];
 
   frame_length = encrypted_frame_len & 0xff;  //FIXME as GW S0 code can handle
                                               // only uint8_t len
@@ -1076,7 +1077,9 @@ static uint8_t
   // When we get a session that's in progress, verify the size of the data we have and the data we're about
   // to add do not go over our total output buffer size. If it does, drop the frame and the session pool will free up the
   // invalid session in a little bit.
-  if(s->state != RX_INIT && (s->msg_len + frame_length - S0_ENCAP_HEADER_LEN) > decrypted_frame_len) {
+  if (s->state != RX_INIT
+      && (s->msg_len + frame_length - S0_ENCAP_HEADER_LEN)
+           > decrypted_frame_len) {
     sl_log_error(LOG_TAG, "Combined data for encrypted message is too long\n");
     return 0;
   }
@@ -1133,14 +1136,18 @@ static uint8_t
         s->state = RX_ENC2;
       }
       memcpy(decrypted_frame, s->msg, s->msg_len);
-      memcpy(decrypted_frame + s->msg_len, enc_payload + 1, frame_length - S0_ENCAP_HEADER_LEN);
+      memcpy(decrypted_frame + s->msg_len,
+             enc_payload + 1,
+             frame_length - S0_ENCAP_HEADER_LEN);
 
       free_rx_session(s);
       return (s->msg_len + frame_length - S0_ENCAP_HEADER_LEN);
     }
   } else {
     /* Single frame message */
-    memcpy(decrypted_frame, enc_payload + 1, frame_length - S0_ENCAP_HEADER_LEN);
+    memcpy(decrypted_frame,
+           enc_payload + 1,
+           frame_length - S0_ENCAP_HEADER_LEN);
     free_rx_session(s);
     return (frame_length - S0_ENCAP_HEADER_LEN);
   }

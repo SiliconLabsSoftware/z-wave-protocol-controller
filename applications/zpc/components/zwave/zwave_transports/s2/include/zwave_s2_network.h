@@ -32,7 +32,6 @@ extern "C" {
 #endif
 #include "zwave_network_management.h"
 
-
 typedef struct zwave_s2_network_callbacks {
   /// This event is triggered when the S2 inclusion process has started
   /// This can be use to stop e.g.,the S0 inclusion FSM.

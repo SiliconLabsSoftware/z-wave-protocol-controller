@@ -62,7 +62,8 @@ extern "C" {
  * - true if the node/endpoint supports NLS
  * - false if the node/endpoint does not support NLS
  */
-bool zwave_get_nls_support(zwave_node_id_t node_id, attribute_store_node_value_state_t value_state);
+bool zwave_get_nls_support(zwave_node_id_t node_id,
+                           attribute_store_node_value_state_t value_state);
 
 /**
  * @brief Returns whether a node has Network Layer Security (NLS) enabled
@@ -78,7 +79,8 @@ bool zwave_get_nls_support(zwave_node_id_t node_id, attribute_store_node_value_s
  * - true if the node/endpoint has NLS enabled
  * - false if the node/endpoint has NLS disabled
  */
-bool zwave_get_nls_state(zwave_node_id_t node_id, attribute_store_node_value_state_t value_state);
+bool zwave_get_nls_state(zwave_node_id_t node_id,
+                         attribute_store_node_value_state_t value_state);
 
 /**
  * @brief Stores Network Layer Security (NLS) support for a NodeID in the attribute store.
@@ -90,9 +92,10 @@ bool zwave_get_nls_state(zwave_node_id_t node_id, attribute_store_node_value_sta
  * 
  * @returns SL_STATUS_OK on success, any other code if not successful.
  */
-sl_status_t zwave_store_nls_support(zwave_node_id_t node_id,
-                                    bool is_nls_supported,
-                                    attribute_store_node_value_state_t value_state);
+sl_status_t
+  zwave_store_nls_support(zwave_node_id_t node_id,
+                          bool is_nls_supported,
+                          attribute_store_node_value_state_t value_state);
 
 /**
  * @brief Stores Network Layer Security (NLS) state for a NodeID in the attribute store.
@@ -104,9 +107,10 @@ sl_status_t zwave_store_nls_support(zwave_node_id_t node_id,
  * 
  * @returns SL_STATUS_OK on success, any other code if not successful.
  */
-sl_status_t zwave_store_nls_state(zwave_node_id_t node_id,
-                                  bool is_nls_enabled,
-                                  attribute_store_node_value_state_t value_state);
+sl_status_t
+  zwave_store_nls_state(zwave_node_id_t node_id,
+                        bool is_nls_enabled,
+                        attribute_store_node_value_state_t value_state);
 
 /**
  * @brief Returns the operating mode of a node
@@ -234,13 +238,13 @@ zwave_cc_version_t
  */
 attribute_store_node_t zwave_get_endpoint_node(zwave_node_id_t node_id,
                                                zwave_endpoint_id_t endpoint_id);
-  /**
+/**
  * @brief Verify if we registered a node as supporting S2.
  *
  * @param node_id             The NodeID that supports S2.
  * @returns True if the node has been registered to support S2, false otherwise
  */
-  bool zwave_security_validation_is_node_s2_capable(zwave_node_id_t node_id);
+bool zwave_security_validation_is_node_s2_capable(zwave_node_id_t node_id);
 
 /**
  * @brief Sets a node as S2 capable, meaning that we know it supports S2,

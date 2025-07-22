@@ -169,7 +169,7 @@ static sl_status_t zwave_command_class_barrier_operator_signal_set(
   set_frame->cmd            = BARRIER_OPERATOR_EVENT_SIGNAL_SET;
   set_frame->subsystemType  = subsystem_type;
   set_frame->subsystemState = subsystem_state;
-  *frame_length             = sizeof(ZW_BARRIER_OPERATOR_EVENT_SIGNAL_SET_FRAME);
+  *frame_length = sizeof(ZW_BARRIER_OPERATOR_EVENT_SIGNAL_SET_FRAME);
   return SL_STATUS_OK;
 }
 
@@ -205,7 +205,7 @@ static sl_status_t zwave_command_class_barrier_operator_signal_get(
   get_frame->cmdClass      = COMMAND_CLASS_BARRIER_OPERATOR;
   get_frame->cmd           = BARRIER_OPERATOR_EVENT_SIGNALING_GET;
   get_frame->subsystemType = type;
-  *frame_length            = sizeof(ZW_BARRIER_OPERATOR_EVENT_SIGNALING_GET_FRAME);
+  *frame_length = sizeof(ZW_BARRIER_OPERATOR_EVENT_SIGNALING_GET_FRAME);
   return SL_STATUS_OK;
 }
 

@@ -354,7 +354,7 @@ void test_zwave_command_class_central_scene_frame_too_short()
   TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
                     central_scene_handler.control_handler(
                       &connection_info,
-                                          incoming_frame,
+                      incoming_frame,
                       sizeof(incoming_frame) - 1  // remove padding
                       ));
 }
@@ -414,12 +414,12 @@ void test_zwave_command_class_central_scene_supported_report_happy_case()
   const uint8_t properties_1          = (0 << 7) | (1 << 1) | 0;
   const uint8_t highest_key_attribute = 5;
   const uint8_t incoming_frame[]      = {COMMAND_CLASS_CENTRAL_SCENE_V3,
-                                    CENTRAL_SCENE_SUPPORTED_REPORT_V3,
-                                    supported_scenes,
-                                    properties_1,
-                                    1,
-                                    1,
-                                    1 << highest_key_attribute};
+                                         CENTRAL_SCENE_SUPPORTED_REPORT_V3,
+                                         supported_scenes,
+                                         properties_1,
+                                         1,
+                                         1,
+                                         1 << highest_key_attribute};
 
   TEST_ASSERT_EQUAL(
     SL_STATUS_OK,
@@ -446,13 +446,13 @@ void test_zwave_command_class_central_scene_supported_report_not_identical()
   const uint8_t properties_1          = (1 << 7) | (2 << 1) | 0;
   const uint8_t highest_key_attribute = 3;
   const uint8_t incoming_frame[]      = {COMMAND_CLASS_CENTRAL_SCENE_V3,
-                                    CENTRAL_SCENE_SUPPORTED_REPORT_V3,
-                                    supported_scenes,
-                                    properties_1,
-                                    1 << highest_key_attribute,
-                                    1 << highest_key_attribute,
-                                    1 << highest_key_attribute,
-                                    0};
+                                         CENTRAL_SCENE_SUPPORTED_REPORT_V3,
+                                         supported_scenes,
+                                         properties_1,
+                                         1 << highest_key_attribute,
+                                         1 << highest_key_attribute,
+                                         1 << highest_key_attribute,
+                                         0};
 
   TEST_ASSERT_EQUAL(
     SL_STATUS_OK,
@@ -483,12 +483,12 @@ void test_zwave_command_class_central_scene_supported_report_happy_bitmask_too_s
   const uint8_t properties_1          = (1 << 7) | (1 << 1) | 0;
   const uint8_t highest_key_attribute = 3;
   const uint8_t incoming_frame[]      = {COMMAND_CLASS_CENTRAL_SCENE_V3,
-                                    CENTRAL_SCENE_SUPPORTED_REPORT_V3,
-                                    supported_scenes,
-                                    properties_1,
-                                    1 << highest_key_attribute,
-                                    1 << highest_key_attribute,
-                                    1 << highest_key_attribute};
+                                         CENTRAL_SCENE_SUPPORTED_REPORT_V3,
+                                         supported_scenes,
+                                         properties_1,
+                                         1 << highest_key_attribute,
+                                         1 << highest_key_attribute,
+                                         1 << highest_key_attribute};
 
   TEST_ASSERT_EQUAL(
     SL_STATUS_OK,
@@ -524,12 +524,12 @@ void test_zwave_command_class_central_scene_supported_report_happy_bitmask_too_s
   const uint8_t properties_1          = (1 << 7) | (2 << 1) | 0;
   const uint8_t highest_key_attribute = 3;
   const uint8_t incoming_frame[]      = {COMMAND_CLASS_CENTRAL_SCENE_V3,
-                                    CENTRAL_SCENE_SUPPORTED_REPORT_V3,
-                                    supported_scenes,
-                                    properties_1,
-                                    1 << highest_key_attribute,
-                                    1 << highest_key_attribute,
-                                    1 << highest_key_attribute};
+                                         CENTRAL_SCENE_SUPPORTED_REPORT_V3,
+                                         supported_scenes,
+                                         properties_1,
+                                         1 << highest_key_attribute,
+                                         1 << highest_key_attribute,
+                                         1 << highest_key_attribute};
 
   TEST_ASSERT_EQUAL(
     SL_STATUS_OK,
@@ -565,12 +565,12 @@ void test_zwave_command_class_central_scene_supported_report_happy_bitmask_too_s
   const uint8_t properties_1          = (1 << 7) | (3 << 1) | 0;
   const uint8_t highest_key_attribute = 3;
   const uint8_t incoming_frame[]      = {COMMAND_CLASS_CENTRAL_SCENE_V3,
-                                    CENTRAL_SCENE_SUPPORTED_REPORT_V3,
-                                    supported_scenes,
-                                    properties_1,
-                                    1 << highest_key_attribute,
-                                    1 << highest_key_attribute,
-                                    1 << highest_key_attribute};
+                                         CENTRAL_SCENE_SUPPORTED_REPORT_V3,
+                                         supported_scenes,
+                                         properties_1,
+                                         1 << highest_key_attribute,
+                                         1 << highest_key_attribute,
+                                         1 << highest_key_attribute};
 
   TEST_ASSERT_EQUAL(
     SL_STATUS_OK,
@@ -600,18 +600,18 @@ void test_zwave_command_class_central_scene_supported_report_happy_bitmask_very_
   const uint8_t properties_1          = (1 << 7) | (3 << 1) | 0;
   const uint8_t highest_key_attribute = 5;
   const uint8_t incoming_frame[]      = {COMMAND_CLASS_CENTRAL_SCENE_V3,
-                                    CENTRAL_SCENE_SUPPORTED_REPORT_V3,
-                                    supported_scenes,
-                                    properties_1,
-                                    1 << 7,
-                                    1 << 7,
-                                    1 << 2,
-                                    1 << 7,
-                                    1 << 7,
-                                    1 << 3,
-                                    1 << 7,
-                                    1 << 7,
-                                    1 << highest_key_attribute};
+                                         CENTRAL_SCENE_SUPPORTED_REPORT_V3,
+                                         supported_scenes,
+                                         properties_1,
+                                         1 << 7,
+                                         1 << 7,
+                                         1 << 2,
+                                         1 << 7,
+                                         1 << 7,
+                                         1 << 3,
+                                         1 << 7,
+                                         1 << 7,
+                                         1 << highest_key_attribute};
 
   TEST_ASSERT_EQUAL(
     SL_STATUS_OK,
@@ -643,10 +643,10 @@ void test_zwave_command_class_central_scene_supported_report_identical_scenes()
   const uint8_t properties_1          = (1 << 7) | (1 << 1) | 1;
   const uint8_t highest_key_attribute = 5;
   const uint8_t incoming_frame[]      = {COMMAND_CLASS_CENTRAL_SCENE_V3,
-                                    CENTRAL_SCENE_SUPPORTED_REPORT_V3,
-                                    supported_scenes,
-                                    properties_1,
-                                    1 << highest_key_attribute};
+                                         CENTRAL_SCENE_SUPPORTED_REPORT_V3,
+                                         supported_scenes,
+                                         properties_1,
+                                         1 << highest_key_attribute};
 
   TEST_ASSERT_EQUAL(
     SL_STATUS_OK,

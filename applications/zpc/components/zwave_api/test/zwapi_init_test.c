@@ -396,11 +396,11 @@ void test_zwapi_get_init_data()
 
   uint8_t ver, capabilities, len, chip_type, chip_version;
   uint8_t node_list[501] = {0};
-  ver                  = 1;
-  capabilities         = 1;
-  len                  = 1;
-  chip_type            = 1;
-  chip_version         = 1;
+  ver                    = 1;
+  capabilities           = 1;
+  len                    = 1;
+  chip_type              = 1;
+  chip_version           = 1;
   zwapi_session_send_frame_with_response_ExpectAndReturn(
     FUNC_ID_SERIAL_API_GET_INIT_DATA,
     NULL,

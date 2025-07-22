@@ -15,7 +15,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif  // __cplusplus
 #include "unity.h"
 
 void test_buffered_delete()
@@ -34,5 +34,4 @@ void test_buffered_delete()
 }
 #ifdef __cplusplus
 }
-#endif // __cplusplus
-
+#endif  // __cplusplus

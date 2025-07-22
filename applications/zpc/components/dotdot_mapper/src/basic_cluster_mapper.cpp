@@ -118,7 +118,8 @@ static void network_status_attribute_update(attribute_store_node_t updated_node,
   if (change != ATTRIBUTE_UPDATED) {
     return;
   }
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
   attribute_store_get_reported(updated_node,
                                &network_status,
                                sizeof(network_status));

@@ -55,11 +55,11 @@ static sl_status_t ucl_node_state_discover_neighbors_command(
 
   if (UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK == callback_type) {
     // DiscoverNeighbors always supported unless the node is offline/unavailale
-    NodeStateNetworkStatus network_status = unify_attribute_store_node_state_get_status(
-      attribute_store_network_helper_get_node_id_node(unid)
-    );
+    NodeStateNetworkStatus network_status
+      = unify_attribute_store_node_state_get_status(
+        attribute_store_network_helper_get_node_id_node(unid));
 
-    sl_status_t support                     = SL_STATUS_OK;
+    sl_status_t support = SL_STATUS_OK;
     if ((network_status == ZCL_NODE_STATE_NETWORK_STATUS_OFFLINE)
         || (network_status == ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE)) {
       support = SL_STATUS_FAIL;
@@ -96,11 +96,11 @@ static sl_status_t ucl_node_state_remove_offline_command(
 
   if (UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK == callback_type) {
     // RemoveOffline supported unless the node is unavailable
-    NodeStateNetworkStatus network_status = unify_attribute_store_node_state_get_status(
-      attribute_store_network_helper_get_node_id_node(unid)
-    );
+    NodeStateNetworkStatus network_status
+      = unify_attribute_store_node_state_get_status(
+        attribute_store_network_helper_get_node_id_node(unid));
 
-    sl_status_t support                     = SL_STATUS_OK;
+    sl_status_t support = SL_STATUS_OK;
     if (network_status == ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE) {
       support = SL_STATUS_FAIL;
     }
@@ -137,12 +137,12 @@ static sl_status_t ucl_node_state_interview_command(
   }
 
   if (UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK == callback_type) {
-      NodeStateNetworkStatus network_status = unify_attribute_store_node_state_get_status(
-      attribute_store_network_helper_get_node_id_node(unid)
-    );
+    NodeStateNetworkStatus network_status
+      = unify_attribute_store_node_state_get_status(
+        attribute_store_network_helper_get_node_id_node(unid));
 
     // Interview always supported unless the node is offline/unavailable
-    sl_status_t support                     = SL_STATUS_OK;
+    sl_status_t support = SL_STATUS_OK;
     if ((network_status == ZCL_NODE_STATE_NETWORK_STATUS_OFFLINE)
         || (network_status == ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE)) {
       support = SL_STATUS_FAIL;
@@ -222,9 +222,9 @@ static sl_status_t ucl_node_state_enable_nls_command(
 
   if (UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK == callback_type) {
     // Enable NLS always supported unless the node is offline/unavailable
-    NodeStateNetworkStatus network_status = unify_attribute_store_node_state_get_status(
-      attribute_store_network_helper_get_node_id_node(unid)
-    );
+    NodeStateNetworkStatus network_status
+      = unify_attribute_store_node_state_get_status(
+        attribute_store_network_helper_get_node_id_node(unid));
 
     sl_status_t support = SL_STATUS_OK;
     if ((network_status == ZCL_NODE_STATE_NETWORK_STATUS_OFFLINE)

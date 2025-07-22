@@ -36,7 +36,7 @@
  * my_type_enum y; //<< this will be of enum type
  */
 #define UIC_ENUM(name, type) \
-  name_enum;                \
+  name_enum;                 \
   typedef type name
 
 /**

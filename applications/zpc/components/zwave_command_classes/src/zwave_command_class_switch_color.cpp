@@ -52,8 +52,7 @@ static void set_duration(attribute_store_node_t state_node,
                                            sizeof(duration));
 }
 
-[[maybe_unused]]
-static void
+[[maybe_unused]] static void
   set_all_color_switch_durations(attribute_store_node_t state_node,
                                  attribute_store_node_value_state_t value_state,
                                  color_component_id_duration_t duration)
@@ -83,14 +82,12 @@ static void switch_color_undefine_reported(attribute_store_node_t state_node)
     attribute_stop_transition);
 
   attribute_store_node_t duration_node
-      = attribute_store_get_first_child_by_type(
-        state_node,
-        ATTRIBUTE_COMMAND_CLASS_SWITCH_COLOR_DURATION);
+    = attribute_store_get_first_child_by_type(
+      state_node,
+      ATTRIBUTE_COMMAND_CLASS_SWITCH_COLOR_DURATION);
   color_component_id_duration_t duration = 0;
   attribute_store_undefine_desired(duration_node);
-  attribute_store_set_reported(duration_node,
-                               &duration,
-                               sizeof(duration));
+  attribute_store_set_reported(duration_node, &duration, sizeof(duration));
 
   sl_log_debug(LOG_TAG, "Transition time expired, probe color");
   zwave_command_class_switch_color_invoke_on_all_attributes(
@@ -118,14 +115,12 @@ static void
   }
 
   attribute_store_node_t duration_node
-      = attribute_store_get_first_child_by_type(
-        state_node,
-        ATTRIBUTE_COMMAND_CLASS_SWITCH_COLOR_DURATION);
+    = attribute_store_get_first_child_by_type(
+      state_node,
+      ATTRIBUTE_COMMAND_CLASS_SWITCH_COLOR_DURATION);
 
   color_component_id_duration_t duration = 0;
-  attribute_store_get_desired(duration_node,
-                              &duration,
-                              sizeof(duration));
+  attribute_store_get_desired(duration_node, &duration, sizeof(duration));
 
   clock_time_t zwave_desired_duration
     = zwave_duration_to_time((uint8_t)duration);
@@ -153,7 +148,7 @@ static void
         state_node,
         ATTRIBUTE_COMMAND_CLASS_SWITCH_COLOR_VALUE,
         attribute_stop_transition);
-      if(zwave_desired_duration > 0) {
+      if (zwave_desired_duration > 0) {
         // Should we estimate reported color values during transition
         // and publish them as reported, like we did for level cluster?
 

@@ -254,9 +254,9 @@ void test_meter_version_2_supporting_node()
 void test_meter_supported_get_v1()
 {
   // Simulate a version 1 node.
-  attribute_store_node_t version_node = attribute_store_add_node(
-    ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_METER),
-    endpoint_id_node);
+  attribute_store_node_t version_node
+    = attribute_store_add_node(ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_METER),
+                               endpoint_id_node);
 
   const zwave_cc_version_t version = 1;
   attribute_store_set_reported(version_node, &version, sizeof(version));
@@ -314,7 +314,6 @@ void test_meter_get_low_scale()
 
   const zwave_cc_version_t version = 2;
   attribute_store_set_reported(version_node, &version, sizeof(version));
-
 
   attribute_store_node_t meter_type_node
     = attribute_store_add_node(ATTRIBUTE(TYPE), endpoint_id_node);
@@ -854,16 +853,18 @@ void test_meter_report_too_short()
 void test_meter_command_class_no_command()
 {
   // Simulate a frame
-  const uint8_t incoming_frame[] = {COMMAND_CLASS_METER,
-      METER_REPORT_V5, // Add deterministic valid value for overflow check
-    };
+  const uint8_t incoming_frame[] = {
+    COMMAND_CLASS_METER,
+    METER_REPORT_V5,  // Add deterministic valid value for overflow check
+  };
 
   TEST_ASSERT_NOT_NULL(meter_handler.control_handler);
-  TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
-                    meter_handler.control_handler(&info,
-                                                  incoming_frame,
-                                                  sizeof(incoming_frame) -1 // Remove padding
-                        ));
+  TEST_ASSERT_EQUAL(
+    SL_STATUS_NOT_SUPPORTED,
+    meter_handler.control_handler(&info,
+                                  incoming_frame,
+                                  sizeof(incoming_frame) - 1  // Remove padding
+                                  ));
 }
 
 void test_supported_rate_types_unknown_values()

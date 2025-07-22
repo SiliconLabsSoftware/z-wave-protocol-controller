@@ -25,13 +25,13 @@
 #define LOG_TAG "zwave_protocol_controller"
 
 sl_status_t zwapi_request_neighbor_update(zwave_node_id_t bNodeID,
-                                           void (*completedFunc)(uint8_t))
+                                          void (*completedFunc)(uint8_t))
 {
   uint8_t func_id, index = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
-  func_id                                 = (completedFunc == NULL ? 0 : 0x03);
+  func_id = (completedFunc == NULL ? 0 : 0x03);
   zwapi_write_node_id(request_buffer, &index, bNodeID);
-  request_buffer[index++]                 = func_id;
+  request_buffer[index++]                = func_id;
   zwapi_request_neighbor_update_callback = completedFunc;
 
   return zwapi_send_command(FUNC_ID_ZW_REQUEST_NODE_NEIGHBOR_UPDATE,
@@ -158,12 +158,13 @@ sl_status_t zwapi_remove_node_from_network(uint8_t bMode,
                             index);
 }
 
-uint8_t zwapi_remove_failed_node(zwave_node_id_t NodeID, void (*completedFunc)(uint8_t))
+uint8_t zwapi_remove_failed_node(zwave_node_id_t NodeID,
+                                 void (*completedFunc)(uint8_t))
 {
   uint8_t func_id, response_length = 0, index = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
           response_buffer[FRAME_LENGTH_MAX]   = {0};
-  func_id                           = (completedFunc == NULL ? 0 : 0x03);
+  func_id = (completedFunc == NULL ? 0 : 0x03);
   zwapi_write_node_id(request_buffer, &index, NodeID);
   request_buffer[index++]           = func_id;
   zwapi_remove_failed_node_callback = completedFunc;
@@ -188,7 +189,7 @@ uint8_t zwapi_replace_failed_node(zwave_node_id_t NodeID,
   uint8_t func_id, response_length = 0, index = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
           response_buffer[FRAME_LENGTH_MAX]   = {0};
-  func_id                            = (completedFunc == NULL ? 0 : 0x03);
+  func_id = (completedFunc == NULL ? 0 : 0x03);
   zwapi_write_node_id(request_buffer, &index, NodeID);
   request_buffer[index++]            = func_id;
   zwapi_replace_failed_node_callback = completedFunc;
@@ -214,7 +215,7 @@ sl_status_t zwapi_assign_return_route(zwave_node_id_t bSrcNodeID,
   uint8_t func_id, response_length = 0, index = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
           response_buffer[FRAME_LENGTH_MAX]   = {0};
-  func_id                            = (completedFunc == NULL ? 0 : 0x03);
+  func_id = (completedFunc == NULL ? 0 : 0x03);
   zwapi_write_node_id(request_buffer, &index, bSrcNodeID);
   zwapi_write_node_id(request_buffer, &index, bDstNodeID);
   request_buffer[index++]            = func_id;
@@ -241,7 +242,7 @@ sl_status_t zwapi_delete_return_route(zwave_node_id_t nodeID,
   uint8_t func_id, response_length = 0, index = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
           response_buffer[FRAME_LENGTH_MAX]   = {0};
-  func_id                            = (completedFunc == NULL ? 0 : 0x03);
+  func_id = (completedFunc == NULL ? 0 : 0x03);
   zwapi_write_node_id(request_buffer, &index, nodeID);
   request_buffer[index++]            = func_id;
   zwapi_delete_return_route_callback = completedFunc;
@@ -267,7 +268,7 @@ sl_status_t zwapi_assign_suc_return_route(zwave_node_id_t bSrcNodeID,
   uint8_t func_id, response_length = 0, index = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
           response_buffer[FRAME_LENGTH_MAX]   = {0};
-  func_id                                = (completedFunc == NULL ? 0 : 0x03);
+  func_id = (completedFunc == NULL ? 0 : 0x03);
   zwapi_write_node_id(request_buffer, &index, bSrcNodeID);
   request_buffer[index++]                = func_id;
   zwapi_assign_suc_return_route_callback = completedFunc;
@@ -293,7 +294,7 @@ sl_status_t zwapi_delete_suc_return_route(zwave_node_id_t nodeID,
   uint8_t func_id, response_length = 0, index = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
           response_buffer[FRAME_LENGTH_MAX]   = {0};
-  func_id                                = (completedFunc == NULL ? 0 : 0x03);
+  func_id = (completedFunc == NULL ? 0 : 0x03);
   zwapi_write_node_id(request_buffer, &index, nodeID);
   request_buffer[index++]                = func_id;
   zwapi_delete_suc_return_route_callback = completedFunc;
@@ -317,7 +318,7 @@ zwave_node_id_t zwapi_get_suc_node_id(void)
 {
   uint8_t response_length                   = 0;
   uint8_t response_buffer[FRAME_LENGTH_MAX] = {0};
-  zwave_node_id_t suc_node_id = 0;
+  zwave_node_id_t suc_node_id               = 0;
   sl_status_t send_command_status
     = zwapi_send_command_with_response(FUNC_ID_ZW_GET_SUC_NODE_ID,
                                        NULL,
@@ -325,9 +326,11 @@ zwave_node_id_t zwapi_get_suc_node_id(void)
                                        response_buffer,
                                        &response_length);
 
-  if (send_command_status == SL_STATUS_OK &&
-      (((NODEID_8BITS == zwapi_get_node_id_basetype()) &&(response_length > IDX_DATA)) ||
-      ((NODEID_16BITS == zwapi_get_node_id_basetype()) &&(response_length > IDX_DATA + 1)))) {
+  if (send_command_status == SL_STATUS_OK
+      && (((NODEID_8BITS == zwapi_get_node_id_basetype())
+           && (response_length > IDX_DATA))
+          || ((NODEID_16BITS == zwapi_get_node_id_basetype())
+              && (response_length > IDX_DATA + 1)))) {
     int current_index = IDX_DATA;
     if (NODEID_16BITS == zwapi_get_node_id_basetype()) {
       suc_node_id = response_buffer[current_index++] << 8;
@@ -347,7 +350,7 @@ sl_status_t zwapi_set_suc_node_id(zwave_node_id_t nodeID,
   uint8_t func_id, response_length = 0, index = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
           response_buffer[FRAME_LENGTH_MAX]   = {0};
-  func_id                 = (completedFunc == NULL ? 0 : 0x03);
+  func_id = (completedFunc == NULL ? 0 : 0x03);
   zwapi_write_node_id(request_buffer, &index, nodeID);
   request_buffer[index++] = SUCState; /* Do we want to enable or disable?? */
   request_buffer[index++] = bTxOption;
@@ -396,15 +399,17 @@ sl_status_t zwapi_set_learn_mode(uint8_t mode,
 }
 
 sl_status_t zwapi_set_virtual_node_to_learn_mode(
-  zwave_node_id_t node, uint8_t mode, void (*completedFunc)(uint8_t, zwave_node_id_t, zwave_node_id_t))
+  zwave_node_id_t node,
+  uint8_t mode,
+  void (*completedFunc)(uint8_t, zwave_node_id_t, zwave_node_id_t))
 {
   uint8_t func_id, response_length = 0, index = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
           response_buffer[FRAME_LENGTH_MAX]   = {0};
-  func_id                 = (completedFunc == NULL ? 0 : 0x03);
+  func_id = (completedFunc == NULL ? 0 : 0x03);
   zwapi_write_node_id(request_buffer, &index, node);
-  request_buffer[index++] = mode;
-  request_buffer[index++] = func_id;
+  request_buffer[index++]                       = mode;
+  request_buffer[index++]                       = func_id;
   zwapi_set_virtual_node_to_learn_mode_callback = completedFunc;
 
   sl_status_t send_command_status
@@ -444,9 +449,10 @@ sl_status_t zwapi_request_node_info(zwave_node_id_t node_id)
   return SL_STATUS_FAIL;
 }
 
-sl_status_t zwapi_request_protocol_cc_encryption_callback(uint8_t tx_status, const zwapi_tx_report_t *tx_report, uint8_t session_id)
+sl_status_t zwapi_request_protocol_cc_encryption_callback(
+  uint8_t tx_status, const zwapi_tx_report_t *tx_report, uint8_t session_id)
 {
-  uint8_t index = 0;
+  uint8_t index                               = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
 
   request_buffer[index++] = session_id;
@@ -467,7 +473,7 @@ sl_status_t zwapi_request_protocol_cc_encryption_callback(uint8_t tx_status, con
   request_buffer[index++] = tx_report->last_route_repeaters[1];
   request_buffer[index++] = tx_report->last_route_repeaters[2];
   request_buffer[index++] = tx_report->last_route_repeaters[3];
-  request_buffer[index] = (tx_report->beam_1000ms & 0x01) << 6;
+  request_buffer[index]   = (tx_report->beam_1000ms & 0x01) << 6;
   request_buffer[index] |= (tx_report->beam_250ms & 0x01) << 5;
   request_buffer[index] |= (tx_report->last_route_speed & 0x07);
   index++;
@@ -478,7 +484,8 @@ sl_status_t zwapi_request_protocol_cc_encryption_callback(uint8_t tx_status, con
   request_buffer[index++] = tx_report->measured_noise_floor;
   request_buffer[index++] = tx_report->destination_ack_mpdu_tx_power;
   request_buffer[index++] = tx_report->destination_ack_mpdu_measured_rssi;
-  request_buffer[index++] = tx_report->destination_ack_mpdu_measured_noise_floor;
+  request_buffer[index++]
+    = tx_report->destination_ack_mpdu_measured_noise_floor;
 
   sl_status_t send_command_status
     = zwapi_send_command(FUNC_ID_ZW_REQUEST_PROTOCOL_CC_ENCRYPTION,
@@ -630,7 +637,8 @@ sl_status_t zwapi_set_max_source_route(uint8_t maxRouteTries)
   return SL_STATUS_FAIL;
 }
 
-uint8_t zwapi_get_priority_route(zwave_node_id_t bNodeID, uint8_t *pLastWorkingRoute)
+uint8_t zwapi_get_priority_route(zwave_node_id_t bNodeID,
+                                 uint8_t *pLastWorkingRoute)
 {
   uint8_t response_length = 0, index = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
@@ -646,7 +654,8 @@ uint8_t zwapi_get_priority_route(zwave_node_id_t bNodeID, uint8_t *pLastWorkingR
 
   if (send_command_status == SL_STATUS_OK && response_length > (IDX_DATA + 6)) {
     index = IDX_DATA;
-    zwave_node_id_t response_node_id = zwapi_read_node_id(response_buffer, &index);
+    zwave_node_id_t response_node_id
+      = zwapi_read_node_id(response_buffer, &index);
     if (bNodeID == response_node_id) {
       memcpy(pLastWorkingRoute, &response_buffer[IDX_DATA + 2], 5);
       return response_buffer[IDX_DATA + 1];
@@ -664,11 +673,11 @@ sl_status_t zwapi_set_priority_route(zwave_node_id_t bNodeID,
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
           response_buffer[FRAME_LENGTH_MAX]   = {0};
   zwapi_write_node_id(request_buffer, &index, bNodeID);
-  request_buffer[index++]                     = pLastWorkingRoute[0];
-  request_buffer[index++]                     = pLastWorkingRoute[1];
-  request_buffer[index++]                     = pLastWorkingRoute[2];
-  request_buffer[index++]                     = pLastWorkingRoute[3];
-  request_buffer[index++]                     = pLastWorkingRoute[4];
+  request_buffer[index++] = pLastWorkingRoute[0];
+  request_buffer[index++] = pLastWorkingRoute[1];
+  request_buffer[index++] = pLastWorkingRoute[2];
+  request_buffer[index++] = pLastWorkingRoute[3];
+  request_buffer[index++] = pLastWorkingRoute[4];
 
   sl_status_t send_command_status
     = zwapi_send_command_with_response(FUNC_ID_ZW_SET_LAST_WORKING_ROUTE,
@@ -694,9 +703,9 @@ sl_status_t zwapi_get_old_routing_info(zwave_node_id_t bNodeID,
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0},
           response_buffer[FRAME_LENGTH_MAX]   = {0};
   zwapi_write_node_id(request_buffer, &index, bNodeID);
-  request_buffer[index++]                     = bRemoveBad;
-  request_buffer[index++]                     = bRemoveNonReps;
-  request_buffer[index++]                     = 0;  // func_id must be set to 0
+  request_buffer[index++] = bRemoveBad;
+  request_buffer[index++] = bRemoveNonReps;
+  request_buffer[index++] = 0;  // func_id must be set to 0
 
   sl_status_t send_command_status
     = zwapi_send_command_with_response(FUNC_ID_GET_ROUTING_TABLE_LINE,
@@ -770,10 +779,10 @@ sl_status_t zwapi_set_virtual_node_application_node_information(
   uint8_t index                               = 0;
   uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
   zwapi_write_node_id(request_buffer, &index, dstNode);
-  request_buffer[index++]                     = listening;
-  request_buffer[index++]                     = node_type->generic;
-  request_buffer[index++]                     = node_type->specific;
-  request_buffer[index++]                     = parmLength;
+  request_buffer[index++] = listening;
+  request_buffer[index++] = node_type->generic;
+  request_buffer[index++] = node_type->specific;
+  request_buffer[index++] = parmLength;
 
   for (uint8_t i = 0; i < parmLength; i++) {
     request_buffer[index++] = nodeParm[i];
@@ -786,10 +795,10 @@ sl_status_t zwapi_set_virtual_node_application_node_information(
 
 sl_status_t zwapi_enable_node_nls(const zwave_node_id_t nodeId)
 {
-  uint8_t response_length = 0;
-  uint8_t index = 0;
-  uint8_t request_buffer[REQUEST_BUFFER_SIZE] = { 0 };
-  uint8_t response_buffer[FRAME_LENGTH_MAX] = { 0 };
+  uint8_t response_length                     = 0;
+  uint8_t index                               = 0;
+  uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
+  uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
   zwapi_write_node_id(request_buffer, &index, nodeId);
   sl_status_t send_command_status
     = zwapi_send_command_with_response(FUNC_ID_ZW_ENABLE_NODE_NLS,
@@ -799,24 +808,22 @@ sl_status_t zwapi_enable_node_nls(const zwave_node_id_t nodeId)
                                        &response_length);
 
   if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA
-      && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE)
-  {
+      && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
     sl_log_debug(LOG_TAG, "NLS enabled for node %d", nodeId);
     return SL_STATUS_OK;
   }
 
-  return SL_STATUS_FAIL; 
+  return SL_STATUS_FAIL;
 }
 
-sl_status_t zwapi_get_node_nls(
-  const zwave_node_id_t nodeId,
-  uint8_t* nls_state,
-  uint8_t* nls_support)
+sl_status_t zwapi_get_node_nls(const zwave_node_id_t nodeId,
+                               uint8_t *nls_state,
+                               uint8_t *nls_support)
 {
-  uint8_t response_length = 0;
-  uint8_t index = 0;
-  uint8_t request_buffer[REQUEST_BUFFER_SIZE] = { 0 };
-  uint8_t response_buffer[FRAME_LENGTH_MAX] = { 0 };
+  uint8_t response_length                     = 0;
+  uint8_t index                               = 0;
+  uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
+  uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
   zwapi_write_node_id(request_buffer, &index, nodeId);
   sl_status_t send_command_status
     = zwapi_send_command_with_response(FUNC_ID_ZW_GET_NODE_NLS_STATE,
@@ -825,11 +832,11 @@ sl_status_t zwapi_get_node_nls(
                                        response_buffer,
                                        &response_length);
 
-  if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA)
-  {
+  if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA) {
     *nls_support = response_buffer[IDX_DATA];
-    *nls_state = response_buffer[IDX_DATA + 1];
-    if (((*nls_support != 0) && (*nls_support != 1)) || ((*nls_state != 0) && (*nls_state != 1))) {
+    *nls_state   = response_buffer[IDX_DATA + 1];
+    if (((*nls_support != 0) && (*nls_support != 1))
+        || ((*nls_state != 0) && (*nls_state != 1))) {
       return SL_STATUS_FAIL;
     }
     return SL_STATUS_OK;
@@ -847,8 +854,8 @@ sl_status_t zwapi_get_nls_nodes(uint16_t *list_length,
   *list_length               = 0;
 
   while (more_nodes > 0) {
-    uint8_t response_length = 0;
-    uint8_t index = 0;
+    uint8_t response_length                     = 0;
+    uint8_t index                               = 0;
     uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
     uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
     uint8_t received_nodelist_length            = 0;
@@ -867,7 +874,9 @@ sl_status_t zwapi_get_nls_nodes(uint16_t *list_length,
       *list_length += received_nodelist_length;
       const uint8_t *p = &response_buffer[IDX_DATA + 3];
       for (uint8_t i = 0; i < received_nodelist_length; i++) {
-        if ((i + (start_offset * GET_NLS_NODES_OFFSET_GRANULARITY_IN_BYTES)) // NOSONAR
+        if ((i
+             + (start_offset
+                * GET_NLS_NODES_OFFSET_GRANULARITY_IN_BYTES))  // NOSONAR
             > sizeof(zwave_nodemask_t)) {
           sl_log_debug(LOG_TAG,
                        "Z-Wave API get NLS node list index of bound\n");
@@ -895,22 +904,20 @@ sl_status_t zwapi_get_nls_nodes(uint16_t *list_length,
   return SL_STATUS_OK;
 }
 
-sl_status_t zwapi_transfer_protocol_cc(
-  const zwave_node_id_t srcNode,
-  const uint8_t decryptionKey,
-  const uint8_t payloadLength,
-  const uint8_t * const payload)
+sl_status_t zwapi_transfer_protocol_cc(const zwave_node_id_t srcNode,
+                                       const uint8_t decryptionKey,
+                                       const uint8_t payloadLength,
+                                       const uint8_t *const payload)
 {
-  uint8_t index = 0;
-  uint8_t response_length = 0;
-  uint8_t request_buffer[REQUEST_BUFFER_SIZE] = { 0 };
-  uint8_t response_buffer[FRAME_LENGTH_MAX] = { 0 };
+  uint8_t index                               = 0;
+  uint8_t response_length                     = 0;
+  uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
+  uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
 
   zwapi_write_node_id(request_buffer, &index, srcNode);
   request_buffer[index++] = decryptionKey;
 
-  if (payloadLength > ZWAVE_MAX_FRAME_SIZE)
-  {
+  if (payloadLength > ZWAVE_MAX_FRAME_SIZE) {
     return SL_STATUS_WOULD_OVERFLOW;
   }
 

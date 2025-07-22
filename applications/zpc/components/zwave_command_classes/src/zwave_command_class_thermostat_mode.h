@@ -17,7 +17,7 @@
 
 #include "sl_status.h"
 
-#define THERMOSTAT_MODE_REPORT_MODE_INDEX 2
+#define THERMOSTAT_MODE_REPORT_MODE_INDEX              2
 #define THERMOSTAT_MODE_SUPPORTED_REPORT_BITMASK_INDEX 2
 
 #ifdef __cplusplus

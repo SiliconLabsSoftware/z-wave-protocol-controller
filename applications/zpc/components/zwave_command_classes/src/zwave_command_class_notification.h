@@ -41,7 +41,6 @@ extern "C" {
 #include "zwave_rx.h"
 #include "attribute_store.h"
 
-
 // Following defines are created using the notification.py
 #define NOTIFICATION_SMOKE_ALARM              (0x1)
 #define NOTIFICATION_CO_ALARM                 (0x2)

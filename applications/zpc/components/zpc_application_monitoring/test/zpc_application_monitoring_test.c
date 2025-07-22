@@ -30,7 +30,8 @@ void setUp() {}
 
 void test_zpc_application_monitoring()
 {
-  unify_application_monitoring_set_application_name_Expect(ZPC_APPLICATION_NAME);
+  unify_application_monitoring_set_application_name_Expect(
+    ZPC_APPLICATION_NAME);
   unify_application_monitoring_set_application_version_Expect(UIC_VERSION);
   unify_application_monitoring_init_ExpectAndReturn(SL_STATUS_OK);
   TEST_ASSERT_EQUAL(SL_STATUS_OK, zpc_application_monitoring_init());

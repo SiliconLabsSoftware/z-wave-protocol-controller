@@ -85,8 +85,10 @@ static void init_network(attribute &node_id_node, bool set_op_mode = true)
       .set_reported(optional_protocol);
   }
 
-  NodeStateNetworkStatus state = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING;
-  attribute network_status = node_id_node.add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
+  NodeStateNetworkStatus state
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING;
+  attribute network_status
+    = node_id_node.add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
   network_status.set_reported(state);
 }
 
@@ -159,7 +161,8 @@ void test_nodes_that_are_not_wake_up_are_ignored()
 
   attribute network_status
     = node_id_node.child_by_type(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
-  NodeStateNetworkStatus state = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING;
+  NodeStateNetworkStatus state
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING;
 
   network_status.set_reported(state);
 

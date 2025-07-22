@@ -57,7 +57,6 @@ typedef struct {
     zwave_endpoint_id_t endpoint_id);
 } zwave_controller_storage_callback_t;
 
-
 /**
  * @brief zwave_controller_storage callbacks register API
  *

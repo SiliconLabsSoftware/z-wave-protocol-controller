@@ -70,7 +70,6 @@ void zwave_s0_set_network_callbacks(const s0_on_bootstrapping_complete_cb cb);
 void zwave_s0_start_bootstrapping(zwave_node_id_t node_id,
                                   uint8_t is_controller);
 
-
 /**
  * @brief Stop the S2 bootstrapping
  * 

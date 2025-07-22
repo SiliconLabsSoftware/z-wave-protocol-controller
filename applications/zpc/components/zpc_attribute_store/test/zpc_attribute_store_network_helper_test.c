@@ -578,7 +578,8 @@ static void create_test_network()
 
   // set the network status of
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_expected);
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_expected);
   uint8_t test_online_network_status = 0x01;
   attribute_store_set_node_attribute_value(network_status_node,
                                            REPORTED_ATTRIBUTE,

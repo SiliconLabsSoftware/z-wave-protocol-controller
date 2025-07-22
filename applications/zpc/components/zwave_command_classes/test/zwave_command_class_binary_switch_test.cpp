@@ -215,7 +215,8 @@ void test_binary_switch_report_no_node_state()
   helper_test_report_frame(SWITCH_BINARY_REPORT, {0x12}, SL_STATUS_FAIL);
 }
 
-void test_binary_switch_report_invalid_value_v1() {
+void test_binary_switch_report_invalid_value_v1()
+{
   helper_set_version(1);
 
   auto value_node = helper_get_value_node();
@@ -223,13 +224,16 @@ void test_binary_switch_report_invalid_value_v1() {
   helper_test_report_frame(SWITCH_BINARY_REPORT, {0xFC}, SL_STATUS_FAIL);
 
   // Verify that the value is not updated
-  TEST_ASSERT_FALSE_MESSAGE(value_node.reported_exists(),
-                            "Value should not be updated (reported) after invalid report");
-  TEST_ASSERT_FALSE_MESSAGE(value_node.desired_exists(),
-                            "Value should not be updated (desired) after invalid report");
+  TEST_ASSERT_FALSE_MESSAGE(
+    value_node.reported_exists(),
+    "Value should not be updated (reported) after invalid report");
+  TEST_ASSERT_FALSE_MESSAGE(
+    value_node.desired_exists(),
+    "Value should not be updated (desired) after invalid report");
 }
 
-void test_binary_switch_report_invalid_value_v2() {
+void test_binary_switch_report_invalid_value_v2()
+{
   helper_set_version(2);
 
   auto value_node = helper_get_value_node();
@@ -240,23 +244,25 @@ void test_binary_switch_report_invalid_value_v2() {
                            SL_STATUS_FAIL);
 
   // Verify that the value is not updated
-  TEST_ASSERT_FALSE_MESSAGE(value_node.reported_exists(),
-                            "Value should not be updated (reported) after invalid report");
-  TEST_ASSERT_FALSE_MESSAGE(value_node.desired_exists(),
-                            "Value should not be updated (desired) after invalid report");
+  TEST_ASSERT_FALSE_MESSAGE(
+    value_node.reported_exists(),
+    "Value should not be updated (reported) after invalid report");
+  TEST_ASSERT_FALSE_MESSAGE(
+    value_node.desired_exists(),
+    "Value should not be updated (desired) after invalid report");
 }
 
-void test_binary_switch_report_adjusted_value_v1() {
+void test_binary_switch_report_adjusted_value_v1()
+{
   helper_set_version(1);
 
   auto value_node = helper_get_value_node();
 
   // Invalid destination value
-  helper_test_report_frame(SWITCH_BINARY_REPORT,
-                           {0x12});
+  helper_test_report_frame(SWITCH_BINARY_REPORT, {0x12});
 
   // Verify that the value is not updated
-   // Verify that the duration is updated
+  // Verify that the duration is updated
   TEST_ASSERT_EQUAL_MESSAGE(0xFF,
                             value_node.reported<binary_switch_value_t>(),
                             "Value should be adjusted to 0xFF after report");
@@ -269,8 +275,7 @@ void test_binary_switch_report_adjusted_value_v2()
   auto value_node    = helper_get_value_node();
   auto duration_node = helper_get_duration_node();
 
-  helper_test_report_frame(SWITCH_BINARY_REPORT,
-                           {0xFF, 0x12, 0xFF});
+  helper_test_report_frame(SWITCH_BINARY_REPORT, {0xFF, 0x12, 0xFF});
 
   // Verify that the value is updated
   TEST_ASSERT_EQUAL_MESSAGE(0xFF,

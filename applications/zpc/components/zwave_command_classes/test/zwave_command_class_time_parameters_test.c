@@ -49,7 +49,8 @@ struct tm test_time_info = {.tm_year  = TEST_YEAR - 1900,
                             .tm_isdst = -1};
 
 /// Setup the test suite (called once before all test_xxx functions are called)
-void suiteSetUp() {
+void suiteSetUp()
+{
   setenv("TZ", "UTC", 1);
 }
 
@@ -131,68 +132,74 @@ void test_zwave_command_class_time_parameters_multicast_not_allowed()
 
 void test_zwave_command_class_time_parameters_get()
 {
-    // Prepare the expected date_time_t structure
-    date_time_t expected_time = {
-        .year = TEST_YEAR - 1900, // Adjust for tm_year
-        .mon  = TEST_MONTH - 1,    // Adjust for tm_mon
-        .day  = TEST_DAY,
-        .hour = TEST_HOUR & 0xF,
-        .min  = TEST_MIN,
-        .sec  = TEST_SEC
-    };
+  // Prepare the expected date_time_t structure
+  date_time_t expected_time = {.year = TEST_YEAR - 1900,  // Adjust for tm_year
+                               .mon  = TEST_MONTH - 1,    // Adjust for tm_mon
+                               .day  = TEST_DAY,
+                               .hour = TEST_HOUR & 0xF,
+                               .min  = TEST_MIN,
+                               .sec  = TEST_SEC};
 
-    // Simulate the set time in the system
-    platform_set_date_time(&expected_time);
+  // Simulate the set time in the system
+  platform_set_date_time(&expected_time);
 
-    // Prepare command frame for TIME_PARAMETERS_GET command
-    const uint8_t cmd_frame_time_parameters_command[] = {
-        COMMAND_CLASS_TIME_PARAMETERS,
-        TIME_PARAMETERS_GET
-    };
+  // Prepare command frame for TIME_PARAMETERS_GET command
+  const uint8_t cmd_frame_time_parameters_command[]
+    = {COMMAND_CLASS_TIME_PARAMETERS, TIME_PARAMETERS_GET};
 
-    // Prepare expected response frame
-    const uint8_t exp_frame_time_parameters_command[] = {
-        COMMAND_CLASS_TIME_PARAMETERS,
-        TIME_PARAMETERS_REPORT,
-        (TEST_YEAR >> 8),      // MSB of the year
-        (TEST_YEAR & 0xFF),    // LSB of the year
-        TEST_MONTH,            // Month (1-12)
-        TEST_DAY,              // Day
-        TEST_HOUR & 0xF,       // Hour
-        TEST_MIN,              // Minute
-        TEST_SEC               // Second
-    };
+  // Prepare expected response frame
+  const uint8_t exp_frame_time_parameters_command[] = {
+    COMMAND_CLASS_TIME_PARAMETERS,
+    TIME_PARAMETERS_REPORT,
+    (TEST_YEAR >> 8),    // MSB of the year
+    (TEST_YEAR & 0xFF),  // LSB of the year
+    TEST_MONTH,          // Month (1-12)
+    TEST_DAY,            // Day
+    TEST_HOUR & 0xF,     // Hour
+    TEST_MIN,            // Minute
+    TEST_SEC             // Second
+  };
 
-    // Execute the test
-    execute_frame_expect_frame(
-        zwave_command_class_time_parameters_support_handler,
-        cmd_frame_time_parameters_command,
-        sizeof(cmd_frame_time_parameters_command),
-        exp_frame_time_parameters_command,
-        sizeof(exp_frame_time_parameters_command),
-        SL_STATUS_OK
-    );
+  // Execute the test
+  execute_frame_expect_frame(
+    zwave_command_class_time_parameters_support_handler,
+    cmd_frame_time_parameters_command,
+    sizeof(cmd_frame_time_parameters_command),
+    exp_frame_time_parameters_command,
+    sizeof(exp_frame_time_parameters_command),
+    SL_STATUS_OK);
 }
 
-void test_zwave_command_class_time_parameters_set(void) {
-    // Define test frame data for a known date and time
-    uint8_t valid_frame_data[] = {0x00, 0x00, 0x07, 0xE5, 0x04, 0x15, 0x10, 0x20, 0x30}; // 2021-04-21 16:32:48
-    uint16_t valid_frame_length = sizeof(valid_frame_data);
+void test_zwave_command_class_time_parameters_set(void)
+{
+  // Define test frame data for a known date and time
+  uint8_t valid_frame_data[]  = {0x00,
+                                 0x00,
+                                 0x07,
+                                 0xE5,
+                                 0x04,
+                                 0x15,
+                                 0x10,
+                                 0x20,
+                                 0x30};  // 2021-04-21 16:32:48
+  uint16_t valid_frame_length = sizeof(valid_frame_data);
 
-    // Call the function to set time parameters
-    sl_status_t result = zwave_command_class_time_parameters_set(valid_frame_data, valid_frame_length);
-    TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
+  // Call the function to set time parameters
+  sl_status_t result
+    = zwave_command_class_time_parameters_set(valid_frame_data,
+                                              valid_frame_length);
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
 
-    // Validate that the simulated time has been updated correctly
-    date_time_t simulated_time = platform_get_date_time();
+  // Validate that the simulated time has been updated correctly
+  date_time_t simulated_time = platform_get_date_time();
 
-    // Adjust expected values for tm_year and tm_mon
-    TEST_ASSERT_EQUAL(121 , simulated_time.year); // Adjusting years(2021 -1900)
-    TEST_ASSERT_EQUAL(3, simulated_time.mon);     // Adjusting months(4-1)
-    TEST_ASSERT_EQUAL(21, simulated_time.day);
-    TEST_ASSERT_EQUAL(16, simulated_time.hour);
-    TEST_ASSERT_EQUAL(32, simulated_time.min);
-    TEST_ASSERT_EQUAL(48, simulated_time.sec);
+  // Adjust expected values for tm_year and tm_mon
+  TEST_ASSERT_EQUAL(121, simulated_time.year);  // Adjusting years(2021 -1900)
+  TEST_ASSERT_EQUAL(3, simulated_time.mon);     // Adjusting months(4-1)
+  TEST_ASSERT_EQUAL(21, simulated_time.day);
+  TEST_ASSERT_EQUAL(16, simulated_time.hour);
+  TEST_ASSERT_EQUAL(32, simulated_time.min);
+  TEST_ASSERT_EQUAL(48, simulated_time.sec);
 }
 
 static sl_status_t zwave_command_handler_register_handler_CALLBACK(

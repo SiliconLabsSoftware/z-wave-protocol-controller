@@ -21,7 +21,6 @@
 
 // Interfaces
 
-
 // Includes from ZPC components
 #include "zwave_network_management.h"
 
@@ -83,12 +82,13 @@ static void zpc_attribute_store_update_all_network_statuses(
   while (node_id_node != ATTRIBUTE_STORE_INVALID_NODE) {
     // Transition the network status from old value to new value:
     attribute_store_node_t network_status_node
-      = attribute_store_get_node_child_by_value(node_id_node,
-                                                DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
-                                                REPORTED_ATTRIBUTE,
-                                                (uint8_t*)(&old_value),
-                                                sizeof(old_value),
-                                                0);
+      = attribute_store_get_node_child_by_value(
+        node_id_node,
+        DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+        REPORTED_ATTRIBUTE,
+        (uint8_t *)(&old_value),
+        sizeof(old_value),
+        0);
     attribute_store_set_reported(network_status_node,
                                  &new_value,
                                  sizeof(new_value));
@@ -186,7 +186,6 @@ static sl_status_t invoke_update_callbacks_in_network()
   return refresh;
 }
 
-
 void disable_unsupported_ucl_commands()
 {
   // OnOff cluster
@@ -214,9 +213,9 @@ sl_status_t zpc_attribute_store_init()
   // Configure the Unify DotDot Attribute Store component:
   unify_dotdot_attribute_store_set_configuration(&zpc_configuration);
 
-  // Mark some command as unsupported by ZPC 
+  // Mark some command as unsupported by ZPC
   // We need to do that here because this component is called after the UCL cluster
-  // Clear the callbacks we don't need for ZPC only 
+  // Clear the callbacks we don't need for ZPC only
   disable_unsupported_ucl_commands();
 
   // Just simulate an update of the whole Attribute Store.

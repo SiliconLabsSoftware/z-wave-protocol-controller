@@ -39,9 +39,9 @@
 #define AGI_NA_PROFILE 0x0000
 
 ///< Lifeline Group ID
-#define LIFELINE_GROUP_ID 1
-#define AGI_LIFELINE_PROFILE  0x0001
-#define LIFELINE_NAME     "Lifeline"
+#define LIFELINE_GROUP_ID    1
+#define AGI_LIFELINE_PROFILE 0x0001
+#define LIFELINE_NAME        "Lifeline"
 
 /// Profile that is reserved, used to indicate that no profile data is available
 /// or valid

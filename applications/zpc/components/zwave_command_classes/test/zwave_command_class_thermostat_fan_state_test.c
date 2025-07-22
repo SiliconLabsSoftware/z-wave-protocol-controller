@@ -42,7 +42,6 @@
 #include "dotdot_mqtt_mock.h"
 #include "dotdot_mqtt_generated_commands_mock.h"
 
-
 static zwave_command_handler_t handler = {};
 
 static attribute_resolver_function_t current_fan_state_get = NULL;
@@ -63,7 +62,7 @@ static sl_status_t
     TEST_ASSERT_NULL(set_func);
     TEST_ASSERT_NOT_NULL(get_func);
     current_fan_state_get = get_func;
-  } 
+  }
 
   return SL_STATUS_OK;
 }
@@ -125,13 +124,13 @@ void setUp()
 /// Called after each and every test
 void tearDown() {}
 
-
 ////////////////////////////////////////////////////////////////////////////
 // HELPERS
 ////////////////////////////////////////////////////////////////////////////
 // Happy case : not setting reserved bit to 1
-void helper_fan_state_report(thermostat_fan_state_t expected_state, bool happy_case) {
-
+void helper_fan_state_report(thermostat_fan_state_t expected_state,
+                             bool happy_case)
+{
   uint8_t happy_case_mask = happy_case ? 0x00 : 0xF0;
 
   const uint8_t frame[] = {COMMAND_CLASS_THERMOSTAT_FAN_STATE,
@@ -153,9 +152,11 @@ void helper_fan_state_report(thermostat_fan_state_t expected_state, bool happy_c
       0);
 
   TEST_ASSERT_NOT_EQUAL(ATTRIBUTE_STORE_INVALID_NODE, fan_state_node);
-  
+
   thermostat_fan_state_t reported_state = 0x00;
-  attribute_store_get_reported(fan_state_node, &reported_state, sizeof(reported_state));
+  attribute_store_get_reported(fan_state_node,
+                               &reported_state,
+                               sizeof(reported_state));
   TEST_ASSERT_EQUAL(expected_state, reported_state);
 }
 

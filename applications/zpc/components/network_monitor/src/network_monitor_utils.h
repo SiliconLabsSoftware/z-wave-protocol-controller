@@ -47,7 +47,8 @@ template<class Sequence> void retain_recursive(
   Sequence &sequence,
   typename Sequence::iterator &begin,
   const typename Sequence::iterator &end,
-  const std::function<bool(const typename Sequence::const_iterator &)> predicate)
+  const std::function<bool(const typename Sequence::const_iterator &)>
+    predicate)
 {
   constexpr int delete_buffer_size                                = 16;
   typename Sequence::const_iterator to_delete[delete_buffer_size] = {};
@@ -81,9 +82,10 @@ template<class Sequence> void retain_recursive(
  * std::vector
  * @param predicate function that defines the retain condition.
  */
-template<class Sequence> static void retain(
-  Sequence &sequence,
-  const std::function<bool(const typename Sequence::const_iterator &)> predicate)
+template<class Sequence> static void
+  retain(Sequence &sequence,
+         const std::function<bool(const typename Sequence::const_iterator &)>
+           predicate)
 {
   auto begin     = sequence.begin();
   const auto end = sequence.end();

@@ -82,8 +82,8 @@ typedef enum { NODEID_8BITS = 1, NODEID_16BITS = 2 } zwave_node_id_basetype_t;
 
 /// @name Chip type definitions for 700-series
 ///@{
-#define ZW_GECKO_CHIP_TYPE(x) ((x == 7) || (x == 8))
-#define ZW_GECKO_CHIP_700 7
+#define ZW_GECKO_CHIP_TYPE(x)  ((x == 7) || (x == 8))
+#define ZW_GECKO_CHIP_700      7
 #define ZW_GECKO_CHIP_REVISION 0
 ///@}
 

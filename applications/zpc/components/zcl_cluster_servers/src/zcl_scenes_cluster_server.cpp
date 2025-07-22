@@ -406,7 +406,8 @@ static void publish_scene_table(attribute_store_node_t scene_table_node)
                "Publishing the Scene Table for Attribute ID %d",
                scene_table_node);
   // Read the network status, do not publish if it is not online functional:
-  if (unify_attribute_store_node_state_get_status(scene_table_node) != ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL) {
+  if (unify_attribute_store_node_state_get_status(scene_table_node)
+      != ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL) {
     sl_log_debug(LOG_TAG,
                  "Not online functional for Attribute ID %d",
                  scene_table_node);
@@ -1234,9 +1235,10 @@ sl_status_t zcl_scenes_cluster_server_init()
     COUNT_OF(scene_table_attributes));
 
   // Make sure to publish the scene table when a node becomes available.
-  attribute_store_register_callback_by_type_and_state(&on_network_status_update,
-                                                      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
-                                                      REPORTED_ATTRIBUTE);
+  attribute_store_register_callback_by_type_and_state(
+    &on_network_status_update,
+    DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+    REPORTED_ATTRIBUTE);
 
   // Callback for Dotdot MQTT commands
   uic_mqtt_dotdot_scenes_add_scene_callback_set(

@@ -18,13 +18,12 @@
  * here because this is not a unity test case.
  */
 
-static zpc_config_t my_test_configuration = {
-  .serial_log_file = "",
-  .serial_port = ZWAVE_RX_TEST_SERIAL_PORT,
-  .zwave_normal_tx_power_dbm = ZWAVE_RX_TEST_MAXIMUM_POWER_DBM,
-  .zwave_measured_0dbm_power = ZWAVE_RX_TEST_MEASURED_0DBM_POWER,
-  .zwave_rf_region = ZWAVE_RX_TEST_RF_REGION_STRING
-};
+static zpc_config_t my_test_configuration
+  = {.serial_log_file           = "",
+     .serial_port               = ZWAVE_RX_TEST_SERIAL_PORT,
+     .zwave_normal_tx_power_dbm = ZWAVE_RX_TEST_MAXIMUM_POWER_DBM,
+     .zwave_measured_0dbm_power = ZWAVE_RX_TEST_MEASURED_0DBM_POWER,
+     .zwave_rf_region           = ZWAVE_RX_TEST_RF_REGION_STRING};
 
 const zpc_config_t *zpc_get_config()
 {

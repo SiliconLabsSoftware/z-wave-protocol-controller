@@ -43,4 +43,3 @@ sl_status_t network_monitor_setup_fixt(void);
 
 #endif  //NETWORK_MONITOR_FIXT_H
 /** @} end network_monitor_fixt */
-

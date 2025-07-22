@@ -533,9 +533,9 @@ void test_zwave_command_class_agi_handle_group_info_get()
 {
   // Test a scenario when List Mode is set to 0
   const uint8_t get_frame[]       = {COMMAND_CLASS_ASSOCIATION_GRP_INFO,
-                               ASSOCIATION_GROUP_INFO_GET_V3,
-                               0x00,
-                               LIFELINE_GROUP_ID};
+                                     ASSOCIATION_GROUP_INFO_GET_V3,
+                                     0x00,
+                                     LIFELINE_GROUP_ID};
   uint8_t expected_report_frame[] = {COMMAND_CLASS_ASSOCIATION_GRP_INFO,
                                      ASSOCIATION_GROUP_INFO_REPORT,
                                      0x01,

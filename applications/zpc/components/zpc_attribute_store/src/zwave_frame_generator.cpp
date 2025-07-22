@@ -20,7 +20,7 @@
 
 // Cpp includes
 #include <stdexcept>
-#include <sstream>  // for ostringstream
+#include <sstream>    // for ostringstream
 #include <algorithm>  // for std::for_each
 
 constexpr char LOG_TAG[] = "zwave_frame_generator";

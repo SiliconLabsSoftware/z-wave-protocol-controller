@@ -11,8 +11,8 @@
 #ifndef INCLUDE_S2_H_
 #define INCLUDE_S2_H_
 
-#include<stdint.h>
-#include<platform.h>
+#include <stdint.h>
+#include <platform.h>
 
 #ifndef DllExport
 #define DllExport extern
@@ -22,22 +22,21 @@
 
 //#include <ZW_transport_api.h>
 
-#define S2_MSG_FLAG_EXT      0x1
-#define S2_MSG_FLAG_SEXT     0x2
+#define S2_MSG_FLAG_EXT  0x1
+#define S2_MSG_FLAG_SEXT 0x2
 
 #define S2_NONCE_REPORT_SOS_FLAG 1
 #define S2_NONCE_REPORT_MOS_FLAG 2
 
 #define S2_MSG_EXTHDR_CRITICAL_FLAG 0x40
-#define S2_MSG_EXTHDR_MORE_FLAG 0x80
-#define S2_MSG_EXTHDR_TYPE_MASK 0x3F
-#define S2_MSG_EXTHDR_TYPE_SN 1
-#define S2_MSG_EXTHDR_TYPE_MPAN 2
-#define S2_MSG_EXTHDR_TYPE_MGRP 3
-#define S2_MSG_EXTHDR_TYPE_MOS  4
+#define S2_MSG_EXTHDR_MORE_FLAG     0x80
+#define S2_MSG_EXTHDR_TYPE_MASK     0x3F
+#define S2_MSG_EXTHDR_TYPE_SN       1
+#define S2_MSG_EXTHDR_TYPE_MPAN     2
+#define S2_MSG_EXTHDR_TYPE_MGRP     3
+#define S2_MSG_EXTHDR_TYPE_MOS      4
 
 /* TODO move above into ZW_classcmd.h */
-
 
 /**
  * \defgroup S2trans S2 transport system
@@ -49,7 +48,6 @@
  *
  * @{
  **/
-
 
 /**
  * This flag will activate frame delivery.
@@ -112,7 +110,6 @@ typedef enum {
   UNKNOWN_KEYSET = 0xFF,
 } zwave_s2_keyset_t;
 
-
 /**
  * The structure holds information about the sender and receiver in a S2
  * Transmission.
@@ -121,7 +118,7 @@ typedef struct peer {
   /**
    * Local node, if sending this a the node sending the message, when receiving this is the node receiving the message.
    */
-  node_t l_node; //local   node
+  node_t l_node;  //local   node
 
   /**
    * Remote node, when sending this is the node that should receive the message. When receiving a message, this is the
@@ -178,15 +175,14 @@ typedef enum {
    */
   S2_TRANSMIT_COMPLETE_FAIL = 0x02,
 
-
   /**
    * We are sure that the node has decrypted the frame, because it has sent a message
    * the other way which it would only be able to send if it could decrypt this frame
    */
-  S2_TRANSMIT_COMPLETE_VERIFIED = 0x5, /*TODO allocate code in ZW_transport_api.h*/
+  S2_TRANSMIT_COMPLETE_VERIFIED
+  = 0x5, /*TODO allocate code in ZW_transport_api.h*/
 
 } s2_tx_status_t;
-
 
 /**
  * Anonymous declaration of the S2 context, the data inside S2 context must not be
@@ -210,7 +206,10 @@ typedef uint8_t network_key_t[16];
  *
  *
  */
-uint8_t S2_send_data(struct S2* ctxt, s2_connection_t* peer ,const uint8_t* buf, uint16_t len);
+uint8_t S2_send_data(struct S2 *ctxt,
+                     s2_connection_t *peer,
+                     const uint8_t *buf,
+                     uint16_t len);
 
 /**
 * Check if S2 is ready to receive a new frame for transmission
@@ -219,7 +218,7 @@ uint8_t S2_send_data(struct S2* ctxt, s2_connection_t* peer ,const uint8_t* buf,
 * \param[in] ctxt The S2 context
 * \return False if the S2_send_data method will accept a new frame for transmission
 */
-uint8_t S2_is_send_data_busy(struct S2* ctxt);
+uint8_t S2_is_send_data_busy(struct S2 *ctxt);
 
 /**
  * Send multicast security s2 encrypted frame.
@@ -232,8 +231,10 @@ uint8_t S2_is_send_data_busy(struct S2* ctxt);
  * \param len           length of data to be sent.
  *
  */
-uint8_t S2_send_data_multicast(struct S2* ctxt,  const s2_connection_t* dst, const uint8_t* buf, uint16_t len);
-
+uint8_t S2_send_data_multicast(struct S2 *ctxt,
+                               const s2_connection_t *dst,
+                               const uint8_t *buf,
+                               uint16_t len);
 
 /**
  * A new A new (improved) version of S2_send_data that allows to select a
@@ -248,10 +249,10 @@ uint8_t S2_send_data_multicast(struct S2* ctxt,  const s2_connection_t* dst, con
  *
  * \returns 1 on success, 0 on failure
  */
-uint8_t S2_send_data_singlecast_with_keyset(struct S2* ctxt,
-                                            s2_connection_t* connection,
+uint8_t S2_send_data_singlecast_with_keyset(struct S2 *ctxt,
+                                            s2_connection_t *connection,
                                             zwave_s2_keyset_t keyset,
-                                            const uint8_t* payload,
+                                            const uint8_t *payload,
                                             uint16_t payload_length);
 
 /**
@@ -269,12 +270,11 @@ uint8_t S2_send_data_singlecast_with_keyset(struct S2* ctxt,
  *
  * \returns 1 on success, 0 on failure
  */
-uint8_t S2_send_data_multicast_with_keyset(struct S2* ctxt,
-                                           s2_connection_t* connection,
+uint8_t S2_send_data_multicast_with_keyset(struct S2 *ctxt,
+                                           s2_connection_t *connection,
                                            zwave_s2_keyset_t keyset,
-                                           const uint8_t* payload,
+                                           const uint8_t *payload,
                                            uint16_t payload_length);
-
 
 /**
  * Send a singlecast follow-up frame where we selected the MGRP ID.
@@ -288,12 +288,12 @@ uint8_t S2_send_data_multicast_with_keyset(struct S2* ctxt,
  *
  * \returns 1 on success, 0 on failure
  */
-uint8_t S2_send_data_singlecast_follow_up_with_keyset(
-                                          struct S2* p_context,
-                                          s2_connection_t* connection,
-                                          zwave_s2_keyset_t keyset,
-                                          const uint8_t* payload,
-                                          uint16_t payload_length);
+uint8_t
+  S2_send_data_singlecast_follow_up_with_keyset(struct S2 *p_context,
+                                                s2_connection_t *connection,
+                                                zwave_s2_keyset_t keyset,
+                                                const uint8_t *payload,
+                                                uint16_t payload_length);
 
 /**
 * Check if S2 is ready to receive a new multicast frame for transmission
@@ -302,7 +302,7 @@ uint8_t S2_send_data_singlecast_follow_up_with_keyset(
 * \param[in] ctxt The S2 context
 * \return False if the S2_send_data_multicast method will accept a new frame for transmission
 */
-uint8_t S2_is_send_data_multicast_busy(struct S2* ctxt);
+uint8_t S2_is_send_data_multicast_busy(struct S2 *ctxt);
 
 /**
  * Allocates and Initializes a context. This must be done on every power up, or when the homeID changes.
@@ -316,16 +316,14 @@ uint8_t S2_is_send_data_multicast_busy(struct S2* ctxt);
 
  * \callgraph
  */
-struct S2*
-S2_init_ctx(uint32_t home);
-
+struct S2 *S2_init_ctx(uint32_t home);
 
 /**
  * Free's resources associated with context, the context will be invalid after a call to this function
  *
  * \param ctxt the S2 context
  */
-void S2_destroy(struct S2* ctxt);
+void S2_destroy(struct S2 *ctxt);
 
 /**
  * Command handler for all incoming COMMAND_CLASS_SECURITY2 frames.
@@ -334,13 +332,16 @@ void S2_destroy(struct S2* ctxt);
  * \param buf  pointing to the received data. The S2 machine may alter the data in this buffer.
  * \param len  The length of the received data.
  */
-void S2_application_command_handler(struct S2* ctxt, s2_connection_t* peer , uint8_t* buf, uint16_t len);
+void S2_application_command_handler(struct S2 *ctxt,
+                                    s2_connection_t *peer,
+                                    uint8_t *buf,
+                                    uint16_t len);
 
 /**
  * This must be called when the timer set by \ref S2_set_timeout has expired.
  * \param ctxt the S2 context
  */
-void S2_timeout_notify(struct S2* ctxt);
+void S2_timeout_notify(struct S2 *ctxt);
 
 /**
  * Notify the security stack that sent with \ref S2_send_frame has completed.
@@ -348,7 +349,9 @@ void S2_timeout_notify(struct S2* ctxt);
  * \param status  status code of the transmission
  * \param tx_time the time used for this transmission i milliseconds.
  */
-void S2_send_frame_done_notify(struct S2* ctxt, s2_tx_status_t status,uint16_t tx_time);
+void S2_send_frame_done_notify(struct S2 *ctxt,
+                               s2_tx_status_t status,
+                               uint16_t tx_time);
 
 /**
 * Check if the S2 FSM or inclusion FSM are busy.
@@ -356,7 +359,7 @@ void S2_send_frame_done_notify(struct S2* ctxt, s2_tx_status_t status,uint16_t t
 * \param ctxt the S2 context
 * \return False if the FSM and inclusion FSM are both idle
 */
-uint8_t S2_is_busy(struct S2* ctxt);
+uint8_t S2_is_busy(struct S2 *ctxt);
 
 /**
 * Free an MPAN entry.
@@ -370,7 +373,7 @@ uint8_t S2_is_busy(struct S2* ctxt);
 * \param owner_id     The Sendind NodeID for the Group ID
 * \param group_id     The Group ID to erase.
 */
-void S2_free_mpan(struct S2* p_context, node_t owner_id, uint8_t group_id);
+void S2_free_mpan(struct S2 *p_context, node_t owner_id, uint8_t group_id);
 
 #include "S2_external.h"
 #include "s2_inclusion.h"
@@ -385,7 +388,6 @@ void S2_init_prng(void);
  * The random number generator used by S2
  */
 extern CTR_DRBG_CTX s2_ctr_drbg;
-
 
 /**
  * @}

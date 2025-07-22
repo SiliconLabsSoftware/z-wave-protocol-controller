@@ -41,10 +41,10 @@
 #include "zwave_network_management_mock.h"
 
 // Static variables
-static attribute_resolver_function_t resolve_secure_node_info = NULL;
-static attribute_resolver_function_t resolve_node_info        = NULL;
-static attribute_resolver_callback_t on_nif_resolution_abort  = NULL;
-static attribute_resolver_callback_t on_secure_nif_resolution_abort  = NULL;
+static attribute_resolver_function_t resolve_secure_node_info       = NULL;
+static attribute_resolver_function_t resolve_node_info              = NULL;
+static attribute_resolver_callback_t on_nif_resolution_abort        = NULL;
+static attribute_resolver_callback_t on_secure_nif_resolution_abort = NULL;
 
 static const zwave_controller_callbacks_t *controller_callbacks = NULL;
 

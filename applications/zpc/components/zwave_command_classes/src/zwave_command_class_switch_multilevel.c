@@ -222,8 +222,8 @@ static sl_status_t zwave_command_class_switch_multilevel_set(
   set_frame->cmd      = SWITCH_MULTILEVEL_SET_V4;
   *frame_length       = sizeof(ZW_SWITCH_MULTILEVEL_SET_V4_FRAME);
 
-  set_frame->value           = (uint8_t)state.desired_value;
-  set_frame->duration        = (uint8_t)state.desired_duration;
+  set_frame->value    = (uint8_t)state.desired_value;
+  set_frame->duration = (uint8_t)state.desired_duration;
 
   return SL_STATUS_OK;
 }

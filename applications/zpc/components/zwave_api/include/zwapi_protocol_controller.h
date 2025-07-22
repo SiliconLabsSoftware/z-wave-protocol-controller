@@ -1030,11 +1030,10 @@ sl_status_t zwapi_set_virtual_node_application_node_information(
  * @param payloadLength decrypted payload length
  * @param payload decrypted payload
  */
-sl_status_t zwapi_transfer_protocol_cc(
-  const zwave_node_id_t srcNode,
-  const uint8_t decryptionKey,
-  uint8_t payloadLength,
-  const uint8_t * const payload);
+sl_status_t zwapi_transfer_protocol_cc(const zwave_node_id_t srcNode,
+                                       const uint8_t decryptionKey,
+                                       uint8_t payloadLength,
+                                       const uint8_t *const payload);
 
 /**
  * @brief Set the NLS State of the node in the controller NVM 
@@ -1053,7 +1052,9 @@ sl_status_t zwapi_enable_node_nls(const zwave_node_id_t nodeId);
  * @param nls_support NLS support pointer to be filled
  * 
  */
-sl_status_t zwapi_get_node_nls(const zwave_node_id_t nodeId, uint8_t* nls_state, uint8_t* nls_support);
+sl_status_t zwapi_get_node_nls(const zwave_node_id_t nodeId,
+                               uint8_t *nls_state,
+                               uint8_t *nls_support);
 
 /**
  * @brief Get the NLS State of the nodes of a network in the controller NVM 

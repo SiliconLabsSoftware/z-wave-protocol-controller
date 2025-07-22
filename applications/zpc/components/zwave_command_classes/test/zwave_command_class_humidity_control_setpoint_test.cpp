@@ -166,17 +166,17 @@ attribute_store_node_t
   attribute_store_node_t type_node = create_type_node(type);
 
   auto min_value_node = attribute_store_emplace(type_node,
-                          ATTRIBUTE(MIN_VALUE),
-                          &min_value,
-                          sizeof(min_value));
+                                                ATTRIBUTE(MIN_VALUE),
+                                                &min_value,
+                                                sizeof(min_value));
   attribute_store_emplace(min_value_node,
                           ATTRIBUTE(MIN_VALUE_PRECISION),
                           &precision,
                           sizeof(precision));
   auto max_value_node = attribute_store_emplace(type_node,
-                          ATTRIBUTE(MAX_VALUE),
-                          &max_value,
-                          sizeof(max_value));
+                                                ATTRIBUTE(MAX_VALUE),
+                                                &max_value,
+                                                sizeof(max_value));
   attribute_store_emplace(max_value_node,
                           ATTRIBUTE(MAX_VALUE_PRECISION),
                           &precision,
@@ -311,8 +311,8 @@ void helper_report_setpoint(enum set_bytes bytes_count, bool happy_case)
   attribute_store_node_t value_node = 0;
 
   humidity_control_setpoint_precision_t precision = 0;
-  humidity_control_setpoint_scale_t scale = 0;
-  humidity_control_setpoint_value_t value = 0;
+  humidity_control_setpoint_scale_t scale         = 0;
+  humidity_control_setpoint_value_t value         = 0;
 
   humidity_control_setpoint_size_t size = bytes_count;
 

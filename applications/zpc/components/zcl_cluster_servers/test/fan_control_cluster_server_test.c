@@ -104,7 +104,7 @@ void test_fan_control_command_mapping()
     SL_STATUS_OK,
     attribute_store_get_desired(off_node, &off_flag, sizeof(off_flag)),
     "Can't get Off flag value");
-    
+
   // Test value
   TEST_ASSERT_EQUAL(1, off_flag);
 }

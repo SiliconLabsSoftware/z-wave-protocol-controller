@@ -582,11 +582,13 @@ void test_value_size_precision_extraction()
   TEST_ASSERT_EQUAL_UINT32(test_signed_value * 10, extracted_value);
 }
 
-void test_zwave_temp_to_ucl_temperature() {
+void test_zwave_temp_to_ucl_temperature()
+{
   int32_t current_temp = 25;
   for (int i = 0; i < 8; i++) {
     printf("Current Z-Wave precision : %d\n", i);
-    TEST_ASSERT_EQUAL(2500, zwave_temperature_to_ucl_temperature(current_temp, i, 0));
+    TEST_ASSERT_EQUAL(2500,
+                      zwave_temperature_to_ucl_temperature(current_temp, i, 0));
     current_temp *= 10;
   }
 
@@ -600,18 +602,16 @@ void test_zwave_temp_to_ucl_temperature() {
   TEST_ASSERT_EQUAL(2562, zwave_temperature_to_ucl_temperature(7812, 2, 1));
 }
 
-
-void test_ucl_temp_to_zwave_temperature() {
-
+void test_ucl_temp_to_zwave_temperature()
+{
   TEST_ASSERT_EQUAL(7700, ucl_temperature_to_zwave_temperature(7700, 2, 0));
   TEST_ASSERT_EQUAL(12410, ucl_temperature_to_zwave_temperature(1241, 3, 0));
   TEST_ASSERT_EQUAL(781, ucl_temperature_to_zwave_temperature(7815, 1, 0));
-  
+
   // Convert F to C
   TEST_ASSERT_EQUAL(69, ucl_temperature_to_zwave_temperature(2111, 0, 1));
   TEST_ASSERT_EQUAL(709, ucl_temperature_to_zwave_temperature(2166, 1, 1));
   TEST_ASSERT_EQUAL(7098, ucl_temperature_to_zwave_temperature(2166, 2, 1));
   TEST_ASSERT_EQUAL(7154, ucl_temperature_to_zwave_temperature(2197, 2, 1));
   TEST_ASSERT_EQUAL(71540, ucl_temperature_to_zwave_temperature(2197, 3, 1));
-
 }

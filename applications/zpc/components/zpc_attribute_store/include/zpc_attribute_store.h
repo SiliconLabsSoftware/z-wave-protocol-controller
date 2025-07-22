@@ -72,7 +72,8 @@ attribute_store_node_t get_zpc_node_id_node();
  * @returns The Endpoint ID attribute store node. ATTRIBUTE_STORE_INVALID_NODE if
  *          the attribute store does not have our HomeID, NodeID or Endpoint ID node.
  */
-attribute_store_node_t get_zpc_endpoint_id_node(zwave_endpoint_id_t endpoint_id);
+attribute_store_node_t
+  get_zpc_endpoint_id_node(zwave_endpoint_id_t endpoint_id);
 
 /**
  * @brief Initialize attribute store specifically for ZPC
