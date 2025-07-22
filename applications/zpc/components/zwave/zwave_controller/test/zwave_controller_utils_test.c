@@ -137,21 +137,21 @@ void test_is_command_class_in_supported_list()
 {
   // Test constant
   static uint8_t test_nif[]      = {0xD2,
-                               0x09,
-                               0xFB,
-                               0x01,
-                               0xBD,
-                               0xCB,
-                               0x92,
-                               0xA7,
-                               0xCA,
-                               0x1A,
-                               0xEA,
-                               0x99,
-                               0xC6,
-                               0x66,
-                               0x9F,
-                               0xFF};
+                                    0x09,
+                                    0xFB,
+                                    0x01,
+                                    0xBD,
+                                    0xCB,
+                                    0x92,
+                                    0xA7,
+                                    0xCA,
+                                    0x1A,
+                                    0xEA,
+                                    0x99,
+                                    0xC6,
+                                    0x66,
+                                    0x9F,
+                                    0xFF};
   static uint8_t test_nif_length = sizeof(test_nif);
 
   TEST_ASSERT_TRUE(
@@ -229,15 +229,14 @@ void test_zwave_command_class_list_pack()
 
 void test_zwave_command_class_list_pack_extended()
 {
-  zwave_node_info_t node_info = {
-    .listening_protocol        = 2,
-    .optional_protocol         = 3,
-    .basic_device_class        = 4,
-    .generic_device_class      = 5,
-    .specific_device_class     = 6,
-    .command_class_list_length = 3 + 3,
-    .command_class_list = {0x20, 0xEF, 0xF0, 0xF100, 0xF101, 0xFFFF}
-  };
+  zwave_node_info_t node_info
+    = {.listening_protocol        = 2,
+       .optional_protocol         = 3,
+       .basic_device_class        = 4,
+       .generic_device_class      = 5,
+       .specific_device_class     = 6,
+       .command_class_list_length = 3 + 3,
+       .command_class_list        = {0x20, 0xEF, 0xF0, 0xF100, 0xF101, 0xFFFF}};
 
   uint8_t nif[ZWAVE_CONTROLLER_MAXIMUM_COMMAND_CLASS_LIST_LENGTH * 2] = {0};
   uint8_t nif_length                                                  = 0;

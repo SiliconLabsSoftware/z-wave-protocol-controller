@@ -65,9 +65,8 @@ static sl_status_t zwave_command_class_time_parameters_get(
                                          (uint8_t *)&report);
 }
 
-sl_status_t
-  zwave_command_class_time_parameters_set(const uint8_t *frame_data,
-                                          uint16_t frame_length)
+sl_status_t zwave_command_class_time_parameters_set(const uint8_t *frame_data,
+                                                    uint16_t frame_length)
 {
   if (frame_length < sizeof(ZW_TIME_PARAMETERS_SET_FRAME)) {
     return SL_STATUS_FAIL;

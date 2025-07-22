@@ -38,8 +38,9 @@
 /////////////////////////////////////////////////////////////////////////////
 // Version & Attribute Creation
 /////////////////////////////////////////////////////////////////////////////
-static void zwave_command_class_thermostat_fan_state_on_version_attribute_update(
-  attribute_store_node_t updated_node, attribute_store_change_t change)
+static void
+  zwave_command_class_thermostat_fan_state_on_version_attribute_update(
+    attribute_store_node_t updated_node, attribute_store_change_t change)
 {
   if (change == ATTRIBUTE_DELETED) {
     return;
@@ -71,7 +72,6 @@ static void zwave_command_class_thermostat_fan_state_on_version_attribute_update
   attribute_store_add_if_missing(endpoint_node,
                                  attributes,
                                  COUNT_OF(attributes));
-
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -99,11 +99,13 @@ sl_status_t zwave_command_class_thermostat_fan_state_handle_report(
     return SL_STATUS_FAIL;
   }
 
-  thermostat_fan_state_t fan_state = frame_data[2] & THERMOSTAT_FAN_STATE_REPORT_LEVEL_FAN_OPERATING_STATE_MASK;
+  thermostat_fan_state_t fan_state
+    = frame_data[2]
+      & THERMOSTAT_FAN_STATE_REPORT_LEVEL_FAN_OPERATING_STATE_MASK;
 
   attribute_store_node_t endpoint_node
     = zwave_command_class_get_endpoint_node(connection_info);
-    
+
   attribute_store_set_child_reported(
     endpoint_node,
     ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_FAN_STATE_FAN_OPERATING_STATE,
@@ -133,7 +135,6 @@ sl_status_t zwave_command_class_thermostat_fan_state_control_handler(
   }
 }
 
-
 sl_status_t zwave_command_class_thermostat_fan_state_init()
 {
   attribute_store_register_callback_by_type(
@@ -144,7 +145,6 @@ sl_status_t zwave_command_class_thermostat_fan_state_init()
     ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_FAN_STATE_FAN_OPERATING_STATE,
     NULL,
     &zwave_command_class_thermostat_fan_state_get);
-
 
   zwave_command_handler_t handler = {};
   handler.support_handler         = NULL;

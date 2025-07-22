@@ -165,8 +165,7 @@ void set_current_mode(humidity_control_mode_t humidity_control_mode)
     "Should be able to set humidity control mode value");
 }
 
-void set_supported_modes(
-  humidity_control_supported_modes_t supported_modes)
+void set_supported_modes(humidity_control_supported_modes_t supported_modes)
 {
   sl_status_t status = attribute_store_set_child_reported(
     endpoint_id_node,
@@ -215,7 +214,7 @@ void helper_humidity_control_mode_report(zwave_cc_version_t version,
     default:
       TEST_ABORT();
   }
-  
+
   set_supported_modes(supported_modes);
 
   uint8_t frame[] = {COMMAND_CLASS_HUMIDITY_CONTROL_MODE,
@@ -313,7 +312,7 @@ void helper_humidity_control_mode_set(zwave_cc_version_t version,
   set_supported_modes(supported_modes);
   set_current_mode(expected_humidity_control_mode);
 
-  // Call set 
+  // Call set
   sl_status_t reported_set_status
     = current_expected_humidity_control_mode_set(current_mode_node,
                                                  received_frame,
@@ -348,8 +347,8 @@ void helper_humidity_control_mode_set(zwave_cc_version_t version,
     }
     set_supported_modes(supported_modes);
     set_current_mode(expected_humidity_control_mode);
-    
-    // Call set 
+
+    // Call set
     reported_set_status
       = current_expected_humidity_control_mode_set(current_mode_node,
                                                    received_frame,
@@ -358,7 +357,7 @@ void helper_humidity_control_mode_set(zwave_cc_version_t version,
   }
 }
 ////////////////////////////////////////////////////////////////////////////
-// Humidity Control Mode Supported 
+// Humidity Control Mode Supported
 ////////////////////////////////////////////////////////////////////////////
 void test_humidity_control_mode_supported_get_happy_case()
 {
@@ -377,7 +376,7 @@ void test_humidity_control_mode_supported_get_happy_case()
 
 void test_humidity_control_mode_supported_report_happy_case()
 {
-    zwave_controller_connection_info_t info = {};
+  zwave_controller_connection_info_t info = {};
   info.remote.node_id                     = node_id;
   info.remote.endpoint_id                 = endpoint_id;
   info.local.is_multicast                 = false;
@@ -402,11 +401,9 @@ void test_humidity_control_mode_supported_report_happy_case()
     ATTRIBUTE_COMMAND_CLASS_HUMIDITY_CONTROL_MODE_SUPPORTED_MODES,
     &reported_supported_modes,
     sizeof(reported_supported_modes));
-  TEST_ASSERT_EQUAL(SL_STATUS_OK,reported_status);
-  TEST_ASSERT_EQUAL(expected_supported_modes,reported_supported_modes);
+  TEST_ASSERT_EQUAL(SL_STATUS_OK, reported_status);
+  TEST_ASSERT_EQUAL(expected_supported_modes, reported_supported_modes);
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////
 // Humidity Control Mode Get/Set/Report

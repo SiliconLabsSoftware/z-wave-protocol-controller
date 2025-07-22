@@ -82,14 +82,14 @@ void setUp()
 {
   zpc_attribute_store_test_helper_create_network();
 
-  zwave_command_handler_register_handler_Stub(&zwave_command_handler_register_handler_stub);
+  zwave_command_handler_register_handler_Stub(
+    &zwave_command_handler_register_handler_stub);
   // Call init
   TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_command_class_supervision_init());
 }
 
 /// Called after each and every test
 void tearDown() {}
-
 
 // We can't do it in the zwave_command_class_supervision_test since they're too many mocks
 // on the attribute store side preventing us to test this feature

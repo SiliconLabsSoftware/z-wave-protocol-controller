@@ -16,7 +16,7 @@
 #include "zpc_datastore_fixt.h"
 #include "attribute_store_defined_attribute_types.h"
 
-// Interface 
+// Interface
 #include "zpc_database_helper.hpp"
 
 // Unify components
@@ -25,13 +25,14 @@
 #include "attribute_store_type_registration.h"
 #include "sl_log.h"
 
-// Datastore   
+// Datastore
 #include "datastore.h"
 
 using namespace attribute_store;
 constexpr const char *LOG_TAG = "zpc_database_updater";
 
-namespace zpc_database_updater {
+namespace zpc_database_updater
+{
 ///////////////////////////////////////////////////////////////////////////////
 // Helper function
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,17 +50,16 @@ bool update_bitmask_attribute(attribute attribute_to_update)
   std::vector<uint8_t> current_value
     = attribute_to_update.reported<std::vector<uint8_t>>();
 
-  auto bitmask_length                   = current_value.size();
+  auto bitmask_length  = current_value.size();
   uint32_t new_bitmask = 0;
 
   // Since we are using uint32_t we can't have more that 4 bit mask
-  if (bitmask_length > 4  || bitmask_length == 0) {
+  if (bitmask_length > 4 || bitmask_length == 0) {
     return false;
   }
 
   for (int i = bitmask_length - 1; i >= 0; i--) {
-    new_bitmask
-      = (new_bitmask << 8) | current_value[i];
+    new_bitmask = (new_bitmask << 8) | current_value[i];
   }
 
   attribute_to_update.set_reported<uint32_t>(new_bitmask);
@@ -76,7 +76,8 @@ bool update_bitmask_attribute(attribute attribute_to_update)
 void helper_convert_bitmask_to_new_format(attribute_store_type_t attribute_type)
 {
   auto attribute_list = get_attribute_list(attribute_type);
-  const std::string attribute_name = attribute_store_get_type_name(attribute_type);
+  const std::string attribute_name
+    = attribute_store_get_type_name(attribute_type);
 
   if (attribute_list.size() == 0) {
     sl_log_info(LOG_TAG,
@@ -102,9 +103,6 @@ void helper_convert_bitmask_to_new_format(attribute_store_type_t attribute_type)
     sl_log_info(LOG_TAG, "Done.");
   }
 }
-
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Conversion functions
@@ -210,7 +208,8 @@ sl_status_t convert_v1_datastore_to_v2()
 }
 
 // See zpc_datastore_version for details on the versioning
-sl_status_t convert_v2_datastore_to_v3() {
+sl_status_t convert_v2_datastore_to_v3()
+{
   // Update ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SUPPORTED_MODES
   helper_convert_bitmask_to_new_format(
     ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SUPPORTED_MODES);
@@ -234,8 +233,7 @@ sl_status_t convert_v2_datastore_to_v3() {
                 "Updating attribute(s) ID under %s...",
                 attribute_name.c_str());
 
-
-    // WARNING : Do not use defined type value here. We need those specific ID's from 
+    // WARNING : Do not use defined type value here. We need those specific ID's from
     // the v2 database and form the v3 database.
     // Specify ID's for the setpoint types since they have changed since v2
     constexpr attribute_store_type_t OLD_MIN_VALUE_TYPE       = 0x4306;
@@ -253,18 +251,20 @@ sl_status_t convert_v2_datastore_to_v3() {
     // Default precision (keep same behavior as before)
     constexpr uint8_t DEFAULT_PRECISION = 3;
 
-    for(auto current_setpoint: setpoint_types_list) {
+    for (auto current_setpoint: setpoint_types_list) {
       // Update the scale for value (same ID)
       uint32_t old_value_scale
         = current_setpoint
-            .child_by_type(ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SETPOINT_VALUE_SCALE)
+            .child_by_type(
+              ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SETPOINT_VALUE_SCALE)
             .reported<uint32_t>();
       // Those cases should NOT happen
       if (old_value_scale > 255) {
         sl_log_warning(LOG_TAG, "Value scale is too high. Setting it to 255.");
         old_value_scale = 255;
       }
-      current_setpoint.child_by_type(ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SETPOINT_VALUE_SCALE)
+      current_setpoint
+        .child_by_type(ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SETPOINT_VALUE_SCALE)
         .set_reported<uint8_t>(old_value_scale);
 
       // First get old values
@@ -283,12 +283,12 @@ sl_status_t convert_v2_datastore_to_v3() {
       if (old_min_value_scale > 255) {
         sl_log_warning(LOG_TAG,
                        "Min value scale is too high. Setting it to 255.");
-        old_min_value_scale = 255;               
+        old_min_value_scale = 255;
       }
       if (old_max_value_scale > 255) {
         sl_log_warning(LOG_TAG,
                        "Max value scale is too high. Setting it to 255.");
-        old_max_value_scale = 255;               
+        old_max_value_scale = 255;
       }
 
       // Then update current attribute tree
@@ -304,23 +304,21 @@ sl_status_t convert_v2_datastore_to_v3() {
       // Create the missing ones
       current_setpoint.emplace_node<int32_t>(NEW_MAX_VALUE_TYPE, old_max_value);
       current_setpoint.emplace_node<uint8_t>(NEW_MAX_VALUE_SCALE_TYPE,
-                                              old_max_value_scale);
+                                             old_max_value_scale);
       current_setpoint.emplace_node<uint8_t>(NEW_MAX_VALUE_PRECISION_TYPE, 3);
     }
 
     sl_log_info(LOG_TAG, "Done.");
   }
-  
+
   sl_log_info(LOG_TAG, "Successfully converted from version 2 to version 3.\n");
   return datastore_store_int("version", DATASTORE_VERSION_V3);
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // Exposed functions
 ///////////////////////////////////////////////////////////////////////////////
-sl_status_t update_datastore(int64_t datastore_version,
-                             int64_t target_version)
+sl_status_t update_datastore(int64_t datastore_version, int64_t target_version)
 {
   while (datastore_version < target_version) {
     switch (datastore_version) {

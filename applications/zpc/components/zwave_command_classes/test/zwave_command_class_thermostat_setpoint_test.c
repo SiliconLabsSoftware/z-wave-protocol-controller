@@ -307,7 +307,6 @@ void helper_thermostat_setpoint_mode_supported_report(
                                  setpoint_mode_excepted_length);
 }
 
-
 // WARNING: if version > 3 only support value size = 1 (don't go over/under int8)
 void helper_setpoint_capabilities(
   zwave_cc_version_t version,
@@ -1458,7 +1457,6 @@ void test_thermostat_setpoint_supported_get_happy_case()
     sizeof(expected_thermostat_setpoint_supported_get),
     "thermostat_setpoint_supported_get : contents mismatch");
 }
-
 
 void test_thermostat_setpoint_capabilities_version_1_happy_case()
 {

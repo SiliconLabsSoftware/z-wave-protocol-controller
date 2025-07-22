@@ -24,7 +24,9 @@ zwave_node_id_t zwapi_read_node_id(uint8_t *pData, uint8_t *index)
   return node_id;
 }
 
-void zwapi_write_node_id(uint8_t *pData, uint8_t *index, zwave_node_id_t node_id)
+void zwapi_write_node_id(uint8_t *pData,
+                         uint8_t *index,
+                         zwave_node_id_t node_id)
 {
   if (NODEID_16BITS == zwapi_get_node_id_basetype()) {
     pData[(*index)++] = node_id >> 8;

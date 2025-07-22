@@ -37,4 +37,4 @@ sl_status_t zwave_command_class_thermostat_operating_state_init();
 #endif
 
 #endif  //ZWAVE_COMMAND_CLASS_THERMOSTAT_OPERATING_STATE_H
-/** @} end zwave_command_class_thermostat_operating_state */
+        /** @} end zwave_command_class_thermostat_operating_state */

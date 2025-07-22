@@ -28,7 +28,6 @@
 // Definition missing for now
 #define THERMOSTAT_FAN_MODE_REPORT_FAN_MODE_EXTERNAL_CIRCULATION_V5 0x0B
 
-
 #include "sl_status.h"
 
 #ifdef __cplusplus

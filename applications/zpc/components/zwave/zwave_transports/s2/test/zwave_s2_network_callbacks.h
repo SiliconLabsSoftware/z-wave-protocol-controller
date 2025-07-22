@@ -27,12 +27,12 @@ extern "C" {
 
 void on_inclusion_started();
 void on_inclusion_complete(zwave_keyset_t granted_keys,
-                              zwave_kex_fail_type_t kex_fail_code);
+                           zwave_kex_fail_type_t kex_fail_code);
 void on_keys_request(zwave_keyset_t requested_keys, bool csa);
 
 void on_dsk_challenge(zwave_keyset_t granted_keys,
-                          int num_blank_bytes,
-                          zwave_dsk_t dsk);
+                      int num_blank_bytes,
+                      zwave_dsk_t dsk);
 
 #ifdef __cplusplus
 }

@@ -54,13 +54,13 @@ void zwave_s0_set_network_callbacks(const s0_on_bootstrapping_complete_cb cb)
   s0_set_callback(cb);
 }
 
-
-void zwave_s0_stop_bootstrapping() {
+void zwave_s0_stop_bootstrapping()
+{
   s0_bootstrapping_stop();
 }
 
-
-void zwave_s0_start_learn_mode(zwave_node_id_t our_nodeid) {
+void zwave_s0_start_learn_mode(zwave_node_id_t our_nodeid)
+{
   (void)(our_nodeid);
-  sl_log_warning(LOG_TAG,"S0 learn mode bootstrapping is not implemented ");
+  sl_log_warning(LOG_TAG, "S0 learn mode bootstrapping is not implemented ");
 }

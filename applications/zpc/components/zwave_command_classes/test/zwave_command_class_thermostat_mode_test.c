@@ -371,9 +371,9 @@ void test_thermostat_mode_incoming_supported_report_happy_case()
     ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SUPPORTED_MODES,
     endpoint_id_node);
 
-  const uint8_t bit1 = 0b0000101;
-  const uint8_t bit2 = 0b0000011;
-  const uint8_t bit3 = 0b1111111;
+  const uint8_t bit1                    = 0b0000101;
+  const uint8_t bit2                    = 0b0000011;
+  const uint8_t bit3                    = 0b1111111;
   const uint8_t incoming_report_frame[] = {COMMAND_CLASS_THERMOSTAT_MODE_V3,
                                            THERMOSTAT_MODE_SUPPORTED_REPORT_V3,
                                            bit1,
@@ -386,7 +386,7 @@ void test_thermostat_mode_incoming_supported_report_happy_case()
                                             incoming_report_frame,
                                             sizeof(incoming_report_frame)));
 
-  uint32_t received_bitmask  = 0;
+  uint32_t received_bitmask = 0;
   attribute_store_get_reported(supported_modes_node,
                                &received_bitmask,
                                sizeof(received_bitmask));

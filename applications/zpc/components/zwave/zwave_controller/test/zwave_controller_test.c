@@ -73,9 +73,9 @@ void test_zwave_controller_set_secure_nif()
 
 void test_zwave_controller_request_protocol_cc_encryption_callback()
 {
-  uint8_t status                  = TRANSMIT_COMPLETE_VERIFIED;
-  zwapi_tx_report_t tx_info       = {0};
-  uint8_t session_id              = 0;
+  uint8_t status            = TRANSMIT_COMPLETE_VERIFIED;
+  zwapi_tx_report_t tx_info = {0};
+  uint8_t session_id        = 0;
 
   zwapi_request_protocol_cc_encryption_callback_ExpectAndReturn(status,
                                                                 &tx_info,

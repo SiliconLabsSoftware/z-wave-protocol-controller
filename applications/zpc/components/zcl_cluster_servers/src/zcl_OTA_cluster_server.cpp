@@ -55,11 +55,12 @@ static int get_target_from_uiid(const std::string &uiid)
   for (size_t idx = 0; idx < uiid.size(); idx++) {
     if (uiid[idx] == '-') {
       last_2_dash = last_dash;
-      last_dash = idx;
+      last_dash   = idx;
     }
   }
   if ((last_2_dash != 0) && (last_dash != 0)) {
-    std::string target_str = uiid.substr(last_2_dash + 1, last_dash - last_2_dash - 1);
+    std::string target_str
+      = uiid.substr(last_2_dash + 1, last_dash - last_2_dash - 1);
     return std::stoi(target_str);
   } else {
     sl_log_error(TAG, "Unable to resolve target from uiid");
@@ -82,8 +83,8 @@ static std::string get_target_version(attribute node, int fw_target_id)
                                                           0);
     attribute version_data
       = ep.child_by_type(ATTRIBUTE_CC_VERSION_VERSION_REPORT_DATA);
-    attribute fw_target = version_data.child_by_type(
-      ATTRIBUTE_CC_VERSION_FIRMWARE);
+    attribute fw_target
+      = version_data.child_by_type(ATTRIBUTE_CC_VERSION_FIRMWARE);
     int32_t fw_version
       = fw_target.child_by_type(ATTRIBUTE_CC_VERSION_FIRMWARE_VERSION)
           .reported<int32_t>();

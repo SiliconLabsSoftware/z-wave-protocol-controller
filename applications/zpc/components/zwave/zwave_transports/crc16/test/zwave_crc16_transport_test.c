@@ -253,7 +253,7 @@ void test_encapsulation_happy_case()
 
   zwave_controller_connection_info_t connection_info = {};
   zwave_tx_options_t tx_options                      = {};
-  tx_options.number_of_responses                     = 0; 
+  tx_options.number_of_responses                     = 0;
   const uint8_t frame_data[]                         = {0x01, 0x02, 0x03};
   connection_info.remote.endpoint_id                 = 2;
   connection_info.remote.node_id                     = 5;
@@ -316,7 +316,7 @@ void test_encapsulation_happy_case()
   TEST_ASSERT_EQUAL(1, send_data_callback_counter);
 }
 
-// Test if the number of responses is set to 1 we can 
+// Test if the number of responses is set to 1 we can
 // still send the frame
 void test_encapsulation_happy_case_with_number_of_response_1()
 {
@@ -324,7 +324,7 @@ void test_encapsulation_happy_case_with_number_of_response_1()
 
   zwave_controller_connection_info_t connection_info = {};
   zwave_tx_options_t tx_options                      = {};
-  tx_options.number_of_responses                     = 1; 
+  tx_options.number_of_responses                     = 1;
   const uint8_t frame_data[]                         = {0x01, 0x02, 0x03};
   connection_info.remote.endpoint_id                 = 2;
   connection_info.remote.node_id                     = 5;
@@ -382,7 +382,6 @@ void test_encapsulation_happy_case_with_number_of_response_1()
 
   TEST_ASSERT_EQUAL(1, send_data_callback_counter);
 }
-
 
 void test_encapsulation_overflow()
 {
@@ -453,8 +452,8 @@ void test_encapsulation_response_expected_no_crc16()
     connection_info.remote.endpoint_id,
     false);
 
-  zwave_tx_options_t tx_options = {};
-  tx_options.number_of_responses = 0;  
+  zwave_tx_options_t tx_options  = {};
+  tx_options.number_of_responses = 0;
   TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
                     crc_16_transport.send_data(&connection_info,
                                                sizeof(frame_data),

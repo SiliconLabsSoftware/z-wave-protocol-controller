@@ -558,7 +558,7 @@ sl_status_t zwave_command_class_multi_channel_capability_get(
 static sl_status_t zwave_command_class_multi_channel_endpoint_find(
   attribute_store_node_t node, uint8_t *frame, uint16_t *frame_len)
 {
-  uint8_t generic_device_class = 0xFF;
+  uint8_t generic_device_class  = 0xFF;
   uint8_t specific_device_class = 0xFF;
 
   attribute_store_node_t endpoint_node

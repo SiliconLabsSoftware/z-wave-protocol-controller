@@ -55,7 +55,7 @@ zwave_tx_backoff_reason_t backoff_reason;
 zwave_tx_queue tx_queue;  // zwave_tx.cpp uses the tx_queue.
 
 // Shared ariable indicating if the ongoing session is for a procotol frame
-bool is_protocol_frame = false; // NOSONAR
+bool is_protocol_frame = false;  // NOSONAR
 
 // Forward declarations
 static void zwave_tx_message_transmission_completed_step(
@@ -335,16 +335,17 @@ static void zwave_tx_process_send_next_message_step()
     return;
   }
 
-  void *user = current_tx_session_id;
+  void *user        = current_tx_session_id;
   is_protocol_frame = false;
   if (current_element.options.transport.is_protocol_frame == true) {
     // `user` argument in `zwave_controller_transport_send_data` is used to transport the current TX session ID
     // which is not ideal so we need to transport the real user data in the protocol metadata structure to match
     // the queue element when `on_zwave_transport_send_data_complete` is called.
-    protocol_metadata_t *protocol_metadata = (protocol_metadata_t *)current_element.user;
+    protocol_metadata_t *protocol_metadata
+      = (protocol_metadata_t *)current_element.user;
     protocol_metadata->tx_session_id = current_tx_session_id;
-    user = current_element.user;
-    is_protocol_frame = true;
+    user                             = current_element.user;
+    is_protocol_frame                = true;
   }
 
   // Ask the transports to take the frame.

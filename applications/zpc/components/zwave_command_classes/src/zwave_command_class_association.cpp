@@ -163,9 +163,9 @@ static sl_status_t zwave_command_class_association_handle_report_command(
   reports_to_follow_t previous_reports_to_follow
     = get_reports_to_follow(group_content_node);
 
-  reports_to_follow_t reports =
-    frame_data[ASSOCIATION_REPORTS_REPORTS_TO_FOLLOW];
-  
+  reports_to_follow_t reports
+    = frame_data[ASSOCIATION_REPORTS_REPORTS_TO_FOLLOW];
+
   set_reports_to_follow(group_content_node, reports);
 
   if (reports < previous_reports_to_follow) {
@@ -183,8 +183,8 @@ static sl_status_t zwave_command_class_association_handle_report_command(
   attribute group(group_content_node);
   if (concatenate_with_previous_value == true) {
     association_set existing_list;
-    association_bytes existing_bytes = 
-    group.get<association_bytes>(REPORTED_ATTRIBUTE);
+    association_bytes existing_bytes
+      = group.get<association_bytes>(REPORTED_ATTRIBUTE);
 
     get_node_id_association_list(existing_bytes, existing_list);
     association_set merged_list;

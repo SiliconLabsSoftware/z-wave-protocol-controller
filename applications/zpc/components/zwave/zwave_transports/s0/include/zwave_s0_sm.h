@@ -145,7 +145,7 @@ typedef enum {
   S0_AWAITING_KEY_VERIFY,
   S0_HANDLE_NET_KEY_VERIFY,
   S0_AWAITING_2SCHEME_REPORT
-}s0_bootstrap_state_t;
+} s0_bootstrap_state_t;
 
 /**
  * @brief Start the S0 add node process.

@@ -26,7 +26,6 @@
 #include "zwave_generic_types.h"
 #include "zwave_command_class_version_types.h"
 
-
 #include "workaround_basic_cluster_mapper_test.hpp"
 using namespace attribute_store;
 
@@ -72,7 +71,8 @@ void test_manufacturer_id_to_name_mapper()
 
   attribute attr_node_id_node(node_id_node);
   attr_node_id_node.add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS)
-    .set_reported<NodeStateNetworkStatus>(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL);
+    .set_reported<NodeStateNetworkStatus>(
+      ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL);
 
   attribute basic_cluster_man_name_node
     = attr_ep_node.child_by_type(DOTDOT_ATTRIBUTE_ID_BASIC_MANUFACTURER_NAME);
@@ -103,7 +103,8 @@ void test_serial_number_mapper()
 
   attribute attr_node_id_node(node_id_node);
   attr_node_id_node.add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS)
-    .set_reported<NodeStateNetworkStatus>(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL);
+    .set_reported<NodeStateNetworkStatus>(
+      ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL);
 
   attribute dotdot_serial_node
     = attribute(endpoint_id_node)

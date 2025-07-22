@@ -35,13 +35,13 @@ void setUp() {}
 
 void test_zwapi_enable_node_nls(void)
 {
-  zwave_node_id_t node_id = 2;
+  zwave_node_id_t node_id       = 2;
   uint8_t response_buffer[]     = {0x04 /* length = len(payload) + 3 */,
                                    0x01 /* type: response */,
                                    FUNC_ID_ZW_ENABLE_NODE_NLS /* cmd */,
                                    0x01 /* payload */};
   uint8_t response_length       = 4;
-  uint8_t payload_buffer[] = {0x02};
+  uint8_t payload_buffer[]      = {0x02};
   uint8_t payload_buffer_length = 1;
 
   zwapi_session_send_frame_with_response_ExpectAndReturn(
@@ -64,16 +64,16 @@ void test_zwapi_enable_node_nls(void)
 
 void test_zwapi_get_node_nls(void)
 {
-  zwave_node_id_t node_id = 2;
-  uint8_t nls_supported = 1;
-  uint8_t nls_enabled = 1;
+  zwave_node_id_t node_id       = 2;
+  uint8_t nls_supported         = 1;
+  uint8_t nls_enabled           = 1;
   uint8_t response_buffer[]     = {0x04 /* length = len(payload) + 3 */,
                                    0x01 /* type: response */,
                                    FUNC_ID_ZW_GET_NODE_NLS_STATE /* cmd */,
                                    nls_supported,
                                    nls_enabled /* payload */};
   uint8_t response_length       = 5;
-  uint8_t payload_buffer[] = {0x02};
+  uint8_t payload_buffer[]      = {0x02};
   uint8_t payload_buffer_length = 1;
   uint8_t node_nls_state        = 99;
   uint8_t node_nls_support      = 99;
@@ -93,7 +93,9 @@ void test_zwapi_get_node_nls(void)
   zwapi_session_send_frame_with_response_ReturnThruPtr_response_len(
     &response_length);
 
-  TEST_ASSERT_EQUAL(SL_STATUS_OK, zwapi_get_node_nls(node_id, &node_nls_state, &node_nls_support));
+  TEST_ASSERT_EQUAL(
+    SL_STATUS_OK,
+    zwapi_get_node_nls(node_id, &node_nls_state, &node_nls_support));
   TEST_ASSERT_EQUAL(nls_enabled, node_nls_state);
 }
 
@@ -349,16 +351,16 @@ void test_zwapi_get_nls_nodes_frame_0_full_frame_1_full(void)
 
 void test_zwapi_transfer_protocol_cc(void)
 {
-  zwave_node_id_t node_id = 2;
-  uint8_t decryption_key = 3;
-  uint8_t tpcc_payload[] = {0xAA, 0xBB};
+  zwave_node_id_t node_id       = 2;
+  uint8_t decryption_key        = 3;
+  uint8_t tpcc_payload[]        = {0xAA, 0xBB};
   uint8_t tpcc_payload_length   = 2;
   uint8_t response_buffer[]     = {0x04 /* length = len(payload) + 3 */,
                                    0x01 /* type: response */,
                                    FUNC_ID_ZW_TRANSFER_PROTOCOL_CC /* cmd */,
                                    0x01 /* payload */};
   uint8_t response_length       = 4;
-  uint8_t payload_buffer[] = {0x02, 0x03, 0x02, 0xAA, 0xBB};
+  uint8_t payload_buffer[]      = {0x02, 0x03, 0x02, 0xAA, 0xBB};
   uint8_t payload_buffer_length = 5;
 
   zwapi_session_send_frame_with_response_ExpectAndReturn(
@@ -376,14 +378,21 @@ void test_zwapi_transfer_protocol_cc(void)
   zwapi_session_send_frame_with_response_ReturnThruPtr_response_len(
     &response_length);
 
-  TEST_ASSERT_EQUAL(SL_STATUS_OK, zwapi_transfer_protocol_cc(node_id, decryption_key, tpcc_payload_length, tpcc_payload));
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    zwapi_transfer_protocol_cc(node_id,
+                                               decryption_key,
+                                               tpcc_payload_length,
+                                               tpcc_payload));
 }
 
 void test_zwapi_request_protocol_cc_encryption_callback(void)
 {
-  zwave_node_id_t node_id = 2;
+  zwave_node_id_t node_id     = 2;
   zwapi_tx_report_t tx_report = {0};
-  uint8_t session_id = 1;
+  uint8_t session_id          = 1;
 
-  TEST_ASSERT_EQUAL(SL_STATUS_OK, zwapi_request_protocol_cc_encryption_callback(node_id, &tx_report, session_id));
+  TEST_ASSERT_EQUAL(SL_STATUS_OK,
+                    zwapi_request_protocol_cc_encryption_callback(node_id,
+                                                                  &tx_report,
+                                                                  session_id));
 }

@@ -240,7 +240,7 @@ int16_t zwave_temperature_to_ucl_temperature(int32_t zwave_value,
 int32_t ucl_temperature_to_zwave_temperature(int16_t ucl_value,
                                              uint8_t zwave_precision,
                                              uint8_t zwave_scale);
-  /**
+/**
  * @brief Converts a clock_time_t duration to a Z-Wave Command Class duration
  * byte
  *
@@ -250,7 +250,7 @@ int32_t ucl_temperature_to_zwave_temperature(int16_t ucl_value,
  * @param time            The system time duration
  * @returns uint8_t       The corresponding Z-Wave duration encoding.
  */
-  uint8_t time_to_zwave_duration(clock_time_t time);
+uint8_t time_to_zwave_duration(clock_time_t time);
 
 /**
  * @brief Converts a duration byte encoded for a Z-Wave command class and returns

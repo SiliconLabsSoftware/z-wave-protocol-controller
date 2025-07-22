@@ -37,4 +37,4 @@
 sl_status_t zpc_config_fixt_setup(void);
 
 /** @} end of zpc_config */
-#endif // ZPC_CONFIG_FIXT_H
+#endif  // ZPC_CONFIG_FIXT_H

@@ -58,7 +58,11 @@ typedef enum {
 } zwave_rf_region_t;
 ///@}
 
-static inline bool IS_RF_REGION_LR(zwave_rf_region_t rf_region) { return (rf_region == ZWAVE_RF_REGION_US_LR) || (rf_region == ZWAVE_RF_REGION_EU_LR); }
+static inline bool IS_RF_REGION_LR(zwave_rf_region_t rf_region)
+{
+  return (rf_region == ZWAVE_RF_REGION_US_LR)
+         || (rf_region == ZWAVE_RF_REGION_EU_LR);
+}
 
 #endif  // ZWAVE_RF_REGION_H
 /** @} end zwave_rf_region */

@@ -48,4 +48,3 @@ sl_status_t zwave_smartstart_management_setup_fixt(void);
 
 #endif  //ZWAVE_SMARTSTART_MANAGEMENT_FIXT_H
 /** @} end zwave_smartstart_management_fixt */
-

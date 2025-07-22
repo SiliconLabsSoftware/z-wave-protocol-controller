@@ -186,15 +186,16 @@ static sl_status_t zwave_command_class_thermostat_mode_handle_supported_report(
     = attribute_store_get_first_child_by_type(
       endpoint_node,
       ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_SUPPORTED_MODES);
-      
+
   uint8_t bitmask_length
     = frame_length - THERMOSTAT_MODE_SUPPORTED_REPORT_BITMASK_INDEX;
   uint32_t supported_thermostat_bitmask = 0x0000;
 
   // Since we are using uint32_t we can't have more that 4 bit mask
   if (bitmask_length > 4) {
-    sl_log_error(LOG_TAG,
-                 "Supported Thermostat Mode type Bit Mask length is not supported\n");
+    sl_log_error(
+      LOG_TAG,
+      "Supported Thermostat Mode type Bit Mask length is not supported\n");
     return SL_STATUS_NOT_SUPPORTED;
   }
 

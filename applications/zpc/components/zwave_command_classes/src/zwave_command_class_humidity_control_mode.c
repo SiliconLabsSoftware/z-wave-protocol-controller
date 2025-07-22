@@ -34,9 +34,9 @@
 
 #define LOG_TAG "zwave_command_class_humidity_control_mode"
 
-#define HUMIDITY_CONTROL_MODE_SET_MODE_HUMIDIFY_BITMASK 0x01
+#define HUMIDITY_CONTROL_MODE_SET_MODE_HUMIDIFY_BITMASK   0x01
 #define HUMIDITY_CONTROL_MODE_SET_MODE_DEHUMIDIFY_BITMASK 0x02
-#define HUMIDITY_CONTROL_MODE_SET_MODE_AUTO_BITMASK 0x04
+#define HUMIDITY_CONTROL_MODE_SET_MODE_AUTO_BITMASK       0x04
 
 /////////////////////////////////////////////////////////////////////////////
 // Utils
@@ -265,8 +265,8 @@ sl_status_t zwave_command_class_humidity_control_mode_handle_report(
   attribute_store_node_t endpoint_node
     = zwave_command_class_get_endpoint_node(connection_info);
 
-
-  if (!is_humidity_control_mode_supported(humidity_control_mode, endpoint_node)) {
+  if (!is_humidity_control_mode_supported(humidity_control_mode,
+                                          endpoint_node)) {
     sl_log_warning(LOG_TAG, "Reported humidity control mode mismatch.");
     return SL_STATUS_NOT_SUPPORTED;
   }

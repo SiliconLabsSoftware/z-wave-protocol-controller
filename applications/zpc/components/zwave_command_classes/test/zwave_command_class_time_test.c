@@ -125,9 +125,9 @@ void test_zwave_command_class_date_get()
 {
   // Prepare the expected date_time_t structure
   date_time_t expected_time = {
-        .year = TEST_YEAR - 1900, // Adjust for tm_year
-        .mon  = TEST_MONTH - 1,    // Adjust for tm_mon
-        .day  = TEST_DAY,
+    .year = TEST_YEAR - 1900,  // Adjust for tm_year
+    .mon  = TEST_MONTH - 1,    // Adjust for tm_mon
+    .day  = TEST_DAY,
   };
 
   // Simulate the set time in the system
@@ -153,11 +153,8 @@ void test_zwave_command_class_date_get()
 void test_zwave_command_class_time_get()
 {
   // Prepare the expected date_time_t structure
-  date_time_t expected_time = {
-        .hour = TEST_HOUR & 0xF,
-        .min  = TEST_MIN,
-        .sec  = TEST_SEC
-  };
+  date_time_t expected_time
+    = {.hour = TEST_HOUR & 0xF, .min = TEST_MIN, .sec = TEST_SEC};
 
   // Simulate the set time in the system
   platform_set_date_time(&expected_time);

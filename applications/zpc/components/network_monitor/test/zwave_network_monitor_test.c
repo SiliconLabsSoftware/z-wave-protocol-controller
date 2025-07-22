@@ -31,7 +31,6 @@
 #include "zwave_node_id_definitions.h"
 #include "zwave_command_class_wake_up_types.h"
 
-
 // Mock includes
 #include "zwave_controller_callbacks_mock.h"
 #include "zwave_controller_storage_mock.h"
@@ -140,8 +139,10 @@ void test_monitoring_failed_al_node()
                                      sizeof(listening_protocol));
   // Set the node to Online Functional
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -156,7 +157,8 @@ void test_monitoring_failed_al_node()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL,
+                    network_status);
 
   // Make a second transmit failure, that's it, you are offline my friend:
   zwave_callbacks->on_frame_transmission(false, NULL, node_id);
@@ -174,7 +176,8 @@ void test_monitoring_failed_al_node()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL,
+                    network_status);
 }
 
 void test_monitoring_failed_al_node_re_interview()
@@ -193,8 +196,10 @@ void test_monitoring_failed_al_node_re_interview()
                                      sizeof(listening_protocol));
   // Set the node to Interviewing
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING;
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -209,7 +214,8 @@ void test_monitoring_failed_al_node_re_interview()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING,
+                    network_status);
 
   // Make a second transmit failure, that's it, you are offline my friend:
   zwave_callbacks->on_frame_transmission(false, NULL, node_id);
@@ -218,7 +224,8 @@ void test_monitoring_failed_al_node_re_interview()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL,
+                    network_status);
 
   // Make a second transmit success, back to interviewing
   zwave_callbacks->on_frame_transmission(true, NULL, node_id);
@@ -227,7 +234,8 @@ void test_monitoring_failed_al_node_re_interview()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING,
+                    network_status);
 }
 
 void test_monitoring_failed_tx_with_nl_node()
@@ -251,8 +259,10 @@ void test_monitoring_failed_tx_with_nl_node()
 
   // Set the node to Online Functional
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -275,7 +285,8 @@ void test_monitoring_failed_tx_with_nl_node()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL,
+                    network_status);
 
   // Try to see if we consider the node asleep again if a Tx fail happens
   // more than 10s after the last tx/rx success.
@@ -312,8 +323,10 @@ void test_monitoring_failed_nl_node()
 
   // Set the node to Online Functional
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -341,7 +354,8 @@ void test_monitoring_failed_nl_node()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL,
+                    network_status);
 
   // Go to the deadline minus 1 ms
   contiki_test_helper_run(test_configuration.missing_wake_up_notification
@@ -352,7 +366,8 @@ void test_monitoring_failed_nl_node()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL,
+                    network_status);
 
   // Now it was too long without hearing from the node, mark it as failing:
   contiki_test_helper_run(2);
@@ -369,7 +384,8 @@ void test_monitoring_failed_nl_node()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL,
+                    network_status);
 }
 
 void test_monitoring_failed_nl_node_changing_wake_up_interval()
@@ -394,8 +410,10 @@ void test_monitoring_failed_nl_node_changing_wake_up_interval()
 
   // Set the node to Online Functional
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -423,7 +441,8 @@ void test_monitoring_failed_nl_node_changing_wake_up_interval()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL,
+                    network_status);
 
   // Go to the deadline minus 1 ms
   contiki_test_helper_run(test_configuration.missing_wake_up_notification
@@ -442,15 +461,18 @@ void test_monitoring_failed_nl_node_changing_wake_up_interval()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL,
+                    network_status);
 }
 
 void test_change_node_network_status_to_interviewing_on_nif_creation()
 {
   // Set the node to Online Functional
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -464,14 +486,16 @@ void test_change_node_network_status_to_interviewing_on_nif_creation()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING,
+                    network_status);
 }
 
 void test_change_node_network_status_to_interview_fail_on_nif_creation()
 {
   // Set the node to Online Functional
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
   NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_OFFLINE;
   attribute_store_set_reported(network_status_node,
                                &network_status,
@@ -486,14 +510,16 @@ void test_change_node_network_status_to_interview_fail_on_nif_creation()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL,
+                    network_status);
 }
 
 void test_change_node_network_status_to_interview_on_nif_creation_with_unknown_previous_value()
 {
   // Create a network status but leave it undefined.
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
 
   // Create a nif:
   attribute_store_add_node(ATTRIBUTE_ZWAVE_NIF, endpoint_id_node);
@@ -504,7 +530,8 @@ void test_change_node_network_status_to_interview_on_nif_creation_with_unknown_p
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING,
+                    network_status);
 }
 
 void test_do_not_put_node_online_if_not_offline()
@@ -515,9 +542,11 @@ void test_do_not_put_node_online_if_not_offline()
 
   // Create a network status but leave it undefined.
   attribute_store_node_t network_status_node
-    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
+    = attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
   // Set the network status to something not offline:
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
   attribute_store_set_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -929,14 +958,16 @@ void test_on_nif_updated()
 
   // Now the node should be marked as interviewing:
   attribute_store_node_t network_status_node
-    = attribute_store_get_first_child_by_type(node_id_node,
-                                              DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
+    = attribute_store_get_first_child_by_type(
+      node_id_node,
+      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
 
   NodeStateNetworkStatus network_status = 10000;
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_INTERVIEWING,
+                    network_status);
 
   // At some point, the interview is over. In this case, the network
   // status will be moved to online functional.
@@ -948,7 +979,8 @@ void test_on_nif_updated()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL,
+                    network_status);
 }
 
 void test_on_nif_added_when_offline()
@@ -960,8 +992,9 @@ void test_on_nif_added_when_offline()
                                      &network_status,
                                      sizeof(network_status));
   attribute_store_node_t network_status_node
-    = attribute_store_get_first_child_by_type(node_id_node,
-                                              DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
+    = attribute_store_get_first_child_by_type(
+      node_id_node,
+      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS);
 
   // Create a NIF under NodeID 4, endpoint 0
   attribute_store_node_t nif_node
@@ -972,7 +1005,8 @@ void test_on_nif_added_when_offline()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL,
+                    network_status);
 
   // Set the NIF to a value. It should not affect anything.
   attribute_store_set_reported(nif_node,
@@ -981,14 +1015,16 @@ void test_on_nif_added_when_offline()
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL,
+                    network_status);
 
   // Delete the NIF to a value. It should not affect anything.
   attribute_store_delete_node(nif_node);
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
-  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL, network_status);
+  TEST_ASSERT_EQUAL(ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_NON_FUNCTIONAL,
+                    network_status);
 }
 
 void test_storage_callbacks_get_granted_keys()

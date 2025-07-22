@@ -271,7 +271,8 @@ typedef struct zwapi_callbacks {
   application_command_handler_function application_command_handler;
   application_controller_update_function application_controller_update;
   application_command_handler_function application_command_handler_bridge;
-  protocol_cc_encryption_command_handler_function protocol_cc_encryption_request;
+  protocol_cc_encryption_command_handler_function
+    protocol_cc_encryption_request;
   void (*zwapi_started)(const uint8_t *pData, uint8_t pLen);
   void (*poll_request)();
 } zwapi_callbacks_t;

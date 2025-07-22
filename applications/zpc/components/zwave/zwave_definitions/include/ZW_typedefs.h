@@ -51,22 +51,21 @@
 #define code
 #define xdata
 
-typedef unsigned char   BYTE;
-typedef unsigned short  WORD;
-typedef unsigned long   DWORD;
-typedef bool   BOOL;
+typedef unsigned char BYTE;
+typedef unsigned short WORD;
+typedef unsigned long DWORD;
+typedef bool BOOL;
 
-#define CODE           /* Used for defining callback function which allways */
-                           /* resides in code space. */
+#define CODE /* Used for defining callback function which allways */
+             /* resides in code space. */
 
 #define TRUE  true
 #define FALSE false
 
 /* Define for making easy and consistent callback definitions */
-#define VOID_CALLBACKFUNC(completedFunc)  void (CODE *completedFunc)
+#define VOID_CALLBACKFUNC(completedFunc) void(CODE * completedFunc)
 
-
-#define UNUSED(x) x = x; /* Hack to silence warning C280 Unreferenced local variable */
-
+#define UNUSED(x) \
+  x = x; /* Hack to silence warning C280 Unreferenced local variable */
 
 #endif /* _ZW_TYPEDEFS_H_ */

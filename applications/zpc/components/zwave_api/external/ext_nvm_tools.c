@@ -7,24 +7,24 @@
 #include "nvm_tools.h"
 static int set_default_cb_called = 0;
 
-static void Set_Default_Callback() {
+static void Set_Default_Callback()
+{
   set_default_cb_called = 1;
 }
 
-bool ZW_NVM_Backup(const char* filename,uint8_t chiptype)
+bool ZW_NVM_Backup(const char *filename, uint8_t chiptype)
 {
-  uint32_t backup_length = 0;
-  uint8_t length_read = 0;
-  uint16_t offset = 0;
-  uint8_t read_status = 0;
+  uint32_t backup_length   = 0;
+  uint8_t length_read      = 0;
+  uint16_t offset          = 0;
+  uint8_t read_status      = 0;
   uint8_t nvm_close_status = 0;
-  uint8_t read_buffer[ REQUEST_BUFFER_SIZE ];
+  uint8_t read_buffer[REQUEST_BUFFER_SIZE];
   FILE *my_nvm_backup_file;
 
   /* Open up a file */
   my_nvm_backup_file = fopen(filename, "wb");
-  if (NULL == my_nvm_backup_file)
-  {
+  if (NULL == my_nvm_backup_file) {
     printf("Cannot create NVM file \"%s\": %s.\n", filename, strerror(errno));
     return false;
   }
@@ -41,38 +41,35 @@ bool ZW_NVM_Backup(const char* filename,uint8_t chiptype)
   printf("backup_length: %d\n", backup_length);
 
   // Read the NVM chunck by chunk and put it into the file
-  while (offset<backup_length && 0 == read_status) {
-    read_status = zwapi_nvm_read(offset, read_buffer, REQUEST_BUFFER_SIZE, &length_read);
-    offset+=length_read;
+  while (offset < backup_length && 0 == read_status) {
+    read_status
+      = zwapi_nvm_read(offset, read_buffer, REQUEST_BUFFER_SIZE, &length_read);
+    offset += length_read;
     fwrite(read_buffer, sizeof(uint8_t), length_read, my_nvm_backup_file);
 
     /* Print the progress*/
     fflush(stdout);
-    printf("\rReading %d / %d bytes...",offset,backup_length-1);
+    printf("\rReading %d / %d bytes...", offset, backup_length - 1);
   }
   printf("\n");
 
   // Close the local file.
   fclose(my_nvm_backup_file);
 
-  if (read_status == 2)
-  {
+  if (read_status == 2) {
     printf("NVM read successfully\n");
-  }
-  else
-  {
-    printf("ERROR: Reading NVM failed. Read status %d returned\n",read_status);
+  } else {
+    printf("ERROR: Reading NVM failed. Read status %d returned\n", read_status);
     return false;
   }
 
   nvm_close_status = zwapi_nvm_close();
-  if (nvm_close_status != 0)
-  {
+  if (nvm_close_status != 0) {
     printf("ERROR: NVM close command failed.\n");
     return false;
   }
 
- /* On 700-series chips, zwapi_nvm_close must be followed by a chip reset */
+  /* On 700-series chips, zwapi_nvm_close must be followed by a chip reset */
   if (ZW_GECKO_CHIP_TYPE(chiptype)) {
     zwapi_soft_reset();
   }
@@ -80,22 +77,21 @@ bool ZW_NVM_Backup(const char* filename,uint8_t chiptype)
   return true;
 }
 
-bool ZW_NVM_Restore(const char* filename, uint8_t chiptype)
+bool ZW_NVM_Restore(const char *filename, uint8_t chiptype)
 {
   FILE *my_nvm_backup_file;
-  uint8_t length_write = 0;
-  uint8_t length_written = 0;
-  uint16_t offset = 0;
-  uint8_t serial_api_status = 0 ;
-  uint8_t write_status = 0;
-  uint8_t nvm_close_status = 0;
-  uint32_t expected_length = 0;
+  uint8_t length_write      = 0;
+  uint8_t length_written    = 0;
+  uint16_t offset           = 0;
+  uint8_t serial_api_status = 0;
+  uint8_t write_status      = 0;
+  uint8_t nvm_close_status  = 0;
+  uint32_t expected_length  = 0;
   uint8_t buffer[NVM_WRITE_CHUNK_SIZE];
 
   /* Open the backup file */
   my_nvm_backup_file = fopen(filename, "rb");
-  if (NULL == my_nvm_backup_file)
-  {
+  if (NULL == my_nvm_backup_file) {
     printf("Cannot open NVM file \"%s\": %s.\n", filename, strerror(errno));
     return false;
   }
@@ -117,11 +113,12 @@ bool ZW_NVM_Restore(const char* filename, uint8_t chiptype)
 
   zwapi_set_default(Set_Default_Callback);
   //This is a serial api hack to wait for the callback
-  for(int i=0; i <10000; i++){
+  for (int i = 0; i < 10000; i++) {
     zwapi_poll();
-    if((set_default_cb_called) ) break;
+    if ((set_default_cb_called))
+      break;
   }
-  if(!set_default_cb_called) {
+  if (!set_default_cb_called) {
     return false;
   }
 
@@ -129,28 +126,33 @@ bool ZW_NVM_Restore(const char* filename, uint8_t chiptype)
   expected_length = zwapi_nvm_open();
 
   /* Read in the file and push it write it on to the NVM  */
-  length_write = fread(buffer, sizeof(uint8_t), NVM_WRITE_CHUNK_SIZE, my_nvm_backup_file);
-  while (0 != length_write)
-  {
-    write_status = zwapi_nvm_write(offset, buffer, length_write, &length_written);
+  length_write
+    = fread(buffer, sizeof(uint8_t), NVM_WRITE_CHUNK_SIZE, my_nvm_backup_file);
+  while (0 != length_write) {
+    write_status
+      = zwapi_nvm_write(offset, buffer, length_write, &length_written);
     offset += length_written;
-    if (length_written != length_write)
-    {
+    if (length_written != length_write) {
       printf("ERROR : Something went wrong when writing NVM. Aborting\n");
       break;
     }
     /* Look in the file to see if there is more to write */
-    length_write = fread(buffer, sizeof(uint8_t), NVM_WRITE_CHUNK_SIZE, my_nvm_backup_file);
+    length_write = fread(buffer,
+                         sizeof(uint8_t),
+                         NVM_WRITE_CHUNK_SIZE,
+                         my_nvm_backup_file);
 
-    if(0 > length_write && 0 != write_status)
-    {
-      printf("ERROR : More data to write from file, but could not write on NVM (write status = %d, length write = %d\n", write_status,length_write);
+    if (0 > length_write && 0 != write_status) {
+      printf("ERROR : More data to write from file, but could not write on NVM "
+             "(write status = %d, length write = %d\n",
+             write_status,
+             length_write);
       break;
     }
 
     /* Print the progress */
     fflush(stdout);
-    printf("\rWritten %d / %d bytes...",offset,expected_length);
+    printf("\rWritten %d / %d bytes...", offset, expected_length);
   }
   printf("\n");
 
@@ -158,8 +160,7 @@ bool ZW_NVM_Restore(const char* filename, uint8_t chiptype)
   fclose(my_nvm_backup_file);
 
   nvm_close_status = zwapi_nvm_close();
-  if (0 != nvm_close_status)
-  {
+  if (0 != nvm_close_status) {
     printf("ERROR: NVM close command failed.\n");
     return false;
   }
@@ -167,16 +168,13 @@ bool ZW_NVM_Restore(const char* filename, uint8_t chiptype)
   // Perform a soft reset on the module
   printf("Soft reset of the module\n");
 
- /*The WatchDog is used to reset the chip after restoring EEPROM image to Z-Wave module from backup on 500 series,
+  /*The WatchDog is used to reset the chip after restoring EEPROM image to Z-Wave module from backup on 500 series,
   *in 700 series: the FUNC_ID_ZW_WATCHDOG_ENABLE will be removed, therefore, zwapi_soft_reset() should be used*/
   if (ZW_GECKO_CHIP_TYPE(chiptype)) {
     zwapi_soft_reset();
-  }
-  else {
+  } else {
     zwapi_enable_watchdog();
   }
 
   return true;
 }
-
-

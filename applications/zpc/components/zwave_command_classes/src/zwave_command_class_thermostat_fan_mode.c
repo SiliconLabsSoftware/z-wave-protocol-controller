@@ -97,7 +97,7 @@ static bool
 
   // Check version compatibility
   if (!is_fan_mode_compatible_with_version(fan_control_mode_type,
-                                                   current_version)) {
+                                           current_version)) {
     return false;
   }
 
@@ -242,7 +242,9 @@ static sl_status_t zwave_command_class_thermostat_fan_mode_set(
 
   // Check version compatibility
   if (!is_fan_control_mode_supported(fan_mode, endpoint_node)) {
-    sl_log_warning(LOG_TAG, "Unsupported fan mode %#04x. Clearing desired value.", fan_mode);
+    sl_log_warning(LOG_TAG,
+                   "Unsupported fan mode %#04x. Clearing desired value.",
+                   fan_mode);
     attribute_store_undefine_desired(node);
     return SL_STATUS_NOT_SUPPORTED;
   }
@@ -354,7 +356,7 @@ sl_status_t zwave_command_class_thermostat_fan_mode_supported_handle_report(
   }
 
   thermostat_fan_supported_modes_t supported_modes_bitmask = 0x0000;
-  uint8_t bitmask_length = frame_length - 2;
+  uint8_t bitmask_length                                   = frame_length - 2;
 
   // Since we are using uint32_t we can't have more that 4 bit mask
   if (bitmask_length > 4) {
@@ -372,13 +374,15 @@ sl_status_t zwave_command_class_thermostat_fan_mode_supported_handle_report(
     = zwave_command_class_get_endpoint_node(connection_info);
 
   sl_status_t set_value_status = attribute_store_set_child_reported(
-      endpoint_node,
-      ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_FAN_MODE_SUPPORTED_MODES,
-      &supported_modes_bitmask,
-      sizeof(supported_modes_bitmask));
+    endpoint_node,
+    ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_FAN_MODE_SUPPORTED_MODES,
+    &supported_modes_bitmask,
+    sizeof(supported_modes_bitmask));
 
   if (set_value_status != SL_STATUS_OK) {
-    sl_log_error(LOG_TAG, "Can't set ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_FAN_MODE_SUPPORTED_MODES");
+    sl_log_error(
+      LOG_TAG,
+      "Can't set ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_FAN_MODE_SUPPORTED_MODES");
     return SL_STATUS_NOT_SUPPORTED;
   }
 

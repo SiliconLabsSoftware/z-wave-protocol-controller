@@ -89,11 +89,16 @@ static uint8_t secure_nif_length;
 
 // NLS context
 typedef struct s2_node_nls_context {
-  zwave_nodemask_t  node_list;                  // bitmask containing NLS enabled nodes in the network
-  uint16_t          node_list_length;           // length of the list in bytes (is not equal to the number of nodes in the network)
-  zwave_node_id_t   next_sent_node_id;          // node ID of the NLS enabled node to be sent next
-  uint16_t          nls_enabled_node_cnt;       // total number of NLS enabled nodes in the network
-  uint16_t          nls_enabled_node_sent_cnt;  // number of NLS enabled nodes already sent to the joining node
+  zwave_nodemask_t
+    node_list;  // bitmask containing NLS enabled nodes in the network
+  uint16_t
+    node_list_length;  // length of the list in bytes (is not equal to the number of nodes in the network)
+  zwave_node_id_t
+    next_sent_node_id;  // node ID of the NLS enabled node to be sent next
+  uint16_t
+    nls_enabled_node_cnt;  // total number of NLS enabled nodes in the network
+  uint16_t
+    nls_enabled_node_sent_cnt;  // number of NLS enabled nodes already sent to the joining node
 } s2_node_nls_context_t;
 
 static s2_node_nls_context_t node_nls_context = {0};
@@ -324,7 +329,7 @@ uint8_t S2_send_frame(struct S2 *ctxt,
 {
   (void)ctxt;
   zwave_controller_connection_info_t info = {};
-  zwave_tx_options_t options = {};
+  zwave_tx_options_t options              = {};
 
   if (state.tx_options.transport.is_protocol_frame) {
     // TX options provided to zwave_s2_send_data can be used now at libS2 exit
@@ -428,11 +433,19 @@ uint8_t S2_send_frame_multi(struct S2 *ctxt,
                                0);
 }
 
-void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, bool nls_capability, bool nls_state)
+void S2_notify_nls_state_report(node_t srcNode,
+                                uint8_t class_id,
+                                bool nls_capability,
+                                bool nls_state)
 {
   (void)class_id;
 
-  sl_log_debug(LOG_TAG, "NLS state report received for node %d, capability : %d, state: %d", srcNode, nls_capability, nls_state);
+  sl_log_debug(
+    LOG_TAG,
+    "NLS state report received for node %d, capability : %d, state: %d",
+    srcNode,
+    nls_capability,
+    nls_state);
 
   if (zwave_store_nls_support((zwave_node_id_t)srcNode,
                               nls_capability,
@@ -444,9 +457,10 @@ void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, bool nls_capab
     return;
   }
 
-  if(nls_capability && nls_state) {
+  if (nls_capability && nls_state) {
     if (SL_STATUS_OK != zwapi_enable_node_nls(srcNode)) {
-      sl_log_error(LOG_TAG, "Error saving NLS support and state in the controller NVM");
+      sl_log_error(LOG_TAG,
+                   "Error saving NLS support and state in the controller NVM");
     }
   }
 }
@@ -455,21 +469,30 @@ void S2_save_nls_state(void)
 {
   zwave_node_id_t node_id = zwave_network_management_get_node_id();
 
-  sl_status_t status = zwave_store_nls_state(node_id, s2_ctx->nls_state, REPORTED_ATTRIBUTE);
+  sl_status_t status
+    = zwave_store_nls_state(node_id, s2_ctx->nls_state, REPORTED_ATTRIBUTE);
   if (status != SL_STATUS_OK) {
-    sl_log_error(LOG_TAG, "Unable to save NLS state in attribute store for Node ID: %d\n", node_id);
+    sl_log_error(
+      LOG_TAG,
+      "Unable to save NLS state in attribute store for Node ID: %d\n",
+      node_id);
     return;
   }
 
   if (s2_ctx->nls_state) {
     status = zwapi_enable_node_nls(node_id);
     if (SL_STATUS_OK != status) {
-      sl_log_error(LOG_TAG, "Error saving NLS state in the controller NVM for Node ID: %d", node_id);
+      sl_log_error(
+        LOG_TAG,
+        "Error saving NLS state in the controller NVM for Node ID: %d",
+        node_id);
       return;
     }
   }
 
-  sl_log_debug(LOG_TAG, "NLS state saved in the controller NVM for Node ID: %d\n", node_id);
+  sl_log_debug(LOG_TAG,
+               "NLS state saved in the controller NVM for Node ID: %d\n",
+               node_id);
 }
 
 sl_status_t compute_next_nls_enabled_node(void)
@@ -686,8 +709,8 @@ sl_status_t
   // Protocol metadata can be used now libS2 exit
   if (tx_options->transport.is_protocol_frame == true) {
     protocol_metadata_t *protocol_metadata = (protocol_metadata_t *)user;
-    state.protocol_metadata.session_id = protocol_metadata->session_id;
-    state.protocol_metadata.data_length = protocol_metadata->data_length;
+    state.protocol_metadata.session_id     = protocol_metadata->session_id;
+    state.protocol_metadata.data_length    = protocol_metadata->data_length;
     memcpy(state.protocol_metadata.data,
            protocol_metadata->data,
            state.protocol_metadata.data_length);

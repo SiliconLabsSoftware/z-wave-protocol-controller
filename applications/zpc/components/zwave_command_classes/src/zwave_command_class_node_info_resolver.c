@@ -281,14 +281,14 @@ static void on_node_information_update(zwave_node_id_t node_id,
         node_id,
         nif,
         nif_length)) {
-      if (nif_length < sizeof(nif)) {
-          // Keep S2 in the NIF !
-          nif[nif_length] = COMMAND_CLASS_SECURITY_2;
-          nif_length += 1;
-      } else {
-          // Overflow, just return and toss the faulty NIF.
-          return;
-      }
+    if (nif_length < sizeof(nif)) {
+      // Keep S2 in the NIF !
+      nif[nif_length] = COMMAND_CLASS_SECURITY_2;
+      nif_length += 1;
+    } else {
+      // Overflow, just return and toss the faulty NIF.
+      return;
+    }
   }
 
   attribute_store_set_reported(non_secure_nif_node, nif, nif_length);

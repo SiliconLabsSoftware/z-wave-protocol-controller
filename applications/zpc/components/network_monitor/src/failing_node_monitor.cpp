@@ -17,7 +17,6 @@
 // Interfaces
 #include "attribute_store_defined_attribute_types.h"
 
-
 // ZPC components
 #include "zwave_controller_utils.h"
 
@@ -158,7 +157,8 @@ static void
 static bool is_node_failing(attribute_store_node_t network_status_node)
 {
   // Assume the node is just included if we cannot read the network status
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -262,7 +262,8 @@ void failing_node_monitor_init()
   nop_queued = false;
 
   // Register Attribute Store callbacks
-  attribute_store_register_callback_by_type_and_state(&on_network_status_update,
-                                                      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
-                                                      REPORTED_ATTRIBUTE);
+  attribute_store_register_callback_by_type_and_state(
+    &on_network_status_update,
+    DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+    REPORTED_ATTRIBUTE);
 }

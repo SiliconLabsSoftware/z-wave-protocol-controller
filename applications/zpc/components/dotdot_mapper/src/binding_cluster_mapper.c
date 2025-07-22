@@ -28,7 +28,6 @@
 
 // Interfaces
 
-
 #define LOG_TAG "binding_cluster_mapper"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -160,7 +159,8 @@ static void on_network_status_update(attribute_store_node_t network_status_node,
     return;
   }
 
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_UNAVAILABLE;
   attribute_store_get_reported(network_status_node,
                                &network_status,
                                sizeof(network_status));
@@ -202,9 +202,10 @@ bool binding_cluster_mapper_init(void)
 
   // Here we listen to AGI information to publish which commands are generated
   // by nodes, in case we have a binding/association towards them.
-  attribute_store_register_callback_by_type_and_state(&on_network_status_update,
-                                                      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
-                                                      REPORTED_ATTRIBUTE);
+  attribute_store_register_callback_by_type_and_state(
+    &on_network_status_update,
+    DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+    REPORTED_ATTRIBUTE);
 
   return true;
 }

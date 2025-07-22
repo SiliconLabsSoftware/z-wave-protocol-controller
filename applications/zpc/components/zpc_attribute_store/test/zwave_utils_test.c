@@ -696,21 +696,21 @@ static const attribute_store_node_t test_secure_nif_node     = 0x72;
 
 // Test constant
 static uint8_t test_nif[]      = {0xD2,
-                             0x09,
-                             0xFB,
-                             0x01,
-                             0xBD,
-                             0xCB,
-                             0x92,
-                             0xA7,
-                             0xCA,
-                             0x1A,
-                             0xEA,
-                             0x99,
-                             0xC6,
-                             0x66,
-                             0x9F,
-                             0xFF};
+                                  0x09,
+                                  0xFB,
+                                  0x01,
+                                  0xBD,
+                                  0xCB,
+                                  0x92,
+                                  0xA7,
+                                  0xCA,
+                                  0x1A,
+                                  0xEA,
+                                  0x99,
+                                  0xC6,
+                                  0x66,
+                                  0x9F,
+                                  0xFF};
 static uint8_t test_nif_length = sizeof(test_nif);
 
 static uint8_t test_nif_tricky_two_bytes[] = {0xD2,
@@ -1200,9 +1200,9 @@ void test_is_command_in_array()
     is_command_in_array(0x9F, 0x12, command_list_4, sizeof(command_list_4)));
 }
 
-
-void zwave_node_supports_command_class_mock_helper() {
-    attribute_store_network_helper_get_endpoint_node_ExpectAndReturn(
+void zwave_node_supports_command_class_mock_helper()
+{
+  attribute_store_network_helper_get_endpoint_node_ExpectAndReturn(
     test_unid,
     test_endpoint_id,
     test_endpoint_node);
@@ -1232,7 +1232,8 @@ void zwave_node_supports_command_class_mock_helper() {
                                                      1);
 }
 
-void test_zwave_node_want_supervision_frame_no_defined_flag_happy_case() {
+void test_zwave_node_want_supervision_frame_no_defined_flag_happy_case()
+{
   // Set mock support of COMMAND_CLASS_SUPERVISION
   zwave_node_supports_command_class_mock_helper();
 
@@ -1243,14 +1244,16 @@ void test_zwave_node_want_supervision_frame_no_defined_flag_happy_case() {
     zwave_node_want_supervision_frame(test_node_id, test_endpoint_id));
 }
 
-void test_zwave_node_want_supervision_frame_flag_happy_case() {
+void test_zwave_node_want_supervision_frame_flag_happy_case()
+{
   // Set mock support of COMMAND_CLASS_SUPERVISION
   zwave_node_supports_command_class_mock_helper();
 
   // Simulate flag == 1
   attribute_store_node_t endpoint_node = 12;
-  uint8_t supervision_flag = 1;
-  attribute_store_network_helper_get_endpoint_node_IgnoreAndReturn(endpoint_node);
+  uint8_t supervision_flag             = 1;
+  attribute_store_network_helper_get_endpoint_node_IgnoreAndReturn(
+    endpoint_node);
   attribute_store_get_child_reported_ExpectAndReturn(
     endpoint_node,
     ATTRIBUTE_COMMAND_CLASS_SUPERVISION_ENABLED,
@@ -1264,14 +1267,16 @@ void test_zwave_node_want_supervision_frame_flag_happy_case() {
     zwave_node_want_supervision_frame(test_node_id, test_endpoint_id));
 }
 
-void test_zwave_node_want_supervision_frame_flag_false_happy_case() {
+void test_zwave_node_want_supervision_frame_flag_false_happy_case()
+{
   // Set mock support of COMMAND_CLASS_SUPERVISION
   zwave_node_supports_command_class_mock_helper();
 
   // Simulate flag == 0
   attribute_store_node_t endpoint_node = 12;
-  uint8_t supervision_flag = 0;
-  attribute_store_network_helper_get_endpoint_node_IgnoreAndReturn(endpoint_node);
+  uint8_t supervision_flag             = 0;
+  attribute_store_network_helper_get_endpoint_node_IgnoreAndReturn(
+    endpoint_node);
   attribute_store_get_child_reported_ExpectAndReturn(
     endpoint_node,
     ATTRIBUTE_COMMAND_CLASS_SUPERVISION_ENABLED,
@@ -1285,8 +1290,9 @@ void test_zwave_node_want_supervision_frame_flag_false_happy_case() {
     zwave_node_want_supervision_frame(test_node_id, test_endpoint_id));
 }
 
-void test_zwave_node_want_supervision_no_supervision_cc_in_nif_happy_case() {
-    attribute_store_network_helper_get_endpoint_node_ExpectAndReturn(
+void test_zwave_node_want_supervision_no_supervision_cc_in_nif_happy_case()
+{
+  attribute_store_network_helper_get_endpoint_node_ExpectAndReturn(
     test_unid,
     test_endpoint_id,
     test_endpoint_node);
@@ -1314,8 +1320,8 @@ void test_zwave_node_want_supervision_no_supervision_cc_in_nif_happy_case() {
                                                      test_nif,
                                                      test_nif_length,
                                                      false);
-  attribute_store_get_node_child_by_type_IgnoreAndReturn(ATTRIBUTE_STORE_INVALID_NODE); 
-
+  attribute_store_get_node_child_by_type_IgnoreAndReturn(
+    ATTRIBUTE_STORE_INVALID_NODE);
 
   TEST_ASSERT_FALSE(
     zwave_node_want_supervision_frame(test_node_id, test_endpoint_id));

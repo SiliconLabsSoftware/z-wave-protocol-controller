@@ -554,7 +554,7 @@ static sl_status_t zwave_command_class_central_scene_control_handler(
   const uint8_t *frame,
   uint16_t frame_length)
 {
-  if (frame_length <= COMMAND_INDEX) { // Should contain at least class and cmd
+  if (frame_length <= COMMAND_INDEX) {  // Should contain at least class and cmd
     return SL_STATUS_NOT_SUPPORTED;
   }
 

@@ -335,7 +335,6 @@ void test_zwave_rx_init_failure_lr_max_power()
   TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_rx_fixt_setup());
 }
 
-
 /// Test of rx init for with failure to set tx power / reporting
 void test_zwave_rx_init_non_critical_failures()
 {

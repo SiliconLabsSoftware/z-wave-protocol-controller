@@ -314,15 +314,15 @@ void zwave_controller_on_frame_received(
   //If no transport plugins needs the frame parse it on to upper layers
   if (status == SL_STATUS_NOT_FOUND) {
     ZWAVE_CONTROLLER_DISPATCH_CALLBACKS(on_application_frame_received,
-                                      connection_info,
-                                      rx_options,
-                                      frame_data,
-                                      frame_length);
+                                        connection_info,
+                                        rx_options,
+                                        frame_data,
+                                        frame_length);
   } else if (status == SL_STATUS_INVALID_PARAMETER) {
-      sl_log_warning(LOG_TAG,
-                     "zwave_controller_on_frame_received: Invalid params");
+    sl_log_warning(LOG_TAG,
+                   "zwave_controller_on_frame_received: Invalid params");
   }
-} 
+}
 
 void zwave_controller_on_protocol_cc_encryption_request_received(
   const zwave_node_id_t destination_node_id,

@@ -449,7 +449,8 @@ void test_configuration_publishing_attributes_on_update_after_network_status_upd
     EXPECTED_BASE_TOPIC,
     1);
 
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_child_reported(node_id_node,
                                      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
                                      &network_status,

@@ -41,8 +41,8 @@ namespace zpc_attribute_store_test_helper
 // More information : https://stackoverflow.com/questions/11478152/how-to-work-with-variable-in-namespace
 ////////////////////////////////////////////////////////////////////////////////////
 // Endpoint id node wrapper
-extern attribute_store::attribute cpp_endpoint_id_node; //NOSONAR - false positive
-
+extern attribute_store::attribute
+  cpp_endpoint_id_node;  //NOSONAR - false positive
 
 /**
  * @brief Initialize the test helper

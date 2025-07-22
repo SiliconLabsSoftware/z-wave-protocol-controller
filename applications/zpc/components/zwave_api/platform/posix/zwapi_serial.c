@@ -52,11 +52,12 @@ static char last_used_serial_port[PATH_MAX] = {0};
  * @return true if a is lesser than b + ms
  * @return false if a is greater or equal to b + ms
  */
-static bool zwapi_serial_timeval_a_lt_b_milis(
-  const struct timeval *a, const struct timeval *b, unsigned int ms)
+static bool zwapi_serial_timeval_a_lt_b_milis(const struct timeval *a,
+                                              const struct timeval *b,
+                                              unsigned int ms)
 {
   const struct timeval adder = {ms / 1000, (ms % 1000) * 1000};
-  struct timeval result = {0};
+  struct timeval result      = {0};
   timeradd(b, &adder, &result);
   return timercmp(a, &result, <);
 }
@@ -148,13 +149,14 @@ int zwapi_serial_init(const char *port)
   return serial_fd;
 }
 
-static void zwapi_serial_log_timestamp(const struct timeval *cur_time) {
+static void zwapi_serial_log_timestamp(const struct timeval *cur_time)
+{
   if (log_fd) {
     char timebuf[28];
     struct tm timeinfo;
     localtime_r(&cur_time->tv_sec, &timeinfo);
     strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M:%S", &timeinfo);
-    fprintf(log_fd, "%s:%06d", timebuf, (int) cur_time->tv_usec);
+    fprintf(log_fd, "%s:%06d", timebuf, (int)cur_time->tv_usec);
   }
 }
 
@@ -165,12 +167,16 @@ sl_status_t zwapi_serial_log_to_file_enable(const char *filename)
     return SL_STATUS_OK;
   }
   if (log_fd) {
-    sl_log_error(LOG_TAG, "Tried to enable log to file, while it is already enabled");
+    sl_log_error(LOG_TAG,
+                 "Tried to enable log to file, while it is already enabled");
     return SL_STATUS_ALREADY_INITIALIZED;
   }
   log_fd = fopen(filename, "a");
   if (NULL == log_fd) {
-    sl_log_error(LOG_TAG, "Failed to open file '%s' Error: %s", filename, strerror(errno));
+    sl_log_error(LOG_TAG,
+                 "Failed to open file '%s' Error: %s",
+                 filename,
+                 strerror(errno));
     return SL_STATUS_FAIL;
   }
   fprintf(log_fd, "\n");
@@ -234,7 +240,8 @@ int zwapi_serial_get_buffer(uint8_t *c, int len)
   if (log_fd) {
     struct timeval cur_time;
     gettimeofday(&cur_time, NULL);
-    if (log_dir == 1 || !zwapi_serial_timeval_a_lt_b_milis(&cur_time, &last_time, 3)) {
+    if (log_dir == 1
+        || !zwapi_serial_timeval_a_lt_b_milis(&cur_time, &last_time, 3)) {
       fprintf(log_fd, "\n");
       zwapi_serial_log_timestamp(&cur_time);
       fprintf(log_fd, " R ");
@@ -256,8 +263,7 @@ void zwapi_serial_put_buffer(uint8_t *c, int len)
     int res = write(serial_fd, c, len);
     if (res < 0) {
       sl_log_error(LOG_TAG, "Serial Write Error: %s", strerror(errno));
-    }
-    else {
+    } else {
       n += res;
       if (n == len) {
         break;
@@ -269,7 +275,8 @@ void zwapi_serial_put_buffer(uint8_t *c, int len)
   if (log_fd) {
     struct timeval cur_time;
     gettimeofday(&cur_time, NULL);
-    if (log_dir == 0 || !zwapi_serial_timeval_a_lt_b_milis(&cur_time, &last_time, 200)) {
+    if (log_dir == 0
+        || !zwapi_serial_timeval_a_lt_b_milis(&cur_time, &last_time, 200)) {
       fprintf(log_fd, "\n");
       zwapi_serial_log_timestamp(&cur_time);
       fprintf(log_fd, " W ");

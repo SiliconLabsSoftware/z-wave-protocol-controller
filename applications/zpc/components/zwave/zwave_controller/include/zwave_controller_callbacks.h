@@ -184,7 +184,7 @@ typedef struct {
   /// @param frame_data      Pointer to de-encapsulated data
   ///
   /// @param frame_length    Length of data
-  /// 
+  ///
   void (*on_protocol_frame_received)(
     const zwave_controller_connection_info_t *connection_info,
     const zwave_rx_receive_options_t *rx_options,

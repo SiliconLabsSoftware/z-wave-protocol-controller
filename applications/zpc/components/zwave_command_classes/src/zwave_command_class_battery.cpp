@@ -48,7 +48,8 @@ constexpr char LOG_TAG[] = "zwave_command_class_battery";
 // Cpp helpers
 namespace
 {
-zwave_frame_generator frame_generator(COMMAND_CLASS_BATTERY); //NOSONAR - false positive since it is warped in a namespace
+zwave_frame_generator frame_generator(
+  COMMAND_CLASS_BATTERY);  //NOSONAR - false positive since it is warped in a namespace
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -191,7 +192,8 @@ static sl_status_t zwave_command_class_battery_handle_battery_health_report(
     zwave_frame_parser parser(frame_data, frame_length);
 
     if (!parser.is_frame_size_valid(report_min_size, report_min_size + 3)) {
-      sl_log_error(LOG_TAG, "Invalid frame size for Battery Health Report frame");
+      sl_log_error(LOG_TAG,
+                   "Invalid frame size for Battery Health Report frame");
       return SL_STATUS_FAIL;
     }
 
@@ -209,10 +211,12 @@ static sl_status_t zwave_command_class_battery_handle_battery_health_report(
        {.bitmask = BATTERY_HEALTH_REPORT_PROPERTIES1_SIZE_MASK_V2}});
 
     // Parse temperature size
-    auto temperature_size = read_data[BATTERY_HEALTH_REPORT_PROPERTIES1_SIZE_MASK_V2];
+    auto temperature_size
+      = read_data[BATTERY_HEALTH_REPORT_PROPERTIES1_SIZE_MASK_V2];
     sl_log_debug(LOG_TAG, "Temperature size: %d", temperature_size);
 
-    parser.read_sequential<int32_t>(temperature_size,
+    parser.read_sequential<int32_t>(
+      temperature_size,
       endpoint_node.child_by_type(ATTRIBUTE(HEALTH_BATTERY_TEMPERATURE)));
   } catch (const std::exception &e) {
     sl_log_error(LOG_TAG,

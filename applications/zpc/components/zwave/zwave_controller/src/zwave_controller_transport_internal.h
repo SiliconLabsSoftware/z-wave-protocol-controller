@@ -43,11 +43,10 @@ extern "C" {
  * Otherwise the status if the executed hander list returned
  */
 sl_status_t zwave_controller_transport_on_frame_received(
-    const zwave_controller_connection_info_t *connection_info,
-    const zwave_rx_receive_options_t *rx_options,
-    const uint8_t *frame_data,
-    uint16_t frame_length);
-
+  const zwave_controller_connection_info_t *connection_info,
+  const zwave_rx_receive_options_t *rx_options,
+  const uint8_t *frame_data,
+  uint16_t frame_length);
 
 #ifdef __cplusplus
 }

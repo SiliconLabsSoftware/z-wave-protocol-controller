@@ -46,11 +46,11 @@ typedef struct nvm_config {
 
 #define nvm_config_get(par_name, dst)                            \
   zwapi_memory_get_buffer(offsetof(struct nvm_config, par_name), \
-                          (uint8_t*)dst,                         \
+                          (uint8_t *)dst,                        \
                           sizeof(((struct nvm_config *)0)->par_name))
 #define nvm_config_set(par_name, src)                                 \
   zwapi_memory_put_buffer(offsetof(struct nvm_config, par_name),      \
-                          (uint8_t*)src,                               \
+                          (uint8_t *)src,                             \
                           sizeof(((struct nvm_config *)0)->par_name), \
                           NULL)
 
@@ -75,7 +75,6 @@ void zwave_s2_create_new_dynamic_ecdh_key();
  */
 void zwave_s2_keystore_set_ecdh_key_mode(
   zwave_s2_keystore_ecdh_key_mode_t mode);
-
 
 #ifdef __cplusplus
 }

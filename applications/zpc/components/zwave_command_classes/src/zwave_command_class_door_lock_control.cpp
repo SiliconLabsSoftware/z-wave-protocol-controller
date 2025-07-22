@@ -341,7 +341,7 @@ sl_status_t zwave_command_class_door_lock_handle_configuration_report(
     = zwave_command_class_get_endpoint_node(connection_info);
 
   //Set Current Door Lock Mode
-  int32_t oper_type = frame_data[2];
+  int32_t oper_type                 = frame_data[2];
   attribute_store_node_t state_node = attribute_store_get_first_child_by_type(
     endpoint_node,
     ATTRIBUTE_DOOR_LOCK_CONFIGURATION_OPERATION_TYPE);
@@ -352,24 +352,28 @@ sl_status_t zwave_command_class_door_lock_handle_configuration_report(
   state_node              = attribute_store_get_first_child_by_type(
     endpoint_node,
     ATTRIBUTE_DOOR_LOCK_CONFIGURATION_OUTSIDE_DOOR_HANDLES_STATE);
-  attribute_store_set_reported(state_node, &outside_handles, sizeof(outside_handles));
+  attribute_store_set_reported(state_node,
+                               &outside_handles,
+                               sizeof(outside_handles));
 
   int32_t inside_handles = frame_data[3] & 0b1111;
   state_node             = attribute_store_get_first_child_by_type(
     endpoint_node,
     ATTRIBUTE_DOOR_LOCK_CONFIGURATION_INSIDE_DOOR_HANDLES_STATE);
-  attribute_store_set_reported(state_node, &inside_handles, sizeof(inside_handles));
+  attribute_store_set_reported(state_node,
+                               &inside_handles,
+                               sizeof(inside_handles));
 
   //Lock Time Minutes
   int32_t minutes = frame_data[4];
-  state_node = attribute_store_get_first_child_by_type(
+  state_node      = attribute_store_get_first_child_by_type(
     endpoint_node,
     ATTRIBUTE_DOOR_LOCK_CONFIGURATION_LOCK_TIMEOUT_MINUTES);
   attribute_store_set_reported(state_node, &minutes, sizeof(minutes));
 
   //Lock Time Seconds
   int32_t seconds = frame_data[5];
-  state_node = attribute_store_get_first_child_by_type(
+  state_node      = attribute_store_get_first_child_by_type(
     endpoint_node,
     ATTRIBUTE_DOOR_LOCK_CONFIGURATION_LOCK_TIMEOUT_SECONDS);
   attribute_store_set_reported(state_node, &seconds, sizeof(seconds));

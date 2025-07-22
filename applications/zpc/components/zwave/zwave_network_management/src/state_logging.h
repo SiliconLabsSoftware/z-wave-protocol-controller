@@ -33,7 +33,7 @@ extern "C" {
  * @param state
  * @return const char*
  */
-const char* nm_state_name(zwave_network_management_state_t state);
+const char *nm_state_name(zwave_network_management_state_t state);
 
 /**
  * @brief Return the name string of a network management event.
@@ -41,9 +41,7 @@ const char* nm_state_name(zwave_network_management_state_t state);
  * @param ev
  * @return const char*
  */
-const char * nm_event_name(nm_event_t ev);
-
-
+const char *nm_event_name(nm_event_t ev);
 
 #ifdef __cplusplus
 }

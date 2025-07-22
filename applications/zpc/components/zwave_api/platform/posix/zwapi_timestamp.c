@@ -18,7 +18,6 @@
 #include <stdbool.h>
 #include "sl_log.h"
 
-
 void zwapi_timestamp_get(zwapi_timestamp_t *timestamp, int period_ms)
 {
   struct timespec now;

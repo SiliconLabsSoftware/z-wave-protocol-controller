@@ -73,9 +73,9 @@ bool zwave_security_validation_is_security_valid_for_support(
           connection->remote.node_id,
           &remote_node_keys)) {
       sl_log_debug(LOG_TAG,
-                     "Granted keys are unknown for NodeID %d, Rejecting "
-                     "commands at all security levels",
-                     connection->remote.node_id);
+                   "Granted keys are unknown for NodeID %d, Rejecting "
+                   "commands at all security levels",
+                   connection->remote.node_id);
       return false;
     }
 
@@ -102,9 +102,9 @@ bool zwave_security_validation_is_security_valid_for_control(
       == zwave_controller_storage_is_node_s2_capable(
         connection->remote.node_id)) {
     sl_log_debug(LOG_TAG,
-                   "NodeID %d does not support S2, Accepting "
-                   "commands at all security levels",
-                   connection->remote.node_id);
+                 "NodeID %d does not support S2, Accepting "
+                 "commands at all security levels",
+                 connection->remote.node_id);
     return true;
   }
 
@@ -116,9 +116,9 @@ bool zwave_security_validation_is_security_valid_for_control(
         &remote_node_keys)) {
     // If granted keys are unknown (e.g. due to discovery, we accept anything)
     sl_log_debug(LOG_TAG,
-                   "Granted keys are unknown for NodeID %d, Accepting "
-                   "commands at all security levels",
-                   connection->remote.node_id);
+                 "Granted keys are unknown for NodeID %d, Accepting "
+                 "commands at all security levels",
+                 connection->remote.node_id);
     return true;
   }
   if (connection->encapsulation

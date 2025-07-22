@@ -201,28 +201,28 @@ void test_decapsulation_not_happy_case()
 
   zwave_controller_connection_info_t connection_info = {};
   const uint8_t frame_data[]                         = {
-    COMMAND_CLASS_MULTI_CMD,
-    MULTI_CMD_ENCAP,
-    0x03,  // 3 CMDs
-    0x04,  // Command Length 1 4 bytes
-    COMMAND_CLASS_DOOR_LOCK,
-    0x08,
-    0x06,
-    0x07,
-    0x05,  // Command Length 2 5 bytes
-    COMMAND_CLASS_DOOR_LOCK,
-    0x08,
-    0x11,
-    0xcb,
-    0x03,
-    0x07,  // Command Length 3 7 bytes
-    COMMAND_CLASS_DOOR_LOCK,
-    0x06,
-    0x07,
-    0xde,
-    0x05,
-    0x11,
-    0xcb,
+                            COMMAND_CLASS_MULTI_CMD,
+                            MULTI_CMD_ENCAP,
+                            0x03,  // 3 CMDs
+                            0x04,  // Command Length 1 4 bytes
+                            COMMAND_CLASS_DOOR_LOCK,
+                            0x08,
+                            0x06,
+                            0x07,
+                            0x05,  // Command Length 2 5 bytes
+                            COMMAND_CLASS_DOOR_LOCK,
+                            0x08,
+                            0x11,
+                            0xcb,
+                            0x03,
+                            0x07,  // Command Length 3 7 bytes
+                            COMMAND_CLASS_DOOR_LOCK,
+                            0x06,
+                            0x07,
+                            0xde,
+                            0x05,
+                            0x11,
+                            0xcb,
   };
 
   happy_case = 0;  // Command 1, 3 callback should return SL_STATUS_OK
@@ -255,12 +255,12 @@ void test_decapsulation_too_long_command()
 
   zwave_controller_connection_info_t connection_info = {};
   const uint8_t frame_data[]                         = {COMMAND_CLASS_MULTI_CMD,
-                                MULTI_CMD_ENCAP,
-                                0x01,
-                                200,  // length more than ZWAVE_MAX_FRAME_SIZE
-                                0x03,
-                                0x04,
-                                0x05};
+                                                        MULTI_CMD_ENCAP,
+                                                        0x01,
+                                                        200,  // length more than ZWAVE_MAX_FRAME_SIZE
+                                                        0x03,
+                                                        0x04,
+                                                        0x05};
 
   TEST_ASSERT_EQUAL(SL_STATUS_FAIL,
                     multi_command_handler.support_handler(&connection_info,
@@ -275,13 +275,13 @@ void test_decapsulation_command_longer_than_frame_1()
 
   zwave_controller_connection_info_t connection_info = {};
   const uint8_t frame_data[]                         = {
-    COMMAND_CLASS_MULTI_CMD,
-    MULTI_CMD_ENCAP,
-    0x01,
-    154,  // length less than ZWAVE_MAX_FRAME_SIZE, but larger than the current frame
-    0x03,
-    0x04,
-    0x05};
+                            COMMAND_CLASS_MULTI_CMD,
+                            MULTI_CMD_ENCAP,
+                            0x01,
+                            154,  // length less than ZWAVE_MAX_FRAME_SIZE, but larger than the current frame
+                            0x03,
+                            0x04,
+                            0x05};
 
   TEST_ASSERT_EQUAL(SL_STATUS_FAIL,
                     multi_command_handler.support_handler(&connection_info,
@@ -296,18 +296,18 @@ void test_decapsulation_command_longer_than_frame_2()
 
   zwave_controller_connection_info_t connection_info = {};
   const uint8_t frame_data[]                         = {COMMAND_CLASS_MULTI_CMD,
-                                MULTI_CMD_ENCAP,
-                                0x02,  // 2 CMDs
-                                4,  // Command Length 1 4 bytes
-                                0x03,
-                                0x04,
-                                0x05,
-                                0x06,
-                                4,  // Command Length 2 4 bytes
-                                0x01,
-                                0x02,
-                                0x03,
-                                0x04};
+                                                        MULTI_CMD_ENCAP,
+                                                        0x02,  // 2 CMDs
+                                                        4,  // Command Length 1 4 bytes
+                                                        0x03,
+                                                        0x04,
+                                                        0x05,
+                                                        0x06,
+                                                        4,  // Command Length 2 4 bytes
+                                                        0x01,
+                                                        0x02,
+                                                        0x03,
+                                                        0x04};
   // Command 2 requires 4 bytes. Lets emulate 12 bytes only frame lenght
   // instead of 13
   TEST_ASSERT_EQUAL(
@@ -324,18 +324,18 @@ void test_decapsulation_command_longer_than_frame()
 
   zwave_controller_connection_info_t connection_info = {};
   const uint8_t frame_data[]                         = {COMMAND_CLASS_MULTI_CMD,
-                                MULTI_CMD_ENCAP,
-                                0x02,  // 2 CMDs
-                                4,  // Command Length 1 4 bytes
-                                0x03,
-                                0x04,
-                                0x05,
-                                0x06,
-                                4,  // Command Length 2 4 bytes
-                                0x01,
-                                0x02,
-                                0x03,
-                                0x04};
+                                                        MULTI_CMD_ENCAP,
+                                                        0x02,  // 2 CMDs
+                                                        4,  // Command Length 1 4 bytes
+                                                        0x03,
+                                                        0x04,
+                                                        0x05,
+                                                        0x06,
+                                                        4,  // Command Length 2 4 bytes
+                                                        0x01,
+                                                        0x02,
+                                                        0x03,
+                                                        0x04};
   // Command 2 requires 4 bytes. Lets emulate 10 bytes only frame lenght
   TEST_ASSERT_EQUAL(
     SL_STATUS_FAIL,
@@ -348,12 +348,12 @@ void test_decapsulation_too_wrong_command()
 
   zwave_controller_connection_info_t connection_info = {};
   const uint8_t frame_data[]                         = {COMMAND_CLASS_MULTI_CMD,
-                                MULTI_CMD_ENCAP + 1,
-                                0x01,
-                                0x02,
-                                0x03,
-                                0x04,
-                                0x05};
+                                                        MULTI_CMD_ENCAP + 1,
+                                                        0x01,
+                                                        0x02,
+                                                        0x03,
+                                                        0x04,
+                                                        0x05};
 
   TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
                     multi_command_handler.support_handler(&connection_info,
@@ -386,12 +386,12 @@ void test_decapsulation_too_wrong_command_number()
 
   zwave_controller_connection_info_t connection_info = {};
   const uint8_t frame_data[]                         = {COMMAND_CLASS_MULTI_CMD,
-                                MULTI_CMD_ENCAP,
-                                0x00,  // Should be > 0
-                                0x02,
-                                0x03,
-                                0x04,
-                                0x05};
+                                                        MULTI_CMD_ENCAP,
+                                                        0x00,  // Should be > 0
+                                                        0x02,
+                                                        0x03,
+                                                        0x04,
+                                                        0x05};
 
   TEST_ASSERT_EQUAL(SL_STATUS_NOT_SUPPORTED,
                     multi_command_handler.support_handler(&connection_info,

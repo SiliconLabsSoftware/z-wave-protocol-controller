@@ -15,7 +15,7 @@
 #define PLATFORM_EXEC_H
 
 void platform_exec(const char *file,
-                  char *const *args,
-                  char *const *environment);
+                   char *const *args,
+                   char *const *environment);
 
 #endif

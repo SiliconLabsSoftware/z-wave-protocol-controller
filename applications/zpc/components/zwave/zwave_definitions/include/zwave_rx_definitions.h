@@ -14,7 +14,6 @@
 #ifndef ZWAVE_RX_DEFINITIONS_H
 #define ZWAVE_RX_DEFINITIONS_H
 
-
 /**
  * @defgroup zwave_rx_definitions Z-Wave Controller Connection Info type
  * @ingroup zwave_definitions

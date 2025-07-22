@@ -72,7 +72,7 @@ sl_status_t unify_humidity_control_setpoint_set(
   // First check the call type. This command have too many requirements
   // so we support it by default
   if (call_type == UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK) {
-    return  SL_STATUS_OK;
+    return SL_STATUS_OK;
   }
 
   attribute_store_node_t endpoint_node
@@ -120,7 +120,8 @@ sl_status_t unify_humidity_control_setpoint_set(
 ///////////////////////////////////////////////////////////////////////////////
 sl_status_t humidity_control_cluster_server_init()
 {
-  sl_log_debug(LOG_TAG, "Humidity Control cluster (ZWave) server initialization");
+  sl_log_debug(LOG_TAG,
+               "Humidity Control cluster (ZWave) server initialization");
 
   // Listen to the BASIC Value attribute is created
   uic_mqtt_dotdot_unify_humidity_control_mode_set_callback_set(

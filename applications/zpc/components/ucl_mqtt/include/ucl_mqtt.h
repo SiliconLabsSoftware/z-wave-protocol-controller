@@ -44,4 +44,4 @@ sl_status_t ucl_mqtt_setup_fixt(void);
 #endif
 
 #endif  //UCL_MQTT_H
-/** @} end ucl_mqtt */
+        /** @} end ucl_mqtt */

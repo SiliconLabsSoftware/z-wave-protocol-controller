@@ -295,8 +295,9 @@ void test_zwave_command_class_barrier_operator_signal_get_happy_case()
                     barrier_operator_signal_get(subsystem_state_node,
                                                 received_frame,
                                                 &received_frame_size));
-  const uint8_t expected_frame[]
-    = {COMMAND_CLASS_BARRIER_OPERATOR, BARRIER_OPERATOR_EVENT_SIGNALING_GET, type};
+  const uint8_t expected_frame[] = {COMMAND_CLASS_BARRIER_OPERATOR,
+                                    BARRIER_OPERATOR_EVENT_SIGNALING_GET,
+                                    type};
   TEST_ASSERT_EQUAL(sizeof(expected_frame), received_frame_size);
   TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_frame,
                                 received_frame,

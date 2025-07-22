@@ -79,11 +79,12 @@ sl_status_t zwapi_memory_get_ids(zwave_home_id_t *home_id,
            &response_buffer[IDX_DATA],
            sizeof(received_home_id));
 
-    received_home_id = zwave_controller_ntohl(received_home_id);  // swap to our endian
-    *home_id         = received_home_id;
+    received_home_id
+      = zwave_controller_ntohl(received_home_id);  // swap to our endian
+    *home_id = received_home_id;
 
     uint8_t index = IDX_DATA + 4;
-    *node_id = zwapi_read_node_id(response_buffer, &index);
+    *node_id      = zwapi_read_node_id(response_buffer, &index);
 
     return SL_STATUS_OK;
   }

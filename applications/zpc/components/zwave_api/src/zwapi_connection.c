@@ -143,7 +143,8 @@ void zwapi_connection_tx(
     = sizeof(tx_buffer) - 4 - 1;  // 255 - 5 = 250
   if (len > MAX_PAYLOAD_LEN_ALLOWED) {
     sl_log_error(LOG_TAG,
-                 "zwapi_connection_tx: Buffer overflow prevented: Payload length (%u) exceeds "
+                 "zwapi_connection_tx: Buffer overflow prevented: Payload "
+                 "length (%u) exceeds "
                  "maximum allowed (%zu).\n",
                  len,
                  MAX_PAYLOAD_LEN_ALLOWED);

@@ -521,8 +521,8 @@ static sl_status_t
   reports_to_follow_t previous_reports_to_follow
     = get_reports_to_follow(group_content_node);
 
-  reports_to_follow_t reports =
-    frame_data[ASSOCIATION_REPORTS_REPORTS_TO_FOLLOW];
+  reports_to_follow_t reports
+    = frame_data[ASSOCIATION_REPORTS_REPORTS_TO_FOLLOW];
 
   set_reports_to_follow(group_content_node, reports);
   if (reports < previous_reports_to_follow) {

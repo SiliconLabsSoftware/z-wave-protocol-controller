@@ -33,10 +33,8 @@
 // Test helpers
 #include "zwave_command_class_test_helper.hpp"
 
-
 // Attribute macro, shortening those long defines for attribute types:
 #define ATTRIBUTE(type) ATTRIBUTE_COMMAND_CLASS_CRC16_##type
-
 
 using namespace zwave_command_class_test_helper;
 
@@ -69,8 +67,7 @@ const zwave_struct_handler_args command_class_handler
 /// Called before each and every test
 void setUp()
 {
-  zwave_setUp(command_class_handler,
-              &zwave_command_class_crc16_init);
+  zwave_setUp(command_class_handler, &zwave_command_class_crc16_init);
 }
 
 void helper_set_network_status(NodeStateNetworkStatus status)
@@ -99,7 +96,7 @@ void test_attribute_initialized_happy_case()
     "CRC16 should be marked as supported");
 
   // Set disabled to true
-    disable_crc16_node.set_reported<uint8_t>(0x01);
+  disable_crc16_node.set_reported<uint8_t>(0x01);
 
   TEST_ASSERT_EQUAL_MESSAGE(
     false,
@@ -211,4 +208,4 @@ void test_zwave_command_class_crc16_expect_crc16_response_stacked_happy_case()
     "should be cleared");
 }
 
-} // extern "C"
+}  // extern "C"

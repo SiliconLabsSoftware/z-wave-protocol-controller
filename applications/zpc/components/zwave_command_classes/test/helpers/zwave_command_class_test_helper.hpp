@@ -34,7 +34,7 @@ extern "C" {
 // Unify
 #include "zwave_command_handler.h"
 
-// Dirty hack to allow existing cases to use function in zpc_attribute_store_test_helper 
+// Dirty hack to allow existing cases to use function in zpc_attribute_store_test_helper
 // namespace without changing the code
 using namespace zpc_attribute_store_test_helper;
 
@@ -154,8 +154,9 @@ sl_status_t
  * 
  * @note This class inherits from vector directly.
  **/
-class zwave_frame : public std::vector<uint8_t> {
- public:
+class zwave_frame : public std::vector<uint8_t>
+{
+  public:
   zwave_frame() = default;
   /**
    * @brief Add a byte to the frame
@@ -312,7 +313,5 @@ void helper_test_report_frame(uint8_t command_id,
 }  // namespace zwave_command_class_test_helper
 
 }  // extern "C"
-
-
 
 #endif  // ZWAVE_COMMAND_CLASS_TEST_HELPER_HPP

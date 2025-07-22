@@ -204,7 +204,6 @@ void test_zwave_s0_sm_controller_with_wrong_scheme_report()
   TEST_ASSERT_EQUAL(S0_INC_IDLE, get_s0_sm_state());
 }
 
-
 void test_zwave_s0_sm_abort()
 {
   zwave_network_management_get_node_id_IgnoreAndReturn(1);

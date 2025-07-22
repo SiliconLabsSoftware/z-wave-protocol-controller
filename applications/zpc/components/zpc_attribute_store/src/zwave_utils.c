@@ -27,7 +27,8 @@
 #include "sl_log.h"
 #define LOG_TAG "zwave_utils"
 
-bool zwave_get_nls_support(zwave_node_id_t node_id, attribute_store_node_value_state_t value_state)
+bool zwave_get_nls_support(zwave_node_id_t node_id,
+                           attribute_store_node_value_state_t value_state)
 {
   attribute_store_node_t node_id_node
     = attribute_store_network_helper_get_zwave_node_id_node(node_id);
@@ -78,9 +79,10 @@ bool zwave_get_nls_state(zwave_node_id_t node_id,
   return (bool)nls_enabled;
 }
 
-sl_status_t zwave_store_nls_support(zwave_node_id_t node_id,
-                                    bool is_nls_supported,
-                                    attribute_store_node_value_state_t value_state)
+sl_status_t
+  zwave_store_nls_support(zwave_node_id_t node_id,
+                          bool is_nls_supported,
+                          attribute_store_node_value_state_t value_state)
 {
   uint8_t value = (uint8_t)is_nls_supported;
 
@@ -104,9 +106,10 @@ sl_status_t zwave_store_nls_support(zwave_node_id_t node_id,
   }
 }
 
-sl_status_t zwave_store_nls_state(zwave_node_id_t node_id,
-                                  bool is_nls_enabled,
-                                  attribute_store_node_value_state_t value_state)
+sl_status_t
+  zwave_store_nls_state(zwave_node_id_t node_id,
+                        bool is_nls_enabled,
+                        attribute_store_node_value_state_t value_state)
 {
   uint8_t value = (uint8_t)is_nls_enabled;
 
@@ -402,7 +405,6 @@ attribute_store_node_t zwave_get_endpoint_node(zwave_node_id_t node_id,
   zwave_unid_from_node_id(node_id, node_unid);
   return attribute_store_network_helper_get_endpoint_node(node_unid,
                                                           endpoint_id);
-
 }
 
 bool zwave_security_validation_is_node_s2_capable(zwave_node_id_t node_id)

@@ -46,7 +46,6 @@ sl_status_t zwave_command_class_time_parameters_support_handler(
   const uint8_t *frame_data,
   uint16_t frame_length);
 
-
 /**
  * @brief Handles time parameters set commands
  *
@@ -55,9 +54,8 @@ sl_status_t zwave_command_class_time_parameters_support_handler(
  * @returns SL_STATUS_OK on success, any other error code for an error.
  */
 
-sl_status_t
-  zwave_command_class_time_parameters_set(const uint8_t *frame_data,
-                                          uint16_t frame_length);
+sl_status_t zwave_command_class_time_parameters_set(const uint8_t *frame_data,
+                                                    uint16_t frame_length);
 
 #ifdef __cplusplus
 }

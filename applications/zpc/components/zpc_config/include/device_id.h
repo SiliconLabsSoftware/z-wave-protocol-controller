@@ -24,6 +24,6 @@
  * for e.g. in Device specific report Command class
  *
  */
-const char* get_device_id();
+const char *get_device_id();
 
 #endif  // ZWAPI_SERIAL_H

@@ -446,7 +446,8 @@ sl_status_t zwave_command_class_thermostat_operating_state_init()
   handler.command_class              = COMMAND_CLASS_THERMOSTAT_OPERATING_STATE;
   handler.version                    = THERMOSTAT_OPERATING_STATE_VERSION_V2;
   handler.command_class_name         = "Thermostat Operating State";
-  handler.comments                   = "Experimental. Log related functions are not yet exposed to MQTT.";
+  handler.comments
+    = "Experimental. Log related functions are not yet exposed to MQTT.";
 
   return zwave_command_handler_register_handler(handler);
 }

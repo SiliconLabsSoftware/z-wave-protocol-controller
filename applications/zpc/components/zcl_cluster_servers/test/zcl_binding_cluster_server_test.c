@@ -18,7 +18,6 @@
 #include "attribute_store_defined_attribute_types.h"
 #include "zwave_command_class_association_types.h"
 
-
 // Test helpers
 #include "zpc_attribute_store_test_helper.h"
 
@@ -175,7 +174,8 @@ void test_binding_cluster_server_test_publish_attributes_after_network_status_up
     UCL_MQTT_PUBLISH_TYPE_REPORTED,
     SL_STATUS_OK);
 
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_child_reported(node_id_node,
                                      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
                                      &network_status,
@@ -281,7 +281,8 @@ void test_binding_cluster_server_no_publish_for_zpc()
                                      &group_count,
                                      sizeof(group_count));
 
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_child_reported(zpc_node_id_node,
                                      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
                                      &network_status,
@@ -317,7 +318,8 @@ void test_binding_cluster_server_no_valid_unid()
                                      &group_count,
                                      sizeof(group_count));
 
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_child_reported(root_node,
                                      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
                                      &network_status,
@@ -848,7 +850,8 @@ void test_binding_cluster_server_bind_multiple_groups_and_publish()
     UCL_MQTT_PUBLISH_TYPE_REPORTED,
     SL_STATUS_OK);
 
-  NodeStateNetworkStatus network_status = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+  NodeStateNetworkStatus network_status
+    = ZCL_NODE_STATE_NETWORK_STATUS_ONLINE_FUNCTIONAL;
   attribute_store_set_child_reported(node_id_node,
                                      DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
                                      &network_status,

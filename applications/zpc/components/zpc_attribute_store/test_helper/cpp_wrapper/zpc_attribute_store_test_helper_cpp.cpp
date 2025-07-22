@@ -25,9 +25,11 @@
 namespace zpc_attribute_store_test_helper
 {
 
-attribute_store::attribute cpp_endpoint_id_node = ATTRIBUTE_STORE_INVALID_NODE; //NOSONAR - false positive
+attribute_store::attribute cpp_endpoint_id_node
+  = ATTRIBUTE_STORE_INVALID_NODE;  //NOSONAR - false positive
 
-void zpc_attribute_store_test_helper_init() {
+void zpc_attribute_store_test_helper_init()
+{
   // Create base structure
   zpc_attribute_store_test_helper_create_network();
   // Cpp wrapper for endpoint id node
@@ -79,7 +81,6 @@ void helper_test_node_does_not_exists(attribute_store_type_t node_type,
                              parent.name());
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////
 // Version helpers
 ////////////////////////////////////////////////////////////////////////////////////
@@ -106,4 +107,4 @@ zwave_cc_version_t
   }
 }
 
-} // namespace zpc_attribute_store_test_helper
+}  // namespace zpc_attribute_store_test_helper

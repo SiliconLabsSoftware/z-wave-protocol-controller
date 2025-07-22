@@ -29,6 +29,5 @@ typedef uint32_t wake_up_interval_t;
 ///> bit 0 represents the Wake Up On demand capabilities.
 typedef uint8_t wake_up_bitmask_t;
 
-
 #endif  //ZWAVE_COMMAND_CLASS_WAKE_UP_TYPES_H
 /** @} end zwave_command_class_wake_up_types */

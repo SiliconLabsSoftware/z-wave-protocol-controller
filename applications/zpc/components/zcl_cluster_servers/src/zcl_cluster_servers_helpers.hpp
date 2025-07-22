@@ -50,7 +50,6 @@ sl_status_t
                                         zwave_endpoint_id_t &endpoint_id,
                                         std::string &unid);
 
-
 #ifdef __cplusplus
 }
 #endif

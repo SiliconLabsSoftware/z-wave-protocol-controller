@@ -519,6 +519,7 @@ void test_zwapi_protocol_rx_dispatch_protocol_cc_encryption_request()
     = {0x0C, 0x00, 0x6C, 0x00, 0x01, 0x02, 0x03, 0x02, 0xAA, 0xCC, 0x01, 0x01};
   zwave_api_protocol_rx_dispatch(frame, sizeof(frame));
 
-  TEST_ASSERT_EQUAL(1,
-                    zwapi_protocol_cc_encryption_request_test_function_call_count);
+  TEST_ASSERT_EQUAL(
+    1,
+    zwapi_protocol_cc_encryption_request_test_function_call_count);
 }

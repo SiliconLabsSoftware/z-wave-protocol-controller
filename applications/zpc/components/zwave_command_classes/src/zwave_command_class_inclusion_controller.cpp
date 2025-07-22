@@ -516,7 +516,8 @@ static sl_status_t zwave_command_class_inclusion_controller_support_handler(
         = attribute_store_network_helper_create_endpoint_node(unid, 0);
       attribute_store_node_t node_id_node
         = attribute_store_get_node_parent(endpoint_node);
-      attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS, node_id_node);
+      attribute_store_add_node(DOTDOT_ATTRIBUTE_ID_STATE_NETWORK_STATUS,
+                               node_id_node);
       // During replace fail, on_node_assigned zwave_controller callback (i.e, trigger via protocol command)
       // will not be received. Therefore, we trigger the nif interview when we only receive INITIATE command
       it->second.get()->on_node_add_received = true;

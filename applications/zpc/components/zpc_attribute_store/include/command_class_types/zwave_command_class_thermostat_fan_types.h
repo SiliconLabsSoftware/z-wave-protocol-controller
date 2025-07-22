@@ -31,7 +31,6 @@
 
 #include <stdint.h>
 
-
 // Fan Mode CC
 ///> Off flag (version >= 2). uint8_t
 typedef uint8_t thermostat_fan_mode_off_flag_t;

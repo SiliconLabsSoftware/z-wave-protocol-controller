@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <algorithm>
-#include <utility> // make_pair
+#include <utility>  // make_pair
 
 // Includes from other ZPC Components
 #include "zwave_command_class_indices.h"
@@ -41,23 +41,22 @@
 #include "zwave_frame_generator.hpp"
 #include "zwave_frame_parser.hpp"
 
-
 // Attribute macro, shortening those long defines for attribute types:
 #define ATTRIBUTE(type) ATTRIBUTE_COMMAND_CLASS_CRC16_##type
 
 // Log tag
 constexpr char LOG_TAG[] = "zwave_command_class_crc16";
 
-using crc16_disabled_flag_t = uint8_t;
+using crc16_disabled_flag_t               = uint8_t;
 constexpr uint8_t CRC16_DISABLED_FLAG_OFF = 0x00;
 constexpr uint8_t CRC16_DISABLED_FLAG_ON  = 0x01;
 
 namespace
 {
 using connection_info_pair_t = std::pair<zwave_node_id_t, zwave_endpoint_id_t>;
-std::vector<connection_info_pair_t> // NOSONAR : false positive
-  expecting_crc16_response;  // NOSONAR : false positive
-}
+std::vector<connection_info_pair_t>  // NOSONAR : false positive
+  expecting_crc16_response;          // NOSONAR : false positive
+}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 // Helper
@@ -207,8 +206,8 @@ sl_status_t zwave_command_class_crc16_init()
   // The support side of things: Register our handler to the Z-Wave CC framework:
   zwave_command_handler_t handler = {};
   // Need to register the support handler to be included in the NIF
-  handler.support_handler         = &zwave_command_class_crc16_support_handler;
-  handler.control_handler         = NULL;
+  handler.support_handler = &zwave_command_class_crc16_support_handler;
+  handler.control_handler = NULL;
   // Not supported, so this does not really matter
   handler.minimal_scheme             = ZWAVE_CONTROLLER_ENCAPSULATION_NONE;
   handler.manual_security_validation = false;
@@ -221,4 +220,3 @@ sl_status_t zwave_command_class_crc16_init()
 
   return SL_STATUS_OK;
 }
-

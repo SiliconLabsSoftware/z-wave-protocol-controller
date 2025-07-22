@@ -411,10 +411,10 @@ void test_zwave_command_class_alarm_sensor_report_smaller_frame()
   alarm_sensor_type_t type   = 25;
   alarm_sensor_state_t state = 40;
   uint8_t incoming_frame[]   = {COMMAND_CLASS_SENSOR_ALARM,
-                              SENSOR_ALARM_REPORT,
-                              id & 0xFF,
-                              type & 0xFF,
-                              state & 0xFF};
+                                SENSOR_ALARM_REPORT,
+                                id & 0xFF,
+                                type & 0xFF,
+                                state & 0xFF};
 
   TEST_ASSERT_NOT_NULL(alarm_sensor_handler.control_handler);
   TEST_ASSERT_EQUAL(

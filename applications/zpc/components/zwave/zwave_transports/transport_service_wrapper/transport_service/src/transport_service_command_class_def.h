@@ -4,7 +4,7 @@
 #define COMMAND_SEGMENT_REQUEST_V2         0xC8
 #define COMMAND_SEGMENT_COMPLETE_V2        0xE8
 #define COMMAND_SEGMENT_WAIT_V2            0xF0
-#define COMMAND_CLASS_INDEX 0
+#define COMMAND_CLASS_INDEX                0
 /************************************************************/
 /* Command Segment Request V2 command class structs */
 /************************************************************/
@@ -59,4 +59,3 @@ typedef struct _ZW_COMMAND_SUBSEQUENT_FRAGMENT_1BYTE_FRAME_ {
   uint8_t checksum1; /* MSB */
   uint8_t checksum2; /* LSB */
 } ZW_COMMAND_SUBSEQUENT_FRAGMENT_1BYTE_FRAME;
-

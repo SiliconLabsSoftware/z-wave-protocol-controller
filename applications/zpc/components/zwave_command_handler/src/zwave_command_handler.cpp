@@ -53,7 +53,8 @@ std::multiset<zwave_command_handler_t, zwave_command_handler_compare>
 static zwave_controller_callbacks_t zwave_command_handler_callbacks = {
   .on_new_network_entered        = zwave_command_handler_on_new_network_entered,
   .on_application_frame_received = zwave_command_handler_on_frame_received,
-  .on_protocol_frame_received    = zwave_command_handler_on_protocol_frame_received,
+  .on_protocol_frame_received
+  = zwave_command_handler_on_protocol_frame_received,
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -93,10 +94,11 @@ sl_status_t zwave_command_handler_dispatch(
 
   //Check if this frame is a multicast get
   if (connection->local.is_multicast) {
-    if( ZwaveCommandClassType::get_type(frame_data[0],frame_data[1]) == ZwaveCommandClassType::type_t::GET ) {
-        sl_log_debug(LOG_TAG,"Multicast get frame dropped");
-        return SL_STATUS_NOT_SUPPORTED;
-      }
+    if (ZwaveCommandClassType::get_type(frame_data[0], frame_data[1])
+        == ZwaveCommandClassType::type_t::GET) {
+      sl_log_debug(LOG_TAG, "Multicast get frame dropped");
+      return SL_STATUS_NOT_SUPPORTED;
+    }
   }
 
   auto [it, end] = command_handler_list.equal_range(handler_to_invoke);

@@ -11,7 +11,7 @@
  *
  *****************************************************************************/
 #include "S2.h"
-#include<stdio.h>
+#include <stdio.h>
 #include <stdarg.h>
 #include "sl_log.h"
 
@@ -21,18 +21,18 @@ void S2_dbg_printf(const char *format, ...)
 {
   char buffer[256];
   va_list args;
-  va_start (args, format);
-  vsnprintf (buffer,sizeof(buffer),format, args);
-  sl_log_debug(LOG_TAG, "%s",buffer);
-  va_end (args);
+  va_start(args, format);
+  vsnprintf(buffer, sizeof(buffer), format, args);
+  sl_log_debug(LOG_TAG, "%s", buffer);
+  va_end(args);
 }
 
 void S2_err_printf(const char *format, ...)
 {
   char buffer[256];
   va_list args;
-  va_start (args, format);
-  vsnprintf (buffer,sizeof(buffer),format, args);
-  sl_log_error(LOG_TAG, "%s",buffer);
-  va_end (args);
+  va_start(args, format);
+  vsnprintf(buffer, sizeof(buffer), format, args);
+  sl_log_error(LOG_TAG, "%s", buffer);
+  va_end(args);
 }

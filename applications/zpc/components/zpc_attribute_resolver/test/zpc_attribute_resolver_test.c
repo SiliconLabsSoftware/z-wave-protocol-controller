@@ -41,12 +41,12 @@
 #include <string.h>
 
 // Static test variables
-static resolver_on_set_rule_registered_t set_rule_notification_function = NULL;
+static resolver_on_set_rule_registered_t set_rule_notification_function  = NULL;
 static attribute_store_node_changed_callback_t set_notification_function = NULL;
-static attribute_resolver_config_t received_resolver_config             = {};
-static on_zwave_tx_send_data_complete_t received_send_data_complete     = NULL;
-static uint8_t custom_handler_calls                                     = 0;
-static void *received_user                                              = NULL;
+static attribute_resolver_config_t received_resolver_config              = {};
+static on_zwave_tx_send_data_complete_t received_send_data_complete      = NULL;
+static uint8_t custom_handler_calls                                      = 0;
+static void *received_user                                               = NULL;
 
 // Stub functions.
 // Saving registration/init data to the Unify Attribute resolver.
