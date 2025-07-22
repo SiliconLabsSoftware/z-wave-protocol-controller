@@ -185,7 +185,10 @@ void s2_inclusion_set_event_handler(s2_event_handler_t evt_handler);
  *  @param[in] p_response      Pointer to response value to the challenge, that is the first n bytes of the DSK.
  *  @param[in] responseLength  Number of bytes contained in the response to the challenge.
  */
-void s2_inclusion_challenge_response(struct S2 *p_context, uint8_t include, const uint8_t* p_response, uint8_t responseLength);
+void s2_inclusion_challenge_response(struct S2 *p_context,
+                                     uint8_t include,
+                                     const uint8_t *p_response,
+                                     uint8_t responseLength);
 
 #ifdef ZW_CONTROLLER
 /** @brief This function handles the acceptance and key granting for a joining node.
@@ -202,7 +205,10 @@ void s2_inclusion_challenge_response(struct S2 *p_context, uint8_t include, cons
  *  @param[in] csa       Boolean, true is allow client side authentication.
  *  @param[in] keys      Granted keys.
  */
-void s2_inclusion_key_grant(struct S2 *p_context, uint8_t include, uint8_t keys,uint8_t csa);
+void s2_inclusion_key_grant(struct S2 *p_context,
+                            uint8_t include,
+                            uint8_t keys,
+                            uint8_t csa);
 
 /** @brief This function requests a controller as including node to setup a secure relationship
  *         with a joining node.
@@ -237,7 +243,8 @@ void s2_inclusion_key_grant(struct S2 *p_context, uint8_t include, uint8_t keys,
  *  @param[in] p_context Pointer to the context with information of peer to include.
  *  @param[in] p_peer    The peer to include
  */
-void s2_inclusion_including_start(struct S2 *p_context, const s2_connection_t * p_peer);
+void s2_inclusion_including_start(struct S2 *p_context,
+                                  const s2_connection_t *p_peer);
 #endif
 
 /** @brief This function requests a controller/slave to continue a secure inclusion as joining
@@ -269,7 +276,9 @@ void s2_inclusion_including_start(struct S2 *p_context, const s2_connection_t * 
  *                          and call S2_set_inclusion_peer() later.
  *  @param[in] csa          If true client side authentication will be used.
  */
-void s2_inclusion_joining_start(struct S2 *p_context,s2_connection_t *p_connection, uint8_t csa);
+void s2_inclusion_joining_start(struct S2 *p_context,
+                                s2_connection_t *p_connection,
+                                uint8_t csa);
 
 /** @brief This function notifies a joining node that neighbor discovering is complete.
  *
@@ -292,8 +301,7 @@ void s2_inclusion_abort(struct S2 *p_context);
  *
  * @param[in] ctxt       Structure identifying the context for current inclusion.
  */
-void s2_inclusion_notify_timeout(struct S2* ctxt);
-
+void s2_inclusion_notify_timeout(struct S2 *ctxt);
 
 /** Function for initializing the S2 inclusion state machine with supported schemes/curves/keys.
  *
@@ -322,7 +330,8 @@ void s2_inclusion_notify_timeout(struct S2* ctxt);
  * @retval KEX_FAIL_CURVES If the value for curves is invalid.
  * @retval KEX_FAIL_KEYS   If the value for keys is invalid.
  */
-uint8_t s2_inclusion_init(uint8_t schemes, uint8_t curves, uint8_t keys_to_request);
+uint8_t
+  s2_inclusion_init(uint8_t schemes, uint8_t curves, uint8_t keys_to_request);
 
 /*************************************************************************************************
  * Below are functions defined which is used be S2 inclusion but must be implemented (wrapped)   *
@@ -342,7 +351,7 @@ uint8_t s2_inclusion_init(uint8_t schemes, uint8_t curves, uint8_t keys_to_reque
  *
  * @return handle of timer which must be used for cancellation of timer.
  */
-extern uint8_t s2_inclusion_set_timeout(struct S2* ctxt, uint32_t timeout);
+extern uint8_t s2_inclusion_set_timeout(struct S2 *ctxt, uint32_t timeout);
 
 /* Stop the S2 inclusion timer
  *
@@ -357,10 +366,8 @@ extern void s2_inclusion_stop_timeout(void);
  */
 uint8_t s2_get_key_count(void);
 
-
 /**
  * @}
  */
 
-#endif // _S2_INCLUSION_H_
-
+#endif  // _S2_INCLUSION_H_

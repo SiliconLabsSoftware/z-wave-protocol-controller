@@ -9,8 +9,7 @@
 /* Transport Sevice 2 command class version */
 #define TRANSPORT_SERVICE2_SUPPORTED_VERSION TRANSPORT_SERVICE_VERSION_V2
 
-typedef struct ts_CommandHandler
-{
+typedef struct ts_CommandHandler {
   ts_param_t *pParam;
   ZW_APPLICATION_TX_BUFFER *pCmd;
   uint16_t wCmdLength;
@@ -24,7 +23,6 @@ typedef struct ts_CommandHandler
  * The module is able handle a single TX session to a node, and able to handle
  * a number of RX session for some nodes.
  */
-
 
 /**
  * Send a large frame from srcNodeID to dstNodeID using TRANSPORT_SERVICE V2. Only one
@@ -42,11 +40,17 @@ typedef struct ts_CommandHandler
  *        The callback function will not be called.
  */
 #if defined(ZIPGW) || defined(EFR32ZG) || defined(ZWAVE_ON_LINUX)
-bool ZW_TransportService_SendData(ts_param_t* p, const uint8_t *pData, uint16_t dataLength,
-    void (*completedFunc)(uint8_t txStatus, void *));
+bool ZW_TransportService_SendData(ts_param_t *p,
+                                  const uint8_t *pData,
+                                  uint16_t dataLength,
+                                  void (*completedFunc)(uint8_t txStatus,
+                                                        void *));
 #else
-bool ZW_TransportService_SendData(ts_param_t* p, uint8_t *pData, uint16_t dataLength,
-    void (*completedFunc)(uint8_t txStatus, void *));
+bool ZW_TransportService_SendData(ts_param_t *p,
+                                  uint8_t *pData,
+                                  uint16_t dataLength,
+                                  void (*completedFunc)(uint8_t txStatus,
+                                                        void *));
 #endif
 
 /**
@@ -58,7 +62,9 @@ bool ZW_TransportService_SendData(ts_param_t* p, uint8_t *pData, uint16_t dataLe
  *    pCmd pointer to the received frame.
  *    mdLength Length of the received frame.
  */
-void TransportService_ApplicationCommandHandler(ts_param_t* p,uint8_t *pCmd, uint8_t cmdLength);
+void TransportService_ApplicationCommandHandler(ts_param_t *p,
+                                                uint8_t *pCmd,
+                                                uint8_t cmdLength);
 
 /**
  * Abort the current transmission, and cause the callback of \ref ZW_TransportService_SendData to
@@ -72,38 +78,42 @@ void ZW_TransportService_SendDataAbort();
  * \param commandHandler Application command handler to be called when a full datagram has been received.
  *
  */
-void
-ZW_TransportService_Init(void (*commandHandler)(ts_param_t* p, ZW_APPLICATION_TX_BUFFER *pCmd,
-uint16_t cmdLength));
+void ZW_TransportService_Init(void (*commandHandler)(
+  ts_param_t *p, ZW_APPLICATION_TX_BUFFER *pCmd, uint16_t cmdLength));
 
 /**
  * Return true if at least one RX session is in progress.
  */
 bool ZW_TransportService_Is_Receving();
 
-
 /**
  * Return true if a TX session is in progress.
  */
 bool ZW_TransportService_Is_Sending();
-
 
 /**
  * Output function of the Transport Service module.
  * This function is called whenever a message has been reassembled and is ready for processing
  * at the client layer.
  */
-void TransportService_msg_received_event(unsigned char *pCmd, unsigned char cmdLen,  unsigned char srcNode);
+void TransportService_msg_received_event(unsigned char *pCmd,
+                                         unsigned char cmdLen,
+                                         unsigned char srcNode);
 
 /**
  * \}
  */
 
-#if (defined (EFR32ZG) || defined(ZWAVE_ON_LINUX)) && !defined(NEW_TEST_T2)
+#if (defined(EFR32ZG) || defined(ZWAVE_ON_LINUX)) && !defined(NEW_TEST_T2)
 /**
  * Sending function called by the transport service module when a frame is ready to be sent by the lower layer.
  */
-bool TS_SendRaw(uint16_t dst, uint8_t *buf, uint8_t buflen, uint8_t txopt, VOID_CALLBACKFUNC(cb)(unsigned char status, TX_STATUS_TYPE* txS));
+bool TS_SendRaw(uint16_t dst,
+                uint8_t *buf,
+                uint8_t buflen,
+                uint8_t txopt,
+                VOID_CALLBACKFUNC(cb)(unsigned char status,
+                                      TX_STATUS_TYPE *txS));
 #endif
 
 #endif /* TRANSPORT_SERVICE2_EXTERNAL_H_ */

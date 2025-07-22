@@ -6,7 +6,7 @@
  *  Created on: Oct 16, 2015
  *      Author: trasmussen
  */
- 
+
 #ifndef _S2_CLASSCMD_H_
 #define _S2_CLASSCMD_H_
 
@@ -38,122 +38,167 @@
 //#define SECURITY_2_TRANSFER_END_PROPERTIES1_RESERVED_MASK                                0xFC
 //#define SECURITY_2_TRANSFER_END_PROPERTIES1_RESERVED_SHIFT                               0x02
 
-#define SECURITY_2_SCHEME_1_SUPPORT          0x02     //< Value denoting support for scheme 1 in the sheme support field.
-#define SECURITY_2_SCHEME_SUPPORT_MASK       0x02     //< Mask containing all schemes.
+#define SECURITY_2_SCHEME_1_SUPPORT \
+  0x02  //< Value denoting support for scheme 1 in the sheme support field.
+#define SECURITY_2_SCHEME_SUPPORT_MASK 0x02  //< Mask containing all schemes.
 
-#define SECURITY_2_SECURITY_2_CLASS_0        0x01     //< Value denoting support/request/grant for security 2 class 0 key.
-#define SECURITY_2_SECURITY_2_CLASS_1        0x02     //< Value denoting support/request/grant for security 2 class 1 key.
-#define SECURITY_2_SECURITY_2_CLASS_2        0x04     //< Value denoting support/request/grant for security 2 class 2 key.
-#define SECURITY_2_SECURITY_2_CLASS_3        0x08     //< Value denoting support/request/grant for security 2 class 3 (KEY_CLASS_S2_AUTHENTICATED_LR) key.
-#define SECURITY_2_SECURITY_2_CLASS_4        0x10     //< Value denoting support/request/grant for security 2 class 4 (KEY_CLASS_S2_ACCESS_LR) key.
-#define SECURITY_2_SECURITY_0_NETWORK_KEY    0x80     //< Value denoting support/request/grant for security 0 network key.
-#define SECURITY_2_KEY_S2_MASK               0x1F     //< Mask containing all S2 LR and S2 non-LR keys, but not S0
-#define SECURITY_2_KEY_MASK                  0x87     //< Mask containing all non-LR keys.
-#define SECURITY_2_KEY_MASK_INCL_LR          0x9F     //< Mask containing all keys.
+#define SECURITY_2_SECURITY_2_CLASS_0 \
+  0x01  //< Value denoting support/request/grant for security 2 class 0 key.
+#define SECURITY_2_SECURITY_2_CLASS_1 \
+  0x02  //< Value denoting support/request/grant for security 2 class 1 key.
+#define SECURITY_2_SECURITY_2_CLASS_2 \
+  0x04  //< Value denoting support/request/grant for security 2 class 2 key.
+#define SECURITY_2_SECURITY_2_CLASS_3 \
+  0x08  //< Value denoting support/request/grant for security 2 class 3 (KEY_CLASS_S2_AUTHENTICATED_LR) key.
+#define SECURITY_2_SECURITY_2_CLASS_4 \
+  0x10  //< Value denoting support/request/grant for security 2 class 4 (KEY_CLASS_S2_ACCESS_LR) key.
+#define SECURITY_2_SECURITY_0_NETWORK_KEY \
+  0x80  //< Value denoting support/request/grant for security 0 network key.
+#define SECURITY_2_KEY_S2_MASK \
+  0x1F  //< Mask containing all S2 LR and S2 non-LR keys, but not S0
+#define SECURITY_2_KEY_MASK         0x87  //< Mask containing all non-LR keys.
+#define SECURITY_2_KEY_MASK_INCL_LR 0x9F  //< Mask containing all keys.
 
-#define KEX_REPORT_CURVE_25519               0x01     //< Value denoting curve25519 used in ECDH.
-#define KEX_REPORT_CURVE_MASK                0x01     //< Mask containing all curves.
-#define KEX_REPORT_CURVE_RESERVED_MASK       0xFE
-#define KEX_REPORT_CURVE_RESERVED_SHIFT      0x01
+#define KEX_REPORT_CURVE_25519          0x01  //< Value denoting curve25519 used in ECDH.
+#define KEX_REPORT_CURVE_MASK           0x01  //< Mask containing all curves.
+#define KEX_REPORT_CURVE_RESERVED_MASK  0xFE
+#define KEX_REPORT_CURVE_RESERVED_SHIFT 0x01
 
-#define SECURITY_2_ECHO_OFF                  0x00     //< Value denoting that this is not an echo frame.
-#define SECURITY_2_ECHO_ON                   0x01     //< Value denoting that this is an echo frame.
+#define SECURITY_2_ECHO_OFF \
+  0x00  //< Value denoting that this is not an echo frame.
+#define SECURITY_2_ECHO_ON 0x01  //< Value denoting that this is an echo frame.
 
-#define SECURITY_2_CSA_ON                    0x02     //< Value denoting that csa was requested
-#define SECURITY_2_NLS_AVAILABLE             0x01     //< Value denoting that NLS is Available
+#define SECURITY_2_CSA_ON        0x02  //< Value denoting that csa was requested
+#define SECURITY_2_NLS_AVAILABLE 0x01  //< Value denoting that NLS is Available
 
+#define SECURITY_2_JOINING_NODE \
+  0x00  //< Value denoting that this frame originates from the joining node.
+#define SECURITY_2_INCLUDING_NODE \
+  0x01  //< Value denoting that this frame originates from the including node.
 
-#define SECURITY_2_JOINING_NODE              0x00     //< Value denoting that this frame originates from the joining node.
-#define SECURITY_2_INCLUDING_NODE            0x01     //< Value denoting that this frame originates from the including node.
-
-#define SECURITY_2_KEY_REQ_CONTINUE          0x00     //< Value denoting that joining node has not received all keys.
-#define SECURITY_2_KEY_REQ_COMPLETE          0x01     //< Value denoting that joining node has received all requested keys.
-#define SECURITY_2_KEY_VERIFIED              0x02     //< Value denoting that the verify frame could be successfully decrypted using the exchanged network key.
+#define SECURITY_2_KEY_REQ_CONTINUE \
+  0x00  //< Value denoting that joining node has not received all keys.
+#define SECURITY_2_KEY_REQ_COMPLETE \
+  0x01  //< Value denoting that joining node has received all requested keys.
+#define SECURITY_2_KEY_VERIFIED \
+  0x02  //< Value denoting that the verify frame could be successfully decrypted using the exchanged network key.
 
 /** Following defines are related to security 2 command class frames. */
-#define SECURITY_2_COMMAND_CLASS_POS         0 //< Position of the command class byte.
-#define SECURITY_2_COMMAND_POS               1 //< Position of the command byte identifying the security 2 command.
+#define SECURITY_2_COMMAND_CLASS_POS 0  //< Position of the command class byte.
+#define SECURITY_2_COMMAND_POS \
+  1  //< Position of the command byte identifying the security 2 command.
 
 /** Following defines are related to the KEX Set Frame. */
-#define SECURITY_2_KEX_SET_ECHO_POS          2 //< Position of the echo field in the KEX set frame.
-#define SECURITY_2_KEX_SET_CSA_POS           2 //< Position of the echo field in the KEX set frame.
-#define SECURITY_2_KEX_SET_SCHEME_POS        3 //< Position of the echo field in the KEX set frame.
-#define SECURITY_2_KEX_SET_CURVE_POS         4 //< Position of the echo field in the KEX set frame.
-#define SECURITY_2_KEX_SET_KEYS_POS          5 //< Position of the echo field in the KEX set frame.
-#define SECURITY_2_KEX_REP_ECHO_MASK         0x01 //< Mask for the echo bit in KEX_REPORT
-#define SECURITY_2_KEX_REP_CSA_MASK          0x02 //< Mask for the csa support bit in KEX_REPORT
-#define SECURITY_2_KEX_REP_NLS_MASK          0x04 //< Mask for the nls support bit in KEX_REPORT
+#define SECURITY_2_KEX_SET_ECHO_POS \
+  2  //< Position of the echo field in the KEX set frame.
+#define SECURITY_2_KEX_SET_CSA_POS \
+  2  //< Position of the echo field in the KEX set frame.
+#define SECURITY_2_KEX_SET_SCHEME_POS \
+  3  //< Position of the echo field in the KEX set frame.
+#define SECURITY_2_KEX_SET_CURVE_POS \
+  4  //< Position of the echo field in the KEX set frame.
+#define SECURITY_2_KEX_SET_KEYS_POS \
+  5  //< Position of the echo field in the KEX set frame.
+#define SECURITY_2_KEX_REP_ECHO_MASK \
+  0x01  //< Mask for the echo bit in KEX_REPORT
+#define SECURITY_2_KEX_REP_CSA_MASK \
+  0x02  //< Mask for the csa support bit in KEX_REPORT
+#define SECURITY_2_KEX_REP_NLS_MASK \
+  0x04  //< Mask for the nls support bit in KEX_REPORT
 
 /** Following defines are related to the KEX Report Frame. Note: The KEX Report fields are identical to the KEX Set frame. */
-#define SECURITY_2_KEX_REP_ECHO_POS          SECURITY_2_KEX_SET_ECHO_POS   //< Position of the echo field in the KEX report frame.
-#define SECURITY_2_KEX_REP_SCHEME_POS        SECURITY_2_KEX_SET_SCHEME_POS //< Position of the echo field in the KEX report frame.
-#define SECURITY_2_KEX_REP_CURVE_POS         SECURITY_2_KEX_SET_CURVE_POS  //< Position of the echo field in the KEX report frame.
-#define SECURITY_2_KEX_REP_KEYS_POS          SECURITY_2_KEX_SET_KEYS_POS   //< Position of the echo field in the KEX report frame.
+#define SECURITY_2_KEX_REP_ECHO_POS \
+  SECURITY_2_KEX_SET_ECHO_POS  //< Position of the echo field in the KEX report frame.
+#define SECURITY_2_KEX_REP_SCHEME_POS \
+  SECURITY_2_KEX_SET_SCHEME_POS  //< Position of the echo field in the KEX report frame.
+#define SECURITY_2_KEX_REP_CURVE_POS \
+  SECURITY_2_KEX_SET_CURVE_POS  //< Position of the echo field in the KEX report frame.
+#define SECURITY_2_KEX_REP_KEYS_POS \
+  SECURITY_2_KEX_SET_KEYS_POS  //< Position of the echo field in the KEX report frame.
 
-#define SECURITY_2_KEX_REPORT_NLS_SUPPORT_BIT_POS           2     //< Position of the NLS support bit within the echo field in the KEX report frame.
+#define SECURITY_2_KEX_REPORT_NLS_SUPPORT_BIT_POS \
+  2  //< Position of the NLS support bit within the echo field in the KEX report frame.
 
 /** Following defines are related to the Public Key Frame set. */
-#define SECURITY_2_PUB_KEY_INC_FLAG_POS      2 //< Position of the including node flag in the public key exchange frame.
-#define SECURITY_2_PUB_KEY_KEY_POS           3 //< Position of the key in the public key exchange frame.
+#define SECURITY_2_PUB_KEY_INC_FLAG_POS \
+  2  //< Position of the including node flag in the public key exchange frame.
+#define SECURITY_2_PUB_KEY_KEY_POS \
+  3  //< Position of the key in the public key exchange frame.
 
 /** Following define is related to the Network Key Get Frame. */
-#define SECURITY_2_NET_KEY_GET_REQ_KEY_POS   2 //< Position of the key requested field in the network key get frame.
+#define SECURITY_2_NET_KEY_GET_REQ_KEY_POS \
+  2  //< Position of the key requested field in the network key get frame.
 
 /** Following defines are related to the network key report frame. */
-#define SECURITY_2_NET_KEY_REP_GRANT_KEY_POS 2 //< Position of the key granted field in the network key report frame.
-#define SECURITY_2_NET_KEY_REP_KEY_POS       3 //< Position of the key in the network key report frame.
+#define SECURITY_2_NET_KEY_REP_GRANT_KEY_POS \
+  2  //< Position of the key granted field in the network key report frame.
+#define SECURITY_2_NET_KEY_REP_KEY_POS \
+  3  //< Position of the key in the network key report frame.
 
 /** Following define is related to the Network Transfer End Frame. */
-#define SECURITY_2_TRANSFER_END_FLAGS_POS    2 //< Position of the flag field in the transfer end frame.
+#define SECURITY_2_TRANSFER_END_FLAGS_POS \
+  2  //< Position of the flag field in the transfer end frame.
 
 /** Following define is related to the KEX Fail frame. */
-#define SECURITY_2_KEX_FAIL_FAIL_TYPE_POS    2 //< Position of the fail type field in the KEX fail frame.
+#define SECURITY_2_KEX_FAIL_FAIL_TYPE_POS \
+  2  //< Position of the fail type field in the KEX fail frame.
 
 /** Following define is related to the NLS State Set frame. */
-#define SECURITY_2_V2_NLS_STATE_SET_STATE_POS                       2       //< Position of the state field 
+#define SECURITY_2_V2_NLS_STATE_SET_STATE_POS 2  //< Position of the state field
 
 /** Following defines are related to the NLS State Report frame. */
-#define SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD             0x01    //< Field denoting NLS capability of this node
-#define SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD                  0x02    //< Field denoting NLS state of this node
-#define SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS                 2       //< Position of the bitfield 
-
+#define SECURITY_2_V2_NLS_STATE_REPORT_CAPABILITY_FIELD \
+  0x01  //< Field denoting NLS capability of this node
+#define SECURITY_2_V2_NLS_STATE_REPORT_STATE_FIELD \
+  0x02  //< Field denoting NLS state of this node
+#define SECURITY_2_V2_NLS_STATE_REPORT_BITFIELD_POS \
+  2  //< Position of the bitfield
 
 /** Following define is related to the NLS Node List Get frame. */
-#define SECURITY_2_V2_NLS_NODE_LIST_GET_REQUEST_POS                 2       //< Position of the request field
+#define SECURITY_2_V2_NLS_NODE_LIST_GET_REQUEST_POS \
+  2  //< Position of the request field
 
 /** Following define are related to the NLS Node List Report frame. */
-#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_FIELD          0x01    //< Field denoting if its the last node of the list
-#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS            2       //< Position of last node field
-#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS          3       //< Position of MSB byte of NodeID
-#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS          4       //< Position of LSB byte of NodeID
-#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS         5       //< Position of granted keys byte of NodeID
-#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS            6       //< Position of NLS state byte of NodeID
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_FIELD \
+  0x01  //< Field denoting if its the last node of the list
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LAST_NODE_POS \
+  2  //< Position of last node field
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_MSB_POS \
+  3  //< Position of MSB byte of NodeID
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NODE_ID_LSB_POS \
+  4  //< Position of LSB byte of NodeID
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_GRANTED_KEYS_POS \
+  5  //< Position of granted keys byte of NodeID
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_NLS_STATE_POS \
+  6  //< Position of NLS state byte of NodeID
 
 /** Length definitions */
-#define SECURITY_2_NONCE_GET_LENGTH                 3
-#define SECURITY_2_KEX_GET_LENGTH                   2
-#define SECURITY_2_KEX_REPORT_LENGTH                6
-#define SECURITY_2_KEX_SET_LENGTH                   6
-#define SECURITY_2_PUB_KEY_LENGTH                   35
-#define SECURITY_2_NET_KEY_GET_LENGTH               3
-#define SECURITY_2_NET_KEY_REPORT_LENGTH            19
-#define SECURITY_2_NET_KEY_VERIFY_LENGTH            2
-#define SECURITY_2_TRANSFER_END_LENGTH              3
-#define SECURITY_2_KEX_FAIL_LENGTH                  3
-#define SECURITY_2_V2_NLS_STATE_SET_LENGTH          3
-#define SECURITY_2_V2_NLS_STATE_GET_LENGTH          2
-#define SECURITY_2_V2_NLS_STATE_REPORT_LENGTH       3
-#define SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH      3
-#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LENGTH   7
+#define SECURITY_2_NONCE_GET_LENGTH               3
+#define SECURITY_2_KEX_GET_LENGTH                 2
+#define SECURITY_2_KEX_REPORT_LENGTH              6
+#define SECURITY_2_KEX_SET_LENGTH                 6
+#define SECURITY_2_PUB_KEY_LENGTH                 35
+#define SECURITY_2_NET_KEY_GET_LENGTH             3
+#define SECURITY_2_NET_KEY_REPORT_LENGTH          19
+#define SECURITY_2_NET_KEY_VERIFY_LENGTH          2
+#define SECURITY_2_TRANSFER_END_LENGTH            3
+#define SECURITY_2_KEX_FAIL_LENGTH                3
+#define SECURITY_2_V2_NLS_STATE_SET_LENGTH        3
+#define SECURITY_2_V2_NLS_STATE_GET_LENGTH        2
+#define SECURITY_2_V2_NLS_STATE_REPORT_LENGTH     3
+#define SECURITY_2_V2_NLS_NODE_LIST_GET_LENGTH    3
+#define SECURITY_2_V2_NLS_NODE_LIST_REPORT_LENGTH 7
 
-#define SECURITY_2_EC_PUBLIC_KEY_LENGTH      32
+#define SECURITY_2_EC_PUBLIC_KEY_LENGTH 32
 
-#define SECURITY_2_KEX_SET_RESERVED_MASK 0xFC //< Bitmask of the reserved bits in Kex Set
-#define ZW_LR_MAX_NODE_ID     4000
-#define ZW_LR_MIN_NODE_ID     256
-#define IS_LR_NODE(nodeid) (((nodeid) >= ZW_LR_MIN_NODE_ID) && ((nodeid) <= ZW_LR_MAX_NODE_ID))
+#define SECURITY_2_KEX_SET_RESERVED_MASK \
+  0xFC  //< Bitmask of the reserved bits in Kex Set
+#define ZW_LR_MAX_NODE_ID 4000
+#define ZW_LR_MIN_NODE_ID 256
+#define IS_LR_NODE(nodeid) \
+  (((nodeid) >= ZW_LR_MIN_NODE_ID) && ((nodeid) <= ZW_LR_MAX_NODE_ID))
 
 /**
  * @}
  */
-#endif // _S2_CLASSCMD_H_
+#endif  // _S2_CLASSCMD_H_

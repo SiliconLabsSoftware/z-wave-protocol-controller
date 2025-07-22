@@ -43,7 +43,6 @@
 #ifndef AES_CMAC_H_
 #define AES_CMAC_H_
 
-
 #include <stdint.h>
 
 /**
@@ -51,16 +50,13 @@
  * @{
  */
 
-
 /**
  * Type defining the return values of a CMAC verification.
  */
-typedef enum
-{
-  CMAC_VALID = 0, //!< VALID
-  CMAC_INVALID = 1//!< INVALID
-}
-CMAC_VERIFY_T;
+typedef enum {
+  CMAC_VALID   = 0,  //!< VALID
+  CMAC_INVALID = 1   //!< INVALID
+} CMAC_VERIFY_T;
 
 /**
  * @brief Calculates an AES-CMAC from a given key, message and message length.
@@ -69,11 +65,10 @@ CMAC_VERIFY_T;
  * @param message_length Length of the message in octets.
  * @param mac Pointer to an array where the calculated AES-CMAC can be stored.
  */
-void aes_cmac_calculate(
-        const uint8_t * key,
-        const uint8_t * message,
-        const uint16_t message_length,
-        uint8_t * mac);
+void aes_cmac_calculate(const uint8_t *key,
+                        const uint8_t *message,
+                        const uint16_t message_length,
+                        uint8_t *mac);
 
 /**
  * @brief Verifies a given AES-CMAC from a given key, message and message length.
@@ -83,14 +78,13 @@ void aes_cmac_calculate(
  * @param mac Pointer to a MAC to verify against.
  * @return Returns CMAC_VALID if valid, or CMAC_INVALID if not.
  */
-CMAC_VERIFY_T aes_cmac_verify(
-        const uint8_t * key,
-        const uint8_t * message,
-        const uint16_t message_length,
-        const uint8_t * mac);
+CMAC_VERIFY_T aes_cmac_verify(const uint8_t *key,
+                              const uint8_t *message,
+                              const uint16_t message_length,
+                              const uint8_t *mac);
 
 /**
  * @}
  */
 
-#endif // AES_CMAC_H_
+#endif  // AES_CMAC_H_

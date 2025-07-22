@@ -27,7 +27,7 @@
  * \param ctxt the S2 context
  * \param status The status of the S2 transmisison
  */
-void S2_send_done_event(struct S2* ctxt, s2_tx_status_t status);
+void S2_send_done_event(struct S2 *ctxt, s2_tx_status_t status);
 
 /**
  * Emitted when a messages has been received and decrypted
@@ -37,8 +37,10 @@ void S2_send_done_event(struct S2* ctxt, s2_tx_status_t status);
  * \param buf The received message
  * \param len The length of the received message
  */
-void S2_msg_received_event(struct S2* ctxt,s2_connection_t* peer , uint8_t* buf, uint16_t len);
-
+void S2_msg_received_event(struct S2 *ctxt,
+                           s2_connection_t *peer,
+                           uint8_t *buf,
+                           uint16_t len);
 
 /**
  * Must be implemented elsewhere maps to ZW_SendData or ZW_SendDataBridge note that ctxt is
@@ -50,8 +52,10 @@ void S2_msg_received_event(struct S2* ctxt,s2_connection_t* peer , uint8_t* buf,
  * \param len The length of the received message
  *
  */
-uint8_t S2_send_frame(struct S2* ctxt,const s2_connection_t* peer, uint8_t* buf, uint16_t len);
-
+uint8_t S2_send_frame(struct S2 *ctxt,
+                      const s2_connection_t *peer,
+                      uint8_t *buf,
+                      uint16_t len);
 
 /**
  * Send without emitting a callback into S2 and by caching the buffer
@@ -65,8 +69,10 @@ uint8_t S2_send_frame(struct S2* ctxt,const s2_connection_t* peer, uint8_t* buf,
  * \param len The length of the received message
  *
  */
-uint8_t S2_send_frame_no_cb(struct S2* ctxt,const s2_connection_t* peer, uint8_t* buf, uint16_t len);
-
+uint8_t S2_send_frame_no_cb(struct S2 *ctxt,
+                            const s2_connection_t *peer,
+                            uint8_t *buf,
+                            uint16_t len);
 
 /**
  * This must send a broadcast frame.
@@ -77,7 +83,10 @@ uint8_t S2_send_frame_no_cb(struct S2* ctxt,const s2_connection_t* peer, uint8_t
  * \param buf The received message
  * \param len The length of the received message
  */
-uint8_t S2_send_frame_multi(struct S2* ctxt,s2_connection_t* peer, uint8_t* buf, uint16_t len);
+uint8_t S2_send_frame_multi(struct S2 *ctxt,
+                            s2_connection_t *peer,
+                            uint8_t *buf,
+                            uint16_t len);
 
 /**
  * Must be implemented elsewhere maps to ZW_TimerStart. Note that this must start the same timer every time.
@@ -86,14 +95,14 @@ uint8_t S2_send_frame_multi(struct S2* ctxt,s2_connection_t* peer, uint8_t* buf,
  * \param ctxt the S2 context
  * \param interval Timeout in milliseconds.
  */
-void S2_set_timeout(struct S2* ctxt, uint32_t interval);
+void S2_set_timeout(struct S2 *ctxt, uint32_t interval);
 
 /**
  * @brief Stop the timer set with S2 set timeout.
  * 
  * @param ctxt 
  */
-void S2_stop_timeout(struct S2* ctxt);
+void S2_stop_timeout(struct S2 *ctxt);
 
 /**
  * Get a number of bytes from a hardware random number generator
@@ -110,8 +119,10 @@ void S2_get_hw_random(uint8_t *buf, uint8_t len);
  * \param cmdClasses points to the first command class
  * \param length the length of the command class list
  */
-void S2_get_commands_supported(node_t lnode, uint8_t class_id, const uint8_t ** cmdClasses, uint8_t* length);
-
+void S2_get_commands_supported(node_t lnode,
+                               uint8_t class_id,
+                               const uint8_t **cmdClasses,
+                               uint8_t *length);
 
 /**
  * Notify the reception of a NLS STATE REPORT
@@ -120,7 +131,10 @@ void S2_get_commands_supported(node_t lnode, uint8_t class_id, const uint8_t ** 
  * \param nls_capability The NLS capability of the source node
  * \param nls_state The NLS state of the source node
 */
-void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, bool nls_capability, bool nls_state);
+void S2_notify_nls_state_report(node_t srcNode,
+                                uint8_t class_id,
+                                bool nls_capability,
+                                bool nls_state);
 
 /**
  * Get the NLS nodes list
@@ -132,7 +146,12 @@ void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, bool nls_capab
  * \param nls_state out pointer to be filled by the host indicating the NLS state of the node in question
  * \return 0 in case of success or else in case of error
  */
-int8_t S2_get_nls_node_list(node_t srcNode, bool request, bool *is_last_node, uint16_t *node_id, uint8_t *granted_keys, bool *nls_state);
+int8_t S2_get_nls_node_list(node_t srcNode,
+                            bool request,
+                            bool *is_last_node,
+                            uint16_t *node_id,
+                            uint8_t *granted_keys,
+                            bool *nls_state);
 
 /**
  * Get the NLS node list report
@@ -142,7 +161,10 @@ int8_t S2_get_nls_node_list(node_t srcNode, bool request, bool *is_last_node, ui
  * \param nls_state NLS state of the current node ID
  * \return 0 in case of success or else in case of error
  */
-int8_t S2_notify_nls_node_list_report(node_t srcNode, uint16_t id_of_node, uint8_t keys_node_bitmask, bool nls_state);
+int8_t S2_notify_nls_node_list_report(node_t srcNode,
+                                      uint16_t id_of_node,
+                                      uint8_t keys_node_bitmask,
+                                      bool nls_state);
 
 /**
  * Makes time in ms available to LibS2
@@ -167,9 +189,8 @@ uint32_t clock_time(void);
  *
  */
 typedef enum {
-  SOS_EVENT_REASON_UNANSWERED,            ///< A Nonce Report with SOS=1 was received at an unexpected time and no response was sent. Application may use this information to abort Supervision Report timeout if the remote nodeid matches.
-}
-sos_event_reason_t;
+  SOS_EVENT_REASON_UNANSWERED,  ///< A Nonce Report with SOS=1 was received at an unexpected time and no response was sent. Application may use this information to abort Supervision Report timeout if the remote nodeid matches.
+} sos_event_reason_t;
 
 /**
  * Emitted when a Nonce Synchronization Event has happened.
@@ -182,11 +203,10 @@ sos_event_reason_t;
  * \param seqno The S2 sequence number of the frame triggering the event. Useful for correlating with zniffer traces.
  * \param local_node The (possible virtual) nodeID of the local node. Useful for correlating with zniffer traces.
  */
-void S2_resynchronization_event(
-    node_t remote_node,
-    sos_event_reason_t reason,
-    uint8_t seqno,
-    node_t local_node);
+void S2_resynchronization_event(node_t remote_node,
+                                sos_event_reason_t reason,
+                                uint8_t seqno,
+                                node_t local_node);
 
 /**
  * Save NLS state stored in S2 context in device memory
@@ -199,7 +219,7 @@ void S2_save_nls_state(void);
  * \param ctxt the S2 context
  * \param nls_state NLS state
  */
-void S2_load_nls_state(struct S2* ctxt, uint8_t nls_state);
+void S2_load_nls_state(struct S2 *ctxt, uint8_t nls_state);
 
 /**
  * @}

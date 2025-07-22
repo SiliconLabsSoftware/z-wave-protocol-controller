@@ -14,10 +14,9 @@
 
 #define MOCK_FILE "s2_keystore_mock.c"
 
-
 void keystore_public_key_read(uint8_t *buf)
 {
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
   MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
@@ -29,7 +28,7 @@ void keystore_public_key_read(uint8_t *buf)
 
 void keystore_dynamic_public_key_read(uint8_t *buf)
 {
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
   MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
@@ -41,7 +40,7 @@ void keystore_dynamic_public_key_read(uint8_t *buf)
 
 void keystore_private_key_read(uint8_t *buf)
 {
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
   MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
@@ -53,7 +52,7 @@ void keystore_private_key_read(uint8_t *buf)
 
 void keystore_dynamic_private_key_read(uint8_t *buf)
 {
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
   MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
@@ -65,7 +64,7 @@ void keystore_dynamic_private_key_read(uint8_t *buf)
 
 bool keystore_network_key_read(uint8_t keyclass, uint8_t *buf)
 {
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   MOCK_CALL_RETURN_IF_USED_AS_STUB(true);
   MOCK_CALL_FIND_RETURN_ON_FAILURE(p_mock, true);
@@ -79,9 +78,9 @@ bool keystore_network_key_read(uint8_t keyclass, uint8_t *buf)
   MOCK_CALL_RETURN_VALUE(p_mock, bool);
 }
 
-bool keystore_network_key_write(uint8_t keyclass,const uint8_t *buf)
+bool keystore_network_key_write(uint8_t keyclass, const uint8_t *buf)
 {
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   MOCK_CALL_RETURN_IF_USED_AS_STUB(true);
   MOCK_CALL_FIND_RETURN_ON_FAILURE(p_mock, true);
@@ -96,7 +95,7 @@ bool keystore_network_key_write(uint8_t keyclass,const uint8_t *buf)
 
 bool keystore_network_key_clear(uint8_t keyclass)
 {
-  mock_t * p_mock;
+  mock_t *p_mock;
 
   MOCK_CALL_RETURN_IF_USED_AS_STUB(true);
   MOCK_CALL_FIND_RETURN_ON_FAILURE(p_mock, true);
