@@ -133,7 +133,7 @@ information about this in the associated ``README.md`` in the
          </attribute>
          <attribute id="0005" name="MaxTone" type="uint8"/>
          <attribute id="0006" name="ToneDescription" type="string"/>
-         <attribute id="0007" name="ToneDuration" type="uint16""/>
+         <attribute id="0007" name="ToneDuration" type="uint16"/>
        </attributes>
        <commands>
        </commands>
