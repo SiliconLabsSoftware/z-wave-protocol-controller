@@ -1,0 +1,37 @@
+From f1b677b4127c8776244b272bcf20c9afeebe5522 Mon Sep 17 00:00:00 2001
+From: Philippe Coval <philippe.coval@silabs.com>
+Date: Mon, 15 Sep 2025 10:43:26 +0200
+Subject: [PATCH] fix(build): Allow to regenerate files using zap
+
+For the record, files can be regenerated from developer using:
+
+  rm -rf build ; cmake_options=-DZAP_GENERATE=ON ./helper.mk
+
+For some reasons developer will have to commit also generated files,
+which is a bad practice, but I believe it was intentional to avoid
+propagation to zap as build dependency, this may be revised to avoid
+serialization of development.
+
+Relate-to: https://github.com/project-chip/zap/releases/download/v2025.07.24/zap-linux-x64.deb
+Bug-SiliconLabs: UIC-3222
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ helper.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/helper.mk b/helper.mk
+index be052d5af6..75d1051981 100755
+--- a/helper.mk
++++ b/helper.mk
+@@ -16,7 +16,7 @@ project?=unifysdk
+ BUILD_DEV_GUI?=OFF
+ BUILD_IMAGE_PROVIDER?=ON
+ 
+-cmake_options?=-B ${build_dir}
++cmake_options+=-B ${build_dir}
+ 
+ CMAKE_GENERATOR?=Ninja
+ export CMAKE_GENERATOR
+-- 
+2.39.5
+

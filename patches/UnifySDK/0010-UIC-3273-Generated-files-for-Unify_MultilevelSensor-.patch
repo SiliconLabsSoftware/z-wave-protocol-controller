@@ -1,0 +1,101 @@
+From 6bb1911c76658081391ac3bd8c268c374e3617f0 Mon Sep 17 00:00:00 2001
+From: Philippe Coval <philippe.coval@silabs.com>
+Date: Tue, 16 Sep 2025 10:58:38 +0200
+Subject: [PATCH] UIC-3273: Generated files for Unify_MultilevelSensor using
+ latest zap
+
+Relate-to: https://github.com/project-chip/zap/releases/download/v2025.07.24/zap-linux-x64.deb
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ .../src/eed_attribute_store_clusters.c        |  8 +++++
+ .../src/eed_dotdot_create_clusters.cpp        | 34 +++++++++++++++++++
+ 2 files changed, 42 insertions(+)
+
+diff --git a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_attribute_store_clusters.c b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_attribute_store_clusters.c
+index 8780c887c8..981d5e7ef4 100644
+--- a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_attribute_store_clusters.c
++++ b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_attribute_store_clusters.c
+@@ -2687,6 +2687,14 @@ sl_status_t eed_attribute_store_clusters_init()
+     &on_zcl_desired_value_update,
+     DOTDOT_ATTRIBUTE_ID_CONFIGURATION_PARAMETERS_CONFIGURATION_PARAMETERS,
+     DESIRED_ATTRIBUTE);
++  attribute_store_register_callback_by_type_and_state(
++    &on_zcl_desired_value_update,
++    DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES,
++    DESIRED_ATTRIBUTE);
++  attribute_store_register_callback_by_type_and_state(
++    &on_zcl_desired_value_update,
++    DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE,
++    DESIRED_ATTRIBUTE);
+   attribute_store_register_callback_by_type_and_state(
+     &on_zcl_desired_value_update,
+     DOTDOT_ATTRIBUTE_ID_DESCRIPTOR_DEVICE_TYPE_LIST,
+diff --git a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_dotdot_create_clusters.cpp b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_dotdot_create_clusters.cpp
+index 8230ced6c8..0a74dd6e3e 100644
+--- a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_dotdot_create_clusters.cpp
++++ b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_dotdot_create_clusters.cpp
+@@ -3990,6 +3990,22 @@ void dotdot_create_configuration_parameters_wrapper(const dotdot_unid_t unid, co
+ 
+ }
+ 
++void dotdot_create_multilevel_sensor_wrapper(const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id){
++    // Create and set a default value if undefined.
++    dotdot_create_multilevel_sensor_sensor_values(unid,endpoint_id);
++    if (false == dotdot_multilevel_sensor_sensor_values_is_reported_defined(unid,endpoint_id)){
++    SensorValue value = {};
++    dotdot_set_multilevel_sensor_sensor_values(unid,endpoint_id,REPORTED_ATTRIBUTE, value);
++    }
++
++    // Create and set a default value if undefined.
++    dotdot_create_multilevel_sensor_sensor_type(unid,endpoint_id);
++    if (false == dotdot_multilevel_sensor_sensor_type_is_reported_defined(unid,endpoint_id)){
++    dotdot_set_multilevel_sensor_sensor_type(unid,endpoint_id,REPORTED_ATTRIBUTE, static_cast<uint8_t>(0));
++        }
++
++}
++
+ void dotdot_create_descriptor_wrapper(const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id){
+     // Create and set a default value if undefined.
+     dotdot_create_descriptor_device_type_list(unid,endpoint_id);
+@@ -6515,6 +6531,22 @@ void dotdot_unretain_configuration_parameters_wrapper(const dotdot_unid_t unid,
+     uic_mqtt_dotdot_configuration_parameters_publish_empty_supported_commands(unid, endpoint_id);
+ }
+ 
++void dotdot_unretain_multilevel_sensor_wrapper(const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id){
++    char base_topic[256];
++    snprintf(base_topic, sizeof(base_topic), "ucl/by-unid/%s/ep%d", unid, endpoint_id);
++    attribute_store::attribute ep_node = eed_attribute_store_get_endpoint_node(unid, endpoint_id);
++
++    uic_mqtt_dotdot_multilevel_sensor_sensor_values_unretain(base_topic,UCL_MQTT_PUBLISH_TYPE_ALL);
++    ep_node.child_by_type(DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES).delete_node();
++
++    uic_mqtt_dotdot_multilevel_sensor_sensor_type_unretain(base_topic,UCL_MQTT_PUBLISH_TYPE_ALL);
++    ep_node.child_by_type(DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE).delete_node();
++
++
++    uic_mqtt_dotdot_multilevel_sensor_unretain_cluster_revision(base_topic);
++    uic_mqtt_dotdot_multilevel_sensor_publish_empty_supported_commands(unid, endpoint_id);
++}
++
+ void dotdot_unretain_descriptor_wrapper(const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id){
+     char base_topic[256];
+     snprintf(base_topic, sizeof(base_topic), "ucl/by-unid/%s/ep%d", unid, endpoint_id);
+@@ -6707,6 +6739,7 @@ std::map<std::string, eed_cluster_attribute_wrapper> CreateClusterMap = {
+ { "Binding", dotdot_create_binding_wrapper },
+ { "NameAndLocation", dotdot_create_name_and_location_wrapper },
+ { "ConfigurationParameters", dotdot_create_configuration_parameters_wrapper },
++{ "MultilevelSensor", dotdot_create_multilevel_sensor_wrapper },
+ { "Descriptor", dotdot_create_descriptor_wrapper },
+ { "UnifyFanControl", dotdot_create_unify_fan_control_wrapper },
+ { "UnifyThermostat", dotdot_create_unify_thermostat_wrapper },
+@@ -6758,6 +6791,7 @@ std::map<std::string, eed_cluster_attribute_wrapper> CreateUnretainMap = {
+ { "Binding", dotdot_unretain_binding_wrapper },
+ { "NameAndLocation", dotdot_unretain_name_and_location_wrapper },
+ { "ConfigurationParameters", dotdot_unretain_configuration_parameters_wrapper },
++{ "MultilevelSensor", dotdot_unretain_multilevel_sensor_wrapper },
+ { "Descriptor", dotdot_unretain_descriptor_wrapper },
+ { "UnifyFanControl", dotdot_unretain_unify_fan_control_wrapper },
+ { "UnifyThermostat", dotdot_unretain_unify_thermostat_wrapper },
+-- 
+2.39.5
+

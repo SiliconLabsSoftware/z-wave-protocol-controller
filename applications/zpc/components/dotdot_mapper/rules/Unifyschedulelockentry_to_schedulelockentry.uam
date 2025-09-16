@@ -1,0 +1,125 @@
+// Schedule Entry Lock All  Command Class
+def zwSLOTS_WEEK_DAY                          0x4E05
+def zwSLOTS_YEAR_DAY                          0x4E06
+def zwSIGN_TZO                                0x4E1B
+def zwHOUR_TZO                                0x4E1C
+def zwMINUTE_TZO                              0x4E1D
+def zwDST_OFFSET_SIGN                         0x4E1E
+def zwDST_OFFSET_MINUTE                       0x4E1F
+def zwNUMBER_OF_SLOTS_DAILY_REPEATING         0x4E20
+
+// Unify Schedule Entry Lock Cluster
+def zbSLOTS_WEEK_DAY                        0xFD210001
+def zbSLOTS_YEAR_DAY                        0xFD210002
+def zbSIGN_TZO                              0xFD210003
+def zbHOUR_TZO                              0xFD210004
+def zbMINUTE_TZO                            0xFD210005
+def zbDST_OFFSET_SIGN                       0xFD210006
+def zbDST_OFFSET_MINUTE                     0xFD210007
+def zbNUMBER_OF_SLOTS_DAILY_REPEATING       0xFD210008
+
+def zwave_no_schedule_entry_lock (e'zwSLOTS_WEEK_DAY == 0)
+def zwave_no_schedule_entry_lock_v2 (e'zwHOUR_TZO == 0)
+
+scope 0 {
+
+  // Linking attributes zwave -> zigbee
+  r'zwSLOTS_WEEK_DAY =
+    if (zwave_no_schedule_entry_lock) undefined
+    r'zbSLOTS_WEEK_DAY
+  d'zwSLOTS_WEEK_DAY =
+    if (zwave_no_schedule_entry_lock) undefined
+    d'zbSLOTS_WEEK_DAY
+  r'zwSLOTS_YEAR_DAY =
+    if (zwave_no_schedule_entry_lock) undefined
+    r'zbSLOTS_YEAR_DAY
+  d'zwSLOTS_YEAR_DAY =
+    if (zwave_no_schedule_entry_lock) undefined
+    d'zbSLOTS_YEAR_DAY
+  r'zwSIGN_TZO =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    r'zbSIGN_TZO
+  d'zwSIGN_TZO =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    d'zbSIGN_TZO
+  r'zwHOUR_TZO =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    r'zbHOUR_TZO
+  d'zwHOUR_TZO =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    d'zbHOUR_TZO
+  r'zwMINUTE_TZO =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    r'zbMINUTE_TZO
+  d'zwMINUTE_TZO =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    d'zbMINUTE_TZO
+  r'zwDST_OFFSET_SIGN =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    r'zbDST_OFFSET_SIGN
+  d'zwDST_OFFSET_SIGN =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    d'zbDST_OFFSET_SIGN
+  r'zwDST_OFFSET_MINUTE =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    r'zbDST_OFFSET_MINUTE
+  d'zwDST_OFFSET_MINUTE =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    d'zbDST_OFFSET_MINUTE
+  r'zwNUMBER_OF_SLOTS_DAILY_REPEATING =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    r'zbNUMBER_OF_SLOTS_DAILY_REPEATING
+  d'zwNUMBER_OF_SLOTS_DAILY_REPEATING =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    d'zbNUMBER_OF_SLOTS_DAILY_REPEATING
+
+  // Linking attributes zigbee -> zwave
+  r'zbSLOTS_WEEK_DAY =
+    if (zwave_no_schedule_entry_lock) undefined
+    r'zwSLOTS_WEEK_DAY
+  d'zbSLOTS_WEEK_DAY =
+    if (zwave_no_schedule_entry_lock) undefined
+    d'zwSLOTS_WEEK_DAY
+  r'zbSLOTS_YEAR_DAY =
+    if (zwave_no_schedule_entry_lock) undefined
+    r'zwSLOTS_YEAR_DAY
+  d'zbSLOTS_YEAR_DAY =
+    if (zwave_no_schedule_entry_lock) undefined
+    d'zwSLOTS_YEAR_DAY
+  r'zbSIGN_TZO =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    r'zwSIGN_TZO
+  d'zbSIGN_TZO =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    d'zwSIGN_TZO
+  r'zbHOUR_TZO =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    r'zwHOUR_TZO
+  d'zbHOUR_TZO =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    d'zwHOUR_TZO
+  r'zbMINUTE_TZO =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    r'zwMINUTE_TZO
+  d'zbMINUTE_TZO =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    d'zwMINUTE_TZO
+  r'zbDST_OFFSET_SIGN =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    r'zwDST_OFFSET_SIGN
+  d'zbDST_OFFSET_SIGN =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    d'zwDST_OFFSET_SIGN
+  r'zbDST_OFFSET_MINUTE =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    r'zwDST_OFFSET_MINUTE
+  d'zbDST_OFFSET_MINUTE =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    d'zwDST_OFFSET_MINUTE
+  r'zbNUMBER_OF_SLOTS_DAILY_REPEATING =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    r'zwNUMBER_OF_SLOTS_DAILY_REPEATING
+  d'zbNUMBER_OF_SLOTS_DAILY_REPEATING =
+    if (zwave_no_schedule_entry_lock_v2) undefined
+    d'zwNUMBER_OF_SLOTS_DAILY_REPEATING
+}

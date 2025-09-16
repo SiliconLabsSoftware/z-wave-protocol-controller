@@ -160,6 +160,9 @@ UAM files
   * - ``Time_to_MultilevelSensorCC.uam``
     - ``Time.xml``
     - Use to operate Local Time
+  * - N/A
+    - ``Unify_MultilevelSensor.xml``
+    - Use for reporting sensor values. 
 
 Bindings
 --------
@@ -197,6 +200,15 @@ Bindings
   * - ``SENSOR_VALUE``
     - Time MeasuredValue
     - If ``SENSOR_TYPE`` = 0x21. Z-Wave -> Cluster (ReadOnly)
+  * - ``SENSOR_VALUE``
+    - SensorValues
+    -  ``SENSOR_VALUE`` mapping with ``Value`` field of SensorValues attribute. Z-Wave -> Cluster (ReadOnly)
+  * - ``SCALE``
+    - SensorValues 
+    - ``SCALE`` mapping with ``Scale`` field of SensorValues attribute. Z-Wave -> Cluster (ReadOnly)
+  * - ``SENSOR_TYPE``
+    - SensorType 
+    - ``SENSOR_TYPE`` mapping with SensorType attribute. Z-Wave -> Cluster (ReadOnly)
 
 Command actions
 ---------------
@@ -294,4 +306,7 @@ Command actions
     - Only reported values
   * - Get Local Time
     - ``ucl/by-unid/+/+/Time/Attributes/LocalTime/Reported { "value": <REPORTED_LOCAL_TIME>}``
+    - Only reported values
+  * - Report sensor values
+    - ``ucl/by-unid/+/+/<SensorType>/MultilevelSensor/Attributes/SensorValues/Reported {"value": {"Scale": <SCALE> ,"Value": <SENSOR_VALUE>}}``
     - Only reported values

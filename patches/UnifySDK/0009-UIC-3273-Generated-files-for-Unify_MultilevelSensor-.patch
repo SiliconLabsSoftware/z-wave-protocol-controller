@@ -1,0 +1,3672 @@
+From 15eb74a0f1c4a8fdd9fa20b17d6e3129af53dac0 Mon Sep 17 00:00:00 2001
+From: ptphan <phong.phan@silabs.com>
+Date: Wed, 2 Oct 2024 10:38:02 +0700
+Subject: [PATCH] UIC-3273: Generated files for Unify_MultilevelSensor Cluster
+
+[Philippe Coval]
+
+This change has been applied without any change and will be forwarded to:
+
+This change was made from uic repo by exporting patch using:
+
+git format-patch -1 943ae4c683f819ae8b6407ee29aa4f7c9bd69ddf
+
+And then applied on top of z-wave/core/zpc/main (dangling branch of
+Unify, currently in rzr fork, that may be pushed to public Unify repo)
+
+git apply -i 0001-UIC-3273-Generated-files-for-Unify_MultilevelSensor-.patch
+
+Then a patch is generated for z-p-c project using:
+
+  git format-patch --no-numbered \
+          -o ~/mnt/z-wave-protocol-controller/patches/UnifySDK/ \
+           ver_1.7.0
+
+Bug-SiliconLabs: UIC-3273
+Origin: ver_1.7.0-unstable-22-g943ae4c683
+Origin: s.s.com/projects/UIC/repos/uic/pull-requests/2855
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/issues/44
+Forwarded: https://github.com/rzr/UnifySDK/tree/z-wave/core/zpc/main
+Forwarded: https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/pull/143
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ .../cluster-types/cluster-type-attributes.ts  |   2 +-
+ .../include/dotdot_attribute_id_definitions.h |   3 +
+ .../dotdot_cluster_command_id_definitions.h   |   2 +
+ .../include/dotdot_cluster_id_definitions.h   |   4 +
+ .../zap-generated/include/zap-types.h         |  96 ++++
+ .../readme_ucl_mqtt_reference.md              | 443 ++++++++++++++++
+ .../src/dotdot_attribute_id_definitions.c     |  40 ++
+ .../src/dotdot_cluster_id_definitions.c       |   5 +
+ .../zap-generated/include/dotdot_mqtt.h       | 183 +++++++
+ .../include/dotdot_mqtt_attributes.h          |  35 ++
+ .../include/dotdot_mqtt_generated_commands.h  |  22 +
+ .../include/dotdot_mqtt_group_commands.h      |  17 +
+ .../include/dotdot_mqtt_helpers.h             |   7 +
+ .../include/dotdot_mqtt_helpers.hpp           |  17 +
+ ...dotdot_mqtt_supported_generated_commands.h |  28 +
+ .../include/dotdot_mqtt_translators.h         |  26 +
+ .../zap-generated/src/dotdot_mqtt.cpp         | 488 ++++++++++++++++++
+ .../zap-generated/src/dotdot_mqtt.hpp         |  28 +
+ .../src/dotdot_mqtt_attributes.cpp            | 206 ++++++++
+ .../src/dotdot_mqtt_command_helpers.cpp       |  16 +
+ .../src/dotdot_mqtt_command_helpers.hpp       |  12 +
+ .../src/dotdot_mqtt_generated_commands.cpp    |  40 ++
+ .../src/dotdot_mqtt_group_commands.cpp        |  99 ++++
+ .../zap-generated/src/dotdot_mqtt_helpers.cpp | 246 +++++++++
+ ...tdot_mqtt_supported_generated_commands.cpp |  43 ++
+ .../test/dotdot_mqtt_test.include             |   1 +
+ .../include/dotdot_attributes.uam             |   4 +
+ .../include/dotdot_attributes_camel_case.uam  |   4 +
+ .../unify_dotdot_attribute_store_helpers.h    | 240 +++++++++
+ .../unify_dotdot_defined_attribute_types.h    |   3 +
+ ...ot_attribute_store_attribute_publisher.cpp | 257 +++++++++
+ ..._force_read_attributes_command_callbacks.c |  37 ++
+ .../unify_dotdot_attribute_store_helpers.cpp  | 249 +++++++++
+ ...fy_dotdot_attribute_store_registration.cpp |  48 ++
+ ...store_write_attributes_command_callbacks.c |  33 ++
+ .../test/unify_dotdot_attribute_store_test.c  |  28 +
+ .../test/unify_dotdot_attribute_store_test.h  |   4 +
+ 37 files changed, 3015 insertions(+), 1 deletion(-)
+
+diff --git a/applications/dev_ui/dev_gui/zap-generated/src/cluster-types/cluster-type-attributes.ts b/applications/dev_ui/dev_gui/zap-generated/src/cluster-types/cluster-type-attributes.ts
+index a46049dbe7..2fa7a4c728 100644
+--- a/applications/dev_ui/dev_gui/zap-generated/src/cluster-types/cluster-type-attributes.ts
++++ b/applications/dev_ui/dev_gui/zap-generated/src/cluster-types/cluster-type-attributes.ts
+@@ -1,7 +1,7 @@
+ //This file is generated automatically. Don't try to change something here.
+ //To add support for new clusters, modify addon-helper.js
+ //To change the stucture of the ClusterTypeAttrs, modify cluster-type-attributes.zapt
+-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
++                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+ //generate ClusterTypes
+ export let ClusterTypeAttrs: any = {
+diff --git a/components/uic_dotdot/zap-generated/include/dotdot_attribute_id_definitions.h b/components/uic_dotdot/zap-generated/include/dotdot_attribute_id_definitions.h
+index a988971041..52a9683a3b 100644
+--- a/components/uic_dotdot/zap-generated/include/dotdot_attribute_id_definitions.h
++++ b/components/uic_dotdot/zap-generated/include/dotdot_attribute_id_definitions.h
+@@ -831,6 +831,9 @@ typedef enum {
+ #define DOTDOT_NAME_AND_LOCATION_LOCATION_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x1)
+ // Definitions for cluster: ConfigurationParameters
+ #define DOTDOT_CONFIGURATION_PARAMETERS_CONFIGURATION_PARAMETERS_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x0)
++// Definitions for cluster: MultilevelSensor
++#define DOTDOT_MULTILEVEL_SENSOR_SENSOR_VALUES_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x0)
++#define DOTDOT_MULTILEVEL_SENSOR_SENSOR_TYPE_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x1)
+ // Definitions for cluster: AoXLocator
+ #define DOTDOT_AOX_LOCATOR_REPORTING_MODE_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x1)
+ #define DOTDOT_AOX_LOCATOR_POSITION_AND_ORIENTATION_VALID_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x2)
+diff --git a/components/uic_dotdot/zap-generated/include/dotdot_cluster_command_id_definitions.h b/components/uic_dotdot/zap-generated/include/dotdot_cluster_command_id_definitions.h
+index 7e33175d4a..c63d48c45f 100644
+--- a/components/uic_dotdot/zap-generated/include/dotdot_cluster_command_id_definitions.h
++++ b/components/uic_dotdot/zap-generated/include/dotdot_cluster_command_id_definitions.h
+@@ -353,6 +353,8 @@
+ #define DOTDOT_CONFIGURATION_PARAMETERS_SET_PARAMETER_COMMAND_ID (0x3)
+ #define DOTDOT_CONFIGURATION_PARAMETERS_DISCOVER_PARAMETER_RANGE_COMMAND_ID (0x4)
+ 
++// Commands for cluster: MultilevelSensor
++
+ // Commands for cluster: AoXLocator
+ #define DOTDOT_AOX_LOCATOR_IQ_REPORT_COMMAND_ID (0x1)
+ #define DOTDOT_AOX_LOCATOR_ANGLE_REPORT_COMMAND_ID (0x2)
+diff --git a/components/uic_dotdot/zap-generated/include/dotdot_cluster_id_definitions.h b/components/uic_dotdot/zap-generated/include/dotdot_cluster_id_definitions.h
+index 34db7d7b79..7432fce84e 100644
+--- a/components/uic_dotdot/zap-generated/include/dotdot_cluster_id_definitions.h
++++ b/components/uic_dotdot/zap-generated/include/dotdot_cluster_id_definitions.h
+@@ -238,6 +238,10 @@
+ #define DOTDOT_CONFIGURATION_PARAMETERS_CLUSTER_ID ((dotdot_cluster_id_t)0xFD07)
+ 
+ 
++// Definitions for cluster: MultilevelSensor
++#define DOTDOT_MULTILEVEL_SENSOR_CLUSTER_ID ((dotdot_cluster_id_t)0xFD09)
++
++
+ // Definitions for cluster: AoXLocator
+ #define DOTDOT_AOX_LOCATOR_CLUSTER_ID ((dotdot_cluster_id_t)0xFD10)
+ 
+diff --git a/components/uic_dotdot/zap-generated/include/zap-types.h b/components/uic_dotdot/zap-generated/include/zap-types.h
+index daf85dbdac..504969219c 100644
+--- a/components/uic_dotdot/zap-generated/include/zap-types.h
++++ b/components/uic_dotdot/zap-generated/include/zap-types.h
+@@ -946,6 +946,96 @@ typedef enum {
+   ZCL_MOVE_STEP_MODE_DOWN = 1,
+ } MoveStepMode;
+ 
++// Enum for MultilevelSensorSensorType
++typedef enum {
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_AIR_TEMPERATURE = 1,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_ILLUMINANCE = 3,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_POWER = 4,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_HUMIDITY = 5,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_VELOCITY = 6,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_DIRECTION = 7,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_ATMOSPHERIC_PRESSURE = 8,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_BAROMETRIC_PRESSURE = 9,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_SOLAR_RADIATION = 10,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_DEW_POINT = 11,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_RAIN_RATE = 12,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_TIDE_LEVEL = 13,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_WEIGHT = 14,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_VOLTAGE = 15,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_CURRENT = 16,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_CARBON_DIOXIDE_CO2_LEVEL = 17,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_AIR_FLOW = 18,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_TANK_CAPACITY = 19,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_DISTANCE = 20,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_ROTATION = 22,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_WATER_TEMPURATURE = 23,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_SOIL_TEMPURATURE = 24,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_SEISMIC_INTENSITY = 25,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_SEISMIC_MAGNITUDE = 26,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_ULTRAVIOLET = 27,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_ELECTRICAL_RESISTIVITY = 28,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_ELECTRICAL_CONDUCTIVITY = 29,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_LOUDNESS = 30,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_MOISTURE = 31,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_FREQUENCY = 32,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_TIME = 33,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_TARGET_TEMPERATURE = 34,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_PARTICULATE_MATTER2__5 = 35,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_FORMALDEHYDE_LEVEL = 36,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_RADON_CONCENTRATION = 37,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_METHANE_DENSITY = 38,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_VOLATILE_ORGANIC_COMPOUND_LEVEL = 39,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_CARBON_MONOXIDE_LEVEL = 40,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_SOIL_HUMIDITY = 41,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_SOIL_REACTIVITY = 42,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_SOIL_SALINITY = 43,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_HEART_RATE = 44,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_BLOOD_PRESSURE = 45,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_MUSCLE_MASS = 46,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_FAT_MASS = 47,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_BONE_MASS = 48,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_TOTAL_BODY_WATER = 49,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_BASIS_METABOLIC_RATE = 50,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_BODY_MASS_INDEX = 51,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_ACCELERATION_X_AXIS = 52,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_ACCELERATION_Y_AXIS = 53,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_ACCELERATION_Z_AXIS = 54,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_SMOKE_DENSITY = 55,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_WATER_FLOW = 56,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_WATER_PRESSURE = 57,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_RF_SIGNAL_STRENGTH = 58,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_PARTICULATE_MATTER10 = 59,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_RESPIRATORY_RATE = 60,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_RELATIVE_MODULATION_LEVEL = 61,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_BOILER_WATER_TEMPERATURE = 62,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_DOMESTIC_HOT_WATER_TEMPERATURE = 63,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_OUTSIDE_TEMPERATURE = 64,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_EXHAUST_TEMPERATURE = 65,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_WATER_CHLORINE_LEVEL = 66,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_WATER_ACIDITY = 67,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_WATER_OXIDATION_REDUCTION_POTENTIAL = 68,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_HEART_RATE_LFHF_RATIO = 69,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_MOTION_DIRECTION = 70,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_APPLIED_FORCE_ON_THE_SENSOR = 71,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_RETURN_AIR_TEMPERATURE = 72,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_SUPPLY_AIR_TEMPERATURE = 73,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_CONDENSER_COIL_TEMPERATURE = 74,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_EVAPRORATOR_COIL_TEMPERATURE = 75,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_LIQUID_LINE_TEMPERATURE = 76,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_DISCHARGE_LINE_TEMPERATURE = 77,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_SUCTION_PRESSURE = 78,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_DISCHARGE_PRESSURE = 79,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_DEFROST_TEMPERATURE = 80,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_OZONE = 81,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_SULFUR_DIOXIDE = 82,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_NITROGEN_DIOXIDE = 83,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_AMMONIA = 84,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_LEAD = 85,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_PARTICULATE_MATTER1 = 86,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_PERSON_COUNTER_ENTERING = 87,
++  ZCL_MULTILEVEL_SENSOR_SENSOR_TYPE_PERSON_COUNTER_EXITING = 88,
++} MultilevelSensorSensorType;
++
+ // Enum for NM_State
+ typedef enum {
+   ZCL_NM_STATE_IDLE = 0,
+@@ -2284,6 +2374,12 @@ typedef struct _SSceneTable {
+   const char* SceneTableExtensions;
+ } SSceneTable;
+ 
++// Struct for SensorValue
++typedef struct _SensorValue {
++  int32_t Value;
++  uint8_t Scale;
++} SensorValue;
++
+ // Struct for SphericalCoordinates
+ typedef struct _SphericalCoordinates {
+   double Azimuth;
+diff --git a/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md b/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md
+index 5316b884c2..82dfa2097d 100644
+--- a/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md
++++ b/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md
+@@ -51886,6 +51886,315 @@ mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/ConfigurationParameters/Commands/Force
+ <br><br><br>
+ 
+ 
++<!-- -->
++<!-- -->
++<!-- NEW Page Cluster Support -->
++<!-- -->
++<!-- -->
++\page multilevel_sensor MultilevelSensor Cluster
++The following commands and attributes are accepted as JSON payloads for the
++MultilevelSensor cluster.
++
++<br><br>
++
++<!-- -->
++<!--  START OF MultilevelSensor Attributes Section -->
++<!-- -->
++\section multilevel_sensor_attrs MultilevelSensor Attributes
++The following attribute topics are used to retrieve the MultilevelSensor cluster state.
++
++<br>
++
++\subsection multilevel_sensor_attr_sensor_values MultilevelSensor/SensorValues Attribute
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/MultilevelSensor/Attributes/SensorValues/Reported
++[PREFIX]/MultilevelSensor/Attributes/SensorValues/Desired
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "MultilevelSensor Cluster SensorValues Attribute Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "SensorValue"
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++
++**Example Mosquitto CLI Tool Usage**
++
++To see desired/reported value for SensorValues attribute under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/+/+/MultilevelSensor/Attributes/SensorValues/+'
++
++# Example output
++
++ucl/by-unid/<UNID>/ep0/MultilevelSensor/Attributes/SensorValues/Desired { "value": <DESIRED_SENSOR_VALUES>}
++ucl/by-unid/<UNID>/ep0/MultilevelSensor/Attributes/SensorValues/Reported { "value": <REPORTED_SENSOR_VALUES>}
++
++```
++
++<br><br>
++
++\subsection multilevel_sensor_attr_sensor_type MultilevelSensor/SensorType Attribute
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/MultilevelSensor/Attributes/SensorType/Reported
++[PREFIX]/MultilevelSensor/Attributes/SensorType/Desired
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "MultilevelSensor Cluster SensorType Attribute Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "MultilevelSensorSensorType"
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++
++**Example Mosquitto CLI Tool Usage**
++
++To see desired/reported value for SensorType attribute under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/+/+/MultilevelSensor/Attributes/SensorType/+'
++
++# Example output
++
++ucl/by-unid/<UNID>/ep0/MultilevelSensor/Attributes/SensorType/Desired { "value": <DESIRED_SENSOR_TYPE>}
++ucl/by-unid/<UNID>/ep0/MultilevelSensor/Attributes/SensorType/Reported { "value": <REPORTED_SENSOR_TYPE>}
++
++```
++
++<br><br>
++
++
++\subsection multilevel_sensor_attr_cluster_revision MultilevelSensor/ClusterRevision Attribute
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/MultilevelSensor/Attributes/ClusterRevision/Reported
++[PREFIX]/MultilevelSensor/Attributes/ClusterRevision/Desired
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "MultilevelSensor Cluster ClusterRevision Attribute Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "integer"
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++**Example Mosquitto CLI Tool Usage**
++
++To see desired/reported value for ClusterRevision attribute under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/<UNID>/<EP>/MultilevelSensor/Attributes/ClusterRevision/+'
++# Example output
++ucl/by-unid/<UNID>/<EP>/MultilevelSensor/Attributes/ClusterRevision/Desired { "value": <DESIRED_CLUSTER_REVISION> }
++ucl/by-unid/<UNID>/<EP>/MultilevelSensor/Attributes/ClusterRevision/Reported { "value": <REPORTED_CLUSTER_REVISION> }
++```
++
++<!-- -->
++<!--  END OF MultilevelSensor Attributes Section -->
++<!-- -->
++
++<br><br>
++
++<!-- -->
++<!-- START OF MultilevelSensor Supported Commands Section -->
++<!-- -->
++\section multilevel_sensor_recv_cmd_support MultilevelSensor Command Support
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/MultilevelSensor/SupportedCommands
++[PREFIX]/MultilevelSensor/SupportedGeneratedCommands
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "MultilevelSensor Command Support Properties",
++  "type": "object",
++  "properties": {
++      "value": {
++          "type": "array",
++          "items" : {
++            "type": "string",
++            "enum": [
++            ]
++          }
++        }
++      }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++**Example Mosquitto CLI Tool Usage**
++
++To see supported commands for MultilevelSensor cluster under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/<UNID>/<EP>/MultilevelSensor/SupportedCommands'
++# Example output
++ucl/by-unid/<UNID>/<EP>/MultilevelSensor/SupportedCommands { "value": [] }
++```
++
++To see supported generated commands for MultilevelSensor cluster under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/<UNID>/<EP>/MultilevelSensor/SupportedGeneratedCommands'
++# Example output
++ucl/by-unid/<UNID>/<EP>/MultilevelSensor/SupportedGeneratedCommands { "value": [] }
++```
++
++<!-- -->
++<!-- END OF MultilevelSensor Supported Commands Section -->
++<!-- -->
++
++<br><br>
++
++<!-- -->
++<!-- START OF MultilevelSensor Commands Section -->
++<!-- -->
++\section multilevel_sensor_cmds MultilevelSensor Commands
++
++<br><br>
++
++\subsection multilevel_sensor_write_attr_cmd MultilevelSensor/WriteAttributes Command
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/MultilevelSensor/Commands/WriteAttributes
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "MultilevelSensor Cluster WriteAttributes Command Properties",
++  "type": "object",
++  "properties": {
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++**Example Mosquitto CLI Tool Usage**
++
++To update all MultilevelSensor attributes under the by-unid topic space:
++
++```console
++mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/MultilevelSensor/Commands/WriteAttributes' -m  '{  }'
++```
++
++> NOTE: Specify only the list of attributes to write in this command.
++> Unspecified attributes will not be updated.
++
++<br><br>
++
++\subsection multilevel_sensor_force_read_attr_cmd MultilevelSensor/ForceReadAttributes Command
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/MultilevelSensor/Commands/ForceReadAttributes
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "MultilevelSensor Cluster ForceReadAttributes Command Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "array"
++      "items": {
++        "type": "string",
++        "enum": [
++          "SensorValues",
++          "SensorType"
++        ]
++      }
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++**Example Mosquitto CLI Tool Usage**
++
++To force read all MultilevelSensor attributes under the by-unid topic space (by sending an empty array):
++
++```console
++mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/MultilevelSensor/Commands/ForceReadAttributes' -m  '{ "value": [] }'
++```
++
++To force read one of the MultilevelSensor attributes under the by-unid topic space:
++
++```console
++mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/MultilevelSensor/Commands/ForceReadAttributes' -m  '{ "value": ["SensorValues"] }'
++```
++
++<!-- -->
++<!-- END OF MultilevelSensor Commands Section -->
++<!-- -->
++
++<br><br><br>
++
++
+ <!-- -->
+ <!-- -->
+ <!-- NEW Page Cluster Support -->
+@@ -54908,6 +55217,33 @@ mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/UnifyHumidityControl/Commands/ForceRea
+ 
+ <br><br>
+ 
++<!-- -->
++<!-- START OF Struct SensorValue Section -->
++<!-- -->
++\section struct_sensor_value SensorValue Struct
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "SensorValue Struct Properties",
++  "type": "object",
++  "properties": {
++    "Value": {
++      "type": "integer"
++    }
++    "Scale": {
++      "type": "integer"
++    }
++  }
++}
++```
++
++<!-- -->
++<!-- END OF Struct SensorValue Section -->
++<!-- -->
++
++<br><br>
++
+ <!-- -->
+ <!-- START OF Struct SphericalCoordinates Section -->
+ <!-- -->
+@@ -57032,6 +57368,113 @@ mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/UnifyHumidityControl/Commands/ForceRea
+ 
+ <br><br>
+ 
++<!-- -->
++<!-- START OF Enum MultilevelSensorSensorType Section -->
++<!-- -->
++\section enum_multilevel_sensor_sensor_type MultilevelSensorSensorType Enum
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "MultilevelSensorSensorType Enum Properties",
++  "type": "string",
++  "enum": [
++    "AirTemperature",
++    "Illuminance",
++    "Power",
++    "Humidity",
++    "Velocity",
++    "Direction",
++    "AtmosphericPressure",
++    "BarometricPressure",
++    "SolarRadiation",
++    "DewPoint",
++    "RainRate",
++    "TideLevel",
++    "Weight",
++    "Voltage",
++    "Current",
++    "CarbonDioxideCO2Level",
++    "AirFlow",
++    "TankCapacity",
++    "Distance",
++    "Rotation",
++    "WaterTempurature",
++    "SoilTempurature",
++    "SeismicIntensity",
++    "SeismicMagnitude",
++    "Ultraviolet",
++    "ElectricalResistivity",
++    "ElectricalConductivity",
++    "Loudness",
++    "Moisture",
++    "Frequency",
++    "Time",
++    "TargetTemperature",
++    "ParticulateMatter2.5",
++    "FormaldehydeLevel",
++    "RadonConcentration",
++    "MethaneDensity",
++    "VolatileOrganicCompoundLevel",
++    "CarbonMonoxideLevel",
++    "SoilHumidity",
++    "SoilReactivity",
++    "SoilSalinity",
++    "HeartRate",
++    "BloodPressure",
++    "MuscleMass",
++    "FatMass",
++    "BoneMass",
++    "TotalBodyWater",
++    "BasisMetabolicRate",
++    "BodyMassIndex",
++    "AccelerationX-axis",
++    "AccelerationY-axis",
++    "AccelerationZ-axis",
++    "SmokeDensity",
++    "WaterFlow",
++    "WaterPressure",
++    "RFSignalStrength",
++    "ParticulateMatter10",
++    "RespiratoryRate",
++    "RelativeModulationLevel",
++    "BoilerWaterTemperature",
++    "DomesticHotWaterTemperature",
++    "OutsideTemperature",
++    "ExhaustTemperature",
++    "WaterChlorineLevel",
++    "WaterAcidity",
++    "WaterOxidationReductionPotential",
++    "HeartRateLFHFRatio",
++    "MotionDirection",
++    "AppliedForceOnTheSensor",
++    "ReturnAirTemperature",
++    "SupplyAirTemperature",
++    "CondenserCoilTemperature",
++    "EvaproratorCoilTemperature",
++    "LiquidLineTemperature",
++    "DischargeLineTemperature",
++    "SuctionPressure",
++    "DischargePressure",
++    "DefrostTemperature",
++    "Ozone",
++    "SulfurDioxide",
++    "NitrogenDioxide",
++    "Ammonia",
++    "Lead",
++    "ParticulateMatter1",
++    "PersonCounterEntering",
++    "PersonCounterExiting"
++  ]
++}
++```
++
++<!-- -->
++<!-- END OF Enum MultilevelSensorSensorType Section -->
++<!-- -->
++
++<br><br>
++
+ <!-- -->
+ <!-- START OF Enum NM_State Section -->
+ <!-- -->
+diff --git a/components/uic_dotdot/zap-generated/src/dotdot_attribute_id_definitions.c b/components/uic_dotdot/zap-generated/src/dotdot_attribute_id_definitions.c
+index badc743381..98ebe6435d 100644
+--- a/components/uic_dotdot/zap-generated/src/dotdot_attribute_id_definitions.c
++++ b/components/uic_dotdot/zap-generated/src/dotdot_attribute_id_definitions.c
+@@ -1947,6 +1947,19 @@ const char *uic_dotdot_get_attribute_name(dotdot_cluster_id_t cluster_id,
+           return "Unknown";
+       }
+       // clang-format off
++    case DOTDOT_MULTILEVEL_SENSOR_CLUSTER_ID:
++      // clang-format on
++      switch (attribute_id) {
++        // clang-format off
++        case DOTDOT_MULTILEVEL_SENSOR_SENSOR_VALUES_ATTRIBUTE_ID:
++          return "SensorValues";
++        case DOTDOT_MULTILEVEL_SENSOR_SENSOR_TYPE_ATTRIBUTE_ID:
++          return "SensorType";
++          // clang-format on
++        default:
++          return "Unknown";
++      }
++      // clang-format off
+     case DOTDOT_AOX_LOCATOR_CLUSTER_ID:
+       // clang-format on
+       switch (attribute_id) {
+@@ -4415,6 +4428,14 @@ dotdot_attribute_id_t
+         return DOTDOT_CONFIGURATION_PARAMETERS_CONFIGURATION_PARAMETERS_ATTRIBUTE_ID;
+       }
+     break;
++    case DOTDOT_MULTILEVEL_SENSOR_CLUSTER_ID:
++      if (strcmp ("SensorValues", attribute_name) == 0) {
++        return DOTDOT_MULTILEVEL_SENSOR_SENSOR_VALUES_ATTRIBUTE_ID;
++      }
++      if (strcmp ("SensorType", attribute_name) == 0) {
++        return DOTDOT_MULTILEVEL_SENSOR_SENSOR_TYPE_ATTRIBUTE_ID;
++      }
++    break;
+     case DOTDOT_AOX_LOCATOR_CLUSTER_ID:
+       if (strcmp ("ReportingMode", attribute_name) == 0) {
+         return DOTDOT_AOX_LOCATOR_REPORTING_MODE_ATTRIBUTE_ID;
+@@ -6506,6 +6527,19 @@ dotdot_attribute_json_type_t
+           return JSON_TYPE_UNKNOWN;
+       }
+       // clang-format off
++    case DOTDOT_MULTILEVEL_SENSOR_CLUSTER_ID:
++      // clang-format on
++      switch (attribute_id) {
++        // clang-format off
++        case DOTDOT_MULTILEVEL_SENSOR_SENSOR_VALUES_ATTRIBUTE_ID:
++          return JSON_TYPE_OBJECT;
++        case DOTDOT_MULTILEVEL_SENSOR_SENSOR_TYPE_ATTRIBUTE_ID:
++          return JSON_TYPE_NUMBER;
++                  // clang-format on
++        default:
++          return JSON_TYPE_UNKNOWN;
++      }
++      // clang-format off
+     case DOTDOT_AOX_LOCATOR_CLUSTER_ID:
+       // clang-format on
+       switch (attribute_id) {
+@@ -6982,6 +7016,12 @@ bool uic_dotdot_attribute_is_enum(dotdot_cluster_id_t cluster_id,
+   if (64775 == cluster_id) {
+   }
+ 
++  if (64777 == cluster_id) {
++    if (1 == attribute_id) {
++      return true;
++    }
++  }
++
+   if (64786 == cluster_id) {
+   }
+ 
+diff --git a/components/uic_dotdot/zap-generated/src/dotdot_cluster_id_definitions.c b/components/uic_dotdot/zap-generated/src/dotdot_cluster_id_definitions.c
+index 8699e827dc..4c251d9e02 100644
+--- a/components/uic_dotdot/zap-generated/src/dotdot_cluster_id_definitions.c
++++ b/components/uic_dotdot/zap-generated/src/dotdot_cluster_id_definitions.c
+@@ -120,6 +120,8 @@ const char* uic_dotdot_get_cluster_name(dotdot_cluster_id_t cluster_id) {
+     return "NameAndLocation";
+   case DOTDOT_CONFIGURATION_PARAMETERS_CLUSTER_ID:
+     return "ConfigurationParameters";
++  case DOTDOT_MULTILEVEL_SENSOR_CLUSTER_ID:
++    return "MultilevelSensor";
+   case DOTDOT_AOX_LOCATOR_CLUSTER_ID:
+     return "AoXLocator";
+   case DOTDOT_AOX_POSITION_ESTIMATION_CLUSTER_ID:
+@@ -293,6 +295,9 @@ dotdot_cluster_id_t uic_dotdot_get_cluster_id(const char* cluster_name) {
+  if (strcmp ("ConfigurationParameters", cluster_name) == 0) {
+    return DOTDOT_CONFIGURATION_PARAMETERS_CLUSTER_ID;
+  }
++ if (strcmp ("MultilevelSensor", cluster_name) == 0) {
++   return DOTDOT_MULTILEVEL_SENSOR_CLUSTER_ID;
++ }
+  if (strcmp ("AoXLocator", cluster_name) == 0) {
+    return DOTDOT_AOX_LOCATOR_CLUSTER_ID;
+  }
+diff --git a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt.h b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt.h
+index bd703a2daf..7606ec4c85 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt.h
++++ b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt.h
+@@ -39077,6 +39077,189 @@ void uic_mqtt_dotdot_configuration_parameters_publish_supported_commands(
+ void uic_mqtt_dotdot_configuration_parameters_publish_empty_supported_commands(
+   const dotdot_unid_t unid
+   ,dotdot_endpoint_id_t endpoint);
++// Callback types used by the multilevel_sensor cluster
++
++typedef struct {
++  SensorValue sensor_values;
++  uint8_t sensor_type;
++} uic_mqtt_dotdot_multilevel_sensor_state_t;
++
++typedef struct {
++  bool sensor_values;
++  bool sensor_type;
++} uic_mqtt_dotdot_multilevel_sensor_updated_state_t;
++
++typedef sl_status_t (*uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_t)(
++    const dotdot_unid_t unid,
++    const dotdot_endpoint_id_t endpoint,
++    uic_mqtt_dotdot_callback_call_type_t call_type,
++    uic_mqtt_dotdot_multilevel_sensor_state_t,
++    uic_mqtt_dotdot_multilevel_sensor_updated_state_t
++);
++
++typedef sl_status_t (*uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback_t)(
++    const dotdot_unid_t unid,
++    const dotdot_endpoint_id_t endpoint,
++    uic_mqtt_dotdot_callback_call_type_t call_type,
++    uic_mqtt_dotdot_multilevel_sensor_updated_state_t
++);
++
++
++
++
++/**
++ * @brief Setup a callback for WriteAttribute to be called when a
++ * +/multilevel_sensor/Commands/WriteAttributes is received.
++ *
++ * Setting this callback will not overwrite the previous set callback
++ * @param callback      Function to be called on command reception
++ */
++void uic_mqtt_dotdot_set_multilevel_sensor_write_attributes_callback(
++  const uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_t callback
++);
++/**
++ * @brief Unsets a callback for WriteAttribute to be called when a
++ * +/multilevel_sensor/Commands/WriteAttributes is received.
++ * @param callback      Function to be no longer called on command reception
++ */
++void uic_mqtt_dotdot_unset_multilevel_sensor_write_attributes_callback(
++  const uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_t callback
++);
++/**
++ * @brief Clears all callbacks registered for when
++ * +/multilevel_sensor/Commands/WriteAttributes is received.
++ */
++void uic_mqtt_dotdot_clear_multilevel_sensor_write_attributes_callbacks();
++
++/**
++ * @brief Setup a callback for ForceReadAttributes to be called when a
++ * +/multilevel_sensor/Commands/ForceReadAttributes is received.
++ *
++ * Setting this callback will not overwrite the previous set callback
++ * @param callback      Function to be called on command reception
++ */
++void uic_mqtt_dotdot_set_multilevel_sensor_force_read_attributes_callback(
++  const uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback_t callback
++);
++/**
++ * @brief Unsets a callback for ForceReadAttributes to be called when a
++ * +/multilevel_sensor/Commands/ForceReadAttributes is received.
++ *
++ * @param callback      Function to be no longer called on command reception
++ */
++void uic_mqtt_dotdot_unset_multilevel_sensor_force_read_attributes_callback(
++  const uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback_t callback
++);
++/**
++ * @brief Clears all callbacks registered for when
++ * +/multilevel_sensor/Commands/ForceReadAttributes is received.
++ */
++void uic_mqtt_dotdot_clear_multilevel_sensor_force_read_attributes_callbacks();
++
++/**
++ * @brief Publish the attribute; MultilevelSensor/Attributes/SensorValues
++ *
++ * @param base_topic    topic prefix to publish, /sensor_values
++ *                      will be appended
++ * @param value         Value to publish
++ * @param publish_type  Whether to publish as Desired, Reported, or Both.
++ *
++ * @returns SL_STATUS_OK on success
++ */
++sl_status_t uic_mqtt_dotdot_multilevel_sensor_sensor_values_publish(
++  const char *base_topic,
++  SensorValue value,
++  uic_mqtt_dotdot_attribute_publish_type_t publish_type
++);
++
++/**
++ * @brief Unretains a published attribute; MultilevelSensor/Attributes/SensorValues
++ *
++ * @param base_topic    topic prefix to publish, /sensor_values
++ *                      will be appended
++ * @param publish_type  Whether to publish as Desired, Reported, or Both.
++ *
++ * @returns SL_STATUS_OK on success
++ */
++sl_status_t uic_mqtt_dotdot_multilevel_sensor_sensor_values_unretain(
++  const char *base_topic,
++  uic_mqtt_dotdot_attribute_publish_type_t publish_type
++);
++
++/**
++ * @brief Publish the attribute; MultilevelSensor/Attributes/SensorType
++ *
++ * @param base_topic    topic prefix to publish, /sensor_type
++ *                      will be appended
++ * @param value         Value to publish
++ * @param publish_type  Whether to publish as Desired, Reported, or Both.
++ *
++ * @returns SL_STATUS_OK on success
++ */
++sl_status_t uic_mqtt_dotdot_multilevel_sensor_sensor_type_publish(
++  const char *base_topic,
++  uint8_t value,
++  uic_mqtt_dotdot_attribute_publish_type_t publish_type
++);
++
++/**
++ * @brief Unretains a published attribute; MultilevelSensor/Attributes/SensorType
++ *
++ * @param base_topic    topic prefix to publish, /sensor_type
++ *                      will be appended
++ * @param publish_type  Whether to publish as Desired, Reported, or Both.
++ *
++ * @returns SL_STATUS_OK on success
++ */
++sl_status_t uic_mqtt_dotdot_multilevel_sensor_sensor_type_unretain(
++  const char *base_topic,
++  uic_mqtt_dotdot_attribute_publish_type_t publish_type
++);
++
++
++/**
++ * @brief Publish the MultilevelSensor/ClusterRevision attribute
++ *
++ * @param base_topic    topic prefix to publish, /MultilevelSensor/Attributes/ClusterRevision
++ *                      will be appended.
++ * @param value         Value to publish.
++ */
++void uic_mqtt_dotdot_multilevel_sensor_publish_cluster_revision(const char* base_topic, uint16_t value);
++
++/**
++ * @brief Unretain a publication to MultilevelSensor/ClusterRevision attribute
++ *
++ * @param base_topic    topic prefix to publish, /MultilevelSensor/Attributes/ClusterRevision
++ *                      will be appended.
++ */
++void uic_mqtt_dotdot_multilevel_sensor_unretain_cluster_revision(const char* base_topic);
++
++/**
++ * @brief Publish the SupportedCommands for UNID/EndPoint for the MultilevelSensor Cluster
++ *
++ * This function will iterate over all Commands in the MultilevelSensor Cluster and
++ * call all registered callback functions with UNID/endpoint, and
++ * callback_type = UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK.
++ * All Cluster Command callback functions that return SL_STATUS_OK
++ * will be added to the list of supported commands and published.
++ *
++ * @param unid
++ * @param endpoint
++ */
++void uic_mqtt_dotdot_multilevel_sensor_publish_supported_commands(
++  const dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint);
++
++/**
++ * @brief Publish an empty array of SupportedCommands for UNID/EndPoint for
++ * the MultilevelSensor Cluster
++ *
++ * @param unid
++ * @param endpoint )
++ */
++void uic_mqtt_dotdot_multilevel_sensor_publish_empty_supported_commands(
++  const dotdot_unid_t unid
++  ,dotdot_endpoint_id_t endpoint);
+ // Callback types used by the protocol_controller_network_management cluster
+ typedef sl_status_t (*uic_mqtt_dotdot_protocol_controller_network_management_write_callback_t)(
+     dotdot_unid_t unid,
+diff --git a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_attributes.h b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_attributes.h
+index 68b51b7e03..003f75549d 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_attributes.h
++++ b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_attributes.h
+@@ -4978,6 +4978,21 @@ typedef sl_status_t (*uic_mqtt_dotdot_configuration_parameters_attribute_configu
+   size_t configuration_parameters_count,
+   const ConfigurationParameter* configuration_parameters
+ );
++// Callback types used by the multilevel_sensor cluster
++typedef sl_status_t (*uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_values_callback_t)(
++  dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint,
++  bool unretained,
++  uic_mqtt_dotdot_attribute_update_type_t update_type,
++  SensorValue sensor_values
++);
++typedef sl_status_t (*uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_type_callback_t)(
++  dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint,
++  bool unretained,
++  uic_mqtt_dotdot_attribute_update_type_t update_type,
++  uint8_t sensor_type
++);
+ // Callback types used by the protocol_controller_network_management cluster
+ typedef sl_status_t (*uic_mqtt_dotdot_protocol_controller_network_management_attribute_network_management_state_callback_t)(
+   dotdot_unid_t unid,
+@@ -9739,6 +9754,26 @@ sl_status_t uic_mqtt_dotdot_configuration_parameters_attributes_init();
+ void uic_mqtt_dotdot_configuration_parameters_attribute_configuration_parameters_callback_set(const uic_mqtt_dotdot_configuration_parameters_attribute_configuration_parameters_callback_t callback);
+ 
+ 
++/**
++ *  Initializes the attributes features for the MultilevelSensor cluster,
++ *  allowing to receive attribute updates from other UNIDs.
++ */
++sl_status_t uic_mqtt_dotdot_multilevel_sensor_attributes_init();
++
++/**
++ * Setup callback to be called when a
++ * MultilevelSensor/Attributes/sensor_values/# is received. Setting
++ * this callback will overwrite the previous set callback
++ */
++void uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_values_callback_set(const uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_values_callback_t callback);
++/**
++ * Setup callback to be called when a
++ * MultilevelSensor/Attributes/sensor_type/# is received. Setting
++ * this callback will overwrite the previous set callback
++ */
++void uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_type_callback_set(const uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_type_callback_t callback);
++
++
+ /**
+  *  Initializes the attributes features for the ProtocolController-NetworkManagement cluster,
+  *  allowing to receive attribute updates from other UNIDs.
+diff --git a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_generated_commands.h b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_generated_commands.h
+index 011a75ddf9..aa8ac95998 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_generated_commands.h
++++ b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_generated_commands.h
+@@ -4838,6 +4838,28 @@ void uic_mqtt_dotdot_configuration_parameters_publish_generated_write_attributes
+   uic_mqtt_dotdot_configuration_parameters_updated_state_t attribute_list
+ );
+ 
++
++/**
++ * @brief Publishes an incoming/generated WriteAttributes command for
++ * the MultilevelSensor cluster.
++ *
++ * Publication will be made at the following topic
++ * ucl/by-unid/UNID/epID/MultilevelSensor/GeneratedCommands/WriteAttributes
++ *
++ * @param unid      The UNID of the node that sent us the command.
++ * 
++ * @param endpoint  The Endpoint ID of the node that sent us the command.
++ * 
++ * @param attribute_values  Values to assign to the attributes
++ * @param attribute_list    List of attributes that are written
++ */
++void uic_mqtt_dotdot_multilevel_sensor_publish_generated_write_attributes_command(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint,
++  uic_mqtt_dotdot_multilevel_sensor_state_t attribute_values,
++  uic_mqtt_dotdot_multilevel_sensor_updated_state_t attribute_list
++);
++
+ /**
+  * @brief Publishes an incoming/generated Write command for
+  * the ProtocolController-NetworkManagement cluster.
+diff --git a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_group_commands.h b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_group_commands.h
+index ac85664a4f..caeee80ffa 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_group_commands.h
++++ b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_group_commands.h
+@@ -3610,6 +3610,23 @@ void uic_mqtt_dotdot_by_group_configuration_parameters_write_attributes_callback
+ 
+ 
+ 
++typedef void (*uic_mqtt_dotdot_by_group_multilevel_sensor_write_attributes_callback_t)(
++    const dotdot_group_id_t group_id,
++    uic_mqtt_dotdot_multilevel_sensor_state_t,
++    uic_mqtt_dotdot_multilevel_sensor_updated_state_t
++);
++
++/**
++ * Setup a callback for WriteAttribute to be called when a
++ * ucl/by-group/+/multilevel_sensor/Commands/WriteAttributes is received.
++ * Setting this callback will overwrite any previously set callback.
++ */
++void uic_mqtt_dotdot_by_group_multilevel_sensor_write_attributes_callback_set(
++  const uic_mqtt_dotdot_by_group_multilevel_sensor_write_attributes_callback_t callback
++);
++
++
++
+ typedef void (*uic_mqtt_dotdot_by_group_descriptor_write_attributes_callback_t)(
+     const dotdot_group_id_t group_id,
+     uic_mqtt_dotdot_descriptor_state_t,
+diff --git a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_helpers.h b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_helpers.h
+index 80d87abc45..a9b42d482c 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_helpers.h
++++ b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_helpers.h
+@@ -538,6 +538,13 @@ char *move_step_mode_get_enum_value_name_c(
+   uint32_t value, char *result, size_t max_result_size);
+ /** Get move_step_mode enum representation from string. */
+ uint32_t move_step_mode_get_enum_value_number_c(const char *str);
++#define MULTILEVEL_SENSOR_SENSOR_TYPE_ENUM_NAME_AVAILABLE 1
++
++/** Get multilevel_sensor_sensor_type string representation from enum. */
++char *multilevel_sensor_sensor_type_get_enum_value_name_c(
++  uint32_t value, char *result, size_t max_result_size);
++/** Get multilevel_sensor_sensor_type enum representation from string. */
++uint32_t multilevel_sensor_sensor_type_get_enum_value_number_c(const char *str);
+ #define NM_STATE_ENUM_NAME_AVAILABLE 1
+ 
+ /** Get nm_state string representation from enum. */
+diff --git a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_helpers.hpp b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_helpers.hpp
+index 14befa43ce..d227c69cc2 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_helpers.hpp
++++ b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_helpers.hpp
+@@ -1271,6 +1271,23 @@ std::string move_step_mode_get_enum_value_name(
+  */
+ uint32_t move_step_mode_get_enum_value_number(const std::string &str);
+ 
++#define MULTILEVEL_SENSOR_SENSOR_TYPE_ENUM_NAME_AVAILABLE 1
++
++/**
++ * @brief Finds the name of a field for the MultilevelSensorSensorType enum
++ *
++ * @returns A string representation of the value.
++ */
++std::string multilevel_sensor_sensor_type_get_enum_value_name(
++  uint32_t value);
++
++/**
++ * @brief Finds the enum number of a string representation for the MultilevelSensorSensorType enum
++ *
++ * @returns A number enum value.
++ */
++uint32_t multilevel_sensor_sensor_type_get_enum_value_number(const std::string &str);
++
+ #define NM_STATE_ENUM_NAME_AVAILABLE 1
+ 
+ /**
+diff --git a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_supported_generated_commands.h b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_supported_generated_commands.h
+index 3ee01c0c62..31b5b4443d 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_supported_generated_commands.h
++++ b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_supported_generated_commands.h
+@@ -1552,6 +1552,34 @@ void uic_mqtt_dotdot_configuration_parameters_publish_supported_generated_comman
+ );
+ 
+ 
++/**
++ * @brief Struct containing the list of commands for MultilevelSensor
++ */
++typedef struct _uic_mqtt_dotdot_multilevel_sensor_supported_commands_ {
++  bool write_attributes;
++} uic_mqtt_dotdot_multilevel_sensor_supported_commands_t;
++
++/**
++ * @brief Sends/Publishes a the SupportedGenerated commands for
++ * the MultilevelSensor cluster for a UNID/Endpoint
++ *
++ * Publication will be made at the following topic
++ * ucl/by-unid/UNID/epID/MultilevelSensor/SupportedGeneratedCommands
++ *
++ * @param unid      The UNID of the node on behalf of which the advertisment is made
++ * 
++ * @param endpoint  The Endpoint ID of the node on behalf of which the advertisment is made
++ * 
++ * @param command_list      Struct pointer with the fields value indicating if
++ *                          individual commands can be generated.
++ */
++void uic_mqtt_dotdot_multilevel_sensor_publish_supported_generated_commands(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint,
++  const uic_mqtt_dotdot_multilevel_sensor_supported_commands_t *command_list
++);
++
++
+ /**
+  * @brief Struct containing the list of commands for ProtocolController-NetworkManagement
+  */
+diff --git a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_translators.h b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_translators.h
+index d72db40ead..999d4c726e 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_translators.h
++++ b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt_translators.h
+@@ -493,6 +493,32 @@ inline void to_json(nlohmann::json& jsn, const SSceneTable& field)
+ }
+ 
+ 
++/**
++ * Parse SensorValue type from json object.
++ *
++ * @param jsn     JSON object to parse from.
++ * @param field  field to be populated from JSON object.
++ */
++inline void from_json(const nlohmann::json& jsn, SensorValue& field)
++{
++  jsn.at("Value").get_to(field.Value);
++  jsn.at("Scale").get_to(field.Scale);
++}
++
++
++/**
++ * Build JSON object from SensorValue type.
++ *
++ * @param jsn     JSON object to be populated.
++ * @param field   Reference data.
++ */
++inline void to_json(nlohmann::json& jsn, const SensorValue& field)
++{
++  jsn["Value"] = field.Value;
++  jsn["Scale"] = field.Scale;
++}
++
++
+ /**
+  * Parse SphericalCoordinates type from json object.
+  *
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.cpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.cpp
+index d1122bf8dd..fb910272aa 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.cpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.cpp
+@@ -91829,6 +91829,340 @@ sl_status_t uic_mqtt_dotdot_configuration_parameters_init()
+   return SL_STATUS_OK;
+ }
+ 
++// Callbacks pointers
++static std::set<uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_t> uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback;
++static std::set<uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback_t> uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback;
++
++// Callbacks setters
++
++void uic_mqtt_dotdot_set_multilevel_sensor_write_attributes_callback(
++  const uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_t callback)
++{
++  if (callback != nullptr) {
++    uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback.insert(callback);
++  }
++}
++void uic_mqtt_dotdot_unset_multilevel_sensor_write_attributes_callback(
++  const uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_t callback)
++{
++  uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback.erase(callback);
++}
++void uic_mqtt_dotdot_clear_multilevel_sensor_write_attributes_callbacks()
++{
++  uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback.clear();
++}
++std::set<uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_t>& get_uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback()
++{
++  return uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback;
++}
++
++void uic_mqtt_dotdot_set_multilevel_sensor_force_read_attributes_callback(
++  const uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback_t callback)
++{
++  if (callback != nullptr) {
++    uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback.insert(callback);
++  }
++}
++void uic_mqtt_dotdot_unset_multilevel_sensor_force_read_attributes_callback(
++  const uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback_t callback)
++{
++  uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback.erase(callback);
++}
++void uic_mqtt_dotdot_clear_multilevel_sensor_force_read_attributes_callbacks()
++{
++  uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback.clear();
++}
++
++
++// Callback function for incoming publications on ucl/by-unid/+/+/MultilevelSensor/Commands/WriteAttributes
++void uic_mqtt_dotdot_on_multilevel_sensor_WriteAttributes(
++  const char *topic,
++  const char *message,
++  const size_t message_length)
++{
++  if (uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback.empty()) {
++    return;
++  }
++
++  if (message_length == 0) {
++    return;
++  }
++
++  std::string unid;
++  uint8_t endpoint = 0; // Default value for endpoint-less topics.
++  if(! uic_dotdot_mqtt::parse_topic(topic,unid,endpoint)) {
++    sl_log_debug(LOG_TAG,
++                "Error parsing UNID / Endpoint ID from topic %s. Ignoring",
++                topic);
++    return;
++  }
++
++  uic_mqtt_dotdot_multilevel_sensor_state_t new_state = {};
++  uic_mqtt_dotdot_multilevel_sensor_updated_state_t new_updated_state = {};
++
++
++  nlohmann::json jsn;
++  try {
++    jsn = nlohmann::json::parse(std::string(message));
++
++    uic_mqtt_dotdot_parse_multilevel_sensor_write_attributes(
++      jsn,
++      new_state,
++      new_updated_state
++    );
++  } catch (const nlohmann::json::parse_error& e) {
++    // Catch JSON object field parsing errors
++    sl_log_debug(LOG_TAG, LOG_FMT_JSON_PARSE_FAIL, "MultilevelSensor", "WriteAttributes");
++    return;
++  } catch (const nlohmann::json::exception& e) {
++    // Catch JSON object field parsing errors
++    sl_log_debug(LOG_TAG, LOG_FMT_JSON_ERROR, "MultilevelSensor", "WriteAttributes", e.what());
++    return;
++  } catch (const std::exception& e) {
++    sl_log_debug(LOG_TAG, LOG_FMT_JSON_ERROR, "MultilevelSensor", "WriteAttributes", "");
++    return;
++  }
++
++  for (const auto& callback: uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback){
++    callback(
++      static_cast<dotdot_unid_t>(unid.c_str()),
++      endpoint,
++      UIC_MQTT_DOTDOT_CALLBACK_TYPE_NORMAL,
++      new_state,
++      new_updated_state
++    );
++  }
++
++}
++
++static void uic_mqtt_dotdot_on_multilevel_sensor_force_read_attributes(
++  const char *topic,
++  const char *message,
++  const size_t message_length)
++{
++  uint8_t endpoint = 0;
++  std::string unid;
++
++  if ((message_length == 0) || (uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback.empty())) {
++    return;
++  }
++
++  if(! uic_dotdot_mqtt::parse_topic(topic, unid, endpoint)) {
++    sl_log_debug(LOG_TAG,
++                "Error parsing UNID / Endpoint ID from topic %s. Ignoring",
++                topic);
++    return;
++  }
++
++  try {
++    uic_mqtt_dotdot_multilevel_sensor_updated_state_t force_update = {0};
++    bool trigger_handler = false;
++
++    nlohmann::json jsn = nlohmann::json::parse(std::string(message));
++    std::vector<std::string> attributes = jsn["value"].get<std::vector<std::string>>();
++
++    // Assume all attributes to be read on empty array received
++    if (attributes.size() == 0) {
++      force_update.sensor_values = true;
++      force_update.sensor_type = true;
++      trigger_handler = true;
++    } else {
++      std::unordered_map<std::string, bool *> supported_attrs = {
++        {"SensorValues", &force_update.sensor_values },
++        {"SensorType", &force_update.sensor_type },
++      };
++
++      for (auto& attribute : attributes) {
++        auto found_attr = supported_attrs.find(attribute);
++        if (found_attr != supported_attrs.end()) {
++          *(found_attr->second) = true;
++          trigger_handler = true;
++        }
++      }
++    }
++
++    if (trigger_handler == true) {
++      for (const auto& callback: uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback) {
++        callback(
++          static_cast<dotdot_unid_t>(unid.c_str()),
++          endpoint,
++          UIC_MQTT_DOTDOT_CALLBACK_TYPE_NORMAL,
++          force_update
++        );
++      }
++    }
++  } catch (...) {
++    sl_log_debug(LOG_TAG, "MultilevelSensor/Commands/ForceReadAttributes: Unable to parse JSON payload");
++    return;
++  }
++}
++
++sl_status_t uic_mqtt_dotdot_multilevel_sensor_sensor_values_publish(
++  const char *base_topic,
++  SensorValue value,
++  uic_mqtt_dotdot_attribute_publish_type_t publish_type
++)
++{
++  nlohmann::json jsn;
++
++  // This is a single value
++
++  nlohmann::json json_object = nlohmann::json::object();
++   json_object["Value"] = value.Value;
++   json_object["Scale"] = value.Scale;
++  jsn["value"]= json_object;
++
++
++  std::string payload_str;
++  try {
++    // Payload contains data from end nodes, which we cannot control, thus we handle if there are non-utf8 characters
++    payload_str = jsn.dump(-1, ' ', false, nlohmann::detail::error_handler_t::replace);
++  } catch (const nlohmann::json::exception& e) {
++    sl_log_debug(LOG_TAG, LOG_FMT_JSON_ERROR, "MultilevelSensor/Attributes/SensorValues", e.what());
++    return SL_STATUS_OK;
++  }
++
++
++  std::string topic = std::string(base_topic) + "/MultilevelSensor/Attributes/SensorValues";
++  if (publish_type & UCL_MQTT_PUBLISH_TYPE_DESIRED)
++  {
++    std::string topic_desired = topic + "/Desired";
++    uic_mqtt_publish(topic_desired.c_str(),
++              payload_str.c_str(),
++              payload_str.length(),
++              true);
++  }
++  if (publish_type & UCL_MQTT_PUBLISH_TYPE_REPORTED)
++  {
++    std::string topic_reported = topic + "/Reported";
++    uic_mqtt_publish(topic_reported.c_str(),
++              payload_str.c_str(),
++              payload_str.length(),
++              true);
++  }
++  return SL_STATUS_OK;
++}
++
++sl_status_t uic_mqtt_dotdot_multilevel_sensor_sensor_values_unretain(
++  const char *base_topic,
++  uic_mqtt_dotdot_attribute_publish_type_t publish_type)
++{
++  // clang-format on
++  std::string topic
++    = std::string(base_topic)
++      + "/MultilevelSensor/Attributes/SensorValues";
++
++  if ((publish_type == UCL_MQTT_PUBLISH_TYPE_DESIRED)
++      || (publish_type == UCL_MQTT_PUBLISH_TYPE_ALL)) {
++    std::string topic_desired = topic + "/Desired";
++    uic_mqtt_publish(topic_desired.c_str(), NULL, 0, true);
++  }
++  if ((publish_type == UCL_MQTT_PUBLISH_TYPE_REPORTED)
++      || (publish_type == UCL_MQTT_PUBLISH_TYPE_ALL)) {
++    std::string topic_reported = topic + "/Reported";
++    uic_mqtt_publish(topic_reported.c_str(), NULL, 0, true);
++  }
++  return SL_STATUS_OK;
++}
++// clang-format off
++
++sl_status_t uic_mqtt_dotdot_multilevel_sensor_sensor_type_publish(
++  const char *base_topic,
++  uint8_t value,
++  uic_mqtt_dotdot_attribute_publish_type_t publish_type
++)
++{
++  nlohmann::json jsn;
++
++  // This is a single value
++
++  #ifdef MULTILEVEL_SENSOR_SENSOR_TYPE_ENUM_NAME_AVAILABLE
++  jsn["value"] = multilevel_sensor_sensor_type_get_enum_value_name((uint32_t)value);
++  #elif defined(ENUM8_ENUM_NAME_AVAILABLE)
++  jsn["value"] = enum8_get_enum_value_name((uint32_t)value);
++  #else
++  sl_log_warning(LOG_TAG,"Warning: Enum name not available for MULTILEVEL_SENSOR_SENSOR_TYPE. Using number instead.");
++  jsn["value"] = static_cast<MultilevelSensorSensorType>(value);
++  #endif
++
++
++  std::string payload_str;
++  try {
++    // Payload contains data from end nodes, which we cannot control, thus we handle if there are non-utf8 characters
++    payload_str = jsn.dump(-1, ' ', false, nlohmann::detail::error_handler_t::replace);
++  } catch (const nlohmann::json::exception& e) {
++    sl_log_debug(LOG_TAG, LOG_FMT_JSON_ERROR, "MultilevelSensor/Attributes/SensorType", e.what());
++    return SL_STATUS_OK;
++  }
++
++
++  std::string topic = std::string(base_topic) + "/MultilevelSensor/Attributes/SensorType";
++  if (publish_type & UCL_MQTT_PUBLISH_TYPE_DESIRED)
++  {
++    std::string topic_desired = topic + "/Desired";
++    uic_mqtt_publish(topic_desired.c_str(),
++              payload_str.c_str(),
++              payload_str.length(),
++              true);
++  }
++  if (publish_type & UCL_MQTT_PUBLISH_TYPE_REPORTED)
++  {
++    std::string topic_reported = topic + "/Reported";
++    uic_mqtt_publish(topic_reported.c_str(),
++              payload_str.c_str(),
++              payload_str.length(),
++              true);
++  }
++  return SL_STATUS_OK;
++}
++
++sl_status_t uic_mqtt_dotdot_multilevel_sensor_sensor_type_unretain(
++  const char *base_topic,
++  uic_mqtt_dotdot_attribute_publish_type_t publish_type)
++{
++  // clang-format on
++  std::string topic
++    = std::string(base_topic)
++      + "/MultilevelSensor/Attributes/SensorType";
++
++  if ((publish_type == UCL_MQTT_PUBLISH_TYPE_DESIRED)
++      || (publish_type == UCL_MQTT_PUBLISH_TYPE_ALL)) {
++    std::string topic_desired = topic + "/Desired";
++    uic_mqtt_publish(topic_desired.c_str(), NULL, 0, true);
++  }
++  if ((publish_type == UCL_MQTT_PUBLISH_TYPE_REPORTED)
++      || (publish_type == UCL_MQTT_PUBLISH_TYPE_ALL)) {
++    std::string topic_reported = topic + "/Reported";
++    uic_mqtt_publish(topic_reported.c_str(), NULL, 0, true);
++  }
++  return SL_STATUS_OK;
++}
++// clang-format off
++
++
++sl_status_t uic_mqtt_dotdot_multilevel_sensor_init()
++{
++  std::string base_topic = "ucl/by-unid/+/+/";
++
++  std::string subscription_topic;
++  if(!uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback.empty()) {
++    subscription_topic = base_topic + "MultilevelSensor/Commands/WriteAttributes";
++    uic_mqtt_subscribe(subscription_topic.c_str(), uic_mqtt_dotdot_on_multilevel_sensor_WriteAttributes);
++  }
++
++  if(!uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback.empty()) {
++    subscription_topic = base_topic + "MultilevelSensor/Commands/ForceReadAttributes";
++    uic_mqtt_subscribe(subscription_topic.c_str(), uic_mqtt_dotdot_on_multilevel_sensor_force_read_attributes);
++  }
++
++  // Init the attributes for that cluster
++  uic_mqtt_dotdot_multilevel_sensor_attributes_init();
++
++  uic_mqtt_dotdot_by_group_multilevel_sensor_init();
++
++  return SL_STATUS_OK;
++}
++
+ // Callbacks pointers
+ static std::set<uic_mqtt_dotdot_protocol_controller_network_management_write_callback_t> uic_mqtt_dotdot_protocol_controller_network_management_write_callback;
+ static std::set<uic_mqtt_dotdot_protocol_controller_network_management_write_callback_t> uic_mqtt_dotdot_protocol_controller_network_management_generated_write_callback;
+@@ -95747,6 +96081,10 @@ sl_status_t uic_mqtt_dotdot_init() {
+     status_flag = uic_mqtt_dotdot_configuration_parameters_init();
+   }
+ 
++  if (status_flag == SL_STATUS_OK) {
++    status_flag = uic_mqtt_dotdot_multilevel_sensor_init();
++  }
++
+   if (status_flag == SL_STATUS_OK) {
+     status_flag = uic_mqtt_dotdot_protocol_controller_network_management_init();
+   }
+@@ -95824,6 +96162,7 @@ void uic_mqtt_dotdot_publish_supported_commands(
+   uic_mqtt_dotdot_application_monitoring_publish_supported_commands(unid, 0);
+   uic_mqtt_dotdot_name_and_location_publish_supported_commands(unid, endpoint_id);
+   uic_mqtt_dotdot_configuration_parameters_publish_supported_commands(unid, endpoint_id);
++  uic_mqtt_dotdot_multilevel_sensor_publish_supported_commands(unid, endpoint_id);
+   uic_mqtt_dotdot_protocol_controller_network_management_publish_supported_commands(unid, 0);
+   uic_mqtt_dotdot_descriptor_publish_supported_commands(unid, endpoint_id);
+   uic_mqtt_dotdot_unify_fan_control_publish_supported_commands(unid, endpoint_id);
+@@ -95883,6 +96222,7 @@ void uic_mqtt_dotdot_publish_empty_supported_commands(
+   uic_mqtt_dotdot_application_monitoring_publish_empty_supported_commands(unid);
+   uic_mqtt_dotdot_name_and_location_publish_empty_supported_commands(unid, endpoint_id);
+   uic_mqtt_dotdot_configuration_parameters_publish_empty_supported_commands(unid, endpoint_id);
++  uic_mqtt_dotdot_multilevel_sensor_publish_empty_supported_commands(unid, endpoint_id);
+   uic_mqtt_dotdot_protocol_controller_network_management_publish_empty_supported_commands(unid);
+   uic_mqtt_dotdot_descriptor_publish_empty_supported_commands(unid, endpoint_id);
+   uic_mqtt_dotdot_unify_fan_control_publish_empty_supported_commands(unid, endpoint_id);
+@@ -108646,6 +108986,154 @@ void uic_mqtt_dotdot_configuration_parameters_publish_empty_supported_commands(
+   }
+ }
+ 
++// Publishing Cluster Revision for MultilevelSensor Cluster
++void uic_mqtt_dotdot_multilevel_sensor_publish_cluster_revision(const char* base_topic, uint16_t value)
++{
++  std::string cluster_topic = std::string(base_topic) + "/MultilevelSensor/Attributes/ClusterRevision";
++  // Publish Desired
++  std::string pub_topic_des = cluster_topic + "/Desired";
++  std::string payload = std::string(R"({"value": )")
++    + std::to_string(value) + std::string("}");
++  uic_mqtt_publish(pub_topic_des.c_str(),
++                    payload.c_str(),
++                    payload.size(),
++                    true);
++  // Publish Reported
++  std::string pub_topic_rep = cluster_topic + "/Reported";
++  uic_mqtt_publish(pub_topic_rep.c_str(),
++                    payload.c_str(),
++                    payload.size(),
++                    true);
++}
++
++// Unretain Cluster Revision for MultilevelSensor Cluster
++void uic_mqtt_dotdot_multilevel_sensor_unretain_cluster_revision(const char* base_topic)
++{
++  // clang-format on
++  std::string cluster_topic
++    = std::string(base_topic)
++      + "/MultilevelSensor/Attributes/ClusterRevision";
++  // Publish Desired
++  std::string desired_topic = cluster_topic + "/Desired";
++  uic_mqtt_publish(desired_topic.c_str(), NULL, 0, true);
++  // Publish Reported
++  std::string reported_topic = cluster_topic + "/Reported";
++  uic_mqtt_publish(reported_topic.c_str(), NULL, 0, true);
++  // clang-format off
++}
++
++
++static inline bool uic_mqtt_dotdot_multilevel_sensor_write_attributes_is_supported(
++  const dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint_id)
++{
++  for (const auto& callback: uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback) {
++    uic_mqtt_dotdot_multilevel_sensor_state_t multilevel_sensor_new_state = {};
++    uic_mqtt_dotdot_multilevel_sensor_updated_state_t multilevel_sensor_new_updated_state = {};
++
++    if (callback(
++          unid,
++          endpoint_id,
++          UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK,
++          multilevel_sensor_new_state,
++          multilevel_sensor_new_updated_state
++      ) == SL_STATUS_OK) {
++      return true;
++    }
++  }
++  return false;
++}
++
++static inline bool uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_is_supported(
++  const dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint_id)
++{
++  for (const auto& callback: uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback) {
++    uic_mqtt_dotdot_multilevel_sensor_updated_state_t multilevel_sensor_force_update = {0};
++    if (callback(
++          unid,
++          endpoint_id,
++          UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK,
++          multilevel_sensor_force_update
++      ) == SL_STATUS_OK) {
++      return true;
++    }
++  }
++  return false;
++}
++
++// Publishing Supported Commands for MultilevelSensor Cluster
++void uic_mqtt_dotdot_multilevel_sensor_publish_supported_commands(
++  const dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint_id)
++{
++  std::stringstream ss;
++  bool first_command = true;
++  ss.str("");
++
++  // check if there is callback for each command
++
++  // Check for a WriteAttributes Callback
++  if(uic_mqtt_dotdot_multilevel_sensor_write_attributes_is_supported(unid, endpoint_id)) {
++    if (first_command == false) {
++      ss << ", ";
++    }
++    first_command = false;
++    ss << R"("WriteAttributes")";
++  }
++
++  // Check for a ForceReadAttributes Callback
++  if (uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_is_supported(unid, endpoint_id)) {
++    if (first_command == false) {
++      ss << ", ";
++    }
++    first_command = false;
++    ss << R"("ForceReadAttributes")";
++  }
++
++  // Publish supported commands
++  std::string topic = "ucl/by-unid/" + std::string(unid);
++  topic +=  "/ep"+ std::to_string(endpoint_id);
++  topic +=  "/MultilevelSensor/SupportedCommands";
++  std::string payload_str("{\"value\": [" + ss.str() + "]" + "}");
++  if (first_command == false) {
++    uic_mqtt_publish(topic.c_str(),
++                      payload_str.c_str(),
++                      payload_str.length(),
++                      true);
++  } else if (uic_mqtt_count_topics(topic.c_str()) == 0) {
++    // There are no supported commands, but make sure we publish some
++    // SupportedCommands = [] if any attribute has been published for a cluster.
++    std::string attributes_topic = "ucl/by-unid/" + std::string(unid);
++    attributes_topic +=  "/ep"+ std::to_string(endpoint_id);
++    attributes_topic += "/MultilevelSensor/Attributes";
++
++    if (uic_mqtt_count_topics(attributes_topic.c_str()) > 0) {
++      uic_mqtt_publish(topic.c_str(),
++                      EMPTY_VALUE_ARRAY,
++                      strlen(EMPTY_VALUE_ARRAY),
++                      true);
++    }
++  }
++}
++
++// Publishing empty/no Supported Commands for MultilevelSensor Cluster
++void uic_mqtt_dotdot_multilevel_sensor_publish_empty_supported_commands(
++  const dotdot_unid_t unid
++  , dotdot_endpoint_id_t endpoint_id)
++{
++  std::string topic = "ucl/by-unid/" + std::string(unid);
++  topic +=  "/ep"+ std::to_string(endpoint_id);
++  topic +=  "/MultilevelSensor/SupportedCommands";
++
++  if (uic_mqtt_count_topics(topic.c_str()) > 0) {
++    uic_mqtt_publish(topic.c_str(),
++                     EMPTY_VALUE_ARRAY,
++                     strlen(EMPTY_VALUE_ARRAY),
++                     true);
++  }
++}
++
+ // Publishing Cluster Revision for ProtocolController-NetworkManagement Cluster
+ void uic_mqtt_dotdot_protocol_controller_network_management_publish_cluster_revision(const char* base_topic, uint16_t value)
+ {
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.hpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.hpp
+index 63ed3b0949..9fbbc1ede6 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.hpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.hpp
+@@ -343,6 +343,13 @@ sl_status_t uic_mqtt_dotdot_by_group_name_and_location_init();
+  */
+ sl_status_t uic_mqtt_dotdot_by_group_configuration_parameters_init();
+ 
++/**
++ * @brief Initialize MultilevelSensor dotdot bygroup command handlers
++ *
++ * @returns SL_STATUS_OK on success, error otherwise.
++ */
++sl_status_t uic_mqtt_dotdot_by_group_multilevel_sensor_init();
++
+ /**
+  * @brief Initialize Descriptor dotdot bygroup command handlers
+  *
+@@ -4915,6 +4922,27 @@ void uic_mqtt_dotdot_on_configuration_parameters_WriteAttributes(
+   const size_t message_length);
+ 
+ 
++// clang-format on
++
++/**
++ * @brief Retrieves the container with callback pointers for by-unid
++ * /Commands/WriteAttributes messages
++ *
++ * @returns std::set of callbacks.
++ */
++std::set<uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_t> & get_uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback();
++
++/**
++ * @brief MQTT Subscribe handler for incoming publications on:
++ * ucl/by-unid/+/+/MultilevelSensor/Commands/WriteAttributes
++ */
++// clang-format off
++void uic_mqtt_dotdot_on_multilevel_sensor_WriteAttributes(
++  const char *topic,
++  const char *message,
++  const size_t message_length);
++
++
+ // clang-format on
+ 
+ /**
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_attributes.cpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_attributes.cpp
+index 51bb0cd1eb..25ce61e26a 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_attributes.cpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_attributes.cpp
+@@ -61125,6 +61125,212 @@ void uic_mqtt_dotdot_configuration_parameters_attribute_configuration_parameters
+ 
+ // End of supported cluster.
+ 
++///////////////////////////////////////////////////////////////////////////////
++// Callback pointers for MultilevelSensor
++///////////////////////////////////////////////////////////////////////////////
++static uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_values_callback_t uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_values_callback = nullptr;
++static uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_type_callback_t uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_type_callback = nullptr;
++
++///////////////////////////////////////////////////////////////////////////////
++// Attribute update handlers for MultilevelSensor
++///////////////////////////////////////////////////////////////////////////////
++static void uic_mqtt_dotdot_on_multilevel_sensor_sensor_values_attribute_update(
++  const char *topic,
++  const char *message,
++  const size_t message_length) {
++  if (uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_values_callback == nullptr) {
++    return;
++  }
++
++  std::string unid;
++  uint8_t endpoint = 0; // Default value for endpoint-less topics.
++  if(! uic_dotdot_mqtt::parse_topic(topic,unid,endpoint)) {
++    sl_log_debug(LOG_TAG,
++                "Error parsing UNID / Endpoint ID from topic %s. Ignoring",
++                topic);
++    return;
++  }
++
++  std::string last_item;
++  if (SL_STATUS_OK != uic_dotdot_mqtt::get_topic_last_item(topic,last_item)){
++    sl_log_debug(LOG_TAG,
++                "Error parsing last item from topic %s. Ignoring",
++                topic);
++    return;
++  }
++
++  uic_mqtt_dotdot_attribute_update_type_t update_type;
++  if (last_item == "Reported") {
++    update_type = UCL_REPORTED_UPDATED;
++  } else if (last_item == "Desired") {
++    update_type = UCL_DESIRED_UPDATED;
++  } else {
++    sl_log_debug(LOG_TAG,
++                "Unknown value type (neither Desired/Reported) for topic %s. Ignoring",
++                topic);
++    return;
++  }
++
++  // Empty message means unretained value.
++  bool unretained = false;
++  if (message_length == 0) {
++    unretained = true;
++  }
++
++
++  SensorValue sensor_values = {};
++
++  nlohmann::json json_payload;
++  try {
++
++    if (unretained == false) {
++      json_payload = nlohmann::json::parse(std::string(message));
++
++      if (json_payload.find("value") == json_payload.end()) {
++        sl_log_debug(LOG_TAG, "MultilevelSensor::SensorValues: Missing attribute element: 'value'\n");
++        return;
++      }
++// Start parsing value
++      sensor_values.Value = json_payload.at("value").at("Value").get<int32_t>();
++      sensor_values.Scale = json_payload.at("value").at("Scale").get<uint8_t>();
++
++    // End parsing value
++    }
++
++  } catch (const std::exception& e) {
++    sl_log_debug(LOG_TAG, LOG_FMT_JSON_ERROR, "value", message);
++    return;
++  }
++
++  uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_values_callback(
++    static_cast<dotdot_unid_t>(unid.c_str()),
++    endpoint,
++    unretained,
++    update_type,
++    sensor_values
++  );
++
++}
++static void uic_mqtt_dotdot_on_multilevel_sensor_sensor_type_attribute_update(
++  const char *topic,
++  const char *message,
++  const size_t message_length) {
++  if (uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_type_callback == nullptr) {
++    return;
++  }
++
++  std::string unid;
++  uint8_t endpoint = 0; // Default value for endpoint-less topics.
++  if(! uic_dotdot_mqtt::parse_topic(topic,unid,endpoint)) {
++    sl_log_debug(LOG_TAG,
++                "Error parsing UNID / Endpoint ID from topic %s. Ignoring",
++                topic);
++    return;
++  }
++
++  std::string last_item;
++  if (SL_STATUS_OK != uic_dotdot_mqtt::get_topic_last_item(topic,last_item)){
++    sl_log_debug(LOG_TAG,
++                "Error parsing last item from topic %s. Ignoring",
++                topic);
++    return;
++  }
++
++  uic_mqtt_dotdot_attribute_update_type_t update_type;
++  if (last_item == "Reported") {
++    update_type = UCL_REPORTED_UPDATED;
++  } else if (last_item == "Desired") {
++    update_type = UCL_DESIRED_UPDATED;
++  } else {
++    sl_log_debug(LOG_TAG,
++                "Unknown value type (neither Desired/Reported) for topic %s. Ignoring",
++                topic);
++    return;
++  }
++
++  // Empty message means unretained value.
++  bool unretained = false;
++  if (message_length == 0) {
++    unretained = true;
++  }
++
++
++  uint8_t sensor_type = {};
++
++  nlohmann::json json_payload;
++  try {
++
++    if (unretained == false) {
++      json_payload = nlohmann::json::parse(std::string(message));
++
++      if (json_payload.find("value") == json_payload.end()) {
++        sl_log_debug(LOG_TAG, "MultilevelSensor::SensorType: Missing attribute element: 'value'\n");
++        return;
++      }
++// Start parsing value
++      uint32_t tmp = get_enum_decimal_value<MultilevelSensorSensorType>("value", json_payload);
++      if (tmp == numeric_limits<MultilevelSensorSensorType>::max()) {
++      #ifdef MULTILEVEL_SENSOR_SENSOR_TYPE_ENUM_NAME_AVAILABLE
++        tmp = multilevel_sensor_sensor_type_get_enum_value_number(json_payload.at("value").get<std::string>());
++      #elif defined(SENSOR_TYPE_ENUM_NAME_AVAILABLE)
++        tmp = sensor_type_get_enum_value_number(json_payload.at("value").get<std::string>());
++      #endif
++      }
++      sensor_type = static_cast<uint8_t>(tmp);
++
++    // End parsing value
++    }
++
++  } catch (const std::exception& e) {
++    sl_log_debug(LOG_TAG, LOG_FMT_JSON_ERROR, "value", message);
++    return;
++  }
++
++  uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_type_callback(
++    static_cast<dotdot_unid_t>(unid.c_str()),
++    endpoint,
++    unretained,
++    update_type,
++    sensor_type
++  );
++
++}
++
++///////////////////////////////////////////////////////////////////////////////
++// Attribute init functions for MultilevelSensor
++///////////////////////////////////////////////////////////////////////////////
++sl_status_t uic_mqtt_dotdot_multilevel_sensor_attributes_init()
++{
++  std::string base_topic = "ucl/by-unid/+/+/";
++
++  std::string subscription_topic;
++  if(uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_values_callback) {
++    subscription_topic = base_topic + "MultilevelSensor/Attributes/SensorValues/#";
++    uic_mqtt_subscribe(subscription_topic.c_str(), &uic_mqtt_dotdot_on_multilevel_sensor_sensor_values_attribute_update);
++  }
++  if(uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_type_callback) {
++    subscription_topic = base_topic + "MultilevelSensor/Attributes/SensorType/#";
++    uic_mqtt_subscribe(subscription_topic.c_str(), &uic_mqtt_dotdot_on_multilevel_sensor_sensor_type_attribute_update);
++  }
++
++  return SL_STATUS_OK;
++}
++
++
++///////////////////////////////////////////////////////////////////////////////
++// Callback setters and getters for MultilevelSensor
++///////////////////////////////////////////////////////////////////////////////
++void uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_values_callback_set(const uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_values_callback_t callback)
++{
++  uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_values_callback = callback;
++}
++void uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_type_callback_set(const uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_type_callback_t callback)
++{
++  uic_mqtt_dotdot_multilevel_sensor_attribute_sensor_type_callback = callback;
++}
++
++// End of supported cluster.
++
+ ///////////////////////////////////////////////////////////////////////////////
+ // Callback pointers for ProtocolController-NetworkManagement
+ ///////////////////////////////////////////////////////////////////////////////
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.cpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.cpp
+index a738479fb0..25c2c2aced 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.cpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.cpp
+@@ -14318,6 +14318,22 @@ void uic_mqtt_dotdot_parse_configuration_parameters_write_attributes(
+ 
+ 
+ 
++}
++
++
++/**
++ * @brief JSON parser for ::WriteAttributes command arguments.
++ *
++ * Parse incoming JSON object to populate command arguments passed in by reference.
++ */
++void uic_mqtt_dotdot_parse_multilevel_sensor_write_attributes(
++  nlohmann::json &jsn,
++  uic_mqtt_dotdot_multilevel_sensor_state_t &new_state,
++  uic_mqtt_dotdot_multilevel_sensor_updated_state_t &new_updated_state
++) {
++
++
++
+ }
+ 
+ 
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.hpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.hpp
+index 6f34c390dc..4bb5c71735 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.hpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.hpp
+@@ -5915,6 +5915,18 @@ void uic_mqtt_dotdot_parse_configuration_parameters_write_attributes(
+ );
+ 
+ 
++/**
++ * @brief JSON parser for MultilevelSensor WriteAttributes command arguments.
++ *
++ * Parse incoming JSON object to populate command arguments passed in by reference.
++ */
++void uic_mqtt_dotdot_parse_multilevel_sensor_write_attributes(
++  nlohmann::json &jsn,
++  uic_mqtt_dotdot_multilevel_sensor_state_t &new_state,
++  uic_mqtt_dotdot_multilevel_sensor_updated_state_t &new_updated_state
++);
++
++
+ /**
+  * @brief Private helper function that will create a JSON string based on the
+  * fields of a ProtocolController/NetworkManagement Write command
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_generated_commands.cpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_generated_commands.cpp
+index 6faf125b5f..9c5b838ded 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_generated_commands.cpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_generated_commands.cpp
+@@ -10915,6 +10915,46 @@ void uic_mqtt_dotdot_configuration_parameters_publish_generated_write_attributes
+                    false);
+ }
+ 
++
++
++/**
++ * @brief Publishes an incoming/generated WriteAttributes command for
++ * the MultilevelSensor cluster.
++ *
++ * Publication will be made at the following topic
++ * ucl/by-unid/UNID/epID/MultilevelSensor/GeneratedCommands/WriteAttributes
++ *
++ * @param unid      The UNID of the node that sent us the command.
++ * 
++ * @param endpoint  The Endpoint ID of the node that sent us the command.
++ * 
++ * @param attribute_values  Values to assign to the attributes
++ * @param attribute_list    List of attributes that are written
++ */
++void uic_mqtt_dotdot_multilevel_sensor_publish_generated_write_attributes_command(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint,
++  uic_mqtt_dotdot_multilevel_sensor_state_t attribute_values,
++  uic_mqtt_dotdot_multilevel_sensor_updated_state_t attribute_list
++){
++  // Create the topic
++  std::string topic = "ucl/by-unid/"+ std::string(unid) + "/ep" +
++                      std::to_string(endpoint) + "/";
++  topic += "MultilevelSensor/GeneratedCommands/WriteAttributes";
++
++  nlohmann::json json_object = nlohmann::json::object();
++
++
++  // Payload contains data from end nodes, which we cannot control, thus we handle if there are non-utf8 characters
++  std::string payload = json_object.dump(-1, ' ', false, nlohmann::detail::error_handler_t::replace);
++
++  // Publish our command
++  uic_mqtt_publish(topic.c_str(),
++                   payload.c_str(),
++                   payload.size(),
++                   false);
++}
++
+ /**
+  * @brief Publishes an incoming/generated Write command for
+  * the ProtocolController-NetworkManagement cluster.
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_group_commands.cpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_group_commands.cpp
+index 7c2fca7faf..36023fc2e7 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_group_commands.cpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_group_commands.cpp
+@@ -354,6 +354,9 @@ static uic_mqtt_dotdot_by_group_configuration_parameters_discover_parameter_rang
+ static uic_mqtt_dotdot_by_group_configuration_parameters_write_attributes_callback_t uic_mqtt_dotdot_by_group_configuration_parameters_write_attributes_callback = nullptr;
+ 
+ 
++static uic_mqtt_dotdot_by_group_multilevel_sensor_write_attributes_callback_t uic_mqtt_dotdot_by_group_multilevel_sensor_write_attributes_callback = nullptr;
++
++
+ static uic_mqtt_dotdot_by_group_descriptor_write_attributes_callback_t uic_mqtt_dotdot_by_group_descriptor_write_attributes_callback = nullptr;
+ 
+ 
+@@ -1835,6 +1838,15 @@ void uic_mqtt_dotdot_by_group_configuration_parameters_write_attributes_callback
+ 
+ 
+ 
++// Callbacks setters
++void uic_mqtt_dotdot_by_group_multilevel_sensor_write_attributes_callback_set(
++  const uic_mqtt_dotdot_by_group_multilevel_sensor_write_attributes_callback_t callback)
++{
++  uic_mqtt_dotdot_by_group_multilevel_sensor_write_attributes_callback = callback;
++}
++
++
++
+ // Callbacks setters
+ void uic_mqtt_dotdot_by_group_descriptor_write_attributes_callback_set(
+   const uic_mqtt_dotdot_by_group_descriptor_write_attributes_callback_t callback)
+@@ -22908,6 +22920,91 @@ sl_status_t uic_mqtt_dotdot_by_group_configuration_parameters_init()
+ 
+ 
+ 
++static void uic_mqtt_dotdot_on_by_group_multilevel_sensor_WriteAttributes(
++  const char *topic,
++  const char *message,
++  const size_t message_length)
++{
++
++  if ((group_dispatch_callback == nullptr) && (uic_mqtt_dotdot_by_group_multilevel_sensor_write_attributes_callback == nullptr)) {
++    return;
++  }
++  if (message_length == 0) {
++    return;
++  }
++
++  dotdot_group_id_t group_id = 0U;
++  if(!uic_dotdot_mqtt::parse_topic_group_id(topic,group_id)) {
++    sl_log_debug(LOG_TAG,
++                "Failed to parse GroupId from topic %s. Ignoring",
++                topic);
++    return;
++  }
++
++  if ((group_dispatch_callback != nullptr) && (!get_uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback().empty())) {
++    try {
++      group_dispatch_callback(group_id,
++                              "MultilevelSensor",
++                              "WriteAttributes",
++                              message,
++                              message_length,
++                              uic_mqtt_dotdot_on_multilevel_sensor_WriteAttributes);
++
++    } catch (...) {
++      sl_log_debug(LOG_TAG, "MultilevelSensor: Unable to parse JSON payload.\n");
++      return;
++    }
++  } else if (uic_mqtt_dotdot_by_group_multilevel_sensor_write_attributes_callback != nullptr) {
++
++    uic_mqtt_dotdot_multilevel_sensor_state_t new_state = {};
++    uic_mqtt_dotdot_multilevel_sensor_updated_state_t new_updated_state = {};
++    
++
++    nlohmann::json jsn;
++    try {
++      jsn = nlohmann::json::parse(std::string(message));
++
++      uic_mqtt_dotdot_parse_multilevel_sensor_write_attributes(
++        jsn,
++        new_state,
++        new_updated_state
++      );
++    } catch (const nlohmann::json::parse_error& e) {
++      // Catch JSON object field parsing errors
++      sl_log_debug(LOG_TAG, LOG_FMT_JSON_PARSE_FAIL, "MultilevelSensor", "WriteAttributes");
++      return;
++    } catch (const nlohmann::json::exception& e) {
++      // Catch JSON object field parsing errors
++      sl_log_debug(LOG_TAG, LOG_FMT_JSON_ERROR, "MultilevelSensor", "WriteAttributes", e.what());
++      return;
++    } catch (const std::exception& e) {
++      sl_log_debug(LOG_TAG, LOG_FMT_JSON_ERROR, "MultilevelSensor", "WriteAttributes", "");
++      return;
++    }
++
++    uic_mqtt_dotdot_by_group_multilevel_sensor_write_attributes_callback(
++      group_id,
++      new_state,
++      new_updated_state
++    );
++  }
++}
++
++sl_status_t uic_mqtt_dotdot_by_group_multilevel_sensor_init()
++{
++  std::string subscription_topic;
++  const std::string topic_bygroup = TOPIC_BY_GROUP_PREFIX;
++  if(uic_mqtt_dotdot_by_group_multilevel_sensor_write_attributes_callback) {
++    subscription_topic = topic_bygroup + "MultilevelSensor/Commands/WriteAttributes";
++    uic_mqtt_subscribe(subscription_topic.c_str(), uic_mqtt_dotdot_on_by_group_multilevel_sensor_WriteAttributes);
++  }
++
++  return SL_STATUS_OK;
++}
++
++
++
++
+ static void uic_mqtt_dotdot_on_by_group_descriptor_WriteAttributes(
+   const char *topic,
+   const char *message,
+@@ -23882,6 +23979,8 @@ void uic_mqtt_dotdot_set_group_dispatch_callback(group_dispatch_t callback)
+     uic_mqtt_subscribe("ucl/by-group/+/ConfigurationParameters/Commands/SetParameter", uic_mqtt_dotdot_on_by_group_configuration_parameters_set_parameter);
+     uic_mqtt_subscribe("ucl/by-group/+/ConfigurationParameters/Commands/DiscoverParameterRange", uic_mqtt_dotdot_on_by_group_configuration_parameters_discover_parameter_range);
+ 
++    uic_mqtt_subscribe("ucl/by-group/+/MultilevelSensor/Commands/WriteAttributes", uic_mqtt_dotdot_on_by_group_multilevel_sensor_WriteAttributes);
++
+     uic_mqtt_subscribe("ucl/by-group/+/Descriptor/Commands/WriteAttributes", uic_mqtt_dotdot_on_by_group_descriptor_WriteAttributes);
+ 
+     uic_mqtt_subscribe("ucl/by-group/+/UnifyFanControl/Commands/WriteAttributes", uic_mqtt_dotdot_on_by_group_unify_fan_control_WriteAttributes);
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_helpers.cpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_helpers.cpp
+index c1531c376c..3cfdb34365 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_helpers.cpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_helpers.cpp
+@@ -3423,6 +3423,211 @@ uint32_t move_step_mode_get_enum_value_number(const std::string &str)
+   return std::numeric_limits<uint32_t>::max();
+ }
+ 
++// Enum to string map for MultilevelSensorSensorType
++const std::map<uint32_t, std::string> multilevel_sensor_sensor_type_enum_id_to_string_map {
++  { 1, "AirTemperature" },
++  { 3, "Illuminance" },
++  { 4, "Power" },
++  { 5, "Humidity" },
++  { 6, "Velocity" },
++  { 7, "Direction" },
++  { 8, "AtmosphericPressure" },
++  { 9, "BarometricPressure" },
++  { 10, "SolarRadiation" },
++  { 11, "DewPoint" },
++  { 12, "RainRate" },
++  { 13, "TideLevel" },
++  { 14, "Weight" },
++  { 15, "Voltage" },
++  { 16, "Current" },
++  { 17, "CarbonDioxideCO2Level" },
++  { 18, "AirFlow" },
++  { 19, "TankCapacity" },
++  { 20, "Distance" },
++  { 22, "Rotation" },
++  { 23, "WaterTempurature" },
++  { 24, "SoilTempurature" },
++  { 25, "SeismicIntensity" },
++  { 26, "SeismicMagnitude" },
++  { 27, "Ultraviolet" },
++  { 28, "ElectricalResistivity" },
++  { 29, "ElectricalConductivity" },
++  { 30, "Loudness" },
++  { 31, "Moisture" },
++  { 32, "Frequency" },
++  { 33, "Time" },
++  { 34, "TargetTemperature" },
++  { 35, "ParticulateMatter2.5" },
++  { 36, "FormaldehydeLevel" },
++  { 37, "RadonConcentration" },
++  { 38, "MethaneDensity" },
++  { 39, "VolatileOrganicCompoundLevel" },
++  { 40, "CarbonMonoxideLevel" },
++  { 41, "SoilHumidity" },
++  { 42, "SoilReactivity" },
++  { 43, "SoilSalinity" },
++  { 44, "HeartRate" },
++  { 45, "BloodPressure" },
++  { 46, "MuscleMass" },
++  { 47, "FatMass" },
++  { 48, "BoneMass" },
++  { 49, "TotalBodyWater" },
++  { 50, "BasisMetabolicRate" },
++  { 51, "BodyMassIndex" },
++  { 52, "AccelerationX-axis" },
++  { 53, "AccelerationY-axis" },
++  { 54, "AccelerationZ-axis" },
++  { 55, "SmokeDensity" },
++  { 56, "WaterFlow" },
++  { 57, "WaterPressure" },
++  { 58, "RFSignalStrength" },
++  { 59, "ParticulateMatter10" },
++  { 60, "RespiratoryRate" },
++  { 61, "RelativeModulationLevel" },
++  { 62, "BoilerWaterTemperature" },
++  { 63, "DomesticHotWaterTemperature" },
++  { 64, "OutsideTemperature" },
++  { 65, "ExhaustTemperature" },
++  { 66, "WaterChlorineLevel" },
++  { 67, "WaterAcidity" },
++  { 68, "WaterOxidationReductionPotential" },
++  { 69, "HeartRateLFHFRatio" },
++  { 70, "MotionDirection" },
++  { 71, "AppliedForceOnTheSensor" },
++  { 72, "ReturnAirTemperature" },
++  { 73, "SupplyAirTemperature" },
++  { 74, "CondenserCoilTemperature" },
++  { 75, "EvaproratorCoilTemperature" },
++  { 76, "LiquidLineTemperature" },
++  { 77, "DischargeLineTemperature" },
++  { 78, "SuctionPressure" },
++  { 79, "DischargePressure" },
++  { 80, "DefrostTemperature" },
++  { 81, "Ozone" },
++  { 82, "SulfurDioxide" },
++  { 83, "NitrogenDioxide" },
++  { 84, "Ammonia" },
++  { 85, "Lead" },
++  { 86, "ParticulateMatter1" },
++  { 87, "PersonCounterEntering" },
++  { 88, "PersonCounterExiting" },
++};
++
++// String to enum map for MultilevelSensorSensorType
++const std::map<std::string, uint32_t> multilevel_sensor_sensor_type_enum_string_to_id_map {
++  { "AirTemperature", 1 },
++  { "Illuminance", 3 },
++  { "Power", 4 },
++  { "Humidity", 5 },
++  { "Velocity", 6 },
++  { "Direction", 7 },
++  { "AtmosphericPressure", 8 },
++  { "BarometricPressure", 9 },
++  { "SolarRadiation", 10 },
++  { "DewPoint", 11 },
++  { "RainRate", 12 },
++  { "TideLevel", 13 },
++  { "Weight", 14 },
++  { "Voltage", 15 },
++  { "Current", 16 },
++  { "CarbonDioxideCO2Level", 17 },
++  { "AirFlow", 18 },
++  { "TankCapacity", 19 },
++  { "Distance", 20 },
++  { "Rotation", 22 },
++  { "WaterTempurature", 23 },
++  { "SoilTempurature", 24 },
++  { "SeismicIntensity", 25 },
++  { "SeismicMagnitude", 26 },
++  { "Ultraviolet", 27 },
++  { "ElectricalResistivity", 28 },
++  { "ElectricalConductivity", 29 },
++  { "Loudness", 30 },
++  { "Moisture", 31 },
++  { "Frequency", 32 },
++  { "Time", 33 },
++  { "TargetTemperature", 34 },
++  { "ParticulateMatter2.5", 35 },
++  { "FormaldehydeLevel", 36 },
++  { "RadonConcentration", 37 },
++  { "MethaneDensity", 38 },
++  { "VolatileOrganicCompoundLevel", 39 },
++  { "CarbonMonoxideLevel", 40 },
++  { "SoilHumidity", 41 },
++  { "SoilReactivity", 42 },
++  { "SoilSalinity", 43 },
++  { "HeartRate", 44 },
++  { "BloodPressure", 45 },
++  { "MuscleMass", 46 },
++  { "FatMass", 47 },
++  { "BoneMass", 48 },
++  { "TotalBodyWater", 49 },
++  { "BasisMetabolicRate", 50 },
++  { "BodyMassIndex", 51 },
++  { "AccelerationX-axis", 52 },
++  { "AccelerationY-axis", 53 },
++  { "AccelerationZ-axis", 54 },
++  { "SmokeDensity", 55 },
++  { "WaterFlow", 56 },
++  { "WaterPressure", 57 },
++  { "RFSignalStrength", 58 },
++  { "ParticulateMatter10", 59 },
++  { "RespiratoryRate", 60 },
++  { "RelativeModulationLevel", 61 },
++  { "BoilerWaterTemperature", 62 },
++  { "DomesticHotWaterTemperature", 63 },
++  { "OutsideTemperature", 64 },
++  { "ExhaustTemperature", 65 },
++  { "WaterChlorineLevel", 66 },
++  { "WaterAcidity", 67 },
++  { "WaterOxidationReductionPotential", 68 },
++  { "HeartRateLFHFRatio", 69 },
++  { "MotionDirection", 70 },
++  { "AppliedForceOnTheSensor", 71 },
++  { "ReturnAirTemperature", 72 },
++  { "SupplyAirTemperature", 73 },
++  { "CondenserCoilTemperature", 74 },
++  { "EvaproratorCoilTemperature", 75 },
++  { "LiquidLineTemperature", 76 },
++  { "DischargeLineTemperature", 77 },
++  { "SuctionPressure", 78 },
++  { "DischargePressure", 79 },
++  { "DefrostTemperature", 80 },
++  { "Ozone", 81 },
++  { "SulfurDioxide", 82 },
++  { "NitrogenDioxide", 83 },
++  { "Ammonia", 84 },
++  { "Lead", 85 },
++  { "ParticulateMatter1", 86 },
++  { "PersonCounterEntering", 87 },
++  { "PersonCounterExiting", 88 },
++};
++
++std::string multilevel_sensor_sensor_type_get_enum_value_name(
++  uint32_t value)
++{
++  auto it = multilevel_sensor_sensor_type_enum_id_to_string_map.find(value);
++  if (it != multilevel_sensor_sensor_type_enum_id_to_string_map.end()){
++    return it->second;
++  }
++
++  // No known name value is set for this field.
++  // Set it to a string version of the value.
++  return std::to_string(value);
++}
++
++uint32_t multilevel_sensor_sensor_type_get_enum_value_number(const std::string &str)
++{
++  auto it = multilevel_sensor_sensor_type_enum_string_to_id_map.find(str);
++  if (it != multilevel_sensor_sensor_type_enum_string_to_id_map.end()){
++    return it->second;
++  }
++
++  // No known numeric value is set for this string.
++  // Return UINT32_MAX to indicate an error.
++  return std::numeric_limits<uint32_t>::max();
++}
++
+ // Enum to string map for NM_State
+ const std::map<uint32_t, std::string> nm_state_enum_id_to_string_map {
+   { 0, "idle" },
+@@ -10193,6 +10398,21 @@ std::string get_enum_value_name(
+   #endif
+   }
+ 
++  if (64777 == cluster_id) {
++  #ifdef MULTILEVEL_SENSOR_SENSOR_VALUES_ENUM_NAME_AVAILABLE
++    if (0 == attribute_id) {
++      // FIXME: Some attributes don't work because multi-upper case names end up like this: multilevel_sensorsensor_values instead of this: multilevel_sensor_sensor_values
++      return multilevel_sensor_sensor_values_get_enum_value_name(value);
++    }
++  #endif
++  #ifdef MULTILEVEL_SENSOR_SENSOR_TYPE_ENUM_NAME_AVAILABLE
++    if (1 == attribute_id) {
++      // FIXME: Some attributes don't work because multi-upper case names end up like this: multilevel_sensorsensor_type instead of this: multilevel_sensor_sensor_type
++      return multilevel_sensor_sensor_type_get_enum_value_name(value);
++    }
++  #endif
++  }
++
+   if (64786 == cluster_id) {
+   #ifdef PROTOCOL_CONTROLLER_NETWORK_MANAGEMENT_NETWORK_MANAGEMENT_STATE_ENUM_NAME_AVAILABLE
+     if (1 == attribute_id) {
+@@ -14700,6 +14920,21 @@ uint32_t get_enum_name_value(
+   #endif
+   }
+ 
++  if (64777 == cluster_id) {
++  #ifdef MULTILEVEL_SENSOR_SENSOR_VALUES_ENUM_NAME_AVAILABLE
++    if (0 == attribute_id) {
++      // FIXME: Some attributes don't work because multi-upper case names end up like this: multilevel_sensorsensor_values instead of this: multilevel_sensor_sensor_values
++      return multilevel_sensor_sensor_values_get_enum_value_number(name);
++    }
++  #endif
++  #ifdef MULTILEVEL_SENSOR_SENSOR_TYPE_ENUM_NAME_AVAILABLE
++    if (1 == attribute_id) {
++      // FIXME: Some attributes don't work because multi-upper case names end up like this: multilevel_sensorsensor_type instead of this: multilevel_sensor_sensor_type
++      return multilevel_sensor_sensor_type_get_enum_value_number(name);
++    }
++  #endif
++  }
++
+   if (64786 == cluster_id) {
+   #ifdef PROTOCOL_CONTROLLER_NETWORK_MANAGEMENT_NETWORK_MANAGEMENT_STATE_ENUM_NAME_AVAILABLE
+     if (1 == attribute_id) {
+@@ -15688,6 +15923,17 @@ uint32_t move_step_mode_get_enum_value_number_c(const char *str)
+ {
+   return move_step_mode_get_enum_value_number(std::string(str));
+ }
++char *multilevel_sensor_sensor_type_get_enum_value_name_c(
++  uint32_t value, char *result, size_t max_result_size)
++{
++  snprintf(result, max_result_size, "%s", multilevel_sensor_sensor_type_get_enum_value_name(value).c_str());
++  return result;
++}
++
++uint32_t multilevel_sensor_sensor_type_get_enum_value_number_c(const char *str)
++{
++  return multilevel_sensor_sensor_type_get_enum_value_number(std::string(str));
++}
+ char *nm_state_get_enum_value_name_c(
+   uint32_t value, char *result, size_t max_result_size)
+ {
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_supported_generated_commands.cpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_supported_generated_commands.cpp
+index 4d6e0f16c3..f7db295e9c 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_supported_generated_commands.cpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_supported_generated_commands.cpp
+@@ -2635,6 +2635,49 @@ void uic_mqtt_dotdot_configuration_parameters_publish_supported_generated_comman
+ }
+ 
+ 
++/**
++ * @brief Sends/Publishes a the SupportedGenerated commands for
++ * the MultilevelSensor cluster for a UNID/Endpoint
++ *
++ * Publication will be made at the following topic
++ * ucl/by-unid/UNID/epID/MultilevelSensor/SupportedGeneratedCommands
++ *
++ * @param unid      The UNID of the node on behalf of which the advertisment is made
++ * 
++ * @param endpoint  The Endpoint ID of the node on behalf of which the advertisment is made
++ * 
++ * @param command_list      Struct pointer with the fields value indicating if
++ *                          individual commands can be generated.
++ */
++void uic_mqtt_dotdot_multilevel_sensor_publish_supported_generated_commands(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint,
++  const uic_mqtt_dotdot_multilevel_sensor_supported_commands_t *command_list)
++{
++  std::string topic = "ucl/by-unid/" + std::string(unid);
++  topic +=  "/ep"+ std::to_string(endpoint);
++  topic +=  "/MultilevelSensor/SupportedGeneratedCommands";
++
++  // Assemble of vector of strings for the Supported Commands:
++  std::vector<std::string> command_vector;
++  if (command_list->write_attributes == true) {
++    command_vector.emplace_back("WriteAttributes");
++  }
++
++  // JSONify, then Stringify
++  nlohmann::json json_payload;
++  json_payload["value"] = command_vector;
++  std::string string_payload = json_payload.dump();
++
++  // Publish to MQTT
++  uic_mqtt_publish(topic.c_str(),
++                   string_payload.c_str(),
++                   string_payload.length(),
++                   true);
++
++}
++
++
+ /**
+  * @brief Sends/Publishes a the SupportedGenerated commands for
+  * the ProtocolController-NetworkManagement cluster for a UNID/Endpoint
+diff --git a/components/uic_dotdot_mqtt/zap-generated/test/dotdot_mqtt_test.include b/components/uic_dotdot_mqtt/zap-generated/test/dotdot_mqtt_test.include
+index f3ec21da18..c1fe725721 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/test/dotdot_mqtt_test.include
++++ b/components/uic_dotdot_mqtt/zap-generated/test/dotdot_mqtt_test.include
+@@ -3653,6 +3653,7 @@ static void unset_all_callbacks()
+   uic_mqtt_dotdot_configuration_parameters_set_parameter_callback_clear();
+   uic_mqtt_dotdot_configuration_parameters_discover_parameter_range_callback_clear();
+   uic_mqtt_dotdot_clear_configuration_parameters_write_attributes_callbacks();
++  uic_mqtt_dotdot_clear_multilevel_sensor_write_attributes_callbacks();
+   uic_mqtt_dotdot_protocol_controller_network_management_write_callback_clear();
+   uic_mqtt_dotdot_clear_protocol_controller_network_management_write_attributes_callbacks();
+   uic_mqtt_dotdot_clear_descriptor_write_attributes_callbacks();
+diff --git a/components/unify_dotdot_attribute_store/zap-generated/include/dotdot_attributes.uam b/components/unify_dotdot_attribute_store/zap-generated/include/dotdot_attributes.uam
+index 2bf45a75f1..0c168c053a 100644
+--- a/components/unify_dotdot_attribute_store/zap-generated/include/dotdot_attributes.uam
++++ b/components/unify_dotdot_attribute_store/zap-generated/include/dotdot_attributes.uam
+@@ -834,6 +834,10 @@ def DOTDOT_ATTRIBUTE_ID_NAME_AND_LOCATION_LOCATION 0xfd060001
+ // This represents the attributes in the DotDot ConfigurationParameters cluster
+ def DOTDOT_ATTRIBUTE_ID_CONFIGURATION_PARAMETERS_CONFIGURATION_PARAMETERS 0xfd070000
+ 
++// This represents the attributes in the DotDot MultilevelSensor cluster
++def DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES 0xfd090000
++def DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE 0xfd090001
++
+ // This represents the attributes in the DotDot AoXLocator cluster
+ def DOTDOT_ATTRIBUTE_ID_AOX_LOCATOR_REPORTING_MODE 0xfd100001
+ def DOTDOT_ATTRIBUTE_ID_AOX_LOCATOR_POSITION_AND_ORIENTATION_VALID 0xfd100002
+diff --git a/components/unify_dotdot_attribute_store/zap-generated/include/dotdot_attributes_camel_case.uam b/components/unify_dotdot_attribute_store/zap-generated/include/dotdot_attributes_camel_case.uam
+index ceb159d2c2..b867ea5a05 100644
+--- a/components/unify_dotdot_attribute_store/zap-generated/include/dotdot_attributes_camel_case.uam
++++ b/components/unify_dotdot_attribute_store/zap-generated/include/dotdot_attributes_camel_case.uam
+@@ -834,6 +834,10 @@ def zb_Location 0xfd060001
+ // This represents short CamelCase labels the attributes in the DotDot ConfigurationParameters cluster
+ def zb_ConfigurationParameters 0xfd070000
+ 
++// This represents short CamelCase labels the attributes in the DotDot MultilevelSensor cluster
++def zb_SensorValues 0xfd090000
++def zb_SensorType 0xfd090001
++
+ // This represents short CamelCase labels the attributes in the DotDot AoXLocator cluster
+ def zb_ReportingMode 0xfd100001
+ def zb_PositionAndOrientationValid 0xfd100002
+diff --git a/components/unify_dotdot_attribute_store/zap-generated/include/unify_dotdot_attribute_store_helpers.h b/components/unify_dotdot_attribute_store/zap-generated/include/unify_dotdot_attribute_store_helpers.h
+index f99ee31747..e98230c88f 100644
+--- a/components/unify_dotdot_attribute_store/zap-generated/include/unify_dotdot_attribute_store_helpers.h
++++ b/components/unify_dotdot_attribute_store/zap-generated/include/unify_dotdot_attribute_store_helpers.h
+@@ -75293,6 +75293,246 @@ bool dotdot_is_any_configuration_parameters_writable_attribute_supported(
+   const dotdot_unid_t unid,
+   const dotdot_endpoint_id_t endpoint_id);
+ 
++////////////////////////////////////////////////////////////////////////////////
++// Start of cluster MultilevelSensor
++////////////////////////////////////////////////////////////////////////////////
++// MultilevelSensor SensorValues
++/**
++ * @brief Verifies if the DotDot MultilevelSensor - SensorValues is supported
++ * under a UNID/EndpoinID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ *
++ * @returns true if SensorValues is supported
++ * @returns false if SensorValues is not supported
++ */
++bool dotdot_is_supported_multilevel_sensor_sensor_values (
++              const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id);
++
++/**
++ * @brief Gets the DotDot MultilevelSensor - SensorValues attribute value under a UNID/EndpoinID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @param value_state   value state to get,
++ *                      see \ref attribute_store_get_node_attribute_value
++ * 
++ *
++ * @returns SensorValues attribute
++ */
++SensorValue dotdot_get_multilevel_sensor_sensor_values(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id,
++  attribute_store_node_value_state_t value_state);
++
++/**
++ * @brief Set the DotDot MultilevelSensor - SensorValues attribute under a UNID/EndpoinID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @param value_state   value state to write for the node,
++ *                      see \ref attribute_store_set_node_attribute_value
++ * 
++ * @param new_sensor_values new value to set
++ * @returns sl_status_t SL_STATUS_OK on success
++ */
++sl_status_t dotdot_set_multilevel_sensor_sensor_values(
++  const dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint_id,
++  attribute_store_node_value_state_t value_state,
++  SensorValue new_sensor_values
++  );
++
++/**
++ * @brief Undefines the Reported value of the the DotDot MultilevelSensor - SensorValues
++ * attribute under a UNID/EndpoinID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @returns sl_status_t SL_STATUS_OK on success
++ */
++sl_status_t dotdot_multilevel_sensor_sensor_values_undefine_reported(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id);
++
++/**
++ * @brief Undefines the Desired value of the DotDot
++ * MultilevelSensor - SensorValues attribute under a UNID/EndpointID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @returns sl_status_t SL_STATUS_OK on success
++ */
++sl_status_t dotdot_multilevel_sensor_sensor_values_undefine_desired(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id);
++
++/**
++ * @brief Checks if the reported value is defined for the DotDot
++ * MultilevelSensor - SensorValues attribute under a UNID/EndpointID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @returns true if defined, false is undefined or non-existent
++ */
++bool dotdot_multilevel_sensor_sensor_values_is_reported_defined(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id);
++
++/**
++ * @brief Checks if the desired value is defined for the DotDot
++ * MultilevelSensor - SensorValues attribute under a UNID/EndpointID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @returns true if defined, false is undefined or non-existent
++ */
++bool dotdot_multilevel_sensor_sensor_values_is_desired_defined(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id);
++
++/**
++ * @brief Creates a DotDot MultilevelSensor - SensorValues attribute under a UNID/EndpoinID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @returns sl_status_t SL_STATUS_OK on success
++ */
++sl_status_t dotdot_create_multilevel_sensor_sensor_values(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id);
++// MultilevelSensor SensorType
++/**
++ * @brief Verifies if the DotDot MultilevelSensor - SensorType is supported
++ * under a UNID/EndpoinID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ *
++ * @returns true if SensorType is supported
++ * @returns false if SensorType is not supported
++ */
++bool dotdot_is_supported_multilevel_sensor_sensor_type (
++              const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id);
++
++/**
++ * @brief Gets the DotDot MultilevelSensor - SensorType attribute value under a UNID/EndpoinID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @param value_state   value state to get,
++ *                      see \ref attribute_store_get_node_attribute_value
++ * 
++ *
++ * @returns SensorType attribute
++ */
++uint8_t dotdot_get_multilevel_sensor_sensor_type(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id,
++  attribute_store_node_value_state_t value_state);
++
++/**
++ * @brief Set the DotDot MultilevelSensor - SensorType attribute under a UNID/EndpoinID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @param value_state   value state to write for the node,
++ *                      see \ref attribute_store_set_node_attribute_value
++ * 
++ * @param new_sensor_type new value to set
++ * @returns sl_status_t SL_STATUS_OK on success
++ */
++sl_status_t dotdot_set_multilevel_sensor_sensor_type(
++  const dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint_id,
++  attribute_store_node_value_state_t value_state,
++  uint8_t new_sensor_type
++  );
++
++/**
++ * @brief Undefines the Reported value of the the DotDot MultilevelSensor - SensorType
++ * attribute under a UNID/EndpoinID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @returns sl_status_t SL_STATUS_OK on success
++ */
++sl_status_t dotdot_multilevel_sensor_sensor_type_undefine_reported(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id);
++
++/**
++ * @brief Undefines the Desired value of the DotDot
++ * MultilevelSensor - SensorType attribute under a UNID/EndpointID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @returns sl_status_t SL_STATUS_OK on success
++ */
++sl_status_t dotdot_multilevel_sensor_sensor_type_undefine_desired(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id);
++
++/**
++ * @brief Checks if the reported value is defined for the DotDot
++ * MultilevelSensor - SensorType attribute under a UNID/EndpointID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @returns true if defined, false is undefined or non-existent
++ */
++bool dotdot_multilevel_sensor_sensor_type_is_reported_defined(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id);
++
++/**
++ * @brief Checks if the desired value is defined for the DotDot
++ * MultilevelSensor - SensorType attribute under a UNID/EndpointID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @returns true if defined, false is undefined or non-existent
++ */
++bool dotdot_multilevel_sensor_sensor_type_is_desired_defined(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id);
++
++/**
++ * @brief Creates a DotDot MultilevelSensor - SensorType attribute under a UNID/EndpoinID
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @returns sl_status_t SL_STATUS_OK on success
++ */
++sl_status_t dotdot_create_multilevel_sensor_sensor_type(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id);
++
++/**
++ * @brief Checks if a UNID/Endpoint supports any attribute for the MultilevelSensor
++ * Cluster
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @returns true if at least 1 attribute in the Attribute Store, false otherwise
++ */
++bool dotdot_is_any_multilevel_sensor_attribute_supported(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id);
++
++/**
++ * @brief Checks if a UNID/Endpoint supports any writable attribute for the
++ * MultilevelSensor Cluster
++ *
++ * @param unid          Node's UNID
++ * @param endpoint_id   Endpoint ID
++ * @returns true if at least 1 writable attribute in the Attribute Store, false otherwise
++ */
++bool dotdot_is_any_multilevel_sensor_writable_attribute_supported(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id);
++
+ ////////////////////////////////////////////////////////////////////////////////
+ // Start of cluster ProtocolController-NetworkManagement
+ ////////////////////////////////////////////////////////////////////////////////
+diff --git a/components/unify_dotdot_attribute_store/zap-generated/include/unify_dotdot_defined_attribute_types.h b/components/unify_dotdot_attribute_store/zap-generated/include/unify_dotdot_defined_attribute_types.h
+index 46668d1948..6150a9ae87 100644
+--- a/components/unify_dotdot_attribute_store/zap-generated/include/unify_dotdot_defined_attribute_types.h
++++ b/components/unify_dotdot_attribute_store/zap-generated/include/unify_dotdot_defined_attribute_types.h
+@@ -769,6 +769,9 @@ DEFINE_ATTRIBUTE(DOTDOT_ATTRIBUTE_ID_NAME_AND_LOCATION_NAME , 0xfd060000)
+ DEFINE_ATTRIBUTE(DOTDOT_ATTRIBUTE_ID_NAME_AND_LOCATION_LOCATION , 0xfd060001)
+ // Attribute Defines for ConfigurationParameters
+ DEFINE_ATTRIBUTE(DOTDOT_ATTRIBUTE_ID_CONFIGURATION_PARAMETERS_CONFIGURATION_PARAMETERS , 0xfd070000)
++// Attribute Defines for MultilevelSensor
++DEFINE_ATTRIBUTE(DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES , 0xfd090000)
++DEFINE_ATTRIBUTE(DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE , 0xfd090001)
+ // Attribute Defines for ProtocolController-NetworkManagement
+ DEFINE_ATTRIBUTE(DOTDOT_ATTRIBUTE_ID_PROTOCOL_CONTROLLER_NETWORK_MANAGEMENT_NETWORK_MANAGEMENT_STATE , 0xfd120001)
+ // Attribute Defines for Descriptor
+diff --git a/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_attribute_publisher.cpp b/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_attribute_publisher.cpp
+index 8446b11a47..d208971476 100644
+--- a/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_attribute_publisher.cpp
++++ b/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_attribute_publisher.cpp
+@@ -24477,6 +24477,235 @@ static void configuration_parameters_cluster_cluster_revision_callback(
+ }
+ 
+ 
++/**
++ * @brief Publishes the desired value of an updated attribute store node for
++ * the MultilevelSensor cluster.
++ * @param updated_node Updated attribute store node
++ * @param change       Type of change applied
++ */
++static void multilevel_sensor_cluster_publish_desired_value_callback(
++   attribute_store_node_t updated_node, attribute_store_change_t change)
++{
++  // clang-format on
++  if (false == is_publish_desired_attribute_values_to_mqtt_enabled()) {
++    return;
++  }
++  if (change == ATTRIBUTE_DELETED || change == ATTRIBUTE_CREATED) {
++    return;
++  }
++  // Scene exception: check that the attribute is not under the Scene Table extension, which is a config and not the node's state.
++  if (ATTRIBUTE_STORE_INVALID_NODE
++      != attribute_store_get_first_parent_with_type(
++        updated_node,
++        DOTDOT_ATTRIBUTE_ID_SCENES_SCENE_TABLE)) {
++    return;
++  }
++
++  // Get the UNID and EndPoint, and prepare the basic topic
++  char unid[MAXIMUM_UNID_SIZE]     = {};
++  // clang-format off
++  // clang-format on
++  dotdot_endpoint_id_t endpoint_id = 0;
++  if (SL_STATUS_OK
++      != unify_dotdot_attributes_get_unid_endpoint()(updated_node,
++                                                     unid,
++                                                     &endpoint_id)) {
++    return;
++  }
++  // clang-format off
++  // clang-format on
++
++  std::string base_topic = "ucl/by-unid/" + std::string(unid);
++  // clang-format off
++  base_topic += "/ep" + std::to_string(endpoint_id);
++  // clang-format on
++
++  attribute_store_type_t type = attribute_store_get_node_type(updated_node);
++  if (type == ATTRIBUTE_STORE_INVALID_ATTRIBUTE_TYPE) {
++    sl_log_debug(LOG_TAG,
++                 "Warning: Invalid type for Attribute ID %d, "
++                 "this should not happen.",
++                 updated_node);
++    return;
++  }
++
++  // If the value got updated but both Reported and Desired undefined, we skip publication
++  if (false == attribute_store_is_reported_defined(updated_node)
++      && false == attribute_store_is_desired_defined(updated_node)) {
++    sl_log_debug(LOG_TAG,
++                 "Reported/Desired values are undefined. "
++                 "Skipping publication");
++    return;
++  }
++
++  // clang-format off
++  try {
++    attribute_store::attribute attr(updated_node);
++    // Skip attribute SensorValues because it is a struct,
++    // we typically don't save them as structs in the attribute store.
++    sl_log_debug(LOG_TAG,"Warning: Cannot publish desired value for attribute MultilevelSensor SensorValues. Structs are not supported");
++      if (type == DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE) {
++          uic_mqtt_dotdot_multilevel_sensor_sensor_type_publish(
++            base_topic.c_str(),
++            static_cast<uint8_t>(attr.desired_or_reported<uint8_t>()),
++            UCL_MQTT_PUBLISH_TYPE_DESIRED);
++        return;
++      }
++      } catch (std::exception &ex) {
++    sl_log_warning(LOG_TAG, "Failed to publish the Desired attribute value: %s", ex.what());
++  }
++}
++
++/**
++ * @brief Publishes the reported value of an updated attribute store node for
++ * the MultilevelSensor cluster.
++ * @param updated_node Updated attribute store node
++ * @param change       Type of change applied
++ */
++static void multilevel_sensor_cluster_publish_reported_value_callback(
++   attribute_store_node_t updated_node, attribute_store_change_t change)
++{
++  // clang-format on
++  if (false == is_publish_reported_attribute_values_to_mqtt_enabled()) {
++    return;
++  }
++  if (change == ATTRIBUTE_CREATED) {
++    return;
++  }
++  // Scene exception: check that the attribute is not under the Scene Table extension, which is a config and not the node's state.
++  if (ATTRIBUTE_STORE_INVALID_NODE
++      != attribute_store_get_first_parent_with_type(
++        updated_node,
++        DOTDOT_ATTRIBUTE_ID_SCENES_SCENE_TABLE)) {
++    return;
++  }
++
++  // Get the UNID and EndPoint, and prepare the basic topic
++  char unid[MAXIMUM_UNID_SIZE]     = {};
++  // clang-format off
++  // clang-format on
++  dotdot_endpoint_id_t endpoint_id = 0;
++  if (SL_STATUS_OK
++      != unify_dotdot_attributes_get_unid_endpoint()(updated_node,
++                                                     unid,
++                                                     &endpoint_id)) {
++    return;
++  }
++  // clang-format off
++  // clang-format on
++
++  std::string base_topic = "ucl/by-unid/" + std::string(unid);
++  // clang-format off
++  base_topic += "/ep" + std::to_string(endpoint_id);
++  // clang-format on
++
++  attribute_store_type_t type = attribute_store_get_node_type(updated_node);
++  if (type == ATTRIBUTE_STORE_INVALID_ATTRIBUTE_TYPE) {
++    sl_log_debug(LOG_TAG,
++                 "Warning: Invalid type for Attribute ID %d, "
++                 "this should not happen.",
++                 updated_node);
++    return;
++  }
++
++  // Deletion case:
++  if (change == ATTRIBUTE_DELETED) {
++    // clang-format off
++    switch(type) {
++     case DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES:
++        // clang-format on
++        sl_log_debug(LOG_TAG,
++                     "Unretaining MultilevelSensor::SensorValues under topic %s",
++                     base_topic.c_str());
++        // clang-format off
++      uic_mqtt_dotdot_multilevel_sensor_sensor_values_unretain(base_topic.c_str(), UCL_MQTT_PUBLISH_TYPE_ALL);
++      break;
++     case DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE:
++        // clang-format on
++        sl_log_debug(LOG_TAG,
++                     "Unretaining MultilevelSensor::SensorType under topic %s",
++                     base_topic.c_str());
++        // clang-format off
++      uic_mqtt_dotdot_multilevel_sensor_sensor_type_unretain(base_topic.c_str(), UCL_MQTT_PUBLISH_TYPE_ALL);
++      break;
++    default:
++    break;
++    }
++    // clang-format on
++    return;
++  }
++
++  // If the value got updated but undefined, we skip publication
++  if (false == attribute_store_is_reported_defined(updated_node)) {
++    sl_log_debug(LOG_TAG, "Reported value is undefined. Skipping publication");
++    return;
++  }
++
++  // Else we assume update case:
++  // clang-format off
++  try {
++    attribute_store::attribute attr(updated_node);
++    // Skip attribute SensorValues because it is a struct,
++    // we typically don't save them as structs in the attribute store.
++    sl_log_debug(LOG_TAG,"Warning: Cannot publish reported value for attribute MultilevelSensor SensorValues. Structs are not supported");
++      if (type == DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE) {
++          uic_mqtt_dotdot_multilevel_sensor_sensor_type_publish(
++            base_topic.c_str(),
++            static_cast<uint8_t>(attr.reported<uint8_t>()),
++            (attr.desired_exists() && !attribute_store_is_value_matched(updated_node)) ? UCL_MQTT_PUBLISH_TYPE_REPORTED : UCL_MQTT_PUBLISH_TYPE_ALL);
++        return;
++      }
++      } catch (std::exception &ex) {
++    sl_log_warning(LOG_TAG, "Failed to publish the Reported attribute value: %s", ex.what());
++  }
++}
++
++static void multilevel_sensor_cluster_cluster_revision_callback(
++   attribute_store_node_t updated_node, attribute_store_change_t change)
++{
++  // clang-format on
++  if (false == is_publish_reported_attribute_values_to_mqtt_enabled()) {
++    return;
++  }
++
++  // Get the UNID and EndPoint, and prepare the basic topic
++  char unid[MAXIMUM_UNID_SIZE]     = {};
++  dotdot_endpoint_id_t endpoint_id = 0;
++  // clang-format off
++  // clang-format on
++  if (SL_STATUS_OK
++      != unify_dotdot_attributes_get_unid_endpoint()(updated_node,
++                                                     unid,
++                                                     &endpoint_id)) {
++    return;
++  }
++  // clang-format off
++  // clang-format on
++
++  std::string base_topic = "ucl/by-unid/" + std::string(unid);
++  // clang-format off
++  base_topic += "/ep" + std::to_string(endpoint_id);
++
++  if ((change == ATTRIBUTE_CREATED) || (change == ATTRIBUTE_UPDATED)) {
++    // On attribute creation, make sure to publish the attribute revision for the first time
++    std::string cluster_revision_topic = base_topic + "/MultilevelSensor/Attributes/ClusterRevision";
++    if (uic_mqtt_count_topics(cluster_revision_topic.c_str()) == 0) {
++      uic_mqtt_dotdot_multilevel_sensor_publish_cluster_revision(base_topic.c_str(), 1);
++    }
++  }
++
++  if (change == ATTRIBUTE_DELETED) {
++    // Check if we just erased the last attribute under a cluster, if yes, unretain
++    // the Cluster revision too.
++    if (false == dotdot_is_any_multilevel_sensor_attribute_supported(unid, endpoint_id)) {
++      base_topic +=  "/MultilevelSensor";
++      sl_log_debug(LOG_TAG, "No more attributes supported for MultilevelSensor cluster for UNID %s Endpoint %d. Unretaining leftover topics at %s",unid, endpoint_id, base_topic.c_str());
++      uic_mqtt_unretain(base_topic.c_str());
++    }
++  }
++}
++
++
+ /**
+  * @brief Publishes the desired value of an updated attribute store node for
+  * the ProtocolController-NetworkManagement cluster.
+@@ -35755,6 +35984,34 @@ sl_status_t unify_dotdot_attribute_store_attribute_publisher_init()
+       configuration_parameters_cluster_cluster_revision_callback,
+       DOTDOT_ATTRIBUTE_ID_CONFIGURATION_PARAMETERS_CONFIGURATION_PARAMETERS);
+     //Desired attribute state
++    attribute_store_register_callback_by_type_and_state(
++      multilevel_sensor_cluster_publish_desired_value_callback,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES,
++      DESIRED_ATTRIBUTE);
++    //Reported attribute state
++    attribute_store_register_callback_by_type_and_state(
++      multilevel_sensor_cluster_publish_reported_value_callback,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES,
++      REPORTED_ATTRIBUTE);
++    //registering a callback when an attribute is created for publishing cluster revision
++    attribute_store_register_callback_by_type(
++      multilevel_sensor_cluster_cluster_revision_callback,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES);
++    //Desired attribute state
++    attribute_store_register_callback_by_type_and_state(
++      multilevel_sensor_cluster_publish_desired_value_callback,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE,
++      DESIRED_ATTRIBUTE);
++    //Reported attribute state
++    attribute_store_register_callback_by_type_and_state(
++      multilevel_sensor_cluster_publish_reported_value_callback,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE,
++      REPORTED_ATTRIBUTE);
++    //registering a callback when an attribute is created for publishing cluster revision
++    attribute_store_register_callback_by_type(
++      multilevel_sensor_cluster_cluster_revision_callback,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE);
++    //Desired attribute state
+     attribute_store_register_callback_by_type_and_state(
+       protocol_controller_network_management_cluster_publish_desired_value_callback,
+       DOTDOT_ATTRIBUTE_ID_PROTOCOL_CONTROLLER_NETWORK_MANAGEMENT_NETWORK_MANAGEMENT_STATE,
+diff --git a/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_force_read_attributes_command_callbacks.c b/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_force_read_attributes_command_callbacks.c
+index 8237315595..9774152fb6 100644
+--- a/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_force_read_attributes_command_callbacks.c
++++ b/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_force_read_attributes_command_callbacks.c
+@@ -4325,6 +4325,41 @@ static sl_status_t uic_mqtt_dotdot_configuration_parameters_force_read_attribute
+   return SL_STATUS_OK;
+ }
+ ////////////////////////////////////////////////////////////////////////////////
++// Start of cluster MultilevelSensor
++////////////////////////////////////////////////////////////////////////////////
++static sl_status_t uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback (
++  const dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint_id,
++  uic_mqtt_dotdot_callback_call_type_t call_type,
++  uic_mqtt_dotdot_multilevel_sensor_updated_state_t attribute_list) {
++
++  if (false == is_force_read_attributes_enabled()){
++    return SL_STATUS_FAIL;
++  }
++
++  if (call_type == UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK) {
++    if (is_automatic_deduction_of_supported_commands_enabled()) {
++      return dotdot_is_any_multilevel_sensor_attribute_supported(unid, endpoint_id) ?
++        SL_STATUS_OK : SL_STATUS_FAIL;
++    } else {
++      return SL_STATUS_FAIL;
++    }
++  }
++
++  // Go and undefine everything that needs to be read again:
++  if (true == attribute_list.sensor_values) {
++    if (SL_STATUS_OK == dotdot_multilevel_sensor_sensor_values_undefine_reported(unid, endpoint_id)) {
++      sl_log_debug(LOG_TAG, "Undefined Reported value of MultilevelSensor::SensorValues under %s - Endpoint %d", unid, endpoint_id);
++    }
++  }
++  if (true == attribute_list.sensor_type) {
++    if (SL_STATUS_OK == dotdot_multilevel_sensor_sensor_type_undefine_reported(unid, endpoint_id)) {
++      sl_log_debug(LOG_TAG, "Undefined Reported value of MultilevelSensor::SensorType under %s - Endpoint %d", unid, endpoint_id);
++    }
++  }
++  return SL_STATUS_OK;
++}
++////////////////////////////////////////////////////////////////////////////////
+ // Start of cluster Descriptor
+ ////////////////////////////////////////////////////////////////////////////////
+ static sl_status_t uic_mqtt_dotdot_descriptor_force_read_attributes_callback (
+@@ -4657,6 +4692,8 @@ sl_status_t
+   
+   uic_mqtt_dotdot_set_configuration_parameters_force_read_attributes_callback(&uic_mqtt_dotdot_configuration_parameters_force_read_attributes_callback);
+   
++  uic_mqtt_dotdot_set_multilevel_sensor_force_read_attributes_callback(&uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback);
++  
+ 
+   uic_mqtt_dotdot_set_descriptor_force_read_attributes_callback(&uic_mqtt_dotdot_descriptor_force_read_attributes_callback);
+   
+diff --git a/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_helpers.cpp b/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_helpers.cpp
+index bbcc3f7fad..95fffa41fc 100644
+--- a/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_helpers.cpp
++++ b/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_helpers.cpp
+@@ -81051,6 +81051,255 @@ bool dotdot_is_any_configuration_parameters_writable_attribute_supported(
+   const dotdot_endpoint_id_t endpoint_id) {
+ 
+ 
++  return false;
++}
++////////////////////////////////////////////////////////////////////////////////
++// Start of cluster MultilevelSensor
++////////////////////////////////////////////////////////////////////////////////
++bool dotdot_is_supported_multilevel_sensor_sensor_values(
++  const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id)
++{
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES);
++  return attribute_store_node_exists(node);
++}
++
++SensorValue dotdot_get_multilevel_sensor_sensor_values(
++  const dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint_id,
++  attribute_store_node_value_state_t value_state)
++{
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES);
++
++  SensorValue result = {};
++  attribute_store_read_value(node,
++                             value_state,
++                             (uint8_t *)&result,
++                             sizeof(result));
++  return result;
++}
++
++sl_status_t dotdot_set_multilevel_sensor_sensor_values(
++  const dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint_id,
++  attribute_store_node_value_state_t value_state,
++  SensorValue new_sensor_values
++  )
++{
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES);
++
++  // Skip attribute SensorValues because it is a struct,
++  // we typically don't save them as structs in the attribute store.
++  sl_log_error(LOG_TAG, "Error, skipping to change the desired value of SensorValues, Attribute %d, "
++                        "because it is a complicated type (struct: SensorValue). "
++                        "Please change the code to do this manually.", node);
++  return SL_STATUS_FAIL;
++}
++
++sl_status_t dotdot_multilevel_sensor_sensor_values_undefine_reported(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id) {
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES);
++  attribute_store_undefine_reported(node);
++  return (node != ATTRIBUTE_STORE_INVALID_NODE) ? SL_STATUS_OK : SL_STATUS_FAIL;
++}
++
++sl_status_t dotdot_multilevel_sensor_sensor_values_undefine_desired(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id) {
++
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES);
++  attribute_store_undefine_desired(node);
++  return (node != ATTRIBUTE_STORE_INVALID_NODE) ? SL_STATUS_OK : SL_STATUS_FAIL;
++}
++
++
++bool dotdot_multilevel_sensor_sensor_values_is_reported_defined(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id)
++{
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES);
++  return attribute_store_is_reported_defined(node);
++}
++
++bool dotdot_multilevel_sensor_sensor_values_is_desired_defined(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id)
++{
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES);
++  return attribute_store_is_desired_defined(node);
++}
++
++sl_status_t dotdot_create_multilevel_sensor_sensor_values(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id) {
++
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node =
++    attribute_store_create_child_if_missing(endpoint_node,
++                                           DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES);
++
++  return (node != ATTRIBUTE_STORE_INVALID_NODE) ? SL_STATUS_OK : SL_STATUS_FAIL;
++}
++bool dotdot_is_supported_multilevel_sensor_sensor_type(
++  const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id)
++{
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE);
++  return attribute_store_node_exists(node);
++}
++
++uint8_t dotdot_get_multilevel_sensor_sensor_type(
++  const dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint_id,
++  attribute_store_node_value_state_t value_state)
++{
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE);
++
++  uint8_t result = {};
++  attribute_store_read_value(node,
++                             value_state,
++                             (uint8_t *)&result,
++                             sizeof(result));
++  return result;
++}
++
++sl_status_t dotdot_set_multilevel_sensor_sensor_type(
++  const dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint_id,
++  attribute_store_node_value_state_t value_state,
++  uint8_t new_sensor_type
++  )
++{
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE);
++
++  return attribute_store_set_node_attribute_value(node,
++                                                  value_state,
++                                                  (uint8_t *)&new_sensor_type,
++                                                  sizeof(uint8_t));
++  }
++
++sl_status_t dotdot_multilevel_sensor_sensor_type_undefine_reported(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id) {
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE);
++  attribute_store_undefine_reported(node);
++  return (node != ATTRIBUTE_STORE_INVALID_NODE) ? SL_STATUS_OK : SL_STATUS_FAIL;
++}
++
++sl_status_t dotdot_multilevel_sensor_sensor_type_undefine_desired(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id) {
++
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE);
++  attribute_store_undefine_desired(node);
++  return (node != ATTRIBUTE_STORE_INVALID_NODE) ? SL_STATUS_OK : SL_STATUS_FAIL;
++}
++
++
++bool dotdot_multilevel_sensor_sensor_type_is_reported_defined(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id)
++{
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE);
++  return attribute_store_is_reported_defined(node);
++}
++
++bool dotdot_multilevel_sensor_sensor_type_is_desired_defined(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id)
++{
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node
++    = attribute_store_get_first_child_by_type(
++      endpoint_node,
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE);
++  return attribute_store_is_desired_defined(node);
++}
++
++sl_status_t dotdot_create_multilevel_sensor_sensor_type(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id) {
++
++  attribute_store_node_t endpoint_node = unify_dotdot_attributes_get_endpoint_node()(unid, endpoint_id);
++  attribute_store_node_t node =
++    attribute_store_create_child_if_missing(endpoint_node,
++                                           DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE);
++
++  return (node != ATTRIBUTE_STORE_INVALID_NODE) ? SL_STATUS_OK : SL_STATUS_FAIL;
++}
++
++bool dotdot_is_any_multilevel_sensor_attribute_supported(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id) {
++
++  if (true == dotdot_is_supported_multilevel_sensor_sensor_values(unid, endpoint_id)) {
++    return true;
++  }
++  if (true == dotdot_is_supported_multilevel_sensor_sensor_type(unid, endpoint_id)) {
++    return true;
++  }
++
++  return false;
++}
++
++bool dotdot_is_any_multilevel_sensor_writable_attribute_supported(
++  const dotdot_unid_t unid,
++  const dotdot_endpoint_id_t endpoint_id) {
++
++
+   return false;
+ }
+ ////////////////////////////////////////////////////////////////////////////////
+diff --git a/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_registration.cpp b/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_registration.cpp
+index a321941cf6..bbc56dd97a 100644
+--- a/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_registration.cpp
++++ b/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_registration.cpp
+@@ -16807,6 +16807,54 @@ sl_status_t unify_dotdot_attribute_store_registration_init()
+   // clang-format off
+   // clang-format on
+ 
++  {
++    // SensorValue // SensorValue // SensorValue
++    std::string attribute_type_string           = "SensorValue";
++    attribute_store_storage_type_t storage_type = UNKNOWN_STORAGE_TYPE;
++
++    // clang-format off
++    storage_type = BYTE_ARRAY_STORAGE_TYPE;
++
++    if (storage_type == UNKNOWN_STORAGE_TYPE) {
++      sl_log_warning(LOG_TAG,
++                     "Unkown storage type for ZCL MultilevelSensor SensorValues, "
++                     "type:  SensorValue // SensorValue");
++    }
++
++    status |= attribute_store_register_type(
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_VALUES,
++      "ZCL MultilevelSensor SensorValues",
++      ATTRIBUTE_STORE_INVALID_ATTRIBUTE_TYPE,
++      storage_type);
++  }
++
++  // clang-format off
++  // clang-format on
++
++  {
++    // enum8 // enum8 // uint8_t
++    std::string attribute_type_string           = "uint8_t";
++    attribute_store_storage_type_t storage_type = UNKNOWN_STORAGE_TYPE;
++
++    // clang-format off
++    storage_type = attribute_storage_type_conversion(attribute_type_string);
++
++    if (storage_type == UNKNOWN_STORAGE_TYPE) {
++      sl_log_warning(LOG_TAG,
++                     "Unkown storage type for ZCL MultilevelSensor SensorType, "
++                     "type:  enum8 // uint8_t");
++    }
++
++    status |= attribute_store_register_type(
++      DOTDOT_ATTRIBUTE_ID_MULTILEVEL_SENSOR_SENSOR_TYPE,
++      "ZCL MultilevelSensor SensorType",
++      ATTRIBUTE_STORE_INVALID_ATTRIBUTE_TYPE,
++      storage_type);
++  }
++
++  // clang-format off
++  // clang-format on
++
+   {
+     // NetworkManagementState // NetworkManagementState // NetworkManagementState
+     std::string attribute_type_string           = "NetworkManagementState";
+diff --git a/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_write_attributes_command_callbacks.c b/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_write_attributes_command_callbacks.c
+index 799780c184..0eb24791b3 100644
+--- a/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_write_attributes_command_callbacks.c
++++ b/components/unify_dotdot_attribute_store/zap-generated/src/unify_dotdot_attribute_store_write_attributes_command_callbacks.c
+@@ -2398,6 +2398,36 @@ static sl_status_t configuration_parameters_cluster_write_attributes_callback(
+   return SL_STATUS_OK;
+ }
+ ////////////////////////////////////////////////////////////////////////////////
++// Start of cluster MultilevelSensor
++////////////////////////////////////////////////////////////////////////////////
++// WriteAttribute Callbacks multilevel_sensor
++static sl_status_t multilevel_sensor_cluster_write_attributes_callback(
++  const dotdot_unid_t unid,
++  dotdot_endpoint_id_t endpoint_id,
++  uic_mqtt_dotdot_callback_call_type_t call_type,
++  uic_mqtt_dotdot_multilevel_sensor_state_t attributes,
++  uic_mqtt_dotdot_multilevel_sensor_updated_state_t updated_attributes)
++{
++  if (false == is_write_attributes_enabled()) {
++    return SL_STATUS_FAIL;
++  }
++
++  if (call_type == UIC_MQTT_DOTDOT_CALLBACK_TYPE_SUPPORT_CHECK) {
++    if (is_automatic_deduction_of_supported_commands_enabled()) {
++      return dotdot_is_any_multilevel_sensor_writable_attribute_supported(unid, endpoint_id) ?
++        SL_STATUS_OK : SL_STATUS_FAIL;
++    } else {
++      return SL_STATUS_FAIL;
++    }
++  }
++
++  sl_log_debug(LOG_TAG,
++               "multilevel_sensor: Incoming WriteAttributes command for %s, endpoint %d.\n",
++               unid,
++               endpoint_id);
++  return SL_STATUS_OK;
++}
++////////////////////////////////////////////////////////////////////////////////
+ // Start of cluster ProtocolController-NetworkManagement
+ ////////////////////////////////////////////////////////////////////////////////
+ // WriteAttribute Callbacks protocol_controller_network_management
+@@ -2710,6 +2740,9 @@ sl_status_t
+   uic_mqtt_dotdot_set_configuration_parameters_write_attributes_callback(
+     &configuration_parameters_cluster_write_attributes_callback);
+   
++  uic_mqtt_dotdot_set_multilevel_sensor_write_attributes_callback(
++    &multilevel_sensor_cluster_write_attributes_callback);
++  
+   uic_mqtt_dotdot_set_protocol_controller_network_management_write_attributes_callback(
+     &protocol_controller_network_management_cluster_write_attributes_callback);
+   
+diff --git a/components/unify_dotdot_attribute_store/zap-generated/test/unify_dotdot_attribute_store_test.c b/components/unify_dotdot_attribute_store/zap-generated/test/unify_dotdot_attribute_store_test.c
+index d43942b157..a5dd3ae27f 100644
+--- a/components/unify_dotdot_attribute_store/zap-generated/test/unify_dotdot_attribute_store_test.c
++++ b/components/unify_dotdot_attribute_store/zap-generated/test/unify_dotdot_attribute_store_test.c
+@@ -1260,6 +1260,16 @@ static uic_mqtt_dotdot_configuration_parameters_discover_parameter_range_callbac
+ uic_mqtt_dotdot_configuration_parameters_discover_parameter_range_callback_t get_uic_mqtt_dotdot_configuration_parameters_discover_parameter_range_callback(){
+   return test_uic_mqtt_dotdot_configuration_parameters_discover_parameter_range_callback;
+ }
++static uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback_t test_uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback = NULL;
++static uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_t test_uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback = NULL;
++
++uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback_t get_uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback(){
++  return test_uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback;
++}
++uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_t get_uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback(){
++  return test_uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback;
++}
++
+ static uic_mqtt_dotdot_protocol_controller_network_management_force_read_attributes_callback_t test_uic_mqtt_dotdot_protocol_controller_network_management_force_read_attributes_callback = NULL;
+ static uic_mqtt_dotdot_protocol_controller_network_management_write_attributes_callback_t test_uic_mqtt_dotdot_protocol_controller_network_management_write_attributes_callback = NULL;
+ 
+@@ -2856,6 +2866,16 @@ void uic_mqtt_dotdot_configuration_parameters_discover_parameter_range_callback_
+ {
+   test_uic_mqtt_dotdot_configuration_parameters_discover_parameter_range_callback = callback;
+ }
++void set_uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback_stub(
++  const uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback_t callback, int cmock_num_calls)
++{
++  test_uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback = callback;
++}
++void set_uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_stub(
++  const uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_t callback, int cmock_num_calls)
++{
++  test_uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback = callback;
++}
+ void set_uic_mqtt_dotdot_protocol_controller_network_management_force_read_attributes_callback_stub(
+   const uic_mqtt_dotdot_protocol_controller_network_management_force_read_attributes_callback_t callback, int cmock_num_calls)
+ {
+@@ -3818,6 +3838,12 @@ void setUp()
+   test_uic_mqtt_dotdot_configuration_parameters_discover_parameter_range_callback = NULL;
+   uic_mqtt_dotdot_configuration_parameters_discover_parameter_range_callback_set_Stub(
+     &uic_mqtt_dotdot_configuration_parameters_discover_parameter_range_callback_set_stub);
++  test_uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback = NULL;
++  uic_mqtt_dotdot_set_multilevel_sensor_force_read_attributes_callback_Stub(
++    &set_uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback_stub);
++  test_uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback = NULL;
++  uic_mqtt_dotdot_set_multilevel_sensor_write_attributes_callback_Stub(
++    &set_uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_stub);
+   test_uic_mqtt_dotdot_protocol_controller_network_management_force_read_attributes_callback = NULL;
+   uic_mqtt_dotdot_set_protocol_controller_network_management_force_read_attributes_callback_Stub(
+     &set_uic_mqtt_dotdot_protocol_controller_network_management_force_read_attributes_callback_stub);
+@@ -4604,6 +4630,8 @@ void test_automatic_deduction_of_supported_commands()
+   TEST_ASSERT_EQUAL(SL_STATUS_OK, dotdot_create_name_and_location_name(expected_unid,expected_endpoint_id) );
+   TEST_ASSERT_EQUAL(SL_STATUS_OK, dotdot_create_name_and_location_location(expected_unid,expected_endpoint_id) );
+   TEST_ASSERT_EQUAL(SL_STATUS_OK, dotdot_create_configuration_parameters_configuration_parameters(expected_unid,expected_endpoint_id) );
++  TEST_ASSERT_EQUAL(SL_STATUS_OK, dotdot_create_multilevel_sensor_sensor_values(expected_unid,expected_endpoint_id) );
++  TEST_ASSERT_EQUAL(SL_STATUS_OK, dotdot_create_multilevel_sensor_sensor_type(expected_unid,expected_endpoint_id) );
+   TEST_ASSERT_EQUAL(SL_STATUS_OK, dotdot_create_protocol_controller_network_management_network_management_state(expected_unid,expected_endpoint_id) );
+   TEST_ASSERT_EQUAL(SL_STATUS_OK, dotdot_create_descriptor_device_type_list(expected_unid,expected_endpoint_id) );
+   TEST_ASSERT_EQUAL(SL_STATUS_OK, dotdot_create_unify_fan_control_z_wave_fan_mode(expected_unid,expected_endpoint_id) );
+diff --git a/components/unify_dotdot_attribute_store/zap-generated/test/unify_dotdot_attribute_store_test.h b/components/unify_dotdot_attribute_store/zap-generated/test/unify_dotdot_attribute_store_test.h
+index 73c36434ca..35ada30800 100644
+--- a/components/unify_dotdot_attribute_store/zap-generated/test/unify_dotdot_attribute_store_test.h
++++ b/components/unify_dotdot_attribute_store/zap-generated/test/unify_dotdot_attribute_store_test.h
+@@ -769,6 +769,10 @@
+   uic_mqtt_dotdot_configuration_parameters_discover_parameter_range_callback_t get_uic_mqtt_dotdot_configuration_parameters_discover_parameter_range_callback();
+ 
+ 
++  uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback_t get_uic_mqtt_dotdot_multilevel_sensor_force_read_attributes_callback();
++  uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback_t get_uic_mqtt_dotdot_multilevel_sensor_write_attributes_callback();
++
++
+   uic_mqtt_dotdot_protocol_controller_network_management_force_read_attributes_callback_t get_uic_mqtt_dotdot_protocol_controller_network_management_force_read_attributes_callback();
+   uic_mqtt_dotdot_protocol_controller_network_management_write_attributes_callback_t get_uic_mqtt_dotdot_protocol_controller_network_management_write_attributes_callback();
+ 
+-- 
+2.39.5
+

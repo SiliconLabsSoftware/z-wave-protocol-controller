@@ -19,6 +19,8 @@
 #include "zcl_OTA_cluster_server.hpp"
 #include "user_code_cluster_server.h"
 #include "fan_control_cluster_server.h"
+#include "multilevel_sensor_cluster_server.h"
+#include "schedule_entry_lock_server.h"
 
 //Includes from other components
 #include "attribute_store.h"
@@ -42,6 +44,8 @@ sl_status_t zcl_cluster_servers_init()
   init_status |= zcl_scenes_cluster_server_init();
   init_status |= user_code_cluster_server_init();
   init_status |= fan_control_cluster_server_init();
+  init_status |= multilevel_sensor_cluster_server_init();
+  init_status |= schedule_entry_lock_cluster_server_init();
 
   return init_status;
 }

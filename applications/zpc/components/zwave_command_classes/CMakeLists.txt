@@ -41,6 +41,7 @@ add_library(
   src/zwave_command_class_scene_activation_control.c
   src/zwave_command_class_scene_actuator_configuration_control.c
   src/zwave_command_class_scene_controller_configuration_control.c
+  src/zwave_command_class_schedule_entry_lock.cpp
   src/zwave_command_class_security_0.c
   src/zwave_command_class_security_2.c
   src/zwave_command_class_supervision.c
@@ -128,6 +129,7 @@ target_link_libraries(zwave_command_classes
     zpc_utils
     zpc_scripts
     unify
+    zcl_cluster_servers
     zwave_definitions)
 
 if(BUILD_TESTING)

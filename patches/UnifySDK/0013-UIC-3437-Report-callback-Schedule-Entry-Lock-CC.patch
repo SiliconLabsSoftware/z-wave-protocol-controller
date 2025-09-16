@@ -1,0 +1,521 @@
+From d9995303578bf30c27a13f6778590c49475c0975 Mon Sep 17 00:00:00 2001
+From: Thirupathi S <Thirupathi.S@silabs.com>
+Date: Sat, 28 Sep 2024 04:18:17 +0000
+Subject: [PATCH] UIC-3437: Report callback Schedule Entry Lock CC
+
+Merge in UIC/uic from feature/UIC-3437-Report-callback-Schedule-Entry-Lock-CC to feature/UIC-3271-Schedule-Entry-Lock-CC
+---
+ .../cluster-types/cluster-type-attributes.ts  | 15 ++++++++
+ .../dotdot-xml/Unify_ScheduleEntryLock.xml    | 20 +++++++++++
+ .../zap-generated/include/dotdot_mqtt.h       |  8 +++++
+ .../zap-generated/src/dotdot_mqtt.cpp         | 28 +++++++++++++++
+ .../src/dotdot_mqtt_command_helpers.cpp       | 34 +++++++++++++++++++
+ .../src/dotdot_mqtt_command_helpers.hpp       |  4 +++
+ .../src/dotdot_mqtt_group_commands.cpp        |  4 +++
+ .../test/dotdot_mqtt_test.include             |  4 +++
+ .../test/unify_dotdot_attribute_store_test.c  | 16 +++++++++
+ 9 files changed, 133 insertions(+)
+
+diff --git a/applications/dev_ui/dev_gui/zap-generated/src/cluster-types/cluster-type-attributes.ts b/applications/dev_ui/dev_gui/zap-generated/src/cluster-types/cluster-type-attributes.ts
+index c8f421a395..d76522387d 100644
+--- a/applications/dev_ui/dev_gui/zap-generated/src/cluster-types/cluster-type-attributes.ts
++++ b/applications/dev_ui/dev_gui/zap-generated/src/cluster-types/cluster-type-attributes.ts
+@@ -15510,6 +15510,11 @@ export let ClusterTypeAttrs: any = {
+                     type: "number",
+                     isArray: false,
+                   },
++                  {
++                    name: "StartMonth",
++                    type: "number",
++                    isArray: false,
++                  },
+                   {
+                     name: "StartDay",
+                     type: "number",
+@@ -15530,6 +15535,11 @@ export let ClusterTypeAttrs: any = {
+                     type: "number",
+                     isArray: false,
+                   },
++                  {
++                    name: "StopMonth",
++                    type: "number",
++                    isArray: false,
++                  },
+                   {
+                     name: "StopDay",
+                     type: "number",
+@@ -15577,6 +15587,11 @@ export let ClusterTypeAttrs: any = {
+                     type: "number",
+                     isArray: false,
+                   },
++                  {
++                    name: "StartMonth",
++                    type: "number",
++                    isArray: false,
++                  },
+                   {
+                     name: "StartMinute",
+                     type: "number",
+diff --git a/components/uic_dotdot/dotdot-xml/Unify_ScheduleEntryLock.xml b/components/uic_dotdot/dotdot-xml/Unify_ScheduleEntryLock.xml
+index 8b9f0685d6..390ee807b3 100644
+--- a/components/uic_dotdot/dotdot-xml/Unify_ScheduleEntryLock.xml
++++ b/components/uic_dotdot/dotdot-xml/Unify_ScheduleEntryLock.xml
+@@ -88,6 +88,11 @@
+             <type:minInclusive value="0" />
+             <type:maxInclusive value="23" />
+           </restriction>
++        <field name="StartMonth" type="uint8" />
++          <restriction>
++            <type:minInclusive value="1" />
++            <type:maxInclusive value="12" />
++          </restriction>
+         <field name="StartMinute" type="uint8" />
+           <restriction>
+             <type:minInclusive value="0" />
+@@ -98,6 +103,11 @@
+             <type:minInclusive value="0" />
+             <type:maxInclusive value="99" />
+           </restriction>
++        <field name="StopMonth" type="uint8" />
++          <restriction>
++            <type:minInclusive value="1" />
++            <type:maxInclusive value="12" />
++          </restriction>
+         <field name="StopDay" type="uint8" />
+           <restriction>
+             <type:minInclusive value="0" />
+@@ -204,6 +214,11 @@
+             <type:minInclusive value="0" />
+             <type:maxInclusive value="99" />
+           </restriction>
++        <field name="StartMonth" type="uint8" />
++          <restriction>
++            <type:minInclusive value="1" />
++            <type:maxInclusive value="12" />
++          </restriction>
+         <field name="StartDay" type="uint8" />
+           <restriction>
+             <type:minInclusive value="0" />
+@@ -224,6 +239,11 @@
+             <type:minInclusive value="0" />
+             <type:maxInclusive value="99" />
+           </restriction>
++        <field name="StopMonth" type="uint8" />
++          <restriction>
++            <type:minInclusive value="1" />
++            <type:maxInclusive value="12" />
++          </restriction>
+         <field name="StopDay" type="uint8" />
+           <restriction>
+             <type:minInclusive value="0" />
+diff --git a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt.h b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt.h
+index 0a57bcf5ad..f0fdd07d2b 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt.h
++++ b/components/uic_dotdot_mqtt/zap-generated/include/dotdot_mqtt.h
+@@ -40171,6 +40171,8 @@ typedef sl_status_t (*uic_mqtt_dotdot_unify_schedule_entry_lock_schedule_entry_l
+ 
+     uint8_t start_year,
+ 
++    uint8_t start_month,
++
+     uint8_t start_day,
+ 
+     uint8_t start_hour,
+@@ -40179,6 +40181,8 @@ typedef sl_status_t (*uic_mqtt_dotdot_unify_schedule_entry_lock_schedule_entry_l
+ 
+     uint8_t stop_year,
+ 
++    uint8_t stop_month,
++
+     uint8_t stop_day,
+ 
+     uint8_t stop_hour,
+@@ -40277,6 +40281,8 @@ typedef struct {
+ 
+   uint8_t start_year;
+ 
++  uint8_t start_month;
++
+   uint8_t start_day;
+ 
+   uint8_t start_hour;
+@@ -40285,6 +40291,8 @@ typedef struct {
+ 
+   uint8_t stop_year;
+ 
++  uint8_t stop_month;
++
+   uint8_t stop_day;
+ 
+   uint8_t stop_hour;
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.cpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.cpp
+index 02a9105975..a9ce13461d 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.cpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.cpp
+@@ -94313,10 +94313,12 @@ void uic_mqtt_dotdot_on_unify_schedule_entry_lock_schedule_entry_lock_year_day_r
+   uint8_t user_identifier = {};
+   uint8_t schedule_slotid = {};
+   uint8_t start_year = {};
++  uint8_t start_month = {};
+   uint8_t start_day = {};
+   uint8_t start_hour = {};
+   uint8_t start_minute = {};
+   uint8_t stop_year = {};
++  uint8_t stop_month = {};
+   uint8_t stop_day = {};
+   uint8_t stop_hour = {};
+   uint8_t stop_minute = {};
+@@ -94337,6 +94339,8 @@ void uic_mqtt_dotdot_on_unify_schedule_entry_lock_schedule_entry_lock_year_day_r
+ 
+       start_year,
+ 
++      start_month,
++
+       start_day,
+ 
+       start_hour,
+@@ -94345,6 +94349,8 @@ void uic_mqtt_dotdot_on_unify_schedule_entry_lock_schedule_entry_lock_year_day_r
+ 
+       stop_year,
+ 
++      stop_month,
++
+       stop_day,
+ 
+       stop_hour,
+@@ -94380,6 +94386,8 @@ void uic_mqtt_dotdot_on_unify_schedule_entry_lock_schedule_entry_lock_year_day_r
+   
+       start_year,
+   
++      start_month,
++  
+       start_day,
+   
+       start_hour,
+@@ -94388,6 +94396,8 @@ void uic_mqtt_dotdot_on_unify_schedule_entry_lock_schedule_entry_lock_year_day_r
+   
+       stop_year,
+   
++      stop_month,
++  
+       stop_day,
+   
+       stop_hour,
+@@ -94422,10 +94432,12 @@ static void uic_mqtt_dotdot_on_generated_unify_schedule_entry_lock_schedule_entr
+   uint8_t user_identifier = {};
+   uint8_t schedule_slotid = {};
+   uint8_t start_year = {};
++  uint8_t start_month = {};
+   uint8_t start_day = {};
+   uint8_t start_hour = {};
+   uint8_t start_minute = {};
+   uint8_t stop_year = {};
++  uint8_t stop_month = {};
+   uint8_t stop_day = {};
+   uint8_t stop_hour = {};
+   uint8_t stop_minute = {};
+@@ -94446,6 +94458,8 @@ static void uic_mqtt_dotdot_on_generated_unify_schedule_entry_lock_schedule_entr
+ 
+       start_year,
+ 
++      start_month,
++
+       start_day,
+ 
+       start_hour,
+@@ -94454,6 +94468,8 @@ static void uic_mqtt_dotdot_on_generated_unify_schedule_entry_lock_schedule_entr
+ 
+       stop_year,
+ 
++      stop_month,
++
+       stop_day,
+ 
+       stop_hour,
+@@ -94490,6 +94506,8 @@ static void uic_mqtt_dotdot_on_generated_unify_schedule_entry_lock_schedule_entr
+   
+       start_year,
+   
++      start_month,
++  
+       start_day,
+   
+       start_hour,
+@@ -94498,6 +94516,8 @@ static void uic_mqtt_dotdot_on_generated_unify_schedule_entry_lock_schedule_entr
+   
+       stop_year,
+   
++      stop_month,
++  
+       stop_day,
+   
+       stop_hour,
+@@ -111368,6 +111388,8 @@ static inline bool uic_mqtt_dotdot_unify_schedule_entry_lock_schedule_entry_lock
+     memset(&schedule_slotid_value, 0x00, sizeof(schedule_slotid_value));
+     uint8_t start_year_value;
+     memset(&start_year_value, 0x00, sizeof(start_year_value));
++    uint8_t start_month_value;
++    memset(&start_month_value, 0x00, sizeof(start_month_value));
+     uint8_t start_day_value;
+     memset(&start_day_value, 0x00, sizeof(start_day_value));
+     uint8_t start_hour_value;
+@@ -111376,6 +111398,8 @@ static inline bool uic_mqtt_dotdot_unify_schedule_entry_lock_schedule_entry_lock
+     memset(&start_minute_value, 0x00, sizeof(start_minute_value));
+     uint8_t stop_year_value;
+     memset(&stop_year_value, 0x00, sizeof(stop_year_value));
++    uint8_t stop_month_value;
++    memset(&stop_month_value, 0x00, sizeof(stop_month_value));
+     uint8_t stop_day_value;
+     memset(&stop_day_value, 0x00, sizeof(stop_day_value));
+     uint8_t stop_hour_value;
+@@ -111393,6 +111417,8 @@ static inline bool uic_mqtt_dotdot_unify_schedule_entry_lock_schedule_entry_lock
+     
+         start_year_value,
+     
++        start_month_value,
++    
+         start_day_value,
+     
+         start_hour_value,
+@@ -111401,6 +111427,8 @@ static inline bool uic_mqtt_dotdot_unify_schedule_entry_lock_schedule_entry_lock
+     
+         stop_year_value,
+     
++        stop_month_value,
++    
+         stop_day_value,
+     
+         stop_hour_value,
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.cpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.cpp
+index 0c1e90c9d9..9d5eb3d4a7 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.cpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.cpp
+@@ -14661,6 +14661,10 @@ std::string get_json_payload_for_unify_schedule_entry_lock_schedule_entry_lock_y
+   command_with_no_fields = false;
+   // Single Value
+   // Non-enum and non-bitmask (struct, string or scalar)
++  json_payload["StartMonth"] = nlohmann::json(fields->start_month);
++  command_with_no_fields = false;
++  // Single Value
++  // Non-enum and non-bitmask (struct, string or scalar)
+   json_payload["StartDay"] = nlohmann::json(fields->start_day);
+   command_with_no_fields = false;
+   // Single Value
+@@ -14677,6 +14681,10 @@ std::string get_json_payload_for_unify_schedule_entry_lock_schedule_entry_lock_y
+   command_with_no_fields = false;
+   // Single Value
+   // Non-enum and non-bitmask (struct, string or scalar)
++  json_payload["StopMonth"] = nlohmann::json(fields->stop_month);
++  command_with_no_fields = false;
++  // Single Value
++  // Non-enum and non-bitmask (struct, string or scalar)
+   json_payload["StopDay"] = nlohmann::json(fields->stop_day);
+   command_with_no_fields = false;
+   // Single Value
+@@ -14706,6 +14714,8 @@ void uic_mqtt_dotdot_parse_unify_schedule_entry_lock_schedule_entry_lock_year_da
+   
+   uint8_t &start_year,
+   
++  uint8_t &start_month,
++  
+   uint8_t &start_day,
+   
+   uint8_t &start_hour,
+@@ -14714,6 +14724,8 @@ void uic_mqtt_dotdot_parse_unify_schedule_entry_lock_schedule_entry_lock_year_da
+   
+   uint8_t &stop_year,
+   
++  uint8_t &stop_month,
++  
+   uint8_t &stop_day,
+   
+   uint8_t &stop_hour,
+@@ -14746,6 +14758,12 @@ void uic_mqtt_dotdot_parse_unify_schedule_entry_lock_schedule_entry_lock_year_da
+   }
+         
+   start_year = jsn.at("StartYear").get< uint8_t >();
++      if (jsn.at("StartMonth").is_null()) {
++    sl_log_debug(LOG_TAG, "Ignoring JSON Null object");
++    return;
++  }
++        
++  start_month = jsn.at("StartMonth").get< uint8_t >();
+       if (jsn.at("StartDay").is_null()) {
+     sl_log_debug(LOG_TAG, "Ignoring JSON Null object");
+     return;
+@@ -14770,6 +14788,12 @@ void uic_mqtt_dotdot_parse_unify_schedule_entry_lock_schedule_entry_lock_year_da
+   }
+         
+   stop_year = jsn.at("StopYear").get< uint8_t >();
++      if (jsn.at("StopMonth").is_null()) {
++    sl_log_debug(LOG_TAG, "Ignoring JSON Null object");
++    return;
++  }
++        
++  stop_month = jsn.at("StopMonth").get< uint8_t >();
+       if (jsn.at("StopDay").is_null()) {
+     sl_log_debug(LOG_TAG, "Ignoring JSON Null object");
+     return;
+@@ -14823,6 +14847,10 @@ std::string get_json_payload_for_unify_schedule_entry_lock_schedule_entry_lock_d
+   command_with_no_fields = false;
+   // Single Value
+   // Non-enum and non-bitmask (struct, string or scalar)
++  json_payload["StartMonth"] = nlohmann::json(fields->start_month);
++  command_with_no_fields = false;
++  // Single Value
++  // Non-enum and non-bitmask (struct, string or scalar)
+   json_payload["StartMinute"] = nlohmann::json(fields->start_minute);
+   command_with_no_fields = false;
+   // Single Value
+@@ -14892,6 +14920,12 @@ void uic_mqtt_dotdot_parse_unify_schedule_entry_lock_schedule_entry_lock_daily_r
+   }
+         
+   start_hour = jsn.at("StartHour").get< uint8_t >();
++      if (jsn.at("StartMonth").is_null()) {
++    sl_log_debug(LOG_TAG, "Ignoring JSON Null object");
++    return;
++  }
++        
++  start_month = jsn.at("StartMonth").get< uint8_t >();
+       if (jsn.at("StartMinute").is_null()) {
+     sl_log_debug(LOG_TAG, "Ignoring JSON Null object");
+     return;
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.hpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.hpp
+index 1082c43494..31a79e1ade 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.hpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_command_helpers.hpp
+@@ -6099,6 +6099,8 @@ void uic_mqtt_dotdot_parse_unify_schedule_entry_lock_schedule_entry_lock_year_da
+ 
+   uint8_t &start_year,
+ 
++  uint8_t &start_month,
++
+   uint8_t &start_day,
+ 
+   uint8_t &start_hour,
+@@ -6107,6 +6109,8 @@ void uic_mqtt_dotdot_parse_unify_schedule_entry_lock_schedule_entry_lock_year_da
+ 
+   uint8_t &stop_year,
+ 
++  uint8_t &stop_month,
++
+   uint8_t &stop_day,
+ 
+   uint8_t &stop_hour,
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_group_commands.cpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_group_commands.cpp
+index c63dd2a685..76008f3cbf 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_group_commands.cpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt_group_commands.cpp
+@@ -23625,6 +23625,8 @@ static void uic_mqtt_dotdot_on_by_group_unify_schedule_entry_lock_schedule_entry
+               
+           fields.start_year,
+               
++          fields.start_month,
++              
+           fields.start_day,
+               
+           fields.start_hour,
+@@ -23633,6 +23635,8 @@ static void uic_mqtt_dotdot_on_by_group_unify_schedule_entry_lock_schedule_entry
+               
+           fields.stop_year,
+               
++          fields.stop_month,
++              
+           fields.stop_day,
+               
+           fields.stop_hour,
+diff --git a/components/uic_dotdot_mqtt/zap-generated/test/dotdot_mqtt_test.include b/components/uic_dotdot_mqtt/zap-generated/test/dotdot_mqtt_test.include
+index 64c6d7fe29..c047606bb6 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/test/dotdot_mqtt_test.include
++++ b/components/uic_dotdot_mqtt/zap-generated/test/dotdot_mqtt_test.include
+@@ -3033,6 +3033,8 @@ static sl_status_t uic_mqtt_dotdot_unify_schedule_entry_lock_schedule_entry_lock
+ 
+     uint8_t start_year,
+ 
++    uint8_t start_month,
++
+     uint8_t start_day,
+ 
+     uint8_t start_hour,
+@@ -3041,6 +3043,8 @@ static sl_status_t uic_mqtt_dotdot_unify_schedule_entry_lock_schedule_entry_lock
+ 
+     uint8_t stop_year,
+ 
++    uint8_t stop_month,
++
+     uint8_t stop_day,
+ 
+     uint8_t stop_hour,
+diff --git a/components/unify_dotdot_attribute_store/zap-generated/test/unify_dotdot_attribute_store_test.c b/components/unify_dotdot_attribute_store/zap-generated/test/unify_dotdot_attribute_store_test.c
+index d47ecc8e11..b4559eb2d0 100644
+--- a/components/unify_dotdot_attribute_store/zap-generated/test/unify_dotdot_attribute_store_test.c
++++ b/components/unify_dotdot_attribute_store/zap-generated/test/unify_dotdot_attribute_store_test.c
+@@ -7863,6 +7863,8 @@ void test_automatic_deduction_of_supported_commands()
+       memset(&schedule_slotid_value, 0x00, sizeof(schedule_slotid_value));
+       uint8_t start_year_value;
+       memset(&start_year_value, 0x00, sizeof(start_year_value));
++      uint8_t start_month_value;
++      memset(&start_month_value, 0x00, sizeof(start_month_value));
+       uint8_t start_day_value;
+       memset(&start_day_value, 0x00, sizeof(start_day_value));
+       uint8_t start_hour_value;
+@@ -7871,6 +7873,8 @@ void test_automatic_deduction_of_supported_commands()
+       memset(&start_minute_value, 0x00, sizeof(start_minute_value));
+       uint8_t stop_year_value;
+       memset(&stop_year_value, 0x00, sizeof(stop_year_value));
++      uint8_t stop_month_value;
++      memset(&stop_month_value, 0x00, sizeof(stop_month_value));
+       uint8_t stop_day_value;
+       memset(&stop_day_value, 0x00, sizeof(stop_day_value));
+       uint8_t stop_hour_value;
+@@ -7888,6 +7892,8 @@ void test_automatic_deduction_of_supported_commands()
+       
+         start_year_value,
+       
++        start_month_value,
++      
+         start_day_value,
+       
+         start_hour_value,
+@@ -7896,6 +7902,8 @@ void test_automatic_deduction_of_supported_commands()
+       
+         stop_year_value,
+       
++        stop_month_value,
++      
+         stop_day_value,
+       
+         stop_hour_value,
+@@ -11107,10 +11115,14 @@ void test_automatic_deduction_of_supported_commands()
+       memset(&start_day_value, 0x00, sizeof(start_day_value));
+       uint8_t start_hour_value;
+       memset(&start_hour_value, 0x00, sizeof(start_hour_value));
++      uint8_t start_month_value;
++      memset(&start_month_value, 0x00, sizeof(start_month_value));
+       uint8_t start_minute_value;
+       memset(&start_minute_value, 0x00, sizeof(start_minute_value));
+       uint8_t stop_year_value;
+       memset(&stop_year_value, 0x00, sizeof(stop_year_value));
++      uint8_t stop_month_value;
++      memset(&stop_month_value, 0x00, sizeof(stop_month_value));
+       uint8_t stop_day_value;
+       memset(&stop_day_value, 0x00, sizeof(stop_day_value));
+       uint8_t stop_hour_value;
+@@ -11132,10 +11144,14 @@ void test_automatic_deduction_of_supported_commands()
+       
+         start_hour_value,
+       
++        start_month_value,
++      
+         start_minute_value,
+       
+         stop_year_value,
+       
++        stop_month_value,
++      
+         stop_day_value,
+       
+         stop_hour_value,
+-- 
+2.39.5
+

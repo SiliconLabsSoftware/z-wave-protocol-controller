@@ -88,6 +88,21 @@ target_add_unittest(
   uic_contiki_stub
   unify)
 
+# Schedule entry lock server test
+target_add_unittest(
+  zcl_cluster_servers
+  NAME
+  schedule_entry_lock_server_test
+  SOURCES
+  schedule_entry_lock_server_test.cpp
+  DEPENDS
+  zpc_attribute_store_test_helper
+  uic_dotdot_mqtt_mock
+  unify_dotdot_attribute_store
+  zpc_attribute_store_network_helper_mock
+  zwave_command_class_test_helpers
+  )
+
 # User Code Cluster Server test
 target_add_unittest(
   zcl_cluster_servers

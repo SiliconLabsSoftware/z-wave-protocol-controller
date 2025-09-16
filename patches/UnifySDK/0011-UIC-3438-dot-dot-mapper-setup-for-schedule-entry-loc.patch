@@ -1,0 +1,302 @@
+From 9660b5676577440cc94dfb83f73b30dc117744d4 Mon Sep 17 00:00:00 2001
+From: Thirupathi S <Thirupathi.S@silabs.com>
+Date: Tue, 17 Sep 2024 13:13:38 +0000
+Subject: [PATCH] UIC-3438: dot dot mapper setup for schedule entry lock CC
+
+Merge in UIC/uic from feature/UIC-3438-dotdot-mapper-Setup-Schedule-Entry-Lock-CC to feature/UIC-3271-Schedule-Entry-Lock-CC
+---
+ .../dotdot-xml/Unify_ScheduleEntryLock.xml    | 282 ++++++++++++++++++
+ 1 file changed, 282 insertions(+)
+ create mode 100644 components/uic_dotdot/dotdot-xml/Unify_ScheduleEntryLock.xml
+
+diff --git a/components/uic_dotdot/dotdot-xml/Unify_ScheduleEntryLock.xml b/components/uic_dotdot/dotdot-xml/Unify_ScheduleEntryLock.xml
+new file mode 100644
+index 0000000000..8d37540615
+--- /dev/null
++++ b/components/uic_dotdot/dotdot-xml/Unify_ScheduleEntryLock.xml
+@@ -0,0 +1,282 @@
++<zcl:cluster
++  xmlns:zcl="http://zigbee.org/zcl/clusters"
++  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++  xmlns:type="http://zigbee.org/zcl/types"
++  xmlns:xi="http://www.w3.org/2001/XInclude"
++  xsi:schemaLocation="http://zigbee.org/zcl/clusters cluster.xsd http://zigbee.org/zcl/types type.xsd"
++  id="FD21" revision="1" name="UnifyScheduleEntryLock">
++<classification role="application" picsCode="USEL"/>
++
++<server>
++    <attributes>
++      <attribute id="0001" name="SlotsWeekDay" min="0" max="255" required="true" writable="true" type="uint8"/>
++      <attribute id="0002" name="SlotsYearDay" min="0" max="255" required="true" writable="true" type="uint8"/>
++      <attribute id="0003" name="SignTZO" required="true" writable="true" type="uint8"/>
++      <attribute id="0004" name="HourTZO" required="true" writable="true" type="uint8"/>
++      <attribute id="0005" name="MinuteTZO" required="true" writable="true" type="uint8"/>
++      <attribute id="0006" name="DSTOffsetSign" required="true" writable="true" type="uint8"/>
++      <attribute id="0007" name="DSTOffsetMinute" required="true" writable="true" type="uint8"/>
++      <attribute id="0008" name="NumberOfSlotsDailyRepeating" min="0" max="255" writable="true" required="true" type="uint8"/>
++    </attributes>
++</server>
++
++<server>
++  <commands>
++    <command id="01" name="ScheduleEntryLockEnableSet" required="true">
++      <fields>
++        <field name="UserIdentifier" type="uint8" />
++        <field name="Enabled" type="uint8" />
++      </fields>
++    </command>
++    <command id="02" name="ScheduleEntryLockEnableAllSet" required="true">
++      <fields>
++        <field name="Enabled" type="uint8" />
++      </fields>
++    </command>
++    <command id="03" name="ScheduleEntryLockWeekDaySet" required="true">
++      <fields>
++        <field name="SetAction" type="uint8" />
++        <field name="UserIdentifier" type="uint8" />
++        <field name="ScheduleSlotID" type="uint8" />
++        <field name="DayOfWeek" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="6" />
++          </restriction>
++        <field name="StartHour" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="23" />
++          </restriction>
++        <field name="StartMinute" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="59" />
++          </restriction>
++        <field name="StopHour" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="23" />
++          </restriction>
++        <field name="StopMinute" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="59" />
++          </restriction>
++      </fields>
++    </command>
++    <command id="04" name="ScheduleEntryLockWeekDayGet" required="true">
++      <fields>
++        <field name="UserIdentifier" type="uint8" />
++        <field name="ScheduleSlotID" type="uint8" />
++      </fields>
++    </command>
++    <command id="05" name="ScheduleEntryLockYearDaySet" required="true">
++      <fields>
++        <field name="SetAction" type="uint8" />
++        <field name="UserIdentifier" type="uint8" />
++        <field name="ScheduleSlotID" type="uint8" />
++        <field name="StartYear" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="99" />
++          </restriction>
++        <field name="StartDay" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="31" />
++          </restriction>
++        <field name="StartHour" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="23" />
++          </restriction>
++        <field name="StartMinute" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="59" />
++          </restriction>
++        <field name="StopYear" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="99" />
++          </restriction>
++        <field name="StopDay" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="31" />
++          </restriction>
++        <field name="StopHour" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="23" />
++          </restriction>
++        <field name="StopMinute" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="59" />
++          </restriction>
++      </fields>
++    </command>
++    <command id="06" name="ScheduleEntryLockYearDayGet" required="true">
++      <fields>
++        <field name="UserIdentifier" type="uint8" />
++        <field name="ScheduleSlotID" type="uint8" />
++      </fields>
++    </command>
++    <command id="07" name="ScheduleEntryLockDailyRepeatingSet" required="true">
++      <fields>
++        <field name="SetAction" type="uint8" />
++        <field name="UserIdentifier" type="uint8" />
++        <field name="ScheduleSlotID" type="uint8" />
++        <field name="WeekDayBitmask" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="7" />
++          </restriction>
++        <field name="StartHour" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="23" />
++          </restriction>
++        <field name="StartMinute" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="59" />
++          </restriction>
++        <field name="DurationHour" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="23" />
++          </restriction>
++        <field name="DurationMinute" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="59" />
++          </restriction>
++      </fields>
++    </command>
++    <command id="08" name="ScheduleEntryDailyRepeatingGet" required="true">
++      <fields>
++        <field name="UserIdentifier" type="uint8" />
++        <field name="ScheduleSlotID" type="uint8" />
++      </fields>
++    </command>
++  </commands>
++</server>
++
++<client>
++  <commands>
++      <command id="01" name="ScheduleEntryLockWeekDayReport" required="true">
++      <fields>
++        <field name="UserIdentifier" type="uint8" />
++        <field name="ScheduleSlotID" type="uint8" />
++        <field name="DayOfWeek" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="6" />
++          </restriction>
++        <field name="StartHour" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="23" />
++          </restriction>
++        <field name="StartMinute" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="59" />
++          </restriction>
++        <field name="StopHour" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="23" />
++          </restriction>
++        <field name="StopMinute" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="59" />
++          </restriction>
++      </fields>
++    </command>
++    <command id="02" name="ScheduleEntryLockYearDayReport" required="true">
++      <fields>
++        <field name="SetAction" type="uint8"/>
++        <field name="UserIdentifier" type="uint8"/>
++        <field name="ScheduleSlotID" type="uint8"/>
++        <field name="StartYear" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="99" />
++          </restriction>
++        <field name="StartDay" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="31" />
++          </restriction>
++        <field name="StartHour" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="23" />
++          </restriction>
++        <field name="StartMinute" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="59" />
++          </restriction>
++        <field name="StopYear" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="99" />
++          </restriction>
++        <field name="StopDay" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="31" />
++          </restriction>
++        <field name="StopHour" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="23" />
++          </restriction>
++        <field name="StopMinute" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="59" />
++          </restriction>
++      </fields>
++    </command>
++    <command id="03" name="ScheduleEntryLockDailyRepeatingReport" required="true">
++      <fields>
++        <field name="SetAction" type="uint8"/>
++        <field name="UserIdentifier" type="uint8" />
++        <field name="ScheduleSlotID" type="uint8" />
++        <field name="WeekDayBitmask" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="7" />
++          </restriction>
++        <field name="StartHour" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="23" />
++          </restriction>
++        <field name="StartMinute" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="59" />
++          </restriction>
++        <field name="DurationHour" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="23" />
++          </restriction>
++        <field name="DurationMinute" type="uint8" />
++          <restriction>
++            <type:minInclusive value="0" />
++            <type:maxInclusive value="59" />
++          </restriction>
++      </fields>
++    </command>
++  </commands>
++</client>
++</zcl:cluster>
+-- 
+2.39.5
+

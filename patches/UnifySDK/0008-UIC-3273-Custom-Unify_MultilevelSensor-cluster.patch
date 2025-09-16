@@ -1,0 +1,538 @@
+From 049707c76ce7f322abe1ef54a1c5b568dc4599ba Mon Sep 17 00:00:00 2001
+From: ptphan <phong.phan@silabs.com>
+Date: Wed, 2 Oct 2024 10:40:35 +0700
+Subject: [PATCH] UIC-3273: Custom Unify_MultilevelSensor cluster
+
+[Philippe Coval]
+
+This patch was split in two, this version is the change that apply to
+Unify, please refer to previous commit to undestand the flow, I after
+the failed cherry-pick, I just used patch -p1 < patch and commited
+only the changes that applies to Unify, the same operation should be
+done for z-p-c project (in the opposite way).
+
+Origin: ver_1.7.0-unstable-23-g38f24ffb48
+Bug-SiliconLabs: UIC-3273
+Origin: s.s.com/projects/UIC/repos/uic/pull-requests/2855
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/issues/44
+Forwarded: https://github.com/rzr/UnifySDK/tree/z-wave/core/zpc/main
+Forwarded: https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/pull/143
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ .../multilevel_sensor_cluster_server.cpp      | 181 ++++++++++++++++++
+ .../multilevel_sensor_cluster_server.h        |  44 +++++
+ .../zcl_cluster_servers/CMakeLists.txt        |  46 +++++
+ .../src/zcl_cluster_servers.cpp               |  55 ++++++
+ .../dotdot-xml/Unify_MultilevelSensor.xml     | 121 ++++++++++++
+ components/uic_dotdot/dotdot-xml/library.xml  |   1 +
+ components/uic_dotdot/zap/addon-helper.js     |   1 +
+ 7 files changed, 449 insertions(+)
+ create mode 100644 applications/examples/applications/emulated_end_device/components/eed_attribute_store/include/multilevel_sensor_cluster_server.cpp
+ create mode 100644 applications/examples/applications/emulated_end_device/components/eed_attribute_store/include/multilevel_sensor_cluster_server.h
+ create mode 100644 applications/zpc/components/zcl_cluster_servers/CMakeLists.txt
+ create mode 100644 applications/zpc/components/zcl_cluster_servers/src/zcl_cluster_servers.cpp
+ create mode 100644 components/uic_dotdot/dotdot-xml/Unify_MultilevelSensor.xml
+
+diff --git a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/include/multilevel_sensor_cluster_server.cpp b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/include/multilevel_sensor_cluster_server.cpp
+new file mode 100644
+index 0000000000..0645623b87
+--- /dev/null
++++ b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/include/multilevel_sensor_cluster_server.cpp
+@@ -0,0 +1,181 @@
++/******************************************************************************
++ * # License
++ * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
++ ******************************************************************************
++ * The licensor of this software is Silicon Laboratories Inc. Your use of this
++ * software is governed by the terms of Silicon Labs Master Software License
++ * Agreement (MSLA) available at
++ * www.silabs.com/about-us/legal/master-software-license-agreement. This
++ * software is distributed to you in Source Code format and is governed by the
++ * sections of the MSLA applicable to Source Code.
++ *
++ *****************************************************************************/
++#include "multilevel_sensor_cluster_server.h"
++#include "zcl_cluster_servers_helpers.hpp"
++
++// Interfaces
++#include "zwave_command_class_version_types.h"
++#include "zwave_command_class_configuration_types.h"
++
++// ZPC includes
++#include "zpc_attribute_store.h"
++#include "zpc_attribute_store_network_helper.h"
++#include "zwave_command_class_generic_types.h"
++#include "attribute_store_defined_attribute_types.h"
++
++// Includes from Unify shared components
++#include "attribute.hpp"
++#include "attribute_store_helper.h"
++#include "sl_log.h"
++
++// Includes from auto-generated files
++#include "dotdot_mqtt.h"
++#include "zap-types.h"
++#include "dotdot_mqtt_helpers.hpp"
++
++// Generic includes
++#include <string>
++#include <stdlib.h>
++#include <vector>
++
++using namespace attribute_store;
++
++// Setup Log ID
++constexpr char LOG_TAG[] = "multilevel_sensor_cluster_server";
++
++// Attribute macro, shortening those long defines for attribute types:
++#define ATTRIBUTE(type) ATTRIBUTE_COMMAND_CLASS_SENSOR_MULTILEVEL_##type
++
++// List of attributes of SensorValues
++namespace
++{
++const std::vector<attribute_store_type_t> sensor_values_attributes
++  = {ATTRIBUTE(SENSOR_VALUE), ATTRIBUTE(SCALE)};
++}
++
++///////////////////////////////////////////////////////////////////////////////
++// Attribute publication functions
++//////////////////////////////////////////////////////////////////////////////
++
++/**
++ * @brief Publishes the Multilevel Sensor Cluster Server attributes 
++ *
++ * @param unid        		 unid for which we want to publish the
++ *                            	SensorValues attributes.
++ * @param endpoint_id        Endpoint ID for which we want to publish the
++ *                            SensorValues attributes.
++ * @param sensor_type        Sensor Type node ID for which we want to publish the
++ *                            SensorValues attributes.
++ */
++static sl_status_t publish_multilevel_sensor_cluster_attributes(
++  const std::string &unid,
++  attribute_store::attribute sensor_type_node,
++  zwave_endpoint_id_t endpoint_id)
++{
++  // Do not publish any state supported commands for ourselves.
++  if (is_zpc_unid(unid.c_str())) {
++    return SL_STATUS_FAIL;
++  }
++
++  // Build the base topic and pass it on to DotDot MQTT.
++  try {
++    // Get reported sensor type ID
++    uint8_t sensor_type = sensor_type_node.reported<uint8_t>();
++
++    // Get SensorType name
++    const std::string sensor_type_str
++      = multilevel_sensor_sensor_type_get_enum_value_name(sensor_type);
++
++    // Added sensor type name to base topic
++    const std::string base_topic = "ucl/by-unid/" + std::string(unid) + "/ep"
++                                   + std::to_string(endpoint_id) + "/"
++                                   + std::string(sensor_type_str);
++
++    SensorValue value = {0, 0};
++    // Get report sensor value
++    attribute_store::attribute sensor_value_node
++      = sensor_type_node.child_by_type(ATTRIBUTE(SENSOR_VALUE));
++    if (sensor_value_node.reported_exists()) {
++      value.Value = sensor_value_node.reported<int32_t>();
++    }
++    // Get report sensor scale
++    attribute_store::attribute sensor_scale_node
++      = sensor_type_node.child_by_type(ATTRIBUTE(SCALE));
++    if (sensor_scale_node.reported_exists()) {
++      value.Scale = static_cast<uint8_t>(sensor_scale_node.reported<int32_t>());
++    }
++
++    // Pulish the sensor value attribute
++    if (SL_STATUS_OK
++        != uic_mqtt_dotdot_multilevel_sensor_sensor_values_publish(
++          base_topic.c_str(),
++          value,
++          UCL_MQTT_PUBLISH_TYPE_REPORTED)) {
++      return SL_STATUS_FAIL;
++    }
++  } catch (const std::exception &e) {
++    sl_log_error(LOG_TAG,
++                 "Error while get base topic and sensor data  : %s",
++                 e.what());
++
++    return SL_STATUS_FAIL;
++  }
++  return SL_STATUS_OK;
++}
++
++///////////////////////////////////////////////////////////////////////////////
++// Attribute store callback functions
++//////////////////////////////////////////////////////////////////////////////
++/**
++ * @brief Listens to updates to the SensorValues then publishes the attributes.
++ *
++ * @param updated_node    Attribute Store node that was modified.
++ * @param change          Type of change applied to the node.
++ */
++void on_sensor_values_update(attribute_store_node_t updated_node,
++                             attribute_store_change_t change)
++{
++  if (change == ATTRIBUTE_CREATED || change == ATTRIBUTE_DELETED) {
++    return;
++  }
++
++  // Go up and find the UNID/Endpoint and its network status.
++  unid_t unid;
++  zwave_endpoint_id_t endpoint_id = 0;
++  if (SL_STATUS_OK
++      != attribute_store_network_helper_get_unid_endpoint_from_node(
++        updated_node,
++        unid,
++        &endpoint_id)) {
++    return;
++  }
++
++  attribute_store::attribute sensor_type_node
++    = attribute_store_get_first_parent_with_type(updated_node,
++                                                 ATTRIBUTE(SENSOR_TYPE));
++
++  // Publish the multilevel sensor values:
++  if (SL_STATUS_OK
++      != publish_multilevel_sensor_cluster_attributes(std::string(unid),
++                                                      sensor_type_node,
++                                                      endpoint_id)) {
++    return;
++  }
++}
++
++///////////////////////////////////////////////////////////////////////////////
++//  Init and teardown functions.
++//////////////////////////////////////////////////////////////////////////////
++sl_status_t multilevel_sensor_cluster_server_init(void)
++{
++  sl_log_debug(LOG_TAG, "Multilevel sensor server initialization");
++
++  // Register attribute updates
++
++  attribute_store_register_callback_by_type_to_array(
++    &on_sensor_values_update,
++    sensor_values_attributes.data(),
++    static_cast<uint32_t>(sensor_values_attributes.size()));
++
++  return SL_STATUS_OK;
++}
+diff --git a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/include/multilevel_sensor_cluster_server.h b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/include/multilevel_sensor_cluster_server.h
+new file mode 100644
+index 0000000000..7abce74752
+--- /dev/null
++++ b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/include/multilevel_sensor_cluster_server.h
+@@ -0,0 +1,44 @@
++/******************************************************************************
++ * # License
++ * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
++ ******************************************************************************
++ * The licensor of this software is Silicon Laboratories Inc. Your use of this
++ * software is governed by the terms of Silicon Labs Master Software License
++ * Agreement (MSLA) available at
++ * www.silabs.com/about-us/legal/master-software-license-agreement. This
++ * software is distributed to you in Source Code format and is governed by the
++ * sections of the MSLA applicable to Source Code.
++ *
++ *****************************************************************************/
++
++/**
++ * @defgroup multilevel_sensor_cluster_server ZCL Multilevel Sensor cluster
++ * @ingroup zcl_cluster_servers
++ * @brief The module handlers the Multilevel Sensor Cluster attribute and
++ *        publish directly the attribute via MQTT.
++ *
++ * @{
++ */
++
++#ifndef MULTILEVEL_SENSOR_CLUSTER_SERVER_H
++#define MULTILEVEL_SENSOR_CLUSTER_SERVER_H
++
++#include "sl_status.h"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++/**
++ * @brief Initialize the Multilevel Sensor Cluster Commands handler.
++ *
++ * @returns SL_STATUS_OK on success, any other code on failure
++ */
++sl_status_t multilevel_sensor_cluster_server_init(void);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif  //MULTILEVEL_SENSOR_CLUSTER_SERVER_H
++/** @} end configuration_cluster_mapper */
+diff --git a/applications/zpc/components/zcl_cluster_servers/CMakeLists.txt b/applications/zpc/components/zcl_cluster_servers/CMakeLists.txt
+new file mode 100644
+index 0000000000..41a947535f
+--- /dev/null
++++ b/applications/zpc/components/zcl_cluster_servers/CMakeLists.txt
+@@ -0,0 +1,46 @@
++find_package(Boost REQUIRED)
++
++# Find nlohmann_json, unfortunately the find_package doesn't work for this when
++# cross compiling, thus we use the simplified method find_path instead
++find_path(nlohmann_json_include nlohmann/json.hpp REQUIRED)
++
++# ZCL Cluster server library
++add_library(
++  zcl_cluster_servers
++  src/configuration_parameter_cluster_server.cpp
++  src/humidity_control_cluster_server.c
++  src/user_code_cluster_server.cpp
++  src/fan_control_cluster_server.c
++  src/zcl_binding_cluster_server.cpp
++  src/zcl_cluster_servers.cpp
++  src/zcl_cluster_servers_helpers.cpp
++  src/zcl_OTA_cluster_server.cpp
++  src/zcl_rf_telemetry_cluster_server.c
++  src/zcl_scenes_cluster_server.cpp
++  src/multilevel_sensor_cluster_server.cpp
++  )
++
++target_include_directories(
++  zcl_cluster_servers
++  PUBLIC include
++  PRIVATE src ${nlohmann_json_include} ${Boost_INCLUDE_DIRS})
++
++target_link_libraries(
++  zcl_cluster_servers
++  PUBLIC zwave_handlers zwave_definitions
++  PRIVATE unify
++          zpc_attribute_store
++          zpc_utils
++          ucl_mqtt
++          zwave_command_classes
++          zwave_api_transport
++          dotdot_mapper
++          zwave_network_management)
++
++if(BUILD_TESTING)
++  # Unit tests
++  add_subdirectory(test)
++
++  # Mocks
++  target_add_mock(zcl_cluster_servers)
++endif()
+diff --git a/applications/zpc/components/zcl_cluster_servers/src/zcl_cluster_servers.cpp b/applications/zpc/components/zcl_cluster_servers/src/zcl_cluster_servers.cpp
+new file mode 100644
+index 0000000000..736b3d7f39
+--- /dev/null
++++ b/applications/zpc/components/zcl_cluster_servers/src/zcl_cluster_servers.cpp
+@@ -0,0 +1,55 @@
++/******************************************************************************
++ * # License
++ * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
++ ******************************************************************************
++ * The licensor of this software is Silicon Laboratories Inc. Your use of this
++ * software is governed by the terms of Silicon Labs Master Software License
++ * Agreement (MSLA) available at
++ * www.silabs.com/about-us/legal/master-software-license-agreement. This
++ * software is distributed to you in Source Code format and is governed by the
++ * sections of the MSLA applicable to Source Code.
++ *
++ *****************************************************************************/
++//Include from this component
++#include "zcl_cluster_servers.h"
++#include "zcl_rf_telemetry_cluster_server.h"
++#include "configuration_parameter_cluster_server.h"
++#include "zcl_binding_cluster_server.h"
++#include "zcl_scenes_cluster_server.h"
++#include "zcl_OTA_cluster_server.hpp"
++#include "user_code_cluster_server.h"
++#include "fan_control_cluster_server.h"
++#include "multilevel_sensor_cluster_server.h"
++
++//Includes from other components
++#include "attribute_store.h"
++#include "attribute_store_helper.h"
++#include "zpc_attribute_store_network_helper.h"
++#include "attribute_store_defined_attribute_types.h"
++
++// Interfaces
++#include "zwave_controller_types.h"
++
++///////////////////////////////////////////////////////////////////////////////
++//  Init and teardown functions.
++//////////////////////////////////////////////////////////////////////////////
++sl_status_t zcl_cluster_servers_init()
++{
++  sl_status_t init_status = SL_STATUS_OK;
++  init_status |= zcl_OTA_cluster_server_init();
++  init_status |= zcl_rf_telemetry_cluster_server_init();
++  init_status |= configuration_parameter_cluster_server_init();
++  init_status |= binding_cluster_server_init();
++  init_status |= zcl_scenes_cluster_server_init();
++  init_status |= user_code_cluster_server_init();
++  init_status |= fan_control_cluster_server_init();
++  init_status |= multilevel_sensor_cluster_server_init();
++
++  return init_status;
++}
++
++int zcl_cluster_servers_teardown()
++{
++  zcl_scenes_cluster_server_teardown();
++  return 0;
++}
+diff --git a/components/uic_dotdot/dotdot-xml/Unify_MultilevelSensor.xml b/components/uic_dotdot/dotdot-xml/Unify_MultilevelSensor.xml
+new file mode 100644
+index 0000000000..126be4bd8e
+--- /dev/null
++++ b/components/uic_dotdot/dotdot-xml/Unify_MultilevelSensor.xml
+@@ -0,0 +1,121 @@
++<?xml version="1.0"?>
++<!--
++MultilevelSensor
++This is a manufacturer specific cluster.
++-->
++<zcl:cluster
++	xmlns:zcl="http://zigbee.org/zcl/clusters"
++	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++	xmlns:type="http://zigbee.org/zcl/types"
++	xmlns:xi="http://www.w3.org/2001/XInclude"
++	xsi:schemaLocation="http://zigbee.org/zcl/clusters cluster.xsd http://zigbee.org/zcl/types type.xsd"
++	id="FD09" revision="1" name="MultilevelSensor">
++  <classification role="application" picsCode="MLSS" />
++
++  <type:type short="SensorValue" name="SensorValue" id="01">
++    <restriction>
++      <type:sequence>
++	    <field name="Value" type="int32" />
++		<field name="Scale" type="uint8" />
++      </type:sequence>
++    </restriction>
++  </type:type>
++
++  <server>
++
++    <attributes>
++      <attribute id="0000" name="SensorValues" type="SensorValue"  required="true"/>
++      <attribute id="0001" name="SensorType" type="enum8" required="true" >
++        <restriction>
++          <type:enumeration value="01" name="AirTemperature" />
++          <type:enumeration value="03" name="Illuminance" />
++          <type:enumeration value="04" name="Power" />
++          <type:enumeration value="05" name="Humidity" />
++		  <type:enumeration value="06" name="Velocity" />
++		  <type:enumeration value="07" name="Direction" />
++          <type:enumeration value="08" name="AtmosphericPressure" />
++          <type:enumeration value="09" name="BarometricPressure" />
++		  <type:enumeration value="0A" name="SolarRadiation" />
++		  <type:enumeration value="0B" name="DewPoint" />
++		  <type:enumeration value="0C" name="RainRate" />
++		  <type:enumeration value="0D" name="TideLevel" />
++		  <type:enumeration value="0E" name="Weight" />
++		  <type:enumeration value="0F" name="Voltage" />
++		  <type:enumeration value="10" name="Current" />
++		  <type:enumeration value="11" name="CarbonDioxideCO2Level" />
++		  <type:enumeration value="12" name="AirFlow" />
++		  <type:enumeration value="13" name="TankCapacity" />
++		  <type:enumeration value="14" name="Distance" />
++		  <type:enumeration value="16" name="Rotation" />
++		  <type:enumeration value="17" name="WaterTempurature" />
++		  <type:enumeration value="18" name="SoilTempurature" />
++		  <type:enumeration value="19" name="SeismicIntensity" />
++		  <type:enumeration value="1A" name="SeismicMagnitude" />
++		  <type:enumeration value="1B" name="Ultraviolet" />
++		  <type:enumeration value="1C" name="ElectricalResistivity" />
++		  <type:enumeration value="1D" name="ElectricalConductivity" />
++		  <type:enumeration value="1E" name="Loudness" />
++		  <type:enumeration value="1F" name="Moisture" />
++		  <type:enumeration value="20" name="Frequency" />
++		  <type:enumeration value="21" name="Time" />
++		  <type:enumeration value="22" name="TargetTemperature" />
++		  <type:enumeration value="23" name="ParticulateMatter2.5" />
++		  <type:enumeration value="24" name="FormaldehydeLevel" />
++		  <type:enumeration value="25" name="RadonConcentration" />
++		  <type:enumeration value="26" name="MethaneDensity" />
++		  <type:enumeration value="27" name="VolatileOrganicCompoundLevel" />
++		  <type:enumeration value="28" name="CarbonMonoxideLevel" />
++		  <type:enumeration value="29" name="SoilHumidity" />
++		  <type:enumeration value="2A" name="SoilReactivity" />
++		  <type:enumeration value="2B" name="SoilSalinity" />
++		  <type:enumeration value="2C" name="HeartRate" />
++		  <type:enumeration value="2D" name="BloodPressure" />
++		  <type:enumeration value="2E" name="MuscleMass" />
++		  <type:enumeration value="2F" name="FatMass" />
++		  <type:enumeration value="30" name="BoneMass" />
++		  <type:enumeration value="31" name="TotalBodyWater" />
++		  <type:enumeration value="32" name="BasisMetabolicRate" />
++		  <type:enumeration value="33" name="BodyMassIndex" />
++		  <type:enumeration value="34" name="AccelerationX-axis" />
++		  <type:enumeration value="35" name="AccelerationY-axis" />
++		  <type:enumeration value="36" name="AccelerationZ-axis" />
++		  <type:enumeration value="37" name="SmokeDensity" />
++		  <type:enumeration value="38" name="WaterFlow" />
++		  <type:enumeration value="39" name="WaterPressure" />
++		  <type:enumeration value="3A" name="RFSignalStrength" />
++		  <type:enumeration value="3B" name="ParticulateMatter10" />
++		  <type:enumeration value="3C" name="RespiratoryRate" />
++		  <type:enumeration value="3D" name="RelativeModulationLevel" />
++		  <type:enumeration value="3E" name="BoilerWaterTemperature" />
++		  <type:enumeration value="3F" name="DomesticHotWaterTemperature" />
++		  <type:enumeration value="40" name="OutsideTemperature" />
++          <type:enumeration value="41" name="ExhaustTemperature" />
++		  <type:enumeration value="42" name="WaterChlorineLevel" />
++		  <type:enumeration value="43" name="WaterAcidity" />
++		  <type:enumeration value="44" name="WaterOxidationReductionPotential" />
++		  <type:enumeration value="45" name="HeartRateLFHFRatio" />
++		  <type:enumeration value="46" name="MotionDirection" />
++		  <type:enumeration value="47" name="AppliedForceOnTheSensor" />
++		  <type:enumeration value="48" name="ReturnAirTemperature" />
++		  <type:enumeration value="49" name="SupplyAirTemperature" />
++		  <type:enumeration value="4A" name="CondenserCoilTemperature" />
++		  <type:enumeration value="4B" name="EvaproratorCoilTemperature" />
++		  <type:enumeration value="4C" name="LiquidLineTemperature" />
++		  <type:enumeration value="4D" name="DischargeLineTemperature" />
++		  <type:enumeration value="4E" name="SuctionPressure" />
++		  <type:enumeration value="4F" name="DischargePressure" />
++		  <type:enumeration value="50" name="DefrostTemperature" />
++		  <type:enumeration value="51" name="Ozone" />
++		  <type:enumeration value="52" name="SulfurDioxide" />
++		  <type:enumeration value="53" name="NitrogenDioxide" />
++		  <type:enumeration value="54" name="Ammonia" />
++		  <type:enumeration value="55" name="Lead" />
++		  <type:enumeration value="56" name="ParticulateMatter1" />
++		  <type:enumeration value="57" name="PersonCounterEntering" />
++		  <type:enumeration value="58" name="PersonCounterExiting" />
++        </restriction>
++      </attribute>
++    </attributes>
++
++  </server>
++</zcl:cluster>
+diff --git a/components/uic_dotdot/dotdot-xml/library.xml b/components/uic_dotdot/dotdot-xml/library.xml
+index 4210b67fa4..deec70c822 100644
+--- a/components/uic_dotdot/dotdot-xml/library.xml
++++ b/components/uic_dotdot/dotdot-xml/library.xml
+@@ -501,4 +501,5 @@ applicable to this document can be found in the LICENSE.md file.
+   <xi:include href="Unify_HumidityControl.xml" parse="xml"/>
+   <xi:include href="Unify_Thermostat.xml" parse="xml"/>
+   <xi:include href="Unify_FanControl.xml" parse="xml"/>
++  <xi:include href="Unify_MultilevelSensor.xml" parse="xml"/>
+ </zcl:library>
+\ No newline at end of file
+diff --git a/components/uic_dotdot/zap/addon-helper.js b/components/uic_dotdot/zap/addon-helper.js
+index 3686fb8395..9d57f82c8b 100644
+--- a/components/uic_dotdot/zap/addon-helper.js
++++ b/components/uic_dotdot/zap/addon-helper.js
+@@ -127,6 +127,7 @@ function isStruct(type) {
+     case 'SSceneTable': return true
+     case 'DeviceTypeStruct': return true
+     case 'CredentialStruct': return true
++    case 'SensorValue': return true
+     default: return false
+   }
+ }
+-- 
+2.39.5
+
