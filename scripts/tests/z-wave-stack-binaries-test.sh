@@ -426,7 +426,7 @@ play_net_add_node_()
     expect="$sub $expect"
 
     NetworkStatus='Online functional'
-    Security="Z-Wave S2 Authenticated"
+    Security="Z-Wave S2 .*" # Authenticated or AccessControl (Doorlock)
     json='{"MaximumCommandDelay":'${MaximumCommandDelay}',"NetworkList":[""],"NetworkStatus":"'${NetworkStatus}'","Security":"'${Security}'"}'
     over_expect=$(echo "$json" | sed 's/\[/\\[/g; s/\]/\\]/g')
     over_expect="$sub $over_expect"
@@ -479,7 +479,7 @@ play_node_soc_switch_on_off_()
     log_ "$node: Play on $nodeid " # ~T738437 ~T738442"
     local attribute="$type"
 
-    log_ "$node: Initial state reported after inclusion"
+    log_ "$node: Initial state reported after inclusion ($attribute)"
     message="{}"
     sub="ucl/by-unid/$nodeunid/ep0/$type/Attributes/$attribute/Reported"
     json='{"value":false}'
@@ -571,6 +571,44 @@ play_node_soc_multilevel_sensor_()
 }
 
 
+play_node_soc_door_lock_keypad_()
+{
+    local node="soc_door_lock_keypad"
+    local type="DoorLock"
+    local attribute="LockState"
+
+    node_cli_ "$node" n
+    log_ "$node: Play on $nodeid" # ~T738437 ~T738442
+
+    log_ "$node: Initial state reported after inclusion ($attribute)"
+
+    local ep="ep0/$type/SupportedCommands"
+    local sub="ucl/by-unid/${nodeunid}/$ep"
+    local key="value" ; key='"'$key'"' # JSON string
+    local value='["LockDoor", "UnlockDoor", "Toggle", "SetPINCode", "GetPINCode", "ClearPINCode", "ClearAllPINCodes", "SetUserStatus", "GetUserStatus", "ForceReadAttributes"]';
+    local json='{'$key': '$value'}'
+    json=$(echo "$json" | sed 's/\[/\\[/g; s/\]/\\]/g')
+    local expect="$sub $json"
+    sub_ "$sub" "$expect"
+
+    sub="ucl/by-unid/$nodeunid/ep0/$type/Attributes/$attribute/Reported"
+    value='Unlocked'
+    json='{"value":"'$value'"}'
+    expect="$sub $json"
+    sub_ "$sub" "$expect"
+
+    local command="Toggle"
+    local code="0000" # Any code is mandatory to prevent json parsing error (TODO)
+    local message='{"PINOrRFIDCode":"'$code'"}'
+    local pub="ucl/by-unid/$nodeunid/ep0/$type/Commands/$command"
+    sub="ucl/by-unid/$nodeunid/ep0/$type/Attributes/$attribute/Reported"
+    value='Locked'
+    json='{"value":"'$value'"}'
+    expect="$sub $json"
+    pubsub_ "$pub" "$message" "$sub" "$expect"
+}
+
+
 play_node_s2v2_()
 {
     local task="s2v2"
@@ -634,6 +672,7 @@ play_nodes_()
     local nodes=(
         soc_switch_on_off
         soc_multilevel_sensor
+        soc_door_lock_keypad
     )
     for node in ${nodes[@]} ; do
         node_cli_ $node h
@@ -734,6 +773,10 @@ screen -t "soc_switch_on_off" "2" $0 run_app_ soc_switch_on_off
 split -v
 focus right
 screen -t "soc_multilevel_sensor" "3" $0 run_app_ soc_multilevel_sensor
+
+split -v
+focus right
+screen -t "soc_door_lock_keypad" "4" $0 run_app_ soc_door_lock_keypad
 
 focus down
 screen -t "zpc" "0" $0 run_ zpc
