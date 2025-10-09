@@ -319,7 +319,7 @@ node_cli_()
                          | tail -n 1 | sed -e 's|NODE_ID: \(.*\)|\1|g' )
             echo "NODE_ID: ${nodeid}"
             nodeidhex=$(printf "%04X" $nodeid)
-            nodeunid="zw-$homeid-$nodeidhex" # Unify Node Id
+            nodeunid="zw-$nodehomeid-$nodeidhex" # Unify Node Id
             echo "NODE_UNID: ${nodeunid}"
             ;;
         *)
