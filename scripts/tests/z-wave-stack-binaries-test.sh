@@ -700,7 +700,7 @@ play_node_soc_door_lock_keypad_()
 play_node_s2v2_()
 {
     local task="s2v2"
-    log_ "$task: TODO: https://github.com/Z-Wave-Alliance/z-wave-stack/pull/700"
+    # log_ "$task: TODO: https://github.com/Z-Wave-Alliance/z-wave-stack/pull/700"
     local type="OnOff"
     node_cli_ "$node" H
     node_cli_ "$node" n
@@ -717,15 +717,16 @@ play_node_s2v2_()
     grep 'on_nls_state_set_v2_send_complete' "${zpc_log}" || exit_ 20
     grep 'on_nls_state_get_v2_send_complete' "${zpc_log}" || exit_ 21
     zpc_cli_ "attribute_store_log_search" "NLS"
-    zpc_cli_ "attribute_store_log_search" "NLS state" \
-        && grep  'NLS state ...............................................' \
-                 "${zpc_log}" \
-            || echo TODO exit_ 22 # 2 expected
-    zpc_cli_ "attribute_store_log_search" "NLS support" \
-        && grep  'NLS support .*' \
-                 "${zpc_log}" \
-            || echo TODO exit_ 23
-
+    
+    zpc_cli_ "attribute_store_log_search" "NLS state"
+    grep -2 -E ".* NodeID [.]*[ ]* ${nodeid}" "${zpc_log}" \
+        | grep -E 'NLS state [.]*' \
+        || exit_ 22 # 2 expected
+    
+    zpc_cli_ "attribute_store_log_search" "NLS support"
+    grep -3 -E ".* NodeID [.]*[ ]* ${nodeid}" "${zpc_log}" \
+        | grep -E 'NLS support [.]*.*1.*' \
+        || exit_ 23
     pub="ucl/by-unid/$nodeunid/State/Commands/DiscoverNeighbors"
     message='{}'
     pub_ "$pub" "$message"
