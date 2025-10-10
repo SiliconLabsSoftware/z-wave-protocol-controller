@@ -342,6 +342,8 @@ zwa_dir?=${zwa_project}
 
 ${CURDIR}/tmp/${zwa_file}:
 	@echo "TODO: https://github.com/Z-Wave-Alliance/z-wave-stack-binaries/issues/2"
+	gh auth status || gh auth login
+	gh auth status || echo "Please download ${zwa_url} to $@"
 	mkdir -p ${@D} && cd ${@D} \
 		&& gh release download \
 			--repo "${zwa_url}" --pattern "${zwa_file}" \
@@ -351,13 +353,13 @@ ${zwa_dir}: ${CURDIR}/tmp/${zwa_file}
 	mkdir -p "$@"
 	tar xfa "$<" -C "$@"
 
-zwa/setup: ${zwa_project}
-	ls ${zwa_project}
+zwa/setup: ${zwa_dir}
+	ls ${<}
 
 mapdir?=applications/zpc/components/dotdot_mapper/rules
 datastore_file?=tmp.db
 cache_path?=tmp/cache/ota
-zwa/test: ./scripts/tests/z-wave-stack-binaries-test.sh ${zwa_dir}
+zwa/test: ./scripts/tests/z-wave-stack-binaries-test.sh
 	-reset
 	rm -fv ${datastore_file} *.tmp
 	mkdir -p ${cache_path}
