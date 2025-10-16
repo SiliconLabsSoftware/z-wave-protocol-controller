@@ -425,8 +425,8 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
         txStatusReport.last_route_repeaters[3] = *p++;
 
         // Byte 16, beam and last route speed
-        txStatusReport.beam_1000ms      = (*p) | (1 << 6);
-        txStatusReport.beam_250ms       = (*p) | (1 << 5);
+        txStatusReport.beam_1000ms      = (*p & (1 << 6)) != 0;
+        txStatusReport.beam_250ms       = (*p & (1 << 5)) != 0;
         txStatusReport.last_route_speed = (*p++) & 0x7;
 
         txStatusReport.routing_attempts      = *p++;

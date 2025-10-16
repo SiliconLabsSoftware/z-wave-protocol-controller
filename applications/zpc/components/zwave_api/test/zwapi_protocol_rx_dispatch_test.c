@@ -522,3 +522,63 @@ void test_zwapi_protocol_rx_dispatch_protocol_cc_encryption_request()
   TEST_ASSERT_EQUAL(1,
                     zwapi_protocol_cc_encryption_request_test_function_call_count);
 }
+
+void test_zwapi_protocol_rx_dispatch_beam_flags_both_false()
+{
+  // Test with beam flags both false (bit 5 and 6 clear: 0x00)
+  zwave_api_get_callbacks_IgnoreAndReturn(&test_zwapi_callbacks);
+  zwapi_send_data_callback = &zwapi_send_data_test_callback;
+  uint8_t frame[] = {0x1D, 0x00, 0x13, 0x00, 0x00, 0x12, 0x23, 0x05, 0xCF, 0x7D,
+                     0x7F, 0x6F, 0x7F, 0x01, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00,
+                     0x00, 0x01, 0x00, 0x00};  // Byte 20 = 0x00 (no beam flags set)
+  zwave_api_protocol_rx_dispatch(frame, sizeof(frame));
+
+  TEST_ASSERT_EQUAL(1, zwapi_send_data_test_callback_call_count);
+  TEST_ASSERT_EQUAL(false, received_tx_report.beam_1000ms);
+  TEST_ASSERT_EQUAL(false, received_tx_report.beam_250ms);
+}
+
+void test_zwapi_protocol_rx_dispatch_beam_flags_250ms_only()
+{
+  // Test with only beam_250ms flag set (bit 5 set: 0x20)
+  zwave_api_get_callbacks_IgnoreAndReturn(&test_zwapi_callbacks);
+  zwapi_send_data_callback = &zwapi_send_data_test_callback;
+  uint8_t frame[] = {0x1D, 0x00, 0x13, 0x00, 0x00, 0x12, 0x23, 0x05, 0xCF, 0x7D,
+                     0x7F, 0x6F, 0x7F, 0x01, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00,
+                     0x20, 0x01, 0x00, 0x00};  // Byte 20 = 0x20 (bit 5 set)
+  zwave_api_protocol_rx_dispatch(frame, sizeof(frame));
+
+  TEST_ASSERT_EQUAL(1, zwapi_send_data_test_callback_call_count);
+  TEST_ASSERT_EQUAL(false, received_tx_report.beam_1000ms);
+  TEST_ASSERT_EQUAL(true, received_tx_report.beam_250ms);
+}
+
+void test_zwapi_protocol_rx_dispatch_beam_flags_1000ms_only()
+{
+  // Test with only beam_1000ms flag set (bit 6 set: 0x40)
+  zwave_api_get_callbacks_IgnoreAndReturn(&test_zwapi_callbacks);
+  zwapi_send_data_callback = &zwapi_send_data_test_callback;
+  uint8_t frame[] = {0x1D, 0x00, 0x13, 0x00, 0x00, 0x12, 0x23, 0x05, 0xCF, 0x7D,
+                     0x7F, 0x6F, 0x7F, 0x01, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00,
+                     0x40, 0x01, 0x00, 0x00};  // Byte 20 = 0x40 (bit 6 set)
+  zwave_api_protocol_rx_dispatch(frame, sizeof(frame));
+
+  TEST_ASSERT_EQUAL(1, zwapi_send_data_test_callback_call_count);
+  TEST_ASSERT_EQUAL(true, received_tx_report.beam_1000ms);
+  TEST_ASSERT_EQUAL(false, received_tx_report.beam_250ms);
+}
+
+void test_zwapi_protocol_rx_dispatch_beam_flags_both_true()
+{
+  // Test with both beam flags set (bits 5 and 6 set: 0x60)
+  zwave_api_get_callbacks_IgnoreAndReturn(&test_zwapi_callbacks);
+  zwapi_send_data_callback = &zwapi_send_data_test_callback;
+  uint8_t frame[] = {0x1D, 0x00, 0x13, 0x00, 0x00, 0x12, 0x23, 0x05, 0xCF, 0x7D,
+                     0x7F, 0x6F, 0x7F, 0x01, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00,
+                     0x60, 0x01, 0x00, 0x00};  // Byte 20 = 0x60 (bits 5 and 6 set)
+  zwave_api_protocol_rx_dispatch(frame, sizeof(frame));
+
+  TEST_ASSERT_EQUAL(1, zwapi_send_data_test_callback_call_count);
+  TEST_ASSERT_EQUAL(true, received_tx_report.beam_1000ms);
+  TEST_ASSERT_EQUAL(true, received_tx_report.beam_250ms);
+}
