@@ -440,6 +440,8 @@ play_net_add_node_()
     [ $conthomeid = $nodehomeid ] || exit_ 17
     node_cli_ "$node" n # 2 expected on 1st time
     [ $nodeid -ne 0 ] || exit_ 19
+
+    zpc_cli_ zwave_log_security_keys
 }
 
 
@@ -775,7 +777,7 @@ play_()
     until grep -- "\[mqtt_wrapper_mosquitto\]" "${zpc_log}" ; do sleep 1 ; done
     until grep -- "\[mqtt_client\] Connection to MQTT broker" "${zpc_log}" ; do sleep 1 ; done
 
-    log_ "$task: Check presense of controller"
+    log_ "$task: Check presence of controller"
     controller_cli_ h
 
     log_ "$task: Find host"
