@@ -59,6 +59,7 @@
 #include "zwave_command_class_indicator_control.h"
 #include "zwave_command_class_manufacturer_specific_control.h"
 #include "zwave_command_class_humidity_control_mode.h"
+#include "zwave_command_class_switch_all.h"
 #include "zwave_command_class_protocol.h"
 
 // Generic includes
@@ -116,6 +117,7 @@ sl_status_t zwave_command_classes_init()
   status |= zwave_command_class_security_2_init();
   status |= zwave_command_class_sound_switch_init();
   status |= zwave_command_class_supervision_init();
+  status |= zwave_command_class_switch_all_init();
   status |= zwave_command_class_switch_color_init();
   status |= zwave_command_class_switch_multilevel_init();
   status |= zwave_command_class_thermostat_mode_init();

@@ -70,7 +70,9 @@ static const std::vector<attribute_schema_t> attribute_schema = {
   /////////////////////////////////////////////////////////////////////
   //         All Switch Command Class attributes
   /////////////////////////////////////////////////////////////////////
-  {ATTRIBUTE_COMMAND_CLASS_ALL_SWITCH_VERSION,   "All Switch Command Class version",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
+  {ATTRIBUTE_COMMAND_CLASS_SWITCH_ALL_VERSION,   "All Switch Command Class version",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
+  {ATTRIBUTE_COMMAND_CLASS_SWITCH_ALL_MODE,      "Mode",  ATTRIBUTE_ENDPOINT_ID,  U8_STORAGE_TYPE},
+  {ATTRIBUTE_COMMAND_CLASS_SWITCH_ALL_ON_OFF,    "Switch All",  ATTRIBUTE_ENDPOINT_ID,  U8_STORAGE_TYPE},
   /////////////////////////////////////////////////////////////////////
   //         Association Group Information Command Class attributes
   /////////////////////////////////////////////////////////////////////

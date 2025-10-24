@@ -1,0 +1,605 @@
+From 212a71ab46ee6ff264abdd55b5652522173dc70f Mon Sep 17 00:00:00 2001
+From: Philippe Coval <philippe.coval@silabs.com>
+Date: Mon, 22 Sep 2025 10:58:04 +0200
+Subject: [PATCH] UIC-3444: Regenerate zap files
+
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ .../src/eed_attribute_store_clusters.c        |   8 +
+ .../src/eed_dotdot_create_clusters.cpp        |  33 ++
+ .../include/dotdot_attribute_id_definitions.h |   3 +
+ .../dotdot_cluster_command_id_definitions.h   |   2 +
+ .../include/dotdot_cluster_id_definitions.h   |   4 +
+ .../readme_ucl_mqtt_reference.md              | 315 ++++++++++++++++++
+ .../src/dotdot_attribute_id_definitions.c     |  37 ++
+ .../src/dotdot_cluster_id_definitions.c       |   5 +
+ .../zap-generated/src/dotdot_mqtt.hpp         |  12 +-
+ 9 files changed, 413 insertions(+), 6 deletions(-)
+
+diff --git a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_attribute_store_clusters.c b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_attribute_store_clusters.c
+index 8780c887c8..e94571386c 100644
+--- a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_attribute_store_clusters.c
++++ b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_attribute_store_clusters.c
+@@ -2715,6 +2715,14 @@ sl_status_t eed_attribute_store_clusters_init()
+     &on_zcl_desired_value_update,
+     DOTDOT_ATTRIBUTE_ID_UNIFY_THERMOSTAT_OPERATING_STATE,
+     DESIRED_ATTRIBUTE);
++  attribute_store_register_callback_by_type_and_state(
++    &on_zcl_desired_value_update,
++    DOTDOT_ATTRIBUTE_ID_UNIFY_SWITCH_ALL_MODE,
++    DESIRED_ATTRIBUTE);
++  attribute_store_register_callback_by_type_and_state(
++    &on_zcl_desired_value_update,
++    DOTDOT_ATTRIBUTE_ID_UNIFY_SWITCH_ALL_ON_OFF,
++    DESIRED_ATTRIBUTE);
+   attribute_store_register_callback_by_type_and_state(
+     &on_zcl_desired_value_update,
+     DOTDOT_ATTRIBUTE_ID_UNIFY_HUMIDITY_CONTROL_REPORTING_MODE,
+diff --git a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_dotdot_create_clusters.cpp b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_dotdot_create_clusters.cpp
+index 8230ced6c8..9837b3e27b 100644
+--- a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_dotdot_create_clusters.cpp
++++ b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_dotdot_create_clusters.cpp
+@@ -4040,6 +4040,21 @@ void dotdot_create_unify_thermostat_wrapper(const dotdot_unid_t unid, const dotd
+ 
+ }
+ 
++void dotdot_create_unify_switch_all_wrapper(const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id){
++    // Create and set a default value if undefined.
++    dotdot_create_unify_switch_all_mode(unid,endpoint_id);
++    if (false == dotdot_unify_switch_all_mode_is_reported_defined(unid,endpoint_id)){
++    dotdot_set_unify_switch_all_mode(unid,endpoint_id,REPORTED_ATTRIBUTE, static_cast<uint8_t>(0));
++        }
++
++    // Create and set a default value if undefined.
++    dotdot_create_unify_switch_all_on_off(unid,endpoint_id);
++    if (false == dotdot_unify_switch_all_on_off_is_reported_defined(unid,endpoint_id)){
++    dotdot_set_unify_switch_all_on_off(unid,endpoint_id,REPORTED_ATTRIBUTE, static_cast<uint8_t>(0));
++        }
++
++}
++
+ void dotdot_create_unify_humidity_control_wrapper(const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id){
+     // Create and set a default value if undefined.
+     dotdot_create_unify_humidity_control_reporting_mode(unid,endpoint_id);
+@@ -6566,6 +6581,22 @@ void dotdot_unretain_unify_thermostat_wrapper(const dotdot_unid_t unid, const do
+     uic_mqtt_dotdot_unify_thermostat_publish_empty_supported_commands(unid, endpoint_id);
+ }
+ 
++void dotdot_unretain_unify_switch_all_wrapper(const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id){
++    char base_topic[256];
++    snprintf(base_topic, sizeof(base_topic), "ucl/by-unid/%s/ep%d", unid, endpoint_id);
++    attribute_store::attribute ep_node = eed_attribute_store_get_endpoint_node(unid, endpoint_id);
++
++    uic_mqtt_dotdot_unify_switch_all_mode_unretain(base_topic,UCL_MQTT_PUBLISH_TYPE_ALL);
++    ep_node.child_by_type(DOTDOT_ATTRIBUTE_ID_UNIFY_SWITCH_ALL_MODE).delete_node();
++
++    uic_mqtt_dotdot_unify_switch_all_on_off_unretain(base_topic,UCL_MQTT_PUBLISH_TYPE_ALL);
++    ep_node.child_by_type(DOTDOT_ATTRIBUTE_ID_UNIFY_SWITCH_ALL_ON_OFF).delete_node();
++
++
++    uic_mqtt_dotdot_unify_switch_all_unretain_cluster_revision(base_topic);
++    uic_mqtt_dotdot_unify_switch_all_publish_empty_supported_commands(unid, endpoint_id);
++}
++
+ void dotdot_unretain_unify_humidity_control_wrapper(const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id){
+     char base_topic[256];
+     snprintf(base_topic, sizeof(base_topic), "ucl/by-unid/%s/ep%d", unid, endpoint_id);
+@@ -6710,6 +6741,7 @@ std::map<std::string, eed_cluster_attribute_wrapper> CreateClusterMap = {
+ { "Descriptor", dotdot_create_descriptor_wrapper },
+ { "UnifyFanControl", dotdot_create_unify_fan_control_wrapper },
+ { "UnifyThermostat", dotdot_create_unify_thermostat_wrapper },
++{ "UnifySwitchAll", dotdot_create_unify_switch_all_wrapper },
+ { "UnifyHumidityControl", dotdot_create_unify_humidity_control_wrapper },
+ };
+ 
+@@ -6761,5 +6793,6 @@ std::map<std::string, eed_cluster_attribute_wrapper> CreateUnretainMap = {
+ { "Descriptor", dotdot_unretain_descriptor_wrapper },
+ { "UnifyFanControl", dotdot_unretain_unify_fan_control_wrapper },
+ { "UnifyThermostat", dotdot_unretain_unify_thermostat_wrapper },
++{ "UnifySwitchAll", dotdot_unretain_unify_switch_all_wrapper },
+ { "UnifyHumidityControl", dotdot_unretain_unify_humidity_control_wrapper },
+ };
+\ No newline at end of file
+diff --git a/components/uic_dotdot/zap-generated/include/dotdot_attribute_id_definitions.h b/components/uic_dotdot/zap-generated/include/dotdot_attribute_id_definitions.h
+index a988971041..9c6224d414 100644
+--- a/components/uic_dotdot/zap-generated/include/dotdot_attribute_id_definitions.h
++++ b/components/uic_dotdot/zap-generated/include/dotdot_attribute_id_definitions.h
+@@ -864,6 +864,9 @@ typedef enum {
+ #define DOTDOT_UNIFY_THERMOSTAT_THERMOSTAT_MODE_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x1)
+ #define DOTDOT_UNIFY_THERMOSTAT_SUPPORTED_THERMOSTAT_MODE_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x2)
+ #define DOTDOT_UNIFY_THERMOSTAT_OPERATING_STATE_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x3)
++// Definitions for cluster: UnifySwitchAll
++#define DOTDOT_UNIFY_SWITCH_ALL_MODE_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x0)
++#define DOTDOT_UNIFY_SWITCH_ALL_ON_OFF_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x1)
+ // Definitions for cluster: UnifyHumidityControl
+ #define DOTDOT_UNIFY_HUMIDITY_CONTROL_REPORTING_MODE_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x1)
+ #define DOTDOT_UNIFY_HUMIDITY_CONTROL_SUPPORTED_REPORTING_MODE_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x2)
+diff --git a/components/uic_dotdot/zap-generated/include/dotdot_cluster_command_id_definitions.h b/components/uic_dotdot/zap-generated/include/dotdot_cluster_command_id_definitions.h
+index 7e33175d4a..b39caaa52e 100644
+--- a/components/uic_dotdot/zap-generated/include/dotdot_cluster_command_id_definitions.h
++++ b/components/uic_dotdot/zap-generated/include/dotdot_cluster_command_id_definitions.h
+@@ -371,6 +371,8 @@
+ 
+ // Commands for cluster: UnifyThermostat
+ 
++// Commands for cluster: UnifySwitchAll
++
+ // Commands for cluster: UnifyHumidityControl
+ #define DOTDOT_UNIFY_HUMIDITY_CONTROL_MODE_SET_COMMAND_ID (0x1)
+ #define DOTDOT_UNIFY_HUMIDITY_CONTROL_SETPOINT_SET_COMMAND_ID (0x2)
+diff --git a/components/uic_dotdot/zap-generated/include/dotdot_cluster_id_definitions.h b/components/uic_dotdot/zap-generated/include/dotdot_cluster_id_definitions.h
+index 34db7d7b79..c454184dc4 100644
+--- a/components/uic_dotdot/zap-generated/include/dotdot_cluster_id_definitions.h
++++ b/components/uic_dotdot/zap-generated/include/dotdot_cluster_id_definitions.h
+@@ -262,6 +262,10 @@
+ #define DOTDOT_UNIFY_THERMOSTAT_CLUSTER_ID ((dotdot_cluster_id_t)0xFD15)
+ 
+ 
++// Definitions for cluster: UnifySwitchAll
++#define DOTDOT_UNIFY_SWITCH_ALL_CLUSTER_ID ((dotdot_cluster_id_t)0xFD20)
++
++
+ // Definitions for cluster: UnifyHumidityControl
+ #define DOTDOT_UNIFY_HUMIDITY_CONTROL_CLUSTER_ID ((dotdot_cluster_id_t)0xFDA0)
+ 
+diff --git a/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md b/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md
+index 5316b884c2..b267f90e71 100644
+--- a/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md
++++ b/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md
+@@ -53259,6 +53259,321 @@ mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/UnifyThermostat/Commands/ForceReadAttr
+ <br><br><br>
+ 
+ 
++<!-- -->
++<!-- -->
++<!-- NEW Page Cluster Support -->
++<!-- -->
++<!-- -->
++\page unify_switch_all UnifySwitchAll Cluster
++The following commands and attributes are accepted as JSON payloads for the
++UnifySwitchAll cluster.
++
++<br><br>
++
++<!-- -->
++<!--  START OF UnifySwitchAll Attributes Section -->
++<!-- -->
++\section unify_switch_all_attrs UnifySwitchAll Attributes
++The following attribute topics are used to retrieve the UnifySwitchAll cluster state.
++
++<br>
++
++\subsection unify_switch_all_attr_mode UnifySwitchAll/Mode Attribute
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/UnifySwitchAll/Attributes/Mode/Reported
++[PREFIX]/UnifySwitchAll/Attributes/Mode/Desired
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "UnifySwitchAll Cluster Mode Attribute Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "integer"
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++
++**Example Mosquitto CLI Tool Usage**
++
++To see desired/reported value for Mode attribute under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/+/+/UnifySwitchAll/Attributes/Mode/+'
++
++# Example output
++
++ucl/by-unid/<UNID>/ep0/UnifySwitchAll/Attributes/Mode/Desired { "value": <DESIRED_MODE>}
++ucl/by-unid/<UNID>/ep0/UnifySwitchAll/Attributes/Mode/Reported { "value": <REPORTED_MODE>}
++
++```
++
++<br><br>
++
++\subsection unify_switch_all_attr_on_off UnifySwitchAll/OnOff Attribute
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/UnifySwitchAll/Attributes/OnOff/Reported
++[PREFIX]/UnifySwitchAll/Attributes/OnOff/Desired
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "UnifySwitchAll Cluster OnOff Attribute Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "integer"
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++
++**Example Mosquitto CLI Tool Usage**
++
++To see desired/reported value for OnOff attribute under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/+/+/UnifySwitchAll/Attributes/OnOff/+'
++
++# Example output
++
++ucl/by-unid/<UNID>/ep0/UnifySwitchAll/Attributes/OnOff/Desired { "value": <DESIRED_ON_OFF>}
++ucl/by-unid/<UNID>/ep0/UnifySwitchAll/Attributes/OnOff/Reported { "value": <REPORTED_ON_OFF>}
++
++```
++
++<br><br>
++
++
++\subsection unify_switch_all_attr_cluster_revision UnifySwitchAll/ClusterRevision Attribute
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/UnifySwitchAll/Attributes/ClusterRevision/Reported
++[PREFIX]/UnifySwitchAll/Attributes/ClusterRevision/Desired
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "UnifySwitchAll Cluster ClusterRevision Attribute Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "integer"
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++**Example Mosquitto CLI Tool Usage**
++
++To see desired/reported value for ClusterRevision attribute under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/<UNID>/<EP>/UnifySwitchAll/Attributes/ClusterRevision/+'
++# Example output
++ucl/by-unid/<UNID>/<EP>/UnifySwitchAll/Attributes/ClusterRevision/Desired { "value": <DESIRED_CLUSTER_REVISION> }
++ucl/by-unid/<UNID>/<EP>/UnifySwitchAll/Attributes/ClusterRevision/Reported { "value": <REPORTED_CLUSTER_REVISION> }
++```
++
++<!-- -->
++<!--  END OF UnifySwitchAll Attributes Section -->
++<!-- -->
++
++<br><br>
++
++<!-- -->
++<!-- START OF UnifySwitchAll Supported Commands Section -->
++<!-- -->
++\section unify_switch_all_recv_cmd_support UnifySwitchAll Command Support
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/UnifySwitchAll/SupportedCommands
++[PREFIX]/UnifySwitchAll/SupportedGeneratedCommands
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "UnifySwitchAll Command Support Properties",
++  "type": "object",
++  "properties": {
++      "value": {
++          "type": "array",
++          "items" : {
++            "type": "string",
++            "enum": [
++            ]
++          }
++        }
++      }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++**Example Mosquitto CLI Tool Usage**
++
++To see supported commands for UnifySwitchAll cluster under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/<UNID>/<EP>/UnifySwitchAll/SupportedCommands'
++# Example output
++ucl/by-unid/<UNID>/<EP>/UnifySwitchAll/SupportedCommands { "value": [] }
++```
++
++To see supported generated commands for UnifySwitchAll cluster under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/<UNID>/<EP>/UnifySwitchAll/SupportedGeneratedCommands'
++# Example output
++ucl/by-unid/<UNID>/<EP>/UnifySwitchAll/SupportedGeneratedCommands { "value": [] }
++```
++
++<!-- -->
++<!-- END OF UnifySwitchAll Supported Commands Section -->
++<!-- -->
++
++<br><br>
++
++<!-- -->
++<!-- START OF UnifySwitchAll Commands Section -->
++<!-- -->
++\section unify_switch_all_cmds UnifySwitchAll Commands
++
++<br><br>
++
++\subsection unify_switch_all_write_attr_cmd UnifySwitchAll/WriteAttributes Command
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/UnifySwitchAll/Commands/WriteAttributes
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "UnifySwitchAll Cluster WriteAttributes Command Properties",
++  "type": "object",
++  "properties": {
++    "Mode": {
++      "type": "integer"
++    },
++    "OnOff": {
++      "type": "integer"
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++**Example Mosquitto CLI Tool Usage**
++
++To update all UnifySwitchAll attributes under the by-unid topic space:
++
++```console
++mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/UnifySwitchAll/Commands/WriteAttributes' -m  '{ "Mode": <MODE_VALUE> ,"OnOff": <ON_OFF_VALUE>  }'
++```
++
++> NOTE: Specify only the list of attributes to write in this command.
++> Unspecified attributes will not be updated.
++
++<br><br>
++
++\subsection unify_switch_all_force_read_attr_cmd UnifySwitchAll/ForceReadAttributes Command
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/UnifySwitchAll/Commands/ForceReadAttributes
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "UnifySwitchAll Cluster ForceReadAttributes Command Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "array"
++      "items": {
++        "type": "string",
++        "enum": [
++          "Mode",
++          "OnOff"
++        ]
++      }
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++**Example Mosquitto CLI Tool Usage**
++
++To force read all UnifySwitchAll attributes under the by-unid topic space (by sending an empty array):
++
++```console
++mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/UnifySwitchAll/Commands/ForceReadAttributes' -m  '{ "value": [] }'
++```
++
++To force read one of the UnifySwitchAll attributes under the by-unid topic space:
++
++```console
++mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/UnifySwitchAll/Commands/ForceReadAttributes' -m  '{ "value": ["Mode"] }'
++```
++
++<!-- -->
++<!-- END OF UnifySwitchAll Commands Section -->
++<!-- -->
++
++<br><br><br>
++
++
+ <!-- -->
+ <!-- -->
+ <!-- NEW Page Cluster Support -->
+diff --git a/components/uic_dotdot/zap-generated/src/dotdot_attribute_id_definitions.c b/components/uic_dotdot/zap-generated/src/dotdot_attribute_id_definitions.c
+index badc743381..4311450cb0 100644
+--- a/components/uic_dotdot/zap-generated/src/dotdot_attribute_id_definitions.c
++++ b/components/uic_dotdot/zap-generated/src/dotdot_attribute_id_definitions.c
+@@ -2055,6 +2055,19 @@ const char *uic_dotdot_get_attribute_name(dotdot_cluster_id_t cluster_id,
+           return "Unknown";
+       }
+       // clang-format off
++    case DOTDOT_UNIFY_SWITCH_ALL_CLUSTER_ID:
++      // clang-format on
++      switch (attribute_id) {
++        // clang-format off
++        case DOTDOT_UNIFY_SWITCH_ALL_MODE_ATTRIBUTE_ID:
++          return "Mode";
++        case DOTDOT_UNIFY_SWITCH_ALL_ON_OFF_ATTRIBUTE_ID:
++          return "OnOff";
++          // clang-format on
++        default:
++          return "Unknown";
++      }
++      // clang-format off
+     case DOTDOT_UNIFY_HUMIDITY_CONTROL_CLUSTER_ID:
+       // clang-format on
+       switch (attribute_id) {
+@@ -4508,6 +4521,14 @@ dotdot_attribute_id_t
+         return DOTDOT_UNIFY_THERMOSTAT_OPERATING_STATE_ATTRIBUTE_ID;
+       }
+     break;
++    case DOTDOT_UNIFY_SWITCH_ALL_CLUSTER_ID:
++      if (strcmp ("Mode", attribute_name) == 0) {
++        return DOTDOT_UNIFY_SWITCH_ALL_MODE_ATTRIBUTE_ID;
++      }
++      if (strcmp ("OnOff", attribute_name) == 0) {
++        return DOTDOT_UNIFY_SWITCH_ALL_ON_OFF_ATTRIBUTE_ID;
++      }
++    break;
+     case DOTDOT_UNIFY_HUMIDITY_CONTROL_CLUSTER_ID:
+       if (strcmp ("ReportingMode", attribute_name) == 0) {
+         return DOTDOT_UNIFY_HUMIDITY_CONTROL_REPORTING_MODE_ATTRIBUTE_ID;
+@@ -6614,6 +6635,19 @@ dotdot_attribute_json_type_t
+           return JSON_TYPE_UNKNOWN;
+       }
+       // clang-format off
++    case DOTDOT_UNIFY_SWITCH_ALL_CLUSTER_ID:
++      // clang-format on
++      switch (attribute_id) {
++        // clang-format off
++        case DOTDOT_UNIFY_SWITCH_ALL_MODE_ATTRIBUTE_ID:
++          return JSON_TYPE_NUMBER;
++                case DOTDOT_UNIFY_SWITCH_ALL_ON_OFF_ATTRIBUTE_ID:
++          return JSON_TYPE_NUMBER;
++                  // clang-format on
++        default:
++          return JSON_TYPE_UNKNOWN;
++      }
++      // clang-format off
+     case DOTDOT_UNIFY_HUMIDITY_CONTROL_CLUSTER_ID:
+       // clang-format on
+       switch (attribute_id) {
+@@ -7006,6 +7040,9 @@ bool uic_dotdot_attribute_is_enum(dotdot_cluster_id_t cluster_id,
+     }
+   }
+ 
++  if (64800 == cluster_id) {
++  }
++
+   if (64928 == cluster_id) {
+     if (1 == attribute_id) {
+       return true;
+diff --git a/components/uic_dotdot/zap-generated/src/dotdot_cluster_id_definitions.c b/components/uic_dotdot/zap-generated/src/dotdot_cluster_id_definitions.c
+index 8699e827dc..809c9fc1bf 100644
+--- a/components/uic_dotdot/zap-generated/src/dotdot_cluster_id_definitions.c
++++ b/components/uic_dotdot/zap-generated/src/dotdot_cluster_id_definitions.c
+@@ -132,6 +132,8 @@ const char* uic_dotdot_get_cluster_name(dotdot_cluster_id_t cluster_id) {
+     return "UnifyFanControl";
+   case DOTDOT_UNIFY_THERMOSTAT_CLUSTER_ID:
+     return "UnifyThermostat";
++  case DOTDOT_UNIFY_SWITCH_ALL_CLUSTER_ID:
++    return "UnifySwitchAll";
+   case DOTDOT_UNIFY_HUMIDITY_CONTROL_CLUSTER_ID:
+     return "UnifyHumidityControl";
+   default:
+@@ -311,6 +313,9 @@ dotdot_cluster_id_t uic_dotdot_get_cluster_id(const char* cluster_name) {
+  if (strcmp ("UnifyThermostat", cluster_name) == 0) {
+    return DOTDOT_UNIFY_THERMOSTAT_CLUSTER_ID;
+  }
++ if (strcmp ("UnifySwitchAll", cluster_name) == 0) {
++   return DOTDOT_UNIFY_SWITCH_ALL_CLUSTER_ID;
++ }
+  if (strcmp ("UnifyHumidityControl", cluster_name) == 0) {
+    return DOTDOT_UNIFY_HUMIDITY_CONTROL_CLUSTER_ID;
+  }
+diff --git a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.hpp b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.hpp
+index 3d01d600fb..713bbc599e 100644
+--- a/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.hpp
++++ b/components/uic_dotdot_mqtt/zap-generated/src/dotdot_mqtt.hpp
+@@ -5050,14 +5050,14 @@ void uic_mqtt_dotdot_on_unify_fan_control_WriteAttributes(
+  *
+  * @returns std::set of callbacks.
+  */
+-std::set<uic_mqtt_dotdot_unify_switch_all_write_attributes_callback_t> & get_uic_mqtt_dotdot_unify_switch_all_write_attributes_callback();
++std::set<uic_mqtt_dotdot_unify_thermostat_write_attributes_callback_t> & get_uic_mqtt_dotdot_unify_thermostat_write_attributes_callback();
+ 
+ /**
+  * @brief MQTT Subscribe handler for incoming publications on:
+- * ucl/by-unid/+/+/UnifySwitchAll/Commands/WriteAttributes
++ * ucl/by-unid/+/+/UnifyThermostat/Commands/WriteAttributes
+  */
+ // clang-format off
+-void uic_mqtt_dotdot_on_unify_switch_all_WriteAttributes(
++void uic_mqtt_dotdot_on_unify_thermostat_WriteAttributes(
+   const char *topic,
+   const char *message,
+   const size_t message_length);
+@@ -5071,14 +5071,14 @@ void uic_mqtt_dotdot_on_unify_switch_all_WriteAttributes(
+  *
+  * @returns std::set of callbacks.
+  */
+-std::set<uic_mqtt_dotdot_unify_thermostat_write_attributes_callback_t> & get_uic_mqtt_dotdot_unify_thermostat_write_attributes_callback();
++std::set<uic_mqtt_dotdot_unify_switch_all_write_attributes_callback_t> & get_uic_mqtt_dotdot_unify_switch_all_write_attributes_callback();
+ 
+ /**
+  * @brief MQTT Subscribe handler for incoming publications on:
+- * ucl/by-unid/+/+/UnifyThermostat/Commands/WriteAttributes
++ * ucl/by-unid/+/+/UnifySwitchAll/Commands/WriteAttributes
+  */
+ // clang-format off
+-void uic_mqtt_dotdot_on_unify_thermostat_WriteAttributes(
++void uic_mqtt_dotdot_on_unify_switch_all_WriteAttributes(
+   const char *topic,
+   const char *message,
+   const size_t message_length);
+-- 
+2.39.5
+

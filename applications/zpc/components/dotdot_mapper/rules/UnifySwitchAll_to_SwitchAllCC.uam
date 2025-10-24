@@ -1,0 +1,35 @@
+// Switch All  Command Class
+def zwSWITCH_ALL_MODE   0x2702
+def zwSWITCH_ALL_ON_OFF 0x2703
+
+// Unify Switch All Cluster
+def zbSWITCH_ALL_MODE   0xFD200000
+def zbSWITCH_ALL_ON_OFF 0xFD200001
+
+def zwave_no_switch_all (e'zwSWITCH_ALL_MODE == 0)
+
+// 25 is higher priority than other generic switches
+scope 25 chain_reaction(0) {
+
+  // Linking attributes zwave -> zigbee
+  r'zbSWITCH_ALL_MODE = r'zwSWITCH_ALL_MODE
+  d'zbSWITCH_ALL_MODE = d'zwSWITCH_ALL_MODE
+  r'zbSWITCH_ALL_ON_OFF =
+    if (zwave_no_switch_all) undefined
+    if (r'zwSWITCH_ALL_ON_OFF != 0) 1 0
+  d'zbSWITCH_ALL_ON_OFF =
+    if (zwave_no_switch_all) undefined
+    if (d'zwSWITCH_ALL_ON_OFF != 0) 1 0
+  
+  // Linking attributes zigbee -> zwave
+  r'zwSWITCH_ALL_MODE = if (zwave_no_switch_all) undefined r'zbSWITCH_ALL_MODE
+  d'zwSWITCH_ALL_MODE = if (zwave_no_switch_all) undefined d'zbSWITCH_ALL_MODE
+  d'zwSWITCH_ALL_ON_OFF = 
+    if (zwave_no_switch_all) undefined
+    if (d'zbSWITCH_ALL_ON_OFF != 0) 1 0
+
+  r'zwSWITCH_ALL_ON_OFF = 
+    if (zwave_no_switch_all) undefined
+    if (r'zbSWITCH_ALL_ON_OFF != 0) 1 0
+}
+

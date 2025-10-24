@@ -902,3 +902,23 @@ target_add_unittest(
   zwave_tx_mock
   zwave_tx_scheme_selector_mock
 )
+
+
+# Switch All Command Class Test
+target_add_unittest(
+  zwave_command_classes
+  NAME
+  zwave_command_class_switch_all_test
+  SOURCES
+  zwave_command_class_switch_all_test.cpp
+  DEPENDS
+  zpc_attribute_store_test_helper
+  zwave_command_class_test_helpers
+  zwave_controller
+  zwave_command_handler_mock
+  uic_attribute_resolver_mock
+  zpc_attribute_resolver_mock
+  zpc_attribute_store_mock
+  uic_dotdot_mqtt_mock
+)
+
