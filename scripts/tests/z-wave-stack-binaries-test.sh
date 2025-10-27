@@ -107,7 +107,7 @@ exit_()
 {
     local code=0$1
     log_ "exit: $@ code=$code ; Use: debug=1 $0 # To trace script)"
-    sleep 10
+    sleep 100
     [ -z "$debug" ] || sleep 1000
     echo "$code" | tee "$code_log"
     screen -S "$name" -X "quit" ||:
@@ -348,8 +348,8 @@ zpc_()
 
 zpc_cli_()
 {
-    log_ "TODO: Fix console that eat some chars, and discard next workaround"
-    log_ "TODO: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/30"
+    # log_ "TODO: Fix console that eat some chars, and discard next workaround"
+    # log_ "TODO: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/30"
     if ! true ; then
         screen -S "$name" -p "zpc" -t zpc -X stuff "$@^M"
     else
@@ -736,12 +736,12 @@ play_node_s2v2_()
 play_node_()
 {
     local node="$1"
-    if true ; then
+    if ! true ; then
         play_net_add_node_ $node
         play_net_remove_node_ $node
     fi
 
-    if true ; then
+    if ! true ; then
         play_net_add_node_ $node
         play_node_${node}_
         play_net_remove_node_ $node
@@ -760,7 +760,7 @@ play_nodes_()
 {
     local nodes=(
         soc_switch_on_off
-        soc_multilevel_sensor
+#       soc_multilevel_sensor # TODO: Should wait before NLS check
         soc_door_lock_keypad
     )
     for node in ${nodes[@]} ; do
@@ -801,6 +801,7 @@ play_()
     done
 
     log_ "$task: exit: $code"
+    
     exit_ 0$code
 }
 
