@@ -10,6 +10,7 @@ add_library(
   platform/${COMPATIBLE_PLATFORM}/platform_exec.c
   src/zwave_command_class_agi.cpp
   src/zwave_command_class_alarm_sensor.c
+  src/zwave_command_class_application_status.cpp
   src/zwave_command_class_association.cpp
   src/zwave_command_class_association_send.cpp
   src/zwave_command_class_basic.c

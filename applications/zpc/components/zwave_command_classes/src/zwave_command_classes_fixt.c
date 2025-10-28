@@ -16,6 +16,7 @@
 #include "zwave_command_class_association.h"
 #include "zwave_command_class_agi.h"
 #include "zwave_command_class_alarm_sensor.h"
+#include "zwave_command_class_application_status.h"
 #include "zwave_command_class_barrier_operator.h"
 #include "zwave_command_class_binary_switch.h"
 #include "zwave_command_class_central_scene.h"
@@ -90,6 +91,7 @@ sl_status_t zwave_command_classes_init()
   // Note: AGI should stay first, it allows others to register commands.
   status |= zwave_command_class_agi_init();
   status |= zwave_command_class_alarm_sensor_init();
+  status |= zwave_command_class_application_status_init();
   status |= zwave_command_class_association_init();
   status |= zwave_command_class_barrier_operator_init();
   status |= zwave_command_class_basic_init();

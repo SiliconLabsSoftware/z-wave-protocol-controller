@@ -483,6 +483,25 @@ target_add_unittest(
   zwave_tx_mock
   uic_dotdot_mqtt_mock)
 
+# Z-Wave Application Status Command Class test
+target_add_unittest(
+  zwave_command_classes
+  NAME
+  zwave_command_class_application_status_test
+  SOURCES
+  zwave_command_class_application_status_test.cpp
+  DEPENDS
+  zwave_command_class_test_helpers
+  zpc_attribute_store_test_helper
+  zwave_command_handler_mock
+  zwave_controller_mock
+  uic_attribute_resolver_mock
+  zpc_attribute_resolver_mock
+  zpc_config_mock
+  zwave_tx_scheme_selector_mock
+  zwave_tx_mock
+  uic_dotdot_mqtt_mock)
+
 # Z-Wave Firmware Update functionality test
 target_add_unittest(
   zwave_command_classes

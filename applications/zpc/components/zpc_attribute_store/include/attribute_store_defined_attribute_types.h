@@ -1269,6 +1269,23 @@ DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_USER_CREDENTIAL_ADMIN_PIN_CODE_OPERATIO
                  ((COMMAND_CLASS_USER_CREDENTIAL << 8) | 0x32))
 
 /////////////////////////////////////////////////
+// Application Status Command Class
+///< This represents the version of the Sound Switch Command class.
+/// zwave_cc_version_t
+DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_APPLICATION_STATUS_VERSION,
+                 ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_APPLICATION_STATUS))
+// Application Status Busy Status
+DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_APPLICATION_STATUS_BUSY_STATUS,
+                 ((COMMAND_CLASS_APPLICATION_STATUS << 8) | 0x02))
+// Application Status Busy Wait time
+DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_APPLICATION_STATUS_WAIT_TIME,
+                 ((COMMAND_CLASS_APPLICATION_STATUS << 8) | 0x03))
+// Application Status Reject Status
+DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_APPLICATION_STATUS_REJECT_STATUS,
+                 ((COMMAND_CLASS_APPLICATION_STATUS << 8) | 0x04))
+
+
+/////////////////////////////////////////////////
 // Z-Wave Plus Info CC
 DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_ZWAVEPLUS_INFO_VERSION,
                  ((COMMAND_CLASS_ZWAVEPLUS_INFO << 8) | 0x01))
