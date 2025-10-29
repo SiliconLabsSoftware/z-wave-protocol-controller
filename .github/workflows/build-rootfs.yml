@@ -50,7 +50,7 @@ jobs:
       - name: Upload Release Asset
         id: upload-release-asset
         env:
-          token-defined: ${{ secrets.GH_UNIFY_ACCESS_TOKEN != '' }}
+          token-defined: ${{ secrets.GH_SL_ACCESS_TOKEN != '' }}
         # yamllint disable-line rule:line-length
         if: github.ref_type == 'tag' && env.token-defined
         # yamllint disable-line rule:line-length
@@ -59,7 +59,7 @@ jobs:
           files: build/dist/*
           # yamllint disable-line rule:line-length
           # TODO: Sign asset: https://github.com/softprops/action-gh-release/issues/580#2025
-          token: ${{ secrets.GH_UNIFY_ACCESS_TOKEN }}
+          token: ${{ secrets.GH_SL_ACCESS_TOKEN }}
       - name: Upload pages artifact
         id: deployment
         if: startsWith(github.ref, 'refs/tags/') && matrix.arch == 'amd64'
