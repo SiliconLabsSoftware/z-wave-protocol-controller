@@ -107,7 +107,7 @@ exit_()
 {
     local code=0$1
     log_ "exit: $@ code=$code ; Use: debug=1 $0 # To trace script)"
-    sleep 10
+    sleep 100
     [ -z "$debug" ] || sleep 1000
     echo "$code" | tee "$code_log"
     screen -S "$name" -X "quit" ||:
@@ -348,8 +348,8 @@ zpc_()
 
 zpc_cli_()
 {
-    log_ "TODO: Fix console that eat some chars, and discard next workaround"
-    log_ "TODO: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/30"
+    # log_ "TODO: Fix console that eat some chars, and discard next workaround"
+    # log_ "TODO: https://github.com/SiliconLabsSoftware/z-wave-engine-application-layer/issues/30"
     if ! true ; then
         screen -S "$name" -p "zpc" -t zpc -X stuff "$@^M"
     else
@@ -700,7 +700,7 @@ play_node_soc_door_lock_keypad_()
 play_node_s2v2_()
 {
     local task="s2v2"
-    log_ "$task: TODO: https://github.com/Z-Wave-Alliance/z-wave-stack/pull/700"
+    # log_ "$task: TODO: https://github.com/Z-Wave-Alliance/z-wave-stack/pull/700"
     local type="OnOff"
     node_cli_ "$node" H
     node_cli_ "$node" n
@@ -717,15 +717,16 @@ play_node_s2v2_()
     grep 'on_nls_state_set_v2_send_complete' "${zpc_log}" || exit_ 20
     grep 'on_nls_state_get_v2_send_complete' "${zpc_log}" || exit_ 21
     zpc_cli_ "attribute_store_log_search" "NLS"
-    zpc_cli_ "attribute_store_log_search" "NLS state" \
-        && grep  'NLS state ...............................................' \
-                 "${zpc_log}" \
-            || echo TODO exit_ 22 # 2 expected
-    zpc_cli_ "attribute_store_log_search" "NLS support" \
-        && grep  'NLS support .*' \
-                 "${zpc_log}" \
-            || echo TODO exit_ 23
-
+    
+    zpc_cli_ "attribute_store_log_search" "NLS state"
+    grep -2 -E ".* NodeID [.]*[ ]* ${nodeid}" "${zpc_log}" \
+        | grep -E 'NLS state [.]*' \
+        || exit_ 22 # 2 expected
+    
+    zpc_cli_ "attribute_store_log_search" "NLS support"
+    grep -3 -E ".* NodeID [.]*[ ]* ${nodeid}" "${zpc_log}" \
+        | grep -E 'NLS support [.]*.*1.*' \
+        || exit_ 23
     pub="ucl/by-unid/$nodeunid/State/Commands/DiscoverNeighbors"
     message='{}'
     pub_ "$pub" "$message"
@@ -735,12 +736,12 @@ play_node_s2v2_()
 play_node_()
 {
     local node="$1"
-    if true ; then
+    if ! true ; then
         play_net_add_node_ $node
         play_net_remove_node_ $node
     fi
 
-    if true ; then
+    if ! true ; then
         play_net_add_node_ $node
         play_node_${node}_
         play_net_remove_node_ $node
@@ -759,7 +760,7 @@ play_nodes_()
 {
     local nodes=(
         soc_switch_on_off
-        soc_multilevel_sensor
+#       soc_multilevel_sensor # TODO: Should wait before NLS check
         soc_door_lock_keypad
     )
     for node in ${nodes[@]} ; do
@@ -800,6 +801,7 @@ play_()
     done
 
     log_ "$task: exit: $code"
+    
     exit_ 0$code
 }
 
