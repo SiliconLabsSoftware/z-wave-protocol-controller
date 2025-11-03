@@ -1,0 +1,23 @@
+
+// Swtich Color Command Class
+def zw_BUSY_STATUS                   0x2202
+def zw_WAIT_TIME                     0x2203 
+def zw_REJECT_STATUS                 0x2204
+
+// ZCL Swich Color cluster attributes
+def zb_BusyStatus                   0xffa20000
+def zb_WaitTime                     0xffa20001
+def zb_RejectStatus                 0xffa20002
+
+
+scope 25 chain_reaction(0) {
+
+  r'zw_BUSY_STATUS = r'zb_BusyStatus
+  r'zw_BUSY_STATUS.zw_WAIT_TIME = r'zb_WaitTime
+  r'zw_REJECT_STATUS = r'zb_RejectStatus
+
+
+  r'zb_BusyStatus = r'zw_BUSY_STATUS
+  r'zb_WaitTime = r'zw_BUSY_STATUS.zw_WAIT_TIME
+  r'zb_RejectStatus = r'zw_REJECT_STATUS 
+}

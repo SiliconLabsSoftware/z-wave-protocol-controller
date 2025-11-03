@@ -1,0 +1,62 @@
+From 4ea4074565a40f60022a4da11106786412c1f69e Mon Sep 17 00:00:00 2001
+From: Viet <Viet.Nguyen@silabs.com>
+Date: Tue, 1 Oct 2024 14:21:40 +0700
+Subject: [PATCH] UIC-3275: Custom Application Status cluster
+
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/pull/147
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ .../dotdot-xml/Unify_ApplicationStatus.xml    | 29 +++++++++++++++++++
+ components/uic_dotdot/dotdot-xml/library.xml  |  1 +
+ 2 files changed, 30 insertions(+)
+ create mode 100644 components/uic_dotdot/dotdot-xml/Unify_ApplicationStatus.xml
+
+diff --git a/components/uic_dotdot/dotdot-xml/Unify_ApplicationStatus.xml b/components/uic_dotdot/dotdot-xml/Unify_ApplicationStatus.xml
+new file mode 100644
+index 0000000000..2d51efb7ee
+--- /dev/null
++++ b/components/uic_dotdot/dotdot-xml/Unify_ApplicationStatus.xml
+@@ -0,0 +1,29 @@
++<?xml version="1.0"?>
++<!-- 
++Zigbee Alliance owns the copyright to the text and content displayed or 
++included in this document (including in PDF, XML files and other formats) in 
++all forms of media, which copyright is protected by the copyright laws of the 
++United States and by international treaties.  Full text of licensing terms 
++applicable to this document can be found in the LICENSE.md file.
++-->
++<zcl:cluster xmlns:zcl="http://zigbee.org/zcl/clusters"
++  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
++  xmlns:type="http://zigbee.org/zcl/types"
++  xmlns:xi="http://www.w3.org/2001/XInclude"
++  xsi:schemaLocation="http://zigbee.org/zcl/clusters cluster.xsd http://zigbee.org/zcl/types type.xsd" 
++  id="FFA2" revision="1" name="ApplicationStatus">
++  <classification role="application" picsCode="ASTT" primaryTransaction="1" />
++  <server>
++    <attributes>
++      <attribute id="0000" name="BusyStatus" type="enum8" reportRequired="true" required="true">
++        <restriction>
++          <type:enumeration value="00" name="Try again later" />
++          <type:enumeration value="01" name="Try again in WaitTime seconds" />
++          <type:enumeration value="02" name="Request queued" />
++        </restriction>
++      </attribute>
++      <attribute id="0001" name="WaitTime" type="uint8" required="true" default="0" />
++      <attribute id="0002" name="RejectStatus" type="bool" required="true" />
++    </attributes>
++  </server>
++</zcl:cluster>
+diff --git a/components/uic_dotdot/dotdot-xml/library.xml b/components/uic_dotdot/dotdot-xml/library.xml
+index 4210b67fa4..d8649f4339 100644
+--- a/components/uic_dotdot/dotdot-xml/library.xml
++++ b/components/uic_dotdot/dotdot-xml/library.xml
+@@ -501,4 +501,5 @@ applicable to this document can be found in the LICENSE.md file.
+   <xi:include href="Unify_HumidityControl.xml" parse="xml"/>
+   <xi:include href="Unify_Thermostat.xml" parse="xml"/>
+   <xi:include href="Unify_FanControl.xml" parse="xml"/>
++  <xi:include href="Unify_ApplicationStatus.xml" parse="xml"/>
+ </zcl:library>
+\ No newline at end of file
+-- 
+2.39.5
+
