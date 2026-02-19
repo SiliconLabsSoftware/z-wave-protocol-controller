@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: Zlib
 # SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
 
-FROM debian:bookworm AS builder
+FROM debian:bookworm AS dev
 
-ARG UNIFYSDK_GIT_REPOSITORY https://github.com/SiliconLabs/UnifySDK
-ARG UNIFYSDK_GIT_TAG main
+ARG UNIFYSDK_GIT_REPOSITORY=https://github.com/SiliconLabs/UnifySDK
+ARG UNIFYSDK_GIT_TAG=main
+ENV UNIFYSDK_GIT_REPOSITORY=${UNIFYSDK_GIT_REPOSITORY} \
+    UNIFYSDK_GIT_TAG=${UNIFYSDK_GIT_TAG}
 
 ENV project z-wave-protocol-controller
 ENV workdir /usr/local/opt/${project}
@@ -13,6 +15,8 @@ ADD . ${workdir}
 ARG HELPER="./helper.mk"
 ARG HELPER_SETUP_RULES=setup
 ARG HELPER_DEFAULT_RULES=default
+ENV HELPER=${HELPER} \
+  HELPER_DEFAULT_RULES=${HELPER_DEFAULT_RULES}
 
 WORKDIR ${workdir}
 
@@ -23,7 +27,10 @@ RUN echo "# log: Setup system" \
   && apt-get install -y --no-install-recommends -- make sudo \
   && ${HELPER} help ${HELPER_SETUP_RULES} \
   && date -u
+ENTRYPOINT [ "/usr/bin/bash" ]
+CMD []
 
+FROM dev AS builder
 RUN echo "# log: Build" \
   && set -x  \
   && ${HELPER} ${HELPER_DEFAULT_RULES} \
@@ -36,7 +43,7 @@ RUN echo "# log: Build" \
   && ${HELPER} distclean \
   && date -u
 
-FROM debian:bookworm
+FROM debian:bookworm AS runtime
 ENV project=z-wave-protocol-controller
 ARG workdir=/usr/local/opt/${project}
 COPY --from=builder ${workdir}/dist/ ${workdir}/dist/

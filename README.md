@@ -23,6 +23,47 @@ Or relevant sources pages, to get started head to:
 
 ## Quickstart
 
+### Docker build
+
+The fastest (less than 20min) way to build z-wave-protocol-controller from scratch
+is to delegate all tasks to docker. The final image will contain the binaries that
+you can use.
+
+```sh
+docker build https://github.com/SiliconLabsSoftware/z-wave-protocol-controller.git#ver_1.7.0
+```
+
+This one-liner will do download latest release, setup environment, build, test, package...
+
+Also a docker-compose file is provided to start ZPC and use it along a MQTT client
+(eg:
+[mosquitto-clients](https://github.com/eclipse-mosquitto/mosquitto/)
+).
+
+### Docker development
+
+The project Dockerfile has three stages: `dev` (setup only, for interactive
+use), `builder` (full build and package), and `runtime` (minimal runnable
+image). To work iteratively in a container with your host source bind-mounted
+(e.g., build and run ctest without rebuilding the image each time):
+
+```sh
+# Build the dev stage
+docker build --target dev -t z-wave-protocol-controller:dev .
+
+# Run a shell with your source mounted
+docker run -it --rm -v "$PWD:/usr/local/opt/z-wave-protocol-controller" -w /usr/local/opt/z-wave-protocol-controller z-wave-protocol-controller:dev
+
+# Inside the container: build and run unit tests
+./helper.mk default
+
+# Run unit tests
+ctest --test-dir build/applications --output-on-failure
+```
+
+Power users might prefer to work in sources tree in a native GNU/Linux
+environment as explained below.
+
 ### Native (Linux) build
 
 The project is CMake based, to prepare the environment,
@@ -136,7 +177,7 @@ You can use this [script](./scripts/wslusb.ps1).
 Start by installing the usbipd service as described at: https://learn.microsoft.com/en-us/windows/wsl/connect-usb
 
 ```sh
-# You can list devices using: 
+# You can list devices using:
 
 (Powershell)$ ./wslusb.ps1 -List
 
@@ -156,26 +197,6 @@ Start by installing the usbipd service as described at: https://learn.microsoft.
 ### More
 
 Refer to [./doc](doc) for more (using shell, MQTT, WebApp etc).
-
-
-### Docker build
-
-The fastest (less than 20min) way to build z-wave-protocol-controller from scratch
-is to delegate all tasks to docker.
-
-```sh
-docker build https://github.com/SiliconLabsSoftware/z-wave-protocol-controller.git#ver_1.7.0
-```
-
-This one-liner will do download latest release, setup environment, build, test, package...
-
-Also a docker-compose file is provided to start ZPC and use it along a MQTT client
-(eg:
-[mosquitto-clients](https://github.com/eclipse-mosquitto/mosquitto/)
-).
-
-Power users might prefer to work in sources tree in a native GNU/Linux
-environment as explained above.
 
 ## Contributing
 
