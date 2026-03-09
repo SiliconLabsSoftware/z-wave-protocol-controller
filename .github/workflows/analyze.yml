@@ -67,6 +67,7 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             sha: process.env.sha,
-            state: 'failure'
+            state: 'failure',
+            context: 'analyze'
             })
             core.setFailed(`Status: ${process.env.status}`);
