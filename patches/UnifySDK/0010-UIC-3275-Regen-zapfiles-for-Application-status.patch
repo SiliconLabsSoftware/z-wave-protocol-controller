@@ -1,0 +1,677 @@
+From 5cc8191b69b10ad09f51f85d7a33b5da51c63770 Mon Sep 17 00:00:00 2001
+From: Philippe Coval <philippe.coval@silabs.com>
+Date: Mon, 29 Sep 2025 14:30:26 +0200
+Subject: [PATCH] UIC-3275: Regen zapfiles for Application status
+
+Relate-to: https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/pull/147
+Signed-off-by: Philippe Coval <philippe.coval@silabs.com>
+---
+ .../src/eed_attribute_store_clusters.c        |  12 +
+ .../src/eed_dotdot_create_clusters.cpp        |  42 ++
+ .../include/dotdot_attribute_id_definitions.h |   4 +
+ .../dotdot_cluster_command_id_definitions.h   |   2 +
+ .../include/dotdot_cluster_id_definitions.h   |   4 +
+ .../zap-generated/include/zap-types.h         |   7 +
+ .../readme_ucl_mqtt_reference.md              | 378 ++++++++++++++++++
+ .../src/dotdot_attribute_id_definitions.c     |  47 +++
+ .../src/dotdot_cluster_id_definitions.c       |   5 +
+ 9 files changed, 501 insertions(+)
+
+diff --git a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_attribute_store_clusters.c b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_attribute_store_clusters.c
+index 8780c887c8..7edd076395 100644
+--- a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_attribute_store_clusters.c
++++ b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_attribute_store_clusters.c
+@@ -2791,6 +2791,18 @@ sl_status_t eed_attribute_store_clusters_init()
+     &on_zcl_desired_value_update,
+     DOTDOT_ATTRIBUTE_ID_UNIFY_HUMIDITY_CONTROL_AUTO_SETPOINT_PRECISION,
+     DESIRED_ATTRIBUTE);
++  attribute_store_register_callback_by_type_and_state(
++    &on_zcl_desired_value_update,
++    DOTDOT_ATTRIBUTE_ID_APPLICATION_STATUS_BUSY_STATUS,
++    DESIRED_ATTRIBUTE);
++  attribute_store_register_callback_by_type_and_state(
++    &on_zcl_desired_value_update,
++    DOTDOT_ATTRIBUTE_ID_APPLICATION_STATUS_WAIT_TIME,
++    DESIRED_ATTRIBUTE);
++  attribute_store_register_callback_by_type_and_state(
++    &on_zcl_desired_value_update,
++    DOTDOT_ATTRIBUTE_ID_APPLICATION_STATUS_REJECT_STATUS,
++    DESIRED_ATTRIBUTE);
+   // clang-format on
+   return SL_STATUS_OK;
+ }
+\ No newline at end of file
+diff --git a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_dotdot_create_clusters.cpp b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_dotdot_create_clusters.cpp
+index 8230ced6c8..0f0a4839ee 100644
+--- a/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_dotdot_create_clusters.cpp
++++ b/applications/examples/applications/emulated_end_device/components/eed_attribute_store/zap-generated/src/eed_dotdot_create_clusters.cpp
+@@ -4157,6 +4157,27 @@ void dotdot_create_unify_humidity_control_wrapper(const dotdot_unid_t unid, cons
+ 
+ }
+ 
++void dotdot_create_application_status_wrapper(const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id){
++    // Create and set a default value if undefined.
++    dotdot_create_application_status_busy_status(unid,endpoint_id);
++    if (false == dotdot_application_status_busy_status_is_reported_defined(unid,endpoint_id)){
++    dotdot_set_application_status_busy_status(unid,endpoint_id,REPORTED_ATTRIBUTE, static_cast<uint8_t>(0));
++        }
++
++    // Create and set a default value if undefined.
++    dotdot_create_application_status_wait_time(unid,endpoint_id);
++    if (false == dotdot_application_status_wait_time_is_reported_defined(unid,endpoint_id)){
++    dotdot_set_application_status_wait_time(unid,endpoint_id,REPORTED_ATTRIBUTE, static_cast<uint8_t>(0));
++        }
++
++    // Create and set a default value if undefined.
++    dotdot_create_application_status_reject_status(unid,endpoint_id);
++    if (false == dotdot_application_status_reject_status_is_reported_defined(unid,endpoint_id)){
++    dotdot_set_application_status_reject_status(unid,endpoint_id,REPORTED_ATTRIBUTE, static_cast<bool>(0));
++        }
++
++}
++
+ 
+ void dotdot_unretain_basic_wrapper(const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id){
+     char base_topic[256];
+@@ -6633,6 +6654,25 @@ void dotdot_unretain_unify_humidity_control_wrapper(const dotdot_unid_t unid, co
+     uic_mqtt_dotdot_unify_humidity_control_publish_empty_supported_commands(unid, endpoint_id);
+ }
+ 
++void dotdot_unretain_application_status_wrapper(const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id){
++    char base_topic[256];
++    snprintf(base_topic, sizeof(base_topic), "ucl/by-unid/%s/ep%d", unid, endpoint_id);
++    attribute_store::attribute ep_node = eed_attribute_store_get_endpoint_node(unid, endpoint_id);
++
++    uic_mqtt_dotdot_application_status_busy_status_unretain(base_topic,UCL_MQTT_PUBLISH_TYPE_ALL);
++    ep_node.child_by_type(DOTDOT_ATTRIBUTE_ID_APPLICATION_STATUS_BUSY_STATUS).delete_node();
++
++    uic_mqtt_dotdot_application_status_wait_time_unretain(base_topic,UCL_MQTT_PUBLISH_TYPE_ALL);
++    ep_node.child_by_type(DOTDOT_ATTRIBUTE_ID_APPLICATION_STATUS_WAIT_TIME).delete_node();
++
++    uic_mqtt_dotdot_application_status_reject_status_unretain(base_topic,UCL_MQTT_PUBLISH_TYPE_ALL);
++    ep_node.child_by_type(DOTDOT_ATTRIBUTE_ID_APPLICATION_STATUS_REJECT_STATUS).delete_node();
++
++
++    uic_mqtt_dotdot_application_status_unretain_cluster_revision(base_topic);
++    uic_mqtt_dotdot_application_status_publish_empty_supported_commands(unid, endpoint_id);
++}
++
+ 
+     void eed_dotdot_create_clusters(const dotdot_unid_t unid, const dotdot_endpoint_id_t endpoint_id) {
+         for (auto& pair : CreateClusterMap) {
+@@ -6711,6 +6751,7 @@ std::map<std::string, eed_cluster_attribute_wrapper> CreateClusterMap = {
+ { "UnifyFanControl", dotdot_create_unify_fan_control_wrapper },
+ { "UnifyThermostat", dotdot_create_unify_thermostat_wrapper },
+ { "UnifyHumidityControl", dotdot_create_unify_humidity_control_wrapper },
++{ "ApplicationStatus", dotdot_create_application_status_wrapper },
+ };
+ 
+ std::map<std::string, eed_cluster_attribute_wrapper> CreateUnretainMap = {
+@@ -6762,4 +6803,5 @@ std::map<std::string, eed_cluster_attribute_wrapper> CreateUnretainMap = {
+ { "UnifyFanControl", dotdot_unretain_unify_fan_control_wrapper },
+ { "UnifyThermostat", dotdot_unretain_unify_thermostat_wrapper },
+ { "UnifyHumidityControl", dotdot_unretain_unify_humidity_control_wrapper },
++{ "ApplicationStatus", dotdot_unretain_application_status_wrapper },
+ };
+\ No newline at end of file
+diff --git a/components/uic_dotdot/zap-generated/include/dotdot_attribute_id_definitions.h b/components/uic_dotdot/zap-generated/include/dotdot_attribute_id_definitions.h
+index a988971041..a23a865439 100644
+--- a/components/uic_dotdot/zap-generated/include/dotdot_attribute_id_definitions.h
++++ b/components/uic_dotdot/zap-generated/include/dotdot_attribute_id_definitions.h
+@@ -884,6 +884,10 @@ typedef enum {
+ #define DOTDOT_UNIFY_HUMIDITY_CONTROL_AUTO_SETPOINT_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x11)
+ #define DOTDOT_UNIFY_HUMIDITY_CONTROL_AUTO_SETPOINT_SCALE_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x12)
+ #define DOTDOT_UNIFY_HUMIDITY_CONTROL_AUTO_SETPOINT_PRECISION_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x13)
++// Definitions for cluster: ApplicationStatus
++#define DOTDOT_APPLICATION_STATUS_BUSY_STATUS_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x0)
++#define DOTDOT_APPLICATION_STATUS_WAIT_TIME_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x1)
++#define DOTDOT_APPLICATION_STATUS_REJECT_STATUS_ATTRIBUTE_ID ((dotdot_attribute_id_t)0x2)
+ 
+ // clang-format on
+ 
+diff --git a/components/uic_dotdot/zap-generated/include/dotdot_cluster_command_id_definitions.h b/components/uic_dotdot/zap-generated/include/dotdot_cluster_command_id_definitions.h
+index 7e33175d4a..bbc96f7d2f 100644
+--- a/components/uic_dotdot/zap-generated/include/dotdot_cluster_command_id_definitions.h
++++ b/components/uic_dotdot/zap-generated/include/dotdot_cluster_command_id_definitions.h
+@@ -375,6 +375,8 @@
+ #define DOTDOT_UNIFY_HUMIDITY_CONTROL_MODE_SET_COMMAND_ID (0x1)
+ #define DOTDOT_UNIFY_HUMIDITY_CONTROL_SETPOINT_SET_COMMAND_ID (0x2)
+ 
++// Commands for cluster: ApplicationStatus
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+diff --git a/components/uic_dotdot/zap-generated/include/dotdot_cluster_id_definitions.h b/components/uic_dotdot/zap-generated/include/dotdot_cluster_id_definitions.h
+index 34db7d7b79..ee828797d3 100644
+--- a/components/uic_dotdot/zap-generated/include/dotdot_cluster_id_definitions.h
++++ b/components/uic_dotdot/zap-generated/include/dotdot_cluster_id_definitions.h
+@@ -266,6 +266,10 @@
+ #define DOTDOT_UNIFY_HUMIDITY_CONTROL_CLUSTER_ID ((dotdot_cluster_id_t)0xFDA0)
+ 
+ 
++// Definitions for cluster: ApplicationStatus
++#define DOTDOT_APPLICATION_STATUS_CLUSTER_ID ((dotdot_cluster_id_t)0xFFA2)
++
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+diff --git a/components/uic_dotdot/zap-generated/include/zap-types.h b/components/uic_dotdot/zap-generated/include/zap-types.h
+index daf85dbdac..cd869533db 100644
+--- a/components/uic_dotdot/zap-generated/include/zap-types.h
++++ b/components/uic_dotdot/zap-generated/include/zap-types.h
+@@ -201,6 +201,13 @@ typedef enum {
+   ZCL_AO_X_LOCATOR_REPORTING_MODE_ANGLE_REPORT = 1,
+ } AoXLocatorReportingMode;
+ 
++// Enum for ApplicationStatusBusyStatus
++typedef enum {
++  ZCL_APPLICATION_STATUS_BUSY_STATUS_TRY_AGAIN_LATER = 0,
++  ZCL_APPLICATION_STATUS_BUSY_STATUS_TRY_AGAIN_IN_WAIT_TIME_SECONDS = 1,
++  ZCL_APPLICATION_STATUS_BUSY_STATUS_REQUEST_QUEUED = 2,
++} ApplicationStatusBusyStatus;
++
+ // Enum for ArmArmMode
+ typedef enum {
+   ZCL_ARM_ARM_MODE_DISARM = 0,
+diff --git a/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md b/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md
+index 5316b884c2..32567f3167 100644
+--- a/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md
++++ b/components/uic_dotdot/zap-generated/readme_ucl_mqtt_reference.md
+@@ -54432,6 +54432,360 @@ mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/UnifyHumidityControl/Commands/ForceRea
+ <!-- END OF UnifyHumidityControl Commands Section -->
+ <!-- -->
+ 
++<br><br><br>
++
++
++<!-- -->
++<!-- -->
++<!-- NEW Page Cluster Support -->
++<!-- -->
++<!-- -->
++\page application_status ApplicationStatus Cluster
++The following commands and attributes are accepted as JSON payloads for the
++ApplicationStatus cluster.
++
++<br><br>
++
++<!-- -->
++<!--  START OF ApplicationStatus Attributes Section -->
++<!-- -->
++\section application_status_attrs ApplicationStatus Attributes
++The following attribute topics are used to retrieve the ApplicationStatus cluster state.
++
++<br>
++
++\subsection application_status_attr_busy_status ApplicationStatus/BusyStatus Attribute
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/ApplicationStatus/Attributes/BusyStatus/Reported
++[PREFIX]/ApplicationStatus/Attributes/BusyStatus/Desired
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "ApplicationStatus Cluster BusyStatus Attribute Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "ApplicationStatusBusyStatus"
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++
++**Example Mosquitto CLI Tool Usage**
++
++To see desired/reported value for BusyStatus attribute under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/+/+/ApplicationStatus/Attributes/BusyStatus/+'
++
++# Example output
++
++ucl/by-unid/<UNID>/ep0/ApplicationStatus/Attributes/BusyStatus/Desired { "value": <DESIRED_BUSY_STATUS>}
++ucl/by-unid/<UNID>/ep0/ApplicationStatus/Attributes/BusyStatus/Reported { "value": <REPORTED_BUSY_STATUS>}
++
++```
++
++<br><br>
++
++\subsection application_status_attr_wait_time ApplicationStatus/WaitTime Attribute
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/ApplicationStatus/Attributes/WaitTime/Reported
++[PREFIX]/ApplicationStatus/Attributes/WaitTime/Desired
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "ApplicationStatus Cluster WaitTime Attribute Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "integer"
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++
++**Example Mosquitto CLI Tool Usage**
++
++To see desired/reported value for WaitTime attribute under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/+/+/ApplicationStatus/Attributes/WaitTime/+'
++
++# Example output
++
++ucl/by-unid/<UNID>/ep0/ApplicationStatus/Attributes/WaitTime/Desired { "value": <DESIRED_WAIT_TIME>}
++ucl/by-unid/<UNID>/ep0/ApplicationStatus/Attributes/WaitTime/Reported { "value": <REPORTED_WAIT_TIME>}
++
++```
++
++<br><br>
++
++\subsection application_status_attr_reject_status ApplicationStatus/RejectStatus Attribute
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/ApplicationStatus/Attributes/RejectStatus/Reported
++[PREFIX]/ApplicationStatus/Attributes/RejectStatus/Desired
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "ApplicationStatus Cluster RejectStatus Attribute Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "boolean"
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++
++**Example Mosquitto CLI Tool Usage**
++
++To see desired/reported value for RejectStatus attribute under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/+/+/ApplicationStatus/Attributes/RejectStatus/+'
++
++# Example output
++
++ucl/by-unid/<UNID>/ep0/ApplicationStatus/Attributes/RejectStatus/Desired { "value": <DESIRED_REJECT_STATUS>}
++ucl/by-unid/<UNID>/ep0/ApplicationStatus/Attributes/RejectStatus/Reported { "value": <REPORTED_REJECT_STATUS>}
++
++```
++
++<br><br>
++
++
++\subsection application_status_attr_cluster_revision ApplicationStatus/ClusterRevision Attribute
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/ApplicationStatus/Attributes/ClusterRevision/Reported
++[PREFIX]/ApplicationStatus/Attributes/ClusterRevision/Desired
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "ApplicationStatus Cluster ClusterRevision Attribute Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "integer"
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++**Example Mosquitto CLI Tool Usage**
++
++To see desired/reported value for ClusterRevision attribute under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/<UNID>/<EP>/ApplicationStatus/Attributes/ClusterRevision/+'
++# Example output
++ucl/by-unid/<UNID>/<EP>/ApplicationStatus/Attributes/ClusterRevision/Desired { "value": <DESIRED_CLUSTER_REVISION> }
++ucl/by-unid/<UNID>/<EP>/ApplicationStatus/Attributes/ClusterRevision/Reported { "value": <REPORTED_CLUSTER_REVISION> }
++```
++
++<!-- -->
++<!--  END OF ApplicationStatus Attributes Section -->
++<!-- -->
++
++<br><br>
++
++<!-- -->
++<!-- START OF ApplicationStatus Supported Commands Section -->
++<!-- -->
++\section application_status_recv_cmd_support ApplicationStatus Command Support
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/ApplicationStatus/SupportedCommands
++[PREFIX]/ApplicationStatus/SupportedGeneratedCommands
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "ApplicationStatus Command Support Properties",
++  "type": "object",
++  "properties": {
++      "value": {
++          "type": "array",
++          "items" : {
++            "type": "string",
++            "enum": [
++            ]
++          }
++        }
++      }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++**Example Mosquitto CLI Tool Usage**
++
++To see supported commands for ApplicationStatus cluster under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/<UNID>/<EP>/ApplicationStatus/SupportedCommands'
++# Example output
++ucl/by-unid/<UNID>/<EP>/ApplicationStatus/SupportedCommands { "value": [] }
++```
++
++To see supported generated commands for ApplicationStatus cluster under the by-unid topic space:
++
++```console
++mosquitto_sub -t 'ucl/by-unid/<UNID>/<EP>/ApplicationStatus/SupportedGeneratedCommands'
++# Example output
++ucl/by-unid/<UNID>/<EP>/ApplicationStatus/SupportedGeneratedCommands { "value": [] }
++```
++
++<!-- -->
++<!-- END OF ApplicationStatus Supported Commands Section -->
++<!-- -->
++
++<br><br>
++
++<!-- -->
++<!-- START OF ApplicationStatus Commands Section -->
++<!-- -->
++\section application_status_cmds ApplicationStatus Commands
++
++<br><br>
++
++\subsection application_status_write_attr_cmd ApplicationStatus/WriteAttributes Command
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/ApplicationStatus/Commands/WriteAttributes
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "ApplicationStatus Cluster WriteAttributes Command Properties",
++  "type": "object",
++  "properties": {
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++**Example Mosquitto CLI Tool Usage**
++
++To update all ApplicationStatus attributes under the by-unid topic space:
++
++```console
++mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/ApplicationStatus/Commands/WriteAttributes' -m  '{  }'
++```
++
++> NOTE: Specify only the list of attributes to write in this command.
++> Unspecified attributes will not be updated.
++
++<br><br>
++
++\subsection application_status_force_read_attr_cmd ApplicationStatus/ForceReadAttributes Command
++
++**MQTT Topic Pattern:**
++
++```
++[PREFIX]/ApplicationStatus/Commands/ForceReadAttributes
++```
++
++**MQTT Payload JSON Schema:**
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "ApplicationStatus Cluster ForceReadAttributes Command Properties",
++  "type": "object",
++  "properties": {
++    "value": {
++      "type": "array"
++      "items": {
++        "type": "string",
++        "enum": [
++          "BusyStatus",
++          "WaitTime",
++          "RejectStatus"
++        ]
++      }
++    }
++  },
++  "required": [
++    "value"
++  ]
++}
++```
++
++**Example Mosquitto CLI Tool Usage**
++
++To force read all ApplicationStatus attributes under the by-unid topic space (by sending an empty array):
++
++```console
++mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/ApplicationStatus/Commands/ForceReadAttributes' -m  '{ "value": [] }'
++```
++
++To force read one of the ApplicationStatus attributes under the by-unid topic space:
++
++```console
++mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/ApplicationStatus/Commands/ForceReadAttributes' -m  '{ "value": ["BusyStatus"] }'
++```
++
++<!-- -->
++<!-- END OF ApplicationStatus Commands Section -->
++<!-- -->
++
+ 
+ <br><br><br>
+ 
+@@ -55114,6 +55468,30 @@ mosquitto_pub -t 'ucl/by-unid/<UNID>/<EP>/UnifyHumidityControl/Commands/ForceRea
+ 
+ <br><br>
+ 
++<!-- -->
++<!-- START OF Enum ApplicationStatusBusyStatus Section -->
++<!-- -->
++\section enum_application_status_busy_status ApplicationStatusBusyStatus Enum
++
++```json
++{
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "ApplicationStatusBusyStatus Enum Properties",
++  "type": "string",
++  "enum": [
++    "Try again later",
++    "Try again in WaitTime seconds",
++    "Request queued"
++  ]
++}
++```
++
++<!-- -->
++<!-- END OF Enum ApplicationStatusBusyStatus Section -->
++<!-- -->
++
++<br><br>
++
+ <!-- -->
+ <!-- START OF Enum ArmArmMode Section -->
+ <!-- -->
+diff --git a/components/uic_dotdot/zap-generated/src/dotdot_attribute_id_definitions.c b/components/uic_dotdot/zap-generated/src/dotdot_attribute_id_definitions.c
+index badc743381..7acea602d2 100644
+--- a/components/uic_dotdot/zap-generated/src/dotdot_attribute_id_definitions.c
++++ b/components/uic_dotdot/zap-generated/src/dotdot_attribute_id_definitions.c
+@@ -2102,6 +2102,21 @@ const char *uic_dotdot_get_attribute_name(dotdot_cluster_id_t cluster_id,
+           return "Unknown";
+       }
+       // clang-format off
++    case DOTDOT_APPLICATION_STATUS_CLUSTER_ID:
++      // clang-format on
++      switch (attribute_id) {
++        // clang-format off
++        case DOTDOT_APPLICATION_STATUS_BUSY_STATUS_ATTRIBUTE_ID:
++          return "BusyStatus";
++        case DOTDOT_APPLICATION_STATUS_WAIT_TIME_ATTRIBUTE_ID:
++          return "WaitTime";
++        case DOTDOT_APPLICATION_STATUS_REJECT_STATUS_ATTRIBUTE_ID:
++          return "RejectStatus";
++          // clang-format on
++        default:
++          return "Unknown";
++      }
++      // clang-format off
+       // clang-format on
+     default:
+       return "Unknown";
+@@ -4567,6 +4582,17 @@ dotdot_attribute_id_t
+         return DOTDOT_UNIFY_HUMIDITY_CONTROL_AUTO_SETPOINT_PRECISION_ATTRIBUTE_ID;
+       }
+     break;
++    case DOTDOT_APPLICATION_STATUS_CLUSTER_ID:
++      if (strcmp ("BusyStatus", attribute_name) == 0) {
++        return DOTDOT_APPLICATION_STATUS_BUSY_STATUS_ATTRIBUTE_ID;
++      }
++      if (strcmp ("WaitTime", attribute_name) == 0) {
++        return DOTDOT_APPLICATION_STATUS_WAIT_TIME_ATTRIBUTE_ID;
++      }
++      if (strcmp ("RejectStatus", attribute_name) == 0) {
++        return DOTDOT_APPLICATION_STATUS_REJECT_STATUS_ATTRIBUTE_ID;
++      }
++    break;
+     default:
+     return DOTDOT_INVALID_ATTRIBUTE_ID;
+   }
+@@ -6661,6 +6687,21 @@ dotdot_attribute_json_type_t
+           return JSON_TYPE_UNKNOWN;
+       }
+       // clang-format off
++    case DOTDOT_APPLICATION_STATUS_CLUSTER_ID:
++      // clang-format on
++      switch (attribute_id) {
++        // clang-format off
++        case DOTDOT_APPLICATION_STATUS_BUSY_STATUS_ATTRIBUTE_ID:
++          return JSON_TYPE_NUMBER;
++                case DOTDOT_APPLICATION_STATUS_WAIT_TIME_ATTRIBUTE_ID:
++          return JSON_TYPE_NUMBER;
++                case DOTDOT_APPLICATION_STATUS_REJECT_STATUS_ATTRIBUTE_ID:
++          return JSON_TYPE_BOOL;
++          // clang-format on
++        default:
++          return JSON_TYPE_UNKNOWN;
++      }
++      // clang-format off
+       // clang-format on
+     default:
+       return JSON_TYPE_UNKNOWN;
+@@ -7024,5 +7065,11 @@ bool uic_dotdot_attribute_is_enum(dotdot_cluster_id_t cluster_id,
+     }
+   }
+ 
++  if (65442 == cluster_id) {
++    if (0 == attribute_id) {
++      return true;
++    }
++  }
++
+   return false;
+ }
+diff --git a/components/uic_dotdot/zap-generated/src/dotdot_cluster_id_definitions.c b/components/uic_dotdot/zap-generated/src/dotdot_cluster_id_definitions.c
+index 8699e827dc..53f13778eb 100644
+--- a/components/uic_dotdot/zap-generated/src/dotdot_cluster_id_definitions.c
++++ b/components/uic_dotdot/zap-generated/src/dotdot_cluster_id_definitions.c
+@@ -134,6 +134,8 @@ const char* uic_dotdot_get_cluster_name(dotdot_cluster_id_t cluster_id) {
+     return "UnifyThermostat";
+   case DOTDOT_UNIFY_HUMIDITY_CONTROL_CLUSTER_ID:
+     return "UnifyHumidityControl";
++  case DOTDOT_APPLICATION_STATUS_CLUSTER_ID:
++    return "ApplicationStatus";
+   default:
+     return "Unknown";
+   }
+@@ -314,6 +316,9 @@ dotdot_cluster_id_t uic_dotdot_get_cluster_id(const char* cluster_name) {
+  if (strcmp ("UnifyHumidityControl", cluster_name) == 0) {
+    return DOTDOT_UNIFY_HUMIDITY_CONTROL_CLUSTER_ID;
+  }
++ if (strcmp ("ApplicationStatus", cluster_name) == 0) {
++   return DOTDOT_APPLICATION_STATUS_CLUSTER_ID;
++ }
+ 
+   // Return an invalid ID if we did not get any match.
+   return DOTDOT_INVALID_CLUSTER_ID;
+-- 
+2.39.5
+

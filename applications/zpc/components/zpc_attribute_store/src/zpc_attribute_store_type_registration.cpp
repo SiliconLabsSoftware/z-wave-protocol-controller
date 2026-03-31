@@ -587,6 +587,14 @@ static const std::vector<attribute_schema_t> attribute_schema = {
   {ATTRIBUTE_COMMAND_CLASS_SOUND_SWITCH_TONE_INFO_NAME,   "Tone Info Name",   ATTRIBUTE_COMMAND_CLASS_SOUND_SWITCH_TONE_INFO_IDENTIFIER,   C_STRING_STORAGE_TYPE},
   {ATTRIBUTE_COMMAND_CLASS_SOUND_SWITCH_TONE_PLAY, "Tone Play", ATTRIBUTE_ENDPOINT_ID, U8_STORAGE_TYPE},
 
+    /////////////////////////////////////////////////////////////////////
+  //         Application Status Command Class attributes
+  /////////////////////////////////////////////////////////////////////
+  {ATTRIBUTE_COMMAND_CLASS_APPLICATION_STATUS_VERSION,   "Application Status Version",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
+  {ATTRIBUTE_COMMAND_CLASS_APPLICATION_STATUS_BUSY_STATUS,   "Application Busy Status",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
+  {ATTRIBUTE_COMMAND_CLASS_APPLICATION_STATUS_WAIT_TIME,   "Application Busy Wait Time",   ATTRIBUTE_COMMAND_CLASS_APPLICATION_STATUS_BUSY_STATUS,   U8_STORAGE_TYPE},
+  {ATTRIBUTE_COMMAND_CLASS_APPLICATION_STATUS_REJECT_STATUS,   "Application Reject Status",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
+
   //DoorLock Command Class attributes
   {ATTRIBUTE_DOOR_LOCK_CONFIGURATION_OPERATION_TYPE, "Door Lock Configuration Operation Type", ATTRIBUTE_ENDPOINT_ID, I32_STORAGE_TYPE },
   {ATTRIBUTE_DOOR_LOCK_CONFIGURATION_INSIDE_DOOR_HANDLES_STATE, "Door Lock Configuration Inside Handles State", ATTRIBUTE_ENDPOINT_ID, I32_STORAGE_TYPE },
