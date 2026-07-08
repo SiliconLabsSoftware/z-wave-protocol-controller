@@ -1,0 +1,97 @@
+# Logging configuration
+log:
+  # Log level: 'd' (debug), 'i' (info), 'w' (warning), 'e' (error), 'c' (critical)
+  level: 'e'
+  # Tag-based log level: Format: <tag>:<severity>,<tag>:<severity>,...
+  # Example: 'zpc_mqtt:i,zpc:e' sets MQTT to info and main to error
+  tag_level: ''
+
+# MQTT broker configuration
+mqtt:
+  # Path to file containing PEM-encoded CA certificate for TLS encryption (optional)
+  cafile: ''
+  # Path to file containing PEM-encoded client certificate for TLS encryption (optional)
+  certfile: ''
+  # MQTT client ID used to identify this application to the broker
+  client_id: 'zpc'
+  # MQTT broker hostname or IP address
+  host: 'localhost'
+  # Path to file containing PEM-encoded unencrypted private key for TLS (optional)
+  keyfile: ''
+  # MQTT broker port number
+  port: 1883
+
+# Z-Wave Protocol Controller (ZPC) configuration
+zpc:
+  # Z-Wave RF region setting (see zpc --help for valid values). Invalid values cause ZPC to exit at startup.
+  rf_region: 'EU'
+  # Device-specific ID (hex string, even number of hex digits). Used to uniquely identify this ZPC instance
+  device_id: ''
+  # Device type identifiers used in ZPC Node Information Frames
+  device_type:
+    # Basic device type identification (typically 2 for Static Controller)
+    basic: 2
+    # Generic device type identification (typically 1 for Generic Controller)
+    generic: 1
+    # Specific device type identification (typically 0 for Not Used)
+    specific: 0
+  # Manufacturer ID (16-bit decimal). Identifies the manufacturer of the ZPC device
+  manufacturer_id: 0
+  # Product ID (16-bit decimal). Identifies the specific product model
+  product_id: 1
+  # Product Type (16-bit decimal). Classifies the type of product
+  product_type: 5
+  # Hardware version number. Unique identifier for the hardware version where ZPC is running
+  hardware_version: 1
+  # Number of consecutive failed Z-Wave send-data attempts (one per outgoing
+  # application command, typically one per MQTT command) before a node is
+  # marked OFFLINE. With value N, the node goes OFFLINE on the N-th
+  # consecutive failure. Radio-level retries, S2/Supervision retries, and
+  # MQTT-level errors are NOT counted. The counter resets on any successful
+  # TX or RX from the node. Does not apply to sleeping (NL) nodes.
+  accepted_transmit_failure: 2
+  # Path to SQLite database file for persistent storage of network information
+  # If lost, ZPC will lose all network information and need to re-interview all nodes
+  datastore_file: '<path_to_zpc.db>'
+  # Default wake-up interval in seconds for sleeping (NL) Z-Wave nodes after inclusion
+  # Used if no certification requirements exist and device doesn't advertise its own interval
+  default_wake_up_interval: 4200
+  # Prioritized list of protocols for SmartStart inclusion when no preference is indicated
+  # '1' = Z-Wave, '2' = Z-Wave Long Range. Example: '1,2' means prefer Z-Wave, then Long Range
+  inclusion_protocol_preference: '1,2'
+  # Z-Wave Long Range maximum transmit power in deci-dBm (0.1 dBm units)
+  # Example: 10 = 1.0 dBm, -20 = -2.0 dBm. Not all modules support this setting
+  max_lr_tx_power_dbm: 0
+  # Measured 0dBm output power in deci-dBm (0.1 dBm units) - calibration value
+  # Measured from antenna when normal_tx_power_dbm is set to 0dBm
+  # Example: 10 = 1.0 dBm, -20 = -2.0 dBm. Not all modules support this setting
+  measured_0dbm_power: 0
+  # Maximum number of missing wake-up periods before a sleeping node is considered failing
+  missing_wake_up_notification: 2
+  # Z-Wave normal transmit power in deci-dBm (0.1 dBm units)
+  # Power level used when transmitting frames at normal power
+  # Example: 10 = 1.0 dBm, -20 = -2.0 dBm. Not all modules support this setting
+  normal_tx_power_dbm: 0
+  # Serial port path where Z-Wave module is connected (e.g., '/dev/ttyUSB0' or '/dev/ttyACM0')
+  serial: '/dev/tty.usbmodem0004402504491'
+  # Path to file for logging serial/ip communication with Z-Wave module
+  # If file exists, log will be appended; otherwise file will be created
+  # ZPC does not handle log rotation - use scripts/serial_decode_zpc.py to parse logs
+  connection_log_file: '<path_to_connection_log.log>'
+  # Alternatively, ip connection can be used to connect to the NCP
+  # ip_address: '<ip_address>'
+  # ip_port: 4901
+  # OTA cache path
+  ota_cache_path: '<path_to_ota_cache>'
+
+# Encrypted Security Keys Dump configuration (OFF by default).
+# When enabled, MQTT clients can publish to zpc/<home_id>/Network/DumpSecurityKeys
+# to have ZPC write an X25519-encrypted dump of the S2 network keys to disk.
+security:
+  security_keys_dump_enable: false
+  # PEM-encoded X25519 recipient public key. The dump file is encrypted with this
+  # key.
+  security_keys_dump_recipient_pubkey_path: ''
+  # Destination directory for the encrypted dump file. The file basename is
+  # always <home_id>.bin and is written with mode 0600.
+  security_keys_dump_output_dir: ''

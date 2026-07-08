@@ -1,0 +1,30 @@
+## MQTT Interface Documentation
+
+### Endpoint addressing for multi-endpoint devices
+
+For devices that support multiple endpoints (e.g. multi-channel devices), include the endpoint identifier in the MQTT topic using the `ep{endpoint_id}` segment:
+
+```
+zpc/{home_id}/{node_id}/ep{endpoint_id}/{command_class}/Command/{command_name}
+```
+
+- **ep0** — root device (endpoint 0)
+- **ep1**, **ep2**, **ep3**, … — endpoint 1, 2, 3, etc.
+
+Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoint 3 of node 0x0004.
+
+### Command class MQTT capabilities
+
+| Command Class | MQTT Support | Support | Control |
+|---------------|--------------|---------|---------|
+{% for command_class in command_classes if command_class.has_mqtt_interface_doc %}
+| [{{ command_class.name }}]({{ command_class.name | lower }}/doc/generated/{{ command_class.name | lower }}_mqtt_interface.md) | {{ "true" if command_class.mqtt_support else "false" }} | {{ "true" if command_class.support else "false" }} | {{ "true" if command_class.control else "false" }} |
+{% endfor %}
+
+> When MQTT Support is `false`, the linked documentation lists only TX (report/notification) commands. ZPC publishes those reports to MQTT but does not handle `Command/*` topics for that command class.
+
+### Command Classes 
+
+{% for command_class in command_classes if command_class.has_mqtt_interface_doc %}
+- [{{ command_class.name }}]({{ command_class.name | lower }}/doc/generated/{{ command_class.name | lower }}_mqtt_interface.md)
+{% endfor %}

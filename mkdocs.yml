@@ -1,0 +1,136 @@
+# MkDocs configuration for ZPC documentation (GitHub Pages)
+# MQTT API, Network Manager, Device Interviewer, and OTA docs are included via
+# mkdocs-monorepo-plugin (!include). Command classes are merged by
+# scripts/mkdocs/prepare_docs_for_mkdocs.py (run before mkdocs build).
+site_name: ZPC Documentation
+site_description: Z-Wave Protocol Controller documentation
+site_url: https://SiliconLabsSoftware.github.io/z-wave-protocol-controller/
+docs_dir: docs
+strict: false
+# Use .html files so links work when opening the built site from disk (file://)
+use_directory_urls: false
+
+theme:
+  name: material
+  favicon: assets/zwave_favicon.ico
+  language: en
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+
+plugins:
+  - search
+  - monorepo
+  - mermaid-zoom
+
+hooks:
+  - scripts/mkdocs/prepare_docs_for_mkdocs.py
+
+extra_javascript:
+  - https://unpkg.com/mermaid@11/dist/mermaid.min.js
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_div_format
+
+nav:
+  - Home: README.md
+  - Getting Started:
+    - Getting Started: getting-started.md
+    - High-Level Architecture: high-level-architecture.md
+    - Debian packaging: packaging-debian.md
+  - Guides:
+    - Command Class Implementation: command_class_implementation_guide.md
+    - Known Failing CTT Test Cases: known_failing_ctt_test_cases.md
+  - Release Notes:
+    - v2.0.0: release-notes/v2.0.0.md
+  - Sequences:
+    - Inclusion Flow: sequences/inclusion_flow.md
+    - Exclusion Flow: sequences/exclusion_flow.md
+  - API Reference:
+    - MQTT API: '!include ./components/mqtt_api/mkdocs.yml'
+    - Network Management: '!include ./components/network_manager/mkdocs.yml'
+    - Device Interviewer: '!include ./components/device_interviewer/mkdocs.yml'
+    - Network Status: '!include ./components/network_monitor/mkdocs.yml'
+    - OTA: '!include ./components/ota/mkdocs.yml'
+    - Security: '!include ./components/security/mkdocs.yml'
+  - Command Class Reference:
+    - Overview: api/command_classes/mqtt_interface.md
+    - Association & Routing:
+      - "Association":
+        - "MQTT interface": api/command_classes/command_class_association/command_class_association_mqtt_interface.md
+        - "Supplement": api/command_classes/command_class_association/command_class_association_mqtt_interface_supplement.md
+      - "Association Group Info":
+        - "MQTT interface": api/command_classes/command_class_association_grp_info/command_class_association_grp_info_mqtt_interface.md
+        - "Overview": api/command_classes/command_class_association_grp_info/command_class_association_grp_info.md
+      - "Multi Channel": api/command_classes/command_class_multi_channel/command_class_multi_channel_mqtt_interface.md
+      - "Multi Channel Association": api/command_classes/command_class_multi_channel_association/command_class_multi_channel_association_mqtt_interface.md
+    - Device Identity & Info:
+      - "Basic": api/command_classes/command_class_basic/command_class_basic_mqtt_interface.md
+      - "Manufacturer Specific": api/command_classes/command_class_manufacturer_specific/command_class_manufacturer_specific_mqtt_interface.md
+      - "Version": api/command_classes/command_class_version/command_class_version_mqtt_interface.md
+      - "Z-Wave Plus Info": api/command_classes/command_class_zwaveplus_info/command_class_zwaveplus_info_mqtt_interface.md
+    - Device Management:
+      - "Device Reset Locally": api/command_classes/command_class_device_reset_locally/command_class_device_reset_locally_mqtt_interface.md
+      - "Inclusion Controller":
+        - "MQTT interface": api/command_classes/command_class_inclusion_controller/command_class_inclusion_controller_mqtt_interface.md
+        - "Overview": api/command_classes/command_class_inclusion_controller/command_class_inclusion_controller.md
+      - "Powerlevel": api/command_classes/command_class_powerlevel/command_class_powerlevel_mqtt_interface.md
+      - "Supervision": api/command_classes/command_class_supervision/command_class_supervision_mqtt_interface.md
+      - "Wake Up": api/command_classes/command_class_wake_up/command_class_wake_up_mqtt_interface.md
+    - Switching & Lighting:
+      - "Switch Binary": api/command_classes/command_class_switch_binary/command_class_switch_binary_mqtt_interface.md
+      - "Switch Color":
+        - "MQTT interface": api/command_classes/command_class_switch_color/command_class_switch_color_mqtt_interface.md
+        - "Sequence diagrams": api/command_classes/command_class_switch_color/color_switch_sequence_diagram.md
+      - "Switch Multilevel":
+        - "MQTT interface": api/command_classes/command_class_switch_multilevel/command_class_switch_multilevel_mqtt_interface.md
+        - "Overview": api/command_classes/command_class_switch_multilevel/command_class_switch_multilevel.md
+    - Climate Control:
+      - "Thermostat Fan Mode":
+        - "MQTT interface": api/command_classes/command_class_thermostat_fan_mode/command_class_thermostat_fan_mode_mqtt_interface.md
+        - "Sequence diagrams": api/command_classes/command_class_thermostat_fan_mode/sequence_diagrams.md
+      - "Thermostat Mode":
+        - "MQTT interface": api/command_classes/command_class_thermostat_mode/command_class_thermostat_mode_mqtt_interface.md
+        - "Sequence diagrams": api/command_classes/command_class_thermostat_mode/sequence_diagrams.md
+      - "Thermostat Setpoint":
+        - "MQTT interface": api/command_classes/command_class_thermostat_setpoint/command_class_thermostat_setpoint_mqtt_interface.md
+        - "Sequence diagrams": api/command_classes/command_class_thermostat_setpoint/sequence_diagrams.md
+    - Sensors & Notifications:
+      - "Battery": api/command_classes/command_class_battery/command_class_battery_mqtt_interface.md
+      - "Door Lock":
+        - "MQTT interface": api/command_classes/command_class_door_lock/command_class_door_lock_mqtt_interface.md
+        - "Overview": api/command_classes/command_class_door_lock/command_class_door_lock.md
+      - "Indicator": api/command_classes/command_class_indicator/command_class_indicator_mqtt_interface.md
+      - "Notification":
+        - "MQTT interface": api/command_classes/command_class_notification/command_class_notification_mqtt_interface.md
+        - "Overview": api/command_classes/command_class_notification/command_class_notification.md
+    # GENERATED_CC_NAV_START
+    - "Firmware Update Md": api/command_classes/command_class_firmware_update_md/command_class_firmware_update_md_mqtt_interface.md
+    # GENERATED_CC_NAV_END

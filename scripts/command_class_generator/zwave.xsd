@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-License-Identifier: BSD-3-Clause
+SPDX-FileCopyrightText: 2022 Z-Wave-Alliance <https://z-wavealliance.org/>
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<!-- **** ZW_CLASSES ***********************************************************************-->
+	<xs:element name="zw_classes">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="bas_dev" maxOccurs="unbounded" />
+				<xs:element ref="gen_dev" maxOccurs="unbounded" />
+				<xs:element ref="cmd_class" maxOccurs="unbounded" />
+			</xs:choice>
+			<xs:attribute name="version" type="xs:string" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** BAS_DEV *********************************************************************** -->
+	<xs:element name="bas_dev">
+		<xs:complexType>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="help" type="xs:string" use="optional" />
+			<xs:attribute name="comment" type="xs:string" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** GEN_DEV *********************************************************************** -->
+	<xs:element name="gen_dev">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="spec_dev" maxOccurs="unbounded" minOccurs="0" />
+			</xs:sequence>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="help" type="xs:string" use="optional" />
+			<xs:attribute name="comment" type="xs:string" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** SPEC_DEV *********************************************************************** -->
+	<xs:element name="spec_dev">
+		<xs:complexType>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="help" type="xs:string" use="optional" />
+			<xs:attribute name="comment" type="xs:string" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** CMD_CLASS *********************************************************************** -->
+	<xs:element name="cmd_class">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="cmd" maxOccurs="unbounded" minOccurs="0" />
+			</xs:sequence>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="version" type="zwKey" use="optional" />
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="help" type="xs:string" use="optional" />
+			<xs:attribute name="comment" type="xs:string" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** CMD *********************************************************************** -->
+	<xs:element name="cmd">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="param" />
+				<xs:element ref="variant_group" />
+			</xs:choice>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="help" type="xs:string" use="optional" />
+			<xs:attribute name="cmd_mask" type="zwKey" use="optional" />
+			<xs:attribute name="support_mode" type="zwXmlSupportModes" use="optional" default="APP" />
+			<xs:attribute name="comment" type="xs:string" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** VARIANT_GROUP *********************************************************************** -->
+	<xs:element name="variant_group">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="param" />
+				<xs:element ref="variant_group" />
+			</xs:choice>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="paramOffs" type="zwKey" use="required" />
+			<xs:attribute name="sizemask" type="zwKey" use="required" />
+			<xs:attribute name="sizeoffs" type="zwKey" use="required" />
+			<xs:attribute name="sizechange" type="xs:byte" use="optional" default="0" />
+			<xs:attribute name="optionaloffs" type="zwKey" use="optional" />
+			<xs:attribute name="optionalmask" type="zwKey" use="optional" />
+			<xs:attribute name="moretofollowoffs" type="zwKey" use="optional" />
+			<xs:attribute name="moretofollowmask" type="zwKey" use="optional" />
+			<xs:attribute name="comment" type="xs:string" use="optional" />
+			<xs:attribute name="skipfield" type="xs:boolean" use="optional" default="false" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** PARAM *********************************************************************** -->
+	<xs:element name="param">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="arrayattrib" />
+				<xs:element ref="bitfield" />
+				<xs:element ref="bitflag" />
+				<xs:element ref="const" />
+				<xs:element ref="fieldenum" />
+				<xs:element ref="multi_array" />
+				<xs:element ref="variant" />
+				<xs:element ref="bitmask" />
+				<xs:element ref="paramdescloc" />
+			</xs:choice>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="type" type="zwXmlParamType" use="required" />
+			<xs:attribute name="comment" type="xs:string" use="optional" />
+			<xs:attribute name="encaptype" type="zwXmlEncapType" use="optional" default="HEX" />
+			<xs:attribute name="optionaloffs" type="zwKey" use="optional" />
+			<xs:attribute name="optionalmask" type="zwKey" use="optional" />
+			<xs:attribute name="primaryoffs" type="zwKey" use="optional" />
+			<xs:attribute name="primarymask" type="zwKey" use="optional" />
+			<xs:attribute name="primaryshift" type="xs:unsignedByte" use="optional" default="0" />
+			<xs:attribute name="cmd_mask" type="zwKey" use="optional" />
+			<xs:attribute name="skipfield" type="xs:boolean" use="optional" default="false" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** BITFIELD *********************************************************************** -->
+	<xs:element name="bitfield">
+		<xs:complexType>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="fieldname" type="xs:string" use="required" />
+			<xs:attribute name="fieldmask" type="zwKey" use="required" />
+			<xs:attribute name="shifter" type="xs:unsignedByte" use="optional" default="0" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** VARIANT *********************************************************************** -->
+	<xs:element name="variant">
+		<xs:complexType>
+			<xs:attribute name="key" type="zwKey" use="optional" />
+			<xs:attribute name="paramoffs" type="xs:unsignedByte" use="required" />
+			<xs:attribute name="is_ascii" type="xs:boolean" use="optional" default="false" />
+			<xs:attribute name="sizemask" type="zwKey" use="required" />
+			<xs:attribute name="sizeoffs" type="xs:unsignedByte" use="optional" default="0" />
+			<xs:attribute name="sizechange" type="xs:byte" use="optional" default="0" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** CONST *********************************************************************** -->
+	<xs:element name="const">
+		<xs:complexType>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="flagname" type="xs:string" use="required" />
+			<xs:attribute name="flagmask" type="zwKey" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** BITMASK ***********************************-->
+	<xs:element name="bitmask">
+		<xs:complexType>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="paramoffs" type="xs:unsignedByte" use="required" />
+			<xs:attribute name="lenmask" type="zwKey" use="required" />
+			<xs:attribute name="lenoffs" type="xs:unsignedByte" use="optional" default="0" />
+			<xs:attribute name="len" type="xs:unsignedByte" use="optional" default="0" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** FIELDENUM *********************************************************************** -->
+	<xs:element name="fieldenum">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="fieldenum" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="key" type="zwKey" use="optional" />
+			<xs:attribute name="value" type="xs:string" use="optional" />
+			<xs:attribute name="fieldname" type="xs:string" use="optional" />
+			<xs:attribute name="fieldmask" type="zwKey" use="optional" />
+			<xs:attribute name="shifter" type="xs:unsignedByte" use="optional" default="0" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** MULTI_ARRAY *********************************************************************** -->
+	<xs:element name="multi_array">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="bitflag" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="paramdescloc" minOccurs="1" maxOccurs="1" />
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+	<!-- **** PARAMDESCLOC *********************************************************************** -->
+	<xs:element name="paramdescloc">
+		<xs:complexType>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="param" type="zwKey" use="required" />
+			<xs:attribute name="paramdesc" type="zwKey" use="required" />
+			<xs:attribute name="paramstart" type="zwKey" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** ARRAYATTRIB     *********************************************************************** -->
+	<xs:element name="arrayattrib">
+		<xs:complexType>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="len" type="zwKey" use="required" />
+			<xs:attribute name="is_ascii" type="xs:boolean" use="optional" default="false" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** BITFLAG  *********************************************************************** -->
+	<xs:element name="bitflag">
+		<xs:complexType>
+			<xs:attribute name="key" type="zwKey" use="required" />
+			<xs:attribute name="flagname" type="xs:string" use="required" />
+			<xs:attribute name="flagmask" type="zwKey" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- **** SIMPLE TYPES *********************************************************************** -->
+	<xs:simpleType name="zwKey">
+		<!-- Allows both hexadecimal and decimal values -->
+		<xs:restriction base="xs:string">
+			<xs:pattern value="0x[0-9A-Fa-f]{2,4}|[0-9]{1,3}" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="zwXmlEncapType">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="HEX" />
+			<xs:enumeration value="BOOLEAN" />
+			<xs:enumeration value="CHAR" />
+			<xs:enumeration value="NUMBER" />
+			<xs:enumeration value="NUMBER_SIGNED" />
+			<xs:enumeration value="NODE_NUMBER" />
+			<xs:enumeration value="BITMASK" />
+			<xs:enumeration value="MARKER" />
+			<xs:enumeration value="BAS_DEV_REF" />
+			<xs:enumeration value="GEN_DEV_REF" />
+			<xs:enumeration value="SPEC_DEV_REF" />
+			<xs:enumeration value="CMD_CLASS_REF" />
+			<xs:enumeration value="CMD_REF" />
+			<xs:enumeration value="CMD_DATA" />
+			<xs:enumeration value="CMD_ENCAP" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="zwXmlParamType">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="ARRAY" />
+			<xs:enumeration value="BIT_24" />
+			<xs:enumeration value="BITMASK" />
+			<xs:enumeration value="BYTE" />
+			<xs:enumeration value="CONST" />
+			<xs:enumeration value="DWORD" />
+			<xs:enumeration value="MARKER" />
+			<xs:enumeration value="MULTI_ARRAY" />
+			<xs:enumeration value="STRUCT_BYTE" />
+			<xs:enumeration value="VARIANT" />
+			<xs:enumeration value="WORD" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="zwXmlSupportModes">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="APP" />
+			<xs:enumeration value="TX" />
+			<xs:enumeration value="RX" />
+			<xs:enumeration value="TX_RX" />
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

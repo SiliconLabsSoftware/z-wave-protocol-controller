@@ -1,0 +1,50 @@
+/******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+
+#ifndef COMPONENT_CONNECTOR_COMMON_EVENTS_H
+#define COMPONENT_CONNECTOR_COMMON_EVENTS_H
+
+#include <stdint.h>
+
+namespace zwave_command_class
+{
+    enum class component_connector_common_events_t : uint32_t {
+        COMPONENT_CONNECTOR_BASE_EVENT = @COMPONENT_EVENT_BASE@,
+        COMPONENT_CONNECTOR_NODE_INFORMATION_RECEIVED,
+        COMPONENT_CONNECTOR_NODE_ADDED,
+        // Raw protocol fact: a NodeID was assigned while our NM was idle (another controller
+        // included the node). Surfaced by system_events. The Inclusion Controller CC (0x74)
+        // listens for this and may either claim the handoff (proxy / S0 delegation via INITIATE)
+        // or, after a grace window, re-emit COMPONENT_CONNECTOR_NODE_INTERVIEW_REQUESTED.
+        COMPONENT_CONNECTOR_NODE_ID_ASSIGNED_BY_OTHER_CONTROLLER,
+        // Imperative: please interview this node. Fired by the Inclusion Controller CC after
+        // its grace window elapses without an INITIATE, by OTA after firmware activation,
+        // and by network_monitor after interview failure when the node is reachable again.
+        // Consumed by device_interviewer.
+        COMPONENT_CONNECTOR_NODE_INTERVIEW_REQUESTED,
+        COMPONENT_CONNECTOR_NODE_DELETED,
+        COMPONENT_CONNECTOR_FAILED_NODE_DELETED,
+        COMPONENT_CONNECTOR_INTERVIEW_DONE,
+        COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED,
+        COMPONENT_CONNECTOR_NETWORK_ADDRESS_UPDATED,
+        COMPONENT_CONNECTOR_NEW_NETWORK_ENTERED,
+        // Fired exactly once after a controller factory reset has completed and
+        // ZPC has entered the new network. Distinguished from
+        // COMPONENT_CONNECTOR_NEW_NETWORK_ENTERED, which also fires for learn-mode
+        // joins. system_events sets a flag from a reset-chain step and fires this
+        // event from on_new_network_entered when the flag is set.
+        COMPONENT_CONNECTOR_FACTORY_RESET_COMPLETE
+    };
+}  // namespace zwave_command_class
+
+#endif  // COMPONENT_CONNECTOR_COMMON_EVENTS_H

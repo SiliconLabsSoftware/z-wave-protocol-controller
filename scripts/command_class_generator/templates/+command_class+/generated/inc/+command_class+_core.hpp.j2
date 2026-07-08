@@ -1,0 +1,150 @@
+{% import "utils.j2" as utils with context %}
+{% import "config.j2" as config with context %}
+
+{{ utils.copyright() }}
+
+{% set header_guard_name = command_class.name | upper + "_core" %}
+{{ utils.header_guard(header_guard_name) }}
+
+{% set command_class_name_lower = command_class.name | lower %}
+
+// Base class
+#include "zwave_command_class_base.h"
+#include "{{command_class_name_lower}}_types.hpp" 
+
+// ZPC 
+#include "attribute_store_defined_attribute_types.h" // ZWAVE_CC_VERSION_ATTRIBUTE
+#include "attribute_resolver.hpp" // group_resolution_options
+
+#include "zwave_frame_parser.hpp" // zwave_frame_parser
+#include "attribute.hpp" // attribute_store::attribute
+
+using namespace zwave_command_class::{{command_class_name_lower}}_types;
+
+namespace zwave_command_class {
+
+    class {{command_class_name_lower}}_core : public zwave_command_class_base {
+        public:
+            static const command_class_properties cc_properties;
+
+            static void start_group_resolution(attribute_store::attribute group_node, group_resolution_options options = {});
+            static void stop_group_resolution(attribute_store::attribute group_node);
+
+            {% for command in command_class.commands %}
+            static constexpr uint16_t {{command.name | lower}}_max_frame_size = {{command.max_frame_sizes | max}};
+            static constexpr uint16_t {{command.name | lower}}_min_frame_size = {{command.min_frame_sizes | min}};
+            {% endfor %}
+
+            template<typename T > T get_value_or_default(const {{command_class.name | lower}}_attribute_map_t &map, const std::string &key, const T &default_value)
+            {
+                auto it = map.find(key);
+                if (it != map.end() && std::holds_alternative<T>(it->second)) {
+                return std::get<T>(it->second);
+                }
+                return default_value;
+            }
+
+            {% if command_class.control == true %}            
+                sl_status_t control_handler(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length) override;
+                bool has_control_handler() const override { return true; }
+            {% else %}
+                bool has_control_handler() const override { return false; }
+            {% endif %}
+
+            {% if command_class.support == true%}
+                sl_status_t support_handler(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length) override;
+                bool has_support_handler() const override { return true; }
+            {% else %}
+                bool has_support_handler() const override { return false; }
+            {% endif %}
+
+            // Constructor
+            {{command_class_name_lower}}_core();
+            ~{{command_class_name_lower}}_core() = default;
+        
+            // Received functions
+            {% for command in command_class.commands %}
+                {% if utils.is_tx(command) == "True" %}
+                    sl_status_t on_{{command.name | lower}}_received(const report_received_args& args);
+                {% elif utils.is_get(command.name) == "True" and command_class.support == true %}
+                    {{command_class_name_lower}}_attribute_map_t on_{{command.name | lower}}_received(const get_received_args& args);
+                {% elif utils.is_set(command.name) == "True" and command_class.support == true %}
+                    static {{command_class_name_lower}}_attribute_map_t on_{{command.name | lower}}_received(const set_received_args& args);
+                {% endif %}
+            {% endfor %}
+            // Received end
+
+            // Requested functions
+            {% for command in command_class.commands %}
+                {% if utils.is_set(command.name) == "True" %}
+                    sl_status_t on_{{command.name | lower}}_requested(const set_requested_args& args, uint8_t *data, uint16_t *length);
+                {% elif utils.is_get(command.name) == "True" %}
+                    sl_status_t on_{{command.name | lower}}_requested(const get_requested_args& args, uint8_t *data, uint16_t *length);
+                {% endif %}
+            {% endfor %}
+            // Requested end
+
+            // Support requested functions
+            {% for command in command_class.commands if command_class.support == true %}
+                {% if utils.is_get(command.name) == "True" %}
+                    sl_status_t on_{{command.name | lower}}_support_requested(const zwave_controller_connection_info_t *connection_info, {{command_class_name_lower}}_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame);
+                {% elif utils.is_set(command.name) == "True" %}
+                    sl_status_t on_{{command.name | lower}}_support_requested({{command_class_name_lower}}_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame);
+                {% endif %}
+            {% endfor %}
+            // Support requested end
+
+            // Support received functions
+            {% for command in command_class.commands if command_class.support == true %}
+                {% if utils.is_set(command.name) == "True" %}
+                    virtual sl_status_t on_{{command.name | lower}}_support_received(const zwave_controller_connection_info_t *connection_info, {{command_class_name_lower}}_attribute_map_t attribute_map);
+                {% endif %}
+            {% endfor %}
+            // Support received end
+
+            // Parsed functions
+            {% for command in command_class.commands %}
+                {% if utils.is_get(command.name) == "True" and command_class.support == true or utils.is_tx(command) == "True" %}
+                    virtual sl_status_t on_{{command.name | lower}}_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, {{command_class_name_lower}}_attribute_map_t payload);
+                {% endif %}
+            {% endfor %}
+            // Parsed end
+
+            // Received store functions
+            {% for command in command_class.commands %}
+                {% if utils.is_tx(command) == "True" %}
+                    virtual sl_status_t on_{{command.name | lower}}_received_store(attribute_store::attribute endpoint_node, {{command_class_name_lower}}_attribute_map_t attribute_map);
+                {% endif %}
+            {% endfor %}
+            // Received store end
+
+            // Requested assemble frame functions
+            {% for command in command_class.commands %}
+                {% if utils.is_get(command.name) == "True" %}
+                    virtual sl_status_t on_{{command.name | lower}}_requested_assemble_frame(const get_requested_args& args, uint8_t *data, uint16_t *length);
+                {% elif utils.is_set(command.name) == "True" %}
+                    virtual sl_status_t on_{{command.name | lower}}_requested_assemble_frame(const set_requested_args& args, uint8_t *data, uint16_t *length);
+                {% endif %}
+            {% endfor %}
+            // Requested assemble frame end
+
+            // Support requested assemble frame functions
+            {% for command in command_class.commands if command_class.support == true %}
+                {% if utils.is_get(command.name) == "True" %}
+                    virtual sl_status_t on_{{command.name | lower}}_support_requested_assemble_frame(const zwave_controller_connection_info_t *connection_info, {{command_class_name_lower}}_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame);
+                {% elif utils.is_set(command.name) == "True" %}
+                    virtual sl_status_t on_{{command.name | lower}}_support_requested_assemble_frame({{command_class_name_lower}}_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame);
+                {% endif %}
+            {% endfor %}
+            // Support requested assemble frame end
+
+            // Mqtt publish report function
+            void mqtt_publish_report(attribute_store::attribute endpoint_node,
+                                    {{command_class_name_lower}}_commands_t command_id,
+                                    {{command_class_name_lower}}_attribute_map_t attribute_map);
+            // Mqtt publish report function end
+    };
+} // namespace zwave_command_class
+
+{{ utils.footer_guard(header_guard_name) }}
+

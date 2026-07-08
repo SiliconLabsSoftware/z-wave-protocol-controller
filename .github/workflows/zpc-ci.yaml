@@ -1,0 +1,117 @@
+# SPDX-License-Identifier: Zlib
+# SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
+---
+name: ZPC CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  format:
+    name: clang-format
+    runs-on: ubuntu-26.04
+    # Use ubuntu-26 because of the clang-format-19.1.7
+    env:
+      CLANG_FORMAT: clang-format-19
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Install dependencies
+        uses: ./.github/actions/setup-linux-deps
+        with:
+          package_lists: ci/dependencies/apt-packages-clang-format.txt
+
+      - name: Check clang-format
+        run: ./ci/scripts/clang-format.sh check
+
+  clang_tidy:
+    name: clang-tidy
+    needs: [format]
+    runs-on: ubuntu-24.04
+    env:
+      CC: gcc-14
+      CXX: g++-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          submodules: recursive
+          fetch-tags: true
+          fetch-depth: 0
+
+      - name: Install dependencies
+        uses: ./.github/actions/setup-linux-deps
+        with:
+          package_lists: ci/dependencies/apt-packages-base.txt ci/dependencies/apt-packages-clang-tidy.txt
+          pip_requirements: "true"
+
+      - name: Configure and run clang-tidy
+        run: ./ci/scripts/clang-tidy.sh check
+
+  build_linux:
+    name: build-linux
+    needs: [format]
+    if: needs.format.result == 'success'
+    uses: ./.github/workflows/zpc-build-linux.yaml
+    with:
+      ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+  build_macos:
+    name: macos-amd64-clang
+    needs: [format]
+    runs-on: macos-26
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          submodules: recursive
+          fetch-tags: true
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          brew install $(cat ci/dependencies/brew-packages.txt)
+          pip3 install -r ci/dependencies/requirements.txt --break-system-packages
+
+      - name: Build ZPC
+        run: cmake --workflow --preset macos
+
+  success:
+    name: success
+    needs: [format, clang_tidy, build_linux, build_macos]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Enforce required job outcomes
+        run: |
+          if [ "${{ needs.format.result }}" != "success" ]; then
+            echo "::error title=CI gate::format was '${{ needs.format.result }}' (expected success)"
+            exit 1
+          fi
+          if [ "${{ needs.clang_tidy.result }}" != "success" ]; then
+            echo "::error title=CI gate::clang_tidy was '${{ needs.clang_tidy.result }}' (expected success)"
+            exit 1
+          fi
+          if [ "${{ needs.build_linux.result }}" != "success" ]; then
+            echo "::error title=CI gate::build was '${{ needs.build_linux.result }}' (expected success)"
+            exit 1
+          fi
+          if [ "${{ needs.build_macos.result }}" != "success" ]; then
+            echo "::error title=CI gate::build_macos was '${{ needs.build_macos.result }}' (expected success)"
+            exit 1
+          fi

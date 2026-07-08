@@ -1,0 +1,23 @@
+/******************************************************************************
+ * # License
+ * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+#ifndef ZPC_VERSION_H
+#define ZPC_VERSION_H
+
+#define ZPC_VERSION       "@GIT_VERSION@"
+#define ZPC_VERSION_SHA   "@GIT_VERSION_SHA@"
+#define ZPC_VERSION_MAJOR @VERSION_MAJOR@
+#define ZPC_VERSION_MINOR @VERSION_MINOR@
+#define ZPC_VERSION_REV   @VERSION_REV@
+
+#endif /* ZPC_VERSION_H */
+       /** @} (end addtogroup zpc_version_h) */

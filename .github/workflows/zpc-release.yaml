@@ -1,0 +1,99 @@
+# SPDX-License-Identifier: Zlib
+# SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
+---
+name: ZPC Release
+
+on:
+  push:
+    tags:
+      - 'zpc-v*'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  validate-tag:
+    name: validate-tag
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Validate release tag format
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          if [[ ! "$TAG" =~ ^zpc-v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z][-0-9A-Za-z.]*)?$ ]]; then
+            echo "::error title=Invalid release tag::Tag '$TAG' must match zpc-vX.Y.Z or zpc-vX.Y.Z-prerelease"
+            exit 1
+          fi
+          echo "Valid release tag: $TAG"
+
+  build_linux:
+    name: build-linux
+    needs: [validate-tag]
+    uses: ./.github/workflows/zpc-build-linux.yaml
+    with:
+      ref: ${{ github.sha }}
+
+  release:
+    name: release
+    needs: [build_linux]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          submodules: recursive
+
+      - name: Generate release notes
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          PREV_TAG="$(git tag -l 'zpc-v*' --sort=-v:refname | grep -v "^${TAG}$" | head -1)"
+          if [ -n "$PREV_TAG" ]; then
+            {
+              echo "## Changes since ${PREV_TAG}"
+              echo
+              git log "${PREV_TAG}..${TAG}" --pretty=format:'- %s (%h)'
+            } > release-notes.md
+          else
+            git log --pretty=format:'- %s (%h)' > release-notes.md
+          fi
+
+      - name: Download debian packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: zpc-deb-*
+          path: release-assets
+          merge-multiple: true
+
+      - name: Verify release assets
+        run: |
+          set -euo pipefail
+          ls -la release-assets/
+          deb_count="$(find release-assets -name '*.deb' | wc -l)"
+          if [ "$deb_count" -lt 2 ]; then
+            echo "::error title=Missing release assets::Expected at least 2 .deb files, found $deb_count"
+            exit 1
+          fi
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF#refs/tags/}"
+          PRERELEASE_ARGS=()
+          if [[ "$TAG" == *-* ]]; then
+            PRERELEASE_ARGS+=(--prerelease)
+          fi
+
+          mapfile -t DEBS < <(find release-assets -name '*.deb' -type f | sort)
+          gh release create "$TAG" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "$TAG" \
+            --notes-file release-notes.md \
+            "${PRERELEASE_ARGS[@]}" \
+            "${DEBS[@]}"

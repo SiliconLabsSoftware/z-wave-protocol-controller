@@ -1,0 +1,5 @@
+# Included by root mkdocs.yml via mkdocs-monorepo-plugin (!include)
+site_name: api/network_manager
+docs_dir: doc
+nav:
+  - Network Management MQTT API: network_management_mqtt_api.md

@@ -1,0 +1,362 @@
+{% import "utils.j2" as utils with context %}
+{% import "function_generator.j2" as function_generator with context %}
+{% import "config.j2" as config with context %}
+
+{{ utils.copyright() }}
+
+{% set command_class_name_lower = command_class.name | lower %}
+
+#include <string_view>
+
+// Base class
+#include "{{command_class_name_lower}}_core.hpp"
+
+// ZPC 
+#include "zwave_command_class_base.h"
+#include "zwave_command_class_utils.hpp"
+#include "zwave_frame_parser.hpp" // zwave_frame_parser
+#include "zwave_command_class_indices.h" // COMMAND_INDEX
+#include "attribute_resolver.hpp" // attribute_resolver, group_resolution_options
+#include "zpc_mqtt_utils.hpp" // zpc_mqtt::utils::get_base_topic_from_attribute
+
+#include "attribute_callbacks.hpp"
+#include "log.h"
+
+// JSON
+#include <nlohmann/json.hpp>
+
+// Format
+#include "fmt/format.h"
+
+namespace zwave_command_class {
+    // Log tag
+    [[maybe_unused]] static constexpr std::string_view LOG_TAG = "{{command_class_name_lower}}_core";
+
+    const command_class_properties {{command_class_name_lower}}_core::cc_properties = {
+                .command_class_id =  {{command_class.id}},
+                .supported_handler_minimal_scheme = {{command_class.minimal_scheme}},
+                .command_class_name = "{{utils.convert_command_name_to_mqtt_topic_token(command_class.name.replace("COMMAND_CLASS_", ""))}}",
+                .comments = "",
+                .supported_version = {{command_class.supported_version}},
+    };
+
+    const attribute_list_registration_t attributes = { 
+        //////////////////////////////////////////////////////////////////////
+        // {{command_class_name_lower}}_attributes
+        //////////////////////////////////////////////////////////////////////
+        { static_cast<attribute_store_type_t>({{command_class_name_lower}}_attributes_t::supported_version), "{{command_class_name_lower}} version", ATTRIBUTE_ENDPOINT_ID, U8_STORAGE_TYPE }, 
+
+        {% set group_name = namespace(value="") %}
+        {% set group_struct_name = namespace(value="") %}
+        {% set attribute_name_string = utils.get_unique_attribute_name_list(command_class) %}
+        {% set attribute_name_list = attribute_name_string | parse_json %}
+        {% for items in attribute_name_list %}
+            {% if items | length > 0 %}
+                {% for item in items %}
+                    {% for attr_name, attr_type in item.items() %}
+                        {% if attr_name | lower != "marker" %}
+                            {% if "GROUP" in attr_name %}
+                                {% set group_name.value = attr_name | lower + "_attributes_t::" + attr_name %}
+                                {% set group_struct_name.value = attr_name | lower + "_attributes_t" %}
+                                { static_cast<attribute_store_type_t>({{group_name.value}}), "{{attr_name}}", ATTRIBUTE_ENDPOINT_ID, U8_STORAGE_TYPE },
+                            {% else %}
+                                { static_cast<attribute_store_type_t>({{group_struct_name.value}}::{{attr_name}}), "{{attr_name}}", static_cast<attribute_store_type_t>({{group_name.value}}), {{attr_type}} },
+                            {% endif%}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            {% endif +%}
+        {% endfor %}
+    };
+
+    {{command_class_name_lower}}_core::{{command_class_name_lower}}_core() : zwave_command_class_base({{command_class_name_lower}}_core::cc_properties, attributes, "{{utils.convert_command_name_to_mqtt_topic_token(command_class.name.replace("COMMAND_CLASS_", ""))}}") 
+    {
+        {% for command in command_class.commands %}
+            {% if utils.is_rx(command) == "True" %}
+                attribute_resolver::register_rules(static_cast<attribute_store_type_t>({{command.name | lower }}_group_attributes_t::{{command.name | upper }}_GROUP),
+                // Set rule
+                {% if utils.is_set(command.name) == "True" %}
+                    [this](attribute_store_node_t node, uint8_t *data, uint16_t *length) {
+                        try {sl_log_debug(LOG_TAG.data(), "{{command.name }}_GROUP requested");
+                            auto command = static_cast<uint8_t>({{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper | replace("_GROUP", "")}});
+                            m_frame_generator.initialize_frame(command, data, length);
+                            set_requested_args args = {node, &m_frame_generator};
+                            return this->on_{{command.name | lower | replace("_GROUP", "")}}_requested(args, data, length);
+                        } catch (const std::exception &e) {
+                            sl_log_error(LOG_TAG.data(), "Error while generating {{ command.name }}_GROUP : %s", e.what());
+                            return SL_STATUS_FAIL;
+                        }
+                    },
+                {% else %}
+                    nullptr,
+                {% endif %}
+                // Get rule
+                {% if utils.is_get(command.name) == "True" %}
+                    [this](attribute_store_node_t node, uint8_t *data, uint16_t *length) {
+                    try {sl_log_debug(LOG_TAG.data(), "{{command.name }}_GROUP requested");
+                        auto command = static_cast<uint8_t>({{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper }});
+                        m_frame_generator.initialize_frame(command, data, length);
+                        get_requested_args args = {node, &m_frame_generator};
+                        return this->on_{{command.name | lower | replace("_GROUP", "")}}_requested(args, data, length);
+                    } catch (const std::exception &e) {
+                        sl_log_error(LOG_TAG.data(), "Error while generating {{command.name }}_GROUP : %s", e.what());
+                        return SL_STATUS_FAIL;
+                    }}
+                {% else %}
+                    nullptr
+                {% endif %}
+                );
+            {% endif +%}
+        {% endfor %}
+
+        // Interview is now handled via COMPONENT_CONNECTOR_INTERVIEW_DONE event
+        // Command classes should implement on_interview() to handle interview logic
+    }
+
+    {% if command_class.control == true %}
+    sl_status_t {{command_class_name_lower}}_core::control_handler(const zwave_controller_connection_info_t *connection_info,
+                                                                    const uint8_t *frame_data,
+                                                                    [[maybe_unused]] uint16_t frame_length)
+    {
+        // Setup
+        attribute_store::attribute endpoint_node(command_class_utils::get_endpoint_node(connection_info));
+        // Create parser
+        zwave_frame_parser parser(frame_data, frame_length);
+        // Store frame name in here to be able to log it in case of error
+        std::string debug_frame_name;
+        // Report args struct (unused when this CC defines no TX/report commands handled in control_handler)
+        [[maybe_unused]] const report_received_args report_args = {endpoint_node, parser, connection_info};
+
+        // We encapsulate the switch in a try catch to logs errors
+        // This avoids to have to catch exceptions in each command handler
+        try {
+        switch (frame_data[COMMAND_INDEX]) {
+            {% for command in command_class.commands %}
+                {% if utils.is_tx(command) == "True" %}
+                case static_cast<uint8_t>({{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper}}):
+                    debug_frame_name = "{{command.name}}";
+                    return on_{{command.name | lower}}_received(report_args);
+                {% endif %}
+            {% endfor %}
+            default:
+                return SL_STATUS_NOT_SUPPORTED;
+        }
+        sl_log_debug(LOG_TAG.data(), "%s frame received", debug_frame_name.c_str());
+        } catch (const std::exception &e) {
+        sl_log_error(LOG_TAG.data(), "Error while parsing %s frame : %s", debug_frame_name.c_str(), e.what());
+        return SL_STATUS_FAIL;
+        }
+        return SL_STATUS_OK;
+    }
+    {% endif %}
+
+    {% if command_class.support == true %}
+    sl_status_t {{command_class_name_lower}}_core::support_handler(const zwave_controller_connection_info_t *connection_info,
+                                                                    const uint8_t *frame_data,
+                                                                    [[maybe_unused]] uint16_t frame_length)
+    {
+            // Setup
+        attribute_store::attribute endpoint_node(command_class_utils::get_endpoint_node(connection_info));
+        // Create parser
+        zwave_frame_parser parser(frame_data, frame_length);
+        // Store frame name in here to be able to log it in case of error
+        std::string debug_frame_name;
+
+        // We encapsulate the switch in a try catch to logs errors
+        // This avoids to have to catch exceptions in each command handler
+        try {
+        switch (frame_data[COMMAND_INDEX]) {
+            {% for command in command_class.commands %}
+                {% if utils.is_get(command.name) == "True" %}
+                    case static_cast<uint8_t>({{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper}}):
+                    {
+                        debug_frame_name = "{{command.name}}";
+                        // Parse the incoming GET frame
+                        const get_received_args get_args = {endpoint_node, parser, nullptr, connection_info};
+                        {{command_class_name_lower}}_attribute_map_t attribute_map = on_{{command.name | lower}}_received(get_args);
+
+                        // Delegate full handling to the parsed hook.
+                        // The base implementation calls on_{{command.name | lower}}_support_requested_assemble_frame and sends the report.
+                        // Override on_{{command.name | lower}}_parsed in a derived class to replace this behaviour entirely.
+                        return on_{{command.name | lower}}_parsed(connection_info, endpoint_node, attribute_map);
+                    }
+                {% endif %}
+                {% if utils.is_set(command.name) == "True" %}
+                    case static_cast<uint8_t>({{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper}}):
+                    {
+                        debug_frame_name = "{{command.name}}";
+                        zwave_frame_parser received_set_frame(frame_data, frame_length);
+
+                        // Handle get command
+                        const set_received_args set_args = {endpoint_node, received_set_frame};
+                        {{command_class_name_lower}}_attribute_map_t attribute_map = on_{{command.name | lower}}_received(set_args);
+
+                        return on_{{command.name | lower}}_support_received(connection_info, attribute_map);
+                    }
+                {% endif %}
+            {% endfor %}
+
+            default:
+                return SL_STATUS_NOT_SUPPORTED;
+        }
+        sl_log_debug(LOG_TAG.data(), "%s frame received", debug_frame_name.c_str());
+        } catch (const std::exception &e) {
+        sl_log_error(LOG_TAG.data(), "Error while parsing %s frame : %s", debug_frame_name.c_str(), e.what());
+        return SL_STATUS_FAIL;
+        }
+        return SL_STATUS_OK;
+    }
+    {% endif %}
+
+
+   {% for command in command_class.commands %}
+        {% if utils.is_tx(command) == "True" %}
+            {{ function_generator.generate_report_received_function(command_class, command) }}
+        {% elif utils.is_get(command.name) == "True" and command_class.support == true %}
+            {{ function_generator.generate_get_received_function(command_class, command) }}
+        {% elif utils.is_set(command.name) == "True" and command_class.support == true %}
+            {{ function_generator.generate_set_received_function(command_class, command) }}
+        {% endif +%}
+    {% endfor %}
+
+    {% for command in command_class.commands %}
+        {% if utils.is_tx(command) == "True" %}
+            sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_received_store(attribute_store::attribute endpoint_node, {{command_class_name_lower}}_attribute_map_t attribute_map) {
+                return SL_STATUS_OK;
+            }
+        {% endif +%}
+    {% endfor %}
+
+    {% for command in command_class.commands %}
+        {% set command_name = command.name | lower %}
+        {% set command_map = config.get_requested_args_map() | parse_json %}
+        {% set keys = command_map.keys() | list %}
+        {% for key in keys %}
+            {% set key_lower = key | lower %}
+            {% set key_matches = (key_lower[0] == '_' and command_name.endswith(key_lower)) or (key_lower[0] != '_' and key_lower in command_name) %}
+            {% if key_matches and utils.is_report(command.name) == "False" %}
+                sl_status_t {{command_class_name_lower}}_core::on_{{command_name}}_requested(const {{command_class_name_lower}}_core::{{command_map[key] | lower}}_requested_args& args, uint8_t *data, uint16_t *length)
+                {
+                    return on_{{command_name}}_requested_assemble_frame(args, data, length);
+                }
+            {% endif +%}
+        {% endfor %}
+    {% endfor %}
+
+    {% for command in command_class.commands if command_class.support == true %}
+        {% if utils.is_get(command.name) == "True" %}
+            sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_support_requested(const zwave_controller_connection_info_t *connection_info, {{command_class_name_lower}}_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame)
+            {
+                return on_{{command.name | lower}}_support_requested_assemble_frame(connection_info, attribute_map, report_frame, frame);
+            }
+        {% elif utils.is_set(command.name) == "True" %}
+            sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_support_requested({{command_class_name_lower}}_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame)
+            {
+                return on_{{command.name | lower}}_support_requested_assemble_frame(attribute_map, report_frame, frame);
+            }
+        {% endif +%}
+    {% endfor %}
+
+    {% for command in command_class.commands if command_class.support == true %}
+        {% if utils.is_set(command.name) == "True" %}
+            sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_support_received(const zwave_controller_connection_info_t *connection_info, {{command_class_name_lower}}_attribute_map_t attribute_map)
+            {
+                return SL_STATUS_OK;
+            }
+
+        {% endif +%}
+    {% endfor %}
+
+    {% for command in command_class.commands %}
+        {% if utils.is_tx(command) == "True" %}
+            sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, {{command_class_name_lower}}_attribute_map_t payload) {
+                return SL_STATUS_OK;
+            }
+        {% elif utils.is_get(command.name) == "True" and command_class.support == true %}
+            sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, {{command_class_name_lower}}_attribute_map_t payload) {
+                zwave_frame_generator_standalone report_frame;
+                report_frame.add_header(properties.command_class_id, static_cast<uint8_t>({{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper | replace("_GET", "_REPORT") | replace("_MESSAGE_ENCAPSULATION", "")}}));
+                std::vector<uint8_t> frame;
+                on_{{command.name | lower}}_support_requested_assemble_frame(connection_info, payload, report_frame, frame);
+                return command_class_utils::send_report(connection_info, static_cast<uint16_t>(frame.size()), frame.data());
+            }
+        {% endif +%}
+    {% endfor %}
+
+    {% for command in command_class.commands %}
+        {% if utils.is_set(command.name) == "True" %}
+            sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_requested_assemble_frame(const set_requested_args& args, uint8_t *data, uint16_t *length) {
+                return args.set_frame_generator->generate_no_args_frame();
+            }
+        {% elif utils.is_get(command.name) == "True" %}
+            sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_requested_assemble_frame(const get_requested_args& args, uint8_t *data, uint16_t *length) {
+                return args.get_frame_generator->generate_no_args_frame();
+            }
+        {% endif +%}
+    {% endfor %}
+
+    {% for command in command_class.commands if command_class.support == true %}
+        {% if utils.is_get(command.name) == "True" %}
+            sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_support_requested_assemble_frame(const zwave_controller_connection_info_t *connection_info, {{command_class_name_lower}}_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame) {
+                frame = report_frame.generate_frame();
+                return SL_STATUS_OK;
+            }
+        {% elif utils.is_set(command.name) == "True" %}
+            sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_support_requested_assemble_frame({{command_class_name_lower}}_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame) {
+                frame = report_frame.generate_frame();
+                return SL_STATUS_OK;
+            }
+        {% endif +%}
+    {% endfor %}
+
+    // Triggers the Attribute Resolver by creating a desired/reported mismatch on the group node.
+    // Uses attribute_resolver_start_group_resolution which holds resolver_mutex across the
+    // entire check-and-act to prevent a TOCTOU race with the resolver thread.
+    void {{command_class_name_lower}}_core::start_group_resolution(attribute_store::attribute group_node, group_resolution_options options)
+    {
+        attribute_resolver_start_group_resolution(group_node, options);
+    }
+
+    // Stops the resolution by setting the reported value, which makes desired and reported both
+    // defined and "matched" from the resolver's perspective. Typically called from report handlers
+    // after a successful GET response is received and parsed. Not needed for SET rules, as the
+    // resolver automatically cleans up after the SET frame is transmitted.
+    void {{command_class_name_lower}}_core::stop_group_resolution(attribute_store::attribute group_node)
+    {
+        group_node.set_reported<uint8_t>(0);
+    }
+
+    void {{command_class_name_lower}}_core::mqtt_publish_report(attribute_store::attribute endpoint_node,
+                                                                {{command_class_name_lower}}_commands_t command_id,
+                                                                {{command_class_name_lower}}_attribute_map_t attribute_map)
+    {
+        nlohmann::json j_map = nlohmann::json::object();
+        std::string command_topic;
+
+        switch (command_id) {
+            {% for command in command_class.commands %}
+                {% if utils.should_mqtt_publish_report(command) == "True" %}
+                    case {{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper}}:
+                        command_topic = "{{utils.convert_command_name_to_mqtt_topic_token(command.name)}}";
+                        {{ utils.mqtt_publish_json_from_attribute_map(command_class_name_lower, command) }}
+                    break;
+                {% endif %}
+            {% endfor %}
+            default:
+                return;
+        }
+
+        auto json_str = j_map.dump();
+
+        std::string base_topic = zpc_mqtt::utils::get_base_topic_from_attribute(endpoint_node);
+
+        std::string topic = fmt::format("{}{}/{}/{}",
+                                        base_topic,
+                                        zwave_command_class::zwave_command_class_base::mqtt_command_class_namespace,
+                                        "Report",
+                                        command_topic);
+
+        zpc_mqtt::publish_report(topic.c_str(), json_str.c_str(), json_str.size());
+    }
+
+}  // namespace zwave_command_class

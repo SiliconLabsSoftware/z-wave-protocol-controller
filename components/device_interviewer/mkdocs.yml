@@ -1,0 +1,5 @@
+# Included by root mkdocs.yml via mkdocs-monorepo-plugin (!include)
+site_name: api/device_interviewer
+docs_dir: docs
+nav:
+  - Device Interviewer: device_interviewer.md

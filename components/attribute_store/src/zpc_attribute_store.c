@@ -1,0 +1,100 @@
+/* <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+// Includes from this component
+#include "zpc_attribute_store.h"
+#include "zpc_attribute_store_network_helper.h"
+#include "attribute_store_defined_attribute_types.h"
+#include "zpc_attribute_store_type_registration.h"
+#include "zpc_attribute_store_register_default_attribute_type_data.h"
+// Generic includes
+#include <string.h>
+
+// Includes from ZPC components
+#include "zwave_network_management.h"
+
+// ZPC components
+#include "attribute_store_helper.h"
+#include "attribute_store_configuration.h"
+
+#include "log.h"
+#define LOG_TAG "zpc_attribute_store"
+
+////////////////////////////////////////////////////////////////////////////////
+// Public functions
+////////////////////////////////////////////////////////////////////////////////
+bool is_zpc_node(zwave_home_id_t home_id, zwave_node_id_t node_id)
+{
+    return (home_id == zwave_network_management_get_home_id()) && (node_id == zwave_network_management_get_node_id());
+}
+
+attribute_store_node_t get_zpc_network_node()
+{
+    zwave_home_id_t my_home_id = zwave_network_management_get_home_id();
+
+    return attribute_store_get_node_child_by_value(attribute_store_get_root(), ATTRIBUTE_HOME_ID, REPORTED_ATTRIBUTE, (uint8_t *)&my_home_id, sizeof(zwave_home_id_t), 0);
+}
+
+attribute_store_node_t get_zpc_node_id_node()
+{
+    zwave_node_id_t my_node_id = zwave_network_management_get_node_id();
+
+    return attribute_store_get_node_child_by_value(get_zpc_network_node(), ATTRIBUTE_NODE_ID, REPORTED_ATTRIBUTE, (uint8_t *)&my_node_id, sizeof(zwave_node_id_t), 0);
+}
+
+attribute_store_node_t get_zpc_endpoint_id_node(zwave_endpoint_id_t endpoint_id)
+{
+    return attribute_store_get_node_child_by_value(get_zpc_node_id_node(), ATTRIBUTE_ENDPOINT_ID, REPORTED_ATTRIBUTE, (uint8_t *)&endpoint_id, sizeof(zwave_endpoint_id_t), 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Initialization specifically for ZPC attribute_store
+///////////////////////////////////////////////////////////////////////////////
+static sl_status_t invoke_update_callbacks_in_network()
+{
+    attribute_store_node_t home_id = get_zpc_network_node();
+
+    sl_status_t refresh = attribute_store_refresh_node_and_children_callbacks(home_id);
+
+    if (refresh != SL_STATUS_OK) {
+        sl_log_error(LOG_TAG,
+                     "Failed to trigger a refresh callback for attribute Store "
+                     "node %d. This node should represent our HomeID");
+        return refresh;
+    }
+
+    sl_log_info(LOG_TAG,
+                "Refreshed callbacks on Attribute Node %d, "
+                "representing our current HomeID",
+                home_id);
+    return refresh;
+}
+
+sl_status_t zpc_attribute_store_init()
+{
+    sl_status_t status = zpc_attribute_store_register_known_attribute_types();
+
+    // For all other attribute, fill default registration data
+    status |= zpc_attribute_store_register_default_attribute_type_data();
+
+    // Configure the attribute store.
+    // Save in the worst case scenario every 10 minutes if we keep changing the
+    // Attribute Store aggressively
+    attribute_store_configuration_set_auto_save_safety_interval(10 * 60);
+    // Wait 10 seconds since the last Attribute Store change before saving
+    // to the datastore.
+    attribute_store_configuration_set_auto_save_cooldown_interval(10);
+    attribute_store_configuration_set_type_validation(true);
+
+    // Just simulate an update of the whole Attribute Store.
+    status |= invoke_update_callbacks_in_network();
+
+    return status;
+}

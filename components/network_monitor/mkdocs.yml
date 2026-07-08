@@ -1,0 +1,5 @@
+# Included by root mkdocs.yml via mkdocs-monorepo-plugin (!include)
+site_name: api/network_monitor
+docs_dir: doc
+nav:
+  - Network Status: network_status.md

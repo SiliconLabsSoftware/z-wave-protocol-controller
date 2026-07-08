@@ -1,0 +1,14 @@
+---
+description: How to configure and build the project. Lists CMake presets and common build/configure commands.
+globs:
+alwaysApply: true
+---
+
+# Commands
+
+- preset: `macos` or `debian`
+  - on macos, the preset is `macos`
+  - on debian and docker, the preset is `debian`
+- `cmake --workflow --preset <preset>`: Configure and build the project for the given preset.
+- `cmake --preset <preset>`: Configure the project and regenerate the command classes.
+- `cmake --build <preset>`: Build the project for the given preset.

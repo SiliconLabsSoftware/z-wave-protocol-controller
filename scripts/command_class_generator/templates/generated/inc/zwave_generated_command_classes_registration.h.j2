@@ -1,0 +1,62 @@
+
+/******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+
+#ifndef GENERATED_FIXT_H
+#define GENERATED_FIXT_H
+
+#include "zwave_command_class_registration.h"  // registration_function
+
+// Command classes
+// Manually implemented command classes
+#include "command_class_transport_service.hpp"
+
+{% for command_class in command_classes %}
+#include "{{command_class.name | lower}}.hpp"
+{% endfor %}
+
+// Manually implemented command classes
+#include "command_class_s0.hpp"
+#include "command_class_s2.hpp"
+#include "command_class_protocol.hpp"
+#include "command_class_protocol_lr.hpp"
+
+sl_status_t generated_command_class_registration(
+  const registration_function &register_function)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  // Command classes
+  // Association Group Info is a special case, it has to be registered first.
+  {% for command_class in command_classes %}
+    {% if command_class.name | lower == "command_class_association_grp_info" %}
+    status |= register_function(new zwave_command_class::{{command_class.name | lower}}());
+    {% endif %}
+  {% endfor %}
+  {% for command_class in command_classes %}
+    {% if command_class.name | lower != "command_class_association_grp_info" %}
+    status |= register_function(new zwave_command_class::{{command_class.name | lower}}());
+    {% endif %}
+  {% endfor %}
+
+  // Manually implemented command classes
+  status |= register_function(new zwave_command_class::command_class_transport_service());
+  status |= register_function(new zwave_command_class::command_class_s0());
+  status |= register_function(new zwave_command_class::command_class_s2());
+  status |= register_function(new zwave_command_class::command_class_protocol());
+  status |= register_function(new zwave_command_class::command_class_protocol_lr());
+
+  return status;
+}
+
+#endif  // GENERATED_FIXT_H

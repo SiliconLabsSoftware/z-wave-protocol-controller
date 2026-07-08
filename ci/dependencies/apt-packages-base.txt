@@ -1,0 +1,13 @@
+cmake
+ninja-build
+pkgconf
+build-essential
+python3-full
+python3-pip
+libyaml-cpp-dev
+libssl-dev
+nlohmann-json3-dev
+unzip
+file
+git
+git-lfs

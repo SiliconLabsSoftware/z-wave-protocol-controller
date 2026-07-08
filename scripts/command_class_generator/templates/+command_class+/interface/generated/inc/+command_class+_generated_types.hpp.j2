@@ -1,0 +1,189 @@
+{% import "utils.j2" as utils with context %}
+
+{{ utils.copyright() }}
+
+{% set header_guard_name = command_class.name | upper + "GENERATED_TYPES" %}
+{{ utils.header_guard(header_guard_name) }}
+
+#include <stdint.h>
+
+#include <variant>
+#include <vector>
+#include <string>
+#include <map>
+#include "attribute_store_defined_attribute_types.h"
+#include <nlohmann/json.hpp>
+
+namespace zwave_command_class
+{
+    namespace {{command_class.name | lower}}_types
+    {
+    // Commands for the command class
+    enum class {{command_class.name | lower}}_commands_t : uint8_t {
+        {% for command in command_class.commands %}
+            {{command_class.name | upper}}_{{command.name | upper}} = {{command.id}},
+        {% endfor %}
+    };
+
+    {% set attribute_counter = namespace(value=2) %}
+
+    // Attributes for the command class
+    enum class {{command_class.name | lower}}_attributes_t : attribute_store_type_t {
+        supported_version = ZWAVE_CC_VERSION_ATTRIBUTE({{command_class.id}}),
+    };
+
+    {% set attribute_name_string = utils.get_unique_attribute_name_list(command_class) %}
+    {% set attribute_name_list = attribute_name_string | parse_json %}
+    {% for items in attribute_name_list %}
+        {% if items | length > 0 %}
+            {% for item in items %}
+                {% set outer_loop_index = namespace(value=loop.index) %}
+                {% for attr_name, attr_type in item.items() %}
+                    {% if "GROUP" in attr_name %}
+                        {% if outer_loop_index.value > 1 %}
+                            };
+
+                        {% endif %}
+                        enum class {{attr_name | lower}}_attributes_t : attribute_store_type_t {
+                    {% endif%}
+                    {{attr_name}} = ( {{command_class.id}} << 8) | {{ attribute_counter.value }},
+                    {% set attribute_counter.value = attribute_counter.value + 1 %}
+                {% endfor %}
+            {% endfor %}
+            };
+        {% endif +%}
+    {% endfor %}
+
+    constexpr attribute_store_type_t {{command_class.name | lower}}_user_attribute_start = ( {{command_class.id}} << 8) | {{ 0xFFFF }};
+
+    {% for command in command_class.commands %}
+        {% for attribute in command.params %}
+            {% if attribute.type | lower == "struct_byte" %}
+                // {{ command.name }}
+                enum class {{command.name | lower}}_{{attribute.name | lower}}_attribute_masks_t : uint8_t {
+                {% for field in attribute.fields %}
+                    {{utils.create_variable_name(field.name)}}_mask = {{field.mask}},
+                {% endfor %}
+                };
+            {% elif attribute.type | lower == "variant_group" %}
+                {% for field in attribute.params %}
+                    {% if field.type | lower == "struct_byte" %}
+                        enum class {{command.name | lower}}_{{attribute.name | lower}}_{{field.name | lower}}_attribute_masks_t : uint8_t {
+                        {% for field in field.fields %}
+                            {{utils.create_variable_name(field.name)}}_mask = {{field.mask}},
+                        {% endfor %}
+                        };
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+
+    {% set type_created = namespace(value=[]) %}
+    {% set complex_types = namespace(value=[]) %}
+    {% for command in command_class.commands %}
+        {% if command.params | length > 0 %}
+        // {{ command.name }} types
+        {% endif %}
+        {% for attribute in command.params %}
+            {% set populated_type      = utils.create_variable_name(attribute.name) %}
+            {% set populated_type_name = command.name | lower + "_" + populated_type + "_t" %}
+            {% if populated_type_name not in type_created.value %}
+                {% do type_created.value.append(populated_type_name) %}
+                {% if (attribute.type | lower == "variant_group")%}
+                    {% do complex_types.value.append(populated_type_name) %}
+                {% endif %}
+                {% if attribute.type | lower == "variant_group" %}
+                    {% for field in attribute.params %}
+                        {% if field.type | lower == "struct_byte" %}
+
+                            struct {{command.name | lower}}_{{populated_type}}_flags_t {
+                            {% for field in field.fields %}
+                                uint8_t {{command.name | lower}}_{{utils.create_variable_name(field.name)}}  : {{ field.mask_size }};
+                            {% endfor %}
+                            };
+
+                            union {{populated_type_name | replace("_t", "")}}_{{field.name | lower}}_t{
+                                uint8_t value;
+                                struct {{command.name | lower}}_{{populated_type}}_flags_t flags;
+                            };
+
+                            inline void to_json(nlohmann::json& j, const {{populated_type_name | replace("_t", "")}}_{{field.name | lower}}_t& u) {
+                                {% for field in field.fields %}
+                                    j["{{utils.create_variable_name(field.name)}}"] = u.flags.{{command.name | lower}}_{{utils.create_variable_name(field.name)}};
+                                {% endfor %}
+                            }
+
+                        {% endif %}
+                    {% endfor %}
+
+                    struct {{populated_type_name}}_item_t {
+                        {% for field in attribute.params %}   
+                            {% if field.type | lower != "struct_byte" %}
+                                {{utils.convert_zwave_type_to_cpp_type(field.type)}} {{utils.create_variable_name(field.name)}};
+                            {% else %}
+                                {{populated_type_name | replace("_t", "")}}_{{field.name | lower}}_t {{utils.create_variable_name(field.name)}};
+                            {% endif %}
+                        {% endfor %}
+                    };
+
+                    inline void to_json(nlohmann::json& j, const {{populated_type_name}}_item_t& u) {
+                        {% for field in attribute.params %}
+                            {% if field.type | lower != "struct_byte" %}
+                        j["{{utils.create_variable_name(field.name)}}"] = u.{{utils.create_variable_name(field.name)}};
+                            {% else %}
+                        {
+                            nlohmann::json {{utils.create_variable_name(field.name)}}_json;
+                            to_json({{utils.create_variable_name(field.name)}}_json, u.{{utils.create_variable_name(field.name)}});
+                            j["{{utils.create_variable_name(field.name)}}"] = std::move({{utils.create_variable_name(field.name)}}_json);
+                        }
+                            {% endif %}
+                        {% endfor %}
+                    }
+
+                    using {{populated_type_name}} = std::vector<{{populated_type_name}}_item_t>;
+
+                    inline void to_json(nlohmann::json& j, const {{populated_type_name}}& u) {
+                        j = nlohmann::json::array();
+                        for (const auto& elem : u) {
+                            nlohmann::json j_elem;
+                            to_json(j_elem, elem);
+                            j.push_back(std::move(j_elem));
+                        }
+                    }
+                {% elif attribute.type | lower == "struct_byte" %}
+                    struct {{command.name | lower}}_{{populated_type}}_flags_t {
+                        {% for field in attribute.fields %}
+                            uint8_t {{command.name | lower}}_{{utils.create_variable_name(field.name)}}  : {{ field.mask_size }};
+                        {% endfor %}
+                    };
+
+                    union {{populated_type_name}}{
+                        uint8_t value;
+                        struct {{command.name | lower}}_{{populated_type}}_flags_t flags;
+                    };
+
+                    inline void to_json(nlohmann::json& j, const {{populated_type_name}}& u) {
+                        {% for field in attribute.fields %}
+                            j["{{utils.create_variable_name(field.name)}}"] = u.flags.{{command.name | lower}}_{{utils.create_variable_name(field.name)}};
+                        {% endfor %}
+                    }
+
+                {% else %}
+                    using {{populated_type_name}} = {{utils.convert_zwave_type_to_cpp_type(attribute.type)}};
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+    {% endfor %}
+
+    // Flexible value type that can hold int, vector, or string
+    using {{command_class.name | lower}}_flexible_map_value_t = std::variant<int, uint8_t, uint16_t, uint32_t, std::vector<uint8_t>, std::string {% if complex_types.value | length > 0 %}, {{ complex_types.value | join(', ') }}{% endif %}>;
+
+    // Map type that can hold different value types
+    using {{command_class.name | lower}}_attribute_map_t = std::map<std::string, {{command_class.name | lower}}_flexible_map_value_t>;
+
+    }  // namespace {{command_class.name | lower}}
+}  // namespace zwave_command_class
+{{ utils.footer_guard(header_guard_name) }}
+

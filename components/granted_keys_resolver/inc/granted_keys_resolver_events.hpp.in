@@ -1,0 +1,25 @@
+
+/******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+
+#ifndef GRANTED_KEYS_RESOLVER_EVENTS_H
+#define GRANTED_KEYS_RESOLVER_EVENTS_H
+
+#include <stdint.h>
+
+enum class granted_keys_resolver_events_t : uint32_t {
+    GRANTED_KEYS_RESOLVER_BASE_EVENT = @COMPONENT_EVENT_BASE@,
+    GRANTED_KEYS_RESOLVER_MARK_KEY_PROTOCOL_AS_SUPPORTED
+};
+
+#endif  // GRANTED_KEYS_RESOLVER_EVENTS_H

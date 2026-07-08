@@ -1,0 +1,7 @@
+# Build output and local tooling trees
+build/**
+.venv/**
+.venv-docs/**
+
+# Generator output (hand-written sources only)
+**/generated/**

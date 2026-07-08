@@ -1,0 +1,161 @@
+/******************************************************************************
+ * # License
+ * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+
+/**
+ * @defgroup zwave_controller_internal Z-Wave Controller Internal definitions
+ * @ingroup zwave_controller_component
+ * @brief Internal types and definitions for @ref zwave_controller
+ *
+ * @{
+ */
+
+#ifndef ZWAVE_CONTROLLER_INTERNAL_H
+#define ZWAVE_CONTROLLER_INTERNAL_H
+
+#include "zwave_controller_callbacks.h"
+#include "zwave_controller_keyset.h"
+#include "zwave_controller.h"
+#include "zwave_tx.h"
+#include "zwapi_protocol_controller.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_state_updated(zwave_network_management_state_t state);
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_error(zwave_network_management_error_t error);
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_node_id_assigned(zwave_node_id_t node_id, zwave_protocol_t inclusion_protocol);
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_node_deleted(zwave_node_id_t node_id);
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_node_info_req_failed(zwave_node_id_t node_id);
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_frame_transmission(bool transmission_successful, const zwapi_tx_report_t *tx_status, zwave_node_id_t node_id);
+
+/**
+ * @brief Tell the Z-Wave Controller that we received a frame (Rx)
+ * from a NodeID
+ *
+ * The Z-Wave Controller will invoke the on_rx_frame_received functions
+ * from the @ref zwave_controller_callbacks_t, forwarding the Z-Wave frame
+ * so subscribers can make payload-aware decisions on the Rx thread
+ * synchronously (e.g. filter S2 transport-internal frames from the TX
+ * reply-accounting path).
+ *
+ * @param node_id      The NodeID that sent the frame.
+ * @param frame_data   Z-Wave frame as received from the controller, or NULL
+ *                     if not available for this event (e.g. NIF updates).
+ * @param frame_length Length of `frame_data` in bytes, or 0 if `frame_data`
+ *                     is NULL.
+ */
+void zwave_controller_on_frame_reception(zwave_node_id_t node_id, const uint8_t *frame_data, uint16_t frame_length);
+
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_node_added(sl_status_t status, const zwave_node_info_t *nif, zwave_node_id_t node_id, zwave_dsk_t dsk, zwave_keyset_t granted_keys, zwave_kex_fail_type_t kex_fail_type, zwave_protocol_t inclusion_protocol);
+
+/**
+ * @brief Tell the Z-Wave Controller to anounce to all other components that
+ * we changed network address.
+ *
+ * @param home_id   Our new HomeID
+ * @param node_id   Our new NodeID
+ */
+void zwave_controller_on_network_address_update(zwave_home_id_t home_id, zwave_node_id_t node_id);
+
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_new_network_entered(zwave_home_id_t home_id, zwave_node_id_t node_id, zwave_keyset_t granted_keys, zwave_kex_fail_type_t kex_fail_type);
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_keys_report(bool csa, zwave_keyset_t keys);
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_dsk_report(uint8_t input_length, zwave_dsk_t dsk, zwave_keyset_t keys);
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_frame_received(const zwave_controller_connection_info_t *connection_info, const zwave_rx_receive_options_t *rx_options, const uint8_t *frame_data, uint16_t frame_length
+
+);
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_protocol_cc_encryption_request_received(const zwave_node_id_t destination_node_id,
+                                                                 const uint8_t payload_length,
+                                                                 const uint8_t *const payload,
+                                                                 const uint8_t protocol_metadata_length,
+                                                                 const uint8_t *const protocol_metadata,
+                                                                 const uint8_t use_supervision,
+                                                                 const uint8_t session_id);
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_smart_start_inclusion_request(uint32_t home_id, bool already_included, const zwave_node_info_t *node_info, zwave_protocol_t inclusion_protocol);
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_node_information(zwave_node_id_t node_id, const zwave_node_info_t *node_info);
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_new_suc(zwave_node_id_t suc_node_id);
+
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_multicast_group_deleted(zwave_multicast_group_id_t group_id);
+
+/// see @ref zwave_controller_callbacks_t
+void zwave_controller_on_request_neighbor_update(uint8_t status);
+/**
+ * @brief Send a frame with transport plugin system
+ *
+ * This function sends a frame with the transport system. It will return
+ * SL_STATUS_OK if the frame is consumed
+ *
+ * @param connection see @ref  zwave_tx_send_data
+ * @param data_length see @ref  zwave_tx_send_data
+ * @param data  see @ref  zwave_tx_send_data
+ * @param tx_options see @ref  zwave_tx_send_data
+ * @param on_send_complete see @ref  zwave_tx_send_data
+ * @param user see @ref  zwave_tx_send_data
+ * @param session see @ref  zwave_tx_send_data
+ * @returns sl_status_t         Indicating the processing of the frame.
+ *  - SL_STATUS_OK              indicates that the frame was accepted and
+ *                              encapsulated
+ *  - SL_STATUS_NOT_SUPPORTED   indicates that transport has nothing to
+ *                              encapsulate, the frame is ready the Z-Wave API.
+ *  - SL_STATUS_WOULD_OVERFLOW  indicates that transport should encapsulate the
+ *                              frame but cannot. Frame should be dropped.
+ *  - Any other error code      (SL_STATUS_BUSY, SL_STATUS_FAIL, etc.) indicating
+ *                              that the frame should be encapsulated,
+ *                              but could not due to an error.
+ */
+sl_status_t zwave_controller_transport_send_data(const zwave_controller_connection_info_t *connection, uint16_t data_length, const uint8_t *data, const zwave_tx_options_t *tx_options, const on_zwave_tx_send_data_complete_t on_send_complete, void *user, zwave_tx_session_id_t parent_session_id);
+
+/**
+ * @brief Functions to abort the ongoing transport sessions
+ *
+ * @param session_id The Z-Wave Tx Session ID to abort.
+ * @return SL_STATUS_NOT_FOUND if no abort was performed.
+ *         SL_STATUS_OK if abort is ongoing.
+ */
+sl_status_t zwave_controller_transport_abort_send_data(zwave_tx_session_id_t session_id);
+
+/**
+ * @brief Aggregated busy state of the registered transports.
+ *
+ * A transport is considered "busy" when it is currently processing a send
+ * that it cannot pre-empt (typically the Z-Wave API transport while a
+ * previous frame is still being sent by the controller and its async
+ * completion callback has not yet fired).
+ *
+ * @return true  if at least one registered transport is busy.
+ * @return false if none of the registered transports is busy.
+ */
+bool zwave_controller_transport_is_busy(void);
+
+#ifdef __cplusplus
+}
+#endif
+/** @} end zwave_controller_internal */
+
+#endif  // ZWAVE_CONTROLLER_INTERNAL_H

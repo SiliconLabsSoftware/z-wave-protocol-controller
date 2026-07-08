@@ -1,0 +1,14 @@
+add_library(
+  command_class_common_generated INTERFACE)
+
+target_include_directories(command_class_common_generated 
+ INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/inc>
+)
+
+# Link with required dependencies
+target_link_libraries(
+  command_class_common_generated
+  INTERFACE {% for command_class in command_classes %}
+           {{command_class.name | lower}}
+           {% endfor %}
+)

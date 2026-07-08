@@ -1,0 +1,24 @@
+add_library(
+  {{command_class.name | lower}} STATIC
+  src/{{command_class.name | lower}}.cpp
+  src/{{command_class.name | lower}}_attribute_store.cpp
+{% if command_class.mqtt_support %}
+  src/{{command_class.name | lower}}_mqtt.cpp
+{% endif %}
+  generated/src/{{command_class.name | lower}}_core.cpp
+)
+
+target_include_directories({{command_class.name | lower}} 
+ PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/generated/inc>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/inc>
+)
+
+# Link with required dependencies
+target_link_libraries(
+  {{command_class.name | lower}}
+  PUBLIC
+    command_class_common
+    {{command_class.name | lower}}_interface
+)
+
+add_subdirectory(interface)

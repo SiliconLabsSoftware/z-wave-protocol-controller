@@ -1,0 +1,38 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "ZPC Debug (Macos)",
+            "type": "lldb",
+            "cwd": "${workspaceFolder}",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/macos/applications/zpc/zpc",
+            "args": [
+                "--conf",
+                "${env:ZPC_CONF_PATH}",
+                "--log.level",
+                "debug"
+            ],
+            "terminal": "external",
+        },
+        {
+            "name": "ZPC Command Class Generator",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/command_class_generator/main.py",
+            "args": [
+                "--xml",
+                "${workspaceFolder}/scripts/command_class_generator/zwave.xml",
+                "--xsd",
+                "${workspaceFolder}/scripts/command_class_generator/zwave.xsd",
+                "--cfg",
+                "${workspaceFolder}/scripts/command_class_generator/config.yaml",
+                "--templates",
+                "${workspaceFolder}/scripts/command_class_generator/templates"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,35 @@
+# CODEOWNERS
+#
+# GitHub uses this file to automatically request reviews from the listed owners
+# when a pull request touches the matching paths.
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ──────────────────────────────────────────────
+# Core data model
+# ──────────────────────────────────────────────
+components/                     @silabs-aydogane @silabs-peterb @silabs-MarkM @tamas-fraknoi
+
+# ──────────────────────────────────────────────
+# Application entry points
+# ──────────────────────────────────────────────
+applications/                   @silabs-peterb @silabs-aydogane @silabs-MarkM @tamas-fraknoi
+
+# ──────────────────────────────────────────────
+# Build, CI, and tooling
+# ──────────────────────────────────────────────
+CMakeLists.txt                  @silabs-peterb @silabs-aydogane @silabs-MarkM @tamas-fraknoi
+CMakePresets.json               @silabs-peterb @silabs-aydogane @silabs-MarkM @tamas-fraknoi
+cmake/                          @silabs-peterb @silabs-aydogane @silabs-MarkM @tamas-fraknoi
+ci/                             @silabs-peterb @silabs-aydogane @silabs-MarkM @tamas-fraknoi
+scripts/                        @silabs-peterb @silabs-aydogane @silabs-MarkM @tamas-fraknoi
+
+# ──────────────────────────────────────────────
+# Docs and project files
+# ──────────────────────────────────────────────
+docs/                           @silabs-peterb @silabs-aydogane @silabs-MarkM @tamas-fraknoi
+*.md                            @silabs-peterb @silabs-aydogane @silabs-MarkM @tamas-fraknoi
+
+# ──────────────────────────────────────────────
+# Repository governance
+# ──────────────────────────────────────────────
+.github/CODEOWNERS              @silabs-MarkM @andras-erdo @silabs-peterb @silabs-aydogane @tamas-fraknoi

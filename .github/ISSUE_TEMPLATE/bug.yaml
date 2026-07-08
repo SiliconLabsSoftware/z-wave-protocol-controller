@@ -1,0 +1,50 @@
+name: Bug Report
+description: Internal template file for bug reports.
+labels: ["bug", "triage"]
+projects: ["SiliconLabsSoftware/zeal"]
+type: bug
+body:
+- type: input
+  attributes:
+    label: JIRA issue link
+    description: The JIRA issue link that this bug is related to.
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: Commit hash
+    description: The commit hash of the commit that reproduces the behavior.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Current Behavior
+    description: A concise description of what you're experiencing.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Expected Behavior
+    description: A concise description of what you expected to happen.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Steps To Reproduce
+    description: Steps to reproduce the behavior.
+    placeholder: |
+      1. Run the following CTT test case: <CTT test case number>
+      2. With this config...
+      3. Send the following MQTT message: '...'
+      4. See error...
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Anything else?
+    description: |
+      Links? References? Anything that will give us more context about the issue you are encountering!
+
+      Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
+  validations:
+    required: false

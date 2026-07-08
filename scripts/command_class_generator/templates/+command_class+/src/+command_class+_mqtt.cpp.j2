@@ -1,0 +1,50 @@
+{% import "utils.j2" as utils with context %}
+
+{{ utils.copyright() }}
+
+{% set command_class_name_lower = command_class.name | lower %}
+
+#include <fmt/base.h>
+#include <fmt/format.h>
+#include <string_view>
+
+// Base class
+#include "{{command_class_name_lower}}.hpp"
+
+// MQTT
+#include "zpc_mqtt.hpp"  // zpc_mqtt::publish_report
+
+
+namespace zwave_command_class
+{
+
+    [[maybe_unused]] static constexpr std::string_view LOG_TAG = "{{command_class_name_lower}}_mqtt";
+
+    {{command_class_name_lower}}_mqtt::{{command_class_name_lower}}_mqtt() {
+
+    {% if command_class.mqtt_support == true %}
+        {% for command in command_class.commands %}
+            {% if utils.is_rx(command) == "True" %}
+                mqtt_callback_map.insert({"{{ utils.convert_command_name_to_mqtt_topic_token(command.name) }}", [this](attribute_store::attribute& endpoint_node, std::string payload) {
+                this->mqtt_on_{{command.name | lower}}_command(endpoint_node, payload);
+                }});
+            {% endif %}
+        {% endfor %}
+
+            mqtt_register_command_handler();
+    {% endif %}
+    }
+
+    {% for command in command_class.commands %}
+        {% if utils.is_get(command.name) == "True" or utils.is_set(command.name) == "True" %}
+            {% if command_class.mqtt_support == true %}
+                sl_status_t {{command_class_name_lower}}_mqtt::mqtt_on_{{command.name | lower}}_command(attribute_store::attribute& endpoint_node, std::string payload){
+
+                    return SL_STATUS_OK;
+                }
+
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+}  // namespace zwave_command_class

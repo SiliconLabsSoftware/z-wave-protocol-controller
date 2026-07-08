@@ -1,0 +1,257 @@
+{% import "config.j2" as config with context %}
+
+{% macro copyright() %}
+/******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+{% endmacro %}
+
+{% macro header_guard(class_name) %}
+#ifndef {{ class_name | upper }}_H
+#define {{ class_name | upper }}_H
+{% endmacro %}
+
+{% macro footer_guard(class_name) %}
+#endif // {{ class_name | upper }}_H
+{% endmacro %}
+
+{% macro create_variable_name(str) -%}
+{{str | lower | replace(" ","_") | replace("/","_") | replace("-","_") | replace("+","_plus") }}
+{%- endmacro %}
+
+{% macro convert_command_name_to_mqtt_topic_token(str) -%}
+{{ str.split('_')|map('capitalize')|join }}
+{%- endmacro %}
+
+{%- macro convert_zwave_type_to_attribute_store_type(str) -%}
+    {%- if str | lower == "byte" -%}
+        U8_STORAGE_TYPE
+    {%- elif str | lower == "word" -%}
+        U16_STORAGE_TYPE
+    {%- elif str | lower == "dword" -%}
+        U32_STORAGE_TYPE
+    {%- elif str | lower == "const" -%}
+        U8_STORAGE_TYPE
+    {%- elif str | lower == "array" -%}
+        BYTE_ARRAY_STORAGE_TYPE
+    {%- elif str | lower == "struct_byte" -%}
+        U8_STORAGE_TYPE
+    {%- elif str | lower == "variant" -%}
+        BYTE_ARRAY_STORAGE_TYPE
+    {%- elif str | lower == "bit_24" -%}
+        U32_STORAGE_TYPE
+    {%- elif str | lower == "multi_array" -%}
+        U8_STORAGE_TYPE
+    {%- elif str | lower == "marker" -%}
+        U8_STORAGE_TYPE
+    {%- elif str | lower == "bitmask" -%}
+        BYTE_ARRAY_STORAGE_TYPE
+    {%- elif str | lower == "variant_group" -%}
+        BYTE_ARRAY_STORAGE_TYPE
+    {%- else -%}
+        UNHANDLED_STORAGE_TYPE {{str | lower}}
+    {%- endif -%}
+{%- endmacro %}
+
+{%- macro convert_zwave_type_to_cpp_type(str) -%}
+    {%- if str | lower == "byte" -%}
+        uint8_t
+    {%- elif str | lower == "word" -%}
+        uint16_t
+    {%- elif str | lower == "dword" -%}
+        uint32_t
+    {%- elif str | lower == "const" -%}
+        uint8_t
+    {%- elif str | lower == "array" -%}
+        std::vector<uint8_t>
+    {%- elif str | lower == "struct_byte" -%}
+        uint8_t
+    {%- elif str | lower == "variant" -%}
+        std::vector<uint8_t>
+    {%- elif str | lower == "bit_24" -%}
+        uint32_t
+    {%- elif str | lower == "multi_array" -%}
+        uint8_t
+    {%- elif str | lower == "marker" -%}
+        uint8_t
+    {%- elif str | lower == "bitmask" -%}
+        std::vector<uint8_t>
+    {%- elif str | lower == "variant_group" -%}
+        std::vector<uint8_t>
+    {%- else -%}
+        UNHANDLED_STORAGE_TYPE {{str | lower}}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro get_unique_attribute_name_list(command_class) -%}
+    {% set list_attribute_name_list = [] %}
+    {% for command in command_class.commands %}
+        {% set attribute_name_list = []	%} 
+        {% if command.params | length >= 0 %}
+            {% if create_variable_name(command.name) | upper not in attribute_name_list %}
+                {% set group_name = create_variable_name(command.name) + "_GROUP" %}
+                {% do attribute_name_list.append({group_name | upper: "U8_STORAGE_TYPE"})%}
+            {% endif %}
+        {% endif %}
+        {% for attribute in command.params %}
+            {% if attribute.type | lower == "struct_byte" %}
+                {% for field in attribute.fields %}
+                    {% set field_name = create_variable_name(field.name) %}
+                    {% if field_name not in attribute_name_list %}
+                        {% if "reserved" not in field_name %}
+                            {% if "vg" not in field_name %}
+                                {% do attribute_name_list.append({field_name: convert_zwave_type_to_attribute_store_type("byte")})%}
+                            {% else %}
+                                {% do attribute_name_list.append({field_name: convert_zwave_type_to_attribute_store_type("array")})%}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                {% set attr_name = create_variable_name(attribute.name) %}
+                {% if attr_name not in attribute_name_list %}
+                    {% if "reserved" not in attr_name %}
+                        {% if "vg" not in attr_name %}
+                            {% do attribute_name_list.append({attr_name: convert_zwave_type_to_attribute_store_type(attribute.type)})%}
+                        {% else %}
+                            {% do attribute_name_list.append({attr_name: convert_zwave_type_to_attribute_store_type("array")})%}
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        {% do list_attribute_name_list.append(attribute_name_list) %}
+    {% endfor %}
+    {{ list_attribute_name_list | as_json }}
+{%- endmacro %}
+
+{% macro is_command_type(command_name, command_type) %}
+    {% set match = namespace(result = false) %}
+    {% set command_map = config.get_requested_args_map() | parse_json %}
+    {% set cmd_lower = command_name | lower %}
+    {% for item in command_map %}
+        {% set item_lower = item | lower %}
+        {% if command_map[item] == command_type %}
+            {% if item_lower[0] == '_' %}
+                {% if cmd_lower.endswith(item_lower) %}
+                    {% set match.result = true %}
+                {% endif %}
+            {% else %}
+                {% if item_lower in cmd_lower %}
+                    {% set match.result = true %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    {% if match.result %}True{% else %}False{% endif %}
+{% endmacro %}
+
+{%- macro is_get(command_name) %}
+{{ is_command_type(command_name, "get") }}
+{%- endmacro %}
+
+{%- macro is_set(command_name) %}
+{{ is_command_type(command_name, "set") }}
+{%- endmacro %}
+
+{%- macro is_report(command_name) %}
+{{ is_command_type(command_name, "report") }}
+{%- endmacro %}
+
+{%- macro is_tx(command) %}
+{# Returns "True" if command is TX-like (sent by node, received by controller).
+   Checks: XML support_mode > name-based fallback (via is_report) > config exception list. #}
+{% set result = namespace(value = false) %}
+{% if command.support_mode == "TX" or command.support_mode == "TX_RX" %}
+    {% set result.value = true %}
+{% elif command.support_mode == None %}
+    {% if is_report(command.name) == "True" %}
+        {% set result.value = true %}
+    {% elif command.name in config.tx_fallback_exceptions %}
+        {# Lazy assumption that all report commands are supported in TX mode #}
+        {% set result.value = true %}
+    {% endif %}
+{% endif %}
+{% if result.value %}True{% else %}False{% endif %}
+{%- endmacro %}
+
+{%- macro should_mqtt_publish_report(command) -%}
+{%- if command.is_tx() and command.name not in config.suppressed_mqtt_report_commands -%}True{%- else -%}False{%- endif -%}
+{%- endmacro %}
+
+{%- macro is_mqtt_publish_suppressed(command) -%}
+{%- if command.is_tx() and command.name in config.suppressed_mqtt_report_commands -%}True{%- else -%}False{%- endif -%}
+{%- endmacro %}
+
+{%- macro is_rx(command) %}
+{# Returns "True" if command is RX-like (sent by controller, received by node).
+   Checks: XML support_mode > name-based fallback (via is_get / is_set). #}
+{% set result = namespace(value = false) %}
+{% if command.support_mode == "RX" or command.support_mode == "TX_RX" %}
+    {% set result.value = true %}
+{% elif command.support_mode == None %}
+    {% if is_get(command.name) == "True" or is_set(command.name) == "True" %}
+        {% set result.value = true %}
+    {% endif %}
+{% endif %}
+{% if result.value %}True{% else %}False{% endif %}
+{%- endmacro %}
+
+{% macro get_command_pairs(command_name) %}
+{% set command_map = config.get_special_command_pairs() | parse_json %}
+{% set match = namespace(result = none) %}
+{% for item in command_map %}
+    {% if item | lower in command_name | lower %}
+        {% set match.result = command_map[item] %}
+    {% endif %}
+{% endfor %}
+{% if match.result %}
+    auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>({{match.result | lower }}_group_attributes_t::{{create_variable_name(match.result) | upper}}_GROUP));
+{% elif "_FIND" in command_name %}
+    auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>({{command_name | lower | replace("_report", "") }}_group_attributes_t::{{create_variable_name(command_name) | upper | replace("_REPORT", "")}}_GROUP));
+{% else %}
+    auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>({{command_name | lower | replace("_report", "_get")}}_group_attributes_t::{{create_variable_name(command_name) | upper | replace("_REPORT", "_GET")}}_GROUP));
+{% endif %}
+{% endmacro %}
+
+{# Build nested MQTT JSON for a report from a flattened attribute_map (struct_byte fields grouped by param name). #}
+{% macro mqtt_publish_json_from_attribute_map(command_class_name_lower, command) %}
+        {% for attribute in command.params %}
+            {% if attribute.type | lower == "struct_byte" %}
+        {
+            nlohmann::json {{ create_variable_name(attribute.name) }}_obj = nlohmann::json::object();
+                {% for field in attribute.fields %}
+            {{ create_variable_name(attribute.name) }}_obj["{{ create_variable_name(field.name) }}"] =
+              get_value_or_default<uint8_t>(attribute_map, "{{ create_variable_name(field.name) }}", static_cast<uint8_t>(0));
+                {% endfor %}
+            j_map["{{ create_variable_name(attribute.name) }}"] = std::move({{ create_variable_name(attribute.name) }}_obj);
+        }
+            {% elif attribute.type | lower == "variant_group" %}
+        {
+            {% set vg_type = command.name | lower + "_" + create_variable_name(attribute.name) + "_t" %}
+            const auto {{ create_variable_name(attribute.name) }}_val =
+              get_value_or_default<{{ vg_type }}>(attribute_map, "{{ create_variable_name(attribute.name) }}", {{ vg_type }}{});
+            nlohmann::json {{ create_variable_name(attribute.name) }}_json;
+            to_json({{ create_variable_name(attribute.name) }}_json, {{ create_variable_name(attribute.name) }}_val);
+            j_map["{{ create_variable_name(attribute.name) }}"] = std::move({{ create_variable_name(attribute.name) }}_json);
+        }
+            {% elif attribute.type | lower != "marker" %}
+        {
+            const std::string _mqtt_key = "{{ create_variable_name(attribute.name) }}";
+            auto _mqtt_it               = attribute_map.find(_mqtt_key);
+            if (_mqtt_it != attribute_map.end()) {
+                std::visit([&j_map, &_mqtt_key](const auto &v) { j_map[_mqtt_key] = v; }, _mqtt_it->second);
+            }
+        }
+            {% endif %}
+        {% endfor %}
+{% endmacro %}

@@ -1,0 +1,147 @@
+{% import "utils.j2" as utils with context %}
+{# COMMAND_CLASS_XX_YY -> command_class_xx_yy #}
+{% set command_class_name_cc_lower = command_class.name | lower %}
+{# COMMAND_CLASS_XX_YY -> COMMAND_CLASS_XX_YY #}
+{% set command_class_name_cc_upper = command_class.name | upper %}
+{# command_class_xx_yy -> xx_yy #}
+{% set command_class_name = command_class_name_cc_lower.replace("command_class_", "") %}
+{# xx_yy -> Xx_Yy #}
+{% set command_class_name_first_letter_upper = command_class_name.split("_") | map("capitalize") | join("") %}
+{# COMMAND_CLASS_XX_YY -> COMMAND_CLASS_XX_YY MQTT API#}
+## {{command_class_name_cc_upper}} MQTT API
+
+| MQTT Support | Support | Control |
+|--------------|---------|---------|
+| {{ "true" if command_class.mqtt_support else "false" }} | {{ "true" if command_class.support else "false" }} | {{ "true" if command_class.control else "false" }} |
+
+{% if not command_class.mqtt_support %}
+> When MQTT Support is `false`, only incoming (TX) commands are listed below. ZPC publishes these to MQTT but does not handle `Command/*` topics for this command class.
+
+{% endif %}
+### Table of Contents
+{% for command in command_class.commands %}
+{% if command_class.mqtt_support or command.is_tx() %}
+- [{{command.name}}](#{{command.name | lower}})
+{% endif %}
+{% endfor %}
+{% for command in command_class.commands %}
+{% if command_class.mqtt_support or command.is_tx() %}
+### {{command.name}}
+{% if utils.is_mqtt_publish_suppressed(command) == "True" %}
+> This command is received by ZPC but is **not** published to MQTT `Report/*` topics.
+
+{% endif %}
+{% if command.is_tx() %}
+{% set frame_type = "Report" %}
+{% else %}
+{% set frame_type = "Command" %}
+{% endif %}
+{% set command_param_list_length = command.params | length %}
+{# Set command name: remove underscore, capitalize first letter of each word #}
+{% set command_name = command.name.replace("_", " ").split(" ") | map("capitalize") | join("") %}
+{% if command_param_list_length > 0 %}
+  {% set payload = {} %}
+  {% for attribute in command.params %}
+    {% if attribute.type | lower == "struct_byte" %}
+      {% set inner_payload = {} %}
+      {% for field in attribute.fields %}
+        {% set param_name = field.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+        {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
+          {% set _ = inner_payload.update({param_name: "0x05"}) %}
+        {% endif %}
+      {% endfor %}
+      {% set _ = payload.update({attribute.name | lower: inner_payload}) %}
+    {% elif attribute.type | lower == "byte" %}
+      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
+        {% set _ = payload.update({param_name: "0x12"}) %}
+      {% endif %}
+    {% elif attribute.type | lower == "word" %}
+      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
+        {% set _ = payload.update({param_name: "0x2574"}) %}
+      {% endif %}
+    {% elif attribute.type | lower == "dword" %}
+      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
+        {% set _ = payload.update({param_name: "0x9382A5FB"}) %}
+      {% endif %}
+    {% elif attribute.type | lower == "const" %}
+      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
+        {% set _ = payload.update({param_name: "0x01"}) %}
+      {% endif %}
+    {% elif attribute.type | lower == "variant" %}
+      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
+        {% set _ = payload.update({param_name: ["0x01", "0x02", "0x03"]}) %}
+      {% endif %}
+    {% elif attribute.type | lower == "bit_24" %}
+      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
+        {% set _ = payload.update({param_name: "0x123"}) %}
+      {% endif %}
+    {% elif attribute.type | lower == "marker" %}
+      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
+        {% set _ = payload.update({param_name: "0xFF"}) %}
+      {% endif %}
+    {% elif attribute.type | lower == "variant_group" %}
+        {% set param_values = [] %}
+        {% set vg_payload = {} %}
+        {% for param in attribute.params %}
+          {% set param_name = param.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+          {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
+            {% if param.type | lower == "byte" %}
+              {% set _ = vg_payload.update({param_name: "0x12"}) %}
+            {% elif param.type | lower == "const" %}
+              {% set _ = vg_payload.update({param_name: "0x01"}) %}
+            {% elif param.type | lower == "multi_array" %}
+              {% set _ = vg_payload.update({param_name: "0x4B"}) %}
+            {% elif param.type | lower == "word" %}
+              {% set _ = vg_payload.update({param_name: "0x2574"}) %}
+            {% elif param.type | lower == "dword" %}
+              {% set _ = vg_payload.update({param_name: "0x9382A5FB"}) %}
+            {% elif param.type | lower == "variant" %}
+              {% set _ = vg_payload.update({param_name: ["0x01", "0x02", "0x03"]}) %}
+            {% elif param.type | lower == "bit_24" %}
+              {% set _ = vg_payload.update({param_name: "0x123"}) %}
+            {% elif param.type | lower == "struct_byte" %}
+              {% set inner_payload = {} %}
+              {% for f in param.fields %}
+                {% set f_name = f.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+                {% if f_name != "reserved" and f_name != "res" and f_name != "res1" and f_name != "res2" and f_name != "res3" %}
+                  {% set _ = inner_payload.update({f_name | lower: "0x05"}) %}
+                {% endif %}
+              {% endfor %}
+              {% set _ = vg_payload.update({param_name: inner_payload}) %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {% set _ = param_values.append(vg_payload) %}
+        {% set _ = payload.update({attribute.name | lower: param_values}) %}
+    {% endif %}
+  {% endfor %}
+  {% set payload = payload | as_json %}
+{% else %}
+  {% set payload = '{}' %}
+{% endif %}
+
+{% if utils.should_mqtt_publish_report(command) == "True" or not command.is_tx() %}
+**Command:**
+```sh
+zpc/<home_id>/<node_id>/ep<endpoint_id>/{{command_class_name_first_letter_upper}}/{{frame_type}}/{{command_name}}
+```
+
+**Payload:**
+```json
+{% if payload != '{}' %}
+{% set formatted_payload = payload | parse_json | as_json(indent=2) %}
+{{formatted_payload}}
+{% else %}
+{ }
+{% endif %}
+```
+{% endif %}
+{% endif %}
+{% endfor %}

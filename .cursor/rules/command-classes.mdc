@@ -1,0 +1,15 @@
+---
+description: Decoupling rules for command classes — how CCs communicate, what belongs in which CC, and when to use component_connector events.
+globs: components/command_classes/**
+alwaysApply: false
+---
+
+# Command class conventions
+
+## Decoupling
+
+Command classes must not take direct dependencies on each other's internals.
+
+- Cross-CC communication goes through `component_connector` events.
+- If you find yourself adding an `#include` of one CC's header into another CC's implementation, stop and use an event instead.
+- Static, spec-mandated data owned by a CC (e.g. AGI's "Lifeline" name) lives in that CC. Dynamic data contributed by other CCs is registered via connector events at construction.

@@ -1,0 +1,106 @@
+# Build and deploy documentation to GitHub Pages (MkDocs + Material)
+name: Docs
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'docs/**'
+      - 'components/**/doc/**'
+      - 'components/**/docs/**'
+      - 'components/command_classes/doc/generated/mqtt_interface.md'
+      - 'components/command_classes/**/doc/generated/**'
+      - 'docs/command_class_implementation_guide.md'
+      - 'mkdocs.yml'
+      - 'scripts/mkdocs/'
+      - 'scripts/command_class_generator/**'
+      - 'README.md'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'docs/**'
+      - 'components/**/doc/**'
+      - 'components/**/docs/**'
+      - 'components/command_classes/doc/generated/mqtt_interface.md'
+      - 'components/command_classes/**/doc/generated/**'
+      - 'docs/command_class_implementation_guide.md'
+      - 'mkdocs.yml'
+      - 'scripts/mkdocs/'
+      - 'scripts/command_class_generator/**'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  linkcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Lychee link checker
+        uses: lycheeverse/lychee-action@v1
+        with:
+          # Only check http(s) and mailto; skip file:// (docs link to built-site paths like docs/api/... which exist only after mkdocs build)
+          args: '**/*.md --scheme https --scheme http --scheme mailto --exclude ".*\.jsonl$" --exclude "\.cursor" --exclude "node_modules" --remap "https://github.com/SiliconLabsSoftware/z-wave-protocol-controller https://github.com/${{ github.repository }}"'
+          fail: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install MkDocs, Material, and monorepo plugin
+        run: pip install -r scripts/mkdocs/requirements.txt
+
+      - name: Install command class generator dependencies
+        run: pip install -r scripts/command_class_generator/requirements.txt
+
+      - name: Generate command class docs
+        run: |
+          mkdir -p build/command_class_docs
+          python3 scripts/command_class_generator/main.py \
+            --xml scripts/command_class_generator/zwave.xml \
+            --xsd scripts/command_class_generator/zwave.xsd \
+            --cfg scripts/command_class_generator/config.yaml \
+            --templates scripts/command_class_generator/templates \
+            --out build/command_class_docs
+
+      - name: Prepare docs for MkDocs
+        env:
+          GENERATED_CC_DOCS: build/command_class_docs
+        run: python scripts/mkdocs/prepare_docs_for_mkdocs.py
+
+      - name: Build with MkDocs
+        run: mkdocs build --strict
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

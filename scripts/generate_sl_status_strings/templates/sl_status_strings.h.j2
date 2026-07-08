@@ -1,0 +1,43 @@
+/******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+
+#ifndef SL_STATUS_STRINGS_H
+#define SL_STATUS_STRINGS_H
+
+#include <sl_status.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @brief Convert status code to string representation.
+ *
+ * @param status Status code to convert
+ * @return String representation of the status code
+ */
+const char *sl_status_string(int status);
+
+/**
+ * @brief Convert status code to verbose description.
+ *
+ * @param status Status code to convert
+ * @return Verbose description of the status code
+ */
+const char *sl_status_string_verbose(int status);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // SL_STATUS_STRINGS_H

@@ -1,0 +1,13 @@
+{% import "utils.j2" as utils with context %}
+{{ utils.copyright() }}
+
+{% set header_guard_name = command_class.name | upper + "_EVENTS" %}
+{{ utils.header_guard(header_guard_name) }}
+
+#include <stdint.h>
+
+enum class {{command_class.name | lower}}_events_t : uint32_t {
+    {{command_class.name | upper}}_BASE_EVENT = ( {{command_class.id}} << 8)
+};
+
+{{ utils.footer_guard(header_guard_name) }}

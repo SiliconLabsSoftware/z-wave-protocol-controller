@@ -1,0 +1,26 @@
+{% import "utils.j2" as utils with context %}
+
+{{ utils.copyright() }}
+
+{% set header_guard_name = command_class.name | upper + "_attribute_store" %}
+{{ utils.header_guard(header_guard_name) }}
+
+{% set command_class_name_lower = command_class.name | lower %}
+
+#include "{{command_class_name_lower}}_core.hpp"
+#include "{{command_class_name_lower}}_types.hpp"  // {{command_class_name_lower}}_types
+
+namespace zwave_command_class {
+
+        class {{command_class_name_lower}}_attribute_store: public virtual {{command_class_name_lower}}_core {
+
+        public:
+            {{command_class_name_lower}}_attribute_store();
+            ~{{command_class_name_lower}}_attribute_store() = default;
+
+    };
+
+} // namespace zwave_command_class
+
+{{ utils.footer_guard(header_guard_name) }}
+

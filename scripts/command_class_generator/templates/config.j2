@@ -1,0 +1,50 @@
+{# Determine the command type based on the substring of the command name #}
+{% macro get_requested_args_map() %}
+    {% set command_map = {
+        '_remove': 'set',
+        '_find': 'get',
+        '_get': 'get',
+        '_set': 'set',
+        '_start_level_change': 'set',
+        '_stop_level_change': 'set',
+        'wake_up_no_more_information': 'set',
+        '_report': 'report',
+        '_notification': 'report'
+    } %}
+    {{ command_map | as_json }}
+{% endmacro %}
+
+{# Commands that should be treated as TX when support_mode is None in the XML
+   and the name-based heuristic doesn't match. Renamed from support_mode_not_defined_list_exceptions. #}
+{% set tx_fallback_exceptions = [
+] %}
+
+{# TX report commands that have no paired GET command.
+   These are excluded from stop_group_resolution in the report handler
+   because get_command_pairs would reference a nonexistent group attribute. #}
+{% set command_has_no_pair = [
+    "FIRMWARE_UPDATE_MD_GET",
+    "FIRMWARE_UPDATE_MD_STATUS_REPORT",
+    "FIRMWARE_UPDATE_ACTIVATION_STATUS_REPORT",
+] %}
+
+{# Incoming (TX) commands that ZPC handles internally but must NOT map to MQTT Report/* topics.
+   Add any TX/TX_RX command here that should be silently dropped after parsing.
+   - FIRMWARE_UPDATE_MD_GET: OTA chunk request, processed internally
+   - INITIATE / COMPLETE: inclusion-controller handshake, internal session traffic #}
+{% set suppressed_mqtt_report_commands = [
+    "FIRMWARE_UPDATE_MD_GET",
+    "INITIATE",
+    "COMPLETE",
+] %}
+
+{# List of command pairs, which are special and need to be handled differently #}
+{# In the function_generator.j2, we use this list to get the command pairs for the special commands #}
+{# If the command is not in the list, the generator will use a lazy approach to get the command pairs #}
+{# (FIND_REPORT -> FIND), (REPORT -> GET) #}
+{% macro get_special_command_pairs(command_name) %}
+    {% set command_map = {
+       "": "" 
+    } %}
+    {{ command_map | as_json }}
+{% endmacro %}

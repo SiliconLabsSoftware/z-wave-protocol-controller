@@ -1,0 +1,5 @@
+# Included by root mkdocs.yml via mkdocs-monorepo-plugin (!include)
+site_name: api/security
+docs_dir: doc
+nav:
+  - Security Keys Dump: security_keys_dump_mqtt_api.md

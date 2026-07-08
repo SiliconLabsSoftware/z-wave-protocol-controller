@@ -1,0 +1,94 @@
+# SPDX-License-Identifier: Zlib
+# SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
+---
+name: ZPC Build Linux
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Git ref or SHA to checkout
+        type: string
+        required: true
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: zpc-build-linux-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  build_linux:
+    name: linux-${{ matrix.id }}
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: amd64-gcc
+            runs-on: ubuntu-24.04
+            cc: gcc-14
+            cxx: g++-14
+            package: true
+          - id: arm64-gcc
+            runs-on: ubuntu-24.04-arm
+            cc: gcc-14
+            cxx: g++-14
+            package: true
+          - id: amd64-clang
+            runs-on: ubuntu-24.04
+            cc: clang-17
+            cxx: clang++-17
+            package: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          submodules: recursive
+          fetch-tags: true
+          fetch-depth: 0
+
+      - name: Install dependencies
+        uses: ./.github/actions/setup-linux-deps
+        with:
+          package_lists: ci/dependencies/apt-packages-base.txt
+          pip_requirements: "true"
+
+      - name: Build ZPC
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+          CMAKE_INSTALL_PREFIX: /usr
+        run: cmake --workflow --preset debian
+
+      - name: Upload ZPC debian package
+        if: matrix.package == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: zpc-deb-${{ matrix.id }}
+          path: build/debian/*.deb
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Git describe
+        # Upload describe only on main runs (only once), because for PRs the hash will be invalid.
+        if: ${{ github.event_name == 'push' && matrix.id == 'amd64-gcc' }}
+        run: |
+          git describe > describe.txt
+          echo "## Git describe:" >> $GITHUB_STEP_SUMMARY
+          cat describe.txt >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload git describe
+        if: ${{ github.event_name == 'push' && matrix.id == 'amd64-gcc' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: git-describe
+          path: describe.txt
+          retention-days: 1
+          if-no-files-found: error

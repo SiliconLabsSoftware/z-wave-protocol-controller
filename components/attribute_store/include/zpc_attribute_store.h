@@ -1,0 +1,93 @@
+/******************************************************************************
+ * # License
+ * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+
+/**
+ * @defgroup zpc_attribute_store ZPC Attribute Store
+ * @ingroup zpc_components
+ * @brief @ref attribute_store functions specifically for ZPC
+ *
+ * @{
+ */
+
+#ifndef ZPC_ATTRIBUTE_STORE_H
+#define ZPC_ATTRIBUTE_STORE_H
+
+#include "sl_status.h"
+#include "attribute_store.h"
+#include "zwave_controller_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @brief Verify if a Home ID / Node ID pair identifies the ZPC.
+ *
+ * NOTE: This function requires network management to be initialized to work
+ * properly.
+ *
+ * @param home_id Z-Wave Home ID
+ * @param node_id Z-Wave Node ID
+ * @returns true if the pair matches the ZPC's network address.
+ */
+bool is_zpc_node(zwave_home_id_t home_id, zwave_node_id_t node_id);
+
+/**
+ * @brief Returns the HomeID (attribute store) node of our current network
+ *
+ * NOTE: This function requires network management to be initialized to work
+ * properly.
+ * @returns The HomeID attribute store node. ATTRIBUTE_STORE_INVALID_NODE if
+ *          the attribute store does not have our HomeID node.
+ */
+attribute_store_node_t get_zpc_network_node();
+
+/**
+ * @brief Returns the NodeID (attribute store) node of our current network / NodeID
+ *
+ * NOTE: This function requires network management to be initialized to work
+ * properly.
+ * @returns The HomeID attribute store node. ATTRIBUTE_STORE_INVALID_NODE if
+ *          the attribute store does not have our HomeID node.
+ * @returns The NodeID attribute store node. ATTRIBUTE_STORE_INVALID_NODE if
+ *          the attribute store does not have our HomeID or NodeID node.
+ */
+attribute_store_node_t get_zpc_node_id_node();
+
+/**
+ * @brief Returns the Endpoint ID (attribute store) node of our current
+ *        network / NodeID for a specified Endpoint ID
+ *
+ * NOTE: This function requires network management to be initialized to work
+ * properly.
+ * @returns The Endpoint ID attribute store node. ATTRIBUTE_STORE_INVALID_NODE if
+ *          the attribute store does not have our HomeID, NodeID or Endpoint ID node.
+ */
+attribute_store_node_t get_zpc_endpoint_id_node(zwave_endpoint_id_t endpoint_id);
+
+/**
+ * @brief Initialize attribute store specifically for ZPC
+ *
+ * Refreshes all callbacks for HOME_ID children.
+ *
+ * @return SL_STATUS_OK if all callbacks was initialized.
+ * @return SL_STATUS_FAIL if invokking any callback fails.
+ */
+sl_status_t zpc_attribute_store_init(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // ZPC_ATTRIBUTE_STORE_H
+/** @} end zpc_attribute_store */

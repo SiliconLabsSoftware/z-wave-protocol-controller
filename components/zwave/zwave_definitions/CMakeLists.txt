@@ -1,0 +1,3 @@
+add_library(zwave_definitions src/zwave_rf_region_config.c)
+target_include_directories(zwave_definitions PUBLIC include)
+target_link_libraries(zwave_definitions PUBLIC common)

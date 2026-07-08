@@ -1,0 +1,25 @@
+name: Feature Request
+description: Internal template file for feature requests.
+labels: ["feature", "enhancement"]
+projects: ["SiliconLabsSoftware/zeal"]
+type: feature
+body:
+- type: input
+  attributes:
+    label: JIRA issue link
+    description: The JIRA issue link that this feature is related to.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Feature Description
+    description: A concise description of the feature you are requesting.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Additional Information
+    description: |
+      Links? References? Anything that will give us more context about the feature you are requesting!
+  validations:
+    required: false

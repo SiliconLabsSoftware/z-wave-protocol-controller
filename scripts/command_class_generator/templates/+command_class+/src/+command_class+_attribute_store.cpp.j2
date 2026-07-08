@@ -1,0 +1,25 @@
+{% import "utils.j2" as utils with context %}
+
+{{ utils.copyright() }}
+
+{% set command_class_name_lower = command_class.name | lower %}
+
+#include <fmt/base.h>
+#include <fmt/format.h>
+#include <string_view>
+
+// Base class
+#include "{{command_class_name_lower}}.hpp"
+
+#include "{{command_class_name_lower}}_attribute_store.hpp"
+
+namespace zwave_command_class
+{
+
+    [[maybe_unused]] static constexpr std::string_view LOG_TAG = "{{command_class_name_lower}}_attribute_store";
+
+    {{command_class_name_lower}}_attribute_store::{{command_class_name_lower}}_attribute_store() {
+
+    }
+
+}  // namespace zwave_command_class

@@ -1,0 +1,7 @@
+bash
+llvm@19
+nlohmann-json
+python
+yaml-cpp
+cmake
+ninja

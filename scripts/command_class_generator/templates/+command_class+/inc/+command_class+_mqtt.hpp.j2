@@ -1,0 +1,35 @@
+{% import "utils.j2" as utils with context %}
+
+{{ utils.copyright() }}
+
+{% set header_guard_name = command_class.name | upper + "_MQTT" %}
+{{ utils.header_guard(header_guard_name) }}
+
+{% set command_class_name_lower = command_class.name | lower %}
+
+#include "{{command_class_name_lower}}_core.hpp"
+
+namespace zwave_command_class {
+
+        class {{command_class_name_lower}}_mqtt: public virtual {{command_class_name_lower}}_core {
+
+        public:
+            {{command_class_name_lower}}_mqtt();
+            ~{{command_class_name_lower}}_mqtt() = default;
+
+            {% for command in command_class.commands %}
+                {% if utils.is_rx(command) == "True" %}
+                    {% if command_class.mqtt_support == true %}
+                        sl_status_t mqtt_on_{{command.name | lower}}_command(attribute_store::attribute& endpoint_node, std::string payload);
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+        private:
+            void clear_attribute(attribute_store::attribute& endpoint_node, attribute_store_type_t attribute_type);
+    };
+
+} // namespace zwave_command_class
+
+{{ utils.footer_guard(header_guard_name) }}
+

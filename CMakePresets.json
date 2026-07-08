@@ -1,0 +1,69 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "zpc",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "SKIP_TESTING": "ON",
+        "CMAKE_VERBOSE_MAKEFILE": "OFF",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "1"
+      }
+    },
+    {
+      "name": "macos",
+      "inherits": ["zpc"]
+    },
+    {
+      "name": "debian",
+      "inherits": ["zpc"],
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "$penv{CMAKE_INSTALL_PREFIX}"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "macos",
+      "configurePreset": "macos",
+      "hidden": false,
+      "jobs": 8
+    },
+    {
+      "name": "debian",
+      "configurePreset": "debian",
+      "hidden": false,
+      "jobs": 8
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "debian",
+      "configurePreset": "debian"
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "macos",
+      "steps": [
+        { "type": "configure", "name": "macos" },
+        { "type": "build", "name": "macos" }
+      ]
+    },
+    {
+      "name": "debian",
+      "steps": [
+        { "type": "configure", "name": "debian" },
+        { "type": "build", "name": "debian" },
+        { "type": "package", "name": "debian" }
+      ]
+    }
+  ]
+}

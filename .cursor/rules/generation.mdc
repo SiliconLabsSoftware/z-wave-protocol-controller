@@ -1,0 +1,11 @@
+---
+description: Constraints when creating new modules or components — language choice, coupling, attribute registration, and value conventions.
+alwaysApply: false
+---
+
+# Generation
+
+- New modules must be implemented in C++. If the new component needs to be used in C modules, a C wrapper must be created.
+- Components needs to be loosely coupled with the `component_connector` component.
+- If there is any legacy attribute in zpc_attribute_store_type_registration.cpp remove those to avoid multiple registration of the same type
+- Try to avoid using hard coded values, prefer enums and const values instead

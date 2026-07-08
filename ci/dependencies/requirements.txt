@@ -1,0 +1,6 @@
+setuptools
+sphinxcontrib.plantuml
+defusedxml
+jinja2
+lxml
+pyyaml

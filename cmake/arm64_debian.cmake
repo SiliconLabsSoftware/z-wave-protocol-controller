@@ -1,0 +1,33 @@
+# this one is important
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_PROCESSOR arm64)
+set(CONFIGURE_HOST arm64-linux)
+# this one not so much
+set(CMAKE_SYSTEM_VERSION 1)
+
+set(triple aarch64-linux-gnu)
+
+# specify the cross compiler If CMAKE_CLANG is set, use clang, otherwise use gcc
+if(CMAKE_CLANG)
+  set(CMAKE_C_COMPILER clang)
+  set(CMAKE_C_COMPILER_TARGET ${triple})
+  set(CMAKE_CXX_COMPILER clang++)
+  set(CMAKE_CXX_COMPILER_TARGET ${triple})
+else()
+  set(CMAKE_C_COMPILER ${triple}-gcc)
+  set(CMAKE_CXX_COMPILER ${triple}-g++)
+endif()
+
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE arm64)
+
+# Limit find_library / find_path to target sysroot (multiarch + cross layout on Debian)
+set(CMAKE_FIND_ROOT_PATH "/usr/${triple}" "/usr/lib/${triple}")
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+list(APPEND CMAKE_PREFIX_PATH "/usr/lib/${triple}/cmake")
+
+# Host pkg-config (pkgconf) + PKG_CONFIG_LIBDIR: Debian trixie+ dropped pkg-config-<triple>
+set(PKG_CONFIG_EXECUTABLE "/usr/bin/pkg-config" CACHE PATH "pkg-config" FORCE)
+set(ENV{PKG_CONFIG_LIBDIR} "/usr/lib/${triple}/pkgconfig")
+unset(ENV{PKG_CONFIG_PATH})

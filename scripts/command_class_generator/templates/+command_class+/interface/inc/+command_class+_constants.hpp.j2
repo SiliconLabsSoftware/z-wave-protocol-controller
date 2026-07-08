@@ -1,0 +1,17 @@
+{% import "utils.j2" as utils with context %}
+{{ utils.copyright() }}
+
+{% set header_guard_name = command_class.name | upper + "_CONSTANTS" %}
+{{ utils.header_guard(header_guard_name) }}
+
+#include "{{command_class.name | lower}}_generated_types.hpp"
+
+namespace zwave_command_class
+{
+    namespace {{command_class.name | lower}}_constants
+    {
+
+    } // namespace {{command_class.name | lower}}_constants
+} // namespace zwave_command_class
+
+{{ utils.footer_guard(header_guard_name) }}

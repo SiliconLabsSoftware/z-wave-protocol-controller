@@ -1,0 +1,27 @@
+{% import "utils.j2" as utils with context %}
+
+{{ utils.copyright() }}
+
+{% set header_guard_name = command_class.name | upper %}
+{{ utils.header_guard(header_guard_name) }}
+
+{% set command_class_name_lower = command_class.name | lower %}
+
+{% if command_class.mqtt_support %}
+#include "{{command_class_name_lower}}_mqtt.hpp"
+{% endif %}
+#include "{{command_class_name_lower}}_attribute_store.hpp"
+
+namespace zwave_command_class {
+
+        class {{command_class_name_lower}} final: public {{command_class_name_lower}}_attribute_store{% if command_class.mqtt_support %}, public {{command_class_name_lower}}_mqtt{% endif %} {
+
+        public:
+            {{command_class_name_lower}}();
+            ~{{command_class_name_lower}}() = default;
+    };
+
+} // namespace zwave_command_class
+
+{{ utils.footer_guard(header_guard_name) }}
+

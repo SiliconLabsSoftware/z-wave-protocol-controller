@@ -1,0 +1,57 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Configure and build",
+            "type": "shell",
+            "command": "cmake --workflow --preset ${input:target}"
+        },
+        {
+            "label": "Update .json files",
+            "type": "shell",
+            "osx": {
+                "command": "cp .vscode/launch.json.default .vscode/launch.json && cp .vscode/settings.json.default .vscode/settings.json"
+            }
+        },
+        {
+            "label": "Format all code (clang-format)",
+            "type": "shell",
+            "command": "./ci/scripts/clang-format.sh format",
+            "problemMatcher": []
+        },
+        {
+            "label": "Check code format (clang-format)",
+            "type": "shell",
+            "command": "./ci/scripts/clang-format.sh check",
+            "problemMatcher": []
+        },
+        {
+            "label": "Check staged format (clang-format)",
+            "type": "shell",
+            "command": "./ci/scripts/clang-format.sh check --staged",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run clang-tidy",
+            "type": "shell",
+            "command": "./ci/scripts/clang-tidy.sh check",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "target",
+            "description": "Target platform",
+            "default": "macos",
+            "type": "pickString",
+            "options": [
+                "macos",
+                "debian"
+            ]
+        }
+    ]
+}

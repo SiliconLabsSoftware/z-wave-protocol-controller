@@ -1,0 +1,29 @@
+{% import "utils.j2" as utils with context %}
+
+{{ utils.copyright() }}
+
+{% set command_class_name_lower = command_class.name | lower %}
+
+#include <fmt/base.h>
+#include <fmt/format.h>
+#include <string_view>
+
+// Base class
+#include "{{command_class_name_lower}}.hpp"
+
+// Z-Wave defintions
+#include "ZW_classcmd.h"
+
+
+namespace zwave_command_class
+{
+
+    [[maybe_unused]] static constexpr std::string_view LOG_TAG = "{{command_class_name_lower}}";
+
+    {{command_class_name_lower}}::{{command_class_name_lower}}() 
+        : {{command_class_name_lower}}_attribute_store(){% if command_class.mqtt_support %}, {{command_class_name_lower}}_mqtt(){% endif %} 
+    {
+        // Constructor body - can be empty or contain initialization logic
+    } 
+
+}  // namespace zwave_command_class

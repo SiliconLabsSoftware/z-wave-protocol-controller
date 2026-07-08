@@ -1,0 +1,4 @@
+# MkDocs, Material theme, and monorepo plugin (e.g. pip install -r scripts/mkdocs/requirements.txt)
+mkdocs-material>=9.0,<10
+mkdocs-monorepo-plugin>=1.0
+mkdocs-mermaid-zoom

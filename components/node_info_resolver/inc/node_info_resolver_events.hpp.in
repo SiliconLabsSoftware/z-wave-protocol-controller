@@ -1,0 +1,26 @@
+
+/******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+
+#ifndef NODE_INFO_RESOLVER_EVENTS_H
+#define NODE_INFO_RESOLVER_EVENTS_H
+
+#include <stdint.h>
+
+// TODO: Rethink the base event number
+enum class node_info_resolver_events_t : uint32_t { 
+    NODE_INFO_RESOLVER_BASE_EVENT = @COMPONENT_EVENT_BASE@, 
+    NODE_INFO_RESOLVER_MARK_KEY_PROTOCOL_AS_SUPPORTED 
+};
+
+#endif  // NODE_INFO_RESOLVER_EVENTS_H

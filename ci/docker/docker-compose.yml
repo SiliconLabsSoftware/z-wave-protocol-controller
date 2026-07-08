@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: Zlib
+# SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
+#
+# Out-of-box: docker compose --profile oob up --build
+# Development: docker compose --profile dev run --rm -it zpc-dev bash
+---
+services:
+  mosquitto:
+    profiles: [oob, dev]
+    image: eclipse-mosquitto:2
+    network_mode: host
+    command: mosquitto -c /mosquitto-no-auth.conf
+
+  zpc-oob:
+    profiles: [oob]
+    build:
+      context: ../..
+      dockerfile: ci/docker/Dockerfile
+      target: zpc-test
+    network_mode: host
+    depends_on:
+      - mosquitto
+    volumes:
+      - ../../example_config.yaml:/etc/zpc/config.yaml:ro
+      - zpc-data:/var/lib/zpc
+    devices:
+      - ${ZPC_SERIAL:-/dev/null}:/dev/ttyACM0
+    command: ["--conf", "/etc/zpc/config.yaml"]
+
+  zpc-dev:
+    profiles: [dev]
+    build:
+      context: ../..
+      dockerfile: ci/docker/Dockerfile
+      target: zpc-dev
+    network_mode: host
+    depends_on:
+      - mosquitto
+    working_dir: /home/zpc
+    volumes:
+      - ../..:/home/zpc
+    user: jenkins
+
+volumes:
+  zpc-data:

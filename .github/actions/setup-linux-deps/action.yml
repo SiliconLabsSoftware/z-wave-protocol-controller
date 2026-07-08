@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: Zlib
+# SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
+---
+name: Setup Linux dependencies
+description: Install apt packages from a list file and optionally pip requirements
+
+inputs:
+  package_lists:
+    description: Space-separated paths to apt package list files relative to repository root
+    required: true
+  pip_requirements:
+    description: Install Python requirements from ci/dependencies/requirements.txt
+    required: false
+    default: "false"
+  extra_packages:
+    description: Additional space-separated apt packages
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Install apt packages
+      shell: bash
+      run: |
+        packages=""
+        for list in ${{ inputs.package_lists }}; do
+          packages="$packages $(cat "${{ github.workspace }}/$list")"
+        done
+        sudo apt-get update
+        sudo apt-get install -y \
+          $packages \
+          ${{ inputs.extra_packages }}
+
+    - name: Install pip requirements
+      if: inputs.pip_requirements == 'true'
+      shell: bash
+      run: pip3 install -r ci/dependencies/requirements.txt --break-system-packages

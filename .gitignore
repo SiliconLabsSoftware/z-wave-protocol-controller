@@ -1,0 +1,89 @@
+# .gitignore
+# Temporary files
+*~
+tmp
+# All build folders
+/build*/
+# Visual Studio Code
+.vscode/settings.json
+.vscode/launch.json
+.vscode/*.log
+*.code-workspace
+# JetBrains IDE
+.idea/
+# Cmake Projects in root ###
+compile_commands.json
+# Clangd index
+.clangd/
+.cache/
+# BeyondCompare backup files
+*.orig
+# SonarScanner files
+.scannerwork/
+# Generated debconf files
+applications/*/debconf/config
+# Macos fs igores
+*.DS_Store
+# Other files
+*.swp
+*.gcov
+
+### CMake ###
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+### Ninja ###
+.ninja_deps
+.ninja_log
+
+### DotDot ###
+*.uam
+*.uam.disabled
+
+### Objects ###
+*.o
+*.obj
+*.a
+
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+### ZPC Specific ###
+build/applications/zpc/zpc
+build/applications/zpc/DartConfiguration.tcl
+build
+scripts/xml_parser/out.json
+dist
+
+# Anything emitted by code/header generators (configure_file, command-class
+# generator, etc.) lives in a sibling `generated/` directory next to the
+# source it is generated from. One rule covers them all.
+components/**/generated/
+# MQTT interface docs are generated into doc/generated/ and are committed.
+!components/**/doc/generated/
+!components/**/doc/generated/**
+
+### Mac ###
+.DS_Store
+
+<path_to_zpc.db>
+<path_to_zpc.db>-journal
+.venv
+example_dev_config.yaml
+
+# MkDocs: prepared API docs (scripts/mkdocs/prepare_docs_for_mkdocs.py) and build output
+docs/api/
+site/
+.venv-docs/

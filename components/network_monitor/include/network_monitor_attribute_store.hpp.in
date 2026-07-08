@@ -1,0 +1,33 @@
+
+/******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+
+#ifndef NETWORK_MONITOR_ATTRIBUTE_STORE_H
+#define NETWORK_MONITOR_ATTRIBUTE_STORE_H
+
+#include "attribute_store.h"
+
+namespace network_monitor
+{
+    enum network_monitor_attributes_t : attribute_store_type_t {
+        NETWORK_MONITOR_GROUP = @COMPONENT_ATTRIBUTE_BASE@,
+        ping_interval,
+        multicast_group_list,
+        multicast_group,
+        s2_span_entry,
+        s2_mpan_table,
+        s2_mpan_entry,
+        network_status,
+    };
+}  // namespace network_monitor
+#endif  // NETWORK_MONITOR_ATTRIBUTE_STORE_H
