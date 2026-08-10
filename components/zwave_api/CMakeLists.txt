@@ -2,6 +2,7 @@ add_library(
   zwave_api
   src/zwapi_connection.c
   src/zwapi_init.c
+  src/zwapi_jamming.c
   src/zwapi_protocol_basis.c
   src/zwapi_protocol_controller.c
   src/zwapi_protocol_mem.c
