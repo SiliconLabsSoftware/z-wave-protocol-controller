@@ -74,6 +74,7 @@ extern "C" {
 #include "init_builder.hpp"
 #include "discovery_mqtt_api.hpp"
 #include "security_keys_dump_mqtt_api.hpp"
+#include "jamming_detection.hpp"
 
 /**
  * @brief Signal handler for SIGINT and SIGTERM
@@ -288,6 +289,13 @@ int main(int argc, char **argv)
        * Disabled by default; see components/security/doc for details.
        */
       .add(std::make_unique<zwave_command_class::SecurityKeysDumpMqttApi>())
+
+      /**
+       * Initialize Jamming Detection.
+       * Bridges NCP jamming detection to MQTT topics under
+       * Network/JammingDetection/.
+       */
+      .add(std::make_unique<zwave_command_class::JammingDetection>())
 
       /**
        * Initialize attribute_store specifically for ZPC.
