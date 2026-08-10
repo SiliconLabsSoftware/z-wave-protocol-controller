@@ -80,6 +80,7 @@ nav:
     - Network Management: '!include ./components/network_manager/mkdocs.yml'
     - Device Interviewer: '!include ./components/device_interviewer/mkdocs.yml'
     - Network Status: '!include ./components/network_monitor/mkdocs.yml'
+    - Jamming Detection: '!include ./components/jamming_detection/mkdocs.yml'
     - OTA: '!include ./components/ota/mkdocs.yml'
     - Security: '!include ./components/security/mkdocs.yml'
   - Command Class Reference:

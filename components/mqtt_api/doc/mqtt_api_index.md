@@ -9,6 +9,7 @@ This page is the central index for all ZPC MQTT APIs. Use it to find topics, pay
 - [SmartStart](#smartstart)
 - [Device Interview](#device-interview)
 - [Network Status](#network-status)
+- [Jamming Detection](#jamming-detection)
 - [OTA (Firmware Update)](#ota-firmware-update)
 - [Command Classes](#command-classes)
 - [Sequences](#sequences)
@@ -91,6 +92,26 @@ Unsolicited reports reflecting the availability of Z-Wave nodes (online/offline/
 | `zpc/<home_id>/Network/Status/Report` | Report | Node availability transitions (`node_id`, `status`, optional `reason`) |
 
 **Full reference:** [Network Status](../../network_monitor/doc/network_status.md)
+
+## Jamming Detection
+
+Configure NCP jamming detection and receive unsolicited jamming and RSSI reports.
+Topics below are relative to `zpc/<home_id>/Network/JammingDetection/`.
+
+| Topic | Direction | Description |
+|-------|-----------|-------------|
+| `Configuration/Channel` | Command | Configure jamming detection threshold and trigger for one channel. |
+| `Configuration/Channel/Report` | Report | Report the channel configuration result with NCP-echoed values on success or a failure reason. |
+| `Configuration/JammingReportPeriod` | Command | Set the report interval while a jamming condition persists. |
+| `Configuration/JammingReportPeriod/Report` | Report | Report the jamming report period configuration result with the NCP-echoed value on success or a failure reason. |
+| `Configuration/RssiCollection` | Command | Start or stop periodic RSSI collection. |
+| `Configuration/RssiCollection/Report` | Report | Report the RSSI collection configuration result with the NCP-echoed value on success or a failure reason. |
+| `Notification/Jamming` | Notification | Published when the NCP detects a change in jamming state or reports while jamming persists. |
+| `Notification/RssiCollection` | Notification | Published for each 100 ms collection period while RSSI collection is active. |
+
+Configuration results use `status: "success"` or `status: "fail"` with a readable `reason` string on every failure.
+
+**Full reference:** [Jamming Detection MQTT API](../../jamming_detection/doc/jamming_detection.md)
 
 ## OTA (Firmware Update)
 
