@@ -27,6 +27,7 @@ include_directories(
   ${COMMON_PATH}/components/mqtt/include # zpc_mqtt.hpp, mqtt_handler.hpp
   ${COMMON_PATH}/components/discovery/include # discovery_mqtt_api_initializer.hpp
   ${COMMON_PATH}/components/security/include # security_keys_dump_mqtt_api.hpp
+  ${COMMON_PATH}/components/jamming_detection/include # jamming_detection.hpp
   ${COMMON_PATH}/components/ota/inc # update_manager.hpp
   ${COMMON_PATH}/components/main/include # init_builder.hpp
   ${CMAKE_CURRENT_BINARY_DIR}/include#sl_status_strings.h
@@ -64,6 +65,7 @@ target_link_libraries(
          zwave_smartstart_management
          discovery
          security
+         jamming_detection
          command_classes
          ota_update_manager
          zwave_command_class_manager
