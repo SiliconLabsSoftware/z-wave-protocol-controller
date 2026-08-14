@@ -82,8 +82,9 @@ class zwave_command_class_manager
          * @brief Get the version of Command Class that the handler handles.
          *
          * @param command_class Command class to query with.
-         * @returns The version number of the indicated Command Class.
-         *          0 if the Command Class is not supported (control-only or unregistered).
+         * @returns The version to advertise in Version Command Class Reports.
+         *          NOP (0x00) is always 1. Protocol IDs 0x01–0x1F are always 0.
+         *          Otherwise the supported handler version, or 0 if control-only/unregistered.
          */
         static uint8_t get_version(zwave_command_class_t command_class);
 
