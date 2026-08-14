@@ -357,6 +357,13 @@ sl_status_t zwave_command_class_manager::register_command_class(zwave_command_cl
 
 uint8_t zwave_command_class_manager::get_version(zwave_command_class_t command_class)
 {
+    if (command_class == ZWAVE_NOP_COMMAND_CLASS) {
+        return NO_OPERATION_VERSION;
+    }
+    if (command_class < COMMAND_CLASS_FIRST_APPLICATION_CC) {
+        return 0;
+    }
+
     auto *command_class_handler = get_command_class_handler(command_class);
     if (command_class_handler != nullptr) {
         // Per Z-Wave spec, only supported CCs report their version.

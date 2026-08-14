@@ -31,6 +31,7 @@
 #include "zwave_command_class_indices.h"
 #include "zwapi_init.h"
 #include "zpc_config.h"
+#include "zwave_command_class_manager.h"
 
 #include "zpc_attribute_store_network_helper.h"
 
@@ -202,7 +203,7 @@ namespace zwave_command_class
 
         report_frame.add_raw_byte(requested_command_class);
 
-        auto supported_version = zwave_command_class_base::supported_command_class_versions[requested_command_class];
+        auto supported_version = zwave_command_class_manager::get_version(requested_command_class);
         report_frame.add_raw_byte(supported_version);
 
         frame = report_frame.generate_frame();
