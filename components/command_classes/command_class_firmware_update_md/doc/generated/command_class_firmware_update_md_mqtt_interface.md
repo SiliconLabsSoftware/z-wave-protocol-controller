@@ -2,7 +2,7 @@
 
 | MQTT Support | Support | Control |
 |--------------|---------|---------|
-| false | false | true |
+| false | true | true |
 
 > When MQTT Support is `false`, only incoming (TX) commands are listed below. ZPC publishes these to MQTT but does not handle `Command/*` topics for this command class.
 

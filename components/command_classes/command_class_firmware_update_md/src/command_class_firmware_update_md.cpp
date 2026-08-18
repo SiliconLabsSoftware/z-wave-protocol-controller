@@ -34,6 +34,7 @@
 #include "zwave_tx_scheme_selector.h"
 #include "zwave_crc16.h"
 #include "zpc_attribute_store_network_helper.h"
+#include "zpc_config.h"
 
 namespace zwave_command_class
 {
@@ -411,6 +412,30 @@ namespace zwave_command_class
     {
         (void)connection_info;
         fire_fw_update_event(command_class_firmware_update_md_events_t::FIRMWARE_UPDATE_MD_PREPARE_REPORT_PARSED, endpoint, payload);
+        return SL_STATUS_OK;
+    }
+
+    sl_status_t
+      command_class_firmware_update_md::on_firmware_md_get_support_requested_assemble_frame(const zwave_controller_connection_info_t * /*connection_info*/, command_class_firmware_update_md_attribute_map_t /*attribute_map*/, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame)
+    {
+        const auto *config = zpc_get_config();
+        if (config == nullptr) {
+            return SL_STATUS_FAIL;
+        }
+
+        report_frame.add_raw_byte(static_cast<uint8_t>((config->manufacturer_id >> 8) & 0xFF));
+        report_frame.add_raw_byte(static_cast<uint8_t>(config->manufacturer_id & 0xFF));
+        report_frame.add_raw_byte(static_cast<uint8_t>((config->product_id >> 8) & 0xFF));
+        report_frame.add_raw_byte(static_cast<uint8_t>(config->product_id & 0xFF));
+        report_frame.add_raw_byte(0);  // firmware_0_checksum MSB
+        report_frame.add_raw_byte(0);  // firmware_0_checksum LSB
+        report_frame.add_raw_byte(0);  // firmware_upgradable
+        report_frame.add_raw_byte(0);  // number_of_firmware_targets
+        report_frame.add_raw_byte(0);  // max_fragment_size MSB
+        report_frame.add_raw_byte(0);  // max_fragment_size LSB
+        report_frame.add_raw_byte(static_cast<uint8_t>(config->hardware_version & 0xFF));
+
+        frame = report_frame.generate_frame();
         return SL_STATUS_OK;
     }
 
