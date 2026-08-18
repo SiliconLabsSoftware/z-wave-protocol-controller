@@ -33,6 +33,7 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 | [COMMAND_CLASS_THERMOSTAT_FAN_MODE](command_class_thermostat_fan_mode/doc/generated/command_class_thermostat_fan_mode_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_THERMOSTAT_MODE](command_class_thermostat_mode/doc/generated/command_class_thermostat_mode_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_THERMOSTAT_SETPOINT](command_class_thermostat_setpoint/doc/generated/command_class_thermostat_setpoint_mqtt_interface.md) | true | false | true |
+| [COMMAND_CLASS_TIME](command_class_time/doc/generated/command_class_time_mqtt_interface.md) | false | true | false |
 | [COMMAND_CLASS_VERSION](command_class_version/doc/generated/command_class_version_mqtt_interface.md) | true | true | true |
 | [COMMAND_CLASS_WAKE_UP](command_class_wake_up/doc/generated/command_class_wake_up_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_SWITCH_COLOR](command_class_switch_color/doc/generated/command_class_switch_color_mqtt_interface.md) | true | false | true |
@@ -62,6 +63,7 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 - [COMMAND_CLASS_THERMOSTAT_FAN_MODE](command_class_thermostat_fan_mode/doc/generated/command_class_thermostat_fan_mode_mqtt_interface.md)
 - [COMMAND_CLASS_THERMOSTAT_MODE](command_class_thermostat_mode/doc/generated/command_class_thermostat_mode_mqtt_interface.md)
 - [COMMAND_CLASS_THERMOSTAT_SETPOINT](command_class_thermostat_setpoint/doc/generated/command_class_thermostat_setpoint_mqtt_interface.md)
+- [COMMAND_CLASS_TIME](command_class_time/doc/generated/command_class_time_mqtt_interface.md)
 - [COMMAND_CLASS_VERSION](command_class_version/doc/generated/command_class_version_mqtt_interface.md)
 - [COMMAND_CLASS_WAKE_UP](command_class_wake_up/doc/generated/command_class_wake_up_mqtt_interface.md)
 - [COMMAND_CLASS_SWITCH_COLOR](command_class_switch_color/doc/generated/command_class_switch_color_mqtt_interface.md)
