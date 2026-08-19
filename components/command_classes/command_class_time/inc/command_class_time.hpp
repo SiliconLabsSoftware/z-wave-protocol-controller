@@ -30,6 +30,10 @@ namespace zwave_command_class
             sl_status_t on_time_get_support_requested_assemble_frame(const zwave_controller_connection_info_t *connection_info, command_class_time_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame) override;
             sl_status_t on_date_get_support_requested_assemble_frame(const zwave_controller_connection_info_t *connection_info, command_class_time_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame) override;
             sl_status_t on_time_offset_get_support_requested_assemble_frame(const zwave_controller_connection_info_t *connection_info, command_class_time_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame) override;
+
+            sl_status_t on_time_offset_set_support_received(const zwave_controller_connection_info_t *connection_info, command_class_time_attribute_map_t attribute_map) override;
+            sl_status_t on_date_set_support_received(const zwave_controller_connection_info_t *connection_info, command_class_time_attribute_map_t attribute_map) override;
+            sl_status_t on_time_set_support_received(const zwave_controller_connection_info_t *connection_info, command_class_time_attribute_map_t attribute_map) override;
     };
 
 }  // namespace zwave_command_class
