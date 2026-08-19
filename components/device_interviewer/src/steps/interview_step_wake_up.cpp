@@ -19,8 +19,8 @@
 #include "attribute_store_defined_attribute_types.h"
 #include "zpc_config.h"
 #include "zwave_network_management.h"
+#include "zwave_command_class_utils.hpp"
 #include "log.h"
-#include <algorithm>
 
 namespace zwave_command_class
 {
@@ -62,7 +62,7 @@ namespace zwave_command_class
 
     StepResult WakeUpStep::on_enter(InterviewSession &session)
     {
-        if (std::find(session.version_cc.command_classes_to_query.begin(), session.version_cc.command_classes_to_query.end(), 0x84) == session.version_cc.command_classes_to_query.end()) {
+        if (!command_class_utils::is_command_class_in_s2_s0_nif_lists(0x84, session.s2_supported_command_classes, session.s0_supported_command_classes, session.node_information_command_class_list)) {
             sl_log_info(LOG_TAG.data(), "Node %d does not support Wake Up CC (0x84), skipping", session.node_id);
             return skip();
         }
