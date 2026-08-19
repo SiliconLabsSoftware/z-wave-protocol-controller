@@ -92,7 +92,7 @@ namespace zwave_command_class
         frame[0] = COMMAND_CLASS_POWERLEVEL;
         frame[1] = static_cast<uint8_t>(command_class_powerlevel_commands_t::COMMAND_CLASS_POWERLEVEL_POWERLEVEL_TEST_NODE_REPORT);
         frame[2] = static_cast<uint8_t>(power_level_test.destination_node);
-        frame[3] = static_cast<uint8_t>(power_level_test.power_level);
+        frame[3] = static_cast<uint8_t>(power_level_test.status);
         frame[4] = static_cast<uint8_t>((power_level_test.acknowledged_frames_count >> 8) & 0xFF);
         frame[5] = static_cast<uint8_t>((power_level_test.acknowledged_frames_count >> 0) & 0xFF);
         command_class_utils::send_report(&power_level_test.connection, static_cast<uint16_t>(frame.size()), frame.data());
