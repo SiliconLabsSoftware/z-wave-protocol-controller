@@ -378,8 +378,14 @@ bool we_have_return_routes_to_assign(zwave_node_id_t node_id);
 /**
  * Maximum time to wait for S0/S2 bootstrapping to complete while in
  * NM_WAIT_FOR_SECURE_ADD before recovering.
+ *
+ * For manual S2 inclusion, the spec (Table 4.16) requires the including node to
+ * wait up to 250s for TAI1 (user key grant) and 250s for TAI2 (user DSK input),
+ * plus up to ~100s for key exchange steps. The S2 library enforces those timers
+ * internally; this watchdog must not fire before they can expire. 700s covers the
+ * worst-case sum (TAI1 + TAI2 + all step timeouts with spec tolerance).
  */
-#define NM_WAIT_FOR_SECURE_ADD_TIMEOUT_MS 60000
+#define NM_WAIT_FOR_SECURE_ADD_TIMEOUT_MS 700000
 
 #ifdef __cplusplus
 }
