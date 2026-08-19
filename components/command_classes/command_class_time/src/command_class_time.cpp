@@ -17,9 +17,13 @@
 
 // Base class
 #include "command_class_time.hpp"
+#include "command_class_time_constants.hpp"
 
 // Z-Wave defintions
 #include "ZW_classcmd.h"
+#include "zwave_command_class_utils.hpp"
+
+#include "log.h"
 
 namespace zwave_command_class
 {
@@ -38,6 +42,17 @@ namespace zwave_command_class
             localtime_r(&now_c, &result);
             return result;
         }
+
+        sl_status_t validate_time_command(const zwave_controller_connection_info_t *connection_info)
+        {
+            // CC:008A.03.00.41.001
+            if (!command_class_utils::is_using_zpc_highest_security_class(connection_info)) {
+                sl_log_debug(LOG_TAG.data(), "CC:008A.03.00.41.001 Rejecting command: not highest granted security class");
+                return SL_STATUS_NOT_SUPPORTED;
+            }
+
+            return SL_STATUS_OK;
+        }
     }  // namespace
 
     command_class_time::command_class_time() {}
@@ -46,9 +61,11 @@ namespace zwave_command_class
     {
         const std::tm now = local_time_tm();
 
-        constexpr uint8_t time_source_zwave = 0;
-        const uint8_t hour                  = static_cast<uint8_t>(now.tm_hour & static_cast<int>(time_report_properties1_attribute_masks_t::hour_local_time_mask));
-        const uint8_t properties1           = static_cast<uint8_t>(hour | ((time_source_zwave << 5) & static_cast<uint8_t>(time_report_properties1_attribute_masks_t::time_source_mask)));
+        const uint8_t hour = static_cast<uint8_t>(now.tm_hour) & static_cast<uint8_t>(time_report_properties1_attribute_masks_t::hour_local_time_mask);
+        // CC:008A.03.02.11.004 host OS is the local/internet time source.
+        const uint8_t time_source = static_cast<uint8_t>((command_class_time_constants::time_source_wifi << command_class_time_constants::time_source_shift) & static_cast<uint8_t>(time_report_properties1_attribute_masks_t::time_source_mask));
+        // CC:008A.03.02.11.006 host time is available; RTC Failure stays 0.
+        const uint8_t properties1 = static_cast<uint8_t>(hour | time_source);
 
         report_frame.add_raw_byte(properties1);
         report_frame.add_raw_byte(static_cast<uint8_t>(now.tm_min));
@@ -80,6 +97,38 @@ namespace zwave_command_class
 
         frame = report_frame.generate_frame();
         return SL_STATUS_OK;
+    }
+
+    sl_status_t command_class_time::on_time_offset_set_support_received(const zwave_controller_connection_info_t *connection_info, command_class_time_attribute_map_t /*attribute_map*/)
+    {
+        const sl_status_t status = validate_time_command(connection_info);
+        if (status != SL_STATUS_OK) {
+            return status;
+        }
+
+        // CC:008A.02.05.13.001
+        return SL_STATUS_FAIL;
+    }
+
+    sl_status_t command_class_time::on_date_set_support_received(const zwave_controller_connection_info_t *connection_info, command_class_time_attribute_map_t /*attribute_map*/)
+    {
+        const sl_status_t status = validate_time_command(connection_info);
+        if (status != SL_STATUS_OK) {
+            return status;
+        }
+
+        return SL_STATUS_FAIL;
+    }
+
+    sl_status_t command_class_time::on_time_set_support_received(const zwave_controller_connection_info_t *connection_info, command_class_time_attribute_map_t /*attribute_map*/)
+    {
+        const sl_status_t status = validate_time_command(connection_info);
+        if (status != SL_STATUS_OK) {
+            return status;
+        }
+
+        // CC:008A.03.02.11.005
+        return SL_STATUS_FAIL;
     }
 
 }  // namespace zwave_command_class

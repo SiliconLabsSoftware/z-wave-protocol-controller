@@ -14,12 +14,18 @@
 #ifndef COMMAND_CLASS_TIME_CONSTANTS_H
 #define COMMAND_CLASS_TIME_CONSTANTS_H
 
-#include "command_class_time_generated_types.hpp"
+#include <cstdint>
 
 namespace zwave_command_class
 {
     namespace command_class_time_constants
-    {}  // namespace command_class_time_constants
+    {
+        // html/management_command_classes/command_class_definitions/time_command_class_version_3.html
+        constexpr uint8_t time_source_zwave = 0;  // 00b
+        constexpr uint8_t time_source_gps   = 1;  // 01b
+        constexpr uint8_t time_source_wifi  = 2;  // 10b
+        constexpr uint8_t time_source_shift = 5;
+    }  // namespace command_class_time_constants
 }  // namespace zwave_command_class
 
 #endif  // COMMAND_CLASS_TIME_CONSTANTS_H
