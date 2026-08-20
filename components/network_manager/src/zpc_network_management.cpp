@@ -211,9 +211,9 @@ namespace zwave_component
 
     void network_management_handler::network_management_on_node_added(sl_status_t status, const zwave_node_info_t *nif, zwave_node_id_t node_id, const zwave_dsk_t dsk, zwave_keyset_t granted_keys, zwave_kex_fail_type_t kex_fail_type, zwave_protocol_t inclusion_protocol)
     {
-        // When node addition is completed, we are back to IDLE and ready to carry
-        // New operations.
-        network_management_handler::state_topic_update(NetworkManagementStateData(NM_TOPIC_IDLE));
+        if (!zwave_network_management_is_busy()) {
+            network_management_handler::state_topic_update(NetworkManagementStateData(NM_TOPIC_IDLE));
+        }
     }
 
     void network_management_handler::network_management_on_network_address_update_static(zwave_home_id_t home_id, zwave_node_id_t node_id)
