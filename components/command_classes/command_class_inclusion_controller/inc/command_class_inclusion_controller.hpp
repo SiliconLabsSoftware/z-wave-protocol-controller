@@ -58,6 +58,7 @@ namespace zwave_command_class
                     zwave_node_id_t inclusion_controller_node_id;
                     zwave_node_id_t included_node_id;
                     uint8_t step_id;
+                    zwave_node_info_t node_info;
             };
 
             static struct timer_handle_t timer;
