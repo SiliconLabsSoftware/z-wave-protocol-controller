@@ -19,6 +19,7 @@
 // Includes from this component
 #include "zwapi_internal.h"
 #include "zwapi_func_ids.h"
+#include "zwapi_jamming.h"
 #include "zwapi_protocol_controller.h"  // For LEARN_INFO
 #include "zwapi_protocol_transport.h"   // For zwapi_tx_report_t
 #include "zwapi_session.h"
@@ -631,6 +632,11 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
                 zwave_api_get_callbacks()->protocol_cc_encryption_request(destination_node_id, payload_length, payload, protocol_metadata_length, protocol_metadata, use_supervision, session_id);
             }
             break;
+
+        case FUNC_ID_JAMMING_DETECTION: {
+            uint16_t data_len = (len > IDX_DATA) ? (uint16_t)(len - IDX_DATA) : 0;
+            zwapi_jamming_handle_notification(&pData[IDX_DATA], data_len);
+        } break;
 
         default:
             sl_log_warning(LOG_TAG, "Unknown Z-Wave API FUNC_ID: 0x%02x\n", pData[IDX_CMD]);
