@@ -22,4 +22,5 @@ target_include_directories(
   network_manager
   PUBLIC include
   PRIVATE ${nlohmann_json_include}
-  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
+  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+  PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../network_monitor/include)
