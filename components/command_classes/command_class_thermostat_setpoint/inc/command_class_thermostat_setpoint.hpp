@@ -39,6 +39,7 @@ namespace zwave_command_class
 
         private:
             sl_status_t on_thermostat_setpoint_supported_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_thermostat_setpoint_attribute_map_t payload) override;
+            sl_status_t on_thermostat_setpoint_capabilities_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_thermostat_setpoint_attribute_map_t payload) override;
             sl_status_t on_thermostat_setpoint_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_thermostat_setpoint_attribute_map_t payload) override;
 
             sl_status_t on_thermostat_setpoint_get_requested_assemble_frame(const get_requested_args &args, uint8_t *data, uint16_t *length) override;
