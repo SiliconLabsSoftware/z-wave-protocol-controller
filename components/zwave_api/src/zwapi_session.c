@@ -19,6 +19,7 @@
 #include "zwapi_init.h"
 #include "zwapi_session.h"
 #include "zwapi_connection.h"
+#include "zwapi_serial.h"
 #include "zwapi_timestamp.h"
 #include "log.h"
 
@@ -116,6 +117,9 @@ static zwapi_connection_status_t zwapi_session_wait_for_response(void)
     static zwapi_timestamp_t session_timer;
     zwapi_timestamp_get(&session_timer, TIMEOUT_TIME);
     while (1) {
+        if (zwapi_serial_is_lost()) {
+            return ZWAPI_CONNECTION_STATUS_TX_TIMEOUT;
+        }
         connection_status = zwapi_connection_refresh();
         if (connection_status != ZWAPI_CONNECTION_STATUS_IDLE) {
             break;
@@ -201,8 +205,16 @@ static sl_status_t send_frame(uint8_t command, const uint8_t *payload_buffer, ui
     uint8_t consecutive_tx_timeout_count = 0;
     for (int i = 0; i < MAX_TRANSMISSION_RETRIES; i++) {
         pthread_mutex_lock(&session_serial_mutex);
+        if (zwapi_serial_is_lost()) {
+            pthread_mutex_unlock(&session_serial_mutex);
+            return SL_STATUS_FAIL;
+        }
         zwapi_connection_tx(command, FRAME_TYPE_REQUEST, payload_buffer, payload_buffer_length, true);
         zwapi_connection_status_t connection_status = zwapi_session_wait_for_response();
+        if (zwapi_serial_is_lost()) {
+            pthread_mutex_unlock(&session_serial_mutex);
+            return SL_STATUS_FAIL;
+        }
 
         bool do_backoff = true;
         switch (connection_status) {
@@ -229,15 +241,11 @@ static sl_status_t send_frame(uint8_t command, const uint8_t *payload_buffer, ui
                 break;
 
             case ZWAPI_CONNECTION_STATUS_TX_TIMEOUT:
-                // Follow up on how many consecutive TX timeout we had.
                 consecutive_tx_timeout_count++;
                 sl_log_warning(LOG_TAG, "Timed out waiting for ACK frame\n");
                 if (consecutive_tx_timeout_count >= MAX_TX_TIMEOUTS) {
-                    // We should restart the serial port
-                    sl_log_warning(LOG_TAG, "Reopening serial port\n");
+                    sl_log_warning(LOG_TAG, "Re-opening serial port\n");
                     zwapi_connection_restart();
-                    pthread_mutex_unlock(&session_serial_mutex);
-                    return SL_STATUS_FAIL;
                 }
                 break;
 
