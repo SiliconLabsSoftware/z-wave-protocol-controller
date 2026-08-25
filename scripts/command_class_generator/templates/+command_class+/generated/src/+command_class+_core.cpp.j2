@@ -167,7 +167,7 @@ namespace zwave_command_class {
         try {
         switch (frame_data[COMMAND_INDEX]) {
             {% for command in command_class.commands %}
-                {% if utils.is_get(command.name) == "True" %}
+                {% if utils.is_get(command.name) == "True" and utils.is_rx(command) == "True" %}
                     case static_cast<uint8_t>({{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper}}):
                     {
                         debug_frame_name = "{{command.name}}";

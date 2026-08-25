@@ -164,10 +164,17 @@ supported_command_classes:
   - name: "COMMAND_CLASS_FIRMWARE_UPDATE_MD"
     version: 5
     mqtt_support: false
-    support: false
+    support: true
     control: true
     interview_attributes: []
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
+  - name: "COMMAND_CLASS_TIME"
+    version: 3
+    mqtt_support: false
+    support: true
+    control: false
+    interview_attributes: []
+    minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
 
   - name: "COMMAND_CLASS_ASSOCIATION_GRP_INFO"
     version: 3

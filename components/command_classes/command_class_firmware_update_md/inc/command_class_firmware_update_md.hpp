@@ -32,6 +32,8 @@ namespace zwave_command_class
             void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version) override;
 
         private:
+            sl_status_t on_firmware_md_get_support_requested_assemble_frame(const zwave_controller_connection_info_t *connection_info, command_class_firmware_update_md_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame) override;
+
             static sl_status_t on_firmware_md_get_requested(attribute_store::attribute endpoint_node);
             static sl_status_t on_firmware_update_md_request_get_requested(const command_class_firmware_update_md_types::command_class_firmware_update_md_request_get_payload_t &payload);
             static sl_status_t on_firmware_update_md_report_requested(const command_class_firmware_update_md_types::command_class_firmware_update_md_report_payload_t &payload);
