@@ -55,8 +55,8 @@ bool zwave_security_validation_is_security_valid_for_support(zwave_controller_en
         return true;
     }
 
-    // Received at a lower level: we check that the CC minimal scheme allows it
-    // (i.e. non-secure CC) and that it is still the highest key of the sender.
+    // Received at a lower level than ZPC's highest: check that the CC allows it
+    // (i.e. non-secure CC) and apply the right rule based on the sender's keys.
     if (minimal_scheme == ZWAVE_CONTROLLER_ENCAPSULATION_NONE) {
         zwave_keyset_t remote_node_keys;
         // If we can't find the keys of the remote in our attribute store,
@@ -69,9 +69,16 @@ bool zwave_security_validation_is_security_valid_for_support(zwave_controller_en
             return false;
         }
 
-        // DT:00.21.001B.1
-        // A controlling node MUST NOT discard a command if the sending node does not support the S2 Command Class.
         zwave_controller_encapsulation_scheme_t highest_encapsulation = zwave_controller_get_highest_encapsulation(remote_node_keys);
+
+        // DT:00.22.0006.1 (discard lower-security for always-non-secure CCs) only
+        // applies when ZPC performed S2 bootstrapping with the node. For nodes without
+        // any S2 key (S0-only or unsecured), accept at any security level.
+        // DT:00.21.001B.1: MUST NOT discard if the sender was not S2-bootstrapped.
+        if (highest_encapsulation < ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_2_UNAUTHENTICATED) {
+            return true;
+        }
+
         if (connection->encapsulation == highest_encapsulation) {
             return true;
         }
