@@ -71,6 +71,10 @@ foreach(SUBDIR ${SUBDIRECTORIES})
           continue()
         endif()
 
+        if (NOT EXISTS "${SUBDIR}/CMakeLists.txt")
+          continue()
+        endif()
+
         if (NOT DIR_NAME STREQUAL "generated")
           list(APPEND SUBDIR_NAMES ${DIR_NAME})
         endif()
