@@ -25,6 +25,7 @@
 #include "log.h"
 #include "zwapi_protocol_controller.h"
 #include "zwave_command_class_utils.hpp"
+#include "zwave_controller_internal.h"
 #include "zwave_network_management.h"
 #include "zwave_tx_scheme_selector.h"
 
@@ -158,10 +159,23 @@ namespace zwave_command_class
         const uint8_t outgoing_status = (received_status == COMPLETE_STEP_OK) ? COMPLETE_STEP_OK : COMPLETE_STEP_FAILED;
         sl_log_info(LOG_TAG.data(), "S0 delegation done by NodeID %u (status=0x%02X). Replying COMPLETE step 0x%02X with status 0x%02X.", connection_info->remote.node_id, received_status, session.step_id, outgoing_status);
 
-        const zwave_node_id_t target = session.inclusion_controller_node_id;
-        const uint8_t step_id        = session.step_id;
+        const zwave_node_id_t target     = session.inclusion_controller_node_id;
+        const uint8_t step_id            = session.step_id;
+        const zwave_node_id_t s0_node_id = session.included_node_id;
+        zwave_node_info_t s0_nif         = session.node_info;
         clear_session();
         send_complete(target, step_id, outgoing_status);
+
+        if (outgoing_status == COMPLETE_STEP_OK) {
+            zwapi_node_info_header_t ni = {};
+            if (zwapi_get_protocol_info(s0_node_id, &ni) == SL_STATUS_OK) {
+                s0_nif.listening_protocol = ni.capability;
+                s0_nif.optional_protocol  = ni.security;
+            }
+            zwave_dsk_t empty_dsk = {};
+            zwave_controller_on_node_added(SL_STATUS_OK, &s0_nif, s0_node_id, empty_dsk, ZWAVE_CONTROLLER_S0_KEY, ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE, PROTOCOL_ZWAVE);
+        }
+
         return SL_STATUS_OK;
     }
 
@@ -194,7 +208,8 @@ namespace zwave_command_class
         if (nif_advertises_command_class(payload.node_info, COMMAND_CLASS_SECURITY)) {
             sl_log_info(LOG_TAG.data(), "NIF received for NodeID %u (S0-only), delegating S0 inclusion to NodeID %u.", payload.node_id, session.inclusion_controller_node_id);
 
-            session.state = session_state_t::waiting_ic_complete;
+            session.node_info = payload.node_info;
+            session.state     = session_state_t::waiting_ic_complete;
             timer_set(&timer, SESSION_TIMEOUT_MS, on_session_timeout, nullptr);
             send_initiate(session.inclusion_controller_node_id, session.included_node_id, INITIATE_S0_INCLUSION);
             return SL_STATUS_OK;
