@@ -361,6 +361,25 @@ static bool idle_head_waiting_for_chip_completion(const zwave_tx_queue_element_t
     return (h.transmission_timestamp != 0) && (h.transmission_time == 0);
 }
 
+// Standalone SOS/MOS Nonce Report (ignore_incoming_frames_back_off, no parent).
+// Dispatch when the radio is idle even if S2 still has an application send pending.
+static bool zwave_tx_fetch_radio_idle_backoff_bypass(zwave_tx_queue_element_t *element)
+{
+    const zwave_controller_transport_t *api = zwave_controller_transport_get_by_priority(0);
+    if ((api != NULL) && (api->is_busy != NULL) && (api->is_busy() == true)) {
+        return false;
+    }
+    zwave_tx_queue_element_t bypass = {};
+    if (tx_queue.find_best_unsent_backoff_bypass(&bypass) != SL_STATUS_OK) {
+        return false;
+    }
+    if (bypass.zwave_tx_session_id == current_tx_session_id) {
+        return false;
+    }
+    *element = bypass;
+    return true;
+}
+
 static sl_status_t zwave_tx_process_fetch_next_element_for_ongoing_transmission(zwave_tx_queue_element_t *next_element)
 {
     // Prefer the highest priority child of the current session. This is the
@@ -387,13 +406,12 @@ static sl_status_t zwave_tx_process_fetch_next_element_for_ongoing_transmission(
         return SL_STATUS_OK;
     }
 
-    // Current session is in-flight waiting for a transport callback: if
-    // the controller is idle, let a standalone back-off-bypass frame overtake
-    // it so an urgent nonce re-sync does not miss its discard_timeout_ms.
-    zwave_tx_queue_element_t *candidate = tx_queue.first_in_queue();
-    if ((candidate != nullptr) && (candidate->zwave_tx_session_id != current_tx_session_id) && (candidate->transmission_timestamp == 0) && (candidate->options.transport.ignore_incoming_frames_back_off) && (!candidate->options.transport.valid_parent_session_id)
-        && (!zwave_controller_transport_is_busy())) {
-        *next_element = *candidate;
+    // Current session is in-flight waiting for a transport callback. Let a
+    // standalone back-off-bypass frame overtake it so an urgent nonce re-sync
+    // does not miss its discard_timeout_ms. Do not use transport_is_busy():
+    // S2 stays "busy" after the ME is on the air while s2_send_callback is set.
+    if (zwave_tx_fetch_radio_idle_backoff_bypass(next_element)) {
+        sl_log_debug(LOG_TAG, "In-flight session id=%p waiting for transport callback; dispatching back-off-bypass frame id=%p instead.", current_tx_session_id, next_element->zwave_tx_session_id);
         return SL_STATUS_OK;
     }
 
@@ -426,13 +444,11 @@ static bool zwave_tx_can_ignore_incoming_frames()
         // We are idle, take the highest priority element from the queue.
         next_element = *tx_queue.first_in_queue();
     } else if (state == ZWAVE_TX_STATE_BACKOFF) {
-        // We are in back-off. Only look at the queue head and allow pre-empting
-        // the back-off if it is a back-off-bypass frame.
-        const zwave_tx_queue_element_t *candidate = tx_queue.first_in_queue();
-        if ((candidate == nullptr) || (candidate->zwave_tx_session_id == current_tx_session_id) || (candidate->options.transport.valid_parent_session_id) || (zwave_controller_transport_is_busy())) {
+        // Pre-empt back-off for a standalone SOS/MOS Nonce Report even while
+        // S2 still has an application send callback pending (radio may be idle).
+        if (!zwave_tx_fetch_radio_idle_backoff_bypass(&next_element)) {
             return false;
         }
-        next_element = *candidate;
     }
 
     // Bypass if the frame has not been sent yet, and it is explicitly allowed
@@ -471,11 +487,9 @@ static void zwave_tx_process_send_next_message_step()
                 sl_log_debug(LOG_TAG, "IDLE: queue head id=%p is waiting for replies; dispatching best unsent id=%p instead.", current_element.zwave_tx_session_id, alternate.zwave_tx_session_id);
                 current_element = alternate;
             }
-        } else if (idle_head_waiting_for_chip_completion(current_element) && (!zwave_controller_transport_is_busy())) {
-            if (tx_queue.find_best_unsent_backoff_bypass(&alternate) == SL_STATUS_OK) {
-                sl_log_debug(LOG_TAG, "IDLE: queue head id=%p is waiting for a transport callback; dispatching back-off-bypass frame id=%p instead.", current_element.zwave_tx_session_id, alternate.zwave_tx_session_id);
-                current_element = alternate;
-            }
+        } else if (idle_head_waiting_for_chip_completion(current_element) && zwave_tx_fetch_radio_idle_backoff_bypass(&alternate)) {
+            sl_log_debug(LOG_TAG, "IDLE: queue head id=%p is waiting for a transport callback; dispatching back-off-bypass frame id=%p instead.", current_element.zwave_tx_session_id, alternate.zwave_tx_session_id);
+            current_element = alternate;
         }
     } else {
         // Other tx queue states should not try to call this function!

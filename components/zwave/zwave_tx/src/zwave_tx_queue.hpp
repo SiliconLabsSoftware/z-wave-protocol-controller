@@ -332,8 +332,12 @@ class zwave_tx_queue
         sl_status_t find_best_unsent_by_qos(zwave_tx_queue_element_t *element) const;
 
         /**
-         * @brief Like \ref find_best_unsent_by_qos but restricted to back-off-bypass
-         *        frames
+         * @brief Like \ref find_best_unsent_by_qos but restricted to standalone
+         *        back-off-bypass frames (`ignore_incoming_frames_back_off`, no parent).
+         *
+         * Used so an SOS Nonce Report can overtake an in-flight parent that is
+         * still waiting for an S2 send-data callback (parent remains queue head
+         * by QoS or insertion order).
          */
         sl_status_t find_best_unsent_backoff_bypass(zwave_tx_queue_element_t *element) const;
 
