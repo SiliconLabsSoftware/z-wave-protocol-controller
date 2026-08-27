@@ -37,6 +37,8 @@
 #include "zwave_utils.h"
 #include "zwapi_protocol_controller.h"
 #include "utils.hpp"
+#include "network_monitor_attribute_store.hpp"
+#include "network_monitor_network_status.h"
 
 extern uint8_t node_reported_dsk[16];
 
@@ -480,8 +482,16 @@ namespace zwave_command_class
             return;
         }
 
-        nlohmann::json report
-          = {{"node_id", node_id}, {"inclusion_protocol", nullptr}, {"granted_keys", nullptr}, {"last_rx_tx_timestamp", nullptr}, {"last_rx_rssi", nullptr}, {"last_routing_path", nullptr}, {"last_tx_ticks", nullptr}, {"last_number_of_repeaters", nullptr}, {"last_tx_power", nullptr}};
+        nlohmann::json report = {{"node_id", node_id},
+                                 {"network_status", nullptr},
+                                 {"inclusion_protocol", nullptr},
+                                 {"granted_keys", nullptr},
+                                 {"last_rx_tx_timestamp", nullptr},
+                                 {"last_rx_rssi", nullptr},
+                                 {"last_routing_path", nullptr},
+                                 {"last_tx_ticks", nullptr},
+                                 {"last_number_of_repeaters", nullptr},
+                                 {"last_tx_power", nullptr}};
 
         attribute_store_node_t child;
         uint32_t u32_val;
@@ -537,6 +547,22 @@ namespace zwave_command_class
             report["s2_capability"] = true;
         } else {
             report["s2_capability"] = false;
+        }
+
+        child                                      = attribute_store_get_node_child_by_type(node_id_node, static_cast<attribute_store_type_t>(network_monitor::network_monitor_attributes_t::NETWORK_MONITOR_GROUP), 0);
+        child                                      = attribute_store_get_node_child_by_type(child, static_cast<attribute_store_type_t>(network_monitor::network_monitor_attributes_t::network_status), 0);
+        NetworkMonitorNetworkStatus network_status = NETWORK_MONITOR_NETWORK_STATUS_UNAVAILABLE;
+        attribute_store_get_reported(child, &network_status, sizeof(network_status));
+        switch (network_status) {
+            case NETWORK_MONITOR_NETWORK_STATUS_ONLINE_FUNCTIONAL:
+                report["network_status"] = "online";
+                break;
+            case NETWORK_MONITOR_NETWORK_STATUS_OFFLINE:
+                report["network_status"] = "offline";
+                break;
+            default:
+                report["network_status"] = "unknown";
+                break;
         }
 
         std::string json_str = report.dump();

@@ -972,18 +972,10 @@ void zwave_component::network_monitor_handler::handle_event_failed_frame_transmi
         return;
     }
 
-    // Else look if we have an history of failures with the node:
-    auto it = failed_transmission_data_.find(node_id);
-    // if the node was not in failed transmission list insert it and return
-    if (it == failed_transmission_data_.end()) {
-        failed_transmission_data_.insert(std::pair<zwave_node_id_t, uint8_t>(node_id, 1));
-        return;
-    }
-
-    // Increase failure count
-    it->second++;
+    uint8_t &failed_transmission_count = failed_transmission_data_[node_id];
+    failed_transmission_count++;
     // Check if we are within the accepted number of failures.
-    if (it->second < zpc_get_config()->accepted_transmit_failure) {
+    if (failed_transmission_count < zpc_get_config()->accepted_transmit_failure) {
         return;
     }
 
