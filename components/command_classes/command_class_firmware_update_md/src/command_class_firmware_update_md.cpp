@@ -25,6 +25,7 @@
 #include "command_class_firmware_update_md_types.hpp"
 #include "command_class_firmware_update_md_generated_types.hpp"
 #include "command_class_firmware_update_md_core.hpp"
+#include "command_class_firmware_update_md_constants.hpp"
 
 // Z-Wave definitions
 #include "ZW_classcmd.h"
@@ -435,6 +436,31 @@ namespace zwave_command_class
         report_frame.add_raw_byte(0);  // max_fragment_size LSB
         report_frame.add_raw_byte(static_cast<uint8_t>(config->hardware_version & 0xFF));
 
+        frame = report_frame.generate_frame();
+        return SL_STATUS_OK;
+    }
+
+    sl_status_t command_class_firmware_update_md::on_firmware_update_md_request_get_support_requested_assemble_frame(const zwave_controller_connection_info_t * /*connection_info*/,
+                                                                                                                     command_class_firmware_update_md_attribute_map_t /*attribute_map*/,
+                                                                                                                     zwave_frame_generator_standalone &report_frame,
+                                                                                                                     std::vector<uint8_t> &frame)
+    {
+        using command_class_firmware_update_md_constants::request_report_status;
+        report_frame.add_raw_byte(static_cast<uint8_t>(request_report_status::not_upgradable));
+        frame = report_frame.generate_frame();
+        return SL_STATUS_OK;
+    }
+
+    sl_status_t command_class_firmware_update_md::on_firmware_update_md_prepare_get_support_requested_assemble_frame(const zwave_controller_connection_info_t * /*connection_info*/,
+                                                                                                                     command_class_firmware_update_md_attribute_map_t /*attribute_map*/,
+                                                                                                                     zwave_frame_generator_standalone &report_frame,
+                                                                                                                     std::vector<uint8_t> &frame)
+    {
+        using command_class_firmware_update_md_constants::prepare_report_checksum_when_not_ok;
+        using command_class_firmware_update_md_constants::prepare_report_status;
+        report_frame.add_raw_byte(static_cast<uint8_t>(prepare_report_status::not_downloadable));
+        report_frame.add_raw_byte(static_cast<uint8_t>((prepare_report_checksum_when_not_ok >> 8) & 0xFF));
+        report_frame.add_raw_byte(static_cast<uint8_t>(prepare_report_checksum_when_not_ok & 0xFF));
         frame = report_frame.generate_frame();
         return SL_STATUS_OK;
     }
