@@ -25,6 +25,7 @@
 #include "zwave_controller_callbacks.h"
 #include "zwave_controller_keyset.h"
 #include "zwave_controller.h"
+#include "zwave_controller_transport.h"
 #include "zwave_tx.h"
 #include "zwapi_protocol_controller.h"
 
@@ -152,6 +153,17 @@ sl_status_t zwave_controller_transport_abort_send_data(zwave_tx_session_id_t ses
  * @return false if none of the registered transports is busy.
  */
 bool zwave_controller_transport_is_busy(void);
+
+/**
+ * @brief Look up a registered transport by its priority field.
+ *
+ * Does not assume the table is indexed by priority. Unoccupied slots are
+ * skipped (send_data == NULL).
+ *
+ * @param priority Transport priority (see recommended priorities in zwave_controller_transport.h).
+ * @return Pointer to the registered transport, or NULL if none matches.
+ */
+const zwave_controller_transport_t *zwave_controller_transport_get_by_priority(uint32_t priority);
 
 #ifdef __cplusplus
 }

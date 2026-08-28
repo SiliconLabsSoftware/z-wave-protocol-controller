@@ -81,6 +81,16 @@ static const zwave_controller_transport_t *get_transport_by_class(zwave_command_
     return NULL;
 }
 
+const zwave_controller_transport_t *zwave_controller_transport_get_by_priority(uint32_t priority)
+{
+    for (uint32_t i = 0; i < NUMBER_OF_TRANSPORTS; i++) {
+        if ((transports[i].send_data != NULL) && (transports[i].priority == priority)) {
+            return &transports[i];
+        }
+    }
+    return NULL;
+}
+
 uint8_t zwave_controller_transport_is_encapsulation_cc(zwave_command_class_t command_class)
 {
     const zwave_controller_transport_t *t;
