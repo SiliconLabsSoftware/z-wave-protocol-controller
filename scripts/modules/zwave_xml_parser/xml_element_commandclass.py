@@ -15,6 +15,7 @@ class CommandClass:
     control: bool
     has_endpoints: bool
     minimal_scheme: str | None
+    manual_security_validation: bool = False
     interview_attributes: List[str] = field(default_factory=list)
     commands: List[Command] = field(default_factory=list)
 
@@ -35,6 +36,7 @@ class CommandClass:
         support_mode = supported_command_class.get('support_mode', None)
         mqtt_support = supported_command_class.get('mqtt_support', False)
         minimal_scheme = supported_command_class.get('minimal_scheme', None)
+        manual_security_validation = supported_command_class.get('manual_security_validation', False)
         support = supported_command_class.get('support', False)
         control = supported_command_class.get('control', False)
         has_endpoints = supported_command_class.get('has_endpoints', False)
@@ -52,6 +54,7 @@ class CommandClass:
             supported_version=version,
             mqtt_support=mqtt_support,
             minimal_scheme=minimal_scheme,
+            manual_security_validation=manual_security_validation,
             support=support,
             control=control,
             has_endpoints=has_endpoints,

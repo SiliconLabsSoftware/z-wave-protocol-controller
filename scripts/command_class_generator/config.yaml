@@ -37,6 +37,7 @@ supported_command_classes:
     control: true
     interview_attributes: []
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
+    manual_security_validation: true
   - name: "COMMAND_CLASS_MANUFACTURER_SPECIFIC"
     version: 2
     mqtt_support: true
@@ -175,6 +176,7 @@ supported_command_classes:
     control: false
     interview_attributes: []
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
+    manual_security_validation: true
 
   - name: "COMMAND_CLASS_ASSOCIATION_GRP_INFO"
     version: 3

@@ -38,6 +38,9 @@ namespace zwave_command_class {
                 .command_class_name = "{{utils.convert_command_name_to_mqtt_topic_token(command_class.name.replace("COMMAND_CLASS_", ""))}}",
                 .comments = "",
                 .supported_version = {{command_class.supported_version}},
+{% if command_class.manual_security_validation %}
+                .manual_security_validation = true,
+{% endif %}
     };
 
     const attribute_list_registration_t attributes = { 
