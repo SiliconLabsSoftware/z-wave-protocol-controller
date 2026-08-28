@@ -366,7 +366,7 @@ static bool idle_head_waiting_for_chip_completion(const zwave_tx_queue_element_t
 static bool zwave_tx_fetch_radio_idle_backoff_bypass(zwave_tx_queue_element_t *element)
 {
     const zwave_controller_transport_t *api = zwave_controller_transport_get_by_priority(0);
-    if ((api != NULL) && (api->is_busy != NULL) && (api->is_busy() == true)) {
+    if ((api != NULL) && (api->is_busy != NULL) && api->is_busy()) {
         return false;
     }
     zwave_tx_queue_element_t bypass = {};
