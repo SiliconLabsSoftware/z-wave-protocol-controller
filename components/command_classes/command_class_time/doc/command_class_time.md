@@ -4,9 +4,7 @@ ZPC **supports** Time Command Class version 3 as a time server.
 
 ## Spec
 
-- v1: `html/_sources/management_command_classes/command_class_definitions/time_command_class_version_1.rst.txt`
-- v2: `html/_sources/management_command_classes/command_class_definitions/time_command_class_version_2.rst.txt`
-- v3: `html/_sources/management_command_classes/command_class_definitions/time_command_class_version_3.rst.txt`
+Z-Wave Application Specification: Time Command Class, versions 1–3 (`CC:008A`).
 
 Date and time in Get reports come from the host OS. Time Report Time Source is Wi-Fi/Internet (`CC:008A.03.02.11.004`). RTC Failure is 0 (`CC:008A.03.02.11.006`).
 
