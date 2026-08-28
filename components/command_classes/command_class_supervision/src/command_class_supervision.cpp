@@ -46,6 +46,7 @@ namespace zwave_command_class
     // We support only 1 session at a time, would abort an ongoing operation
     // for a new one if needed.
     static supervision_session_t supported_session = {0};
+    static std::vector<uint8_t> supported_session_command;
 
     // Keep a list of nodes that must be "awaken" on demand
     static zwave_nodemask_t wake_on_demand_list = {0};
@@ -154,12 +155,8 @@ namespace zwave_command_class
         std::vector<uint8_t> encapsulated_command;
         encapsulated_command = get_value_or_default(payload, "encapsulated_command", encapsulated_command);
 
-        // Duplicate detection for the support of supervision_get command
-        // We do not return anything in case of duplicate info in 2 consecutive singlecast commands.
-        // CC:006C.01.01.11.00D Do not send a report in case of duplicate if no security encap was applied
-        // We tend to accept duplicate SessionID else, due to CL:006C.01.52.01.1
-        if ((session_id == supported_session.session_id) && (connection_info->remote.node_id == supported_session.node_id) && (connection_info->remote.endpoint_id == supported_session.endpoint_id) && (connection_info->encapsulation == ZWAVE_CONTROLLER_ENCAPSULATION_NONE)
-            && !connection_info->local.is_multicast) {
+        // CC:006C.01.01.11.00D ignore duplicate singlecast with the same Session ID and same encapsulated command.
+        if ((session_id == supported_session.session_id) && (connection_info->remote.node_id == supported_session.node_id) && (connection_info->remote.endpoint_id == supported_session.endpoint_id) && (encapsulated_command == supported_session_command) && !connection_info->local.is_multicast) {
             sl_log_debug(LOG_TAG.data(), "Ignoring Supervision Get duplicate");
             return SL_STATUS_OK;
         }
@@ -170,14 +167,10 @@ namespace zwave_command_class
         sl_status_t command_handler_status = SL_STATUS_NOT_SUPPORTED;
 
         // Unwrapping SUPERVISION encapsulation and insert to the Command Handler framework
-        if (encapsulated_command_length != 0U) {  // TODO: check if this is correct
-            // Inject into the command handler only if parsing goes well
-            // The same command will be injected again in a singlecast follow-up.
-            // Normally we should already be at target value, so it does not harm to
-            // do it again.
-
-            // FIXME: This is really weird that a CC uses the command class manager to dispatch a command.
-            command_handler_status = zwave_command_class_manager::dispatch(connection_info, encapsulated_command.data(), (uint16_t)encapsulated_command_length);
+        if (encapsulated_command.size() != encapsulated_command_length) {
+            command_handler_status = SL_STATUS_NOT_SUPPORTED;
+        } else if (!encapsulated_command.empty()) {
+            command_handler_status = zwave_command_class_manager::dispatch(connection_info, encapsulated_command.data(), static_cast<uint16_t>(encapsulated_command.size()));
         }
 
         // Return a response if it was the first singlecast.
@@ -186,6 +179,7 @@ namespace zwave_command_class
             supported_session.session_id  = session_id;
             supported_session.node_id     = connection_info->remote.node_id;
             supported_session.endpoint_id = connection_info->remote.endpoint_id;
+            supported_session_command     = encapsulated_command;
             // Start preparing a report.
             ZW_SUPERVISION_REPORT_FRAME report;
             report.cmdClass    = COMMAND_CLASS_SUPERVISION;
