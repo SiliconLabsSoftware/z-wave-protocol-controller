@@ -74,43 +74,45 @@ namespace zwave_command_class {
 
     {{command_class_name_lower}}_core::{{command_class_name_lower}}_core() : zwave_command_class_base({{command_class_name_lower}}_core::cc_properties, attributes, "{{utils.convert_command_name_to_mqtt_topic_token(command_class.name.replace("COMMAND_CLASS_", ""))}}") 
     {
-        {% for command in command_class.commands %}
-            {% if utils.is_rx(command) == "True" %}
-                attribute_resolver::register_rules(static_cast<attribute_store_type_t>({{command.name | lower }}_group_attributes_t::{{command.name | upper }}_GROUP),
-                // Set rule
-                {% if utils.is_set(command.name) == "True" %}
-                    [this](attribute_store_node_t node, uint8_t *data, uint16_t *length) {
-                        try {sl_log_debug(LOG_TAG.data(), "{{command.name }}_GROUP requested");
-                            auto command = static_cast<uint8_t>({{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper | replace("_GROUP", "")}});
-                            m_frame_generator.initialize_frame(command, data, length);
-                            set_requested_args args = {node, &m_frame_generator};
-                            return this->on_{{command.name | lower | replace("_GROUP", "")}}_requested(args, data, length);
-                        } catch (const std::exception &e) {
-                            sl_log_error(LOG_TAG.data(), "Error while generating {{ command.name }}_GROUP : %s", e.what());
-                            return SL_STATUS_FAIL;
-                        }
-                    },
-                {% else %}
-                    nullptr,
-                {% endif %}
-                // Get rule
-                {% if utils.is_get(command.name) == "True" %}
-                    [this](attribute_store_node_t node, uint8_t *data, uint16_t *length) {
-                    try {sl_log_debug(LOG_TAG.data(), "{{command.name }}_GROUP requested");
-                        auto command = static_cast<uint8_t>({{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper }});
-                        m_frame_generator.initialize_frame(command, data, length);
-                        get_requested_args args = {node, &m_frame_generator};
-                        return this->on_{{command.name | lower | replace("_GROUP", "")}}_requested(args, data, length);
-                    } catch (const std::exception &e) {
-                        sl_log_error(LOG_TAG.data(), "Error while generating {{command.name }}_GROUP : %s", e.what());
-                        return SL_STATUS_FAIL;
-                    }}
-                {% else %}
-                    nullptr
-                {% endif %}
-                );
-            {% endif +%}
-        {% endfor %}
+        {% if command_class.control == true %}
+          {% for command in command_class.commands %}
+              {% if utils.is_rx(command) == "True" %}
+                  attribute_resolver::register_rules(static_cast<attribute_store_type_t>({{command.name | lower }}_group_attributes_t::{{command.name | upper }}_GROUP),
+                  // Set rule
+                  {% if utils.is_set(command.name) == "True" %}
+                      [this](attribute_store_node_t node, uint8_t *data, uint16_t *length) {
+                          try {sl_log_debug(LOG_TAG.data(), "{{command.name }}_GROUP requested");
+                              auto command = static_cast<uint8_t>({{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper | replace("_GROUP", "")}});
+                              m_frame_generator.initialize_frame(command, data, length);
+                              set_requested_args args = {node, &m_frame_generator};
+                              return this->on_{{command.name | lower | replace("_GROUP", "")}}_requested(args, data, length);
+                          } catch (const std::exception &e) {
+                              sl_log_error(LOG_TAG.data(), "Error while generating {{ command.name }}_GROUP : %s", e.what());
+                              return SL_STATUS_FAIL;
+                          }
+                      },
+                  {% else %}
+                      nullptr,
+                  {% endif %}
+                  // Get rule
+                  {% if utils.is_get(command.name) == "True" %}
+                      [this](attribute_store_node_t node, uint8_t *data, uint16_t *length) {
+                      try {sl_log_debug(LOG_TAG.data(), "{{command.name }}_GROUP requested");
+                          auto command = static_cast<uint8_t>({{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper }});
+                          m_frame_generator.initialize_frame(command, data, length);
+                          get_requested_args args = {node, &m_frame_generator};
+                          return this->on_{{command.name | lower | replace("_GROUP", "")}}_requested(args, data, length);
+                      } catch (const std::exception &e) {
+                          sl_log_error(LOG_TAG.data(), "Error while generating {{command.name }}_GROUP : %s", e.what());
+                          return SL_STATUS_FAIL;
+                      }}
+                  {% else %}
+                      nullptr
+                  {% endif %}
+                  );
+              {% endif +%}
+          {% endfor %}
+        {% endif %}
 
         // Interview is now handled via COMPONENT_CONNECTOR_INTERVIEW_DONE event
         // Command classes should implement on_interview() to handle interview logic
