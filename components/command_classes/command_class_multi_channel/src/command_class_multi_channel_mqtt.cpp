@@ -69,19 +69,16 @@ namespace zwave_command_class
             return parser.status();
         }
 
-        attribute_store::attribute desired_endpoint_node;
-        if (parsed_end_point > 0) {
-            desired_endpoint_node = endpoint_node.parent().emplace_node(ATTRIBUTE_ENDPOINT_ID, parsed_end_point);
-
-            auto group_node = desired_endpoint_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_capability_get_group_attributes_t::MULTI_CHANNEL_CAPABILITY_GET_GROUP));
-
-            auto end_point_node = group_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_capability_get_group_attributes_t::end_point));
-            end_point_node.set_desired(parsed_end_point);
-
-            command_class_multi_channel_core::start_group_resolution(group_node);
-        } else {
-            desired_endpoint_node = endpoint_node;
+        if (parsed_end_point == 0) {
+            return SL_STATUS_OK;
         }
+
+        // Multi Channel Capability Get is a root command; End Point is carried in the payload.
+        auto group_node     = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_capability_get_group_attributes_t::MULTI_CHANNEL_CAPABILITY_GET_GROUP));
+        auto end_point_node = group_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_capability_get_group_attributes_t::end_point));
+        end_point_node.set_desired(parsed_end_point);
+
+        command_class_multi_channel_core::start_group_resolution(group_node);
 
         return SL_STATUS_OK;
     }

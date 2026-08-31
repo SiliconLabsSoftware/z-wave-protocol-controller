@@ -56,8 +56,10 @@ namespace zwave_command_class
             sl_log_info(LOG_TAG.data(), "%d endpoints found for node %d", payload.endpoints.size(), session.node_id, session.endpoint_id);
             sl_log_info(LOG_TAG.data(), "Endpoints:");
             for (const auto &endpoint: payload.endpoints) {
-                sl_log_info(LOG_TAG.data(), "\t- Endpoint ID: %d", endpoint.properties1.value);
-                session.endpoints.endpoint_ids.push_back(endpoint.properties1.value);
+                using masks_t             = command_class_multi_channel_types::multi_channel_end_point_find_report_vg_properties1_attribute_masks_t;
+                const uint8_t endpoint_id = static_cast<uint8_t>(endpoint.properties1.value & static_cast<uint8_t>(masks_t::end_point_mask));
+                sl_log_info(LOG_TAG.data(), "\t- Endpoint ID: %d", endpoint_id);
+                session.endpoints.endpoint_ids.push_back(endpoint_id);
             }
             session.endpoints.current_endpoint_it = session.endpoints.endpoint_ids.begin();
             return done();
