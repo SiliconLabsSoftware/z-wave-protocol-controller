@@ -24,6 +24,7 @@
 #include <limits.h>
 #include <time.h>
 #include <sys/time.h>
+#include <stdatomic.h>
 #include "zwapi_serial.h"
 // #include "clock.h"
 #include "log.h"
@@ -31,10 +32,27 @@
 
 #define LOG_TAG "zwapi_serial"
 
-static int serial_fd;
+static int serial_fd           = -1;
+static atomic_bool serial_lost = false;
 
 // Stores the last used serial port
 static char last_used_serial_port[PATH_MAX] = {0};
+
+static bool zwapi_serial_is_fatal_errno(int err)
+{
+    return err == ENXIO || err == ENODEV || err == EIO || err == EBADF;
+}
+
+void zwapi_serial_mark_lost(const char *reason)
+{
+    if (last_used_serial_port[0] == '\0') {
+        return;
+    }
+    if (atomic_exchange(&serial_lost, true)) {
+        return;
+    }
+    sl_log_error(LOG_TAG, "Serial device lost: %s. Shutting down.", reason);
+}
 
 // Previously named OpenSerialPort in the legacy SerialAPI module
 /**
@@ -99,6 +117,7 @@ error:
 
 int zwapi_serial_init(const char *port)
 {
+    atomic_store(&serial_lost, false);
     serial_fd = zwapi_open_serial_port(port);
     if (0 < serial_fd) {
         tcflush(serial_fd, TCIOFLUSH);
@@ -109,8 +128,16 @@ int zwapi_serial_init(const char *port)
 
 void zwapi_serial_close(void)
 {
-    flock(serial_fd, LOCK_UN);
-    close(serial_fd);
+    if (serial_fd >= 0) {
+        flock(serial_fd, LOCK_UN);
+        close(serial_fd);
+        serial_fd = -1;
+    }
+}
+
+bool zwapi_serial_is_lost(void)
+{
+    return atomic_load(&serial_lost);
 }
 
 int zwapi_serial_restart(void)
@@ -136,6 +163,10 @@ int zwapi_serial_get_buffer(uint8_t *c, int len)
 {
     int k = 0;
 
+    if (atomic_load(&serial_lost) || serial_fd < 0) {
+        return 0;
+    }
+
     while (k < len) {
         fd_set rfds;
         FD_ZERO(&rfds);
@@ -149,7 +180,11 @@ int zwapi_serial_get_buffer(uint8_t *c, int len)
             if (errno == EINTR) {
                 continue;
             }
-            sl_log_warning(LOG_TAG, "Serial select error: %s\n", strerror(errno));
+            if (zwapi_serial_is_fatal_errno(errno)) {
+                zwapi_serial_mark_lost(strerror(errno));
+            } else {
+                sl_log_warning(LOG_TAG, "Serial select error: %s\n", strerror(errno));
+            }
             return k;
         }
         if (sel == 0) {
@@ -157,8 +192,15 @@ int zwapi_serial_get_buffer(uint8_t *c, int len)
             return k;
         }
         int res = read(serial_fd, c + k, len - k);
+        if (res < 0 && errno == EINTR) {
+            continue;
+        }
         if (res <= 0) {
-            sl_log_warning(LOG_TAG, "Serial read error: %s\n", strerror(errno));
+            if (res == 0 || zwapi_serial_is_fatal_errno(errno)) {
+                zwapi_serial_mark_lost(res == 0 ? "hangup" : strerror(errno));
+            } else {
+                sl_log_warning(LOG_TAG, "Serial read error: %s\n", strerror(errno));
+            }
             return k;
         }
         k += res;
@@ -170,9 +212,18 @@ int zwapi_serial_get_buffer(uint8_t *c, int len)
 void zwapi_serial_put_buffer(uint8_t *c, int len)
 {
     int n = 0;
+
+    if (atomic_load(&serial_lost) || serial_fd < 0) {
+        return;
+    }
+
     do {
         int res = write(serial_fd, c, len);
         if (res < 0) {
+            if (zwapi_serial_is_fatal_errno(errno)) {
+                zwapi_serial_mark_lost(strerror(errno));
+                return;
+            }
             sl_log_error(LOG_TAG, "Serial Write Error: %s", strerror(errno));
         } else {
             n += res;
@@ -192,6 +243,10 @@ bool zwapi_serial_is_file_available(void)
     struct timeval tv;
     int retval;
 
+    if (atomic_load(&serial_lost) || serial_fd < 0) {
+        return false;
+    }
+
     FD_ZERO(&rfds);
     FD_SET(serial_fd, &rfds);
 
@@ -204,7 +259,11 @@ bool zwapi_serial_is_file_available(void)
     retval = select(serial_fd + 1, &rfds, NULL, NULL, &tv);
     // Don't rely on the value of tv now!
     if (retval == -1) {
-        perror("select()");
+        if (zwapi_serial_is_fatal_errno(errno)) {
+            zwapi_serial_mark_lost(strerror(errno));
+        } else {
+            perror("select()");
+        }
         return false;
     }
     if (retval > 0) {
@@ -215,7 +274,14 @@ bool zwapi_serial_is_file_available(void)
 
 void zwapi_serial_drain_buffer(void)
 {
+    if (atomic_load(&serial_lost) || serial_fd < 0) {
+        return;
+    }
     if (tcdrain(serial_fd)) {
+        if (zwapi_serial_is_fatal_errno(errno)) {
+            zwapi_serial_mark_lost(strerror(errno));
+            return;
+        }
         sl_log_error(LOG_TAG, "Unable to drain serial buffer. Target might be dead....\n");
     }
 }

@@ -103,6 +103,13 @@ void zwapi_serial_put_buffer(uint8_t *c, int len);
 bool zwapi_serial_is_file_available(void);
 
 /**
+ * @brief Mark the serial port unusable (log once). No-op if already lost or serial was never opened.
+ */
+void zwapi_serial_mark_lost(const char *reason);
+
+bool zwapi_serial_is_lost(void);
+
+/**
  * @brief Flush the serial output if using buffered output.
  *
  * This function calls tcdrain, which waits that the TTY buffer data has been

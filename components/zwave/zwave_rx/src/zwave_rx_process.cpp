@@ -127,9 +127,16 @@ namespace zwave_component
 
         bool should_poll = value.has_value();
 
-        // If queue is empty, wait for file descriptor to be ready
-        // Use a timeout (100ms) so we can periodically check should_stop()
-        if (!should_poll) {
+        if (should_poll) {
+            int poll_result = poll(&pfd, 1, 0);
+            if (poll_result > 0 && (pfd.revents & (POLLHUP | POLLERR | POLLNVAL))) {
+                sl_log_error(LOG_TAG, "Serial device hangup or error, shutting down");
+                threading::threading::kill_switch_activate();
+                return;
+            }
+        } else {
+            // If queue is empty, wait for file descriptor to be ready
+            // Use a timeout (100ms) so we can periodically check should_stop()
             int poll_timeout_ms = 100;  // 100ms timeout to allow checking should_stop()
             int poll_result     = poll(&pfd, 1, poll_timeout_ms);
 
@@ -149,6 +156,10 @@ namespace zwave_component
                     sl_log_error(LOG_TAG, "poll() failed: %s", strerror(errno));
                 }
                 should_poll = false;
+            } else if (poll_result > 0 && (pfd.revents & (POLLHUP | POLLERR | POLLNVAL))) {
+                sl_log_error(LOG_TAG, "Serial device hangup or error, shutting down");
+                threading::threading::kill_switch_activate();
+                return;
             } else {
                 should_poll = (poll_result > 0);
             }

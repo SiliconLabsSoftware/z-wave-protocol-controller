@@ -362,6 +362,11 @@ zwapi_connection_status_t zwapi_connection_refresh()
             }
         }
     }
+
+    if (retVal == ZWAPI_CONNECTION_STATUS_IDLE && ack_nak_needed && zwapi_is_timestamp_elapsed(&timeOutACK)) {
+        ack_nak_needed = false;
+        retVal         = ZWAPI_CONNECTION_STATUS_TX_TIMEOUT;
+    }
     return retVal;
 }
 
