@@ -660,23 +660,34 @@ namespace zwave_command_class
         }
         frame_generator->add_value(grouping_identifier_node, DESIRED_ATTRIBUTE);
 
+        // Same layout as Set: Node IDs, optional 0x00 marker, then End Point associations.
+        // Marker is not a registered attribute-store type, so treat it as optional and
+        // insert the wire marker when vg destinations are present.
         auto node_id_node = group_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_association_remove_group_attributes_t::node_id));
-        if (!node_id_node.desired_exists()) {
-            return SL_STATUS_NOT_READY;
-        }
-        frame_generator->add_value(node_id_node, DESIRED_ATTRIBUTE);
+        auto marker_node  = group_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_association_remove_group_attributes_t::marker));
+        auto vg_node      = group_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_association_remove_group_attributes_t::vg));
 
-        auto marker_node = group_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_association_remove_group_attributes_t::marker));
-        if (!marker_node.desired_exists()) {
+        if (!node_id_node.desired_exists() && !vg_node.desired_exists()) {
             return SL_STATUS_NOT_READY;
         }
-        frame_generator->add_value(marker_node, DESIRED_ATTRIBUTE);
 
-        auto vg_node = group_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_association_remove_group_attributes_t::vg));
-        if (!vg_node.desired_exists()) {
-            return SL_STATUS_NOT_READY;
+        if (node_id_node.desired_exists()) {
+            frame_generator->add_value(node_id_node, DESIRED_ATTRIBUTE);
         }
-        frame_generator->add_value(vg_node, DESIRED_ATTRIBUTE);
+        // Only add the marker and vg list when there are actual endpoint destinations.
+        // The MQTT handler always writes vg (even as an empty list), so check the value
+        // rather than existence — an empty vg means "remove-all" and must not emit a marker.
+        if (vg_node.desired_exists()) {
+            const auto vg_list = vg_node.desired<std::vector<multi_channel_association_remove_vg_t_item_t>>();
+            if (!vg_list.empty()) {
+                if (marker_node.desired_exists()) {
+                    frame_generator->add_value(marker_node, DESIRED_ATTRIBUTE);
+                } else {
+                    frame_generator->add_raw_byte(0x00);
+                }
+                frame_generator->add_value(vg_node, DESIRED_ATTRIBUTE);
+            }
+        }
 
         return frame_generator->generate_frame();
     }

@@ -106,7 +106,7 @@ The state machine resolves `(current_state, result_code)` → `next_state` using
 | `GET_AGI_GROUP_INFO` | `DONE` | `GET_AGI_GROUP_COMMAND_LIST` |
 | `GET_AGI_GROUP_COMMAND_LIST` | `DONE` | `GET_AGI_GROUP_NAME` |
 | `SET_LIFELINE` | `DONE` | `VALIDATE_LIFELINE` |
-| `SET_LIFELINE` | `SKIP` | `CHECK_MULTI_CHANNEL_SUPPORT` |
+| `SET_LIFELINE` | `SKIP` | `POST_VALIDATE_LIFELINE` |
 | `VALIDATE_LIFELINE` | `DONE` | `POST_VALIDATE_LIFELINE` |
 | `VALIDATE_LIFELINE` | `SKIP` | `POST_VALIDATE_LIFELINE` |
 | `POST_VALIDATE_LIFELINE` | `DONE` | `CHECK_MULTI_CHANNEL_SUPPORT` |
@@ -640,7 +640,7 @@ stateDiagram-v2
 
 **Transitions**:
 - Set sent → `VALIDATE_LIFELINE`
-- Not supported → `CHECK_MULTI_CHANNEL_SUPPORT`
+- Skipped (no association groups / not applicable) → `POST_VALIDATE_LIFELINE` (routes root → `CHECK_MULTI_CHANNEL_SUPPORT`, endpoint → `ENDPOINT_ASSOCIATION_ITERATOR`)
 
 ### 19. LifelineValidateStep (`VALIDATE_LIFELINE`)
 
@@ -822,6 +822,12 @@ stateDiagram-v2
 **Conditions**: Reached after ENDPOINT_ZWAVEPLUS_INFO. Runs the same Association/MCA + AGI + lifeline chain for each endpoint by setting `session.endpoint_node` and `session.endpoint_id` to each endpoint in turn.
 
 **Purpose**: Per-endpoint Association/MCA and AGI interview. On first enter: set session to first endpoint, return DONE → `GET_MULTI_CHANNEL_ASSOCIATION_SUPPORTED_GROUPINGS`. When re-entered after VALIDATE_LIFELINE (session.endpoint_id != 0): advance to next endpoint or restore root and return SKIP → `COMPLETED`.
+
+**Per-endpoint scoping**: Before re-entering the association chain for an endpoint, this step:
+- Resets AGI/association session progress (`agi_total_groups`, `agi_used_multi_channel`, group iterators) so root interview state is not reused
+- Rebuilds `session.version_cc.command_classes_to_query` from that endpoint’s Multi Channel Capability Report (authoritative). Falls back to Secure NIF / NIF only if no capability report CC list is present.
+
+Existing MCA / Association / AGI gates then skip naturally when the endpoint does not advertise those CCs.
 
 - More endpoints → `GET_MULTI_CHANNEL_ASSOCIATION_SUPPORTED_GROUPINGS` (same chain for next endpoint)
 - No endpoints or all done → `COMPLETED`

@@ -70,7 +70,14 @@ namespace zwave_command_class
         specific_device_class = get_value_or_default(attribute_map, "specific_device_class", specific_device_class);
         command_class         = get_value_or_default(attribute_map, "command_class", command_class);
 
-        auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_capability_report_group_attributes_t::MULTI_CHANNEL_CAPABILITY_REPORT_GROUP));
+        // Capability Report is addressed to the root but names the End Point in the
+        // frame. Store under that End Point so per-endpoint interview can gate on it.
+        auto target_endpoint_node = endpoint_node;
+        if (end_point > 0) {
+            target_endpoint_node = endpoint_node.parent().emplace_node(ATTRIBUTE_ENDPOINT_ID, end_point);
+        }
+
+        auto group_node = target_endpoint_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_capability_report_group_attributes_t::MULTI_CHANNEL_CAPABILITY_REPORT_GROUP));
 
         auto end_point_node = group_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_capability_report_group_attributes_t::end_point));
         end_point_node.set_reported<uint8_t>(end_point);

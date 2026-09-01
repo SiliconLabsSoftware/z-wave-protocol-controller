@@ -17,6 +17,8 @@ target_link_libraries(
   PUBLIC
     command_class_common
     command_class_multi_channel_association_interface
+    command_class_association_grp_info_interface
+    command_class_multi_channel_interface
 )
 
 add_subdirectory(interface)
