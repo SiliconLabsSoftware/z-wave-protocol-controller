@@ -22,6 +22,7 @@
 #include "zwave_tx.h"
 #include "zwave_tx_scheme_selector.h"
 #include "zwave_network_management.h"
+#include "ZW_classcmd.h"
 
 #include <algorithm>
 #include <cassert>
@@ -133,6 +134,6 @@ namespace zwave_command_class
 
     bool command_class_utils::is_version_command_class_in_s2_s0_nif_lists(const std::vector<uint8_t> &s2_supported_command_classes, const std::vector<uint8_t> &s0_supported_command_classes, const std::vector<uint8_t> &node_information_command_class_list)
     {
-        return is_command_class_in_s2_s0_nif_lists(0x86, s2_supported_command_classes, s0_supported_command_classes, node_information_command_class_list);
+        return is_command_class_in_s2_s0_nif_lists(COMMAND_CLASS_VERSION, s2_supported_command_classes, s0_supported_command_classes, node_information_command_class_list);
     }
 }  // namespace zwave_command_class

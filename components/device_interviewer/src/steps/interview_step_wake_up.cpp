@@ -20,6 +20,7 @@
 #include "zpc_config.h"
 #include "zwave_network_management.h"
 #include "zwave_command_class_utils.hpp"
+#include "ZW_classcmd.h"
 #include "log.h"
 
 namespace zwave_command_class
@@ -62,7 +63,7 @@ namespace zwave_command_class
 
     StepResult WakeUpStep::on_enter(InterviewSession &session)
     {
-        if (!command_class_utils::is_command_class_in_s2_s0_nif_lists(0x84, session.s2_supported_command_classes, session.s0_supported_command_classes, session.node_information_command_class_list)) {
+        if (!command_class_utils::is_command_class_in_s2_s0_nif_lists(COMMAND_CLASS_WAKE_UP, session.s2_supported_command_classes, session.s0_supported_command_classes, session.node_information_command_class_list)) {
             sl_log_info(LOG_TAG.data(), "Node %d does not support Wake Up CC (0x84), skipping", session.node_id);
             return skip();
         }
