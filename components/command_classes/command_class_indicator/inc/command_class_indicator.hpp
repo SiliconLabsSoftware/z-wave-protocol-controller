@@ -22,7 +22,7 @@
 namespace zwave_command_class
 {
 
-    class command_class_indicator final : public command_class_indicator_attribute_store, public command_class_indicator_mqtt
+    class command_class_indicator : public command_class_indicator_attribute_store, public command_class_indicator_mqtt
     {
 
         public:

@@ -14,6 +14,7 @@
 #include "zwave_command_class_utils.hpp"
 
 #include "attribute_store_defined_attribute_types.h"
+#include "zpc_attribute_store.h"
 #include "zwave_command_class_indices.h"
 #include "attribute_store_helper.h"
 #include "log.h"
@@ -39,6 +40,14 @@ namespace zwave_command_class
         }
         zwave_home_id_t home_id = zwave_network_management_get_home_id();
         return attribute_store_network_helper_get_endpoint_node(home_id, connection_info->remote.node_id, connection_info->remote.endpoint_id);
+    }
+
+    attribute_store_node_t command_class_utils::get_zpc_endpoint_node(const zwave_controller_connection_info_t *connection_info)
+    {
+        if (nullptr == connection_info) {
+            return ATTRIBUTE_STORE_INVALID_NODE;
+        }
+        return get_zpc_endpoint_id_node(connection_info->local.endpoint_id);
     }
 
     sl_status_t command_class_utils::send_report(const zwave_controller_connection_info_t *connection_info, uint16_t report_size, const uint8_t *report_data)

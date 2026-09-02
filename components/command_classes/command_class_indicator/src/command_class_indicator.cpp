@@ -283,7 +283,10 @@ namespace zwave_command_class
         report_frame.add_raw_byte(INDICATOR_0_VALUE_V2_PLUS);
 
         if (requested_id == indicator_id_na || requested_id == indicator_id_node_identify) {
-            attribute_store::attribute endpoint_node(command_class_utils::get_endpoint_node(connection_info));
+            attribute_store::attribute endpoint_node(command_class_utils::get_zpc_endpoint_node(connection_info));
+            if (!endpoint_node.is_valid()) {
+                return SL_STATUS_FAIL;
+            }
             auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(indicator_report_group_attributes_t::INDICATOR_REPORT_GROUP));
             auto vg1_node   = group_node.child_by_type(static_cast<attribute_store_type_t>(indicator_report_group_attributes_t::vg1));
 
@@ -349,7 +352,10 @@ namespace zwave_command_class
         indicator_set_vg1_t set_vg1;
         set_vg1 = get_value_or_default(attribute_map, "vg1", set_vg1);
 
-        attribute_store::attribute endpoint_node(command_class_utils::get_endpoint_node(connection_info));
+        attribute_store::attribute endpoint_node(command_class_utils::get_zpc_endpoint_node(connection_info));
+        if (!endpoint_node.is_valid()) {
+            return SL_STATUS_FAIL;
+        }
         auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(indicator_report_group_attributes_t::INDICATOR_REPORT_GROUP));
 
         // Read existing stored values
@@ -395,6 +401,8 @@ namespace zwave_command_class
         }
 
         vg1_node.set_reported<indicator_report_vg1_t>(report_vg1);
+
+        publish_indicator_set_received(endpoint_node, get_value_or_default<uint8_t>(attribute_map, "indicator_0_value", uint8_t(0)), get_value_or_default<uint8_t>(attribute_map, "indicator_object_count", uint8_t(0)), set_vg1);
 
         return SL_STATUS_OK;
     }

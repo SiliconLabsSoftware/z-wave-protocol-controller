@@ -47,6 +47,13 @@ namespace zwave_command_class
             static attribute_store_node_t get_endpoint_node(const zwave_controller_connection_info_t *connection_info);
 
             /**
+             * @brief Resolve the ZPC's own endpoint node for a connection.
+             * @param connection_info Local endpoint from the frame context.
+             * @return ZPC endpoint node, or ATTRIBUTE_STORE_INVALID_NODE if @p connection_info is null.
+             */
+            static attribute_store_node_t get_zpc_endpoint_node(const zwave_controller_connection_info_t *connection_info);
+
+            /**
              * @brief Send a command class report to the peer using recommended answer QoS.
              * @param connection_info Destination derived from the inbound context.
              * @param report_size Length of @p report_data (must be non-zero; asserted in the implementation).
