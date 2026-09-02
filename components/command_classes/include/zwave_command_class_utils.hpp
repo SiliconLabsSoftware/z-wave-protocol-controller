@@ -89,6 +89,15 @@ namespace zwave_command_class
             static sl_status_t get_node_dsk(zwave_node_id_t node_id, zwave_dsk_t dsk);
 
             /**
+             * @brief True if an 8-bit Command Class appears in any supported CC list.
+             *
+             * The lists use the NIF/Security Commands Supported wire encoding, so
+             * controlled Command Classes after the control mark and extended
+             * Command Classes are intentionally excluded.
+             */
+            static bool is_command_class_in_s2_s0_nif_lists(uint8_t command_class, const std::vector<uint8_t> &s2_supported_command_classes, const std::vector<uint8_t> &s0_supported_command_classes, const std::vector<uint8_t> &node_information_command_class_list);
+
+            /**
              * @brief True if Version (0x86) appears in any of the normal (non-extended) CCs
              *        from S2 supported, S0 supported, and NIF lists (per device interviewer merge rule).
              */

@@ -21,7 +21,8 @@ namespace zwave_command_class
     /**
      * @brief Interviews the Wake Up Command Class (0x84).
      *
-     * Skipped if Wake Up CC (0x84) is absent from the queried CC list.
+     * Skipped if Wake Up CC (0x84) is absent from the node's NIF and S0/S2
+     * Commands Supported lists.
      *
      * Wake Up CC version 2+: Interval Capabilities Get → Report, then Interval Set
      * (`zpc.default_wake_up_interval`, controller node id). After Set resolution,

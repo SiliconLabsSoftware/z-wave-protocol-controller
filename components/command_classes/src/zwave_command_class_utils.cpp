@@ -22,6 +22,7 @@
 #include "zwave_tx.h"
 #include "zwave_tx_scheme_selector.h"
 #include "zwave_network_management.h"
+#include "ZW_classcmd.h"
 
 #include <algorithm>
 #include <cassert>
@@ -122,15 +123,17 @@ namespace zwave_command_class
         return attribute_store_read_value(dsk_node, REPORTED_ATTRIBUTE, dsk, sizeof(zwave_dsk_t));
     }
 
-    bool command_class_utils::is_version_command_class_in_s2_s0_nif_lists(const std::vector<uint8_t> &s2_supported_command_classes, const std::vector<uint8_t> &s0_supported_command_classes, const std::vector<uint8_t> &node_information_command_class_list)
+    bool command_class_utils::is_command_class_in_s2_s0_nif_lists(uint8_t command_class, const std::vector<uint8_t> &s2_supported_command_classes, const std::vector<uint8_t> &s0_supported_command_classes, const std::vector<uint8_t> &node_information_command_class_list)
     {
-        static constexpr uint8_t version_command_class_id = 0x86;
-
         const std::vector<uint8_t> filtered_s2  = get_normal_command_classes(s2_supported_command_classes);
         const std::vector<uint8_t> filtered_s0  = get_normal_command_classes(s0_supported_command_classes);
         const std::vector<uint8_t> filtered_nif = get_normal_command_classes(node_information_command_class_list);
 
-        return std::find(filtered_s2.begin(), filtered_s2.end(), version_command_class_id) != filtered_s2.end() || std::find(filtered_s0.begin(), filtered_s0.end(), version_command_class_id) != filtered_s0.end()
-               || std::find(filtered_nif.begin(), filtered_nif.end(), version_command_class_id) != filtered_nif.end();
+        return std::find(filtered_s2.begin(), filtered_s2.end(), command_class) != filtered_s2.end() || std::find(filtered_s0.begin(), filtered_s0.end(), command_class) != filtered_s0.end() || std::find(filtered_nif.begin(), filtered_nif.end(), command_class) != filtered_nif.end();
+    }
+
+    bool command_class_utils::is_version_command_class_in_s2_s0_nif_lists(const std::vector<uint8_t> &s2_supported_command_classes, const std::vector<uint8_t> &s0_supported_command_classes, const std::vector<uint8_t> &node_information_command_class_list)
+    {
+        return is_command_class_in_s2_s0_nif_lists(COMMAND_CLASS_VERSION, s2_supported_command_classes, s0_supported_command_classes, node_information_command_class_list);
     }
 }  // namespace zwave_command_class
