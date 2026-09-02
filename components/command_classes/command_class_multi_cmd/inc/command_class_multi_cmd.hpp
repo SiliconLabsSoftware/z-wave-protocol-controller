@@ -27,6 +27,8 @@ namespace zwave_command_class
         public:
             command_class_multi_cmd();
             ~command_class_multi_cmd() = default;
+
+            sl_status_t support_handler(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length) override;
     };
 
 }  // namespace zwave_command_class

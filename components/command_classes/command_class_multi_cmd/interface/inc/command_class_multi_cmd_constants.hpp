@@ -19,7 +19,12 @@
 namespace zwave_command_class
 {
     namespace command_class_multi_cmd_constants
-    {}  // namespace command_class_multi_cmd_constants
+    {
+        // CC + MULTI_CMD_ENCAP + Number of Commands
+        constexpr uint16_t encap_header_size = 3;
+        // Command Class + Command
+        constexpr uint8_t inner_min_length = 2;
+    }  // namespace command_class_multi_cmd_constants
 }  // namespace zwave_command_class
 
 #endif  // COMMAND_CLASS_MULTI_CMD_CONSTANTS_H
