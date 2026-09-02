@@ -300,35 +300,25 @@ namespace zwave_component
             return;
         }
 
-        bool processed_any = false;
-
+        // Drain non-timing-critical queues without blocking.
         while (auto msg = reset_queue.try_pop()) {
             reset_subscriptions_internal(msg->new_home_id);
-            processed_any = true;
         }
-
-        while (auto msg = publish_queue.try_pop()) {
-            publish_internal(msg->topic, msg->message, msg->retain);
-            processed_any = true;
-        }
-
         while (auto msg = subscribe_queue.try_pop()) {
             subscribe_internal(msg->topic, msg->callback);
-            processed_any = true;
         }
-
         while (auto msg = unsubscribe_queue.try_pop()) {
             unsubscribe_internal(msg->topic, msg->callback);
-            processed_any = true;
         }
-
         while (auto msg = unretain_queue.try_pop()) {
             unretain_internal(msg->prefix);
-            processed_any = true;
         }
 
-        if (!processed_any) {
-            std::this_thread::sleep_for(mqtt_client_poll_interval);
+        if (auto msg = publish_queue.pop(static_cast<uint32_t>(mqtt_client_poll_interval.count()))) {
+            publish_internal(msg->topic, msg->message, msg->retain);
+            while (auto next = publish_queue.try_pop()) {
+                publish_internal(next->topic, next->message, next->retain);
+            }
         }
     }
 
