@@ -92,8 +92,8 @@ namespace zwave_command_class
 
     sl_status_t command_class_multi_channel::on_multi_channel_commands_capability_get_requested(command_class_multi_channel_types::command_class_multi_channel_commands_capability_get_payload_t payload)
     {
-        auto endpoint_node                                = payload.device_endpoint_node.parent().emplace_node(ATTRIBUTE_ENDPOINT_ID, payload.endpoint_id);
-        auto multi_channel_commands_capability_group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_capability_get_group_attributes_t::MULTI_CHANNEL_CAPABILITY_GET_GROUP));
+        // Multi Channel Capability Get is a root command; End Point is a command field, not the transport destination.
+        auto multi_channel_commands_capability_group_node = payload.device_endpoint_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_capability_get_group_attributes_t::MULTI_CHANNEL_CAPABILITY_GET_GROUP));
         auto end_point_node                               = multi_channel_commands_capability_group_node.emplace_node(static_cast<attribute_store_type_t>(multi_channel_capability_get_group_attributes_t::end_point));
         end_point_node.set_desired<uint8_t>(payload.endpoint_id);
         command_class_multi_channel_core::start_group_resolution(multi_channel_commands_capability_group_node);

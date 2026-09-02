@@ -201,16 +201,18 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
     {% endfor %}
 
     {% if command_class.has_endpoints == true %}
-        // Updating the endpoint node to handle the actual endpoint under a device in attribute store
+        // Remap store/MQTT/parsed to the reported End Point by value (not child index).
+        // Keep receive endpoint_node for stop_group_resolution (Get was issued from root).
         uint8_t endpoint_id = 0;
         endpoint_id = get_value_or_default(attribute_map, "end_point", endpoint_id);
 
+        attribute_store::attribute store_endpoint_node = endpoint_node;
         if(endpoint_id != 0) {
-            endpoint_node = endpoint_node.parent().child_by_type(ATTRIBUTE_ENDPOINT_ID, endpoint_id);
+            store_endpoint_node = endpoint_node.parent().emplace_node(ATTRIBUTE_ENDPOINT_ID, endpoint_id);
         }
     {% endif %}
 
-    parse_status = on_{{command.name | lower}}_received_store(endpoint_node, attribute_map);
+    parse_status = on_{{command.name | lower}}_received_store({% if command_class.has_endpoints == true %}store_endpoint_node{% else %}endpoint_node{% endif %}, attribute_map);
 
     if (parse_status == SL_STATUS_OK) {
         {% if command.name not in config.command_has_no_pair %}
@@ -220,7 +222,7 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
                 stop_group_resolution(group_node);
             }
         {% endif %}
-        mqtt_publish_report(endpoint_node,
+        mqtt_publish_report({% if command_class.has_endpoints == true %}store_endpoint_node{% else %}endpoint_node{% endif %},
                             {{command_class_name_lower}}_commands_t::{{command_class.name | upper}}_{{command.name | upper}},
                             attribute_map);
     }
@@ -229,7 +231,7 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
         return SL_STATUS_FAIL;
     }
 
-    on_{{command.name | lower}}_parsed(connection_info, endpoint_node, attribute_map);
+    on_{{command.name | lower}}_parsed(connection_info, {% if command_class.has_endpoints == true %}store_endpoint_node{% else %}endpoint_node{% endif %}, attribute_map);
 
     return SL_STATUS_OK;
 }
