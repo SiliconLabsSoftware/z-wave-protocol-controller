@@ -21,10 +21,14 @@
 #include "command_class_indicator_mqtt.hpp"
 
 // MQTT
-#include "zpc_mqtt.hpp"  // zpc_mqtt::publish_report
+#include "zpc_mqtt.hpp"        // zpc_mqtt::publish_report
+#include "zpc_mqtt_utils.hpp"  // zpc_mqtt::utils::get_base_topic_from_attribute
 
 #include "log.h"
 #include "zwave_command_class_mqtt_utils.hpp"
+
+// JSON
+#include <nlohmann/json.hpp>
 
 namespace zwave_command_class
 {
@@ -138,6 +142,26 @@ namespace zwave_command_class
         command_class_indicator_core::start_group_resolution(group_node);
 
         return SL_STATUS_OK;
+    }
+
+    void command_class_indicator_mqtt::publish_indicator_set_received(attribute_store::attribute endpoint_node, uint8_t indicator_0_value, uint8_t indicator_object_count, const indicator_set_vg1_t &set_vg1)
+    {
+        const auto hex = [](uint8_t value) {
+            return fmt::format("0x{:02X}", value);
+        };
+
+        nlohmann::json j;
+        j["indicator_0_value"]                     = hex(indicator_0_value);
+        j["properties1"]["indicator_object_count"] = hex(indicator_object_count);
+        nlohmann::json vg1_json                    = nlohmann::json::array();
+        for (const auto &item: set_vg1) {
+            vg1_json.push_back({{"indicator_id", hex(item.indicator_id)}, {"property_id", hex(item.property_id)}, {"value", hex(item.value)}});
+        }
+        j["vg1"] = std::move(vg1_json);
+
+        const auto json_str     = j.dump();
+        const std::string topic = zpc_mqtt::utils::get_base_topic_from_attribute(endpoint_node) + command_class_indicator_core::cc_properties.command_class_name + "/Report/IndicatorSet";
+        zpc_mqtt::publish_report(topic.c_str(), json_str.c_str(), json_str.size(), false);
     }
 
 }  // namespace zwave_command_class

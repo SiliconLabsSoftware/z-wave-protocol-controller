@@ -32,6 +32,14 @@ namespace zwave_command_class
             static sl_status_t mqtt_on_indicator_supported_get_command(attribute_store::attribute &endpoint_node, std::string payload);
             static sl_status_t mqtt_on_indicator_description_get_command(attribute_store::attribute &endpoint_node, std::string payload);
 
+            /**
+             * @brief Called after an incoming Indicator Set is stored.
+             *
+             * Default implementation publishes MQTT `Indicator/Report/IndicatorSet` for CTT
+             * and internal use. Override to drive a physical indicator on a product build.
+             */
+            virtual void publish_indicator_set_received(attribute_store::attribute endpoint_node, uint8_t indicator_0_value, uint8_t indicator_object_count, const indicator_set_vg1_t &set_vg1);
+
         private:
             void clear_attribute(attribute_store::attribute &endpoint_node, attribute_store_type_t attribute_type);
     };
