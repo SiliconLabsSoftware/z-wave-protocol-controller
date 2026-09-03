@@ -1,4 +1,3 @@
-
 /******************************************************************************
  * # License
  * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
@@ -21,6 +20,8 @@
 
 // Z-Wave defintions
 #include "ZW_classcmd.h"
+#include "attribute_callbacks.hpp"
+#include "attribute_store_defined_attribute_types.h"
 
 // Component Connector
 #include "component_connector.hpp"
@@ -54,10 +55,16 @@ namespace zwave_command_class
             zwave_command_class::command_class_basic::on_command_class_basic_get_event(endpoint_node);
             return SL_STATUS_OK;
         });
+
+        // Basic is not in the NIF; interview probes Version for 0x20 first. When that
+        // version leaf is stored, start Basic Get only if the CC is actually supported.
+        attribute_store::register_callback_by_type_and_state(&on_basic_version_reported, ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_BASIC), REPORTED_ATTRIBUTE);
     }
 
     void command_class_basic::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
+        (void)supported_version;
+
         command_class_version_types::command_class_version_cc_get_payload_t payload_map_version;
         payload_map_version.device_endpoint_node   = endpoint_node;
         payload_map_version.command_class          = COMMAND_CLASS_BASIC;
@@ -68,12 +75,33 @@ namespace zwave_command_class
         // attempt is a cheap no-op once the leaf is populated.
         payload_map_version.retry_count = 2;
 
-        // Ask the version command class to get the version of the basic command class to be able to parse the report.
         component_connector connector;
         connector.fire_event(static_cast<uint32_t>(command_class_version_events_t::COMMAND_CLASS_VERSION_CC_GET), payload_map_version);
+    }
 
-        // Ask the basic command class to get the current value of the basic command class.
-        // Note: Events will be queued and processed in the order they are received.
+    void command_class_basic::on_basic_version_reported(attribute_store_node_t version_node_id, attribute_store_change_t change)
+    {
+        if (change != ATTRIBUTE_UPDATED) {
+            return;
+        }
+
+        attribute_store::attribute version_node(version_node_id);
+        if (!version_node.reported_exists()) {
+            return;
+        }
+
+        const uint8_t basic_version = version_node.reported<uint8_t>();
+        if (basic_version == 0) {
+            sl_log_debug(LOG_TAG.data(), "Basic CC version is 0; skipping Basic Get");
+            return;
+        }
+
+        auto endpoint_node = attribute_store::attribute(attribute_store_get_first_parent_with_type(version_node_id, ATTRIBUTE_ENDPOINT_ID));
+        if (!endpoint_node.is_valid()) {
+            return;
+        }
+
+        component_connector connector;
         connector.fire_event(static_cast<uint32_t>(command_class_basic_events_t::COMMAND_CLASS_BASIC_GET), endpoint_node);
     }
 

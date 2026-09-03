@@ -1,4 +1,3 @@
-
 /******************************************************************************
  * # License
  * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
@@ -31,6 +30,7 @@ namespace zwave_command_class
         private:
             sl_status_t on_basic_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length) override;
             static void on_command_class_basic_get_event(attribute_store::attribute endpoint_node);
+            static void on_basic_version_reported(attribute_store_node_t version_node, attribute_store_change_t change);
 
         protected:
             void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version) override;
