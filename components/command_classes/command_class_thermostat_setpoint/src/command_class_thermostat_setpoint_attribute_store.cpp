@@ -84,6 +84,22 @@ namespace zwave_command_class
         return !out_min_value.empty() && !out_max_value.empty();
     }
 
+    bool command_class_thermostat_setpoint_attribute_store::get_reported_capabilities_precisions_for_setpoint_type(attribute_store::attribute endpoint_node, uint8_t setpoint_type, uint8_t &out_min_precision, uint8_t &out_max_precision)
+    {
+        attribute_store::attribute group_node = find_capabilities_report_group_by_setpoint_type(endpoint_node, setpoint_type);
+        if (!group_node.is_valid()) {
+            return false;
+        }
+        auto min_precision_node = group_node.child_by_type(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::precision1));
+        auto max_precision_node = group_node.child_by_type(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::precision2));
+        if (!min_precision_node.is_valid() || !min_precision_node.reported_exists() || !max_precision_node.is_valid() || !max_precision_node.reported_exists()) {
+            return false;
+        }
+        out_min_precision = min_precision_node.reported<uint8_t>();
+        out_max_precision = max_precision_node.reported<uint8_t>();
+        return true;
+    }
+
     sl_status_t command_class_thermostat_setpoint_attribute_store::on_thermostat_setpoint_report_received_store(attribute_store::attribute endpoint_node, command_class_thermostat_setpoint_attribute_map_t attribute_map)
     {
         uint8_t setpoint_type = 0;
@@ -154,6 +170,16 @@ namespace zwave_command_class
         max_value                                                    = get_value_or_default(attribute_map, "maxvalue", max_value);
         auto max_value_node                                          = group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::maxvalue));
         max_value_node.set_reported<thermostat_setpoint_capabilities_report_maxvalue_t>(max_value);
+
+        uint8_t precision1_raw = 0;
+        precision1_raw         = get_value_or_default(attribute_map, "precision1", precision1_raw);
+        auto precision1_node   = group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::precision1));
+        precision1_node.set_reported<uint8_t>((precision1_raw >> 5) & 0x07U);
+
+        uint8_t precision2_raw = 0;
+        precision2_raw         = get_value_or_default(attribute_map, "precision2", precision2_raw);
+        auto precision2_node   = group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::precision2));
+        precision2_node.set_reported<uint8_t>((precision2_raw >> 5) & 0x07U);
 
         return SL_STATUS_OK;
     }
