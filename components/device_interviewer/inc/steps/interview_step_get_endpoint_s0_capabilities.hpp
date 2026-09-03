@@ -27,8 +27,9 @@ namespace zwave_command_class
      * beginning on initial entry, then fires
      * COMMAND_CLASS_S0_COMMANDS_SUPPORTED_GET for each endpoint in turn and
      * waits for S0_COMMANDS_SUPPORTED_REPORT. Mis-matched endpoint reports
-     * are silently ignored. Advances the iterator on each valid report and
-     * completes once all endpoints have been queried.
+     * (e.g. root EP0 reply to an endpoint Get) skip the current endpoint so
+     * the interview cannot stall. Advances the iterator on each handled
+     * report and completes once all endpoints have been queried.
      */
     class GetEndpointS0CapabilitiesStep : public InterviewStep
     {

@@ -70,13 +70,23 @@ namespace zwave_command_class
         try {
             const auto &payload = std::any_cast<command_class_s0_types::s0_supported_report_payload_t>(event->payload);
 
-            uint8_t reported_endpoint_id = payload.connection_info.remote.endpoint_id;
-            if (session.endpoints.current_endpoint_it == session.endpoints.endpoint_ids.end() || reported_endpoint_id != *session.endpoints.current_endpoint_it) {
-                sl_log_warning(LOG_TAG.data(), "Unexpected S0 report for endpoint %d for node %d. Ignoring.", reported_endpoint_id, session.node_id);
+            if (session.endpoints.current_endpoint_it == session.endpoints.endpoint_ids.end()) {
                 return stay();
             }
 
-            session.endpoints.endpoint_discovered_command_classes.insert(session.endpoints.endpoint_discovered_command_classes.end(), payload.supported_cc_list.begin(), payload.supported_cc_list.end());
+            const uint8_t expected_endpoint_id = *session.endpoints.current_endpoint_it;
+            const uint8_t reported_endpoint_id = payload.connection_info.remote.endpoint_id;
+
+            // Some S0 devices answer Security Commands Supported Get on the root
+            // (EP0) even when the Get was Multi Channel addressed to an endpoint.
+            // Ignoring that forever stalls the interview (and further S0 nonce
+            // traffic often fails). Skip the current endpoint without adopting
+            // the root secure CC list as endpoint CCs.
+            if (reported_endpoint_id != expected_endpoint_id) {
+                sl_log_warning(LOG_TAG.data(), "Node %d: S0 Commands Supported Report for endpoint %d while waiting for endpoint %d — skipping endpoint %d", session.node_id, reported_endpoint_id, expected_endpoint_id, expected_endpoint_id);
+            } else {
+                session.endpoints.endpoint_discovered_command_classes.insert(session.endpoints.endpoint_discovered_command_classes.end(), payload.supported_cc_list.begin(), payload.supported_cc_list.end());
+            }
 
             ++session.endpoints.current_endpoint_it;
 

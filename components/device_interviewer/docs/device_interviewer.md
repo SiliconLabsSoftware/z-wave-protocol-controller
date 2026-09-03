@@ -776,10 +776,11 @@ stateDiagram-v2
 
 **State Management**:
 - Uses iterator `current_endpoint_it` over `endpoint_ids` (sequential)
+- Mis-matched endpoint reports (e.g. root EP0 reply to an endpoint Get) skip the current endpoint so the step cannot stall
 
 **Transitions**:
 - While more endpoints → stays, sends GET for next
-- All received → `PREPARE_ENDPOINT_VERSIONS`
+- All received (or skipped after mis-match) → `PREPARE_ENDPOINT_VERSIONS`
 
 ### 27. PrepareEndpointVersionsStep (`PREPARE_ENDPOINT_VERSIONS`)
 
