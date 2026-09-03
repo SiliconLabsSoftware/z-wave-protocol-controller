@@ -26,6 +26,7 @@
     - [`NETWORK_NODE_LIST_REPORT`](#network_node_list_report)
     - [`NETWORK_NODE_PROPERTIES`](#network_node_properties)
     - [`NETWORK_NODE_PROPERTIES_REPORT`](#network_node_properties_report)
+    - [`NETWORK_NODE_INTERVIEW`](#network_node_interview)
 - [Factory Reset](#factory-reset)
     - [`NETWORK_FACTORY_RESET`](#network_factory_reset)
     - [`NETWORK_FACTORY_RESET_REPORT`](#network_factory_reset_report)
@@ -509,6 +510,28 @@ The report always contains the same keys. Fields are `null` when no attribute-st
 | `last_number_of_repeaters` | number or null | Repeaters used on the last successful transmission. |
 | `last_tx_power` | number or null | TX power used on the last successful transmission. |
 | `s2_capability` | boolean | `true` if the node is S2-capable; `false` otherwise. |
+
+### NETWORK_NODE_INTERVIEW
+
+Request a full (re-)interview / capability discovery for an existing node. This is the MQTT entry point for an advanced user (or automation) to start commissioning interview on demand. Completion is reported on the existing [`Interview/Report`](../../device_interviewer/docs/device_interviewer.md#interviewreport) topic (not under `Network/Node/Interview/Report`).
+
+**Command:**
+```sh
+zpc/<home_id>/Network/Node/Interview
+```
+
+**Payload:**
+```json
+{
+  "node_id": 2
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `node_id` | number | Z-Wave NodeID to interview. Must be non-zero. |
+
+Invalid or missing `node_id` is logged and ignored. On success, ZPC fires `COMPONENT_CONNECTOR_NODE_INTERVIEW_REQUESTED`; the Device Interviewer starts (or restarts) the interview state machine for that node. When the interview fully resolves, ZPC publishes `zpc/<home_id>/Interview/Report`.
 
 ## Factory Reset
 

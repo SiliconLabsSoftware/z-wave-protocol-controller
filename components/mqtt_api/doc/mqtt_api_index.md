@@ -46,6 +46,7 @@ Add/remove nodes, accept DSK, grant keys, list devices, factory reset, and Netwo
 | `zpc/<home_id>/Network/Node/List/Report` | Node list report |
 | `zpc/<home_id>/Network/Node/Properties` | Request node properties |
 | `zpc/<home_id>/Network/Node/Properties/Report` | Node properties report |
+| `zpc/<home_id>/Network/Node/Interview` | Request a (re-)interview / capability discovery for a node |
 | `zpc/<home_id>/Network/FactoryReset` | Factory reset controller |
 | `zpc/<home_id>/Network/NLS/Enable` | Enable NLS for a node |
 | `zpc/<home_id>/Network/NLS/Enable/Report` | NLS enable result |
@@ -71,10 +72,11 @@ Manage the SmartStart provisioning list (replace, append, remove, purge) and rea
 
 ## Device Interview
 
-Notifications when a device interview completes (per endpoint).
+Request a commissioning interview (via Network Management) and receive completion notifications (per endpoint).
 
 | Topic pattern | Direction | Description |
 |---------------|-----------|-------------|
+| `zpc/<home_id>/Network/Node/Interview` | Command | Request a (re-)interview for a node (`node_id`); see [Network Management MQTT API](../../network_manager/doc/network_management_mqtt_api.md#network_node_interview) |
 | `zpc/<home_id>/Interview/Report` | Report | Published when an endpoint interview finishes (`node_id`, `endpoint_id`, `status`) |
 
 **Full reference:** [Device Interviewer](../../device_interviewer/docs/device_interviewer.md#mqtt-api) (MQTT API section)

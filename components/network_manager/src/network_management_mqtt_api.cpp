@@ -108,6 +108,8 @@ namespace zwave_command_class
 
         subscribe_topic(NetworkManagementMqttApi::MQTT_API_NETWORK_NODE_PROPERTIES_TOPIC, [](const std::string &topic, const std::string &message) { zwave_command_class::NetworkManagementMqttApi::on_network_node_properties(topic, message); });
 
+        subscribe_topic(NetworkManagementMqttApi::MQTT_API_NETWORK_NODE_INTERVIEW_TOPIC, [](const std::string &topic, const std::string &message) { zwave_command_class::NetworkManagementMqttApi::on_network_node_interview(topic, message); });
+
         subscribe_topic(NetworkManagementMqttApi::MQTT_API_NETWORK_FACTORY_RESET_TOPIC, [](const std::string &topic, const std::string &message) { zwave_command_class::NetworkManagementMqttApi::on_network_factory_reset(topic, message); });
 
         subscribe_topic(NetworkManagementMqttApi::MQTT_API_NETWORK_NLS_ENABLE_TOPIC, [](const std::string &topic, const std::string &message) { zwave_command_class::NetworkManagementMqttApi::on_network_nls_enable(topic, message); });
@@ -436,6 +438,50 @@ namespace zwave_command_class
         auto json_str = node_information_list.dump();
 
         publish_report(NetworkManagementMqttApi::MQTT_API_NETWORK_NODE_LIST_REPORT_TOPIC, json_str, false);
+    }
+
+    void NetworkManagementMqttApi::on_network_node_interview(const std::string &topic, const std::string &message)
+    {
+        (void)topic;
+        sl_log_debug(LOG_TAG.data(), "%s: %s %s", __func__, topic.c_str(), message.c_str());
+
+        nlohmann::json json_data;
+        if (!message.empty()) {
+            try {
+                json_data = nlohmann::json::parse(message);
+            } catch (const nlohmann::json::exception &) {
+                sl_log_error(LOG_TAG.data(), "Node interview request: invalid request payload");
+                return;
+            }
+        } else {
+            sl_log_error(LOG_TAG.data(), "Node interview request: empty payload");
+            return;
+        }
+
+        auto it = json_data.find("node_id");
+        if (it == json_data.end()) {
+            sl_log_error(LOG_TAG.data(), "Node interview request: node_id not found in payload");
+            return;
+        }
+
+        zwave_node_id_t node_id = 0;
+        try {
+            node_id = static_cast<zwave_node_id_t>(it->get<int>());
+        } catch (const nlohmann::json::exception &) {
+            sl_log_error(LOG_TAG.data(), "Node interview request: node_id must be an integer");
+            return;
+        }
+        if (node_id == 0) {
+            sl_log_error(LOG_TAG.data(), "Node interview request: node_id must be non-zero");
+            return;
+        }
+
+        component_connector_node_interview_requested_payload_t payload;
+        payload.node_id = node_id;
+
+        component_connector connector;
+        connector.fire_event(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_NODE_INTERVIEW_REQUESTED), payload);
+        sl_log_info(LOG_TAG.data(), "Node interview requested for NodeID %d", node_id);
     }
 
     void NetworkManagementMqttApi::on_network_node_properties(const std::string &topic, const std::string &message)
