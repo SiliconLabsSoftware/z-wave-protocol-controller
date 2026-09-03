@@ -16,6 +16,7 @@ jobs:
   validate-tag:
     name: validate-tag
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: Validate release tag format
         run: |
@@ -37,6 +38,7 @@ jobs:
     name: release
     needs: [build_linux]
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       contents: write
       actions: read

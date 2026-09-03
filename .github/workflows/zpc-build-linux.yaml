@@ -26,6 +26,7 @@ jobs:
   build_linux:
     name: linux-${{ matrix.id }}
     runs-on: ${{ matrix.runs-on }}
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:

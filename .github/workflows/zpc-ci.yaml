@@ -19,6 +19,7 @@ jobs:
   format:
     name: clang-format
     runs-on: ubuntu-26.04
+    timeout-minutes: 5
     # Use ubuntu-26 because of the clang-format-19.1.7
     env:
       CLANG_FORMAT: clang-format-19
@@ -41,6 +42,7 @@ jobs:
     name: clang-tidy
     needs: [format]
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     env:
       CC: gcc-14
       CXX: g++-14
@@ -74,6 +76,7 @@ jobs:
     name: macos-amd64-clang
     needs: [format]
     runs-on: macos-26
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -95,6 +98,7 @@ jobs:
     name: success
     needs: [format, clang_tidy, build_linux, build_macos]
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     if: always()
     steps:
       - name: Enforce required job outcomes
