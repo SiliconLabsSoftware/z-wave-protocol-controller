@@ -100,30 +100,32 @@ namespace zwave_command_class
     }
 
     static constexpr uint8_t V3_BIT_TO_SETPOINT_TYPE[] = {
-      1,   // bit 0 → Heating           (key=0x01, flagmask=0x01)
-      2,   // bit 1 → Cooling           (key=0x02, flagmask=0x02)
-      7,   // bit 2 → Furnace           (key=0x03, flagmask=0x07)
-      8,   // bit 3 → Dry Air           (key=0x04, flagmask=0x08)
-      9,   // bit 4 → Moist Air         (key=0x05, flagmask=0x09)
-      10,  // bit 5 → Auto changeover   (key=0x06, flagmask=0x0A)
-      11,  // bit 6 → Energy Save Heating (key=0x07, flagmask=0x0B)
-      12,  // bit 7 → Energy Save Cooling (key=0x08, flagmask=0x0C)
-      13,  // bit 8 → Away Heating      (key=0x09, flagmask=0x0D)
-      14,  // bit 9 → Away Cooling      (key=0x0A, flagmask=0x0E)
-      15,  // bit 10 → Full Power       (key=0x0B, flagmask=0x0F)
+      0x00,  // bit 0  → N/A (reserved, skip)
+      0x01,  // bit 1  → Heating
+      0x02,  // bit 2  → Cooling
+      0x07,  // bit 3  → Furnace
+      0x08,  // bit 4  → Dry Air
+      0x09,  // bit 5  → Moist Air
+      0x0A,  // bit 6  → Auto Changeover
+      0x0B,  // bit 7  → Energy Save Heating
+      0x0C,  // bit 8  → Energy Save Cooling
+      0x0D,  // bit 9  → Away Heating
+      0x0E,  // bit 10 → Away Cooling
+      0x0F,  // bit 11 → Full Power
     };
 
-    // Returns the first supported setpoint type > after_type, or 0 if none.
+    // Returns the first supported setpoint type identifier > after_type, or 0 if none.
     static uint8_t next_supported_setpoint_type(const std::vector<uint8_t> &bit_mask, uint8_t after_type)
     {
         for (uint8_t bit = 0; bit < sizeof(V3_BIT_TO_SETPOINT_TYPE); ++bit) {
             const uint8_t type = V3_BIT_TO_SETPOINT_TYPE[bit];
-            if (type > after_type) {
-                const uint8_t byte_idx = bit / 8;
-                const uint8_t bit_idx  = bit % 8;
-                if (byte_idx < bit_mask.size() && (bit_mask[byte_idx] & (1U << bit_idx)) != 0U) {
-                    return type;
-                }
+            if (type <= after_type) {
+                continue;
+            }
+            const uint8_t byte_idx = bit / 8;
+            const uint8_t bit_idx  = bit % 8;
+            if (byte_idx < bit_mask.size() && (bit_mask[byte_idx] & (1U << bit_idx)) != 0U) {
+                return type;
             }
         }
         return 0;
@@ -218,9 +220,12 @@ namespace zwave_command_class
             if (setpoint_type_node.desired_exists()) {
                 const uint8_t asked_type = setpoint_type_node.desired<uint8_t>();
                 if (asked_type >= 1 && asked_type <= 14) {
-                    setpoint_type_node.set_desired<uint8_t>(asked_type + 1);
-                    start_group_resolution(get_group_node);
-                    return SL_STATUS_OK;
+                    uint8_t next_scale = 0;
+                    if (!get_reported_scale_for_setpoint_type(endpoint, static_cast<uint8_t>(asked_type + 1), next_scale)) {
+                        setpoint_type_node.set_desired<uint8_t>(asked_type + 1);
+                        start_group_resolution(get_group_node);
+                        return SL_STATUS_OK;
+                    }
                 }
             }
         }
@@ -296,9 +301,9 @@ namespace zwave_command_class
             return SL_STATUS_NOT_READY;
         }
 
-        const uint8_t setpoint_type                    = setpoint_type_node.desired<uint8_t>();
-        uint8_t scale                                  = scale_node.desired<uint8_t>();
-        const attribute_store::attribute endpoint_node = group_node.parent();
+        const uint8_t setpoint_type              = setpoint_type_node.desired<uint8_t>();
+        uint8_t scale                            = scale_node.desired<uint8_t>();
+        attribute_store::attribute endpoint_node = group_node.parent();
         if (endpoint_node.is_valid()) {
             uint8_t reported_scale = 0;
             if (get_reported_scale_for_setpoint_type(endpoint_node, setpoint_type, reported_scale)) {
@@ -327,14 +332,38 @@ namespace zwave_command_class
             std::vector<uint8_t> max_val;
             if (get_reported_capabilities_for_setpoint_type(endpoint_node, setpoint_type, min_val, max_val)) {
                 auto value_bytes = value_node.desired<std::vector<uint8_t>>();
-                if (value_bytes.size() == size && min_val.size() >= size && max_val.size() >= size) {
-                    const int32_t value_signed = decode_signed_setpoint_value(value_bytes, size);
-                    const int32_t min_signed   = decode_signed_setpoint_value(min_val, size);
-                    const int32_t max_signed   = decode_signed_setpoint_value(max_val, size);
-                    if (value_signed < min_signed || value_signed > max_signed) {
-                        sl_log_warning(LOG_TAG.data(), "Set value %d outside capabilities range [%d, %d] for setpoint type %u", value_signed, min_signed, max_signed, setpoint_type);
-                        return SL_STATUS_FAIL;
+                if (value_bytes.size() == size && !min_val.empty() && !max_val.empty()) {
+                    uint8_t min_precision = 0;
+                    uint8_t max_precision = 0;
+                    if (get_reported_capabilities_precisions_for_setpoint_type(endpoint_node, setpoint_type, min_precision, max_precision)) {
+                        const int32_t value_raw = decode_signed_setpoint_value(value_bytes, size);
+                        const int32_t min_raw   = decode_signed_setpoint_value(min_val, static_cast<uint8_t>(min_val.size()));
+                        const int32_t max_raw   = decode_signed_setpoint_value(max_val, static_cast<uint8_t>(max_val.size()));
+
+                        // actual = raw × 10^(-precision). Min uses precision1, max uses precision2.
+                        // value < min  <=>  value_raw × 10^min_precision < min_raw × 10^set_precision
+                        const uint8_t set_precision = precision_node.desired<uint8_t>();
+
+                        auto pow10 = [](uint8_t e) -> int64_t {
+                            int64_t r = 1;
+                            for (uint8_t i = 0; i < e; ++i) {
+                                r *= 10;
+                            }
+                            return r;
+                        };
+
+                        const int64_t value_vs_min = static_cast<int64_t>(value_raw) * pow10(min_precision);
+                        const int64_t min_scaled   = static_cast<int64_t>(min_raw) * pow10(set_precision);
+                        const int64_t value_vs_max = static_cast<int64_t>(value_raw) * pow10(max_precision);
+                        const int64_t max_scaled   = static_cast<int64_t>(max_raw) * pow10(set_precision);
+
+                        if (value_vs_min < min_scaled || value_vs_max > max_scaled) {
+                            sl_log_warning(LOG_TAG.data(), "Set value %d outside capabilities range [%d, %d] for setpoint type %u", value_raw, min_raw, max_raw, setpoint_type);
+                            return SL_STATUS_FAIL;
+                        }
                     }
+                    // If precisions are unavailable (e.g. capabilities stored by an older
+                    // firmware version), skip the range check and let the device validate.
                 }
             }
         }
@@ -350,6 +379,11 @@ namespace zwave_command_class
         for (auto byte: value_bytes) {
             frame_generator->add_raw_byte(byte);
         }
+
+        auto get_group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::THERMOSTAT_SETPOINT_GET_GROUP));
+        auto get_type_node  = get_group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::setpoint_type));
+        get_type_node.set_desired<uint8_t>(setpoint_type);
+        start_group_resolution(get_group_node);
 
         return frame_generator->generate_frame();
     }
