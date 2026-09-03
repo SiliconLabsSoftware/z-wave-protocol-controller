@@ -33,6 +33,7 @@ namespace zwave_command_class
      * - Grant Keys
      * - Node List
      * - Node Properties
+     * - Node Interview
      *
      * Also listens to component_connector events for node added/deleted
      * and publishes MQTT reports.
@@ -74,6 +75,7 @@ namespace zwave_command_class
             inline static std::string MQTT_API_NETWORK_NODE_LIST_REPORT_TOPIC       = MQTT_API_NETWORK_NODE_LIST_TOPIC + "/Report";
             inline static std::string MQTT_API_NETWORK_NODE_PROPERTIES_TOPIC        = "Network/Node/Properties";
             inline static std::string MQTT_API_NETWORK_NODE_PROPERTIES_REPORT_TOPIC = MQTT_API_NETWORK_NODE_PROPERTIES_TOPIC + "/Report";
+            inline static std::string MQTT_API_NETWORK_NODE_INTERVIEW_TOPIC         = "Network/Node/Interview";
             inline static std::string MQTT_API_NETWORK_FACTORY_RESET_TOPIC          = "Network/FactoryReset";
             // Published globally (no home-id prefix) like zpc/Discovery/Report, so
             // CTT/clients can subscribe to a stable topic without having to learn
@@ -104,6 +106,7 @@ namespace zwave_command_class
             static void on_network_grant_keys(const std::string &topic, const std::string &message);
             static void on_network_node_list(const std::string &topic, const std::string &message);
             static void on_network_node_properties(const std::string &topic, const std::string &message);
+            static void on_network_node_interview(const std::string &topic, const std::string &message);
             static void on_network_factory_reset(const std::string &topic, const std::string &message);
             static void on_network_nls_enable(const std::string &topic, const std::string &message);
             static void on_network_nls_state(const std::string &topic, const std::string &message);

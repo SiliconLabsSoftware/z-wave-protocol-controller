@@ -994,6 +994,8 @@ Device Node
 
 ## MQTT API
 
+Clients request an on-demand interview via Network Management MQTT (`zpc/<home_id>/Network/Node/Interview` with `{"node_id": <id>}`). See [NETWORK_NODE_INTERVIEW](../../network_manager/doc/network_management_mqtt_api.md#network_node_interview). That command fires `COMPONENT_CONNECTOR_NODE_INTERVIEW_REQUESTED`, which this component already handles.
+
 The Device Interviewer publishes an MQTT message when a device interview terminates (per node and per endpoint). This allows clients to be notified as soon as each endpoint is fully interviewed.
 
 ### Interview/Report
