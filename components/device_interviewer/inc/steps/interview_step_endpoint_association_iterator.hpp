@@ -25,6 +25,12 @@ namespace zwave_command_class
      * endpoint and transitions to GET_MULTI_CHANNEL_ASSOCIATION_SUPPORTED_GROUPINGS.
      * When re-entered after VALIDATE_LIFELINE (session.endpoint_id != 0): advances
      * to next endpoint or restores root and transitions to COMPLETED.
+     *
+     * For each endpoint, resets AGI/association progress and rebuilds
+     * version_cc.command_classes_to_query from that endpoint's Multi Channel
+     * Capability Report (falling back to NIF / Secure NIF only if absent) so
+     * MCA/Association/AGI are only interviewed when the endpoint advertises
+     * those command classes.
      */
     class EndpointAssociationIteratorStep : public InterviewStep
     {

@@ -102,7 +102,7 @@ namespace zwave_command_class
         set_transition(InterviewState::GET_AGI_GROUP_INFO, StepResultCode::DONE, InterviewState::GET_AGI_GROUP_COMMAND_LIST);
         set_transition(InterviewState::GET_AGI_GROUP_COMMAND_LIST, StepResultCode::DONE, InterviewState::GET_AGI_GROUP_NAME);
         set_transition(InterviewState::SET_LIFELINE, StepResultCode::DONE, InterviewState::VALIDATE_LIFELINE);
-        set_transition(InterviewState::SET_LIFELINE, StepResultCode::SKIP, InterviewState::CHECK_MULTI_CHANNEL_SUPPORT);
+        set_transition(InterviewState::SET_LIFELINE, StepResultCode::SKIP, InterviewState::POST_VALIDATE_LIFELINE);
         set_transition(InterviewState::VALIDATE_LIFELINE, StepResultCode::DONE, InterviewState::POST_VALIDATE_LIFELINE);
         set_transition(InterviewState::VALIDATE_LIFELINE, StepResultCode::SKIP, InterviewState::POST_VALIDATE_LIFELINE);
         set_transition(InterviewState::POST_VALIDATE_LIFELINE, StepResultCode::DONE, InterviewState::CHECK_MULTI_CHANNEL_SUPPORT);
