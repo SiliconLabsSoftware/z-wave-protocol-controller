@@ -77,6 +77,16 @@ namespace zwave_command_class
 
         component_connector connector;
         connector.fire_event(static_cast<uint32_t>(command_class_version_events_t::COMMAND_CLASS_VERSION_CC_GET), payload_map_version);
+
+        // Re-interview: the Basic version leaf is often already populated with the same
+        // value. attribute_store then treats set_reported as touch-only (no ATTRIBUTE_UPDATED),
+        // so on_basic_version_reported would never queue Basic Get. If we already know Basic
+        // is supported, start Basic Get here; first interview still relies on the version
+        // callback once the leaf is written for the first time.
+        auto version_node = endpoint_node.child_by_type(ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_BASIC));
+        if (version_node.is_valid() && version_node.reported_exists() && version_node.reported<uint8_t>() != 0) {
+            connector.fire_event(static_cast<uint32_t>(command_class_basic_events_t::COMMAND_CLASS_BASIC_GET), endpoint_node);
+        }
     }
 
     void command_class_basic::on_basic_version_reported(attribute_store_node_t version_node_id, attribute_store_change_t change)
