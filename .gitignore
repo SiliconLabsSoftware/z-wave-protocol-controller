@@ -87,3 +87,8 @@ example_dev_config.yaml
 docs/api/
 site/
 .venv-docs/
+
+# Logs
+logs/
+ci-logs/
+tmp/
