@@ -130,6 +130,12 @@ void zwave_command_class_manager::zwave_command_handler_on_new_network_entered(z
     std::vector<uint8_t> non_secure_command_class_buffer;
     std::vector<uint8_t> secure_command_class_buffer;
 
+    /// Always advertise NOP in the non-secure NIF (optional per NOP CC notice;
+    /// required for CTT when ZCP lists it as supported).
+    /// Version CC already reports NO_OPERATION_VERSION (1) via get_version().
+    /// Must not go in the secure NIF (protocol CC 0x00; S2 list is 0x20–0xEE).
+    nonsecure_supported_command_classes.insert(COMMAND_CLASS_NO_OPERATION);
+
     /// Add Security 0 only if ZPC has the S0 key
     if ((granted_keys & ZWAVE_CONTROLLER_S0_KEY) != 0) {
         nonsecure_supported_command_classes.insert(COMMAND_CLASS_SECURITY);
