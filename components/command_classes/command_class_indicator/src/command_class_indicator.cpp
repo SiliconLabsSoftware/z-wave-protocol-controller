@@ -16,6 +16,7 @@
 #include <fmt/base.h>
 #include <fmt/format.h>
 #include <string_view>
+#include <vector>
 
 // Base class
 #include "command_class_indicator.hpp"
@@ -27,6 +28,7 @@
 #include "sl_status.h"
 #include "zwave_command_class_utils.hpp"
 #include "log.h"
+#include "zwave_tx_scheme_selector.h"
 
 #include "component_connector.hpp"
 #include "command_class_association_grp_info_events.hpp"
@@ -396,7 +398,46 @@ namespace zwave_command_class
 
         vg1_node.set_reported<indicator_report_vg1_t>(report_vg1);
 
+        send_indicator_report_to_lifeline(connection_info);
+
         return SL_STATUS_OK;
+    }
+
+    void command_class_indicator::send_indicator_report_to_lifeline(const zwave_controller_connection_info_t *connection_info)
+    {
+        zwave_frame_generator_standalone report_frame;
+        report_frame.add_header(properties.command_class_id, static_cast<uint8_t>(command_class_indicator_commands_t::COMMAND_CLASS_INDICATOR_INDICATOR_REPORT));
+
+        command_class_indicator_attribute_map_t attribute_map;
+        attribute_map["indicator_id"] = static_cast<uint8_t>(command_class_indicator_constants::indicator_id::NODE_IDENTIFY);
+
+        std::vector<uint8_t> frame;
+        if (on_indicator_get_support_requested_assemble_frame(connection_info, attribute_map, report_frame, frame) != SL_STATUS_OK) {
+            sl_log_debug(LOG_TAG.data(), "Failed to assemble Indicator Report for Lifeline");
+            return;
+        }
+
+        component_connector connector;
+        auto lifeline_future = connector.fire_event_async<command_class_association_grp_info_types::component_connector_agi_empty_payload_t, command_class_association_grp_info_types::component_connector_agi_lifeline_destinations_t>(
+          static_cast<uint32_t>(command_class_association_grp_info_events_t::COMMAND_CLASS_ASSOCIATION_GRP_INFO_GET_LIFELINE_DESTINATIONS),
+          {});
+        auto [lifeline_status, lifeline] = lifeline_future.get();
+        if (lifeline_status != SL_STATUS_OK) {
+            sl_log_debug(LOG_TAG.data(), "Failed to query AGI lifeline destinations, skipping Indicator Report");
+            return;
+        }
+
+        for (const auto &dest_node_id: lifeline.node_ids) {
+            zwave_controller_connection_info_t dest = {};
+            zwave_tx_scheme_get_node_connection_info(dest_node_id, 0, &dest);
+            command_class_utils::send_report(&dest, static_cast<uint16_t>(frame.size()), frame.data());
+        }
+
+        for (const auto &[dest_node_id, endpoint_byte]: lifeline.endpoint_associations) {
+            zwave_controller_connection_info_t dest = {};
+            zwave_tx_scheme_get_node_connection_info(dest_node_id, endpoint_byte & 0x7F, &dest);
+            command_class_utils::send_report(&dest, static_cast<uint16_t>(frame.size()), frame.data());
+        }
     }
 
 }  // namespace zwave_command_class

@@ -44,6 +44,8 @@ namespace zwave_command_class
             sl_status_t on_indicator_get_support_requested_assemble_frame(const zwave_controller_connection_info_t *connection_info, command_class_indicator_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame) override;
             sl_status_t on_indicator_description_get_support_requested_assemble_frame(const zwave_controller_connection_info_t *connection_info, command_class_indicator_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame) override;
             sl_status_t on_indicator_set_support_received(const zwave_controller_connection_info_t *connection_info, command_class_indicator_attribute_map_t attribute_map) override;
+
+            void send_indicator_report_to_lifeline(const zwave_controller_connection_info_t *connection_info);
     };
 
 }  // namespace zwave_command_class
