@@ -16,6 +16,7 @@
 #include <fmt/base.h>
 #include <fmt/format.h>
 #include <string_view>
+#include <vector>
 
 // Base class
 #include "command_class_indicator.hpp"
@@ -27,8 +28,10 @@
 #include "sl_status.h"
 #include "zwave_command_class_utils.hpp"
 #include "log.h"
+#include "zwave_tx_scheme_selector.h"
 
 #include "component_connector.hpp"
+#include "command_class_association_grp_info_constants.hpp"
 #include "command_class_association_grp_info_events.hpp"
 #include "command_class_association_grp_info_types.hpp"
 
@@ -402,9 +405,84 @@ namespace zwave_command_class
 
         vg1_node.set_reported<indicator_report_vg1_t>(report_vg1);
 
-        publish_indicator_set_received(endpoint_node, get_value_or_default<uint8_t>(attribute_map, "indicator_0_value", uint8_t(0)), get_value_or_default<uint8_t>(attribute_map, "indicator_object_count", uint8_t(0)), set_vg1);
+        const auto indicator_0_value      = get_value_or_default<uint8_t>(attribute_map, "indicator_0_value", uint8_t(0));
+        const auto indicator_object_count = get_value_or_default<uint8_t>(attribute_map, "indicator_object_count", uint8_t(0));
+        publish_indicator_set_received(endpoint_node, indicator_0_value, indicator_object_count, set_vg1);
+        send_indicator_report_to_lifeline(endpoint_node, indicator_0_value, indicator_object_count, set_vg1);
 
         return SL_STATUS_OK;
+    }
+
+    void command_class_indicator::send_indicator_report_to_lifeline(attribute_store::attribute endpoint_node, uint8_t indicator_0_value, uint8_t indicator_object_count, const indicator_set_vg1_t &set_vg1)
+    {
+        (void)indicator_0_value;
+        (void)indicator_object_count;
+        (void)set_vg1;
+
+        if (!endpoint_node.is_valid()) {
+            sl_log_debug(LOG_TAG.data(), "Invalid endpoint node, skipping Indicator Report to Lifeline");
+            return;
+        }
+
+        const auto indicator_id_node_identify = static_cast<uint8_t>(command_class_indicator_constants::indicator_id::NODE_IDENTIFY);
+
+        auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(indicator_report_group_attributes_t::INDICATOR_REPORT_GROUP));
+        auto vg1_node   = group_node.child_by_type(static_cast<attribute_store_type_t>(indicator_report_group_attributes_t::vg1));
+
+        indicator_report_vg1_t stored_vg1;
+        if (vg1_node != ATTRIBUTE_STORE_INVALID_NODE) {
+            auto vg1_attr = attribute_store::attribute(vg1_node);
+            if (vg1_attr.reported_exists()) {
+                stored_vg1 = vg1_attr.reported<indicator_report_vg1_t>();
+            }
+        }
+
+        zwave_frame_generator_standalone report_frame;
+        report_frame.add_header(properties.command_class_id, static_cast<uint8_t>(command_class_indicator_commands_t::COMMAND_CLASS_INDICATOR_INDICATOR_REPORT));
+        report_frame.add_raw_byte(command_class_indicator_constants::INDICATOR_0_VALUE_V2_PLUS);
+        report_frame.add_raw_byte(static_cast<uint8_t>(command_class_indicator_constants::NODE_IDENTIFY_PROPERTIES.size()));
+        for (const auto property: command_class_indicator_constants::NODE_IDENTIFY_PROPERTIES) {
+            uint8_t prop_id = static_cast<uint8_t>(property);
+            uint8_t value   = command_class_indicator_constants::PROPERTY_VALUE_DEFAULT;
+            for (const auto &item: stored_vg1) {
+                if (item.indicator_id == indicator_id_node_identify && item.property_id == prop_id) {
+                    value = item.value;
+                    break;
+                }
+            }
+            report_frame.add_raw_byte(indicator_id_node_identify);
+            report_frame.add_raw_byte(prop_id);
+            report_frame.add_raw_byte(value);
+        }
+
+        std::vector<uint8_t> frame = report_frame.generate_frame();
+        if (frame.empty()) {
+            sl_log_debug(LOG_TAG.data(), "Failed to assemble Indicator Report for Lifeline");
+            return;
+        }
+
+        component_connector connector;
+        auto lifeline_future = connector.fire_event_async<command_class_association_grp_info_types::component_connector_agi_empty_payload_t, command_class_association_grp_info_types::component_connector_agi_lifeline_destinations_t>(
+          static_cast<uint32_t>(command_class_association_grp_info_events_t::COMMAND_CLASS_ASSOCIATION_GRP_INFO_GET_LIFELINE_DESTINATIONS),
+          {});
+        auto [lifeline_status, lifeline] = lifeline_future.get();
+        if (lifeline_status != SL_STATUS_OK) {
+            sl_log_debug(LOG_TAG.data(), "Failed to query AGI lifeline destinations, skipping Indicator Report");
+            return;
+        }
+
+        for (const auto &dest_node_id: lifeline.node_ids) {
+            zwave_controller_connection_info_t dest = {};
+            zwave_tx_scheme_get_node_connection_info(dest_node_id, 0, &dest);
+            command_class_utils::send_report(&dest, static_cast<uint16_t>(frame.size()), frame.data());
+        }
+
+        for (const auto &[dest_node_id, endpoint_byte]: lifeline.endpoint_associations) {
+            zwave_controller_connection_info_t dest = {};
+            // Bit 7 is Bit Address; mask to the 7-bit endpoint ID for TX.
+            zwave_tx_scheme_get_node_connection_info(dest_node_id, endpoint_byte & command_class_association_grp_info_constants::ENDPOINT_ID_MASK, &dest);
+            command_class_utils::send_report(&dest, static_cast<uint16_t>(frame.size()), frame.data());
+        }
     }
 
 }  // namespace zwave_command_class
