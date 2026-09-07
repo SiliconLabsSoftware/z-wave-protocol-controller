@@ -34,6 +34,8 @@ namespace zwave_command_class
 
             static bool get_reported_capabilities_for_setpoint_type(attribute_store::attribute endpoint_node, uint8_t setpoint_type, std::vector<uint8_t> &out_min_value, std::vector<uint8_t> &out_max_value);
 
+            static bool get_reported_capabilities_precisions_for_setpoint_type(attribute_store::attribute endpoint_node, uint8_t setpoint_type, uint8_t &out_min_precision, uint8_t &out_max_precision);
+
         private:
             static attribute_store::attribute find_report_group_by_setpoint_type(attribute_store::attribute endpoint_node, uint8_t setpoint_type);
             static attribute_store::attribute find_capabilities_report_group_by_setpoint_type(attribute_store::attribute endpoint_node, uint8_t setpoint_type);
