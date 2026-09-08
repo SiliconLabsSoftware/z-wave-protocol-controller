@@ -31,6 +31,7 @@
 #include "zwave_command_class_indices.h"
 #include "zwapi_init.h"
 #include "zpc_config.h"
+#include "zpc_version.h"
 #include "zwave_command_class_manager.h"
 
 #include "zpc_attribute_store_network_helper.h"
@@ -251,7 +252,8 @@ namespace zwave_command_class
 
         const auto *config       = zpc_get_config();
         uint8_t hardware_version = static_cast<uint8_t>(config->hardware_version);
-        uint8_t firmware_targets = 0;
+        // Multi-processor (host + NCP): Firmware 0 = NCP, Firmware 1 = host app (CC:0086.02.12.13.001)
+        uint8_t firmware_targets = 1;
 
         report_frame.add_raw_byte(library_type);
         report_frame.add_raw_byte(protocol_info.major_version);
@@ -260,6 +262,8 @@ namespace zwave_command_class
         report_frame.add_raw_byte(firmware_minor);
         report_frame.add_raw_byte(hardware_version);
         report_frame.add_raw_byte(firmware_targets);
+        report_frame.add_raw_byte(static_cast<uint8_t>(ZPC_VERSION_MAJOR));
+        report_frame.add_raw_byte(static_cast<uint8_t>(ZPC_VERSION_MINOR));
 
         frame = report_frame.generate_frame();
 
