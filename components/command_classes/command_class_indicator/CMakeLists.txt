@@ -21,6 +21,7 @@ target_link_libraries(
   PUBLIC
     command_class_common
     command_class_indicator_interface
+    command_class_association_grp_info_interface
 )
 
 add_subdirectory(interface)

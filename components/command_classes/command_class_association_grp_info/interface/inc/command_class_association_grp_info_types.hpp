@@ -77,7 +77,7 @@ namespace zwave_command_class
         // Result of COMMAND_CLASS_ASSOCIATION_GRP_INFO_GET_LIFELINE_DESTINATIONS.
         // node_ids: plain NodeID destinations of the lifeline group.
         // endpoint_associations: (node_id, endpoint) pairs; endpoint MSB carries the
-        // bit-resolution flag as defined by the spec (caller must mask 0x7F to get the endpoint).
+        // bit-resolution flag as defined by the spec (caller must apply ENDPOINT_ID_MASK to get the endpoint).
         struct component_connector_agi_lifeline_destinations_t {
                 std::vector<uint8_t> node_ids;
                 std::vector<std::pair<uint8_t, uint8_t>> endpoint_associations;

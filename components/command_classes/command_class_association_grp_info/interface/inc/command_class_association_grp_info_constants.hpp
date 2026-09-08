@@ -22,6 +22,8 @@ namespace zwave_command_class
     {
         constexpr uint8_t LIFELINE_GROUP_ID   = 1;
         constexpr uint8_t MAX_NODES_PER_GROUP = 10;
+        // Multi Channel Association End Point byte: bit 7 is Bit Address, bits 0-6 are the endpoint ID.
+        constexpr uint8_t ENDPOINT_ID_MASK = 0x7F;
     }  // namespace command_class_association_grp_info_constants
 }  // namespace zwave_command_class
 
