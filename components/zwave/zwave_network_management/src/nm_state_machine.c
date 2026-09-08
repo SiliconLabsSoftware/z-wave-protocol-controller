@@ -55,7 +55,6 @@
 #define ADD_NODE_HOME_ID     8
 #define ADD_NODE_STOP        5
 #define ADD_NODE_STOP_FAILED 6
-#define OBFUSCATED_DSK_LEN   2
 #define ACCEPT_DSK           1
 #define REJECT_DSK           0
 
@@ -127,6 +126,11 @@ static void on_secure_inclusion_complete(zwave_keyset_t granted_keys, zwave_kex_
     if ((nms.state == NM_WAIT_FOR_SECURE_ADD) || (nms.state == NM_WAIT_FOR_SECURE_LEARN)) {
         nms.granted_keys  = granted_keys;
         nms.kex_fail_type = kex_fail_code;
+        // A classic controller-side DSK challenge establishes the joining
+        // node's identity only after security bootstrapping succeeds.
+        if ((nms.state == NM_WAIT_FOR_SECURE_ADD) && (kex_fail_code == ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE) && (nms.reported_dsk_blanked > 0)) {
+            nms.flags |= NMS_FLAG_REPORT_DSK;
+        }
         zwave_network_management_post_event(NM_EV_SECURITY_DONE, 0);
     }
 }
@@ -221,13 +225,14 @@ static void on_remove_node_status_update(LEARN_INFO *remove_node_information)
 }
 
 /**
- * @brief Prefer reported DSK; fall back to SmartStart expected DSK when reported is empty.
+ * @brief Use the trusted SmartStart DSK when no reportable DSK is available.
  */
 static void nm_fill_reported_dsk_from_expected_if_needed(void)
 {
     static const zwave_dsk_t zero_dsk = {0};
-    if ((memcmp(nms.reported_dsk, zero_dsk, sizeof(zwave_dsk_t)) == 0) && (memcmp(nms.expected_dsk, zero_dsk, sizeof(zwave_dsk_t)) != 0)) {
+    if (!(nms.flags & NMS_FLAG_REPORT_DSK) && (memcmp(nms.reported_dsk, zero_dsk, sizeof(zwave_dsk_t)) == 0) && (memcmp(nms.expected_dsk, zero_dsk, sizeof(zwave_dsk_t)) != 0)) {
         memcpy(nms.reported_dsk, nms.expected_dsk, sizeof(zwave_dsk_t));
+        nms.flags |= NMS_FLAG_REPORT_DSK;
     }
 }
 
@@ -238,11 +243,15 @@ static void nm_fill_reported_dsk_from_expected_if_needed(void)
  */
 static void notify_node_add_security_failed(void)
 {
+    zwave_dsk_t callback_dsk = {0};
     if (nms.kex_fail_type == ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE) {
         nms.kex_fail_type = ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_CANCEL;
     }
     nm_fill_reported_dsk_from_expected_if_needed();
-    zwave_controller_on_node_added(SL_STATUS_FAIL, &nms.node_info, nms.node_id_being_handled, nms.reported_dsk, nms.granted_keys, nms.kex_fail_type, nms.inclusion_protocol);
+    if (nms.flags & NMS_FLAG_REPORT_DSK) {
+        memcpy(callback_dsk, nms.reported_dsk, sizeof(callback_dsk));
+    }
+    zwave_controller_on_node_added(SL_STATUS_FAIL, &nms.node_info, nms.node_id_being_handled, callback_dsk, nms.granted_keys, nms.kex_fail_type, nms.inclusion_protocol);
 }
 
 /**
@@ -252,9 +261,13 @@ static void notify_node_add_security_failed(void)
  */
 static void dispatch_node_added()
 {
+    zwave_dsk_t callback_dsk = {0};
     nm_fill_reported_dsk_from_expected_if_needed();
+    if (nms.flags & NMS_FLAG_REPORT_DSK) {
+        memcpy(callback_dsk, nms.reported_dsk, sizeof(callback_dsk));
+    }
     const sl_status_t status = (nms.kex_fail_type == ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE) ? SL_STATUS_OK : SL_STATUS_FAIL;
-    zwave_controller_on_node_added(status, &nms.node_info, nms.node_id_being_handled, nms.reported_dsk, nms.granted_keys, nms.kex_fail_type, nms.inclusion_protocol);
+    zwave_controller_on_node_added(status, &nms.node_info, nms.node_id_being_handled, callback_dsk, nms.granted_keys, nms.kex_fail_type, nms.inclusion_protocol);
     network_management_refresh_cached_node_list();
     nms.state                = NM_IDLE;
     nms.proxy_inclusion_step = 0;
@@ -724,7 +737,8 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
                     // what we expect.
                     if (memcmp(&nms.reported_dsk[nms.reported_dsk_blanked], &nms.expected_dsk[nms.reported_dsk_blanked], sizeof(zwave_dsk_t) - nms.reported_dsk_blanked) == 0) {
                         memcpy(nms.reported_dsk, nms.expected_dsk, nms.reported_dsk_blanked);
-                        zwave_s2_dsk_accept(ACCEPT_DSK, nms.expected_dsk, OBFUSCATED_DSK_LEN);
+                        nms.flags |= NMS_FLAG_REPORT_DSK;
+                        zwave_s2_dsk_accept(ACCEPT_DSK, nms.expected_dsk, nms.reported_dsk_blanked);
                     } else {
                         sl_log_debug(LOG_TAG, "SmartStart: Input DSK not found in provisioning list\n");
                         sl_log_byte_arr(LOG_TAG, SL_LOG_DEBUG, nms.expected_dsk, sizeof(zwave_dsk_t));
@@ -735,9 +749,11 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
                         zwave_s2_dsk_accept(REJECT_DSK, 0, 0);
                     }
                 } else {
-                    if (find_dsk_obfuscated_bytes_from_smart_start_list(nms.reported_dsk, OBFUSCATED_DSK_LEN)) {
+                    if ((nms.reported_dsk_blanked > 0) && find_dsk_obfuscated_bytes_from_smart_start_list(nms.reported_dsk, nms.reported_dsk_blanked)) {
                         sl_log_debug(LOG_TAG, "SmartStart: Input DSK found in provisioning list\n");
-                        sl_log_byte_arr(LOG_TAG, SL_LOG_DEBUG, nms.reported_dsk, sizeof(zwave_dsk_t)) zwave_s2_dsk_accept(ACCEPT_DSK, nms.reported_dsk, OBFUSCATED_DSK_LEN);
+                        sl_log_byte_arr(LOG_TAG, SL_LOG_DEBUG, nms.reported_dsk, sizeof(zwave_dsk_t));
+                        nms.flags |= NMS_FLAG_REPORT_DSK;
+                        zwave_s2_dsk_accept(ACCEPT_DSK, nms.reported_dsk, nms.reported_dsk_blanked);
                     } else {
                         // Non-SmartStart inclusions sends the request upwards
                         zwave_controller_on_dsk_report(nms.reported_dsk_blanked, nms.reported_dsk, nms.requested_keys);
@@ -746,8 +762,8 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
             } else if (ev == NM_EV_ADD_SECURITY_KEYS_SET) {
                 zwave_s2_key_grant(nms.accepted_s2_bootstrapping, nms.requested_keys & nms.granted_keys, nms.accepted_csa);
             } else if (ev == NM_EV_ADD_SECURITY_DSK_SET) {
-                zwave_s2_dsk_accept(ACCEPT_DSK, nms.verified_dsk_input, OBFUSCATED_DSK_LEN);
-                memcpy(nms.reported_dsk, nms.verified_dsk_input, OBFUSCATED_DSK_LEN);
+                zwave_s2_dsk_accept(ACCEPT_DSK, nms.verified_dsk_input, nms.reported_dsk_blanked);
+                memcpy(nms.reported_dsk, nms.verified_dsk_input, nms.reported_dsk_blanked);
             } else if (ev == NM_EV_ABORT && !(nms.flags & NMS_FLAG_SMART_START_INCLUSION)) {
                 // If Event is Abort and it isn't SmartStart inclusion, Reject the DSK
                 zwave_s2_dsk_accept(REJECT_DSK, 0, 0);

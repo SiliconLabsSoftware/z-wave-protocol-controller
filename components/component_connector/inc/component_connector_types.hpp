@@ -47,7 +47,7 @@ namespace zwave_command_class
             sl_status_t status;
             zwave_node_info_t node_info;  // Copy of node info data (not a pointer)
             zwave_node_id_t node_id;
-            zwave_dsk_t dsk;  // C array - kept as-is for compatibility with zwave_dsk_t typedef
+            zwave_dsk_t dsk;  // All zeros means that no authenticated or provisioned DSK is available.
             zwave_keyset_t granted_keys;
             zwave_kex_fail_type_t kex_fail_type;
             zwave_protocol_t inclusion_protocol;
@@ -125,7 +125,7 @@ namespace zwave_command_class
      */
     struct component_connector_node_deleted_payload_t {
             zwave_node_id_t node_id;
-            zwave_dsk_t dsk;
+            zwave_dsk_t dsk;  // All zeros means that no authenticated or provisioned DSK was stored.
     };
 
     /**

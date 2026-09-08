@@ -76,6 +76,11 @@ sl_status_t Utils::convert_dsk_to_dsk_str(const zwave_dsk_t src, char *dst, size
     return SL_STATUS_OK;
 }
 
+bool Utils::is_dsk_empty(const zwave_dsk_t dsk)
+{
+    return dsk == nullptr || std::all_of(dsk, dsk + sizeof(zwave_dsk_t), [](uint8_t byte) { return byte == 0; });
+}
+
 std::string Utils::byte_array_to_string(const std::vector<uint8_t> &byte_array)
 {
     std::string out;

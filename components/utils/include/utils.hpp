@@ -35,6 +35,9 @@ class Utils
 
         static sl_status_t convert_dsk_to_dsk_str(const zwave_dsk_t src, char *dst, size_t dst_max_len);
 
+        /** Returns true when the DSK contains no identity value. */
+        static bool is_dsk_empty(const zwave_dsk_t dsk);
+
         static std::string byte_array_to_string(const std::vector<uint8_t> &byte_array);
 };
 

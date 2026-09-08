@@ -53,6 +53,7 @@
 #include "zwave_controller_utils.h"
 #include "zwave_tx_scheme_selector.h"
 #include "zpc_config.h"
+#include "utils.hpp"
 #include "zwave_controller_storage.h"
 #include "zwave_association_toolbox.h"
 
@@ -774,10 +775,17 @@ void zwave_component::network_monitor_handler::update_new_node_attribute_store(c
     // Find the KEX Fail type for that node
     attribute_store_set_child_reported(node_id_node, ATTRIBUTE_KEX_FAIL_TYPE, &node_added_data.kex_fail_type, sizeof(zwave_kex_fail_type_t));
 
-    // Find the DSK for that node if it has S2 capabilities
-    if (zwave_security_validation_is_node_s2_capable(node_added_data.node_id)) {
+    // Persist only an authenticated or provisioned DSK. S2 capability alone is
+    // insufficient: an unauthenticated inclusion may use a dynamic ECDH key.
+    if (zwave_security_validation_is_node_s2_capable(node_added_data.node_id) && !Utils::is_dsk_empty(node_added_data.dsk)) {
         // Write the S2 DSK for that node
         attribute_store_set_child_reported(node_id_node, ATTRIBUTE_S2_DSK, node_added_data.dsk, sizeof(zwave_dsk_t));
+    } else {
+        // Do not retain a DSK from an earlier use of the same NodeID.
+        attribute_store_node_t dsk_node = attribute_store_get_first_child_by_type(node_id_node, ATTRIBUTE_S2_DSK);
+        if (dsk_node != ATTRIBUTE_STORE_INVALID_NODE) {
+            attribute_store_delete_node(dsk_node);
+        }
     }
 
     // Find the protocol listening byte from the NIF

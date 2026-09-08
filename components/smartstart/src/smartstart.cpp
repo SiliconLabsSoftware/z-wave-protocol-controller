@@ -350,6 +350,12 @@ done_protocol_discovery:
         (void)granted_keys;
         (void)inclusion_protocol;
 
+        // Classic unauthenticated, S0, and non-secure inclusions do not provide
+        // a trustworthy DSK and must not affect the SmartStart cache.
+        if (Utils::is_dsk_empty(dsk)) {
+            return;
+        }
+
         char dsk_str[DSK_STR_LEN];
         Utils::convert_dsk_to_dsk_str(dsk, dsk_str, sizeof(dsk_str));
 

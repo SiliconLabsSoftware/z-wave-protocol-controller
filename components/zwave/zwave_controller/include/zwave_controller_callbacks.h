@@ -91,7 +91,8 @@ typedef struct {
         /// @param nif_length length of the node information structure
         /// @param nif points to a node information structure
         /// @param node_id Node ID of the new node.
-        /// @param dsk DSK of the new node.
+        /// @param dsk Authenticated or provisioned DSK of the new node. All zeros
+        ///            indicate that the DSK is unavailable.
         /// @param granted_keys is used to indicate which network keys were granted during bootstrapping.
         /// @param kex_fail_type This field is used to indicate which error occurred in case S2
         /// @param inclusion_protocol Set to Z-wave protocol of the inclusion

@@ -19,7 +19,7 @@ Follow these steps to remove an end device from the network:
 | **2** | Fetch home ID from ZPC | Publish to `zpc/Discovery` with payload `{}`. Subscribe to `zpc/Discovery/Report` and read the `home_id` from the response. |
 | **3** | Send Remove Node request to ZPC | Publish to `zpc/<home_id>/Network/Node/Remove` with payload `{}`. ZPC enters remove mode and waits for a node to leave the network. |
 | **4** | Put end device into exclusion mode | On the end device, trigger exclusion/learn mode (e.g. push BTN1 or follow the device manual). The device will leave the network. |
-| **5** | Wait for Remove/Report and print result | Subscribe to `zpc/<home_id>/Network/Node/Remove/Report`. When the node is removed, ZPC publishes `{"node_id": <id>}`. Use this to confirm which node was excluded. |
+| **5** | Wait for Remove/Report and print result | Subscribe to `zpc/<home_id>/Network/Node/Remove/Report`. When the node is removed, ZPC publishes `{"node_id": <id>}` and includes `"dsk": "..."` only if a trusted DSK was stored. Use this to confirm which node was excluded. |
 
 ## MQTT topics involved
 
