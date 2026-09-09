@@ -71,6 +71,8 @@ zpc:
   # Z-Wave normal transmit power in deci-dBm (0.1 dBm units)
   # Power level used when transmitting frames at normal power
   # Example: 10 = 1.0 dBm, -20 = -2.0 dBm. Not all modules support this setting
+  # The full module-supported range requires the 16-bit Serial API command;
+  # older modules are limited to values from -128 through 127
   normal_tx_power_dbm: 0
   # Serial port path where Z-Wave module is connected (e.g., '/dev/ttyUSB0' or '/dev/ttyACM0')
   serial: '/dev/tty.usbmodem0004402504491'

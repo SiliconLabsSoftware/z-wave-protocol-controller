@@ -49,6 +49,7 @@ typedef enum {
     SERIAL_API_SETUP_CMD_TX_POWERLEVEL_GET           = 0x08,
     SERIAL_API_SETUP_CMD_MAXIMUM_PAYLOAD_SIZE_GET    = 0x10,
     SERIAL_API_SETUP_CMD_LR_MAXIMUM_PAYLOAD_SIZE_GET = 0x11,
+    SERIAL_API_SETUP_CMD_TX_POWERLEVEL_SET_16_BIT    = 0x12,
     SERIAL_API_SETUP_CMD_RF_REGION_GET               = 0x20,
     SERIAL_API_SETUP_CMD_RF_REGION_SET               = 0x40,
     SERIAL_API_SETUP_CMD_NODEID_BASETYPE_SET         = 0x80
@@ -90,8 +91,8 @@ typedef enum { NODEID_8BITS = 1, NODEID_16BITS = 2 } zwave_node_id_basetype_t;
 /// Power level structure used by zwapi_set_tx_power_level() and
 /// zwapi_set_tx_power_level().
 typedef struct {
-        int8_t normal;        ///< TX power level at normal power
-        int8_t measured0dBm;  ///< Measured output power from antenna when normal is set to 0
+        int16_t normal;        ///< TX power level at normal power
+        int16_t measured0dBm;  ///< Measured output power from antenna when normal is set to 0
 } tx_power_level_t;
 
 /// RF power level values used with zwapi_set_rf_power_level() and
@@ -266,13 +267,19 @@ sl_status_t zwapi_set_tx_status_reporting(bool enable);
  * @returns SL_STATUS_OK if the TX power level was set successfully.
  * @returns SL_STATUS_NOT_SUPPORTED if the Z-Wave module does not
  * support this function.
+ * @returns SL_STATUS_INVALID_RANGE if the module only supports the legacy
+ * command and either power level cannot be represented as an int8_t.
  * @returns SL_STATUS_FAIL if the TX power level could not be set.
  *
- * @note This API is available as of serial API version 7
+ * @note The 16-bit setup command is used when supported by the module. The
+ * legacy 8-bit setup command is used otherwise.
  *
- * Tx: {REQ | 0x0B | 0x04 | NormalTxPower | Measured0dBmPower}
+ * 16-bit Tx: {REQ | 0x0B | 0x12 | NormalTxPower MSB | NormalTxPower LSB |
+ * Measured0dBmPower MSB | Measured0dBmPower LSB}
  *
- * Rx: {RES | 0x0B | 0x04 | CmdRes}
+ * Legacy Tx: {REQ | 0x0B | 0x04 | NormalTxPower | Measured0dBmPower}
+ *
+ * Rx: {RES | 0x0B | SetupCommand | CmdRes}
  *
  * aka ZW_TXPowerLevelSet
  */

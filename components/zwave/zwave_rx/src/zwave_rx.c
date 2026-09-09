@@ -83,7 +83,7 @@ static void zwave_rx_print_protocol_version(zwapi_protocol_version_information_t
     sl_log_info(LOG_TAG, "Z-Wave API protocol git commit: %s\n", git_commit_string);
 }
 
-sl_status_t zwave_rx_init(const zwapi_connection_params_t *connection_params, int *connection_fd, int8_t normal_tx_power_dbm, int8_t measured_0dBm_power, int16_t max_lr_tx_power_dbm, zwave_controller_region_t region)
+sl_status_t zwave_rx_init(const zwapi_connection_params_t *connection_params, int *connection_fd, int16_t normal_tx_power_dbm, int16_t measured_0dBm_power, int16_t max_lr_tx_power_dbm, zwave_controller_region_t region)
 {
     // Register the local Z-Wave RX callbacks to the Z-Wave API callbacks
     zwave_rx_zwapi_callbacks.application_command_handler        = zwave_rx_application_command_handler;

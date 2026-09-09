@@ -11,6 +11,7 @@
  *
  *****************************************************************************/
 
+#include <limits.h>
 #include <string.h>
 #include "zwapi_protocol_basis.h"
 #include "zwapi_func_ids.h"
@@ -176,19 +177,39 @@ sl_status_t zwapi_set_max_lr_tx_power_level(int16_t level)
 
 sl_status_t zwapi_set_tx_power_level(tx_power_level_t txpowerlevel)
 {
-    if (!zwapi_support_command_func(FUNC_ID_SERIAL_API_SETUP) || !zwapi_support_setup_func(SERIAL_API_SETUP_CMD_TX_POWERLEVEL_SET)) {
+    if (!zwapi_support_command_func(FUNC_ID_SERIAL_API_SETUP)) {
         return SL_STATUS_NOT_SUPPORTED;
     }
+
     uint8_t response_length                     = 0;
     uint8_t index                               = 0;
     uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
     uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
-    request_buffer[index++]                     = SERIAL_API_SETUP_CMD_TX_POWERLEVEL_SET;
-    request_buffer[index++]                     = txpowerlevel.normal;
-    request_buffer[index++]                     = txpowerlevel.measured0dBm;
-    sl_status_t send_command_status             = zwapi_send_command_with_response(FUNC_ID_SERIAL_API_SETUP, request_buffer, index, response_buffer, &response_length);
+    serial_api_setup_cmd_t setup_cmd;
 
-    if (send_command_status == SL_STATUS_OK && response_length > (IDX_DATA + 1) && response_buffer[IDX_DATA] == SERIAL_API_SETUP_CMD_TX_POWERLEVEL_SET && response_buffer[IDX_DATA + 1] == ZW_COMMAND_RETURN_VALUE_TRUE) {
+    if (zwapi_support_setup_func(SERIAL_API_SETUP_CMD_TX_POWERLEVEL_SET_16_BIT)) {
+        setup_cmd               = SERIAL_API_SETUP_CMD_TX_POWERLEVEL_SET_16_BIT;
+        request_buffer[index++] = setup_cmd;
+        request_buffer[index++] = ((uint16_t)txpowerlevel.normal >> 8) & 0xff;
+        request_buffer[index++] = (uint16_t)txpowerlevel.normal & 0xff;
+        request_buffer[index++] = ((uint16_t)txpowerlevel.measured0dBm >> 8) & 0xff;
+        request_buffer[index++] = (uint16_t)txpowerlevel.measured0dBm & 0xff;
+    } else if (zwapi_support_setup_func(SERIAL_API_SETUP_CMD_TX_POWERLEVEL_SET)) {
+        if (txpowerlevel.normal < INT8_MIN || txpowerlevel.normal > INT8_MAX || txpowerlevel.measured0dBm < INT8_MIN || txpowerlevel.measured0dBm > INT8_MAX) {
+            return SL_STATUS_INVALID_RANGE;
+        }
+
+        setup_cmd               = SERIAL_API_SETUP_CMD_TX_POWERLEVEL_SET;
+        request_buffer[index++] = setup_cmd;
+        request_buffer[index++] = (uint8_t)txpowerlevel.normal;
+        request_buffer[index++] = (uint8_t)txpowerlevel.measured0dBm;
+    } else {
+        return SL_STATUS_NOT_SUPPORTED;
+    }
+
+    sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_SERIAL_API_SETUP, request_buffer, index, response_buffer, &response_length);
+
+    if (send_command_status == SL_STATUS_OK && response_length > (IDX_DATA + 1) && response_buffer[IDX_DATA] == setup_cmd && response_buffer[IDX_DATA + 1] == ZW_COMMAND_RETURN_VALUE_TRUE) {
         return SL_STATUS_OK;
     }
     return SL_STATUS_FAIL;
@@ -232,10 +253,10 @@ tx_power_level_t zwapi_get_tx_power_level(void)
 
         if (send_command_status == SL_STATUS_OK) {
             if (response_length > (IDX_DATA + 1)) {
-                txpowerlevel.normal = response_buffer[IDX_DATA + 1];
+                txpowerlevel.normal = (int8_t)response_buffer[IDX_DATA + 1];
             }
             if (response_length > (IDX_DATA + 2)) {
-                txpowerlevel.measured0dBm = response_buffer[IDX_DATA + 2];
+                txpowerlevel.measured0dBm = (int8_t)response_buffer[IDX_DATA + 2];
             }
         }
     }
