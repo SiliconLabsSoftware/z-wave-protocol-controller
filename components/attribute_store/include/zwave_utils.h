@@ -129,6 +129,18 @@ sl_status_t zwave_store_nls_state(zwave_node_id_t node_id, bool is_nls_enabled, 
 zwave_operating_mode_t zwave_get_operating_mode(zwave_node_id_t node_id);
 
 /**
+ * @brief Returns whether a node is a Wake On Event End Node (WOEEN).
+ *
+ * A WOEEN is a Non-Listening node whose Wake Up Interval Capabilities only
+ * accept period 0 (minimum and maximum wake-up interval seconds are both 0).
+ * Until those capabilities are stored, this returns false.
+ *
+ * @param node_id The NodeID to classify
+ * @returns true if the node is a WOEEN, false otherwise.
+ */
+bool zwave_node_is_woeen(zwave_node_id_t node_id);
+
+/**
  * @brief Returns the protocol that the node is running in this network
  *
  * This function will return the protocol that has been used for including

@@ -33,6 +33,8 @@
 #include "zwapi_protocol_transport.h"
 #include "zwapi_protocol_controller.h"
 
+#include "zwave_utils.h"
+
 // ZPC includes
 #include "log.h"
 #define LOG_TAG "zwave_api_transport"
@@ -102,8 +104,11 @@ static sl_status_t zwave_api_transport_intercept_payload(const zwave_controller_
 
     // Intercept NOPs and try to use the Z-Wave API for it
     if (data[COMMAND_CLASS_INDEX] == ZWAVE_NOP_COMMAND_CLASS) {
-        uint8_t zwapi_tx_options = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE | TRANSMIT_OPTION_EXPLORE;
-        sl_status_t status       = zwapi_send_nop(info->remote.node_id, zwapi_tx_options, &zwave_api_send_data_callback);
+        uint8_t zwapi_tx_options = TRANSMIT_OPTION_AUTO_ROUTE | TRANSMIT_OPTION_EXPLORE;
+        if (!zwave_node_is_woeen(info->remote.node_id)) {
+            zwapi_tx_options |= TRANSMIT_OPTION_ACK;
+        }
+        sl_status_t status = zwapi_send_nop(info->remote.node_id, zwapi_tx_options, &zwave_api_send_data_callback);
         return status;
     }
 
@@ -273,8 +278,10 @@ static sl_status_t zwave_api_send_data(const zwave_controller_connection_info_t 
     // Singlecast or broadcast frame
     if (info->remote.is_multicast == false) {
         if (!IS_BROADCAST_NODE_ID(info->remote.node_id)) {
-            // Singlecast are sent with Ack Request.
-            zwapi_tx_options = TRANSMIT_OPTION_ACK;
+            // Singlecast requests ACK except toward a WOEEN (LR-NWK:0090.1-0).
+            if (!zwave_node_is_woeen(info->remote.node_id)) {
+                zwapi_tx_options = TRANSMIT_OPTION_ACK;
+            }
             if (tx_options->fasttrack == false) {
                 // Route resolution only if not in "fasttrack" mode
                 zwapi_tx_options |= TRANSMIT_OPTION_AUTO_ROUTE | TRANSMIT_OPTION_EXPLORE;
