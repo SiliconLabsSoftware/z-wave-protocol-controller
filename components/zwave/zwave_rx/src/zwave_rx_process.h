@@ -25,6 +25,11 @@ sl_status_t zwave_rx_process_stop_and_cleanup(void);
  */
 void zwave_rx_process_request_poll(void);
 
+/**
+ * \brief Gracefully stop ZPC after losing the Z-Wave API connection
+ */
+void zwave_rx_process_on_connection_lost(void);
+
 #ifdef __cplusplus
 }
 #endif

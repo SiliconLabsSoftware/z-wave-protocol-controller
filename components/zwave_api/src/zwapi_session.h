@@ -69,6 +69,11 @@ void zwapi_session_shutdown();
  */
 int zwapi_session_restart();
 
+/**
+ * @brief Mark the session as disconnected and notify the application once.
+ */
+void zwapi_session_notify_connection_lost(void);
+
 // Previously named SendFrame in the legacy SerialAPI module
 /**
  * @brief Send data frame to Z-Wave chip via serial port and wait for ACK.

@@ -129,7 +129,7 @@ int zwapi_serial_get_byte(uint8_t *c)
 
 void zwapi_serial_put_byte(uint8_t c)
 {
-    zwapi_serial_put_buffer(&c, 1);
+    (void)zwapi_serial_put_buffer(&c, 1);
 }
 
 int zwapi_serial_get_buffer(uint8_t *c, int len)
@@ -150,16 +150,20 @@ int zwapi_serial_get_buffer(uint8_t *c, int len)
                 continue;
             }
             sl_log_warning(LOG_TAG, "Serial select error: %s\n", strerror(errno));
-            return k;
+            return -1;
         }
         if (sel == 0) {
             sl_log_warning(LOG_TAG, "Serial read timeout after %d/%d bytes\n", k, len);
             return k;
         }
         int res = read(serial_fd, c + k, len - k);
-        if (res <= 0) {
+        if (res == 0) {
+            sl_log_warning(LOG_TAG, "Serial connection closed\n");
+            return -1;
+        }
+        if (res < 0) {
             sl_log_warning(LOG_TAG, "Serial read error: %s\n", strerror(errno));
-            return k;
+            return -1;
         }
         k += res;
     }
@@ -167,23 +171,28 @@ int zwapi_serial_get_buffer(uint8_t *c, int len)
     return k;
 }
 
-void zwapi_serial_put_buffer(uint8_t *c, int len)
+int zwapi_serial_put_buffer(uint8_t *c, int len)
 {
     int n = 0;
-    do {
-        int res = write(serial_fd, c, len);
+    while (n < len) {
+        int res = write(serial_fd, c + n, len - n);
         if (res < 0) {
-            sl_log_error(LOG_TAG, "Serial Write Error: %s", strerror(errno));
-        } else {
-            n += res;
-            if (n == len) {
-                break;
+            if (errno == EAGAIN) {
+                continue;
             }
+            sl_log_error(LOG_TAG, "Serial Write Error: %s", strerror(errno));
+            return -1;
         }
-    } while (errno == EAGAIN);
+        if (res == 0) {
+            sl_log_error(LOG_TAG, "Serial connection closed while writing");
+            return -1;
+        }
+        n += res;
+    }
 
     // Log to file
     zwapi_log_tx_start(c, n);
+    return n;
 }
 
 bool zwapi_serial_is_file_available(void)

@@ -24,6 +24,7 @@
 #include "zwave_rx.h"
 #include "zwave_rx_internals.h"
 #include "zwave_rx_zwapi_callbacks.h"
+#include "zwave_rx_process.h"
 
 // Setup Log ID
 #define LOG_TAG "zwave_rx"
@@ -92,6 +93,7 @@ sl_status_t zwave_rx_init(const zwapi_connection_params_t *connection_params, in
     zwave_rx_zwapi_callbacks.application_command_handler_bridge = zwave_rx_application_command_handler_bridge;
     zwave_rx_zwapi_callbacks.zwapi_started                      = zwave_rx_zwave_api_started;
     zwave_rx_zwapi_callbacks.poll_request                       = zwave_rx_poll_request;
+    zwave_rx_zwapi_callbacks.connection_lost                    = zwave_rx_process_on_connection_lost;
     bool soft_reset_needed                                      = false;
     // Initialize our Z-Wave API.
     sl_status_t command_status = zwapi_init(connection_params, connection_fd, &zwave_rx_zwapi_callbacks);

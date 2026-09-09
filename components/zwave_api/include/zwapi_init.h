@@ -254,6 +254,8 @@ typedef struct zwapi_callbacks {
         protocol_cc_encryption_command_handler_function protocol_cc_encryption_request;
         void (*zwapi_started)(const uint8_t *pData, uint8_t pLen);
         void (*poll_request)();
+        /// Invoked when the connection to the Z-Wave API module is lost.
+        void (*connection_lost)();
 } zwapi_callbacks_t;
 
 /**
@@ -270,6 +272,11 @@ typedef struct zwapi_callbacks {
  * aka SerialAPI_Init
  */
 sl_status_t zwapi_init(const zwapi_connection_params_t *connection_params, int *connection_fd, const zwapi_callbacks_t *callbacks);
+
+/**
+ * @brief Notify the Z-Wave API that its transport connection was lost.
+ */
+void zwapi_notify_connection_lost(void);
 
 /**
  * @brief Shut down the Z-Wave API and close the communication ports.
