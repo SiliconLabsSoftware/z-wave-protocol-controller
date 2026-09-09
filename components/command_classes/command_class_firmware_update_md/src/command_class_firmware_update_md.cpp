@@ -431,9 +431,12 @@ namespace zwave_command_class
         report_frame.add_raw_byte(0);  // firmware_0_checksum MSB
         report_frame.add_raw_byte(0);  // firmware_0_checksum LSB
         report_frame.add_raw_byte(0);  // firmware_upgradable
-        report_frame.add_raw_byte(0);  // number_of_firmware_targets
+        // Keep in sync with Version Report additional targets (host app = Firmware 1)
+        report_frame.add_raw_byte(1);  // number_of_firmware_targets
         report_frame.add_raw_byte(0);  // max_fragment_size MSB
         report_frame.add_raw_byte(0);  // max_fragment_size LSB
+        report_frame.add_raw_byte(0);  // firmware_1_id MSB (host image not OTA-addressable)
+        report_frame.add_raw_byte(0);  // firmware_1_id LSB
         report_frame.add_raw_byte(static_cast<uint8_t>(config->hardware_version & 0xFF));
 
         frame = report_frame.generate_frame();
