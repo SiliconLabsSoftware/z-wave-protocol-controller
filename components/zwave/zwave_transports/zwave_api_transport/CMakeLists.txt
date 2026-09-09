@@ -14,4 +14,5 @@ target_link_libraries(zwave_api_transport
     zwave_controller
     zwave_rx
     timer
+    zpc_attribute_store
 )

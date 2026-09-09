@@ -149,6 +149,38 @@ zwave_operating_mode_t zwave_get_operating_mode(zwave_node_id_t node_id)
     return OPERATING_MODE_NL;
 }
 
+bool zwave_node_is_woeen(zwave_node_id_t node_id)
+{
+    if (zwave_get_operating_mode(node_id) != OPERATING_MODE_NL) {
+        return false;
+    }
+
+    attribute_store_node_t endpoint_node = zwave_get_endpoint_node(node_id, 0);
+    if (endpoint_node == ATTRIBUTE_STORE_INVALID_NODE) {
+        return false;
+    }
+
+    const attribute_store_type_t caps_group_type = (COMMAND_CLASS_WAKE_UP << 8) | 3;
+    attribute_store_node_t caps_group            = attribute_store_get_first_child_by_type(endpoint_node, caps_group_type);
+    if (caps_group == ATTRIBUTE_STORE_INVALID_NODE) {
+        return false;
+    }
+
+    attribute_store_node_t min_node = attribute_store_get_first_child_by_type(caps_group, ATTRIBUTE_COMMAND_CLASS_WAKE_UP_MINIMUM_INTERVAL);
+    attribute_store_node_t max_node = attribute_store_get_first_child_by_type(caps_group, ATTRIBUTE_COMMAND_CLASS_WAKE_UP_MAXIMUM_INTERVAL);
+
+    uint32_t minimum_interval = 0;
+    uint32_t maximum_interval = 0;
+    if (SL_STATUS_OK != attribute_store_get_reported(min_node, &minimum_interval, sizeof(minimum_interval))) {
+        return false;
+    }
+    if (SL_STATUS_OK != attribute_store_get_reported(max_node, &maximum_interval, sizeof(maximum_interval))) {
+        return false;
+    }
+
+    return (minimum_interval == 0) && (maximum_interval == 0);
+}
+
 zwave_protocol_t zwave_get_inclusion_protocol(zwave_node_id_t node_id)
 {
     attribute_store_node_t node_id_node = attribute_store_network_helper_get_zwave_node_id_node(node_id);
