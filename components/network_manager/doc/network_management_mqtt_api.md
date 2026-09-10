@@ -68,6 +68,8 @@ zpc/<home_id>/Network/Node/Add/Report
 
 Published when a node has been successfully added (inclusion and security bootstrapping succeeded). `dsk` is included when available.
 
+For classic S2 Unauthenticated, S0, and non-secure inclusions, the node's authenticated DSK is not available and the `dsk` field is omitted. A DSK obtained through S2 Authenticated/Access authentication or a matched SmartStart provisioning entry is included.
+
 | Field | Type | Description |
 |-------|------|-------------|
 | `node_id` | number | Present on success. The NodeID of the added node. |
@@ -187,6 +189,8 @@ zpc/<home_id>/Network/Node/Remove/Report
 ```
 
 Published when a node is removed from the network, whether by normal exclusion (`Network/Node/Remove`) or by a successful remove-failed operation (`Network/Node/RemoveFailed`).
+
+The `dsk` field is omitted if no authenticated or provisioned DSK was stored for the node.
 
 | Field | Type | Description |
 |-------|------|-------------|

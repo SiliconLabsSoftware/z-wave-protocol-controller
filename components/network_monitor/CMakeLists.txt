@@ -23,4 +23,4 @@ target_link_libraries(
   network_monitor
   INTERFACE zwave_definitions
   PUBLIC zpc_attribute_store network_manager threading mqtt_api
-  PRIVATE zwave_s2 timer component_connector command_class_wake_up_interface attribute_timeouts command_class_version_interface)
+  PRIVATE zwave_s2 timer component_connector command_class_wake_up_interface attribute_timeouts command_class_version_interface utils)

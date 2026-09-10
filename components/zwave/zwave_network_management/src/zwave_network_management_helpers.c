@@ -42,11 +42,13 @@ void reset_nms_last_operation_data()
     nms.inclusion_protocol       = PROTOCOL_ZWAVE;
     nms.requested_csa            = false;
     nms.requested_keys           = 0;
+    nms.reported_dsk_blanked     = 0;
     nms.kex_fail_type            = 0;
     nms.s2_bootstrapping_started = false;
     nms.learn_mode_intent        = ZWAVE_NETWORK_MANAGEMENT_LEARN_NONE;
     memset(nms.reported_dsk, 0, sizeof(zwave_dsk_t));
     memset(nms.expected_dsk, 0, sizeof(zwave_dsk_t));
+    memset(nms.verified_dsk_input, 0, sizeof(zwave_dsk_t));
 }
 
 bool we_are_alone_in_our_network()

@@ -159,7 +159,7 @@ namespace zwave_command_class
         report["node_id"] = payload.node_id;
 
         char dsk_str[DSK_STR_LEN] = {};
-        if (Utils::convert_dsk_to_dsk_str(payload.dsk, dsk_str, sizeof(dsk_str)) == SL_STATUS_OK) {
+        if (!Utils::is_dsk_empty(payload.dsk) && Utils::convert_dsk_to_dsk_str(payload.dsk, dsk_str, sizeof(dsk_str)) == SL_STATUS_OK) {
             report["dsk"] = dsk_str;
         }
 
@@ -174,7 +174,7 @@ namespace zwave_command_class
         report["node_id"] = payload.node_id;
 
         char dsk_str[DSK_STR_LEN] = {};
-        if (Utils::convert_dsk_to_dsk_str(payload.dsk, dsk_str, sizeof(dsk_str)) == SL_STATUS_OK) {
+        if (!Utils::is_dsk_empty(payload.dsk) && Utils::convert_dsk_to_dsk_str(payload.dsk, dsk_str, sizeof(dsk_str)) == SL_STATUS_OK) {
             report["dsk"] = dsk_str;
         }
 

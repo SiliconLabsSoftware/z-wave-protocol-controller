@@ -165,8 +165,8 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data);
 /**
  * Sub-state flag for the Network Management State machine.
  *
- * Inclusion and S2 inclusion have succeeded, so NMS should include
- * the DSK when sending NODE_ADD_STATUS.
+ * NMS has an authenticated or provisioned DSK that may be exposed to
+ * upper layers. Raw unauthenticated ECDH public-key bytes do not qualify.
  *
  * \ingroup NW_CMD_handler
  */
