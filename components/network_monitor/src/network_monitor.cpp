@@ -984,6 +984,7 @@ void zwave_component::network_monitor_handler::handle_event_failed_frame_transmi
     failed_transmission_count++;
     // Check if we are within the accepted number of failures.
     if (failed_transmission_count < zpc_get_config()->accepted_transmit_failure) {
+        zwave_send_nop_to_node(node_id, ZWAVE_TX_QOS_RECOMMENDED_NODE_INTERVIEW_PRIORITY, NOP_DISCARD_TIMEOUT_MS, nullptr, nullptr);
         return;
     }
 
