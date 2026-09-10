@@ -56,36 +56,27 @@ bool zwapi_support_command_func(uint8_t func_id)
     return false;
 }
 
-static bool is_bit_num_set_in_byte(uint8_t bit_num, uint8_t byte)
-{
-    if (byte & (1 << bit_num)) {
-        return true;
-    }
-    return false;
-}
-
 bool zwapi_support_setup_func(serial_api_setup_cmd_t setup_cmd)
 {
     uint16_t cmd = setup_cmd;
-    bool ret     = false;
-    // check if the setup_cmd being checked has two bits set for e.g. 3(0011), 5(0101)
-    // Where we need to check the Extended Z-Wave API Setup Supported Sub Commands bitmask
-    if (cmd & (cmd - 1)) {
-        if (cmd > 16) {
-            sl_log_info(LOG_TAG,
-                        "Error: Checking if 0x%02X is supported, requires checking "
-                        "beyond 2 bytes of Extended Z-Wave API Setup Supported Sub"
-                        "Commands bitmask, which is not supported.\n",
-                        cmd);
-        } else if (cmd > 8) {
-            ret = (is_bit_num_set_in_byte((cmd - 8), chip.supported_setup_bitmask[2]));
-        } else if (cmd > 0) {
-            ret = (is_bit_num_set_in_byte(cmd, chip.supported_setup_bitmask[1]));
-        }
-    } else {
-        ret = cmd & chip.supported_setup_bitmask[0];
+    if (cmd == SERIAL_API_SETUP_CMD_UNSUPPORTED) {
+        return false;
     }
-    return ret;
+
+    // Legacy setup commands are flags in the first supported-command byte.
+    if ((cmd & (cmd - 1)) == 0) {
+        return (cmd & chip.supported_setup_bitmask[0]) != 0;
+    }
+
+    // Numbered setup commands are represented in the extended bitmask that
+    // follows the legacy supported-command byte.
+    uint16_t bit_index  = cmd - 1;
+    uint16_t byte_index = 1 + (bit_index / 8);
+    if (byte_index >= sizeof(chip.supported_setup_bitmask)) {
+        return false;
+    }
+
+    return (chip.supported_setup_bitmask[byte_index] & (1U << (bit_index % 8))) != 0;
 }
 
 sl_status_t zwapi_init(const zwapi_connection_params_t *connection_params, int *connection_fd, const zwapi_callbacks_t *_callbacks)

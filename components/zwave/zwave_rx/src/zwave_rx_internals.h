@@ -81,7 +81,7 @@ extern "C" {
  *
  * @returns SL_STATUS_SUCCESS if the initializations was successful.
  */
-sl_status_t zwave_rx_init(const zwapi_connection_params_t *connection_params, int *connection_fd, int8_t normal_tx_power_dbm, int8_t measured_0dBm_power, int16_t max_lr_tx_power_dbm, zwave_controller_region_t region);
+sl_status_t zwave_rx_init(const zwapi_connection_params_t *connection_params, int *connection_fd, int16_t normal_tx_power_dbm, int16_t measured_0dBm_power, int16_t max_lr_tx_power_dbm, zwave_controller_region_t region);
 
 /**
  * @brief Shutdown the module.

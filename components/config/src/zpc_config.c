@@ -113,7 +113,10 @@ int zpc_config_init()
                              "will be 10 in normal_tx_power_dbm and -2dBm  will "
                              "be -20 in normal_tx_power_dbm. Not all Z-Wave "
                              "modules support this setting and it will be "
-                             "applied only with compatible Z-Wave APIs.",
+                             "applied only with compatible Z-Wave APIs. The "
+                             "full module-supported range requires the 16-bit "
+                             "Serial API command; older modules are limited "
+                             "to values from -128 through 127.",
                              DEFAULT_ZWAVE_NORMAL_TX_POWER_DBM);
     status |= config_add_int(ZPC_MEASURED_0DBM_POWER,
                              "Z-Wave measured 0dBm output power (deci dBm). The "
