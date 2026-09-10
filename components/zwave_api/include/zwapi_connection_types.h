@@ -41,7 +41,7 @@ typedef struct zwapi_connection_interface {
         int (*get_byte)(uint8_t *c);
         void (*put_byte)(uint8_t c);
         int (*get_buffer)(uint8_t *c, int len);
-        void (*put_buffer)(uint8_t *c, int len);
+        int (*put_buffer)(uint8_t *c, int len);
         bool (*is_file_available)();
         void (*drain_buffer)();
 } zwapi_connection_interface_t;

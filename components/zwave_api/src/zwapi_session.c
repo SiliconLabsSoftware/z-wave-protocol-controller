@@ -40,6 +40,7 @@ typedef struct list_elem {
 } zwapi_session_list_elem_t;
 
 static zwapi_session_list_elem_t *zwapi_session_rx_queue;
+static bool zwapi_session_connection_lost;
 
 static pthread_mutex_t session_serial_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -132,7 +133,9 @@ static zwapi_connection_status_t zwapi_session_wait_for_response(void)
 
 int zwapi_session_init(const zwapi_connection_params_t *connection_params)
 {
-    return zwapi_connection_init(connection_params);
+    int status                    = zwapi_connection_init(connection_params);
+    zwapi_session_connection_lost = (status <= 0);
+    return status;
 }
 
 void zwapi_session_shutdown()
@@ -143,7 +146,31 @@ void zwapi_session_shutdown()
 
 int zwapi_session_restart()
 {
-    return zwapi_connection_restart();
+    int status = zwapi_connection_restart();
+    if (status <= 0) {
+        zwapi_session_notify_connection_lost();
+    }
+    return status;
+}
+
+static void notify_connection_lost_callback(void)
+{
+    zwapi_callbacks_t *callbacks = zwave_api_get_callbacks();
+    if (callbacks && callbacks->connection_lost) {
+        callbacks->connection_lost();
+    }
+}
+
+void zwapi_session_notify_connection_lost(void)
+{
+    pthread_mutex_lock(&session_serial_mutex);
+    bool notify                   = !zwapi_session_connection_lost;
+    zwapi_session_connection_lost = true;
+    pthread_mutex_unlock(&session_serial_mutex);
+
+    if (notify) {
+        notify_connection_lost_callback();
+    }
 }
 
 bool zwapi_session_dequeue_frame(uint8_t **frame_ptr, uint8_t *frame_len)
@@ -165,19 +192,24 @@ bool zwapi_session_dequeue_frame(uint8_t **frame_ptr, uint8_t *frame_len)
     return (zwapi_session_rx_queue) ? true : false;
 }
 
-static void enqueue_rx_frames(void)
+static bool enqueue_rx_frames(void)
 {
-    while (zwapi_connection_refresh() == ZWAPI_CONNECTION_STATUS_FRAME_RECEIVED) {
+    zwapi_connection_status_t connection_status;
+    while ((connection_status = zwapi_connection_refresh()) == ZWAPI_CONNECTION_STATUS_FRAME_RECEIVED) {
         // Enqueue available REQ frames.
         zwapi_session_enqueue_frame();
     }
+    return connection_status == ZWAPI_CONNECTION_STATUS_CONNECTION_LOST;
 }
 
 void zwapi_session_enqueue_rx_frames()
 {
     pthread_mutex_lock(&session_serial_mutex);
-    enqueue_rx_frames();
+    bool connection_lost = enqueue_rx_frames();
     pthread_mutex_unlock(&session_serial_mutex);
+    if (connection_lost) {
+        zwapi_session_notify_connection_lost();
+    }
 }
 
 // send_frame acquires session_serial_mutex for each individual transmit+ACK
@@ -195,14 +227,32 @@ static sl_status_t send_frame(uint8_t command, const uint8_t *payload_buffer, ui
 {
     // Drain any pending RX frames before the first attempt.
     pthread_mutex_lock(&session_serial_mutex);
-    enqueue_rx_frames();
+    bool connection_lost = enqueue_rx_frames();
+    bool unavailable     = connection_lost || zwapi_session_connection_lost;
     pthread_mutex_unlock(&session_serial_mutex);
+    if (connection_lost) {
+        zwapi_session_notify_connection_lost();
+    }
+    if (unavailable) {
+        return SL_STATUS_FAIL;
+    }
 
     uint8_t consecutive_tx_timeout_count = 0;
+    bool only_timeouts                   = true;
     for (int i = 0; i < MAX_TRANSMISSION_RETRIES; i++) {
         pthread_mutex_lock(&session_serial_mutex);
-        zwapi_connection_tx(command, FRAME_TYPE_REQUEST, payload_buffer, payload_buffer_length, true);
-        zwapi_connection_status_t connection_status = zwapi_session_wait_for_response();
+        if (zwapi_session_connection_lost) {
+            pthread_mutex_unlock(&session_serial_mutex);
+            return SL_STATUS_FAIL;
+        }
+        zwapi_connection_status_t connection_status = zwapi_connection_tx(command, FRAME_TYPE_REQUEST, payload_buffer, payload_buffer_length, true);
+        if (connection_status != ZWAPI_CONNECTION_STATUS_CONNECTION_LOST) {
+            connection_status = zwapi_session_wait_for_response();
+        }
+
+        if (connection_status != ZWAPI_CONNECTION_STATUS_RX_TIMEOUT && connection_status != ZWAPI_CONNECTION_STATUS_TX_TIMEOUT) {
+            only_timeouts = false;
+        }
 
         bool do_backoff = true;
         switch (connection_status) {
@@ -235,8 +285,11 @@ static sl_status_t send_frame(uint8_t command, const uint8_t *payload_buffer, ui
                 if (consecutive_tx_timeout_count >= MAX_TX_TIMEOUTS) {
                     // We should restart the serial port
                     sl_log_warning(LOG_TAG, "Reopening serial port\n");
-                    zwapi_connection_restart();
+                    int connection_fd = zwapi_connection_restart();
                     pthread_mutex_unlock(&session_serial_mutex);
+                    if (connection_fd <= 0) {
+                        zwapi_session_notify_connection_lost();
+                    }
                     return SL_STATUS_FAIL;
                 }
                 break;
@@ -251,6 +304,11 @@ static sl_status_t send_frame(uint8_t command, const uint8_t *payload_buffer, ui
                 // The other end is unhappy about our frame.
                 // Parsing went off the rails for them
                 pthread_mutex_unlock(&session_serial_mutex);
+                return SL_STATUS_FAIL;
+
+            case ZWAPI_CONNECTION_STATUS_CONNECTION_LOST:
+                pthread_mutex_unlock(&session_serial_mutex);
+                zwapi_session_notify_connection_lost();
                 return SL_STATUS_FAIL;
 
             default:
@@ -270,13 +328,20 @@ static sl_status_t send_frame(uint8_t command, const uint8_t *payload_buffer, ui
             zwapi_timestamp_get(&retry_timer, 20);
             while (!zwapi_is_timestamp_elapsed(&retry_timer)) {
                 pthread_mutex_lock(&session_serial_mutex);
-                enqueue_rx_frames();
+                connection_lost = enqueue_rx_frames();
                 pthread_mutex_unlock(&session_serial_mutex);
+                if (connection_lost) {
+                    zwapi_session_notify_connection_lost();
+                    return SL_STATUS_FAIL;
+                }
             }
         }
     }
 
     sl_log_error(LOG_TAG, "All attempts to transmit a frame have failed\n");
+    if (only_timeouts) {
+        zwapi_session_notify_connection_lost();
+    }
     return SL_STATUS_FAIL;
 }
 
@@ -307,6 +372,7 @@ sl_status_t zwapi_session_send_frame_with_response(uint8_t command, const uint8_
     // send_frame() returned SL_STATUS_OK with the mutex already held, so the
     // ACK-to-RES window is atomic — no other thread can drain the UART between
     // the ACK and the start of the RES wait.
+    bool connection_lost = false;
     for (int i = 0; i < MAX_RX_FRAMES_WAITING_FOR_RESPONSE; i++) {
         zwapi_connection_status_t connection_status = zwapi_session_wait_for_response();
         if (connection_status == ZWAPI_CONNECTION_STATUS_FRAME_RECEIVED) {
@@ -342,11 +408,17 @@ sl_status_t zwapi_session_send_frame_with_response(uint8_t command, const uint8_
                 sl_log_error(LOG_TAG, "Received too short frame from \
                       zwapi_connection_get_last_rx_frame()! \n");
             }
+        } else if (connection_status == ZWAPI_CONNECTION_STATUS_CONNECTION_LOST) {
+            connection_lost = true;
+            break;
         } else {
             sl_log_warning(LOG_TAG, "Unexpected receive state! %s\n", zwapi_connection_status_to_string(connection_status));
         }
     }
     pthread_mutex_unlock(&session_serial_mutex);
+    if (connection_lost) {
+        zwapi_session_notify_connection_lost();
+    }
     return result;
 }
 
@@ -354,10 +426,23 @@ sl_status_t zwapi_session_send_frame_no_ack(uint8_t command, const uint8_t *payl
 {
     // First check for incoming frames
     pthread_mutex_lock(&session_serial_mutex);
-    enqueue_rx_frames();
+    bool connection_lost = enqueue_rx_frames();
+    bool unavailable     = connection_lost || zwapi_session_connection_lost;
+    if (unavailable) {
+        pthread_mutex_unlock(&session_serial_mutex);
+        if (connection_lost) {
+            zwapi_session_notify_connection_lost();
+        }
+        return SL_STATUS_FAIL;
+    }
+
     // Send our command
-    zwapi_connection_tx(command, FRAME_TYPE_REQUEST, payload_buffer, payload_buffer_length, false);
+    zwapi_connection_status_t connection_status = zwapi_connection_tx(command, FRAME_TYPE_REQUEST, payload_buffer, payload_buffer_length, false);
     pthread_mutex_unlock(&session_serial_mutex);
+    if (connection_status == ZWAPI_CONNECTION_STATUS_CONNECTION_LOST) {
+        zwapi_session_notify_connection_lost();
+        return SL_STATUS_FAIL;
+    }
     return SL_STATUS_OK;
 }
 

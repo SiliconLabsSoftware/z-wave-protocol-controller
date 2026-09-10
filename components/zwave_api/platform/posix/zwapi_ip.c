@@ -118,32 +118,39 @@ int zwapi_ip_get_byte(uint8_t *c)
 
 void zwapi_ip_put_byte(uint8_t c)
 {
-    zwapi_ip_put_buffer(&c, 1);
+    (void)zwapi_ip_put_buffer(&c, 1);
 }
 
 int zwapi_ip_get_buffer(uint8_t *c, int len)
 {
     int res = recv(socket_fd, c, len, MSG_WAITALL);
-    if (res <= 0) {
-        sl_log_error(LOG_TAG, "IP Read Error: %s | Returned %d", strerror(errno), res);
-        exit(1);
+    if (res == 0) {
+        sl_log_warning(LOG_TAG, "IP connection closed");
+        return -1;
+    }
+    if (res < 0) {
+        sl_log_error(LOG_TAG, "IP Read Error: %s", strerror(errno));
+        return -1;
     }
 
     return res;
 }
 
-void zwapi_ip_put_buffer(uint8_t *c, int len)
+int zwapi_ip_put_buffer(uint8_t *c, int len)
 {
     int res = send(socket_fd, c, len, 0);
     if (res < 0) {
         sl_log_error(LOG_TAG, "IP Write Error: %s", strerror(errno));
-    } else if (res != len) {
+        return -1;
+    }
+    if (res != len) {
         sl_log_error(LOG_TAG, "IP Write Error: %d bytes written, expected %d bytes", res, len);
-        exit(1);
+        return -1;
     }
 
     // Log to file
     zwapi_log_tx_start(c, res);
+    return res;
 }
 
 bool zwapi_ip_is_file_available(void)

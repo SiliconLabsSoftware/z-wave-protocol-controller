@@ -12,6 +12,7 @@
  *****************************************************************************/
 
 #include "zwave_rx_process.hpp"
+#include "zwave_rx_process.h"
 #include "zwapi_init.h"
 #include "zwave_rx_internals.h"
 #include "zpc_config.h"
@@ -127,31 +128,24 @@ namespace zwave_component
 
         bool should_poll = value.has_value();
 
-        // If queue is empty, wait for file descriptor to be ready
-        // Use a timeout (100ms) so we can periodically check should_stop()
-        if (!should_poll) {
-            int poll_timeout_ms = 100;  // 100ms timeout to allow checking should_stop()
-            int poll_result     = poll(&pfd, 1, poll_timeout_ms);
+        // Do not block when work is already queued, but always check the fd so
+        // a hangup cannot be hidden by a busy poll queue.
+        int poll_result = poll(&pfd, 1, should_poll ? 0 : 100);
 
-            // Check if we should stop after poll returns (or was interrupted)
-            if (should_stop() || threading::threading::is_kill_switch_activated()) {
-                return;
-            }
+        if (should_stop() || threading::threading::is_kill_switch_activated()) {
+            return;
+        }
 
-            // Handle poll errors (EINTR is expected when signals are received)
-            if (poll_result < 0) {
-                if (errno == EINTR) {
-                    // Interrupted by signal, check should_stop and continue
-                    if (should_stop() || threading::threading::is_kill_switch_activated()) {
-                        return;
-                    }
-                } else {
-                    sl_log_error(LOG_TAG, "poll() failed: %s", strerror(errno));
-                }
+        if (poll_result < 0) {
+            if (errno != EINTR) {
+                sl_log_error(LOG_TAG, "poll() failed: %s", strerror(errno));
                 should_poll = false;
-            } else {
-                should_poll = (poll_result > 0);
             }
+        } else if ((poll_result > 0) && ((pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) != 0)) {
+            zwapi_notify_connection_lost();
+            return;
+        } else if (!should_poll) {
+            should_poll = (poll_result > 0) && ((pfd.revents & POLLIN) != 0);
         }
 
         // Process zwapi_poll if queue had a value or file descriptor is ready
@@ -209,6 +203,12 @@ void zwave_rx_process_request_poll(void)
     if (zwave_rx_process_instance != nullptr) {
         zwave_rx_process_instance->poll_queue.push(0);
     }
+}
+
+void zwave_rx_process_on_connection_lost(void)
+{
+    sl_log_critical(LOG_TAG, "Z-Wave API connection lost. Shutting down ZPC.");
+    threading::threading::kill_switch_activate();
 }
 
 }  // extern "C"

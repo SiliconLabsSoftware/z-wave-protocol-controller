@@ -33,14 +33,15 @@ extern "C" {
 
 /// State of the connection to the Z-Wave module.
 typedef enum {
-    ZWAPI_CONNECTION_STATUS_IDLE,            ///< Nothing has happened (no tx, no rx)
-    ZWAPI_CONNECTION_STATUS_FRAME_RECEIVED,  ///< A valid frame has been received
-    ZWAPI_CONNECTION_STATUS_FRAME_SENT,      ///< A frame was sent successfully and ACKed by the other end
-    ZWAPI_CONNECTION_STATUS_CHECKSUM_ERROR,  ///< A frame has an incorrect Checksum
-    ZWAPI_CONNECTION_STATUS_RX_TIMEOUT,      ///< Rx timeout has happened
-    ZWAPI_CONNECTION_STATUS_TX_TIMEOUT,      ///< Tx timeout (waiting for ACK) has happened
-    ZWAPI_CONNECTION_STATUS_TX_NAK,          ///< A frame was sent and the other end issued a NAK
-    ZWAPI_CONNECTION_STATUS_TX_CAN,          ///< A frame was sent and the other end issued a CAN, i.e. a collision occurred
+    ZWAPI_CONNECTION_STATUS_IDLE,             ///< Nothing has happened (no tx, no rx)
+    ZWAPI_CONNECTION_STATUS_FRAME_RECEIVED,   ///< A valid frame has been received
+    ZWAPI_CONNECTION_STATUS_FRAME_SENT,       ///< A frame was sent successfully and ACKed by the other end
+    ZWAPI_CONNECTION_STATUS_CHECKSUM_ERROR,   ///< A frame has an incorrect Checksum
+    ZWAPI_CONNECTION_STATUS_RX_TIMEOUT,       ///< Rx timeout has happened
+    ZWAPI_CONNECTION_STATUS_TX_TIMEOUT,       ///< Tx timeout (waiting for ACK) has happened
+    ZWAPI_CONNECTION_STATUS_TX_NAK,           ///< A frame was sent and the other end issued a NAK
+    ZWAPI_CONNECTION_STATUS_TX_CAN,           ///< A frame was sent and the other end issued a CAN, i.e. a collision occurred
+    ZWAPI_CONNECTION_STATUS_CONNECTION_LOST,  ///< The transport connection was lost
 } zwapi_connection_status_t;
 
 /**
@@ -78,6 +79,7 @@ int zwapi_connection_restart();
  * @param Buf A pointer to the command payload buffer
  * @param len The length of the data contained in the payload buffer
  * @param ack_needed true if we expect an Ack back for this frame.
+ * @returns ZWAPI_CONNECTION_STATUS_IDLE when written, or a failure status.
  *
  * A frame on the serial line consist of:
  * <b><tt>SOF-Len-Type-Cmd-DATA-Chksum</tt></b>, where:
@@ -90,7 +92,7 @@ int zwapi_connection_restart();
  *
  * aka ConTxFrame
  */
-void zwapi_connection_tx(uint8_t cmd, uint8_t type, const uint8_t *Buf, uint8_t len, bool ack_needed);
+zwapi_connection_status_t zwapi_connection_tx(uint8_t cmd, uint8_t type, const uint8_t *Buf, uint8_t len, bool ack_needed);
 
 /**
  * @brief Parses serial data sent from the Z-Wave module to the serial port.

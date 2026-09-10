@@ -87,10 +87,11 @@ int zwapi_serial_get_buffer(uint8_t *c, int len);
  *
  * @param c buffer with data to write to serial port.
  * @param len length of data in buffer.
+ * @returns Number of bytes written, or -1 on connection error.
  *
  * aka SerialPutBuffer
  */
-void zwapi_serial_put_buffer(uint8_t *c, int len);
+int zwapi_serial_put_buffer(uint8_t *c, int len);
 
 /**
  * @brief Check the file descriptor for the serial device is available for I/O

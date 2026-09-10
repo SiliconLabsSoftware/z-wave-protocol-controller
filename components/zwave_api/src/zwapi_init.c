@@ -105,6 +105,11 @@ sl_status_t zwapi_init(const zwapi_connection_params_t *connection_params, int *
     return refresh_status;
 }
 
+void zwapi_notify_connection_lost(void)
+{
+    zwapi_session_notify_connection_lost();
+}
+
 void zwapi_destroy(void)
 {
     zwapi_session_shutdown();

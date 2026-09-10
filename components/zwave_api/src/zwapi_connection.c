@@ -190,7 +190,7 @@ int zwapi_connection_restart()
 
     int rc;
     rc = zwapi_connection_interface.restart();
-    if (rc) {
+    if (rc > 0) {
         // INS12350 tells to send a NAK after reopening the port
         // It can also followed by a call to FUNC_ID_SERIAL_API_SOFT_RESET
         zwapi_connection_interface.put_byte(NAK);
@@ -199,11 +199,11 @@ int zwapi_connection_restart()
     return rc;
 }
 
-void zwapi_connection_tx(uint8_t cmd,        /* IN Command */
-                         uint8_t type,       /* IN frame Type to send (Response or Request) */
-                         const uint8_t *Buf, /* IN pointer to uint8_t buffer containing DATA to send */
-                         uint8_t len,        /* IN the length of DATA to transmit */
-                         bool ack_needed)
+zwapi_connection_status_t zwapi_connection_tx(uint8_t cmd,        /* IN Command */
+                                              uint8_t type,       /* IN frame Type to send (Response or Request) */
+                                              const uint8_t *Buf, /* IN pointer to uint8_t buffer containing DATA to send */
+                                              uint8_t len,        /* IN the length of DATA to transmit */
+                                              bool ack_needed)
 {
     uint8_t tx_buffer[FRAME_LENGTH_MAX];
     const size_t MAX_PAYLOAD_LEN_ALLOWED = sizeof(tx_buffer) - 4 - 1;  // 255 - 5 = 250
@@ -214,7 +214,7 @@ void zwapi_connection_tx(uint8_t cmd,        /* IN Command */
                      len,
                      MAX_PAYLOAD_LEN_ALLOWED);
         assert(false);
-        return;
+        return ZWAPI_CONNECTION_STATUS_TX_NAK;
     }
 
     uint8_t *c;
@@ -234,7 +234,10 @@ void zwapi_connection_tx(uint8_t cmd,        /* IN Command */
     }
     *c++ = tx_checksum;
 
-    zwapi_connection_interface.put_buffer(tx_buffer, len + 5);
+    if (zwapi_connection_interface.put_buffer(tx_buffer, len + 5) < 0) {
+        ack_nak_needed = false;
+        return ZWAPI_CONNECTION_STATUS_CONNECTION_LOST;
+    }
     zwapi_connection_interface.drain_buffer();
 
     sl_log_debug(LOG_TAG, "Outgoing Z-Wave API frame (hex): %s\n", zwapi_frame_to_string(tx_buffer, len + 5));
@@ -243,6 +246,7 @@ void zwapi_connection_tx(uint8_t cmd,        /* IN Command */
     if (ack_nak_needed) {
         zwapi_timestamp_get(&timeOutACK, RX_ACK_TIMEOUT_DEFAULT);
     }
+    return ZWAPI_CONNECTION_STATUS_IDLE;
 }
 
 zwapi_connection_status_t zwapi_connection_refresh()
@@ -252,7 +256,12 @@ zwapi_connection_status_t zwapi_connection_refresh()
     zwapi_connection_status_t retVal = ZWAPI_CONNECTION_STATUS_IDLE;
 
     while (zwapi_connection_interface.is_file_available() && retVal == ZWAPI_CONNECTION_STATUS_IDLE) {
-        if (zwapi_connection_interface.get_byte(&c) == 0) {
+        int bytes_read = zwapi_connection_interface.get_byte(&c);
+        if (bytes_read < 0) {
+            retVal = ZWAPI_CONNECTION_STATUS_CONNECTION_LOST;
+            break;
+        }
+        if (bytes_read == 0) {
             if (zwapi_connection_state == STATE_PARSE_FRAME) {
                 // If no more data is available and we are expecting
                 // to parse a frame, we mistakenly interpreted a SOF from
@@ -304,7 +313,11 @@ zwapi_connection_status_t zwapi_connection_refresh()
                 // Copy the data in our rx buffer, starting an appended length byte
                 rx_buffer[0]     = c;
                 rx_buffer_length = c + 1;  // The initial length byte does not include the checksum field.
-                int bytes_read   = zwapi_connection_interface.get_buffer(rx_buffer + 1, rx_buffer_length - 1);
+                bytes_read       = zwapi_connection_interface.get_buffer(rx_buffer + 1, rx_buffer_length - 1);
+                if (bytes_read < 0) {
+                    retVal = ZWAPI_CONNECTION_STATUS_CONNECTION_LOST;
+                    break;
+                }
                 if (bytes_read < rx_buffer_length - 1) {
                     zwapi_connection_state = STATE_SOF_HUNT;
                     rx_is_active           = false;
@@ -394,6 +407,8 @@ const char *zwapi_connection_status_to_string(zwapi_connection_status_t t)
             return "Connection status: NAK received";
         case ZWAPI_CONNECTION_STATUS_TX_CAN:
             return "Connection status: CAN received";
+        case ZWAPI_CONNECTION_STATUS_CONNECTION_LOST:
+            return "Connection status: Connection lost";
     }
     return NULL;
 }
