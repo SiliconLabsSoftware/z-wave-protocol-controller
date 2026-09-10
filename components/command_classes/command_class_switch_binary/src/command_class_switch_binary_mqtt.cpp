@@ -45,7 +45,7 @@ namespace zwave_command_class
     sl_status_t command_class_switch_binary_mqtt::mqtt_on_switch_binary_get_command(attribute_store::attribute &endpoint_node, std::string payload)
     {
         auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_binary_get_group_attributes_t::SWITCH_BINARY_GET_GROUP));
-        group_node.clear_reported();
+        command_class_switch_binary_core::start_group_resolution(group_node);
 
         return SL_STATUS_OK;
     }
