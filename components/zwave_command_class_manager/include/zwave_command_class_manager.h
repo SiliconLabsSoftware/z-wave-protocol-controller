@@ -83,7 +83,7 @@ class zwave_command_class_manager
          *
          * @param command_class Command class to query with.
          * @returns The version to advertise in Version Command Class Reports.
-         *          NOP (0x00) is always 1. Protocol IDs 0x01–0x1F are always 0.
+         *          Protocol IDs 0x00–0x1F are always 0.
          *          Otherwise the supported handler version, or 0 if control-only/unregistered.
          */
         static uint8_t get_version(zwave_command_class_t command_class);
