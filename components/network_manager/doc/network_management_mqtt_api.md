@@ -553,6 +553,9 @@ zpc/<home_id>/Network/FactoryReset
 
 Initiates a factory reset of the Z-Wave controller. The controller will leave its current network and start a new one.
 
+If network management is not idle, the reset is not started and
+[`Network/FactoryReset/Report`](#network_factory_reset_report) is published immediately with `"status": "fail"`.
+
 ### NETWORK_FACTORY_RESET_REPORT
 
 **Report (published by ZPC):**
@@ -560,7 +563,7 @@ Initiates a factory reset of the Z-Wave controller. The controller will leave it
 zpc/Network/FactoryReset/Report
 ```
 
-**Payload:**
+**Payload (success):**
 ```json
 {
   "status": "ready",
@@ -580,7 +583,20 @@ delivered in the payload's `home_id` field.
 | `status` | string | `"ready"` when the reset chain has completed and ZPC is operational on the new network. |
 | `home_id` | string | The new 8-hex-digit Home ID assigned to ZPC after the reset. |
 
-The report is not retained; only one report is emitted per completed reset. Plain
+**Payload (fail — request rejected):**
+```json
+{
+  "status": "fail"
+}
+```
+
+Published immediately if `Network/FactoryReset` is rejected because network management is not idle. The reset is not started.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `status` | string | `"fail"` when the request is rejected. |
+
+The report is not retained. A successful reset emits one `"ready"` report. A rejected request emits one `"fail"` report. Plain
 ZPC startup and learn-mode joins into another network do not emit this report.
 
 ## Network Layer Security (NLS)
