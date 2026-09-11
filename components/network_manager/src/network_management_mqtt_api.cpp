@@ -639,7 +639,10 @@ namespace zwave_command_class
         // emit Device Reset Locally Notifications for a reset that the network
         // management layer will then abort.
         if (zwave_network_management_is_busy()) {
-            sl_log_warning(LOG_TAG.data(), "Network management is busy, ignoring factory reset request");
+            sl_log_warning(LOG_TAG.data(), "Network management busy, rejecting factory reset request");
+            nlohmann::json report;
+            report["status"] = MQTT_STATUS_FAIL;
+            publish_report(MQTT_API_NETWORK_FACTORY_RESET_REPORT_TOPIC, report.dump(), false, false);
             return;
         }
         zwave_controller_reset();
