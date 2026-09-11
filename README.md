@@ -91,16 +91,17 @@ Protocol (Z-Wave), Protocol Long Range, Security 0 (S0), Security 2 (S2), and Tr
 
 ```bash
 brew install $(cat ci/dependencies/brew-packages.txt)
-pip3 install -r ci/dependencies/requirements.txt
+source ./scripts/setup
 ```
 
 #### Linux
 
 ```bash
 apt-get install -y $(cat ci/dependencies/apt-packages-base.txt)
-pip3 install -r ci/dependencies/requirements.txt
+source ./scripts/setup
 ```
 
+`scripts/setup` must be **sourced** so the current shell stays in the venv (prompt shows `(zpc)`). Keep it activated for configure/build.
 ## How to use ZPC
 
 ### Setting up the MQTT broker (e.g., [Mosquitto](https://mosquitto.org/download/))

@@ -21,7 +21,7 @@ See [Prerequisites](#prerequisites) for tested platforms and compilers.
 
 ```bash
 brew install $(cat ci/dependencies/brew-packages.txt)
-pip3 install -r ci/dependencies/requirements.txt
+source ./scripts/setup
 ```
 
 Code formatting uses **LLVM 19** — run `./ci/scripts/clang-format.sh format` or `check`. See [CONTRIBUTING.md](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/blob/main/CONTRIBUTING.md#formatting) and the optional pre-commit hook (`./.githooks/install.sh`).
@@ -32,7 +32,7 @@ Static analysis uses **LLVM 19** (`llvm@19` from `brew-packages.txt`) — run `.
 
 ```bash
 apt-get install -y $(cat ci/dependencies/apt-packages-base.txt)
-pip3 install -r ci/dependencies/requirements.txt
+source ./scripts/setup
 ```
 
 On Debian/Ubuntu, the formatting script uses **`clang-format-19`** — install it from `ci/dependencies/apt-packages-clang-format.txt`. See [CONTRIBUTING.md](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/blob/main/CONTRIBUTING.md#formatting).

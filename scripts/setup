@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# Create the ZPC Python venv (if needed), install requirements, and activate it
+# in the *current* shell with a clear (zpc) prompt.
+#
+# Must be sourced:
+#   source ./scripts/setup
+#   . ./scripts/setup
+
+_zpc_setup_is_sourced() {
+  if [[ -n "${ZSH_VERSION:-}" ]]; then
+    case "${ZSH_EVAL_CONTEXT:-}" in
+      *:file*) return 0 ;;
+      *) return 1 ;;
+    esac
+  fi
+  if [[ -n "${BASH_VERSION:-}" ]]; then
+    [[ "${BASH_SOURCE[0]}" != "${0}" ]]
+    return
+  fi
+  # Unknown shell: assume sourced if we have BASH_SOURCE-like context unavailable.
+  return 0
+}
+
+_zpc_setup_script_path() {
+  if [[ -n "${BASH_SOURCE[0]:-}" ]]; then
+    printf '%s\n' "${BASH_SOURCE[0]}"
+  elif [[ -n "${ZSH_VERSION:-}" ]]; then
+    # zsh: path of current sourced file
+    # shellcheck disable=SC2296
+    printf '%s\n' "${(%):-%x}"
+  else
+    printf '%s\n' "$0"
+  fi
+}
+
+_zpc_setup_main() {
+  local repo_root script_path
+  script_path="$(_zpc_setup_script_path)"
+  repo_root="$(cd "$(dirname "$script_path")/.." && pwd)" || return 1
+  cd "$repo_root" || return 1
+
+  if ! command -v python3 >/dev/null 2>&1; then
+    echo "error: python3 not found. Install OS packages first, then re-run:" >&2
+    echo "  macOS:  brew install \$(cat ci/dependencies/brew-packages.txt)" >&2
+    echo "  Linux:  apt-get install -y \$(cat ci/dependencies/apt-packages-base.txt)" >&2
+    echo "  then:   source ./scripts/setup" >&2
+    return 1
+  fi
+
+  if [[ ! -f .venv/bin/activate ]]; then
+    echo "Creating .venv (prompt: zpc)"
+    python3 -m venv --prompt zpc .venv || return 1
+  fi
+
+  # shellcheck disable=SC1091
+  source .venv/bin/activate || return 1
+
+  echo "Installing Python requirements into ${VIRTUAL_ENV}"
+  python -m pip install --upgrade pip || return 1
+  python -m pip install -r ci/dependencies/requirements.txt || return 1
+
+  # Make the prompt unambiguously ZPC even if the venv was created without --prompt.
+  export VIRTUAL_ENV_PROMPT="(zpc) "
+  if [[ -n "${PS1:-}" ]]; then
+    PS1="$(printf '%s' "$PS1" | sed -E 's/^\([^)]*\)[[:space:]]+//')"
+    PS1="(zpc) ${PS1}"
+    export PS1
+  fi
+
+  # Smoke-check the venv: CMake needs jinja2 at configure time (sl_status_strings).
+  if ! python -c 'import jinja2' >/dev/null 2>&1; then
+    echo "error: jinja2 not importable from $(command -v python)" >&2
+    return 1
+  fi
+
+  echo "ZPC venv active: $(command -v python)"
+  echo "Deactivate with: deactivate"
+  return 0
+}
+
+if ! _zpc_setup_is_sourced; then
+  echo "error: source this script instead: source ./scripts/setup" >&2
+  exit 1
+fi
+
+_zpc_setup_main
+_zpc_setup_status=$?
+unset -f _zpc_setup_is_sourced _zpc_setup_script_path _zpc_setup_main
+return "${_zpc_setup_status}"
