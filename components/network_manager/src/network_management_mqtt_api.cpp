@@ -155,6 +155,9 @@ namespace zwave_command_class
 
     sl_status_t NetworkManagementMqttApi::on_node_deleted(const component_connector_node_deleted_payload_t &payload)
     {
+        const std::string node_topic_prefix = fmt::format("{}/{:04X}/", get_base_topic(), payload.node_id);
+        zwave_component::mqtt_handler::get_instance().unretain(node_topic_prefix);
+
         nlohmann::json report;
         report["node_id"] = payload.node_id;
 
