@@ -617,7 +617,7 @@ zpc/<home_id>/Network/NLS/Enable
 }
 ```
 
-Enables Network Layer Security (NLS) for the given node. ZPC stores the desired NLS state and may report result on the report topic.
+Enables Network Layer Security (NLS) for the given node. ZPC queries whether the node supports NLS. If it does, ZPC stores the desired NLS state and reports the result on the report topic. If the node does not support NLS, the report status is `"not supported"`. If NLS support cannot be read, the report status is `"fail"`.
 
 ### NETWORK_NLS_ENABLE_REPORT
 
@@ -633,6 +633,11 @@ zpc/<home_id>/Network/NLS/Enable/Report
   "status": "ok"
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `node_id` | integer | Node the enable was requested for. |
+| `status` | string | `"ok"` if the node supports NLS and the desired state was stored. `"not supported"` if the node does not support NLS. `"fail"` if NLS support could not be read or the desired state could not be stored. |
 
 ### NETWORK_NLS_STATE
 
