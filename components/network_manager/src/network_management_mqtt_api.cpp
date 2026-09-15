@@ -682,11 +682,23 @@ namespace zwave_command_class
             return;
         }
 
-        sl_status_t status = zwave_store_nls_state(node_id, true, DESIRED_ATTRIBUTE);
+        uint8_t nls_state   = 0;
+        uint8_t nls_support = 0;
+        sl_status_t status  = zwapi_get_node_nls(node_id, &nls_state, &nls_support);
 
         nlohmann::json report;
         report["node_id"] = node_id;
-        report["status"]  = (status == SL_STATUS_OK) ? "ok" : "fail";
+
+        if (status != SL_STATUS_OK) {
+            report["status"] = "fail";
+            sl_log_error(LOG_TAG.data(), "NLS Enable: unable to read NLS support for NodeID %d", node_id);
+        } else if (nls_support == 0U) {
+            report["status"] = "not supported";
+            sl_log_debug(LOG_TAG.data(), "NLS Enable: NodeID %d does not support NLS", node_id);
+        } else {
+            status           = zwave_store_nls_state(node_id, true, DESIRED_ATTRIBUTE);
+            report["status"] = (status == SL_STATUS_OK) ? "ok" : "fail";
+        }
         publish_report(MQTT_API_NETWORK_NLS_ENABLE_REPORT_TOPIC, report.dump(), false);
     }
 
