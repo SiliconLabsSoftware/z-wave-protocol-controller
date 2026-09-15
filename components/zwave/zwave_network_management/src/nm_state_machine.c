@@ -254,6 +254,12 @@ static void notify_node_add_security_failed(void)
     zwave_controller_on_node_added(SL_STATUS_FAIL, &nms.node_info, nms.node_id_being_handled, callback_dsk, nms.granted_keys, nms.kex_fail_type, nms.inclusion_protocol);
 }
 
+static void notify_node_add_aborted(void)
+{
+    zwave_dsk_t empty_dsk = {0};
+    zwave_controller_on_node_added(SL_STATUS_FAIL, &nms.node_info, nms.node_id_being_handled, empty_dsk, nms.granted_keys, ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE, nms.inclusion_protocol);
+}
+
 /**
  * @brief Tell the Z-Wave Controller that a Network Inclusion operation
  * has completed and returns the NM state machine to IDLE.
@@ -704,6 +710,11 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
                     nms.kex_fail_type = 0;
                     dispatch_node_added();
                 }
+            } else if (ev == NM_EV_ABORT) {
+                zwapi_add_node_to_network(ADD_NODE_STOP_FAILED, NULL);
+                notify_node_add_aborted();
+                nms.state = NM_SEND_NOP;
+                timer_set(&nms.timer, SMART_START_SELF_DESTRUCT_TIMEOUT, nm_nms_timer_callback, NULL);
             } else if (ev == NM_EV_TIMEOUT || ev == NM_EV_ADD_FAILED || ev == NM_EV_ADD_NOT_PRIMARY) {
                 /* Add node failed - Application should indicate this to user */
                 zwapi_add_node_to_network(ADD_NODE_STOP_FAILED, NULL);

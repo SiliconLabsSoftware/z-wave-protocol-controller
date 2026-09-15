@@ -181,8 +181,8 @@ namespace zwave_command_class
             report["dsk"] = dsk_str;
         }
 
-        const bool security_failed = (payload.status != SL_STATUS_OK) || (payload.kex_fail_type != ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE);
-        if (security_failed) {
+        const bool failed = (payload.status != SL_STATUS_OK) || (payload.kex_fail_type != ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE);
+        if (failed) {
             report["status"] = MQTT_STATUS_FAIL;
             report["reason"] = MQTT_REASON_NODE_ADD_SECURITY_FAIL;
         } else {
