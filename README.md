@@ -287,7 +287,6 @@ Full documentation is built with [MkDocs](https://www.mkdocs.org/) and the [Mate
 ### Guides
 
 - [Command Class Implementation Guide](docs/command_class_implementation_guide.md) — Implementing Z-Wave command classes in ZPC
-- [Known Failing CTT Test Cases](docs/known_failing_ctt_test_cases.md) — Automated CTT test failures tracked against ZPC
 
 ### Component docs
 
