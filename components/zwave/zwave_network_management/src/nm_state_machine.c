@@ -140,8 +140,9 @@ static void on_keys_request(zwave_keyset_t requested_keys, bool csa)
     if (nms.state != NM_WAIT_FOR_SECURE_ADD) {
         return;
     }
-    nms.requested_csa  = csa;
-    nms.requested_keys = requested_keys;
+    nms.requested_csa          = csa;
+    nms.requested_keys         = requested_keys;
+    nms.expected_s2_user_input = NM_S2_USER_INPUT_GRANT_KEYS;
     zwave_network_management_post_event(NM_EV_ADD_SECURITY_REQ_KEYS, 0);
 }
 
@@ -152,7 +153,8 @@ static void on_dsk_challenge(zwave_keyset_t granted_keys, int dsk_length, zwave_
     }
     nms.granted_keys = granted_keys;
     memcpy(nms.reported_dsk, dsk, sizeof(zwave_dsk_t));
-    nms.reported_dsk_blanked = dsk_length;
+    nms.reported_dsk_blanked   = dsk_length;
+    nms.expected_s2_user_input = NM_S2_USER_INPUT_ACCEPT_DSK;
     zwave_network_management_post_event(NM_EV_ADD_SECURITY_KEY_CHALLENGE, 0);
 }
 
