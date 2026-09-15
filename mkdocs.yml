@@ -67,7 +67,6 @@ nav:
     - Debian packaging: packaging-debian.md
   - Guides:
     - Command Class Implementation: command_class_implementation_guide.md
-    - Known Failing CTT Test Cases: known_failing_ctt_test_cases.md
   - Release Notes:
     - v2.0.0: release-notes/v2.0.0.md
   - Sequences:
