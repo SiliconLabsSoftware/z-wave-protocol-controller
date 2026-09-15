@@ -778,7 +778,11 @@ namespace zwave_command_class
             nlohmann::json report;
             report["node_id"] = node_id;
             report["status"]  = "fail";
-            report["reason"]  = "not_ready";
+            if (status == SL_STATUS_NOT_FOUND) {
+                report["reason"] = REMOVE_FAILED_STATUS_OPERATION_FAILED;
+            } else {
+                report["reason"] = "not_ready";
+            }
             publish_report(MQTT_API_NETWORK_NODE_REMOVE_FAILED_REPORT_TOPIC, report.dump(), false);
             return;
         }

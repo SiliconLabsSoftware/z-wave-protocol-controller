@@ -232,8 +232,9 @@ sl_status_t zwave_network_management_set_default(void);
  * - on_error
  *
  * @param nodeid Node id of failing node which will be removed
- * @returns sl_status_t SL_STATUS_OK when remove failed is triggered, any other
- * code if it failed
+ * @returns sl_status_t SL_STATUS_OK when remove failed is triggered,
+ * SL_STATUS_NOT_FOUND if the node is not part of the network, or another error
+ * code if the operation could not be started.
  */
 
 sl_status_t zwave_network_management_remove_failed(zwave_node_id_t node_id);
