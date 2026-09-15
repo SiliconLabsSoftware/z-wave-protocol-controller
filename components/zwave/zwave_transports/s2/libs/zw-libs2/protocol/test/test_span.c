@@ -1894,6 +1894,54 @@ void test_span_decrypt_mismatched_homeid(void)
 }
 
 /**
+ * @brief Test Nonce Report duplicate detection after a peer restart
+ *
+ * A peer must select a random sequence number at startup. A new Nonce Report
+ * whose sequence number is one less than the previously received command is
+ * therefore not a duplicate. An immediate replay of that report is still
+ * rejected because its sequence number matches the SPAN table entry.
+ *
+ * Spec references: CC:009F.01.00.11.0AD, CC:009F.01.00.11.02F,
+ * CC:009F.01.00.11.030
+ */
+void test_nonce_report_accepts_new_random_sequence_after_peer_restart(void)
+{
+    const node_t LOCAL_NODE_ID        = 1;
+    const node_t REMOTE_NODE_ID       = 2;
+    const uint8_t PREVIOUS_SEQUENCE   = 0xBF;
+    const uint8_t RESTARTED_SEQUENCE  = 0xBE;
+    const uint8_t first_rei[16]       = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F};
+    const uint8_t replay_rei[16]      = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F};
+    struct S2 s2_context              = {0};
+    s2_connection_t connection        = {0};
+    uint8_t nonce_report[20]          = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_REPORT, RESTARTED_SEQUENCE, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK};
+    uint8_t replayed_nonce_report[20] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_REPORT, RESTARTED_SEQUENCE, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK};
+
+    connection.l_node = LOCAL_NODE_ID;
+    connection.r_node = REMOTE_NODE_ID;
+
+    struct SPAN *span = &s2_context.span_table[0];
+    span->lnode       = LOCAL_NODE_ID;
+    span->rnode       = REMOTE_NODE_ID;
+    span->state       = SPAN_NEGOTIATED;
+    span->rx_seq      = PREVIOUS_SEQUENCE;
+
+    memcpy(&nonce_report[4], first_rei, sizeof(first_rei));
+    S2_application_command_handler(&s2_context, &connection, nonce_report, sizeof(nonce_report));
+
+    TEST_ASSERT_EQUAL_HEX8(RESTARTED_SEQUENCE, span->rx_seq);
+    TEST_ASSERT_EQUAL(SPAN_SOS_REMOTE_NONCE, span->state);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(first_rei, span->d.r_nonce, sizeof(first_rei));
+
+    memcpy(&replayed_nonce_report[4], replay_rei, sizeof(replay_rei));
+    S2_application_command_handler(&s2_context, &connection, replayed_nonce_report, sizeof(replayed_nonce_report));
+
+    TEST_ASSERT_EQUAL_HEX8(RESTARTED_SEQUENCE, span->rx_seq);
+    TEST_ASSERT_EQUAL(SPAN_SOS_REMOTE_NONCE, span->state);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(first_rei, span->d.r_nonce, sizeof(first_rei));
+}
+
+/**
  * @brief Test SPAN decrypt replay attack prevention
  *
  * Validates:
