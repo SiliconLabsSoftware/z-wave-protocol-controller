@@ -143,6 +143,14 @@ sl_status_t zwave_network_management_remove_failed(zwave_node_id_t node_id)
         return SL_STATUS_FAIL;
     }
 
+    if (!ZW_IS_NODE_IN_MASK(node_id, nms.cached_node_list)) {
+        sl_log_info(LOG_TAG,
+                    "NodeID %d is not part of the network. "
+                    "Ignoring Remove Failed node request.\n",
+                    node_id);
+        return SL_STATUS_NOT_FOUND;
+    }
+
     sl_log_info(LOG_TAG, "Initiating a Remove Offline operation for NodeID: %d\n", node_id);
     nms.node_id_being_handled = node_id;
     zwave_network_management_post_event(NM_EV_REMOVE_FAILED, 0);
