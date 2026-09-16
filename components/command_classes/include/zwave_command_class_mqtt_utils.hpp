@@ -17,6 +17,7 @@
 #define ZWAVE_COMMAND_CLASS_MQTT_UTILS_HPP
 
 #include <cstddef>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -50,7 +51,11 @@ namespace zwave_command_class
             template<typename T> static T parse_numeric(const nlohmann::json &v)
             {
                 if (v.is_number_integer() || v.is_number_unsigned()) {
-                    return static_cast<T>(v.template get<long long>());
+                    const auto n = v.template get<long long>();
+                    if (n < 0 || n > std::numeric_limits<T>::max()) {
+                        throw std::runtime_error("value out of range");
+                    }
+                    return static_cast<T>(n);
                 }
                 if (v.is_string()) {
                     const std::string &s = v.template get_ref<const std::string &>();
@@ -61,7 +66,12 @@ namespace zwave_command_class
                             base  = 16;
                             start = 2;
                         }
-                        return static_cast<T>(std::stoll(s.substr(start), nullptr, base));
+                        std::size_t idx = 0;
+                        const auto n    = std::stoll(s.substr(start), &idx, base);
+                        if (idx != s.size() - start || n < 0 || n > std::numeric_limits<T>::max()) {
+                            throw std::runtime_error("value out of range");
+                        }
+                        return static_cast<T>(n);
                     } catch (const std::exception &e) {
                         throw std::runtime_error(std::string("not a valid numeric string: ") + e.what());
                     }
