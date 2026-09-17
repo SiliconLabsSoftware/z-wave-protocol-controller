@@ -23,7 +23,7 @@ sequenceDiagram
     participant Node
 
     MQTT Client->>ZPC: ThermostatFanModeSet { "fan_mode": "0x01", "off": "0x00" }
-    Note over ZPC: Packs properties1 byte: off<<7 | fan_mode<br/>Sets desired values in SET_GROUP
+    Note over ZPC: Packs properties1 byte: off shifted 7 or fan_mode. Sets desired values in SET_GROUP
     ZPC->>Node: THERMOSTAT_FAN_MODE_SET (properties1)
     Node-->>ZPC: (Supervision ACK / implicit)
     ZPC->>Node: THERMOSTAT_FAN_MODE_GET

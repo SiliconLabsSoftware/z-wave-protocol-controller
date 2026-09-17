@@ -27,7 +27,7 @@ sequenceDiagram
     participant Node
 
     ThermostatMode CC->>ThermostatSetpoint CC: THERMOSTAT_MODE_CHANGED event
-    Note over ThermostatSetpoint CC: Clears reported state of GET_GROUP<br/>and starts resolution
+    Note over ThermostatSetpoint CC: Clears reported state of GET_GROUP and starts resolution
     ThermostatSetpoint CC->>Node: THERMOSTAT_SETPOINT_GET (setpoint_type)
     Node-->>ThermostatSetpoint CC: THERMOSTAT_SETPOINT_REPORT (new value)
 ```
@@ -41,7 +41,7 @@ sequenceDiagram
     participant Node
 
     MQTT Client->>ZPC: ThermostatSetpointSet { "setpoint_type": "0x01", "size": "0x01", "scale": "0x00", "precision": "0x00", "value": ["0x14"] }
-    Note over ZPC: Packs level2 byte: precision<<5 | scale<<3 | size<br/>Sets desired values in SET_GROUP
+    Note over ZPC: Packs level2 byte: precision shifted 5, scale shifted 3, size. Sets desired values in SET_GROUP
     ZPC->>Node: THERMOSTAT_SETPOINT_SET (setpoint_type, level2, value)
     Node-->>ZPC: (Supervision ACK / implicit)
     ZPC->>Node: THERMOSTAT_SETPOINT_GET (setpoint_type)
