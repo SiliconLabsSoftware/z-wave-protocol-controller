@@ -38,9 +38,51 @@ jobs:
       - name: Check clang-format
         run: ./ci/scripts/clang-format.sh check
 
+  unit_test:
+    name: unit-test
+    needs: [format]
+    if: needs.format.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CC: gcc-14
+      CXX: g++-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          submodules: recursive
+          fetch-tags: true
+          fetch-depth: 0
+
+      - name: Install dependencies
+        uses: ./.github/actions/setup-linux-deps
+        with:
+          package_lists: ci/dependencies/apt-packages-base.txt
+          pip_requirements: "true"
+
+      - name: Configure tests
+        run: cmake --preset debian -DSKIP_TESTING=OFF
+
+      - name: Build tests
+        run: cmake --build --preset debian
+
+      - name: Run unit tests
+        run: ctest --test-dir build/debian --output-on-failure --output-junit test-results.xml
+
+      - name: Upload CTest JUnit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: libs2-ctest-junit
+          path: test-results.xml
+          retention-days: 1
+          if-no-files-found: ignore
+
   clang_tidy:
     name: clang-tidy
-    needs: [format]
+    needs: [format, unit_test]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -66,15 +108,15 @@ jobs:
 
   build_linux:
     name: build-linux
-    needs: [format]
-    if: needs.format.result == 'success'
+    needs: [format, unit_test]
+    if: needs.format.result == 'success' && needs.unit_test.result == 'success'
     uses: ./.github/workflows/zpc-build-linux.yaml
     with:
       ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
   build_macos:
     name: macos-amd64-clang
-    needs: [format]
+    needs: [format, unit_test]
     runs-on: macos-26
     timeout-minutes: 15
     steps:
@@ -96,7 +138,7 @@ jobs:
 
   success:
     name: success
-    needs: [format, clang_tidy, build_linux, build_macos]
+    needs: [format, unit_test, clang_tidy, build_linux, build_macos]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: always()
@@ -105,6 +147,10 @@ jobs:
         run: |
           if [ "${{ needs.format.result }}" != "success" ]; then
             echo "::error title=CI gate::format was '${{ needs.format.result }}' (expected success)"
+            exit 1
+          fi
+          if [ "${{ needs.unit_test.result }}" != "success" ]; then
+            echo "::error title=CI gate::unit_test was '${{ needs.unit_test.result }}' (expected success)"
             exit 1
           fi
           if [ "${{ needs.clang_tidy.result }}" != "success" ]; then

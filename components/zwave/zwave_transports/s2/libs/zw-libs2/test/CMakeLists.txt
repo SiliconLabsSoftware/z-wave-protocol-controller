@@ -25,7 +25,8 @@ add_executable(new_test_t2
         ${CMAKE_CURRENT_SOURCE_DIR}/../transport_service/transport2_fsm.c)
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/../transport_service/
-        ${CMAKE_CURRENT_SOURCE_DIR}/../include/ )
+        ${CMAKE_CURRENT_SOURCE_DIR}/../include/
+        ${CMAKE_SOURCE_DIR}/components/platform/timer/include)
 if (${CMAKE_PROJECT_NAME} MATCHES "zipgateway")
   target_link_libraries(new_test_t2 zipgateway-lib)
 endif()

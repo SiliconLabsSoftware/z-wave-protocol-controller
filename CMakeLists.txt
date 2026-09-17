@@ -41,6 +41,13 @@ endif()
 include(cmake/include/compiler_options.cmake)
 include(cmake/include/version.cmake)
 
+# CTest + Unity helpers for zw-libs2 (SKIP_TESTING=ON by preset; product build unchanged)
+include(CTest)
+if(NOT SKIP_TESTING)
+  include(cmake/include/unity_test.cmake)
+endif()
+
+
 # ##############################################################################
 # Global includes
 # ##############################################################################

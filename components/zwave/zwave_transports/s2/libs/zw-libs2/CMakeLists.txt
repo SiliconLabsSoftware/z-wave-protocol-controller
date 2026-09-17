@@ -52,7 +52,7 @@ if("${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
 endif()
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3")
-if(NOT DEFINED SKIP_TESTING OR CMAKE_BUILD_TYPE STREQUAL Test)
+if(NOT SKIP_TESTING OR CMAKE_BUILD_TYPE STREQUAL Test)
   enable_testing()
   add_subdirectory(test)
   message(STATUS "Adding unit test for libs2")

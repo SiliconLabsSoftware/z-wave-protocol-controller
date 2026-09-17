@@ -29,6 +29,18 @@
       }
     }
   ],
+  "testPresets": [
+    {
+      "name": "debian",
+      "configurePreset": "debian",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "macos",
+      "configurePreset": "macos",
+      "output": { "outputOnFailure": true }
+    }
+  ],
   "buildPresets": [
     {
       "name": "macos",
