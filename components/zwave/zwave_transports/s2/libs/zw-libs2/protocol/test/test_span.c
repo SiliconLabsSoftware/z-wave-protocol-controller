@@ -2271,7 +2271,7 @@ void test_message_encapsulation_accepts_new_sequence_across_wraparound(void)
     struct S2 s2_context        = {0};
     s2_connection_t connection  = {0};
     /* Minimal Encapsulate frame: seq 0xFF, no valid CCM ciphertext required. */
-    uint8_t encap_frame[]       = {COMMAND_CLASS_SECURITY_2, SECURITY_2_MESSAGE_ENCAPSULATION, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t encap_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_MESSAGE_ENCAPSULATION, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     connection.l_node     = LOCAL_NODE_ID;
     connection.r_node     = REMOTE_NODE_ID;
