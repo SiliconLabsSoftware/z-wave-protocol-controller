@@ -1,0 +1,10 @@
+{
+  "name": "zpc-ci-mermaid-check",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "dompurify": "^3.2.6",
+    "jsdom": "^26.1.0",
+    "mermaid": "^11.6.0"
+  }
+}

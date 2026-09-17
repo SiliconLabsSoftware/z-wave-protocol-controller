@@ -89,6 +89,8 @@ example_dev_config.yaml
 docs/api/
 site/
 .venv-docs/
+ci/mermaid/node_modules/
+ci/mermaid/package-lock.json
 
 # Logs
 logs/
