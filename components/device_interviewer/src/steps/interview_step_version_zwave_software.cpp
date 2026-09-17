@@ -48,7 +48,7 @@ namespace zwave_command_class
         }
 
         try {
-            std::any_cast<command_class_version_types::command_class_version_report_callback_payload_t>(event->payload);
+            static_cast<void>(std::any_cast<command_class_version_types::command_class_version_report_callback_payload_t>(event->payload));
             sl_log_info(LOG_TAG.data(), "Node %d received Version Z-Wave Software Report", session.node_id);
             return done();
         } catch (const std::bad_any_cast &) {

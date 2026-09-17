@@ -122,7 +122,7 @@ namespace zwave_command_class
             }
 
             for (auto &f: futures) {
-                f.get();
+                static_cast<void>(f.get());
             }
 
             // Now install the listener on the NodeID node. It fires once the subtree

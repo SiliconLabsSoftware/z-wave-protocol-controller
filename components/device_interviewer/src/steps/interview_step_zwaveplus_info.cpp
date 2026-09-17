@@ -49,7 +49,7 @@ namespace zwave_command_class
         }
 
         try {
-            std::any_cast<command_class_zwaveplus_info_types::zwaveplus_info_report_payload_t>(event->payload);
+            static_cast<void>(std::any_cast<command_class_zwaveplus_info_types::zwaveplus_info_report_payload_t>(event->payload));
             sl_log_info(LOG_TAG.data(), "Node %d received Z-Wave Plus Info Report", session.node_id);
             return done();
         } catch (const std::bad_any_cast &) {
