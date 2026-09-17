@@ -47,18 +47,13 @@ set(CROSS_SYSTEM_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include" PARENT_SCOPE)
 include_directories(include ${ZWAVE_INCLUDE_DIR} ${CROSS_SYSTEM_INCLUDE}
                     ${OPTIONAL_SYSTEM_INCLUDE} ${ZWAVE_CLASSCMD_DIR})
 
-if("${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
-  set(SKIP_TESTING true)
-endif()
-
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3")
-if(NOT DEFINED SKIP_TESTING OR CMAKE_BUILD_TYPE STREQUAL Test)
+if(UNIT_TEST OR CMAKE_BUILD_TYPE STREQUAL Test
+   OR CMAKE_PROJECT_NAME STREQUAL "libs2")
   enable_testing()
   add_subdirectory(test)
   message(STATUS "Adding unit test for libs2")
 else()
-  # Use the SKIP_TESTING variable to prevent warning when running cmake
-  set(ignoreMe "${SKIP_TESTING}")
   set(DISABLE_MOCK true)
 endif()
 

@@ -21,7 +21,9 @@ extern bool TS_SEND_RAW(nodeid_t snode, nodeid_t dnode, uint8_t *cmd, uint8_t le
  */
 extern BYTE MyNodeID; /* Instead of including ZIP_Router.h */
 #else                 // ifdef ZIPGW
-// ZW_ctimer.h replaced with timer.h
+#ifdef NEW_TEST_T2
+#include "timer.hpp"
+#endif
 #endif
 
 #include <S2_external.h>

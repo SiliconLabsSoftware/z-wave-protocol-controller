@@ -30,8 +30,6 @@ else()
   add_subdirectory(${ZW-LIBS2_PATH})
 endif()
 
-set(SKIP_TESTING ON CACHE BOOL "Skip building tests for zw-libs2")
-
 target_include_directories(
   zwave_s2
   PUBLIC include

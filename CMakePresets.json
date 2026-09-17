@@ -12,7 +12,6 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "generator": "Ninja",
       "cacheVariables": {
-        "SKIP_TESTING": "ON",
         "CMAKE_VERBOSE_MAKEFILE": "OFF",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "1"
       }
@@ -27,6 +26,23 @@
       "cacheVariables": {
         "CMAKE_INSTALL_PREFIX": "$penv{CMAKE_INSTALL_PREFIX}"
       }
+    },
+    {
+      "name": "unit-test",
+      "inherits": ["zpc"],
+      "cacheVariables": {
+        "UNIT_TEST": "ON"
+      }
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "unit-test",
+      "configurePreset": "unit-test",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "test-results.xml"
+      }
     }
   ],
   "buildPresets": [
@@ -40,6 +56,12 @@
       "name": "debian",
       "configurePreset": "debian",
       "hidden": false,
+      "jobs": 8
+    },
+    {
+      "name": "unit-test",
+      "configurePreset": "unit-test",
+      "targets": ["UNIT_TEST"],
       "jobs": 8
     }
   ],
@@ -63,6 +85,14 @@
         { "type": "configure", "name": "debian" },
         { "type": "build", "name": "debian" },
         { "type": "package", "name": "debian" }
+      ]
+    },
+    {
+      "name": "unit-test",
+      "steps": [
+        { "type": "configure", "name": "unit-test" },
+        { "type": "build", "name": "unit-test" },
+        { "type": "test", "name": "unit-test" }
       ]
     }
   ]

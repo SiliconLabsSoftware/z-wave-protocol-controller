@@ -3,6 +3,7 @@
 #include <transport_service2.h>
 #include <S2.h> /* For s2_tx_status_t */
 #include <stdint.h>
+#include "timer.hpp"
 
 ts_param_t p;
 
@@ -461,23 +462,19 @@ bool TS_SEND_RAW(node_t snode, node_t dnode, uint8_t *cmd, uint8_t len, uint8_t 
     return 1;
 }
 
-typedef uint16_t clock_time_t;
-
-struct ctimer {
-        struct ctimer *next;
-        clock_time_t tickCounts;
-        clock_time_t startValue;
-        VOID_CALLBACKFUNC(f)(void *);
-        void *ptr;
-};
-
-void ctimer_set(struct ctimer *c, clock_time_t t, void (*f)(void *), void *ptr)
-{
-    return;
-}
 int fc_timer_counter = 0;
-void ctimer_stop(struct ctimer *c)
+
+void timer_set(struct timer_handle_t *t, uint64_t interval, void (*callback)(void *), void *ptr)
 {
+    (void)t;
+    (void)interval;
+    (void)callback;
+    (void)ptr;
+}
+
+void timer_stop(struct timer_handle_t *t)
+{
+    (void)t;
     fc_timer_counter++;
 }
 
@@ -498,7 +495,7 @@ void fire_fc_timer(void)
     fc_timer_expired(NULL);
 }
 
-extern void test_rx_timer_expired(void *);
+extern void test_rx_timer_expired(uint8_t state);
 void fire_rx_timer()
 {
     test_rx_timer_expired(0);

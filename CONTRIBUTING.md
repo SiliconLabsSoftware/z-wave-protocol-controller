@@ -258,6 +258,20 @@ cmake --workflow --preset debian  # on Linux / inside Docker
 
 The configure step (`cmake --preset <preset>`) also **regenerates all command class code** by invoking the command class generator; keep this in mind when adding or modifying command classes.
 
+### Unit Tests
+
+Use the `unit-test` CMake preset (`UNIT_TEST=ON`) on macOS and Linux. Do not use the product `macos` / `debian` workflows for this — those skip tests. `--fresh` removes the existing CMake cache in `build/unit-test` so the same tree can be reused after switching OS or compiler.
+
+```bash
+cmake --workflow --preset unit-test --fresh
+```
+
+To re-run tests after a configure and build:
+
+```bash
+ctest --preset unit-test
+```
+
 ### CI Expectations
 
 PR CI runs these gates automatically — you do not need to replicate all of them locally:
