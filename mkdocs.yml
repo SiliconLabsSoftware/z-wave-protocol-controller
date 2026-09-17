@@ -45,7 +45,7 @@ hooks:
   - scripts/mkdocs/prepare_docs_for_mkdocs.py
 
 extra_javascript:
-  - https://unpkg.com/mermaid@11/dist/mermaid.min.js
+  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
 
 markdown_extensions:
   - admonition
@@ -132,4 +132,5 @@ nav:
         - "Overview": api/command_classes/command_class_notification/command_class_notification.md
     # GENERATED_CC_NAV_START
     - "Firmware Update Md": api/command_classes/command_class_firmware_update_md/command_class_firmware_update_md_mqtt_interface.md
+    - "Time": api/command_classes/command_class_time/command_class_time_mqtt_interface.md
     # GENERATED_CC_NAV_END

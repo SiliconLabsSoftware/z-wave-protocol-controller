@@ -403,7 +403,7 @@ Each step owns one `OtaState`. Sub-headings below are deliberately demoted (H4) 
 
 ```mermaid
 flowchart TD
-    A["Z-Wave CC / MQTT callback"] -->|queue_event() / push ota_external_event_data| B["safe_queue&lt;ota_external_event_data&gt;<br/>(thread-safe)"]
+    A["Z-Wave CC / MQTT callback"] -->|"queue_event() / push ota_external_event_data"| B["safe_queue of ota_external_event_data (thread-safe)"]
     B -->|"update_manager::run() pops (50 ms timeout)"| C["OtaStateMachine::process_event()"]
     C -->|"Routes: start, abort, progress request, or current step"| D["Step::handle_event()"]
     D -->|Returns StepResult| E["apply_transition() (if not STAY)"]

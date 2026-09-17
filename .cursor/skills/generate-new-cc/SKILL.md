@@ -30,3 +30,4 @@ In this repository, command class generator is being used to generate the comman
 - Put the documentation in the `doc` directory of the command class.
 - The documentation is markdown format.
 - Create a sequence diagram in mermaid format into the documentation file.
+- Keep Mermaid GitHub-safe: no HTML (`<br/>`), no HTML entities (`&lt;`), no `style` / `classDef` / `click`. Quote labels that contain `()`, `[]`, or `:`. Use `\n` or extra `Note` lines instead of HTML line breaks. Node IDs must not contain spaces.
