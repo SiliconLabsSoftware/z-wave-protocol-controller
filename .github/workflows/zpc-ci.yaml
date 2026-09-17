@@ -60,20 +60,29 @@ jobs:
           pip_requirements: "true"
           extra_packages: clang-17
 
+      - name: Add gcc unit tests header for summary
+        run: echo "### Unit tests (gcc)" >> $GITHUB_STEP_SUMMARY
+
       - name: Configure, build, and run unit tests (gcc)
         env:
           CC: gcc-14
           CXX: g++-14
         run: cmake --workflow --preset unit-test
 
-      - name: Upload CTest JUnit (gcc)
+      - name: Collect gcc test report
         if: always()
-        uses: actions/upload-artifact@v4
+        run: |
+          mkdir -p unit-test-reports
+          cp build/unit-test/test-results.xml unit-test-reports/gcc-test-results.xml
+
+      - name: Test Summary for gcc unit tests
+        if: always()
+        uses: test-summary/action@v2
         with:
-          name: libs2-ctest-junit-gcc
-          path: build/unit-test/test-results.xml
-          retention-days: 1
-          if-no-files-found: error
+          paths: unit-test-reports/gcc-test-results.xml
+
+      - name: Add clang unit tests header for summary
+        run: echo "### Unit tests (clang)" >> $GITHUB_STEP_SUMMARY
 
       - name: Configure, build, and run unit tests (clang)
         env:
@@ -81,12 +90,24 @@ jobs:
           CXX: clang++-17
         run: cmake --workflow --preset unit-test --fresh
 
-      - name: Upload CTest JUnit (clang)
+      - name: Collect clang test report
+        if: always()
+        run: |
+          mkdir -p unit-test-reports
+          cp build/unit-test/test-results.xml unit-test-reports/clang-test-results.xml
+
+      - name: Test Summary for clang unit tests
+        if: always()
+        uses: test-summary/action@v2
+        with:
+          paths: unit-test-reports/clang-test-results.xml
+
+      - name: Upload unit test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: libs2-ctest-junit-clang
-          path: build/unit-test/test-results.xml
+          name: unit-test-reports
+          path: unit-test-reports/
           retention-days: 1
           if-no-files-found: error
 
