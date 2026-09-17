@@ -14,6 +14,8 @@ on:
       - 'mkdocs.yml'
       - 'scripts/mkdocs/'
       - 'scripts/command_class_generator/**'
+      - 'ci/scripts/check_mermaid.py'
+      - 'ci/mermaid/'
       - 'README.md'
   pull_request:
     branches: [main, master]
@@ -27,6 +29,8 @@ on:
       - 'mkdocs.yml'
       - 'scripts/mkdocs/'
       - 'scripts/command_class_generator/**'
+      - 'ci/scripts/check_mermaid.py'
+      - 'ci/mermaid/'
       - 'README.md'
   workflow_dispatch:
 
@@ -94,6 +98,28 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./site
+
+  mermaid:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install mermaid
+        working-directory: ci/mermaid
+        run: npm install
+
+      - name: Prepare docs for MkDocs
+        run: python3 scripts/mkdocs/prepare_docs_for_mkdocs.py
+
+      - name: Check mermaid diagrams
+        run: python3 ci/scripts/check_mermaid.py
 
   deploy:
     needs: build
