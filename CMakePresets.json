@@ -29,14 +29,7 @@
     },
     {
       "name": "unit-test",
-      "inherits": ["debian"],
-      "cacheVariables": {
-        "UNIT_TEST": "ON"
-      }
-    },
-    {
-      "name": "unit-test-macos",
-      "inherits": ["macos"],
+      "inherits": ["zpc"],
       "cacheVariables": {
         "UNIT_TEST": "ON"
       }
@@ -46,14 +39,6 @@
     {
       "name": "unit-test",
       "configurePreset": "unit-test",
-      "output": {
-        "outputOnFailure": true,
-        "outputJUnitFile": "test-results.xml"
-      }
-    },
-    {
-      "name": "unit-test-macos",
-      "configurePreset": "unit-test-macos",
       "output": {
         "outputOnFailure": true,
         "outputJUnitFile": "test-results.xml"
@@ -76,12 +61,6 @@
     {
       "name": "unit-test",
       "configurePreset": "unit-test",
-      "targets": ["UNIT_TEST"],
-      "jobs": 8
-    },
-    {
-      "name": "unit-test-macos",
-      "configurePreset": "unit-test-macos",
       "targets": ["UNIT_TEST"],
       "jobs": 8
     }
@@ -114,14 +93,6 @@
         { "type": "configure", "name": "unit-test" },
         { "type": "build", "name": "unit-test" },
         { "type": "test", "name": "unit-test" }
-      ]
-    },
-    {
-      "name": "unit-test-macos",
-      "steps": [
-        { "type": "configure", "name": "unit-test-macos" },
-        { "type": "build", "name": "unit-test-macos" },
-        { "type": "test", "name": "unit-test-macos" }
       ]
     }
   ]

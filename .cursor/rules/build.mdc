@@ -1,5 +1,5 @@
 ---
-description: How to configure and build the project. Lists CMake presets and common build/configure commands.
+description: How to configure, build, and run unit tests. Lists CMake presets and common build/configure/test commands.
 globs:
 alwaysApply: true
 ---
@@ -12,3 +12,9 @@ alwaysApply: true
 - `cmake --workflow --preset <preset>`: Configure and build the project for the given preset.
 - `cmake --preset <preset>`: Configure the project and regenerate the command classes.
 - `cmake --build <preset>`: Build the project for the given preset.
+
+- unit-test preset: `unit-test` (macos, debian, and docker)
+- `cmake --workflow --preset unit-test --fresh`: Configure, build, and run unit tests. `--fresh` removes the existing CMake cache in `build/unit-test`.
+- `cmake --preset unit-test --fresh`: Configure the project with unit tests enabled.
+- `cmake --build --preset unit-test`: Build the unit-test targets.
+- `ctest --preset unit-test`: Run unit tests after they have been built.
