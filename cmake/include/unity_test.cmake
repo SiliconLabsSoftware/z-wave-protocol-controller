@@ -1,5 +1,5 @@
 # Minimal Unity + mock helpers for zw-libs2 unit tests.
-# Provides: add_unity_test(), targets unity and mock.
+# Provides: add_unity_test(), targets unity, mock, and UNIT_TEST.
 # Do not restore Unify target_add_unittest / CMock for the whole tree.
 
 if(COMMAND ADD_UNITY_TEST)
@@ -32,6 +32,10 @@ if(NOT TARGET mock)
   target_link_libraries(mock PUBLIC unity)
   target_compile_definitions(mock PUBLIC USE_UNITY)
   target_include_directories(mock PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../unity/mock)
+endif()
+
+if(NOT TARGET UNIT_TEST)
+  add_custom_target(UNIT_TEST)
 endif()
 
 function(ADD_UNITY_TEST)
@@ -80,4 +84,6 @@ function(ADD_UNITY_TEST)
   if(ADD_UNITY_TEST_DISABLED)
     set_tests_properties(${ADD_UNITY_TEST_NAME} PROPERTIES DISABLED True)
   endif()
+
+  add_dependencies(UNIT_TEST ${ADD_UNITY_TEST_NAME})
 endfunction()

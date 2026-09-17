@@ -12,7 +12,6 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "generator": "Ninja",
       "cacheVariables": {
-        "SKIP_TESTING": "ON",
         "CMAKE_VERBOSE_MAKEFILE": "OFF",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "1"
       }
@@ -27,18 +26,38 @@
       "cacheVariables": {
         "CMAKE_INSTALL_PREFIX": "$penv{CMAKE_INSTALL_PREFIX}"
       }
+    },
+    {
+      "name": "unit-test",
+      "inherits": ["debian"],
+      "cacheVariables": {
+        "UNIT_TEST": "ON"
+      }
+    },
+    {
+      "name": "unit-test-macos",
+      "inherits": ["macos"],
+      "cacheVariables": {
+        "UNIT_TEST": "ON"
+      }
     }
   ],
   "testPresets": [
     {
-      "name": "debian",
-      "configurePreset": "debian",
-      "output": { "outputOnFailure": true }
+      "name": "unit-test",
+      "configurePreset": "unit-test",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "test-results.xml"
+      }
     },
     {
-      "name": "macos",
-      "configurePreset": "macos",
-      "output": { "outputOnFailure": true }
+      "name": "unit-test-macos",
+      "configurePreset": "unit-test-macos",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "test-results.xml"
+      }
     }
   ],
   "buildPresets": [
@@ -52,6 +71,18 @@
       "name": "debian",
       "configurePreset": "debian",
       "hidden": false,
+      "jobs": 8
+    },
+    {
+      "name": "unit-test",
+      "configurePreset": "unit-test",
+      "targets": ["UNIT_TEST"],
+      "jobs": 8
+    },
+    {
+      "name": "unit-test-macos",
+      "configurePreset": "unit-test-macos",
+      "targets": ["UNIT_TEST"],
       "jobs": 8
     }
   ],
@@ -75,6 +106,22 @@
         { "type": "configure", "name": "debian" },
         { "type": "build", "name": "debian" },
         { "type": "package", "name": "debian" }
+      ]
+    },
+    {
+      "name": "unit-test",
+      "steps": [
+        { "type": "configure", "name": "unit-test" },
+        { "type": "build", "name": "unit-test" },
+        { "type": "test", "name": "unit-test" }
+      ]
+    },
+    {
+      "name": "unit-test-macos",
+      "steps": [
+        { "type": "configure", "name": "unit-test-macos" },
+        { "type": "build", "name": "unit-test-macos" },
+        { "type": "test", "name": "unit-test-macos" }
       ]
     }
   ]

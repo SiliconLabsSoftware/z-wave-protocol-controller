@@ -31,6 +31,7 @@ if (${CMAKE_PROJECT_NAME} MATCHES "zipgateway")
   target_link_libraries(new_test_t2 zipgateway-lib)
 endif()
 add_test(test_transport_service2 new_test_t2)
+add_dependencies(UNIT_TEST new_test_t2)
 
 add_compile_definitions(
   RANDLEN=64 
