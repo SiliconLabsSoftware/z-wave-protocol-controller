@@ -12,6 +12,15 @@
 
 #define NODE_INFO_MAX_SIZE 64
 
+typedef enum {
+    /// No S2 user response is expected
+    NM_S2_USER_INPUT_NONE,
+    /// Waiting for GrantKeys response from user
+    NM_S2_USER_INPUT_GRANT_KEYS,
+    /// Waiting for DSK/Accept response from user
+    NM_S2_USER_INPUT_ACCEPT_DSK,
+} nm_s2_user_input_t;
+
 /**
  * Control structure for the Network Management State machine (NMS).
  * \ingroup NW_CMD_handler
@@ -49,6 +58,8 @@ typedef struct network_mgmt_state {
         uint8_t reported_dsk_blanked;
         /// Requested keys keys requested by a node
         zwave_keyset_t requested_keys;
+        /// The S2 user response currently expected during inclusion
+        nm_s2_user_input_t expected_s2_user_input;
         /// If the node requested csa
         bool requested_csa;
         /// If the S2 bootstrapping is accepted

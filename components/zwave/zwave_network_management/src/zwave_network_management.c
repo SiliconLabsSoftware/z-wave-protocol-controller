@@ -215,26 +215,30 @@ sl_status_t zwave_network_management_add_node()
 
 sl_status_t zwave_network_management_keys_set(bool accept, bool csa, zwave_keyset_t granted_keys)
 {
-    if (nms.state != NM_WAIT_FOR_SECURE_ADD) {
+    if ((nms.state != NM_WAIT_FOR_SECURE_ADD) || (nms.expected_s2_user_input != NM_S2_USER_INPUT_GRANT_KEYS)) {
         sl_log_error(LOG_TAG,
                      "The Network Management S2 key set operation will not be performed "
-                     "since Network Management is not in the NM_WAIT_FOR_SECURE_ADD "
-                     "state.\n");
+                     "since a key response is not expected.\n");
         return SL_STATUS_BUSY;
     }
     nms.accepted_s2_bootstrapping = accept;
     nms.granted_keys              = granted_keys;
     nms.accepted_csa              = csa;
+    nms.expected_s2_user_input    = NM_S2_USER_INPUT_NONE;
     zwave_network_management_post_event(NM_EV_ADD_SECURITY_KEYS_SET, 0);
     return SL_STATUS_OK;
 }
 
 sl_status_t zwave_network_management_dsk_set(zwave_dsk_t dsk)
 {
-    if (nms.state != NM_WAIT_FOR_SECURE_ADD) {
+    if ((nms.state != NM_WAIT_FOR_SECURE_ADD) || (nms.expected_s2_user_input != NM_S2_USER_INPUT_ACCEPT_DSK)) {
+        sl_log_error(LOG_TAG,
+                     "The Network Management S2 DSK set operation will not be performed "
+                     "since a DSK response is not expected.\n");
         return SL_STATUS_BUSY;
     }
     memcpy(nms.verified_dsk_input, dsk, sizeof(zwave_dsk_t));
+    nms.expected_s2_user_input = NM_S2_USER_INPUT_NONE;
     zwave_network_management_post_event(NM_EV_ADD_SECURITY_DSK_SET, 0);
     return SL_STATUS_OK;
 }

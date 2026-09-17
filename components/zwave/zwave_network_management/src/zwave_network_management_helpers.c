@@ -42,6 +42,7 @@ void reset_nms_last_operation_data()
     nms.inclusion_protocol       = PROTOCOL_ZWAVE;
     nms.requested_csa            = false;
     nms.requested_keys           = 0;
+    nms.expected_s2_user_input   = NM_S2_USER_INPUT_NONE;
     nms.reported_dsk_blanked     = 0;
     nms.kex_fail_type            = 0;
     nms.s2_bootstrapping_started = false;
