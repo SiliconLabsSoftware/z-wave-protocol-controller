@@ -1,4 +1,5 @@
 supported_command_classes:
+  # Application Command Classes
   - name: "COMMAND_CLASS_BASIC"
     version: 2
     mqtt_support: true
@@ -177,7 +178,6 @@ supported_command_classes:
     interview_attributes: []
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
     manual_security_validation: true
-
   - name: "COMMAND_CLASS_ASSOCIATION_GRP_INFO"
     version: 3
     mqtt_support: true
@@ -186,13 +186,58 @@ supported_command_classes:
     interview_attributes:
       - "Grouping Identifier"
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
-
   - name: "COMMAND_CLASS_INCLUSION_CONTROLLER"
     version: 1
     mqtt_support: false
     support: true
     control: true
     interview_attributes: []
+    minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
+  # Protocol Command Classes
+  - name: "COMMAND_CLASS_SECURITY"
+    version: 1
+    mqtt_support: false
+    protocol: true
+    support: true
+    control: true
+    manual_security_validation: true
+    generate_commands:
+      - SECURITY_COMMANDS_SUPPORTED_GET
+      - SECURITY_COMMANDS_SUPPORTED_REPORT
+    minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
+  - name: "COMMAND_CLASS_SECURITY_2"
+    version: 1
+    mqtt_support: false
+    protocol: true
+    support: true
+    control: true
+    generate_commands:
+      - SECURITY_2_COMMANDS_SUPPORTED_GET
+      - SECURITY_2_COMMANDS_SUPPORTED_REPORT
+    minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
+  - name: "ZWAVE_CMD_CLASS"
+    version: 1
+    mqtt_support: false
+    protocol: true
+    support: true
+    control: false
+    generate_commands: []
+    minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
+  - name: "COMMAND_CLASS_ZWAVE_LONG_RANGE"
+    version: 1
+    mqtt_support: false
+    protocol: true
+    support: true
+    control: false
+    generate_commands: []
+    minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
+  - name: "COMMAND_CLASS_TRANSPORT_SERVICE"
+    version: 2
+    mqtt_support: false
+    protocol: true
+    support: true
+    control: true
+    generate_commands: []
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
 
 optional_param_overrides:

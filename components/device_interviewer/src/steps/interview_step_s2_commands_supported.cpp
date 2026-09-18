@@ -14,8 +14,8 @@
 #include "interview_step_s2_commands_supported.hpp"
 #include "interview_state_machine.hpp"
 #include "component_connector.hpp"
-#include "command_class_s2_events.hpp"
-#include "command_class_s2_types.hpp"
+#include "command_class_security_2_events.hpp"
+#include "command_class_security_2_types.hpp"
 #include "zwave_controller_utils.h"
 #include "ZW_classcmd.h"
 #include "log.h"
@@ -32,13 +32,13 @@ namespace zwave_command_class
         void fire_s2_commands_supported_get(InterviewSession &session)
         {
             component_connector connector;
-            command_class_s2_types::s2_supported_get_payload_t payload_map_s2;
+            command_class_security_2_types::s2_supported_get_payload_t payload_map_s2;
             payload_map_s2.endpoint_id   = 0;
             payload_map_s2.device_node   = session.device_node;
             payload_map_s2.endpoint_node = session.endpoint_node;
             payload_map_s2.zwave_node_id = session.node_id;
             payload_map_s2.granted_keys  = session.granted_keys;
-            connector.fire_event(static_cast<uint32_t>(command_class_s2_events_t::COMMAND_CLASS_S2_COMMANDS_SUPPORTED_GET), payload_map_s2);
+            connector.fire_event(static_cast<uint32_t>(command_class_security_2_events_t::COMMAND_CLASS_SECURITY_2_COMMANDS_SUPPORTED_GET), payload_map_s2);
         }
     }  // namespace
 
@@ -84,7 +84,7 @@ namespace zwave_command_class
         }
 
         try {
-            const auto &payload = std::any_cast<command_class_s2_types::s2_supported_report_payload_t>(event->payload);
+            const auto &payload = std::any_cast<command_class_security_2_types::s2_supported_report_payload_t>(event->payload);
 
             session.s2_supported_command_classes     = payload.supported_cc_list;
             session.s2_commands_supported_tx_retries = 0;

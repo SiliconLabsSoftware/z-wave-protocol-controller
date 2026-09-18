@@ -20,9 +20,13 @@ namespace zwave_command_class
     {
     // Commands for the command class
     enum class {{command_class.name | lower}}_commands_t : uint8_t {
+        {% if command_class.commands %}
         {% for command in command_class.commands %}
             {{command_class.name | upper}}_{{command.name | upper}} = {{command.id}},
         {% endfor %}
+        {% else %}
+            UNUSED = 0,
+        {% endif %}
     };
 
     {% set attribute_counter = namespace(value=2) %}

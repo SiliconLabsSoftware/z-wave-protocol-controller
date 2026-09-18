@@ -82,4 +82,16 @@ class CommandClassFactory:
                     if new_version > current_latest_version:
                         command_classes[cc_id] = command_class
 
+        for command_class in command_classes.values():
+            if command_class.generate_commands is None:
+                continue
+            allowed = set(command_class.generate_commands)
+            known = {c.name for c in command_class.commands}
+            missing = allowed - known
+            if missing:
+                raise ValueError(
+                    f"{command_class.name}: generate_commands not in XML: {sorted(missing)}")
+            command_class.commands = [
+                c for c in command_class.commands if c.name in allowed]
+
         return list(command_classes.values())
