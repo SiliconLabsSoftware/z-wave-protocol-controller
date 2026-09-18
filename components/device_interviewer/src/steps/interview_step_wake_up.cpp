@@ -101,7 +101,7 @@ namespace zwave_command_class
                 return stay();
             }
             try {
-                std::any_cast<command_class_wake_up_types::wake_up_capabilities_report_payload_t>(event->payload);
+                static_cast<void>(std::any_cast<command_class_wake_up_types::wake_up_capabilities_report_payload_t>(event->payload));
             } catch (const std::bad_any_cast &) {
                 sl_log_error(LOG_TAG.data(), "Invalid payload type for WAKE_UP_CAPABILITIES_REPORT_RECEIVED");
                 return stay(SL_STATUS_FAIL);
@@ -121,7 +121,7 @@ namespace zwave_command_class
                 return stay();
             }
             try {
-                std::any_cast<command_class_wake_up_types::wake_up_interval_set_interview_resolution_payload_t>(event->payload);
+                static_cast<void>(std::any_cast<command_class_wake_up_types::wake_up_interval_set_interview_resolution_payload_t>(event->payload));
             } catch (const std::bad_any_cast &) {
                 sl_log_error(LOG_TAG.data(), "Invalid payload type for WAKE_UP_INTERVAL_SET_RESOLUTION_COMPLETED");
                 return stay(SL_STATUS_FAIL);

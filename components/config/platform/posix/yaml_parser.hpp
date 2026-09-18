@@ -116,8 +116,8 @@ class yaml_parser
             for (const auto &pair: node) {
                 std::string node_key = pair.first.as<std::string>();
                 try {
-                    std::stoul(node_key);  // check if we have an integer
-                    node_key = key;        // treat this as if it were a Sequence
+                    static_cast<void>(std::stoul(node_key));  // check if we have an integer
+                    node_key = key;                           // treat this as if it were a Sequence
                 } catch (std::invalid_argument &e) {
                     // not an integer
                     if (!key.empty()) {
