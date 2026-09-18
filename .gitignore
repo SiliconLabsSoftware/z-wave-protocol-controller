@@ -16,6 +16,8 @@ compile_commands.json
 # Clangd index
 .clangd/
 .cache/
+# Codegraph index
+.codegraph/
 # BeyondCompare backup files
 *.orig
 # SonarScanner files
