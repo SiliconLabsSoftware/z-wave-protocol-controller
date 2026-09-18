@@ -74,7 +74,7 @@ if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK") # not built againt zw-protocol
   target_link_libraries(s2_slave s2crypto aes)
 else(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK") # built against zw-protocol
   add_library(s2_slave OBJECT ${s2_slave_source})
-  target_include_directories(s2_slave PRIVATE crypto/curve25519) # just for api.h which contains ifndef ZWAVE_PSA_SECURE_VAULT specific stuff
+  target_include_directories(s2_slave PRIVATE crypto/curve25519)
 endif(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "SDK")
 
 target_include_directories(s2_slave

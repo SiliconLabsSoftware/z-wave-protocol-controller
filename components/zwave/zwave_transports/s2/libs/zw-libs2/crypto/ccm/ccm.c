@@ -1,6 +1,5 @@
 /* © 2014 Silicon Laboratories Inc.
  */
-#ifndef ZWAVE_PSA_SECURE_VAULT
 /* author: mdumbare */
 /* Refer http://csrc.nist.gov/publications/nistpubs/800-38C/SP800-38C_updated-July20_2007.pdf */
 #include <string.h>
@@ -330,4 +329,3 @@ void get_q(uint8_t *q_out)
 {
     *q_out = q;
 }
-#endif /* !defined (ZWAVE_PSA_SECURE_VAULT) */

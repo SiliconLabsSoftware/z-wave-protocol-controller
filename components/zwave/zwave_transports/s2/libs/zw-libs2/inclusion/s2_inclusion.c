@@ -17,9 +17,6 @@
 #include "kderiv.h"
 #include "curve25519.h"
 #include "s2_inclusion_internal.h"
-#ifdef ZWAVE_PSA_SECURE_VAULT
-#include "s2_psa.h"
-#endif
 
 #define CHECK_AND_FAIL(CHECK, FAILURE) \
     if ((CHECK)) {                     \
@@ -49,11 +46,7 @@ void s2_inclusion_send_frame(void);
 void s2_inclusion_send_data(void);
 
 static void s2_public_key_read(uint8_t *buf);
-#ifndef ZWAVE_PSA_SECURE_VAULT
 static void s2_private_key_read(uint8_t *buf);
-#else
-uint8_t zwave_shared_secret[ZWAVE_ECDH_SECRET_LENGTH];
-#endif
 
 /* Forward declaration */
 /** @brief This function handles events received during secure inclusion of a node.
@@ -327,7 +320,7 @@ void process_event(uint16_t evt)
  * and S2_ACCESS in index 2, LR_AUTH in 3 and LR_ACCESS in 4.
  * This defines the API between the S2 module and the glue layer around it.
  * */
-void s2_restore_keys(struct S2 *p_context, __attribute__((unused)) bool make_keys_persist_se)
+void s2_restore_keys(struct S2 *p_context)
 {
     uint8_t i;
     bool ret_val;
@@ -338,11 +331,7 @@ void s2_restore_keys(struct S2 *p_context, __attribute__((unused)) bool make_key
     for (i = 0; i < ELEM_COUNT(m_key_slot_pair); i++) {
         ret_val = keystore_network_key_read(m_key_slot_pair[i][0], shared_key_mem);
         if (true == ret_val) {
-#if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
-            S2_network_key_update(mp_context, convert_key_class_to_psa_key_id(m_key_slot_pair[i][0]), m_key_slot_pair[i][1], shared_key_mem, 0, make_keys_persist_se);
-#else
-            S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, m_key_slot_pair[i][1], shared_key_mem, 0, false);
-#endif
+            S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, m_key_slot_pair[i][1], shared_key_mem, 0);
         }
     }
     // Clearing of memory to ensure key is not exposed accidentially elsewhere.
@@ -358,7 +347,7 @@ void inclusion_failed_evt_push(uint8_t fail_type)
     zwave_event_t *p_s2_event = (zwave_event_t *)m_event_buffer;
 
     s2_inclusion_stop_timeout();
-    s2_restore_keys(mp_context, false);
+    s2_restore_keys(mp_context);
     // Post event upwards to inform that inclusion of node A has failed.
     p_s2_event->event_type                                        = S2_NODE_INCLUSION_FAILED_EVENT;
     p_s2_event->evt.s2_event.peer                                 = mp_context->inclusion_peer;
@@ -643,7 +632,6 @@ static void s2_send_kex_report(void)
     mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_CURVE_POS]  = m_curves;
     mp_context->u.inclusion_buf[SECURITY_2_KEX_REP_KEYS_POS]   = m_keys;
     mp_context->inclusion_buf_length                           = SECURITY_2_KEX_REPORT_LENGTH;
-    mp_context->is_keys_restored                               = false;
     m_retry_counter                                            = MAX_RETRY_COUNT;
     s2_inclusion_send_frame();
     // While waiting for KEX SET set s2 inclucion timeout TB2_TIMEOUT
@@ -831,9 +819,6 @@ static void s2_send_net_key_get(void)
 static void s2_send_net_key_verify(void)
 {
     uint8_t received_key;
-#if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
-    uint8_t *network_key;
-#endif
 
     s2_inclusion_stop_timeout();
 
@@ -847,19 +832,7 @@ static void s2_send_net_key_verify(void)
 
     mp_context->key_exchange <<= 1;
     // Update context with new key.
-#if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
-    uint32_t net_key_id;
-    net_key_id  = convert_key_class_to_psa_key_id(received_key);
-    network_key = (uint8_t *)&mp_context->buf[SECURITY_2_NET_KEY_REP_KEY_POS];
-    S2_network_key_update(mp_context, net_key_id, NETWORK_KEY_SECURE, network_key, 0, false);
-#if !defined(ZW_CONTROLLER)
-    /* Do not let key material linger around, clear them from memory */
-    memset(network_key, 0, 16);
-    network_key = NULL;
-#endif
-#else
-    S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, NETWORK_KEY_SECURE, &mp_context->buf[SECURITY_2_NET_KEY_REP_KEY_POS], 0, false);
-#endif
+    S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, NETWORK_KEY_SECURE, &mp_context->buf[SECURITY_2_NET_KEY_REP_KEY_POS], 0);
 
     mp_context->u.inclusion_buf[SECURITY_2_COMMAND_CLASS_POS] = COMMAND_CLASS_SECURITY_2;
     mp_context->u.inclusion_buf[SECURITY_2_COMMAND_POS]       = SECURITY_2_NETWORK_KEY_VERIFY;
@@ -906,7 +879,7 @@ static void s2_joining_complete(zwave_event_codes_t complete_type)
     /* Restore the real network key (note: Perhaps postpone until next senddata?) */
     zwave_event_t *s2_event = (zwave_event_t *)m_event_buffer;
 
-    s2_restore_keys(mp_context, true);
+    s2_restore_keys(mp_context);
     s2_event->event_type        = complete_type;
     s2_event->evt.s2_event.peer = mp_context->inclusion_peer;
 
@@ -914,18 +887,6 @@ static void s2_joining_complete(zwave_event_codes_t complete_type)
 
     m_evt_handler(s2_event);
 }
-
-#ifdef ZWAVE_PSA_SECURE_VAULT
-static void s2_keypair_keyid_read(uint32_t *keyid)
-{
-    if ((mp_context->inclusion_mode == INCLUSION_MODE_SSA) && (mp_context->key_granted & ~(KEY_CLASS_S2_NOT_VALID | KEY_CLASS_S0 | KEY_CLASS_S2_UNAUTHENTICATED))) {
-        keystore_keyid_read(keyid);
-    } else {
-        keystore_dynamic_keyid_read(keyid);
-    }
-}
-
-#else   // #ifdef ZWAVE_PSA_SECURE_VAULT
 
 /**
  * Read the correct private key depending on granted keys.
@@ -945,7 +906,6 @@ static void s2_private_key_read(uint8_t *buf)
         keystore_dynamic_private_key_read(buf);
     }
 }
-#endif  // #ifdef ZWAVE_PSA_SECURE_VAULT
 
 /**
  * Read the correct public key depending on granted keys.
@@ -968,23 +928,13 @@ static void s2_public_key_read(uint8_t *buf)
 
 static void s2_do_ecdh_calc_b(void)
 {
-#ifdef ZWAVE_PSA_SECURE_VAULT
-    uint32_t keyid;
-    s2_keypair_keyid_read(&keyid);
-    zw_status_t status = zw_compute_ecdh_shared_secret(mp_context->public_key, keyid, zwave_shared_secret);
-    if (status != ZW_PSA_SUCCESS) {
-        zw_security_error(status);
-    }
-    memcpy(shared_secret, zwave_shared_secret, ZWAVE_ECDH_SECRET_LENGTH);
-#else
     s2_private_key_read(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX]);
     crypto_scalarmult_curve25519(shared_secret, &shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key);
-#endif
     memcpy(&shared_key_mem[PUBLIC_KEY_A_INDEX], mp_context->public_key, 32);
     s2_public_key_read(&shared_key_mem[PUBLIC_KEY_B_INDEX]);
 
     tempkey_extract(shared_secret, shared_key_mem, mp_context->public_key);
-    S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1, false);
+    S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1);
 
     m_retry_counter = TBI1_TIMEOUT / TB5_TIMEOUT;
     s2_send_echo_kex_set();
