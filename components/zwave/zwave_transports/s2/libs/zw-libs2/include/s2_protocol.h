@@ -211,7 +211,6 @@ struct S2 {
         uint8_t inclusion_buf_length;
 
         public_key_t public_key;
-        bool is_keys_restored;
 
 #ifdef ZW_CONTROLLER
         /* This structure stores flags that are associated to some NLS related
@@ -276,13 +275,13 @@ void s2_inclusion_post_event(struct S2 *p_context, s2_connection_t *src);
 /**
  * Load all keys from keystore
  */
-void s2_restore_keys(struct S2 *p_context, bool make_keys_persist_se);
+void s2_restore_keys(struct S2 *p_context);
 
 /** Update the network key of a context
  * A context is unique to a node id, ie a bridge module will have multiple contexts.
  *
  * \param ctx Pointer to the context to update.
- * \param key_id Id of key stored in secure vault, accessed via PSA APIs.
+ * \param key_id Must be \ref ZWAVE_KEY_ID_NONE. Retained for API compatibility with key derivation.
  *
  * \param class_id security class to update
  *
@@ -291,9 +290,7 @@ void s2_restore_keys(struct S2 *p_context, bool make_keys_persist_se);
  *
  * \param temp_key_expand Set to true if temp key is being expanded.
  *
- * \param make_keys_persist_se Set to true if the key should be saved in as a persistent key.
- *
  */
-uint8_t S2_network_key_update(struct S2 *p_context, uint32_t key_id, security_class_t class_id, const network_key_t net_key, uint8_t temp_key_expand, bool make_keys_persist_se);
+uint8_t S2_network_key_update(struct S2 *p_context, uint32_t key_id, security_class_t class_id, const network_key_t net_key, uint8_t temp_key_expand);
 
 #endif /* PROTOCOL_S2_PROTOCOL_H_ */

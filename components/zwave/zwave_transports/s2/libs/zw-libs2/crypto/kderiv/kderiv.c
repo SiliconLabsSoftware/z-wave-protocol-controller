@@ -8,33 +8,12 @@
 #include "aes_cmac.h"
 #include <kderiv.h>
 #include "s2_keystore.h"
-#ifdef ZWAVE_PSA_SECURE_VAULT
-#include "s2_psa.h"
-#endif
 #define CONSTANT_NK_LEN 15
 
 static void zw_expand_aes_cmac(uint32_t key_id, const uint8_t *network_key, const uint8_t *input, uint16_t length, uint8_t *output)
 {
-#if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
-    if (key_id) {
-        if ((key_id >= ZWAVE_PSA_KEY_ID_MIN) && (key_id <= ZWAVE_PSA_KEY_ID_MAX)) {
-            /* Use the key_id of the network key that is persistently
-             * stored in Secure Element(SE) in wrapped form
-             */
-            zw_psa_aes_cmac(key_id, input, (size_t)length, output);
-        }
-    } else {
-        /* Use a temporary key, import to secure vault for this operation */
-        key_id = ZWAVE_CMAC_TEMP_KEY_ID;
-        zw_wrap_aes_key_secure_vault(&key_id, network_key, ZW_PSA_ALG_CMAC);
-        zw_psa_aes_cmac(key_id, input, (size_t)length, output);
-        /* Destroy the temporarily imported key */
-        zw_psa_destroy_key(key_id);
-    }
-#else
     assert(key_id == ZWAVE_KEY_ID_NONE);
     aes_cmac_calculate(network_key, input, length, output);
-#endif
 }
 
 void generic_expand(uint32_t key_id, const uint8_t *network_key, const uint8_t *constant_nk, uint8_t *ccm_key, uint8_t *nonce_pstring, uint8_t *mpan_key)
@@ -80,14 +59,7 @@ void tempkey_extract(const uint8_t *const ecdh_share_secret, const uint8_t *cons
     memcpy(temp, ecdh_share_secret, 32); /*length of ecdh_share_secret is 32 byte */
     memcpy(temp + 32, auth_tag, 64);     /*length of auth_tag is 64 byte */
                                          /* cmac concatenation with constant_PRK as key */
-#if defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZWAVE_PSA_AES)
-    uint32_t key_id = ZWAVE_CMAC_TEMP_KEY_ID;
-    zw_wrap_aes_key_secure_vault(&key_id, constant_prk, ZW_PSA_ALG_CMAC);
-    zw_psa_aes_cmac(key_id, temp, 96, pseudo_random_keymat_output);
-    zw_psa_destroy_key(key_id);
-#else
     aes_cmac_calculate(constant_prk, temp, 96, pseudo_random_keymat_output);
-#endif
 }
 
 void tempkey_expand(uint32_t key_id, const uint8_t *prk, uint8_t *temp_ccm_key, uint8_t *temp_nonce_pstring, uint8_t *temp_mpan_key)
