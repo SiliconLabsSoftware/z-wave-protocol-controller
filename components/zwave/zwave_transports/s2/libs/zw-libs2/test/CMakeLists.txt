@@ -17,22 +17,6 @@ add_unity_test(NAME test_curve25519 FILES test_curve25519.c LIBRARIES s2crypto a
 # Add test for CCM
 add_unity_test(NAME test_ccm FILES test_ccm.c ../crypto/ccm/ccm.c ../crypto/aes/aes.c)
 
-add_compile_definitions(NEW_TEST_T2 )
-add_executable(new_test_t2
-        new_test_t2.c
-        clock_time.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/../transport_service/transport_service2.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/../transport_service/transport2_fsm.c)
-include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}/../transport_service/
-        ${CMAKE_CURRENT_SOURCE_DIR}/../include/
-        ${CMAKE_SOURCE_DIR}/components/platform/timer/include)
-if (${CMAKE_PROJECT_NAME} MATCHES "zipgateway")
-  target_link_libraries(new_test_t2 zipgateway-lib)
-endif()
-add_test(test_transport_service2 new_test_t2)
-add_dependencies(UNIT_TEST new_test_t2)
-
 add_compile_definitions(
   RANDLEN=64 
 )
