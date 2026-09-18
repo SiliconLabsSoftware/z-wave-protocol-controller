@@ -1,4 +1,3 @@
-
 /******************************************************************************
  * # License
  * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
@@ -16,21 +15,21 @@
 #define COMMAND_CLASS_TRANSPORT_SERVICE_H
 
 #include "command_class_transport_service_attribute_store.hpp"
-#include "attribute_store_defined_attribute_types.h"
-#include <any>
-#include "sl_status.h"
-#include "command_class_transport_service_types.hpp"
 
 namespace zwave_command_class
 {
 
-    class command_class_transport_service : public command_class_transport_service_attribute_store
+    class command_class_transport_service final : public command_class_transport_service_attribute_store
     {
+
         public:
             command_class_transport_service();
             ~command_class_transport_service() = default;
+
+        private:
+            sl_status_t control_handler(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length) override;
     };
 
 }  // namespace zwave_command_class
 
-#endif  // COMMAND_CLASS_BATTERY_H
+#endif  // COMMAND_CLASS_TRANSPORT_SERVICE_H

@@ -1,4 +1,3 @@
-
 /******************************************************************************
  * # License
  * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
@@ -16,10 +15,8 @@
 #include <fmt/format.h>
 #include <string_view>
 
-// Base class
 #include "command_class_transport_service.hpp"
-#include "command_class_transport_service_attribute_store.hpp"
-#include "command_class_transport_service_core.hpp"
+#include "log.h"
 
 namespace zwave_command_class
 {
@@ -27,5 +24,17 @@ namespace zwave_command_class
     [[maybe_unused]] static constexpr std::string_view LOG_TAG = "command_class_transport_service";
 
     command_class_transport_service::command_class_transport_service() {}
+
+    sl_status_t command_class_transport_service::control_handler(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length)
+    {
+        (void)connection_info;
+        (void)frame_data;
+        (void)frame_length;
+        sl_log_warning(LOG_TAG.data(),
+                       "Incoming application level frame for the Transport Service "
+                       "Command Class. This must not have happened, it should have "
+                       "been processed by the transport layer.");
+        return SL_STATUS_NOT_SUPPORTED;
+    }
 
 }  // namespace zwave_command_class

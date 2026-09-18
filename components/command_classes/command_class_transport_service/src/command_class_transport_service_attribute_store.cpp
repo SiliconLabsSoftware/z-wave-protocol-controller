@@ -23,7 +23,7 @@
 
 namespace zwave_command_class
 {
-    // Log tag
+
     [[maybe_unused]] static constexpr std::string_view LOG_TAG = "command_class_transport_service_attribute_store";
 
     command_class_transport_service_attribute_store::command_class_transport_service_attribute_store() {}

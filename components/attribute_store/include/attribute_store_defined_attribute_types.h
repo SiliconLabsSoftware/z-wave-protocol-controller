@@ -730,7 +730,8 @@ DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_SCENE_CONTROLLER_SETTING_DIMMING_DURATI
 /////////////////////////////////////////////////
 // Transport Service Command Class
 ///< This represents the version of the Transport Service Command class. zwave_cc_version_t
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_TRANSPORT_SERVICE_VERSION, ((COMMAND_CLASS_TRANSPORT_SERVICE << 8) | 0x01))
+// DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_TRANSPORT_SERVICE_VERSION,
+//                  ((COMMAND_CLASS_TRANSPORT_SERVICE << 8) | 0x01))
 
 /////////////////////////////////////////////////
 // User Code Command Class

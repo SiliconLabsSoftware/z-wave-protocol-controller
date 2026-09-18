@@ -14,8 +14,8 @@
 #include "interview_step_s0_commands_supported.hpp"
 #include "interview_state_machine.hpp"
 #include "component_connector.hpp"
-#include "command_class_s0_events.hpp"
-#include "command_class_s0_types.hpp"
+#include "command_class_security_events.hpp"
+#include "command_class_security_types.hpp"
 #include "zwave_controller_utils.h"
 #include "ZW_classcmd.h"
 #include "log.h"
@@ -58,18 +58,18 @@ namespace zwave_command_class
     {
         if (!event.has_value()) {
             component_connector connector;
-            command_class_s0_types::s0_supported_get_payload_t payload_map;
+            command_class_security_types::s0_supported_get_payload_t payload_map;
             payload_map.endpoint_id   = 0;
             payload_map.device_node   = session.device_node;
             payload_map.endpoint_node = session.endpoint_node;
             payload_map.zwave_node_id = session.node_id;
             payload_map.granted_keys  = session.granted_keys;
-            connector.fire_event(static_cast<uint32_t>(command_class_s0_events_t::COMMAND_CLASS_S0_COMMANDS_SUPPORTED_GET), payload_map);
+            connector.fire_event(static_cast<uint32_t>(command_class_security_events_t::COMMAND_CLASS_SECURITY_COMMANDS_SUPPORTED_GET), payload_map);
             return stay();
         }
 
         try {
-            const auto &payload = std::any_cast<command_class_s0_types::s0_supported_report_payload_t>(event->payload);
+            const auto &payload = std::any_cast<command_class_security_types::s0_supported_report_payload_t>(event->payload);
 
             session.s0_supported_command_classes = payload.supported_cc_list;
 

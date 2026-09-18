@@ -22,8 +22,8 @@
 #include "component_connector_types.hpp"
 #include "component_connector.hpp"
 #include "component_connector_common_events.hpp"
-#include "command_class_s2_types.hpp"
-#include "command_class_s0_types.hpp"
+#include "command_class_security_2_types.hpp"
+#include "command_class_security_types.hpp"
 #include "zwave_utils.h"
 #include "clock_platform.h"
 #include "zpc_config.h"
@@ -253,19 +253,19 @@ namespace zwave_command_class
         try {
             switch (event.event) {
                 case device_interviewer_external_event_t::S2_COMMANDS_SUPPORTED_REPORT: {
-                    const auto &payload = std::any_cast<command_class_s2_types::s2_supported_report_payload_t>(event.payload);
+                    const auto &payload = std::any_cast<command_class_security_2_types::s2_supported_report_payload_t>(event.payload);
                     node_id             = payload.connection_info.remote.node_id;
                     endpoint_id         = payload.connection_info.remote.endpoint_id;
                     break;
                 }
                 case device_interviewer_external_event_t::S2_COMMANDS_SUPPORTED_GET_TX_FAILED: {
-                    const auto &payload = std::any_cast<command_class_s2_types::s2_supported_get_tx_failed_payload_t>(event.payload);
+                    const auto &payload = std::any_cast<command_class_security_2_types::s2_supported_get_tx_failed_payload_t>(event.payload);
                     node_id             = payload.zwave_node_id;
                     endpoint_id         = payload.endpoint_id;
                     break;
                 }
                 case device_interviewer_external_event_t::S0_COMMANDS_SUPPORTED_REPORT: {
-                    const auto &payload = std::any_cast<command_class_s0_types::s0_supported_report_payload_t>(event.payload);
+                    const auto &payload = std::any_cast<command_class_security_types::s0_supported_report_payload_t>(event.payload);
                     node_id             = payload.connection_info.remote.node_id;
                     endpoint_id         = payload.connection_info.remote.endpoint_id;
                     break;

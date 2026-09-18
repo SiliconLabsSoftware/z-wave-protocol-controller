@@ -14,8 +14,8 @@ target_link_libraries(node_info_resolver
   zpc_attribute_resolver
   zwave_definitions
   component_connector
-  command_class_s2
-  command_class_s0
+  command_class_security_2
+  command_class_security
   fmt::fmt)
 
 configure_file(inc/node_info_resolver_events.hpp.in 
