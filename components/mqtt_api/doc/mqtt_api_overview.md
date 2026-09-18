@@ -61,7 +61,7 @@ graph TB
     end
 
     subgraph Base["MQTT API Base"]
-        MqttApiBase[MqttApiBase<br/>Factory Pattern]
+        MqttApiBase["MqttApiBase\nFactory Pattern"]
         MQTT[MQTT Handler]
         MqttApiBase -->|uses| MQTT
     end
@@ -72,21 +72,6 @@ graph TB
     DiscoveryAPI -->|inherits from| MqttApiBase
     OtaAPI -->|inherits from| MqttApiBase
     NetMonitorAPI -->|inherits from| MqttApiBase
-
-    style SmartStartHandler fill:#e1f5ff
-    style NetworkHandler fill:#e1f5ff
-    style DeviceInterviewerMain fill:#e1f5ff
-    style DiscoveryInit fill:#e1f5ff
-    style UpdateManager fill:#e1f5ff
-    style NetMonitor fill:#e1f5ff
-    style SmartStartAPI fill:#e8f5e9
-    style NetworkAPI fill:#e8f5e9
-    style DeviceInterviewerAPI fill:#e8f5e9
-    style DiscoveryAPI fill:#e8f5e9
-    style OtaAPI fill:#e8f5e9
-    style NetMonitorAPI fill:#e8f5e9
-    style MqttApiBase fill:#fff4e1
-    style MQTT fill:#ffe1f5
 ```
 
 ## Initialization Locations
@@ -239,8 +224,8 @@ The `MqttApiBase` uses the **Factory Pattern** to provide a framework for creati
 
 ```mermaid
 graph TB
-    Base[MqttApiBase<br/>Factory Pattern]
-    MQTT[MQTT Handler<br/>subscribe/publish]
+    Base["MqttApiBase\nFactory Pattern"]
+    MQTT["MQTT Handler\nsubscribe/publish"]
     
     Base -->|factory for| Discovery[DiscoveryMqttApi]
     Base -->|factory for| Network[NetworkManagementMqttApi]
@@ -250,15 +235,6 @@ graph TB
     Base -->|factory for| NetMon[NetworkMonitorMqttApi]
 
     Base -->|uses| MQTT
-
-    style Base fill:#fff4e1
-    style Discovery fill:#e8f5e9
-    style Network fill:#e8f5e9
-    style SmartStart fill:#e8f5e9
-    style DevInt fill:#e8f5e9
-    style Ota fill:#e8f5e9
-    style NetMon fill:#e8f5e9
-    style MQTT fill:#ffe1f5
 ```
 
 ### How It Works
