@@ -8,13 +8,6 @@
 #include "s2_protocol.h"
 #include "s2_keystore.h"
 #include "s2_inclusion_internal.h"
-#ifdef ZWAVE_PSA_SECURE_VAULT
-#include "s2_psa.h"
-#endif
-
-#ifdef ZWAVE_PSA_SECURE_VAULT
-extern uint8_t zwave_shared_secret[ZWAVE_ECDH_SECRET_LENGTH];
-#endif
 
 void process_event(uint16_t evt);
 void inclusion_failed_frame_send(uint8_t error, uint8_t secure);
@@ -157,21 +150,13 @@ void execute_action_controller(uint8_t action)
  */
 static void s2_do_ecdh_calc_a(void)
 {
-#ifdef ZWAVE_PSA_SECURE_VAULT
-    zw_status_t status = zw_compute_inclusion_ecdh_shared_secret(mp_context->public_key, zwave_shared_secret);
-    if (status != ZW_PSA_SUCCESS) {
-        zw_security_error(status);
-    }
-    memcpy(shared_secret, zwave_shared_secret, ZWAVE_ECDH_SECRET_LENGTH);
-#else
     keystore_private_key_read(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX]);
     crypto_scalarmult_curve25519(shared_secret, &shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key);
-#endif
     memcpy(&shared_key_mem[PUBLIC_KEY_B_INDEX], mp_context->public_key, 32);
     keystore_public_key_read(&shared_key_mem[PUBLIC_KEY_A_INDEX]);
 
     tempkey_extract(shared_secret, shared_key_mem, mp_context->public_key);
-    S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1, false);
+    S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1);
 }
 
 /**@brief Function for validating the schemes supported in a KEX Report frame.
@@ -386,7 +371,7 @@ static void s2_send_transfer_end(void)
 
     // A network key verify frame has been received.
     // This packet has been successfully decrypted, thus we must update the context to use temp key for sending transfer end.
-    S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1, false);
+    S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1);
 
     mp_context->u.inclusion_buf[SECURITY_2_COMMAND_CLASS_POS]      = COMMAND_CLASS_SECURITY_2;
     mp_context->u.inclusion_buf[SECURITY_2_COMMAND_POS]            = SECURITY_2_TRANSFER_END;
@@ -542,7 +527,7 @@ static void s2_send_net_key_report(void)
     if (mp_context->u.inclusion_buf[SECURITY_2_NET_KEY_REP_GRANT_KEY_POS] == SECURITY_2_SECURITY_0_NETWORK_KEY) {
         // After tranmitting the Network key, we expect the Netkey verify to be transmitted using that key.
         // Thus we must update the context.
-        S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, NETWORK_KEY_SECURE, &mp_context->u.inclusion_buf[3], 0, false);
+        S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, NETWORK_KEY_SECURE, &mp_context->u.inclusion_buf[3], 0);
     }
 }
 
@@ -554,7 +539,7 @@ static void s2_inclusion_complete(void)
     // Check that the final transfer end is ok
     if ((SECURITY_2_TRANSFER_END == mp_context->buf[SECURITY_2_COMMAND_POS]) && (SECURITY_2_KEY_REQ_COMPLETE == (mp_context->buf[SECURITY_2_TRANSFER_END_FLAGS_POS] & (SECURITY_2_KEY_REQ_COMPLETE | SECURITY_2_KEY_VERIFIED)))) {
         s2_inclusion_stop_timeout();
-        s2_restore_keys(mp_context, true);
+        s2_restore_keys(mp_context);
 
         s2_event                                                         = (zwave_event_t *)m_event_buffer;
         s2_event->event_type                                             = S2_NODE_INCLUSION_COMPLETE_EVENT;
@@ -599,6 +584,5 @@ void s2_inclusion_including_start(struct S2 *p_context, const s2_connection_t *p
         mp_context->inclusion_mode            = INCLUSION_MODE_SSA;
         mp_context->kex_fail_code             = 0;
         process_event(S2_INCLUDING_START);
-        mp_context->is_keys_restored = false;
     }
 }

@@ -24,10 +24,7 @@
 
 #define KEY_CLASS_ALL 0xFF
 
-/* Flag used in common wrapper functions
- * to differentiate whether the crypto
- * function is PSA based or otherwise.
- */
+/* key_id value for software key derivation (the only supported mode). */
 #define ZWAVE_KEY_ID_NONE 0
 
 /**
@@ -59,24 +56,6 @@ void keystore_public_key_read(uint8_t *buf);
  */
 void keystore_dynamic_public_key_read(uint8_t *buf);
 
-#ifdef ZWAVE_PSA_SECURE_VAULT
-
-/**
- * Fetches psa keyid on the persisted Curve25519 keypair and copies it to keyid
- *
- * \param[out] keyid    psa keyid on persisted keypair
- */
-void keystore_keyid_read(uint32_t *keyid);
-
-/**
- * Fetches psa keyid on the dynamic Curve25519 keypair and copies it to keyid
- * NOTE: It is expected that this component can decide to return either the dynamic or the persisted keypair keyid
- * \param[out] keyid
- */
-void keystore_dynamic_keyid_read(uint32_t *keyid);
-
-#else
-
 /**
  * Fetches private Curve25519 key from persistent storage and copies it to buf
  * This private key must match the public key returned by \ref keystore_public_key_read.
@@ -94,8 +73,6 @@ void keystore_private_key_read(uint8_t *buf);
  * \param[out] buf      Private key
  */
 void keystore_dynamic_private_key_read(uint8_t *buf);
-
-#endif
 
 /**
  * Fetches network key from NVM and copies it to buf
