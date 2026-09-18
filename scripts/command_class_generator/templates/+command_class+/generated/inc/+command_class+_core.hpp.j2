@@ -45,14 +45,14 @@ namespace zwave_command_class {
             }
 
             {% if command_class.control == true %}            
-                sl_status_t control_handler(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length) override;
+                virtual sl_status_t control_handler(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length) override;
                 bool has_control_handler() const override { return true; }
             {% else %}
                 bool has_control_handler() const override { return false; }
             {% endif %}
 
             {% if command_class.support == true%}
-                sl_status_t support_handler(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length) override;
+                virtual sl_status_t support_handler(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length) override;
                 bool has_support_handler() const override { return true; }
             {% else %}
                 bool has_support_handler() const override { return false; }

@@ -28,6 +28,7 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 | [COMMAND_CLASS_MULTI_CHANNEL_ASSOCIATION](command_class_multi_channel_association/doc/generated/command_class_multi_channel_association_mqtt_interface.md) | true | true | true |
 | [COMMAND_CLASS_MULTI_CHANNEL](command_class_multi_channel/doc/generated/command_class_multi_channel_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_POWERLEVEL](command_class_powerlevel/doc/generated/command_class_powerlevel_mqtt_interface.md) | false | true | false |
+| [COMMAND_CLASS_SECURITY](command_class_security/doc/generated/command_class_security_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_SWITCH_BINARY](command_class_switch_binary/doc/generated/command_class_switch_binary_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_SWITCH_MULTILEVEL](command_class_switch_multilevel/doc/generated/command_class_switch_multilevel_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_THERMOSTAT_FAN_MODE](command_class_thermostat_fan_mode/doc/generated/command_class_thermostat_fan_mode_mqtt_interface.md) | true | false | true |
@@ -40,6 +41,7 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 | [COMMAND_CLASS_ASSOCIATION_GRP_INFO](command_class_association_grp_info/doc/generated/command_class_association_grp_info_mqtt_interface.md) | true | true | true |
 | [COMMAND_CLASS_DEVICE_RESET_LOCALLY](command_class_device_reset_locally/doc/generated/command_class_device_reset_locally_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_ZWAVEPLUS_INFO](command_class_zwaveplus_info/doc/generated/command_class_zwaveplus_info_mqtt_interface.md) | false | true | true |
+| [COMMAND_CLASS_SECURITY_2](command_class_security_2/doc/generated/command_class_security_2_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_SUPERVISION](command_class_supervision/doc/generated/command_class_supervision_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_INCLUSION_CONTROLLER](command_class_inclusion_controller/doc/generated/command_class_inclusion_controller_mqtt_interface.md) | false | true | true |
 
@@ -58,6 +60,7 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 - [COMMAND_CLASS_MULTI_CHANNEL_ASSOCIATION](command_class_multi_channel_association/doc/generated/command_class_multi_channel_association_mqtt_interface.md)
 - [COMMAND_CLASS_MULTI_CHANNEL](command_class_multi_channel/doc/generated/command_class_multi_channel_mqtt_interface.md)
 - [COMMAND_CLASS_POWERLEVEL](command_class_powerlevel/doc/generated/command_class_powerlevel_mqtt_interface.md)
+- [COMMAND_CLASS_SECURITY](command_class_security/doc/generated/command_class_security_mqtt_interface.md)
 - [COMMAND_CLASS_SWITCH_BINARY](command_class_switch_binary/doc/generated/command_class_switch_binary_mqtt_interface.md)
 - [COMMAND_CLASS_SWITCH_MULTILEVEL](command_class_switch_multilevel/doc/generated/command_class_switch_multilevel_mqtt_interface.md)
 - [COMMAND_CLASS_THERMOSTAT_FAN_MODE](command_class_thermostat_fan_mode/doc/generated/command_class_thermostat_fan_mode_mqtt_interface.md)
@@ -70,5 +73,6 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 - [COMMAND_CLASS_ASSOCIATION_GRP_INFO](command_class_association_grp_info/doc/generated/command_class_association_grp_info_mqtt_interface.md)
 - [COMMAND_CLASS_DEVICE_RESET_LOCALLY](command_class_device_reset_locally/doc/generated/command_class_device_reset_locally_mqtt_interface.md)
 - [COMMAND_CLASS_ZWAVEPLUS_INFO](command_class_zwaveplus_info/doc/generated/command_class_zwaveplus_info_mqtt_interface.md)
+- [COMMAND_CLASS_SECURITY_2](command_class_security_2/doc/generated/command_class_security_2_mqtt_interface.md)
 - [COMMAND_CLASS_SUPERVISION](command_class_supervision/doc/generated/command_class_supervision_mqtt_interface.md)
 - [COMMAND_CLASS_INCLUSION_CONTROLLER](command_class_inclusion_controller/doc/generated/command_class_inclusion_controller_mqtt_interface.md)

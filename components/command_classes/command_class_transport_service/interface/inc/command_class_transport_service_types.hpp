@@ -14,6 +14,8 @@
 #ifndef COMMAND_CLASS_TRANSPORT_SERVICE_TYPES_H
 #define COMMAND_CLASS_TRANSPORT_SERVICE_TYPES_H
 
+#include "command_class_transport_service_generated_types.hpp"
+
 namespace zwave_command_class
 {
     namespace command_class_transport_service_types

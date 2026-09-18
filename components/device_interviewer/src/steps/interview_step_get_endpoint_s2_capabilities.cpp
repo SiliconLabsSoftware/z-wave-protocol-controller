@@ -15,8 +15,8 @@
 #include "interview_state_machine.hpp"
 #include "component_connector.hpp"
 #include "attribute_store_defined_attribute_types.h"
-#include "command_class_s2_events.hpp"
-#include "command_class_s2_types.hpp"
+#include "command_class_security_2_events.hpp"
+#include "command_class_security_2_types.hpp"
 #include "log.h"
 
 namespace zwave_command_class
@@ -30,13 +30,13 @@ namespace zwave_command_class
         void fire_endpoint_s2_commands_supported_get(InterviewSession &session, uint8_t endpoint_id, attribute_store::attribute endpoint_node)
         {
             component_connector connector;
-            command_class_s2_types::s2_supported_get_payload_t payload_map;
+            command_class_security_2_types::s2_supported_get_payload_t payload_map;
             payload_map.endpoint_id   = endpoint_id;
             payload_map.device_node   = session.device_node;
             payload_map.endpoint_node = endpoint_node;
             payload_map.zwave_node_id = session.node_id;
             payload_map.granted_keys  = session.granted_keys;
-            connector.fire_event(static_cast<uint32_t>(command_class_s2_events_t::COMMAND_CLASS_S2_COMMANDS_SUPPORTED_GET), payload_map);
+            connector.fire_event(static_cast<uint32_t>(command_class_security_2_events_t::COMMAND_CLASS_SECURITY_2_COMMANDS_SUPPORTED_GET), payload_map);
         }
     }  // namespace
 
@@ -91,7 +91,7 @@ namespace zwave_command_class
         }
 
         try {
-            const auto &payload = std::any_cast<command_class_s2_types::s2_supported_report_payload_t>(event->payload);
+            const auto &payload = std::any_cast<command_class_security_2_types::s2_supported_report_payload_t>(event->payload);
 
             uint8_t reported_endpoint_id = payload.connection_info.remote.endpoint_id;
             if (session.endpoints.current_endpoint_it == session.endpoints.endpoint_ids.end() || reported_endpoint_id != *session.endpoints.current_endpoint_it) {

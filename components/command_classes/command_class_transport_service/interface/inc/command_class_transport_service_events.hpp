@@ -16,8 +16,6 @@
 
 #include <stdint.h>
 
-enum class command_class_transport_service_events_t : uint32_t {
-    COMMAND_CLASS_TRANSPORT_SERVICE_BASE_EVENT = (85 << 8),
-};
+enum class command_class_transport_service_events_t : uint32_t { COMMAND_CLASS_TRANSPORT_SERVICE_BASE_EVENT = (85 << 8) };
 
 #endif  // COMMAND_CLASS_TRANSPORT_SERVICE_EVENTS_H

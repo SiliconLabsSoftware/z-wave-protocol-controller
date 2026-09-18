@@ -28,8 +28,8 @@
 #include "component_connector_types.hpp"
 
 // S2/S0/MC endpoint-specific CC lists
-#include "command_class_s2_types.hpp"
-#include "command_class_s0_types.hpp"
+#include "command_class_security_2_types.hpp"
+#include "command_class_security_types.hpp"
 #include "command_class_multi_channel_generated_types.hpp"
 #include "zwave_command_class_utils.hpp"
 
@@ -136,8 +136,8 @@ namespace zwave_command_class
 
     bool zwave_command_class_base::endpoint_supports_command_class(const attribute_store::attribute &endpoint_node) const
     {
-        using s2_t           = command_class_s2_types::s2_commands_supported_report_group_attributes_t;
-        using s0_t           = command_class_s0_types::s0_commands_supported_report_group_attributes_t;
+        using s2_t           = command_class_security_2_types::security_2_commands_supported_report_group_attributes_t;
+        using s0_t           = command_class_security_types::security_commands_supported_report_group_attributes_t;
         using mc_t           = command_class_multi_channel_types::multi_channel_capability_report_group_attributes_t;
         const uint16_t cc_id = static_cast<uint16_t>(properties.command_class_id);
 
@@ -169,8 +169,8 @@ namespace zwave_command_class
             }
         };
 
-        return check(static_cast<attribute_store_type_t>(s2_t::S2_COMMANDS_SUPPORTED_REPORT_GROUP), static_cast<attribute_store_type_t>(s2_t::command_class))
-               || check(static_cast<attribute_store_type_t>(s0_t::S0_COMMANDS_SUPPORTED_REPORT_GROUP), static_cast<attribute_store_type_t>(s0_t::command_class))
+        return check(static_cast<attribute_store_type_t>(s2_t::SECURITY_2_COMMANDS_SUPPORTED_REPORT_GROUP), static_cast<attribute_store_type_t>(s2_t::command_class))
+               || check(static_cast<attribute_store_type_t>(s0_t::SECURITY_COMMANDS_SUPPORTED_REPORT_GROUP), static_cast<attribute_store_type_t>(s0_t::command_class_support))
                || check(static_cast<attribute_store_type_t>(mc_t::MULTI_CHANNEL_CAPABILITY_REPORT_GROUP), static_cast<attribute_store_type_t>(mc_t::command_class));
     }
 

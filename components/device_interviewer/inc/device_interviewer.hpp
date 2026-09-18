@@ -24,7 +24,7 @@
 #include "device_interviewer_attribute_store.hpp"
 #include "attribute_store_type_registration.h"
 #include "attribute_store_defined_attribute_types.h"
-#include "command_class_s2_types.hpp"
+#include "command_class_security_2_types.hpp"
 #include "device_interviewer_types.hpp"
 #include "threading.hpp"
 #include "init_builder.hpp"

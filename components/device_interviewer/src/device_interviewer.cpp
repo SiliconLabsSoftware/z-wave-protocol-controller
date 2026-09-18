@@ -26,10 +26,10 @@
 #include "component_connector_common_events.hpp"
 #include "component_connector_types.hpp"
 
-#include "command_class_s2_events.hpp"
-#include "command_class_s2_types.hpp"
-#include "command_class_s0_events.hpp"
-#include "command_class_s0_types.hpp"
+#include "command_class_security_2_events.hpp"
+#include "command_class_security_2_types.hpp"
+#include "command_class_security_events.hpp"
+#include "command_class_security_types.hpp"
 
 #include "attribute_store_defined_attribute_types.h"
 #include "zpc_attribute_store_network_helper.h"
@@ -211,19 +211,20 @@ namespace zwave_command_class
         // ============================================================================
 
         // S2 Commands Supported Report
-        connector.connect_typed<command_class_s2_events_t, command_class_s2_types::s2_supported_report_payload_t>(command_class_s2_events_t::COMMAND_CLASS_S2_COMMANDS_SUPPORTED_REPORT, [](const command_class_s2_types::s2_supported_report_payload_t &p) {
+        connector.connect_typed<command_class_security_2_events_t, command_class_security_2_types::s2_supported_report_payload_t>(command_class_security_2_events_t::COMMAND_CLASS_SECURITY_2_COMMANDS_SUPPORTED_REPORT, [](const command_class_security_2_types::s2_supported_report_payload_t &p) {
             queue_event(device_interviewer_external_event_t::S2_COMMANDS_SUPPORTED_REPORT, p);
             return SL_STATUS_OK;
         });
 
         // S2 Commands Supported Get TX failed (enqueue or air failure)
-        connector.connect_typed<command_class_s2_events_t, command_class_s2_types::s2_supported_get_tx_failed_payload_t>(command_class_s2_events_t::COMMAND_CLASS_S2_COMMANDS_SUPPORTED_GET_TX_FAILED, [](const command_class_s2_types::s2_supported_get_tx_failed_payload_t &p) {
-            queue_event(device_interviewer_external_event_t::S2_COMMANDS_SUPPORTED_GET_TX_FAILED, p);
-            return SL_STATUS_OK;
-        });
+        connector.connect_typed<command_class_security_2_events_t, command_class_security_2_types::s2_supported_get_tx_failed_payload_t>(command_class_security_2_events_t::COMMAND_CLASS_SECURITY_2_COMMANDS_SUPPORTED_GET_TX_FAILED,
+                                                                                                                                         [](const command_class_security_2_types::s2_supported_get_tx_failed_payload_t &p) {
+                                                                                                                                             queue_event(device_interviewer_external_event_t::S2_COMMANDS_SUPPORTED_GET_TX_FAILED, p);
+                                                                                                                                             return SL_STATUS_OK;
+                                                                                                                                         });
 
         // S0 Commands Supported Report
-        connector.connect_typed<command_class_s0_events_t, command_class_s0_types::s0_supported_report_payload_t>(command_class_s0_events_t::COMMAND_CLASS_S0_COMMANDS_SUPPORTED_REPORT, [](const command_class_s0_types::s0_supported_report_payload_t &p) {
+        connector.connect_typed<command_class_security_events_t, command_class_security_types::s0_supported_report_payload_t>(command_class_security_events_t::COMMAND_CLASS_SECURITY_COMMANDS_SUPPORTED_REPORT, [](const command_class_security_types::s0_supported_report_payload_t &p) {
             queue_event(device_interviewer_external_event_t::S0_COMMANDS_SUPPORTED_REPORT, p);
             return SL_STATUS_OK;
         });
@@ -381,8 +382,8 @@ namespace zwave_command_class
         constexpr uint8_t security_2_cc = 0x9F;
 
         if (nif_contains_command_class(result_struct.command_class_list, security_2_cc)) {
-            auto s2_group_node                  = endpoint_0_node.child_by_type(static_cast<attribute_store_type_t>(command_class_s2_types::s2_commands_supported_report_group_attributes_t::S2_COMMANDS_SUPPORTED_REPORT_GROUP));
-            auto s2_command_class_node          = s2_group_node.child_by_type(static_cast<attribute_store_type_t>(command_class_s2_types::s2_commands_supported_report_group_attributes_t::command_class));
+            auto s2_group_node                  = endpoint_0_node.child_by_type(static_cast<attribute_store_type_t>(command_class_security_2_types::security_2_commands_supported_report_group_attributes_t::SECURITY_2_COMMANDS_SUPPORTED_REPORT_GROUP));
+            auto s2_command_class_node          = s2_group_node.child_by_type(static_cast<attribute_store_type_t>(command_class_security_2_types::security_2_commands_supported_report_group_attributes_t::command_class));
             result_struct.s2_command_class_list = read_reported_normal_command_class_list(s2_command_class_node);
         }
 
@@ -390,8 +391,8 @@ namespace zwave_command_class
         constexpr uint8_t security_0_cc = 0x98;
 
         if (nif_contains_command_class(result_struct.command_class_list, security_0_cc)) {
-            auto s0_group_node                  = endpoint_0_node.child_by_type(static_cast<attribute_store_type_t>(command_class_s0_types::s0_commands_supported_report_group_attributes_t::S0_COMMANDS_SUPPORTED_REPORT_GROUP));
-            auto s0_command_class_node          = s0_group_node.child_by_type(static_cast<attribute_store_type_t>(command_class_s0_types::s0_commands_supported_report_group_attributes_t::command_class));
+            auto s0_group_node                  = endpoint_0_node.child_by_type(static_cast<attribute_store_type_t>(command_class_security_types::security_commands_supported_report_group_attributes_t::SECURITY_COMMANDS_SUPPORTED_REPORT_GROUP));
+            auto s0_command_class_node          = s0_group_node.child_by_type(static_cast<attribute_store_type_t>(command_class_security_types::security_commands_supported_report_group_attributes_t::command_class_support));
             result_struct.s0_command_class_list = read_reported_normal_command_class_list(s0_command_class_node);
         }
 

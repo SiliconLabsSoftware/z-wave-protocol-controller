@@ -48,10 +48,10 @@
 
 #include "component_connector.hpp"
 
-#include "command_class_s2_events.hpp"
-#include "command_class_s2_types.hpp"
-#include "command_class_s0_events.hpp"
-#include "command_class_s0_types.hpp"
+#include "command_class_security_2_events.hpp"
+#include "command_class_security_2_types.hpp"
+#include "command_class_security_events.hpp"
+#include "command_class_security_types.hpp"
 #include "command_class_multi_channel_events.hpp"
 #include "command_class_multi_channel_types.hpp"
 

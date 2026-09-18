@@ -19,8 +19,8 @@
 #include "component_connector_types.hpp"
 #include "zpc_attribute_store_network_helper.h"
 #include "attribute_store_defined_attribute_types.h"
-#include "command_class_protocol_events.hpp"
-#include "command_class_protocol_types.hpp"
+#include "command_class_zwave_cmd_class_events.hpp"
+#include "command_class_zwave_cmd_class_types.hpp"
 #include "zwave_controller_utils.h"
 #include "log.h"
 #include <any>
@@ -45,9 +45,9 @@ namespace zwave_command_class
     {
         if (!event.has_value()) {
             component_connector connector;
-            command_class_protocol_types::command_class_protocol_commands_request_node_info_payload_t payload_map;
+            command_class_zwave_cmd_class_types::command_class_protocol_commands_request_node_info_payload_t payload_map;
             payload_map.node_id = session.node_id;
-            connector.fire_event(static_cast<uint32_t>(command_class_protocol_events_t::COMMAND_CLASS_PROTOCOL_COMMANDS_REQUEST_NODE_INFO), payload_map);
+            connector.fire_event(static_cast<uint32_t>(command_class_zwave_cmd_class_events_t::COMMAND_CLASS_ZWAVE_CMD_CLASS_COMMANDS_REQUEST_NODE_INFO), payload_map);
             return stay();
         }
 
