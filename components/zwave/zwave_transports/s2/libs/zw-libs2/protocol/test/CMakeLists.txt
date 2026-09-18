@@ -6,12 +6,15 @@ add_compile_definitions(
 
 # Add test for SPAN retry decryption feature (SWPROT-9892)
 # This tests the implementation of Z-Wave specification CC:009F.01.00.12.003
-# Uses the real S2 implementation (s2_slave) to test actual SPAN decryption flow
-# through S2_application_command_handler entry point.
+# S2.c and s2_inclusion.c are compiled directly without ZW_CONTROLLER so the
+# test exercises the end-device decryption path through S2_application_command_handler.
 add_unity_test(
   NAME test_span
-  FILES test_span.c
-  LIBRARIES s2_slave s2crypto mock s2_inclusion_mocks crypto_mocks aes
+  FILES
+    test_span.c
+    ../S2.c
+    ../../inclusion/s2_inclusion.c
+  LIBRARIES s2crypto mock s2_inclusion_mocks crypto_mocks aes
 )
 
 # Additional protocol tests can be added here as needed
