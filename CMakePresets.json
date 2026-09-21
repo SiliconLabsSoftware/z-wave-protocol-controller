@@ -24,7 +24,8 @@
       "name": "debian",
       "inherits": ["zpc"],
       "cacheVariables": {
-        "CMAKE_INSTALL_PREFIX": "$penv{CMAKE_INSTALL_PREFIX}"
+        "CMAKE_INSTALL_PREFIX": "$penv{CMAKE_INSTALL_PREFIX}",
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
