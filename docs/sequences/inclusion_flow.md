@@ -73,7 +73,7 @@ sequenceDiagram
         MqttApi->>NM: DSK accept
     end
 
-    Note over NM,NCP: For SmartStart inclusion (not shown above):<br/>NM grants all requested keys internally and<br/>auto-accepts the DSK from the provisioning entry —<br/>no MQTT exchange with the client.
+    Note over NM,NCP: SmartStart (not shown): ZPC grants all keys and auto-accepts DSK internally — no MQTT exchange with the client.
 
     NCP->>NM: Node found / protocol done
     NM-->>NM: NM_NODE_FOUND → NM_WAIT_FOR_PROTOCOL → NM_WAIT_FOR_SECURE_ADD

@@ -67,7 +67,7 @@ sequenceDiagram
     MultilevelSwitch->>AttributeStore: Set value, duration desired
     MultilevelSwitch->>Resolver: start_group_resolution
     Resolver->>MultilevelSwitch: on_switch_multilevel_set_requested_assemble_frame
-    Note over MultilevelSwitch: v1: Value only<br/>v2+: Value + Duration
+    Note over MultilevelSwitch: v1: Value only. v2+: Value + Duration
     MultilevelSwitch->>Device: SWITCH_MULTILEVEL_SET (value, duration)
 ```
 
@@ -88,7 +88,7 @@ sequenceDiagram
     end
     MultilevelSwitch->>Resolver: start_group_resolution
     Resolver->>MultilevelSwitch: on_switch_multilevel_start_level_change_requested_assemble_frame
-    Note over MultilevelSwitch: Assembles Properties1 byte<br/>(Up/Down, Ignore Start Level, Inc/Dec)
+    Note over MultilevelSwitch: Assembles Properties1 byte (Up/Down, Ignore Start Level, Inc/Dec)
     MultilevelSwitch->>Device: SWITCH_MULTILEVEL_START_LEVEL_CHANGE
 ```
 

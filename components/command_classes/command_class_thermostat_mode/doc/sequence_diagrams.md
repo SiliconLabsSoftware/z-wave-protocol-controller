@@ -12,7 +12,7 @@ sequenceDiagram
 
     ZPC->>Node: THERMOSTAT_MODE_GET
     Node-->>ZPC: THERMOSTAT_MODE_REPORT (mode)
-    Note over ZPC: THERMOSTAT_MODE_CHANGED only if mode changed<br/>(per spec: Get requires only Report in response)
+    Note over ZPC: THERMOSTAT_MODE_CHANGED only if mode changed (per spec: Get requires only Report in response)
 ```
 
 ## Set Mode Flow (via MQTT)
@@ -30,7 +30,7 @@ sequenceDiagram
     ZPC->>Node: THERMOSTAT_MODE_GET
     Node-->>ZPC: THERMOSTAT_MODE_REPORT (mode)
     ZPC->>MQTT Client: ThermostatModeReport { "mode": "0x01" }
-    Note over ZPC: Fires THERMOSTAT_MODE_CHANGED (mode changed)<br/>→ Setpoint CC may refresh setpoints for new mode
+    Note over ZPC: Fires THERMOSTAT_MODE_CHANGED when mode changed. Setpoint CC may refresh setpoints for new mode
 ```
 
 ## Get Mode Flow (via MQTT)
@@ -48,7 +48,7 @@ sequenceDiagram
     ZPC->>Node: THERMOSTAT_MODE_GET
     Node-->>ZPC: THERMOSTAT_MODE_REPORT (mode)
     ZPC->>MQTT Client: ThermostatModeReport { "mode": "0x01" }
-    Note over ZPC: No THERMOSTAT_MODE_CHANGED if mode unchanged<br/>(no setpoint/capability follow-up)
+    Note over ZPC: No THERMOSTAT_MODE_CHANGED if mode unchanged (no setpoint/capability follow-up)
 ```
 
 ## Inter-CC Communication
@@ -62,5 +62,5 @@ sequenceDiagram
     Note over ThermostatMode CC: Only when reported mode actually changed
     ThermostatMode CC->>component_connector: fire_event(THERMOSTAT_MODE_CHANGED, {endpoint_node, mode})
     component_connector->>ThermostatSetpoint CC: on_thermostat_mode_changed callback
-    Note over ThermostatSetpoint CC: Triggers THERMOSTAT_SETPOINT_GET<br/>to refresh setpoints for new mode
+    Note over ThermostatSetpoint CC: Triggers THERMOSTAT_SETPOINT_GET to refresh setpoints for new mode
 ```
