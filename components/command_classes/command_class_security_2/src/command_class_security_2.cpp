@@ -11,7 +11,6 @@
  *
  *****************************************************************************/
 
-#include <algorithm>
 #include <fmt/base.h>
 #include <fmt/format.h>
 #include <string_view>
@@ -146,10 +145,7 @@ namespace zwave_command_class
 
         std::vector<uint8_t> supported_cc_list;
         supported_cc_list = get_value_or_default(attribute_map, "command_class", supported_cc_list);
-
-        constexpr uint8_t command_class_mark = 0xEF;
-        auto mark_iterator                   = std::find(supported_cc_list.begin(), supported_cc_list.end(), command_class_mark);
-        supported_cc_list.erase(mark_iterator, supported_cc_list.end());
+        command_class_utils::strip_controlled_command_classes(supported_cc_list);
 
         if (supported_cc_list.empty()) {
             if (command_class_utils::is_using_zpc_highest_security_class(connection_info)) {

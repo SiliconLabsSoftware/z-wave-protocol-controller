@@ -117,6 +117,25 @@ namespace zwave_command_class
         return extended_command_classes;
     }
 
+    void command_class_utils::strip_controlled_command_classes(std::vector<uint8_t> &command_classes)
+    {
+        size_t index = 0;
+        while (index < command_classes.size()) {
+            if (command_classes[index] == COMMAND_CLASS_CONTROL_MARK) {
+                command_classes.erase(command_classes.begin() + static_cast<std::ptrdiff_t>(index), command_classes.end());
+                return;
+            }
+            if (command_classes[index] >= EXTENDED_COMMAND_CLASS_IDENTIFIER_START) {
+                if (index + 1 >= command_classes.size()) {
+                    break;
+                }
+                index += 2;
+            } else {
+                index += 1;
+            }
+        }
+    }
+
     sl_status_t command_class_utils::get_node_dsk(zwave_node_id_t node_id, zwave_dsk_t dsk)
     {
         std::memset(dsk, 0, sizeof(zwave_dsk_t));

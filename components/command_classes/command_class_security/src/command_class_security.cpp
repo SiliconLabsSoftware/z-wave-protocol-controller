@@ -127,6 +127,12 @@ namespace zwave_command_class
             supported_cc_list = report_attr.reported<std::vector<uint8_t>>();
         }
 
+        // Strip only when the segmented report is complete so the mark is not dropped mid-sequence.
+        if (reports_to_follow == 0) {
+            command_class_utils::strip_controlled_command_classes(supported_cc_list);
+            attribute_store_set_reported(report_node, supported_cc_list.data(), supported_cc_list.size());
+        }
+
         auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(security_commands_supported_report_group_attributes_t::SECURITY_COMMANDS_SUPPORTED_REPORT_GROUP));
         auto cc_node    = group_node.emplace_node(static_cast<attribute_store_type_t>(security_commands_supported_report_group_attributes_t::command_class_support));
         cc_node.set_reported(supported_cc_list);
