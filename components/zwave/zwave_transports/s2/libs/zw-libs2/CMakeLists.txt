@@ -1,40 +1,3 @@
-# Libs2 is designed to be used included as a subproject, but this part allows to
-# build libs2 standalone (here for x86)
-if("${PROJECT_NAME}" STREQUAL "")
-  cmake_minimum_required(VERSION 3.5)
-  project(libs2 C ASM)
-
-  set(CMAKE_BUILD_TYPE debug)
-  add_definitions(-Dx86)
-
-  if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror")
-    # For gov/cobertura: do not use .c.o on the object files, only .o
-    set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
-  endif()
-  if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_C_FLAGS
-        "${CMAKE_C_FLAGS} -Wno-self-assign -Wno-error=unused-command-line-argument"
-    )
-  endif()
-
-  find_path(
-    ZWAVE_CLASSCMD_DIR ZW_classcmd.h
-    HINTS ENV ZWLIBROOT ${PROJECT_SOURCE_DIR}/..
-          ${PROJECT_SOURCE_DIR}/../../ThirdParty/generated/
-    PATH_SUFFIXES include)
-  find_path(
-    ZWAVE_INCLUDE_DIR ZW.h
-    HINTS ENV ZWLIBROOT ${PROJECT_SOURCE_DIR}/..
-          ${PROJECT_SOURCE_DIR}/../../ZWave/API/
-    PATH_SUFFIXES include)
-  SET(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --verbose --errors-for-leak-kinds=all --show-leak-kinds=all --leak-check=full --error-exitcode=1 --track-origins=yes")
-  include(CTest)
-  add_compile_definitions(NDEBUG)
-  enable_testing()
-endif("${PROJECT_NAME}" STREQUAL "")
-
 if(WIN32 AND NOT CMAKE_BUILD_TYPE MATCHES Test)
   add_definitions(-DDllExport=__declspec\(dllexport\))
 else()
@@ -48,8 +11,7 @@ include_directories(include ${ZWAVE_INCLUDE_DIR} ${CROSS_SYSTEM_INCLUDE}
                     ${OPTIONAL_SYSTEM_INCLUDE} ${ZWAVE_CLASSCMD_DIR})
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3")
-if(UNIT_TEST OR CMAKE_BUILD_TYPE STREQUAL Test
-   OR CMAKE_PROJECT_NAME STREQUAL "libs2")
+if(UNIT_TEST)
   enable_testing()
   add_subdirectory(test)
   message(STATUS "Adding unit test for libs2")
