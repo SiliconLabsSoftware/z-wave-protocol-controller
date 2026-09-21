@@ -7,6 +7,9 @@ add_compile_definitions(
 #add_executable( test_ccm test_ccm.c ../crypto/ccm/ccm.c ../crypto/aes/aes.c )
 #add_test( test_ccm test_ccm )
 
+# AES-128 ECB/CBC (vectors from legacy aes_test.c)
+add_unity_test(NAME test_aes FILES test_aes.c LIBRARIES aes)
+
 # Add test for AES-CMAC
 add_unity_test(NAME test_aes_cmac FILES test_aes_cmac.c LIBRARIES s2crypto aes)
 
