@@ -34,11 +34,7 @@
 #define MPAN_TABLE_SIZE 10
 #endif
 #define MOS_LIST_LENGTH 3
-#if defined(EFR32ZG) || defined(ZW050x)
-#define WORKBUF_SIZE 200
-#else
-#define WORKBUF_SIZE 1280
-#endif
+#define WORKBUF_SIZE    1280
 #define S2_MULTICAST
 
 typedef uint8_t nonce_t[16];

@@ -144,11 +144,7 @@ int8_t S2_notify_nls_node_list_report(node_t srcNode, uint16_t id_of_node, uint8
  * Makes time in ms available to LibS2
  * \return Timer tick in MS
  */
-#ifdef ZIPGW
 unsigned long clock_time(void);
-#else
-uint32_t clock_time(void);
-#endif
 
 /**
  * SOS_EVENT_REASON_UNANSWERED means that a Nonce Report with Singlecast-out-of-Sync

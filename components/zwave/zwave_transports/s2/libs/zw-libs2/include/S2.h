@@ -14,10 +14,6 @@
 #include <stdint.h>
 #include <platform.h>
 
-#ifndef DllExport
-#define DllExport extern
-#endif
-
 #include "ctr_drbg.h"
 
 // #include <ZW_transport_api.h>

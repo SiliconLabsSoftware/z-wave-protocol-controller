@@ -11,12 +11,6 @@ Derived from public domain code by D. J. Bernstein.
 */
 
 // #include "crypto_scalarmult.h"
-#ifndef NDEBUG
-#ifdef EFR32ZG
-#pragma GCC push_options
-#pragma GCC optimize("Os")
-#endif
-#endif
 
 static void add(unsigned int out[32], const unsigned int a[32], const unsigned int b[32])
 {
@@ -339,9 +333,3 @@ int crypto_scalarmult_curve25519(unsigned char *q, const unsigned char *n, const
     }
     return 0;
 }
-
-#ifndef NDEBUG
-#ifdef EFR32ZG
-#pragma GCC pop_options
-#endif
-#endif

@@ -19,7 +19,6 @@ set(CRYPTO_SRC
 
 add_library(aes aes/aes.c)
 add_library(s2crypto ${CRYPTO_SRC})
-target_compile_definitions(s2crypto PUBLIC "DllExport=extern")
 if(WIN32)
   add_library(s2cryptoShared SHARED ${CRYPTO_SRC} aes/aes.c)
 endif()

@@ -14,7 +14,7 @@
  * \param[out] q The public key korresponding to n.
  * \param[in] n The private key.
  */
-DllExport void crypto_scalarmult_curve25519_base(uint8_t *q, const uint8_t *n);
+extern void crypto_scalarmult_curve25519_base(uint8_t *q, const uint8_t *n);
 
 /**
  * Calculate an ECDH shared secret from a public and a private key.
@@ -22,7 +22,7 @@ DllExport void crypto_scalarmult_curve25519_base(uint8_t *q, const uint8_t *n);
  * \param[in] s The private key.
  * \param[in] p The public key
  */
-DllExport void crypto_scalarmult_curve25519(uint8_t *r, const uint8_t *s, const uint8_t *p);
+extern void crypto_scalarmult_curve25519(uint8_t *r, const uint8_t *s, const uint8_t *p);
 
 /**
  * @}
