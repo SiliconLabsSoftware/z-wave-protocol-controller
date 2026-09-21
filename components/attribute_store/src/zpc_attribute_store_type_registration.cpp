@@ -184,8 +184,8 @@ static const std::vector<attribute_schema_t> attribute_schema = {
   {ATTRIBUTE_COMMAND_CLASS_THERMOSTAT_FAN_STATE_FAN_OPERATING_STATE,   "Thermostat Fan Operating State",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
   /////////////////////////////////////////////////////////////////////
   //        Transport Service Command Class attributes
+  //        Version is registered by command_class_transport_service
   /////////////////////////////////////////////////////////////////////
-  {ATTRIBUTE_COMMAND_CLASS_TRANSPORT_SERVICE_VERSION,   "Transport Service Version",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
   /////////////////////////////////////////////////////////////////////
   //        User Code Command Class attributes
   /////////////////////////////////////////////////////////////////////

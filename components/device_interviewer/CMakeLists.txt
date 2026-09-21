@@ -58,8 +58,8 @@ target_link_libraries(device_interviewer
   command_class_association_interface
   command_class_multi_channel_association_interface
   command_class_association_grp_info_interface
-  command_class_s2
-  command_class_s0
+  command_class_security_2
+  command_class_security
   command_class_multi_channel_interface
   command_class_zwaveplus_info_interface
   command_class_wake_up_interface

@@ -88,6 +88,15 @@ namespace zwave_command_class
             static std::vector<uint16_t> get_extended_command_classes(const std::vector<uint8_t> &command_classes);
 
             /**
+             * @brief Truncate a supported-CC list at COMMAND_CLASS_MARK (0xEF).
+             *
+             * Bytes before the mark are supported; the mark and following
+             * (controlled) identifiers are removed. Extended (2-byte) IDs are
+             * skipped so an 0xEF LSB is not treated as the mark.
+             */
+            static void strip_controlled_command_classes(std::vector<uint8_t> &command_classes);
+
+            /**
              * @brief Retrieve the S2 DSK for a node from the attribute store.
              * @param node_id Z-Wave node ID to look up.
              * @param[out] dsk Buffer filled with the DSK bytes, or zeroed if unavailable.

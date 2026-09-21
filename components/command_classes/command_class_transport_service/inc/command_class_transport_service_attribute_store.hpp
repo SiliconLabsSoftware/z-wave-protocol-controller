@@ -16,6 +16,7 @@
 #define COMMAND_CLASS_TRANSPORT_SERVICE_ATTRIBUTE_STORE_H
 
 #include "command_class_transport_service_core.hpp"
+#include "command_class_transport_service_types.hpp"  // command_class_transport_service_types
 
 namespace zwave_command_class
 {

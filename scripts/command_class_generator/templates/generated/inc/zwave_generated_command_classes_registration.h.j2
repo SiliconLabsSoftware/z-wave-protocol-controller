@@ -17,26 +17,15 @@
 
 #include "zwave_command_class_registration.h"  // registration_function
 
-// Command classes
-// Manually implemented command classes
-#include "command_class_transport_service.hpp"
-
 {% for command_class in command_classes %}
 #include "{{command_class.name | lower}}.hpp"
 {% endfor %}
-
-// Manually implemented command classes
-#include "command_class_s0.hpp"
-#include "command_class_s2.hpp"
-#include "command_class_protocol.hpp"
-#include "command_class_protocol_lr.hpp"
 
 sl_status_t generated_command_class_registration(
   const registration_function &register_function)
 {
   sl_status_t status = SL_STATUS_OK;
 
-  // Command classes
   // Association Group Info is a special case, it has to be registered first.
   {% for command_class in command_classes %}
     {% if command_class.name | lower == "command_class_association_grp_info" %}
@@ -48,13 +37,6 @@ sl_status_t generated_command_class_registration(
     status |= register_function(new zwave_command_class::{{command_class.name | lower}}());
     {% endif %}
   {% endfor %}
-
-  // Manually implemented command classes
-  status |= register_function(new zwave_command_class::command_class_transport_service());
-  status |= register_function(new zwave_command_class::command_class_s0());
-  status |= register_function(new zwave_command_class::command_class_s2());
-  status |= register_function(new zwave_command_class::command_class_protocol());
-  status |= register_function(new zwave_command_class::command_class_protocol_lr());
 
   return status;
 }

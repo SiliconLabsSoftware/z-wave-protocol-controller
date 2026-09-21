@@ -15,8 +15,8 @@
 #include "interview_state_machine.hpp"
 #include "component_connector.hpp"
 #include "attribute_store_defined_attribute_types.h"
-#include "command_class_s0_events.hpp"
-#include "command_class_s0_types.hpp"
+#include "command_class_security_events.hpp"
+#include "command_class_security_types.hpp"
 #include "log.h"
 
 namespace zwave_command_class
@@ -57,18 +57,18 @@ namespace zwave_command_class
             auto endpoint_node = session.device_node.emplace_node(ATTRIBUTE_ENDPOINT_ID, *session.endpoints.current_endpoint_it);
 
             component_connector connector;
-            command_class_s0_types::s0_supported_get_payload_t payload;
+            command_class_security_types::s0_supported_get_payload_t payload;
             payload.endpoint_id   = *session.endpoints.current_endpoint_it;
             payload.device_node   = session.device_node;
             payload.endpoint_node = endpoint_node;
             payload.zwave_node_id = session.node_id;
             payload.granted_keys  = session.granted_keys;
-            connector.fire_event(static_cast<uint32_t>(command_class_s0_events_t::COMMAND_CLASS_S0_COMMANDS_SUPPORTED_GET), payload);
+            connector.fire_event(static_cast<uint32_t>(command_class_security_events_t::COMMAND_CLASS_SECURITY_COMMANDS_SUPPORTED_GET), payload);
             return stay();
         }
 
         try {
-            const auto &payload = std::any_cast<command_class_s0_types::s0_supported_report_payload_t>(event->payload);
+            const auto &payload = std::any_cast<command_class_security_types::s0_supported_report_payload_t>(event->payload);
 
             if (session.endpoints.current_endpoint_it == session.endpoints.endpoint_ids.end()) {
                 return stay();
@@ -98,14 +98,14 @@ namespace zwave_command_class
             auto endpoint_node = session.device_node.emplace_node(ATTRIBUTE_ENDPOINT_ID, *session.endpoints.current_endpoint_it);
 
             component_connector connector;
-            command_class_s0_types::s0_supported_get_payload_t next_payload;
+            command_class_security_types::s0_supported_get_payload_t next_payload;
             next_payload.endpoint_id   = *session.endpoints.current_endpoint_it;
             next_payload.device_node   = session.device_node;
             next_payload.endpoint_node = endpoint_node;
             next_payload.zwave_node_id = session.node_id;
             next_payload.granted_keys  = session.granted_keys;
 
-            connector.fire_event(static_cast<uint32_t>(command_class_s0_events_t::COMMAND_CLASS_S0_COMMANDS_SUPPORTED_GET), next_payload);
+            connector.fire_event(static_cast<uint32_t>(command_class_security_events_t::COMMAND_CLASS_SECURITY_COMMANDS_SUPPORTED_GET), next_payload);
 
             return stay();
         } catch (const std::bad_any_cast &) {
