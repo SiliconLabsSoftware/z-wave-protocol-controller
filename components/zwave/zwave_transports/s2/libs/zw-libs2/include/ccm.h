@@ -3,8 +3,6 @@
 /**
  * @file ccm.h
  */
-#ifndef ZWAVE_PSA_AES
-
 #ifndef CCM_H_
 #define CCM_H_
 
@@ -63,4 +61,3 @@ void get_q(uint8_t *q_out);
  */
 
 #endif
-#endif /* !defined (ZWAVE_PSA_SECURE_VAULT) */

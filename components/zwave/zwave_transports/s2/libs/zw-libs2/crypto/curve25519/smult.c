@@ -11,7 +11,6 @@ Derived from public domain code by D. J. Bernstein.
 */
 
 // #include "crypto_scalarmult.h"
-#if !defined(ZWAVE_PSA_SECURE_VAULT) || (defined(ZWAVE_PSA_SECURE_VAULT) && defined(ZW_CONTROLLER))
 #ifndef NDEBUG
 #ifdef EFR32ZG
 #pragma GCC push_options
@@ -344,6 +343,5 @@ int crypto_scalarmult_curve25519(unsigned char *q, const unsigned char *n, const
 #ifndef NDEBUG
 #ifdef EFR32ZG
 #pragma GCC pop_options
-#endif
 #endif
 #endif
