@@ -25,8 +25,6 @@ namespace zwave_command_class
 
     namespace
     {
-        constexpr uint8_t S2_COMMANDS_SUPPORTED_MAX_TX_RETRIES = 5;
-
         void fire_endpoint_s2_commands_supported_get(InterviewSession &session, uint8_t endpoint_id, attribute_store::attribute endpoint_node)
         {
             component_connector connector;
@@ -73,21 +71,8 @@ namespace zwave_command_class
         }
 
         if (event->event == device_interviewer_external_event_t::S2_COMMANDS_SUPPORTED_GET_TX_FAILED) {
-            if (session.endpoints.current_endpoint_it == session.endpoints.endpoint_ids.end()) {
-                return stay();
-            }
-
-            ++session.s2_commands_supported_tx_retries;
-            if (session.s2_commands_supported_tx_retries >= S2_COMMANDS_SUPPORTED_MAX_TX_RETRIES) {
-                sl_log_error(LOG_TAG.data(), "Node %d endpoint %d: S2 Commands Supported Get failed after %u TX attempts, failing interview", session.node_id, *session.endpoints.current_endpoint_it, session.s2_commands_supported_tx_retries);
-                return fail();
-            }
-
-            sl_log_warning(LOG_TAG.data(), "Node %d endpoint %d: S2 Commands Supported Get TX failed, retry %u/%u", session.node_id, *session.endpoints.current_endpoint_it, session.s2_commands_supported_tx_retries, S2_COMMANDS_SUPPORTED_MAX_TX_RETRIES);
-
-            auto endpoint_node = session.device_node.emplace_node(ATTRIBUTE_ENDPOINT_ID, *session.endpoints.current_endpoint_it);
-            fire_endpoint_s2_commands_supported_get(session, *session.endpoints.current_endpoint_it, endpoint_node);
-            return stay();
+            sl_log_error(LOG_TAG.data(), "Node %d endpoint %d: S2 Commands Supported Get resolution given up, failing interview", session.node_id, session.endpoints.current_endpoint_it == session.endpoints.endpoint_ids.end() ? 0 : *session.endpoints.current_endpoint_it);
+            return fail();
         }
 
         try {
