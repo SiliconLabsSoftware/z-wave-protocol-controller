@@ -359,3 +359,24 @@ void test_ctr_dbrg(void)
     free(hex);
     */
 }
+
+void test_ctr_drbg_different_entropy_yields_different_output(void)
+{
+    CTR_DRBG_CTX ctx;
+    const uint8_t personalization[SEEDLEN] = {0};
+    uint8_t entropy_a[32]                  = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
+    uint8_t entropy_b[32];
+    uint8_t out_a[RANDLEN];
+    uint8_t out_b[RANDLEN];
+
+    memcpy(entropy_b, entropy_a, sizeof(entropy_b));
+    entropy_b[0] ^= 0xff;
+
+    AES_CTR_DRBG_Instantiate(&ctx, entropy_a, personalization);
+    AES_CTR_DRBG_Generate(&ctx, out_a);
+
+    AES_CTR_DRBG_Instantiate(&ctx, entropy_b, personalization);
+    AES_CTR_DRBG_Generate(&ctx, out_b);
+
+    TEST_ASSERT_NOT_EQUAL(0, memcmp(out_a, out_b, RANDLEN));
+}
