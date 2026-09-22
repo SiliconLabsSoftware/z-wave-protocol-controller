@@ -177,6 +177,11 @@ void zwave_s2_neighbor_discovery_complete()
     zwave_s2_transport_unlock();
 }
 
+void zwave_s2_set_node_add_active(bool active)
+{
+    zwave_s2_transport_set_inclusion_in_progress(active);
+}
+
 void zwave_s2_start_add_node(zwave_node_id_t node_id)
 {
     zwave_s2_transport_lock();

@@ -79,10 +79,12 @@ typedef struct s2_transport_session_state {
         protocol_metadata_t protocol_metadata;
         zwave_tx_options_t tx_options;
         bool inclusion_in_progress;
+        uint8_t abort_generation;
 } s2_transport_session_state_t;
 
 // Z-Wave TX settings
 static s2_transport_session_state_t state = {};
+static protocol_metadata_t app_frame_generation_tags[256];
 
 // Secure NIF contents
 static uint8_t secure_nif[ZWAVE_MAX_FRAME_SIZE];
@@ -137,9 +139,26 @@ bool zwave_s2_transport_is_busy(void)
 
 void zwave_s2_transport_set_inclusion_in_progress(bool active)
 {
+    on_zwave_tx_send_data_complete_t cb_save   = NULL;
+    void *user_save                            = NULL;
+    zwapi_tx_report_t tx_status_for_completion = {};
+
     zwave_s2_transport_lock();
     state.inclusion_in_progress = active;
+    if (active && state.s2_send_callback != NULL) {
+        state.abort_generation++;
+        cb_save                  = state.s2_send_callback;
+        user_save                = state.s2_send_user;
+        state.s2_send_callback   = NULL;
+        state.s2_send_user       = NULL;
+        tx_status_for_completion = state.s2_send_tx_status;
+        S2_send_frame_done_notify(s2_ctx, S2_TRANSMIT_COMPLETE_FAIL, 0);
+    }
     zwave_s2_transport_unlock();
+
+    if (cb_save) {
+        cb_save(TRANSMIT_COMPLETE_FAIL, &tx_status_for_completion, user_save);
+    }
 }
 
 static bool s2_application_send_is_blocked(const zwave_tx_options_t *tx_options)
@@ -148,6 +167,9 @@ static bool s2_application_send_is_blocked(const zwave_tx_options_t *tx_options)
         return false;
     }
     if (state.s2_send_callback != NULL) {
+        return true;
+    }
+    if (state.inclusion_in_progress) {
         return true;
     }
     if (s2_ctx != NULL && S2_is_busy(s2_ctx) != 0) {
@@ -242,8 +264,12 @@ static zwave_s2_keyset_t get_s2_keyset_from_group(zwave_multicast_group_id_t gro
 
 static void send_frame_callback(uint8_t status, const zwapi_tx_report_t *tx_info, void *user)
 {
-    (void)user;
     zwave_s2_transport_lock();
+    if (user != NULL && user != (void *)&state.protocol_metadata && user != (void *)&app_frame_generation_tags[state.abort_generation]) {
+        sl_log_warning(LOG_TAG, "Dropping stale application S2 TX callback after inclusion abort (status=%u)", status);
+        zwave_s2_transport_unlock();
+        return;
+    }
     if (tx_info) {
         state.s2_send_tx_status = *tx_info;
     }
@@ -424,7 +450,14 @@ uint8_t S2_send_frame(struct S2 *ctxt, const s2_connection_t *conn, uint8_t *buf
 
     void *user = NULL;
     if (options.transport.is_protocol_frame) {
-        user = (void *)&state.protocol_metadata;
+        if (state.s2_send_callback != NULL) {
+            app_frame_generation_tags[state.abort_generation] = state.protocol_metadata;
+            user                                              = (void *)&app_frame_generation_tags[state.abort_generation];
+        } else {
+            user = (void *)&state.protocol_metadata;
+        }
+    } else if (state.s2_send_callback != NULL && !state.inclusion_in_progress) {
+        user = (void *)&app_frame_generation_tags[state.abort_generation];
     }
     state.transmit_start_time = clock_time();
     return SL_STATUS_OK == zwave_tx_send_data(&info, len, buf, &options, send_frame_callback, user, 0);
@@ -499,8 +532,12 @@ uint8_t S2_send_frame_multi(struct S2 *ctxt, s2_connection_t *conn, uint8_t *buf
     options.transport.valid_parent_session_id = state.valid_parent_session_id;
     options.transport.parent_session_id       = state.parent_session_id;
 
+    void *user = NULL;
+    if (state.s2_send_callback != NULL && !state.inclusion_in_progress) {
+        user = (void *)&app_frame_generation_tags[state.abort_generation];
+    }
     state.transmit_start_time = clock_time();
-    return SL_STATUS_OK == zwave_tx_send_data(&info, len, buf, &options, send_frame_callback, 0, 0);
+    return SL_STATUS_OK == zwave_tx_send_data(&info, len, buf, &options, send_frame_callback, user, 0);
 }
 
 void S2_notify_nls_state_report(node_t srcNode, uint8_t class_id, bool nls_capability, bool nls_state)
