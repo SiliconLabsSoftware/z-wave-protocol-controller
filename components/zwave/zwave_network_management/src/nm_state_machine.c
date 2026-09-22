@@ -246,6 +246,7 @@ static void nm_fill_reported_dsk_from_expected_if_needed(void)
 static void notify_node_add_security_failed(void)
 {
     zwave_dsk_t callback_dsk = {0};
+    zwave_s2_set_node_add_active(false);
     if (nms.kex_fail_type == ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE) {
         nms.kex_fail_type = ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_CANCEL;
     }
@@ -259,6 +260,7 @@ static void notify_node_add_security_failed(void)
 static void notify_node_add_aborted(void)
 {
     zwave_dsk_t empty_dsk = {0};
+    zwave_s2_set_node_add_active(false);
     zwave_controller_on_node_added(SL_STATUS_FAIL, &nms.node_info, nms.node_id_being_handled, empty_dsk, nms.granted_keys, ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE, nms.inclusion_protocol);
 }
 
@@ -270,6 +272,7 @@ static void notify_node_add_aborted(void)
 static void dispatch_node_added()
 {
     zwave_dsk_t callback_dsk = {0};
+    zwave_s2_set_node_add_active(false);
     nm_fill_reported_dsk_from_expected_if_needed();
     if (nms.flags & NMS_FLAG_REPORT_DSK) {
         memcpy(callback_dsk, nms.reported_dsk, sizeof(callback_dsk));
@@ -651,6 +654,7 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
                         return;
                     }
                     nms.state = NM_WAIT_FOR_PROTOCOL;
+                    zwave_s2_set_node_add_active(true);
                 } else {
                     nm_fsm_post_event(NM_EV_ADD_FAILED, 0);
                     return;
@@ -680,6 +684,7 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
                 if ((nms.node_id_being_handled != 0) && (ZW_IS_NODE_IN_MASK(nms.node_id_being_handled, nms.cached_node_list) == true) && (nms.proxy_inclusion_step != INITIATE_PROXY_INCLUSION_REPLACE)) {
                     sl_log_debug(LOG_TAG, "NodeID %d was already part of our network. Nothing changed.", nms.node_id_being_handled);
                     // Do not proceed with security bootstrapping.
+                    zwave_s2_set_node_add_active(false);
                     nms.state = NM_IDLE;
                     break;
                 }
@@ -721,6 +726,7 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
                 /* Add node failed - Application should indicate this to user */
                 zwapi_add_node_to_network(ADD_NODE_STOP_FAILED, NULL);
                 zwave_controller_on_error(ZWAVE_NETWORK_MANAGEMENT_ERROR_NODE_ADD_FAIL);
+                zwave_s2_set_node_add_active(false);
                 nms.state = NM_SEND_NOP;
                 timer_set(&nms.timer, SMART_START_SELF_DESTRUCT_TIMEOUT, nm_nms_timer_callback, NULL);
             }
