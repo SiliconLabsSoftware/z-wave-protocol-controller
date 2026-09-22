@@ -28,8 +28,8 @@
 
 #if defined(ECB) && ECB
 
-DllExport void AES128_ECB_encrypt(uint8_t *input, const uint8_t *key, uint8_t *output);
-DllExport void AES128_ECB_decrypt(uint8_t *input, const uint8_t *key, uint8_t *output);
+extern void AES128_ECB_encrypt(uint8_t *input, const uint8_t *key, uint8_t *output);
+extern void AES128_ECB_decrypt(uint8_t *input, const uint8_t *key, uint8_t *output);
 
 #endif  // #if defined(ECB) && ECB
 

@@ -199,7 +199,7 @@ void S2_save_nls_state(void)
 /**
  * @brief Stub for clock_time - timer tick
  */
-uint32_t clock_time(void)
+unsigned long clock_time(void)
 {
     return 0;
 }

@@ -1,9 +1,3 @@
-if(WIN32 AND NOT CMAKE_BUILD_TYPE MATCHES Test)
-  add_definitions(-DDllExport=__declspec\(dllexport\))
-else()
-  add_definitions(-DDllExport=extern)
-endif()
-
 set(CROSS_SYSTEM_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include" PARENT_SCOPE)
 # Setting -DOPTIONAL_SYSTEM_INCLUDE=<optional_include_path> allows to specify
 # addional include path(s) when building libs2.

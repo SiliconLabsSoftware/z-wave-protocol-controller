@@ -31,10 +31,10 @@
  * \param aad Additional Authenticated Data (AAD)
  * \param aad_len Length of AAD
  * \param plain_ciphertext The plaintext to encrypt AND the output buffer for ciphertext
- * \param plaintext_len Plaintext length
+ * \param text_to_encrypt_len Plaintext length
  * \return The total length of the cipher text (including MAC)
  */
-DllExport uint32_t CCM_encrypt_and_auth(const uint8_t *key, const uint8_t *nonce, const uint8_t *aad, const uint32_t aad_len, uint8_t *plain_ciphertext, const uint16_t plaintext_len);
+extern uint32_t CCM_encrypt_and_auth(const uint8_t *key, const uint8_t *nonce, const uint8_t *aad, const uint32_t aad_len, uint8_t *plain_ciphertext, const uint16_t text_to_encrypt_len);
 
 /**
  * Decrypt and authenticate received ciphertext and AAD.
@@ -48,7 +48,7 @@ DllExport uint32_t CCM_encrypt_and_auth(const uint8_t *key, const uint8_t *nonce
  * \param[inout] cipher_plaintext In-place buffer to decrypt ciphertext in
  * \param ciphertext_len length of cipher text.
  */
-DllExport uint16_t CCM_decrypt_and_auth(const uint8_t *key, const uint8_t *nonce, const uint8_t *aad, const uint32_t aad_len, uint8_t *cipher_plaintext, const uint32_t ciphertext_len);
+extern uint16_t CCM_decrypt_and_auth(const uint8_t *key, const uint8_t *nonce, const uint8_t *aad, const uint32_t aad_len, uint8_t *cipher_plaintext, const uint32_t ciphertext_len);
 
 #ifndef CCM_USE_PREDEFINED_VALUES
 void set_q_n_t(uint8_t q_in, uint8_t n_in, uint8_t t_in);
