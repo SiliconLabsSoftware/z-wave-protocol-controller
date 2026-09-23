@@ -525,7 +525,9 @@ static sl_status_t execute_get(attribute_store_node_t node)
             // If we exceed the retry count don't try this anymore
             return SL_STATUS_ABORT;
         }
-        if ((clock_time() > pending_get_resolutions[node].send_timeout) && (pending_get_resolutions[node].send_timeout != 0)) {
+        // Keep in sync with is_node_to_be_scanned (>=). Strict > skips retry
+        // when the timer fires on the exact send_timeout millisecond.
+        if ((clock_time() >= pending_get_resolutions[node].send_timeout) && (pending_get_resolutions[node].send_timeout != 0)) {
             pending_get_resolutions[node].count++;
             sl_log_debug(LOG_TAG,
                          "Retransmitting Get command for Attribute ID %d "
