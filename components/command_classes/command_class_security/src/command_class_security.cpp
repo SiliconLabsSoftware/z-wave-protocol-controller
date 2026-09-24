@@ -24,12 +24,8 @@
 #include "granted_keys_resolver_types.hpp"
 #include "granted_keys_resolver_events.hpp"
 
-#include "ZW_classcmd.h"
 #include "zwave_tx.h"
-#include "zwave_tx_scheme_selector.h"
 #include "zwave_command_class_utils.hpp"
-#include "zwave_controller_utils.h"
-#include "zwave_network_management.h"
 
 #include "command_class_security_events.hpp"
 #include "attribute_store_helper.h"
@@ -56,35 +52,9 @@ namespace zwave_command_class
 
     sl_status_t command_class_security::s0_supported_get(command_class_security_types::s0_supported_get_payload_t payload_struct)
     {
-        zwave_controller_connection_info_t connection = {};
-        connection.remote.node_id                     = payload_struct.zwave_node_id;
-        connection.remote.endpoint_id                 = payload_struct.endpoint_id;
-        connection.local.node_id                      = zwave_network_management_get_node_id();
-        connection.local.endpoint_id                  = 0;
-        connection.encapsulation                      = ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_0;
-
-        zwave_tx_options_t tx_options = {0};
-        zwave_tx_scheme_get_node_tx_options(ZWAVE_TX_QOS_RECOMMENDED_GET_ANSWER_PRIORITY - ZWAVE_TX_RECOMMENDED_QOS_GAP, 1, 0, &tx_options);
-
-        uint8_t frame[2];
-        uint16_t frame_len = 0;
-        command_class_security::commands_supported_get(frame, &frame_len);
-
-        sl_status_t transmit_status = zwave_tx_send_data(&connection, frame_len, frame, &tx_options, NULL, NULL, NULL);
-        if (transmit_status != SL_STATUS_OK) {
-            return SL_STATUS_FAIL;
-        }
-
-        return SL_STATUS_OK;
-    }
-
-    sl_status_t command_class_security::commands_supported_get(uint8_t *frame, uint16_t *frame_length)
-    {
-        ZW_SECURITY_COMMANDS_SUPPORTED_GET_FRAME *security_0_get_frame = (ZW_SECURITY_COMMANDS_SUPPORTED_GET_FRAME *)frame;
-        security_0_get_frame->cmdClass                                 = COMMAND_CLASS_SECURITY;
-        security_0_get_frame->cmd                                      = SECURITY_COMMANDS_SUPPORTED_GET;
-        *frame_length                                                  = sizeof(ZW_SECURITY_COMMANDS_SUPPORTED_GET_FRAME);
-
+        attribute_store::attribute endpoint_node(payload_struct.endpoint_node);
+        auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(security_commands_supported_get_group_attributes_t::SECURITY_COMMANDS_SUPPORTED_GET_GROUP));
+        command_class_security_core::start_group_resolution(group_node);
         return SL_STATUS_OK;
     }
 

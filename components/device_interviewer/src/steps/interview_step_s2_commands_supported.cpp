@@ -26,9 +26,6 @@ namespace zwave_command_class
 
     namespace
     {
-        // Match Version CC Get retry budget used elsewhere in the interview.
-        constexpr uint8_t S2_COMMANDS_SUPPORTED_MAX_TX_RETRIES = 5;
-
         void fire_s2_commands_supported_get(InterviewSession &session)
         {
             component_connector connector;
@@ -72,15 +69,8 @@ namespace zwave_command_class
         }
 
         if (event->event == device_interviewer_external_event_t::S2_COMMANDS_SUPPORTED_GET_TX_FAILED) {
-            ++session.s2_commands_supported_tx_retries;
-            if (session.s2_commands_supported_tx_retries >= S2_COMMANDS_SUPPORTED_MAX_TX_RETRIES) {
-                sl_log_error(LOG_TAG.data(), "Node %d: S2 Commands Supported Get failed after %u TX attempts, failing interview", session.node_id, session.s2_commands_supported_tx_retries);
-                return fail();
-            }
-
-            sl_log_warning(LOG_TAG.data(), "Node %d: S2 Commands Supported Get TX failed, retry %u/%u", session.node_id, session.s2_commands_supported_tx_retries, S2_COMMANDS_SUPPORTED_MAX_TX_RETRIES);
-            fire_s2_commands_supported_get(session);
-            return stay();
+            sl_log_error(LOG_TAG.data(), "Node %d: S2 Commands Supported Get resolution given up, failing interview", session.node_id);
+            return fail();
         }
 
         try {

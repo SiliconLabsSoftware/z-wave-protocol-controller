@@ -24,8 +24,9 @@ namespace zwave_command_class
      * Skipped if Security 2 CC (0x9F) is absent from the NIF, or if no S2
      * key (Unauthenticated / Authenticated / Access) was granted during
      * inclusion. Otherwise fires COMMAND_CLASS_S2_COMMANDS_SUPPORTED_GET and
-     * waits for S2_COMMANDS_SUPPORTED_REPORT. On TX failure, retries up to 5
-     * times then fails the interview. On success, stores the reported
+     * waits for S2_COMMANDS_SUPPORTED_REPORT. Resolver retries the Get; if
+     * resolution is given up, S2_COMMANDS_SUPPORTED_GET_TX_FAILED fails the
+     * interview. On success, stores the reported
      * CC list in session.s2_supported_command_classes for later use by the
      * Version CC sequence.
      */

@@ -74,7 +74,7 @@ namespace zwave_command_class {
 
     {{command_class_name_lower}}_core::{{command_class_name_lower}}_core() : zwave_command_class_base({{command_class_name_lower}}_core::cc_properties, attributes, "{{utils.convert_command_name_to_mqtt_topic_token(command_class.name.replace("COMMAND_CLASS_", ""))}}") 
     {
-        {% if command_class.control == true and not command_class.protocol %}
+        {% if command_class.control == true %}
           {% for command in command_class.commands %}
               {% if utils.is_rx(command) == "True" %}
                   attribute_resolver::register_rules(static_cast<attribute_store_type_t>({{command.name | lower }}_group_attributes_t::{{command.name | upper }}_GROUP),

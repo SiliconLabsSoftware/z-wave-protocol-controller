@@ -68,7 +68,7 @@ supported_command_classes:
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE # Security scheme
 ```
 
-For transport-layer / protocol command classes, set `protocol: true` (with `mqtt_support: false`). That skips attribute-resolver GET/SET rules in the generated constructor. `generate_commands` is then required: listed XML `<cmd>` names are generated; an empty list produces a registration shell only. Override `control_handler` / `support_handler` on the leaf when the generated switch is not enough (for example tunneling to `zwapi_transfer_protocol_cc`, or logging that Transport Service frames must not reach the application layer).
+For transport-layer / protocol command classes, set `protocol: true` (with `mqtt_support: false`). `generate_commands` is required: listed XML `<cmd>` names are generated; an empty list produces a registration shell only. GET/SET resolver rules are still emitted when `control: true` and those commands are generated (for example Security / Security 2 Commands Supported Get). Override `control_handler` / `support_handler` on the leaf when the generated switch is not enough (for example tunneling to `zwapi_transfer_protocol_cc`, or logging that Transport Service frames must not reach the application layer).
 
 For Multilevel Switch, `support: false` and `control: true` means ZPC controls multilevel switch devices on the network but does not expose this command class as a supporting device.
 

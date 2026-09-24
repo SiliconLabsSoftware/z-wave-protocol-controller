@@ -31,11 +31,10 @@ namespace zwave_command_class
 
         private:
             sl_status_t on_security_2_commands_supported_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint_node, command_class_security_2_attribute_map_t attribute_map) override;
-            static sl_status_t commands_supported_get(uint8_t *frame, uint16_t *frame_len);
             static sl_status_t s2_supported_get(command_class_security_2_types::s2_supported_get_payload_t payload_struct);
             static sl_status_t s2_get_supported_command_class_list(const command_class_security_2_types::s2_get_supported_command_class_list_payload_t &payload_struct, std::vector<uint8_t> &result);
 
-            static void on_s2_supported_get_send_complete(uint8_t status, const zwapi_tx_report_t *tx_info, void *user);
+            static void on_s2_supported_get_resolution_give_up(attribute_store_node_t node);
             static void fire_s2_supported_get_tx_failed(zwave_node_id_t node_id, uint8_t endpoint_id, uint8_t status);
 
             static zwave_node_id_t s_last_node_id;
