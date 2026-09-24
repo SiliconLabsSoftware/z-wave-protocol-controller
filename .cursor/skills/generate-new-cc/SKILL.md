@@ -17,7 +17,7 @@ In this repository, command class generator is being used to generate the comman
 1. Read the [command class implementation guide](/docs/command_class_implementation_guide.md) to understand the generated structure and the implementation details.
 2. Read the [zwave.xml](/scripts/command_class_generator/zwave.xml) file to understand the command class definition and naming conventions.
 3. Add the command class to the `config.yaml` file in the `scripts/command_class_generator` directory.
-4. Ask the user to provide information about the command class, such as version, MQTT support, support, control, interview attributes, minimal scheme, etc.
+4. Ask the user to provide information about the command class, such as version, MQTT support, support, control, minimal scheme, etc.
 5. Run `cmake --workflow --preset <preset>` to generate the new command class.
 6. Implement the command class in the `command_class_<cc-name>` directory.
    - The generated files can determine the attributes to implement, the core logic, the MQTT interface, etc.

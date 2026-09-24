@@ -63,8 +63,6 @@ supported_command_classes:
     mqtt_support: true # Enable MQTT interface and documentation
     support: false # Whether this CC is supported (ZPC acts as a supporting device)
     control: true # Whether this CC is controlled (ZPC controls devices on the network)
-    interview_attributes: # Attributes to query during interview
-      - "Current Value"
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE # Security scheme
 ```
 
@@ -593,8 +591,6 @@ Instead of duplicating source code in this document, use the canonical implement
   mqtt_support: true
   support: false
   control: true
-  interview_attributes:
-    - "Current Value"
   minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
 ```
 
