@@ -16,7 +16,9 @@
 #include "component_connector.hpp"
 #include "command_class_version_events.hpp"
 #include "command_class_version_types.hpp"
+#include "attribute_store_defined_attribute_types.h"
 #include "zwave_command_class_utils.hpp"
+#include "ZW_classcmd.h"
 #include "log.h"
 
 namespace zwave_command_class
@@ -34,6 +36,12 @@ namespace zwave_command_class
 
         if (!command_class_utils::is_version_command_class_in_s2_s0_nif_lists(session.s2_supported_command_classes, session.s0_supported_command_classes, session.node_information_command_class_list)) {
             sl_log_info(LOG_TAG.data(), "Node %d: Version CC (0x86) not in merged capability lists, skipping Version Capabilities Get", session.node_id);
+            return skip();
+        }
+
+        const auto version_node = session.endpoint_node.child_by_type(ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_VERSION));
+        if (version_node.reported<uint8_t>() < VERSION_VERSION_V3) {
+            sl_log_info(LOG_TAG.data(), "Node %d: Version CC v3+ not supported, skipping Version Capabilities Get", session.node_id);
             return skip();
         }
 
