@@ -55,7 +55,7 @@ static void S2_set_peer(struct S2 *p_context, const s2_connection_t *peer, const
 static int S2_span_ok(struct S2 *p_context, const s2_connection_t *con);
 static uint8_t S2_register_nonce(struct S2 *p_context, const uint8_t *buf, uint16_t len);
 static void S2_send_nonce_get(struct S2 *p_context);
-static int S2_verify_seq(struct S2 *p_context, const s2_connection_t *peer, uint8_t seq, uint8_t dupl_window);
+static int S2_verify_seq(struct S2 *p_context, const s2_connection_t *peer, uint8_t seq);
 static void S2_encrypt_and_send(struct S2 *p_context);
 static void S2_send_nonce_report(struct S2 *p_context, const s2_connection_t *conn, uint8_t flags);
 static int S2_is_peernode(struct S2 *p_context, const s2_connection_t *peer);
@@ -205,23 +205,24 @@ static void S2_send_nonce_get(struct S2 *p_context)
 
 /**
  * Verify the sequence of the received frame.
- * dupl_window controls how many recent sequence numbers are treated as
- * duplicates. NONCE_GET uses a narrower window (exact match) so a peer
- * reset with a new random tx_seq is not rejected after resync.
+ * The SPAN table holds the last sequence number received from each peer. A
+ * frame is a duplicate only when both its peer and sequence number match that
+ * entry. Any other sequence number replaces the stored value.
+ *
+ * See CC:009F.01.00.11.02D, CC:009F.01.00.11.02F and
+ * CC:009F.01.00.11.030.
  */
-static int S2_verify_seq(struct S2 *p_context, const s2_connection_t *peer, uint8_t seq, uint8_t dupl_window)
+static int S2_verify_seq(struct S2 *p_context, const s2_connection_t *peer, uint8_t seq)
 {
     CTX_DEF
     struct SPAN *span = find_span_by_node(ctxt, peer);
-    /* If this is a completely new entry, we will just copy seq number
-       and accept it.
-       To allow detection of old frames in the network, we use a window
-       with more than one frame in the duplicate check. */
-    if (span->state == SPAN_NO_SEQ || (uint8_t)(span->rx_seq - seq) >= dupl_window) {
-        span->rx_seq = seq;
-        return 1;
+
+    if (span->state != SPAN_NO_SEQ && span->rx_seq == seq) {
+        return 0;
     }
-    return 0;
+
+    span->rx_seq = seq;
+    return 1;
 }
 
 /**
@@ -580,7 +581,7 @@ static uint8_t S2_register_nonce(struct S2 *p_context, const uint8_t *buf, uint1
     CTX_DEF
     struct SPAN *span;
 
-    if (!S2_verify_seq(ctxt, &ctxt->peer, buf[2], S2_SEQ_DUPL_WINDOW_SIZE)) {
+    if (!S2_verify_seq(ctxt, &ctxt->peer, buf[2])) {
         return 0;
     }
 
@@ -684,7 +685,7 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
         span = 0;
     } else {
         /* Verify sequence */
-        if (!S2_verify_seq(ctxt, conn, msg[2], S2_SEQ_DUPL_WINDOW_SIZE)) {
+        if (!S2_verify_seq(ctxt, conn, msg[2])) {
             return SEQUENCE_FAIL;
         }
 
@@ -1077,7 +1078,7 @@ void S2_application_command_handler(struct S2 *p_context, s2_connection_t *src, 
 
     switch (buf[1]) {
         case SECURITY_2_NONCE_GET:
-            if ((src->rx_options & S2_RXOPTION_MULTICAST) != S2_RXOPTION_MULTICAST && ((len >= SECURITY_2_NONCE_GET_LENGTH) && S2_verify_seq(ctxt, src, buf[2], S2_SEQ_DUPL_WINDOW_SIZE_NONCE_GET))) {
+            if ((src->rx_options & S2_RXOPTION_MULTICAST) != S2_RXOPTION_MULTICAST && ((len >= SECURITY_2_NONCE_GET_LENGTH) && S2_verify_seq(ctxt, src, buf[2]))) {
                 S2_send_nonce_report(ctxt, src, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
             }
             break;
@@ -1275,7 +1276,7 @@ void S2_fsm_post_event(struct S2 *p_context, event_t e, event_data_t *d)
                 S2_set_peer(ctxt, d->con, d->d.buf.buffer, d->d.buf.len);
                 S2_send_nonce_get(ctxt);
                 S2_set_timeout(ctxt, SEND_DATA_TIMEOUT);
-            } else if (e == GOT_NONCE_GET && (d->d.buf.len >= 3) && S2_verify_seq(ctxt, d->con, d->d.buf.buffer[2], S2_SEQ_DUPL_WINDOW_SIZE_NONCE_GET)) {
+            } else if (e == GOT_NONCE_GET && (d->d.buf.len >= 3) && S2_verify_seq(ctxt, d->con, d->d.buf.buffer[2])) {
                 S2_send_nonce_report(ctxt, d->con, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK);
             } else if (e == GOT_NONCE_REPORT) {
                 S2_set_peer(ctxt, d->con, d->d.buf.buffer, d->d.buf.len);
