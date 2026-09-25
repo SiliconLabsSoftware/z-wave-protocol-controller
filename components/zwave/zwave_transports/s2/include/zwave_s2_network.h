@@ -92,6 +92,18 @@ void zwave_s2_start_learn_mode(zwave_node_id_t node_id);
 void zwave_s2_neighbor_discovery_complete();
 
 /**
+ * @brief Block or unblock application S2 sends during node addition.
+ *
+ * Must be called with active=true as soon as a new node is detected
+ * (NM_EV_ADD_END_NODE) and with active=false once node addition finishes
+ * or is aborted. Calling with active=true while an application S2 session
+ * is in flight also aborts that session.
+ *
+ * @param active true to block, false to unblock
+ */
+void zwave_s2_set_node_add_active(bool active);
+
+/**
  * @brief Start the S2 add node process.
  *
  * Calling this function will make the S2 FSM start the inclusion process of a
