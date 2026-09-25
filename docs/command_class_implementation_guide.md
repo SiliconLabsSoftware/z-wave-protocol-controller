@@ -203,6 +203,28 @@ sl_status_t command_class_switch_multilevel::on_switch_multilevel_set_requested_
 }
 ```
 
+### Closing the Command Class Interview
+
+The device interviewer seeds an **ongoing** interview state for each supported, registered command class on every endpoint. ZPC does not publish a successful `Interview/Report` until every seeded command class has changed its state to **done**. When you override `on_interview()`, you own that command class' completion: close it only after its complete post-interview sequence has finished.
+
+The base `on_interview()` implementation marks the command class done, so a command class with no post-interview work needs no extra code. An override that starts one or more resolver transactions must instead mark completion from the terminal parsed callback. Do not mark the state done when a request is queued or when only the first response in a multi-stage sequence arrives.
+
+Use `set_cc_interview_state()`; do not write the `ATTRIBUTE_CC_INTERVIEW_ONGOING_GROUP` attribute-store nodes directly.
+
+```cpp
+sl_status_t command_class_switch_color::on_switch_color_report_parsed(
+    const zwave_controller_connection_info_t *,
+    attribute_store::attribute endpoint,
+    command_class_switch_color_attribute_map_t)
+{
+    // This handler has received the final report in the sequence.
+    set_cc_interview_state(endpoint, id(), cc_interview_state::done);
+    return SL_STATUS_OK;
+}
+```
+
+For an overridden `on_interview()` that intentionally performs no asynchronous work, close the state directly with `set_cc_interview_state(cc_interview_state::done)`. The helper updates only the active state for that command class and endpoint, so reports received after the interview has finished do not reopen or republish it.
+
 #### 2. `command_class_switch_multilevel_attribute_store.cpp`
 
 **Purpose**: This file handles the integration with the permanent store, responsible for persisting received command data.

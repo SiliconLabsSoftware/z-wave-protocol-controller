@@ -82,8 +82,14 @@ namespace zwave_command_class
 
     void command_class_thermostat_setpoint::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
-        auto supported_get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_supported_get_group_attributes_t::THERMOSTAT_SETPOINT_SUPPORTED_GET_GROUP));
-        start_group_resolution(supported_get_node);
+        (void)supported_version;
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(thermostat_setpoint_supported_report_group_attributes_t::THERMOSTAT_SETPOINT_SUPPORTED_REPORT_GROUP));
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(thermostat_setpoint_report_group_attributes_t::THERMOSTAT_SETPOINT_REPORT_GROUP));
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::THERMOSTAT_SETPOINT_CAPABILITIES_REPORT_GROUP));
+
+        auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_supported_report_group_attributes_t::THERMOSTAT_SETPOINT_SUPPORTED_REPORT_GROUP));
+        interview_require(report.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_supported_report_group_attributes_t::bit_mask)));
+        start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_supported_get_group_attributes_t::THERMOSTAT_SETPOINT_SUPPORTED_GET_GROUP)));
     }
 
     static std::vector<uint8_t> get_supported_bit_mask(attribute_store::attribute endpoint_node)
@@ -131,7 +137,7 @@ namespace zwave_command_class
         return 0;
     }
 
-    static void advance_v3_interview(attribute_store::attribute endpoint, const std::vector<uint8_t> &bit_mask, uint8_t after_type)
+    static bool request_next_setpoint_type_resolution(attribute_store::attribute endpoint, const std::vector<uint8_t> &bit_mask, uint8_t after_type)
     {
         for (uint8_t next = next_supported_setpoint_type(bit_mask, after_type); next != 0; next = next_supported_setpoint_type(bit_mask, next)) {
             std::vector<uint8_t> min_val;
@@ -141,7 +147,7 @@ namespace zwave_command_class
                 auto cap_type_node = cap_get_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_get_group_attributes_t::setpoint_type));
                 cap_type_node.set_desired<uint8_t>(next);
                 command_class_thermostat_setpoint_core::start_group_resolution(cap_get_node);
-                return;
+                return false;
             }
             uint8_t scale_out = 0;
             if (!command_class_thermostat_setpoint_attribute_store::get_reported_scale_for_setpoint_type(endpoint, next, scale_out)) {
@@ -149,15 +155,40 @@ namespace zwave_command_class
                 auto setpoint_type_node = get_group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::setpoint_type));
                 setpoint_type_node.set_desired<uint8_t>(next);
                 command_class_thermostat_setpoint_core::start_group_resolution(get_group_node);
-                return;
+                return false;
             }
+        }
+        return true;
+    }
+
+    void command_class_thermostat_setpoint::require_setpoint_type_attributes(attribute_store::attribute endpoint, uint8_t setpoint_type, bool require_capabilities)
+    {
+        auto report_group = find_report_group_by_setpoint_type(endpoint, setpoint_type);
+        if (!report_group.is_valid()) {
+            report_group = endpoint.add_node(static_cast<attribute_store_type_t>(thermostat_setpoint_report_group_attributes_t::THERMOSTAT_SETPOINT_REPORT_GROUP));
+            report_group.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_report_group_attributes_t::setpoint_type)).set_reported<uint8_t>(setpoint_type);
+        }
+        interview_require(report_group.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_report_group_attributes_t::scale)));
+
+        if (require_capabilities) {
+            auto cap_group = find_capabilities_report_group_by_setpoint_type(endpoint, setpoint_type);
+            if (!cap_group.is_valid()) {
+                cap_group = endpoint.add_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::THERMOSTAT_SETPOINT_CAPABILITIES_REPORT_GROUP));
+                cap_group.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::setpoint_type)).set_reported<uint8_t>(setpoint_type);
+            }
+            interview_require(cap_group.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::min_value)));
         }
     }
 
     sl_status_t command_class_thermostat_setpoint::on_thermostat_setpoint_supported_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_thermostat_setpoint_attribute_map_t payload)
     {
+        (void)connection_info;
+        (void)payload;
         const uint8_t supported_version = endpoint_supported_version(endpoint);
         if (supported_version >= 1 && supported_version <= 2) {
+            for (uint8_t type = 1; type <= 14; ++type) {
+                require_setpoint_type_attributes(endpoint, type, false);
+            }
             auto get_group_node     = endpoint.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::THERMOSTAT_SETPOINT_GET_GROUP));
             auto setpoint_type_node = get_group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::setpoint_type));
             setpoint_type_node.set_desired<uint8_t>(1);
@@ -166,6 +197,9 @@ namespace zwave_command_class
 
         if (supported_version >= 3) {
             const auto bit_mask = get_supported_bit_mask(endpoint);
+            for (uint8_t type = next_supported_setpoint_type(bit_mask, 0); type != 0; type = next_supported_setpoint_type(bit_mask, type)) {
+                require_setpoint_type_attributes(endpoint, type, true);
+            }
             const uint8_t first = next_supported_setpoint_type(bit_mask, 0);
             if (first != 0) {
                 auto cap_get_node  = endpoint.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_get_group_attributes_t::THERMOSTAT_SETPOINT_CAPABILITIES_GET_GROUP));
@@ -180,6 +214,7 @@ namespace zwave_command_class
 
     sl_status_t command_class_thermostat_setpoint::on_thermostat_setpoint_capabilities_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_thermostat_setpoint_attribute_map_t payload)
     {
+        (void)connection_info;
         const uint8_t supported_version = endpoint_supported_version(endpoint);
         if (supported_version >= 3) {
             uint8_t setpoint_type = 0;
@@ -204,7 +239,7 @@ namespace zwave_command_class
                 setpoint_type_node.set_desired<uint8_t>(setpoint_type);
                 start_group_resolution(get_group_node);
             } else {
-                advance_v3_interview(endpoint, bit_mask, setpoint_type);
+                request_next_setpoint_type_resolution(endpoint, bit_mask, setpoint_type);
             }
         }
         return SL_STATUS_OK;
@@ -212,6 +247,7 @@ namespace zwave_command_class
 
     sl_status_t command_class_thermostat_setpoint::on_thermostat_setpoint_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_thermostat_setpoint_attribute_map_t payload)
     {
+        (void)connection_info;
         const uint8_t supported_version = endpoint_supported_version(endpoint);
 
         if (supported_version >= 1 && supported_version <= 2) {
@@ -219,7 +255,7 @@ namespace zwave_command_class
             auto setpoint_type_node = get_group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::setpoint_type));
             if (setpoint_type_node.desired_exists()) {
                 const uint8_t asked_type = setpoint_type_node.desired<uint8_t>();
-                if (asked_type >= 1 && asked_type <= 14) {
+                if (asked_type >= 1 && asked_type < 14) {
                     uint8_t next_scale = 0;
                     if (!get_reported_scale_for_setpoint_type(endpoint, static_cast<uint8_t>(asked_type + 1), next_scale)) {
                         setpoint_type_node.set_desired<uint8_t>(asked_type + 1);
@@ -245,7 +281,7 @@ namespace zwave_command_class
             }
 
             const auto bit_mask = get_supported_bit_mask(endpoint);
-            advance_v3_interview(endpoint, bit_mask, setpoint_type);
+            request_next_setpoint_type_resolution(endpoint, bit_mask, setpoint_type);
         }
 
         return SL_STATUS_OK;

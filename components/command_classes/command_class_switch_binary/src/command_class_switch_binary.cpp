@@ -33,8 +33,11 @@ namespace zwave_command_class
 
     void command_class_switch_binary::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
-        auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_binary_get_group_attributes_t::SWITCH_BINARY_GET_GROUP));
-        start_group_resolution(group_node);
+        (void)supported_version;
+
+        auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_binary_report_group_attributes_t::SWITCH_BINARY_REPORT_GROUP));
+        interview_require(report.emplace_node(static_cast<attribute_store_type_t>(switch_binary_report_group_attributes_t::current_value)));
+        start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_binary_get_group_attributes_t::SWITCH_BINARY_GET_GROUP)));
     }
 
     sl_status_t command_class_switch_binary::on_switch_binary_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length)

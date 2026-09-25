@@ -71,6 +71,7 @@ namespace zwave_command_class
         ENDPOINT_GET_VERSION_REPORT,
         ENDPOINT_ZWAVEPLUS_INFO,
         ENDPOINT_ASSOCIATION_ITERATOR,
+        INTERVIEW_BASIC,
         COMPLETED,
         FAILED
     };
@@ -132,6 +133,16 @@ namespace zwave_command_class
     };
 
     /**
+     * @brief BasicInterviewStep: probe Basic Get then Version Get per endpoint.
+     */
+    struct BasicProgress {
+            enum class Phase { PendingKick, AwaitingReport, AwaitingVersion };
+            Phase phase = Phase::PendingKick;
+            std::vector<uint8_t> endpoint_ids;
+            std::vector<uint8_t>::iterator current_endpoint_it;
+    };
+
+    /**
      * @brief Context for tracking interview progress for a device/endpoint
      */
     struct InterviewSession {
@@ -159,6 +170,7 @@ namespace zwave_command_class
             MultiChannelProgress multi_channel;
             AssociationMembersProgress association_members;
             AgiProgress agi;
+            BasicProgress basic;
 
             /// Set from Version Capabilities Report during GET_VERSION_CAPABILITIES (Z-Wave Software bit).
             bool version_zwave_software_supported = false;
@@ -211,7 +223,12 @@ namespace zwave_command_class
              * @brief Abort interviews that have made no state progress for too long.
              *
              * AL/FL: 60 s. NL: max(2 × zpc.default_wake_up_interval, 15 min).
-             * Fires INTERVIEW_FULLY_RESOLVED with fail status and erases the session.
+             * COMPLETED is aborted only when the attribute resolver is idle on the
+             * node (Gets given up or finished) and the stall timeout has elapsed.
+             * That expires remaining CC latch rows with FULLY_RESOLVED OK so a
+             * stuck CC cannot hang the session, and does not FAIL/re-interview.
+             * In-progress CC Gets are not aborted. Other states fire
+             * INTERVIEW_FULLY_RESOLVED FAIL and erase the session.
              */
             void abort_stale_sessions();
 

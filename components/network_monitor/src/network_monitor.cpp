@@ -1252,3 +1252,18 @@ bool network_monitor_is_any_end_device_interviewing(void)
 {
     return network_monitor_any_end_device_has_status(NETWORK_MONITOR_NETWORK_STATUS_ONLINE_INTERVIEWING);
 }
+
+bool network_monitor_is_node_ready_for_commands(zwave_node_id_t node_id)
+{
+    if (node_id == 0) {
+        return false;
+    }
+    if (node_id == zwave_network_management_get_node_id()) {
+        return true;
+    }
+    attribute_store_node_t node_id_node = attribute_store_network_helper_get_zwave_node_id_node(node_id);
+    if (node_id_node == ATTRIBUTE_STORE_INVALID_NODE) {
+        return false;
+    }
+    return attribute_store_network_helper_get_network_status(node_id_node) == NETWORK_MONITOR_NETWORK_STATUS_ONLINE_FUNCTIONAL;
+}

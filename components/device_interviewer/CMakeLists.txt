@@ -37,6 +37,7 @@ add_library(
   src/steps/interview_step_prepare_endpoint_versions.cpp
   src/steps/interview_step_get_endpoint_zwaveplus_info.cpp
   src/steps/interview_step_endpoint_association_iterator.cpp
+  src/steps/interview_step_basic.cpp
   src/steps/interview_step_completed.cpp
 )
 
@@ -63,6 +64,7 @@ target_link_libraries(device_interviewer
   command_class_multi_channel_interface
   command_class_zwaveplus_info_interface
   command_class_wake_up_interface
+  command_class_basic_interface
   fmt::fmt
   mqtt_api
   PRIVATE

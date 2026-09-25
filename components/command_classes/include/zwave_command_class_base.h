@@ -137,6 +137,51 @@ namespace zwave_command_class
              */
             virtual void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version);
 
+            /** State of this command class' post-interview work. */
+            enum class cc_interview_state : uint8_t { done = 0, ongoing = 1, cancelled = 2 };
+
+            void set_cc_interview_state(cc_interview_state state);
+            /** Return true when the specified CC has active post-interview work. */
+            static bool is_cc_interview_ongoing(attribute_store::attribute endpoint, zwave_command_class_t cc_id);
+            /** Update a seeded ongoing CC interview row; no-op if none is ongoing. */
+            static void set_cc_interview_state(attribute_store::attribute endpoint, zwave_command_class_t cc_id, cc_interview_state state);
+            static void check_cc_interview_state(attribute_store::attribute endpoint);
+            static bool cancel_cc_interview_state(attribute_store::attribute endpoint);
+            /** Mark remaining ongoing CCs done and publish FULLY_RESOLVED OK (resolver idle, latch stuck). */
+            static bool expire_cc_interview_state(attribute_store::attribute endpoint);
+
+            /** Seed explicit post-interview state from a raw NIF/Security CC list. */
+            static void seed_cc_interview_state(attribute_store::attribute endpoint, const std::vector<uint8_t> &command_classes);
+            /** Seed from the endpoint's persisted S0/S2 capability reports. */
+            static void seed_cc_interview_state(attribute_store::attribute endpoint);
+
+            /**
+             * @brief Register an attribute that interview must collect for this command class.
+             *
+             * Clears any reported value already on the node. No-op unless this command
+             * class interview is ongoing for the node's endpoint.
+             */
+            void interview_require(attribute_store::attribute node);
+
+            /**
+             * @brief Hold the interview open for one more in-memory step (no attribute store node).
+             *
+             * Use when progress cannot be expressed as a durable reported attribute.
+             * Pair each hold with interview_release() when that step completes.
+             */
+            void interview_hold(attribute_store::attribute endpoint);
+
+            /**
+             * @brief Release one interview_hold() for this command class on the endpoint.
+             */
+            void interview_release(attribute_store::attribute endpoint);
+
+            /**
+             * @brief Retire required nodes that now have a reported value; mark the CC done when none remain.
+             */
+            void finish_cc_interview_if_idle(attribute_store::attribute endpoint) const;
+            static void finish_cc_interview_if_idle(attribute_store::attribute endpoint, zwave_command_class_t cc_id);
+
             /**
              * @brief This is the function which will be executed when a Report frame of
              * a given Command Class is received.
@@ -315,6 +360,12 @@ namespace zwave_command_class
              */
             const group_resolution_options &interview_resolution_options() const;
 
+            /** Return the version passed to on_interview(), including root fallback. */
+            uint8_t interview_supported_version(const attribute_store::attribute &endpoint_node) const;
+
+            /** Delete all report groups of the given type from an endpoint. */
+            static void invalidate_report_groups(attribute_store::attribute endpoint_node, attribute_store_type_t report_group_type);
+
             /**
              * @brief MQTT command handler
              *
@@ -338,12 +389,28 @@ namespace zwave_command_class
             const command_class_properties properties;
             // Retry options resolved in interview() before on_interview() is called
             group_resolution_options m_interview_resolution_options;
+            // Endpoint currently executing on_interview(). Kept so simple command
+            // classes can mark their own post-interview work complete.
+            attribute_store::attribute m_interview_endpoint;
             // Command class name used in MQTT
             const std::string mqtt_command_class_namespace;
             // Frame Helpers
             zwave_frame_generator m_frame_generator;
 
             std::map<std::string, std::function<void(attribute_store::attribute &endpoint_node, std::string)>> mqtt_callback_map;
+
+        private:
+            using interview_pending_key_t = std::pair<attribute_store_node_t, zwave_command_class_t>;
+
+            struct interview_pending_t {
+                    std::vector<attribute_store_node_t> nodes;
+                    size_t holds = 0;
+            };
+
+            static std::map<interview_pending_key_t, interview_pending_t> interview_pending;
+
+            static void clear_interview_pending_for_endpoint(attribute_store_node_t endpoint);
+            static attribute_store::attribute cc_interview_published_group(const attribute_store::attribute &endpoint);
     };
 }  // namespace zwave_command_class
 

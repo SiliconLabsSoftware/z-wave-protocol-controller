@@ -61,8 +61,6 @@ namespace zwave_command_class
           [](const command_class_multi_channel_types::command_class_multi_channel_end_point_get_payload_t &p) { return zwave_command_class::command_class_multi_channel::on_multi_channel_end_point_get_interview_requested(p); });
     }
 
-    void command_class_multi_channel::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version) {}
-
     sl_status_t command_class_multi_channel::on_multi_channel_get_list_of_endpoints_requested(const command_class_multi_channel_types::command_class_multi_channel_get_list_of_endpoints_payload_t &payload,
                                                                                               command_class_multi_channel_types::command_class_multi_channel_get_list_of_endpoints_payload_t &result)
     {

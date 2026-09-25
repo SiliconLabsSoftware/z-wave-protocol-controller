@@ -25,6 +25,8 @@ namespace zwave_command_class
         START_INTERVIEW,
         NODE_DELETED,
         FACTORY_RESET,
+        /// All command-class post-interview work has resolved for an endpoint.
+        INTERVIEW_FULLY_RESOLVED,
         S2_COMMANDS_SUPPORTED_REPORT,
         /// Commands Supported Get enqueue/air TX failed (retry or fail interview).
         S2_COMMANDS_SUPPORTED_GET_TX_FAILED,
@@ -49,6 +51,8 @@ namespace zwave_command_class
         ASSOCIATION_GRP_INFO_GROUP_NAME_REPORT_RECEIVED,
         ASSOCIATION_GRP_INFO_GROUP_INFO_REPORT_RECEIVED,
         ASSOCIATION_GRP_INFO_GROUP_COMMAND_LIST_REPORT_RECEIVED,
+        BASIC_REPORT_RECEIVED,
+        BASIC_GET_RESOLUTION_GIVE_UP,
     };
 
     struct device_interviewer_external_event_data {
@@ -69,6 +73,8 @@ namespace zwave_command_class
                 return "NODE_DELETED";
             case device_interviewer_external_event_t::FACTORY_RESET:
                 return "FACTORY_RESET";
+            case device_interviewer_external_event_t::INTERVIEW_FULLY_RESOLVED:
+                return "INTERVIEW_FULLY_RESOLVED";
             case device_interviewer_external_event_t::S2_COMMANDS_SUPPORTED_REPORT:
                 return "S2_COMMANDS_SUPPORTED_REPORT";
             case device_interviewer_external_event_t::S2_COMMANDS_SUPPORTED_GET_TX_FAILED:
@@ -113,6 +119,10 @@ namespace zwave_command_class
                 return "ASSOCIATION_GRP_INFO_GROUP_INFO_REPORT_RECEIVED";
             case device_interviewer_external_event_t::ASSOCIATION_GRP_INFO_GROUP_COMMAND_LIST_REPORT_RECEIVED:
                 return "ASSOCIATION_GRP_INFO_GROUP_COMMAND_LIST_REPORT_RECEIVED";
+            case device_interviewer_external_event_t::BASIC_REPORT_RECEIVED:
+                return "BASIC_REPORT_RECEIVED";
+            case device_interviewer_external_event_t::BASIC_GET_RESOLUTION_GIVE_UP:
+                return "BASIC_GET_RESOLUTION_GIVE_UP";
             default:
                 return "UNKNOWN_EVENT";
         }

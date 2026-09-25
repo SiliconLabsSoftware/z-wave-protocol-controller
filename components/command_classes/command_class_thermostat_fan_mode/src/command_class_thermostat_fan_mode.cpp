@@ -28,11 +28,18 @@ namespace zwave_command_class
 
     void command_class_thermostat_fan_mode::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
-        auto supported_get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_fan_mode_supported_get_group_attributes_t::THERMOSTAT_FAN_MODE_SUPPORTED_GET_GROUP));
-        start_group_resolution(supported_get_node);
+        (void)supported_version;
 
-        auto get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_fan_mode_get_group_attributes_t::THERMOSTAT_FAN_MODE_GET_GROUP));
-        start_group_resolution(get_node);
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(thermostat_fan_mode_report_group_attributes_t::THERMOSTAT_FAN_MODE_REPORT_GROUP));
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(thermostat_fan_mode_supported_report_group_attributes_t::THERMOSTAT_FAN_MODE_SUPPORTED_REPORT_GROUP));
+
+        auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_fan_mode_report_group_attributes_t::THERMOSTAT_FAN_MODE_REPORT_GROUP));
+        interview_require(report.emplace_node(static_cast<attribute_store_type_t>(thermostat_fan_mode_report_group_attributes_t::fan_mode)));
+        start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_fan_mode_get_group_attributes_t::THERMOSTAT_FAN_MODE_GET_GROUP)));
+
+        auto supported_report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_fan_mode_supported_report_group_attributes_t::THERMOSTAT_FAN_MODE_SUPPORTED_REPORT_GROUP));
+        interview_require(supported_report.emplace_node(static_cast<attribute_store_type_t>(thermostat_fan_mode_supported_report_group_attributes_t::bit_mask)));
+        start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_fan_mode_supported_get_group_attributes_t::THERMOSTAT_FAN_MODE_SUPPORTED_GET_GROUP)));
     }
 
     sl_status_t command_class_thermostat_fan_mode::on_thermostat_fan_mode_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length)
