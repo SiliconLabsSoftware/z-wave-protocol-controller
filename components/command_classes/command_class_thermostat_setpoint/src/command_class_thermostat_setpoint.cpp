@@ -131,7 +131,7 @@ namespace zwave_command_class
         return 0;
     }
 
-    static void advance_v3_interview(attribute_store::attribute endpoint, const std::vector<uint8_t> &bit_mask, uint8_t after_type)
+    static bool request_next_setpoint_type_resolution(attribute_store::attribute endpoint, const std::vector<uint8_t> &bit_mask, uint8_t after_type)
     {
         for (uint8_t next = next_supported_setpoint_type(bit_mask, after_type); next != 0; next = next_supported_setpoint_type(bit_mask, next)) {
             std::vector<uint8_t> min_val;
@@ -141,7 +141,7 @@ namespace zwave_command_class
                 auto cap_type_node = cap_get_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_get_group_attributes_t::setpoint_type));
                 cap_type_node.set_desired<uint8_t>(next);
                 command_class_thermostat_setpoint_core::start_group_resolution(cap_get_node);
-                return;
+                return false;
             }
             uint8_t scale_out = 0;
             if (!command_class_thermostat_setpoint_attribute_store::get_reported_scale_for_setpoint_type(endpoint, next, scale_out)) {
@@ -149,9 +149,10 @@ namespace zwave_command_class
                 auto setpoint_type_node = get_group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::setpoint_type));
                 setpoint_type_node.set_desired<uint8_t>(next);
                 command_class_thermostat_setpoint_core::start_group_resolution(get_group_node);
-                return;
+                return false;
             }
         }
+        return true;
     }
 
     sl_status_t command_class_thermostat_setpoint::on_thermostat_setpoint_supported_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_thermostat_setpoint_attribute_map_t payload)
@@ -172,6 +173,8 @@ namespace zwave_command_class
                 auto cap_type_node = cap_get_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_get_group_attributes_t::setpoint_type));
                 cap_type_node.set_desired<uint8_t>(first);
                 start_group_resolution(cap_get_node);
+            } else {
+                set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
             }
         }
 
@@ -204,7 +207,9 @@ namespace zwave_command_class
                 setpoint_type_node.set_desired<uint8_t>(setpoint_type);
                 start_group_resolution(get_group_node);
             } else {
-                advance_v3_interview(endpoint, bit_mask, setpoint_type);
+                if (request_next_setpoint_type_resolution(endpoint, bit_mask, setpoint_type)) {
+                    set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
+                }
             }
         }
         return SL_STATUS_OK;
@@ -219,13 +224,16 @@ namespace zwave_command_class
             auto setpoint_type_node = get_group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::setpoint_type));
             if (setpoint_type_node.desired_exists()) {
                 const uint8_t asked_type = setpoint_type_node.desired<uint8_t>();
-                if (asked_type >= 1 && asked_type <= 14) {
+                if (asked_type >= 1 && asked_type < 14) {
                     uint8_t next_scale = 0;
                     if (!get_reported_scale_for_setpoint_type(endpoint, static_cast<uint8_t>(asked_type + 1), next_scale)) {
                         setpoint_type_node.set_desired<uint8_t>(asked_type + 1);
                         start_group_resolution(get_group_node);
                         return SL_STATUS_OK;
                     }
+                }
+                if (asked_type == 14) {
+                    set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
                 }
             }
         }
@@ -245,7 +253,9 @@ namespace zwave_command_class
             }
 
             const auto bit_mask = get_supported_bit_mask(endpoint);
-            advance_v3_interview(endpoint, bit_mask, setpoint_type);
+            if (request_next_setpoint_type_resolution(endpoint, bit_mask, setpoint_type)) {
+                set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
+            }
         }
 
         return SL_STATUS_OK;

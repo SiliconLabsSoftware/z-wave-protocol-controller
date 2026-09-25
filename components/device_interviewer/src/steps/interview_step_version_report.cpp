@@ -14,6 +14,8 @@
 #include "interview_step_version_report.hpp"
 #include "interview_state_machine.hpp"
 #include "component_connector.hpp"
+#include "component_connector_common_events.hpp"
+#include "component_connector_types.hpp"
 #include "command_class_version_events.hpp"
 #include "command_class_version_types.hpp"
 #include "zwave_command_class_utils.hpp"
@@ -30,6 +32,19 @@ namespace zwave_command_class
 
     StepResult VersionReportStep::on_enter(InterviewSession &session)
     {
+        std::vector<uint8_t> command_classes = session.node_information_command_class_list;
+        command_classes.insert(command_classes.end(), session.s0_supported_command_classes.begin(), session.s0_supported_command_classes.end());
+        command_classes.insert(command_classes.end(), session.s2_supported_command_classes.begin(), session.s2_supported_command_classes.end());
+        component_connector connector;
+        component_connector_cc_interview_action_payload_t seed_payload {
+          .endpoint_node   = session.endpoint_node,
+          .action          = component_connector_cc_interview_action_t::seed,
+          .command_classes = command_classes,
+        };
+        if (connector.fire_event_async(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_CC_INTERVIEW_ACTION_REQUESTED), seed_payload).get() != SL_STATUS_OK) {
+            sl_log_error(LOG_TAG.data(), "Node %d: failed to seed command-class interview state", session.node_id);
+            return fail();
+        }
         if (!command_class_utils::is_version_command_class_in_s2_s0_nif_lists(session.s2_supported_command_classes, session.s0_supported_command_classes, session.node_information_command_class_list)) {
             sl_log_info(LOG_TAG.data(), "Node %d does not support Version CC (0x86), skipping Version Get", session.node_id);
             return skip();

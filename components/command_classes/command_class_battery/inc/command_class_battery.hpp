@@ -28,6 +28,9 @@ namespace zwave_command_class
             command_class_battery();
             ~command_class_battery() = default;
             void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version) override;
+
+        private:
+            sl_status_t on_battery_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_battery_attribute_map_t payload) override;
     };
 
 }  // namespace zwave_command_class

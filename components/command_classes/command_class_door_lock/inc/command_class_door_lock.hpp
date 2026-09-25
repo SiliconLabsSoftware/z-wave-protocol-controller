@@ -29,6 +29,9 @@ namespace zwave_command_class
             ~command_class_door_lock() = default;
 
         private:
+            sl_status_t on_door_lock_operation_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_door_lock_attribute_map_t payload) override;
+            sl_status_t on_door_lock_configuration_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_door_lock_attribute_map_t payload) override;
+            sl_status_t on_door_lock_capabilities_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_door_lock_attribute_map_t payload) override;
             sl_status_t on_door_lock_operation_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length) override;
             sl_status_t on_door_lock_configuration_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length) override;
 

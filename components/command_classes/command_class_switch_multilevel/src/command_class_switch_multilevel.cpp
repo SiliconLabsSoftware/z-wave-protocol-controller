@@ -43,6 +43,27 @@ namespace zwave_command_class
         }
     }
 
+    static sl_status_t complete_switch_multilevel_interview(attribute_store::attribute endpoint, zwave_command_class_t command_class_id)
+    {
+        const auto report           = endpoint.child_by_type(static_cast<attribute_store_type_t>(switch_multilevel_report_group_attributes_t::SWITCH_MULTILEVEL_REPORT_GROUP));
+        const auto version          = endpoint.child_by_type(ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_SWITCH_MULTILEVEL));
+        const auto supported_report = endpoint.child_by_type(static_cast<attribute_store_type_t>(switch_multilevel_supported_report_group_attributes_t::SWITCH_MULTILEVEL_SUPPORTED_REPORT_GROUP));
+        if (report.is_valid() && (!version.reported_exists() || version.reported<uint8_t>() < 3 || supported_report.is_valid())) {
+            zwave_command_class_base::set_cc_interview_state(endpoint, command_class_id, zwave_command_class_base::cc_interview_state::done);
+        }
+        return SL_STATUS_OK;
+    }
+
+    sl_status_t command_class_switch_multilevel::on_switch_multilevel_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_switch_multilevel_attribute_map_t)
+    {
+        return complete_switch_multilevel_interview(endpoint, cc_properties.command_class_id);
+    }
+
+    sl_status_t command_class_switch_multilevel::on_switch_multilevel_supported_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_switch_multilevel_attribute_map_t)
+    {
+        return complete_switch_multilevel_interview(endpoint, cc_properties.command_class_id);
+    }
+
     sl_status_t command_class_switch_multilevel::on_switch_multilevel_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length)
     {
         auto group_node             = args.node;

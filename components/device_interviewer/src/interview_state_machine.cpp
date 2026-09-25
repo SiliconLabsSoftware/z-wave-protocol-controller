@@ -321,10 +321,11 @@ namespace zwave_command_class
         }
 
         component_connector connector;
-        component_connector_interview_done_payload_t payload;
-        payload.endpoint_node = session.endpoint_node;
-        payload.status        = SL_STATUS_FAIL;
-        connector.fire_event(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED), payload);
+        component_connector_cc_interview_action_payload_t cancel_payload {.endpoint_node = session.endpoint_node, .action = component_connector_cc_interview_action_t::cancel};
+        // This code runs on the Device Interviewer worker, not the Component
+        // Connector worker. Waiting closes the cancel/re-interview race before
+        // the session can be erased or replaced.
+        static_cast<void>(connector.fire_event_async(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_CC_INTERVIEW_ACTION_REQUESTED), cancel_payload).get());
     }
 
     void InterviewStateMachine::finalize_failed_session(zwave_node_id_t node_id, uint8_t endpoint_id)
@@ -387,6 +388,27 @@ namespace zwave_command_class
             }
         }
 
+        if (event.event == device_interviewer_external_event_t::INTERVIEW_FULLY_RESOLVED) {
+            try {
+                const auto &payload     = std::any_cast<component_connector_interview_done_payload_t>(event.payload);
+                zwave_node_id_t node_id = 0;
+                uint8_t endpoint_id     = 0;
+                if (!extract_node_info_from_endpoint(payload.endpoint_node, node_id, endpoint_id)) {
+                    return SL_STATUS_FAIL;
+                }
+
+                const auto key     = std::make_pair(node_id, uint8_t {0});
+                const auto session = sessions.find(key);
+                if (session != sessions.end() && session->second->current_state == InterviewState::COMPLETED) {
+                    sl_log_debug(LOG_TAG.data(), "Node %d: command-class interview resolved; clearing completed session", node_id);
+                    sessions.erase(session);
+                }
+                return SL_STATUS_OK;
+            } catch (const std::bad_any_cast &) {
+                return SL_STATUS_FAIL;
+            }
+        }
+
         if (event.event == device_interviewer_external_event_t::NODE_DELETED) {
             try {
                 const auto &payload = std::any_cast<component_connector_node_deleted_payload_t>(event.payload);
@@ -396,7 +418,7 @@ namespace zwave_command_class
                         continue;
                     }
                     // Publish fail for in-progress interviews so MQTT clients unblock; then drop all sessions for the node.
-                    if (session->current_state != InterviewState::COMPLETED && session->current_state != InterviewState::FAILED) {
+                    if (session->current_state != InterviewState::FAILED) {
                         sl_log_info(LOG_TAG.data(), "Node %d deleted, failing interview for endpoint %d", payload.node_id, session->endpoint_id);
                         publish_interview_failure(*session);
                     } else {
@@ -469,11 +491,6 @@ namespace zwave_command_class
             session->last_progress_at = clock_time();
         }
 
-        if (session->current_state == InterviewState::COMPLETED) {
-            sl_log_debug(LOG_TAG.data(), "Clearing interview session for node %d, endpoint %d (terminal state %d)", session->node_id, session->endpoint_id, static_cast<int>(session->current_state));
-            sessions.erase(std::make_pair(session->node_id, uint8_t {0}));
-        }
-
         return result.status;
     }
 
@@ -483,7 +500,7 @@ namespace zwave_command_class
         std::vector<std::pair<zwave_node_id_t, uint8_t>> stale_keys;
 
         for (auto &[key, session]: sessions) {
-            if (session->current_state == InterviewState::IDLE || session->current_state == InterviewState::COMPLETED || session->current_state == InterviewState::FAILED) {
+            if (session->current_state == InterviewState::IDLE || session->current_state == InterviewState::FAILED) {
                 continue;
             }
 

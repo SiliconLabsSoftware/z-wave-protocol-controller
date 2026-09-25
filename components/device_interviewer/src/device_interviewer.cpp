@@ -139,6 +139,14 @@ namespace zwave_command_class
             return SL_STATUS_OK;
         });
 
+        // The command-class base publishes this only once its tracked
+        // post-interview resolutions have settled. Queue it so session mutation
+        // stays on the Device Interviewer worker.
+        connector.connect_typed<component_connector_common_events_t, component_connector_interview_done_payload_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED, [](const component_connector_interview_done_payload_t &p) {
+            queue_event(device_interviewer_external_event_t::INTERVIEW_FULLY_RESOLVED, p, p.endpoint_node);
+            return SL_STATUS_OK;
+        });
+
         // Node added: local inclusion after security bootstrapping completes
         connector.connect_typed<component_connector_common_events_t, component_connector_node_added_payload_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_NODE_ADDED, [](const component_connector_node_added_payload_t &p) {
             queue_event(device_interviewer_external_event_t::START_INTERVIEW, p);

@@ -137,6 +137,20 @@ namespace zwave_command_class
              */
             virtual void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version);
 
+            /** State of this command class' post-interview work. */
+            enum class cc_interview_state : uint8_t { done = 0, ongoing = 1, cancelled = 2 };
+
+            void set_cc_interview_state(cc_interview_state state);
+            /** Update a seeded ongoing CC interview row; no-op if none is ongoing. */
+            static void set_cc_interview_state(attribute_store::attribute endpoint, zwave_command_class_t cc_id, cc_interview_state state);
+            static void check_cc_interview_state(attribute_store::attribute endpoint);
+            static bool cancel_cc_interview_state(attribute_store::attribute endpoint);
+
+            /** Seed explicit post-interview state from a raw NIF/Security CC list. */
+            static void seed_cc_interview_state(attribute_store::attribute endpoint, const std::vector<uint8_t> &command_classes);
+            /** Seed from the endpoint's persisted S0/S2 capability reports. */
+            static void seed_cc_interview_state(attribute_store::attribute endpoint);
+
             /**
              * @brief This is the function which will be executed when a Report frame of
              * a given Command Class is received.
@@ -338,6 +352,9 @@ namespace zwave_command_class
             const command_class_properties properties;
             // Retry options resolved in interview() before on_interview() is called
             group_resolution_options m_interview_resolution_options;
+            // Endpoint currently executing on_interview(). Kept so simple command
+            // classes can mark their own post-interview work complete.
+            attribute_store::attribute m_interview_endpoint;
             // Command class name used in MQTT
             const std::string mqtt_command_class_namespace;
             // Frame Helpers

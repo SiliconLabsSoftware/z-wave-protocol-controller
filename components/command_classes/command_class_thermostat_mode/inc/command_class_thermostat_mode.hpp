@@ -33,6 +33,7 @@ namespace zwave_command_class
 
         private:
             sl_status_t on_thermostat_mode_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_thermostat_mode_attribute_map_t payload) override;
+            sl_status_t on_thermostat_mode_supported_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_thermostat_mode_attribute_map_t payload) override;
             sl_status_t on_thermostat_mode_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length) override;
     };
 

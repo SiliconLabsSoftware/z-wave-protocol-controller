@@ -71,6 +71,7 @@ namespace zwave_command_class
         auto first_component = next_supported_color_component(mask, 0);
         if (!first_component.has_value()) {
             sl_log_debug(LOG_TAG.data(), "No supported color components found in mask 0x%04X", mask);
+            set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
             return SL_STATUS_OK;
         }
 
@@ -108,6 +109,7 @@ namespace zwave_command_class
         const uint8_t current_id = color_component_id_node.desired<uint8_t>();
         auto next_component      = next_supported_color_component(mask, current_id + 1);
         if (!next_component.has_value()) {
+            set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
             return SL_STATUS_OK;
         }
 

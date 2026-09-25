@@ -43,7 +43,6 @@ namespace zwave_command_class
             static sl_status_t on_version_capabilities_get_interview_requested(command_class_version_types::command_class_version_get_payload_t payload);
             static sl_status_t on_version_zwave_software_get_interview_requested(command_class_version_types::command_class_version_get_payload_t payload);
             static sl_status_t on_get_version_report_requested(const command_class_version_types::command_class_get_version_report_payload_t &payload_struct, command_class_version_types::command_class_get_version_report_payload_t &result_struct);
-            void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version) override;
             sl_status_t on_version_zwave_software_report_received_store(attribute_store::attribute endpoint_node, command_class_version_attribute_map_t attribute_map) override;
 
         protected:

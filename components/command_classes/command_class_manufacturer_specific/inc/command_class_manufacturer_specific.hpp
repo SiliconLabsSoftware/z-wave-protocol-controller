@@ -35,6 +35,9 @@ namespace zwave_command_class
 
         private:
             void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version) override;
+
+            sl_status_t on_manufacturer_specific_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_manufacturer_specific_attribute_map_t payload) override;
+            sl_status_t on_device_specific_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_manufacturer_specific_attribute_map_t payload) override;
             sl_status_t on_manufacturer_specific_get_support_requested_assemble_frame(const zwave_controller_connection_info_t *connection_info, command_class_manufacturer_specific_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame) override;
             sl_status_t on_device_specific_get_support_requested_assemble_frame(const zwave_controller_connection_info_t *connection_info, command_class_manufacturer_specific_attribute_map_t attribute_map, zwave_frame_generator_standalone &report_frame, std::vector<uint8_t> &frame) override;
     };

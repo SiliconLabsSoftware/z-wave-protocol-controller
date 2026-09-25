@@ -29,6 +29,7 @@ namespace zwave_command_class
             ~command_class_switch_binary() = default;
 
         private:
+            sl_status_t on_switch_binary_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_switch_binary_attribute_map_t payload) override;
             sl_status_t on_switch_binary_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length) override;
 
         protected:

@@ -31,8 +31,6 @@ namespace zwave_command_class
             ~command_class_multi_channel() = default;
 
         private:
-            void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version) override;
-
             sl_status_t on_multi_channel_end_point_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_multi_channel_attribute_map_t payload) override;
             sl_status_t on_multi_channel_capability_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_multi_channel_attribute_map_t payload) override;
             sl_status_t on_multi_channel_end_point_find_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_multi_channel_attribute_map_t payload) override;

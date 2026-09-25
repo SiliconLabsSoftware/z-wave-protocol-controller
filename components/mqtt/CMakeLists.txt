@@ -55,6 +55,7 @@ target_link_libraries(
   PRIVATE
   zwave_definitions
   zpc_attribute_store
+  network_monitor
   utils
   threading
   # We link with main and not directly with mqtt to be able

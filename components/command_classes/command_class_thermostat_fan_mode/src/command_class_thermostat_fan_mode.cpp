@@ -35,6 +35,26 @@ namespace zwave_command_class
         start_group_resolution(get_node);
     }
 
+    static sl_status_t complete_thermostat_fan_mode_interview(attribute_store::attribute endpoint, zwave_command_class_t command_class_id)
+    {
+        const auto report           = endpoint.child_by_type(static_cast<attribute_store_type_t>(thermostat_fan_mode_report_group_attributes_t::THERMOSTAT_FAN_MODE_REPORT_GROUP));
+        const auto supported_report = endpoint.child_by_type(static_cast<attribute_store_type_t>(thermostat_fan_mode_supported_report_group_attributes_t::THERMOSTAT_FAN_MODE_SUPPORTED_REPORT_GROUP));
+        if (report.is_valid() && supported_report.is_valid()) {
+            zwave_command_class_base::set_cc_interview_state(endpoint, command_class_id, zwave_command_class_base::cc_interview_state::done);
+        }
+        return SL_STATUS_OK;
+    }
+
+    sl_status_t command_class_thermostat_fan_mode::on_thermostat_fan_mode_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_thermostat_fan_mode_attribute_map_t)
+    {
+        return complete_thermostat_fan_mode_interview(endpoint, cc_properties.command_class_id);
+    }
+
+    sl_status_t command_class_thermostat_fan_mode::on_thermostat_fan_mode_supported_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_thermostat_fan_mode_attribute_map_t)
+    {
+        return complete_thermostat_fan_mode_interview(endpoint, cc_properties.command_class_id);
+    }
+
     sl_status_t command_class_thermostat_fan_mode::on_thermostat_fan_mode_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length)
     {
         auto group_node             = args.node;

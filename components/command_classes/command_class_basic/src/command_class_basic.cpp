@@ -184,6 +184,9 @@ namespace zwave_command_class
         auto endpoint_node = attribute_store::attribute(attribute_store_get_first_parent_with_type(version_node_id, ATTRIBUTE_ENDPOINT_ID));
         if (!endpoint_node.is_valid() || !has_basic_report(endpoint_node)) {
             sl_log_debug(LOG_TAG.data(), "Basic CC version is 0 and no Basic Report; leaving unsupported");
+            if (endpoint_node.is_valid()) {
+                set_cc_interview_state(endpoint_node, COMMAND_CLASS_BASIC, cc_interview_state::done);
+            }
             return;
         }
 
@@ -211,6 +214,7 @@ namespace zwave_command_class
         basic_report_current_value_t current_value = 0;
         current_value                              = get_value_or_default(payload, "current_value", current_value);
         sl_log_debug(LOG_TAG.data(), "Basic current_value received: %d", current_value);
+        set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
 
         // Report is already stored. First discovery asks Version for 0x20 here.
         // Re-interview asks from on_interview because version is already non-zero.

@@ -71,6 +71,8 @@ namespace zwave_command_class
         if (supported_version >= 2) {
             auto supported_get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(notification_supported_get_group_attributes_t::NOTIFICATION_SUPPORTED_GET_GROUP));
             start_group_resolution(supported_get_node);
+        } else {
+            set_cc_interview_state(cc_interview_state::done);
         }
     }
 
@@ -211,6 +213,7 @@ namespace zwave_command_class
 
         if (supported_types.empty()) {
             sl_log_debug(LOG_TAG.data(), "No supported notification types found");
+            set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
             return SL_STATUS_OK;
         }
 
@@ -282,6 +285,8 @@ namespace zwave_command_class
         auto next  = find_next_type(types, reported_type);
         if (next.has_value()) {
             start_notification_get(endpoint, *next);
+        } else {
+            set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
         }
 
         return SL_STATUS_OK;

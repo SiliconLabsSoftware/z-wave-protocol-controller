@@ -116,6 +116,7 @@ namespace zwave_command_class
             auto interview_node = supported_list_group.emplace_node(static_cast<attribute_store_type_t>(indicator_supported_indicator_store_attributes_t::interview_finished));
             if (ids.empty()) {
                 interview_node.set_reported<uint8_t>(1);
+                set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
             } else {
                 interview_node.set_reported<uint8_t>(0);
                 auto group_node        = endpoint.emplace_node(static_cast<attribute_store_type_t>(indicator_get_group_attributes_t::INDICATOR_GET_GROUP));
@@ -144,6 +145,7 @@ namespace zwave_command_class
 
         if (finished_ids.size() >= supported_ids.size()) {
             interview_finished_node.set_reported<uint8_t>(1);
+            set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
             return SL_STATUS_OK;
         }
 
@@ -163,6 +165,7 @@ namespace zwave_command_class
 
         if (finished_ids == supported_ids) {
             interview_finished_node.set_reported<uint8_t>(1);
+            set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
             return SL_STATUS_OK;
         }
 

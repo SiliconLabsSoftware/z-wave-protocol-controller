@@ -376,6 +376,7 @@ namespace zwave_command_class
 
     sl_status_t command_class_firmware_update_md::on_firmware_md_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_firmware_update_md_attribute_map_t payload)
     {
+        set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
         (void)connection_info;
         fire_fw_update_event(command_class_firmware_update_md_events_t::FIRMWARE_MD_REPORT_PARSED, endpoint, payload);
         return SL_STATUS_OK;

@@ -115,6 +115,26 @@ namespace zwave_command_class
         command_class_manufacturer_specific_core::start_group_resolution(group_node_device_specific);
     }
 
+    static sl_status_t complete_manufacturer_specific_interview(attribute_store::attribute endpoint, zwave_command_class_t command_class_id)
+    {
+        const auto manufacturer_specific = endpoint.child_by_type(static_cast<attribute_store_type_t>(manufacturer_specific_report_group_attributes_t::MANUFACTURER_SPECIFIC_REPORT_GROUP));
+        const auto device_specific       = endpoint.child_by_type(static_cast<attribute_store_type_t>(device_specific_report_group_attributes_t::DEVICE_SPECIFIC_REPORT_GROUP));
+        if (manufacturer_specific.is_valid() && device_specific.is_valid()) {
+            zwave_command_class_base::set_cc_interview_state(endpoint, command_class_id, zwave_command_class_base::cc_interview_state::done);
+        }
+        return SL_STATUS_OK;
+    }
+
+    sl_status_t command_class_manufacturer_specific::on_manufacturer_specific_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_manufacturer_specific_attribute_map_t)
+    {
+        return complete_manufacturer_specific_interview(endpoint, cc_properties.command_class_id);
+    }
+
+    sl_status_t command_class_manufacturer_specific::on_device_specific_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_manufacturer_specific_attribute_map_t)
+    {
+        return complete_manufacturer_specific_interview(endpoint, cc_properties.command_class_id);
+    }
+
     sl_status_t command_class_manufacturer_specific::on_manufacturer_specific_get_support_requested_assemble_frame(const zwave_controller_connection_info_t * /*connection_info*/,
                                                                                                                    command_class_manufacturer_specific_attribute_map_t /*attribute_map*/,
                                                                                                                    zwave_frame_generator_standalone &report_frame,

@@ -18,6 +18,7 @@
 #include <array>
 #include <cstring>
 #include <string>
+#include <vector>
 #include "zwave_controller_types.h"
 #include "zwave_controller_connection_info.h"
 #include "zwave_keyset_definitions.h"
@@ -160,6 +161,20 @@ namespace zwave_command_class
     struct component_connector_interview_done_payload_t {
             attribute_store_node_t endpoint_node;  // The endpoint node that completed interview
             sl_status_t status;                    // Interview result (e.g. SL_STATUS_OK for success)
+    };
+
+    /**
+     * @brief Request an operation on command-class interview state for an endpoint.
+     *
+     * command_classes is used only by seed: an empty list makes the command-class
+     * base read the endpoint's persisted S0/S2 capability reports.
+     */
+    enum class component_connector_cc_interview_action_t : uint8_t { seed, check, cancel };
+
+    struct component_connector_cc_interview_action_payload_t {
+            attribute_store_node_t endpoint_node;
+            component_connector_cc_interview_action_t action;
+            std::vector<uint8_t> command_classes;
     };
 }  // namespace zwave_command_class
 

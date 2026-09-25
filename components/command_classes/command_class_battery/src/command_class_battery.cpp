@@ -38,4 +38,10 @@ namespace zwave_command_class
         command_class_battery_core::start_group_resolution(group_node);
     }
 
+    sl_status_t command_class_battery::on_battery_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_battery_attribute_map_t)
+    {
+        set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
+        return SL_STATUS_OK;
+    }
+
 }  // namespace zwave_command_class

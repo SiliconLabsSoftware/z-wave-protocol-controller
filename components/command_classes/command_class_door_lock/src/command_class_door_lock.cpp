@@ -40,6 +40,33 @@ namespace zwave_command_class
         start_group_resolution(configuration_get_node);
     }
 
+    static sl_status_t complete_door_lock_interview(attribute_store::attribute endpoint, zwave_command_class_t command_class_id)
+    {
+        const auto operation     = endpoint.child_by_type(static_cast<attribute_store_type_t>(door_lock_operation_report_group_attributes_t::DOOR_LOCK_OPERATION_REPORT_GROUP));
+        const auto configuration = endpoint.child_by_type(static_cast<attribute_store_type_t>(door_lock_configuration_report_group_attributes_t::DOOR_LOCK_CONFIGURATION_REPORT_GROUP));
+        const auto version       = endpoint.child_by_type(ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_DOOR_LOCK));
+        const auto capabilities  = endpoint.child_by_type(static_cast<attribute_store_type_t>(door_lock_capabilities_report_group_attributes_t::DOOR_LOCK_CAPABILITIES_REPORT_GROUP));
+        if (operation.is_valid() && configuration.is_valid() && (!version.reported_exists() || version.reported<uint8_t>() < 4 || capabilities.is_valid())) {
+            zwave_command_class_base::set_cc_interview_state(endpoint, command_class_id, zwave_command_class_base::cc_interview_state::done);
+        }
+        return SL_STATUS_OK;
+    }
+
+    sl_status_t command_class_door_lock::on_door_lock_operation_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_door_lock_attribute_map_t)
+    {
+        return complete_door_lock_interview(endpoint, cc_properties.command_class_id);
+    }
+
+    sl_status_t command_class_door_lock::on_door_lock_configuration_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_door_lock_attribute_map_t)
+    {
+        return complete_door_lock_interview(endpoint, cc_properties.command_class_id);
+    }
+
+    sl_status_t command_class_door_lock::on_door_lock_capabilities_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_door_lock_attribute_map_t)
+    {
+        return complete_door_lock_interview(endpoint, cc_properties.command_class_id);
+    }
+
     sl_status_t command_class_door_lock::on_door_lock_operation_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length)
     {
         auto group_node             = args.node;
