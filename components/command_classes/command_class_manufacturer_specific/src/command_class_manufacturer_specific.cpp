@@ -125,12 +125,12 @@ namespace zwave_command_class
         return SL_STATUS_OK;
     }
 
-    sl_status_t command_class_manufacturer_specific::on_manufacturer_specific_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_manufacturer_specific_attribute_map_t)
+    sl_status_t command_class_manufacturer_specific::on_manufacturer_specific_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_manufacturer_specific_attribute_map_t payload)
     {
         return complete_manufacturer_specific_interview(endpoint, cc_properties.command_class_id);
     }
 
-    sl_status_t command_class_manufacturer_specific::on_device_specific_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_manufacturer_specific_attribute_map_t)
+    sl_status_t command_class_manufacturer_specific::on_device_specific_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_manufacturer_specific_attribute_map_t payload)
     {
         return complete_manufacturer_specific_interview(endpoint, cc_properties.command_class_id);
     }

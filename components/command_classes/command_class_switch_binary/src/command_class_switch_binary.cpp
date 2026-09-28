@@ -37,7 +37,7 @@ namespace zwave_command_class
         start_group_resolution(group_node);
     }
 
-    sl_status_t command_class_switch_binary::on_switch_binary_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_switch_binary_attribute_map_t)
+    sl_status_t command_class_switch_binary::on_switch_binary_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_switch_binary_attribute_map_t payload)
     {
         set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
         return SL_STATUS_OK;
