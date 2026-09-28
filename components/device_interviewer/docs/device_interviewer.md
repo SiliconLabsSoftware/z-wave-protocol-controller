@@ -174,7 +174,7 @@ The interview process progresses through the following states. All interviews st
 | `ENDPOINT_GET_VERSION_REPORT` | VersionGetStep (reused) | Wait for Version CC Report; advances iterator and loops back |
 | `ENDPOINT_ZWAVEPLUS_INFO` | GetEndpointZwavePlusInfoStep | Per-endpoint Z-Wave Plus Info (CC 0x5E) for icon discovery |
 | `ENDPOINT_ASSOCIATION_ITERATOR` | EndpointAssociationIteratorStep | Iterate endpoints: run MCA/Association + AGI + lifeline per endpoint |
-| `COMPLETED` | CompletedStep | Interview completed successfully; fires INTERVIEW_DONE for root and all endpoints, then INTERVIEW_FULLY_RESOLVED once every CC's on_interview-triggered resolution has settled |
+| `COMPLETED` | CompletedStep | Starts post-interview command-class work for root and all endpoints; fires INTERVIEW_FULLY_RESOLVED once every seeded command class has explicitly completed it |
 | `FAILED` | - | Interview failed (e.g. node deleted during interview) |
 
 ## State Transition Diagram
@@ -839,13 +839,14 @@ Existing MCA / Association / AGI gates then skip naturally when the endpoint doe
 
 **Purpose**: Final state indicating interview completion. Fires two events with distinct semantics so that command classes can run their `on_interview` post-interview hooks before the user-visible "interview done" signal is published:
 
-1. `COMPONENT_CONNECTOR_INTERVIEW_DONE` — synchronous trigger for command classes' `on_interview` hooks. Fired per endpoint so each CC can queue any post-interview attribute resolutions.
-2. `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED` — fired once the entire device subtree is resolved (i.e. every `on_interview`-triggered transaction has completed). This is the signal MQTT clients (and other consumers that need the device to be fully ready) should listen to.
+1. `COMPONENT_CONNECTOR_INTERVIEW_DONE` — synchronous trigger for command classes' `on_interview` hooks. Fired per endpoint so each CC can queue post-interview work.
+2. `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED` — fired once every seeded command class on every endpoint has explicitly changed its post-interview state from `ongoing` to `done`. This is the signal MQTT clients (and other consumers that need the device to be fully ready) should listen to.
 
 **Actions on Enter**:
 - Logs completion status
-- Fires `COMPONENT_CONNECTOR_INTERVIEW_DONE` with `SL_STATUS_OK` synchronously (`fire_event_async` + `.get()`) for the root endpoint (`session.endpoint_node`) and for each endpoint in `session.endpoints.endpoint_ids`. Synchronous dispatch ensures every CC has called `on_interview` (and queued its resolutions) before the next step.
-- Installs an attribute resolver listener on `session.device_node` (the NodeID node). When the listener fires it does **not** immediately publish; instead it defers ~100 ms via `attribute_timeout_set_callback` and re-checks `attribute_resolver_node_or_child_needs_resolution`. If any node picked up a new pending resolution in the grace window — e.g. `command_class_switch_color` chaining the next colour component get from `on_switch_color_report_parsed` — the listener is re-armed and the device keeps interviewing. Only when the subtree is genuinely settled does the step iterate the `ATTRIBUTE_ENDPOINT_ID` children and fire `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED` per endpoint. This is the same defer-and-recheck pattern used by `command_class_wake_up` for "no more information".
+- Seeds `ATTRIBUTE_CC_INTERVIEW_ONGOING_GROUP` for the root endpoint and every discovered endpoint before dispatching command classes. Each seeded row is keyed by command-class ID and begins in the `ongoing` state.
+- Fires `COMPONENT_CONNECTOR_INTERVIEW_DONE` with `SL_STATUS_OK` synchronously (`fire_event_async` + `.get()`) for the root endpoint (`session.endpoint_node`) and for each endpoint in `session.endpoints.endpoint_ids`. Synchronous dispatch ensures every CC has called `on_interview` and can begin its post-interview sequence.
+- Leaves successful completion to command-class implementations. Each implementation must call `set_cc_interview_state(..., done)` after its final required report is parsed; when no seeded row remains `ongoing`, ZPC fires `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED` once per endpoint. Resolver idleness alone does not complete the interview, because a command class can start a later stage from a parsed report.
 
 **Handles Events**:
 - None (no events processed in completed state)
@@ -1009,7 +1010,7 @@ The Device Interviewer publishes an MQTT message when a device interview termina
 
 **Topic:** `zpc/{home_id}/Interview/Report` (published by ZPC)
 
-**When:** Published when an interview completes for an endpoint—either successfully or after cancellation/failure. One report is sent per endpoint (including endpoint 0). For successful interviews, the report is delayed until every command class `on_interview`-triggered resolution has settled (subscribed to `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED`), so receiving this message means the device is actually ready.
+**When:** Published when an interview completes for an endpoint—either successfully or after cancellation/failure. One report is sent per endpoint (including endpoint 0). For successful interviews, the report is delayed until every seeded command class explicitly closes its post-interview state (subscribed to `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED`), so receiving this message means the device is actually ready.
 
 **Payload (JSON):**
 

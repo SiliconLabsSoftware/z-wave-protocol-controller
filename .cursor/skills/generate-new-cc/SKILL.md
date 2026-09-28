@@ -22,6 +22,7 @@ In this repository, command class generator is being used to generate the comman
 6. Implement the command class in the `command_class_<cc-name>` directory.
    - The generated files can determine the attributes to implement, the core logic, the MQTT interface, etc.
    - Implement the required functions in the `cpp` and `hpp` files.
+   - If `on_interview()` starts post-interview work, call `set_cc_interview_state(..., cc_interview_state::done)` only from the terminal parsed callback. The command class owns completion; queuing a request or receiving an intermediate report does not close the interview.
 7. Build the project
 8. Create documentation for the command class.
 
