@@ -92,8 +92,9 @@ namespace zwave_command_class
         auto nodeid_node = group_node.emplace_node(static_cast<attribute_store_type_t>(wake_up_interval_set_group_attributes_t::nodeid));
         nodeid_node.set_desired<wake_up_interval_set_nodeid_t>(static_cast<wake_up_interval_set_nodeid_t>(payload.node_id));
 
-        attribute_resolver_set_resolution_listener(group_node, command_class_wake_up::on_wake_up_interval_set_interview_resolution);
+        // Start resolution before the listener is set, otherwise the listener might be notified before the resolution is started.
         command_class_wake_up_core::start_group_resolution(group_node);
+        attribute_resolver_set_resolution_listener(group_node, command_class_wake_up::on_wake_up_interval_set_interview_resolution);
         return SL_STATUS_OK;
     }
 
@@ -150,10 +151,11 @@ namespace zwave_command_class
         attribute_store_node_t endpoint_0 = attribute_store_get_node_child_by_value(node_id_node, ATTRIBUTE_ENDPOINT_ID, REPORTED_ATTRIBUTE, &ep0, sizeof(ep0), 0);
         auto endpoint_node                = attribute_store::attribute(endpoint_0);
         auto group_node                   = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(wake_up_no_more_information_group_attributes_t::WAKE_UP_NO_MORE_INFORMATION_GROUP));
-        attribute_resolver_set_resolution_listener(group_node, on_wake_up_no_more_information_sent_listener);
         // Skip supervision: the node goes back to sleep immediately after receiving
         // No More Information and cannot complete the supervision handshake.
+        // Start resolution before the listener is set, otherwise the listener might be notified before the resolution is started.
         command_class_wake_up_core::start_group_resolution(group_node, {.skip_supervision = true});
+        attribute_resolver_set_resolution_listener(group_node, on_wake_up_no_more_information_sent_listener);
     }
 
     void command_class_wake_up::on_wake_up_no_more_information_sent_listener(attribute_store_node_t wunmi_group_node)

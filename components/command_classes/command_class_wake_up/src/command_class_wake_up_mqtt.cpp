@@ -92,8 +92,9 @@ namespace zwave_command_class
 
         // After set, Interval Get is queued (network monitor). Do not use the interview resolution callback:
         // that fires COMMAND_CLASS_WAKE_UP_INTERVAL_SET_INTERVIEW_RESOLUTION_COMPLETED and would advance WakeUpStep spuriously.
-        attribute_resolver_set_resolution_listener(group_node, command_class_wake_up::on_wake_up_interval_set_user_resolution);
+        // Start resolution before the listener is set, otherwise the listener might be notified before the resolution is started.
         command_class_wake_up_core::start_group_resolution(group_node);
+        attribute_resolver_set_resolution_listener(group_node, command_class_wake_up::on_wake_up_interval_set_user_resolution);
 
         return SL_STATUS_OK;
     }
