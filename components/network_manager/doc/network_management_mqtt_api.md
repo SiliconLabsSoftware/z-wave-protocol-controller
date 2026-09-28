@@ -489,6 +489,7 @@ zpc/<home_id>/Network/Node/Properties/Report
 ```json
 {
   "node_id": 2,
+  "network_status": "online",
   "inclusion_protocol": 1,
   "granted_keys": 7,
   "last_rx_rssi": -50,
@@ -501,10 +502,11 @@ zpc/<home_id>/Network/Node/Properties/Report
 }
 ```
 
-The report always contains the same keys. Fields are `null` when no attribute-store value exists for the node (`s2_capability` is `false` when the node is not S2-capable).
+The report always contains the same keys. Fields are `null` when no attribute-store value exists for the node (`s2_capability` is `false` when the node is not S2-capable). `network_status` is always `"online"`, `"offline"`, or `"unknown"`.
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `network_status` | string | Current availability of node. Same values as described in [`Network/Status/Report`](../../network_monitor/doc/network_status.md). |
 | `inclusion_protocol` | number or null | `0` = Z-Wave, `1` = Z-Wave Long Range. |
 | `granted_keys` | number or null | Security key bitmask; see Node List report table. |
 | `last_rx_tx_timestamp` | number or null | Unix time (seconds) of last successful TX to or RX from the node. |
