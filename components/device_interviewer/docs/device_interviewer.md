@@ -148,7 +148,7 @@ The interview process progresses through the following states. All interviews st
 | `PREPARE_VERSION_CC_LIST` | PrepareVersionCCListStep | Merge S2/S0/NIF command class lists and prepare the version CC query list |
 | `VERSION_CC_SEQUENCE` | VersionCCSequenceStep | Send Version Command Class Get for next CC in the merged list |
 | `GET_VERSION_REPORT` | VersionGetStep | Wait for Version Command Class Report; advances iterator and loops back |
-| `GET_VERSION_CAPABILITIES` | VersionCapabilitiesInterviewStep | Version Capabilities Get / Report after per-CC Version interview (CL:0086.01.21.01.2); sets Z-Wave Software support from report |
+| `GET_VERSION_CAPABILITIES` | VersionCapabilitiesInterviewStep | Version Capabilities Get / Report after per-CC Version interview (CL:0086.01.21.01.2); skipped if Version CC is not in merged S2/S0/NIF lists or reported Version CC version is below v3; sets Z-Wave Software support from report |
 | `GET_VERSION_ZWAVE_SOFTWARE` | VersionZwaveSoftwareInterviewStep | Version Z-Wave Software Get / Report when capabilities indicate ZWS (CL:0086.01.21.02.1) |
 | `GET_ZWAVEPLUS_INFO` | ZWavePlusInfoStep | Query Z-Wave Plus Info (skipped if CC 0x5E not supported) |
 | `INTERVIEW_WAKE_UP` | WakeUpStep | Interview Wake Up CC (skipped if CC 0x84 not supported): v2+ Capabilities Get/Report → Interval Set (`zpc.default_wake_up_interval`) → resolution → Interval Get → Report; v1 Set → resolution → Get → Report |
@@ -361,13 +361,14 @@ stateDiagram-v2
 
 ### 4a. VersionCapabilitiesInterviewStep (`GET_VERSION_CAPABILITIES`)
 
-**Conditions**: After the root **Version Command Class Get / Report** loop completes (`VERSION_CC_SEQUENCE` / `GET_VERSION_REPORT`). Skipped if Version CC (0x86) is not in merged S2/S0/NIF lists (same rule as PrepareVersionCCListStep).
+**Conditions**: After the root **Version Command Class Get / Report** loop completes (`VERSION_CC_SEQUENCE` / `GET_VERSION_REPORT`). Skipped if Version CC (0x86) is not in merged S2/S0/NIF lists (same rule as PrepareVersionCCListStep). Version Capabilities Get is a v3 command; sending it to a v1/v2 node would be ignored and stall the interview.
 
 **Purpose**: Run **Version Capabilities Get** so the Version Capabilities Report is stored **after** per-command-class Version queries, per management mandatory node interview (CL:0086.01.21.01.2).
 
 **Actions on Enter**:
 - Clears `session.version_zwave_software_supported`
 - If no Version CC in merged lists → `SKIP`
+- If reported Version CC version (`ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_VERSION)`) is below v3 (`VERSION_VERSION_V3`) → `SKIP`
 - Otherwise waits for resolution kick on `handle_event(nullopt)`
 
 **Handles Events**:
