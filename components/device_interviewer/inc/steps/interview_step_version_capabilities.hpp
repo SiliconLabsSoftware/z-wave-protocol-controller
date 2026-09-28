@@ -19,9 +19,10 @@
 namespace zwave_command_class
 {
     /**
-     * @brief Version Capabilities Get after initial Version Report (management
-     *        mandatory interview CL:0086.01.21.01.2). Skipped when Version CC
-     *        (0x86) is not present in merged S2/S0/NIF lists.
+     * @brief Version Capabilities Get after the per-CC Version interview
+     *        (CL:0086.01.21.01.2). Skipped when Version CC (0x86) is not
+     *        present in merged S2/S0/NIF lists, or when the stored Version CC
+     *        version is lower than v3.
      */
     class VersionCapabilitiesInterviewStep : public InterviewStep
     {
