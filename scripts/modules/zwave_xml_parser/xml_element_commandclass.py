@@ -16,7 +16,6 @@ class CommandClass:
     has_endpoints: bool
     minimal_scheme: str | None
     manual_security_validation: bool = False
-    interview_attributes: List[str] = field(default_factory=list)
     commands: List[Command] = field(default_factory=list)
     protocol: bool = False
     generate_commands: list[str] | None = None
@@ -41,8 +40,6 @@ class CommandClass:
         support = supported_command_class.get('support', False)
         control = supported_command_class.get('control', False)
         has_endpoints = supported_command_class.get('has_endpoints', False)
-        interview_attributes = supported_command_class.get(
-            'interview_attributes', [])
         protocol = bool(supported_command_class.get('protocol', False))
 
         if protocol and 'generate_commands' not in supported_command_class:
@@ -66,7 +63,6 @@ class CommandClass:
             support=support,
             control=control,
             has_endpoints=has_endpoints,
-            interview_attributes=interview_attributes,
             commands=commands,
             protocol=protocol,
             generate_commands=generate_commands,
