@@ -1222,7 +1222,19 @@ static bool network_monitor_any_end_device_has_status(NetworkMonitorNetworkStatu
         if (node_id != zpc_node_id) {
             const NetworkMonitorNetworkStatus status = attribute_store_network_helper_get_network_status(node_id_node);
             if (status == match) {
-                return true;
+                if (match == NETWORK_MONITOR_NETWORK_STATUS_COMMISIONING_STARTED) {
+                    zwave_kex_fail_type_t kex_fail_type  = ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE;
+                    attribute_store_node_t kex_fail_node = attribute_store_get_node_child_by_type(node_id_node, ATTRIBUTE_KEX_FAIL_TYPE, 0);
+
+                    // Until an add result is available, treat commissioning as active.
+                    // A defined KEX failure is terminal even if the failed node remains
+                    // in the network after self-destruct cleanup.
+                    if (kex_fail_node == ATTRIBUTE_STORE_INVALID_NODE || attribute_store_get_reported(kex_fail_node, &kex_fail_type, sizeof(kex_fail_type)) != SL_STATUS_OK || kex_fail_type == ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE) {
+                        return true;
+                    }
+                } else {
+                    return true;
+                }
             }
         }
         index++;

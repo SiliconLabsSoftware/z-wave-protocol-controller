@@ -227,11 +227,16 @@ sleeping node has gone offline:
 ## Security-failed inclusion
 
 When secure-add fails (`kex_fail != none` or non-OK add status), the node stays
-in `COMMISIONING_STARTED` until NM self-destruct / remove deletes it. Network
-Monitor does **not** create an undefined `ATTRIBUTE_ZWAVE_NIF` for that ghost and
-does **not** move it to `ONLINE_INTERVIEWING` (device interviewer also skips the
-interview). That keeps interview detection and SmartStart’s interviewing fact
-honest during cleanup.
+in `COMMISIONING_STARTED` until NM self-destruct / remove deletes it. If cleanup
+cannot remove a reachable node, it can remain in that state. Network Monitor
+does **not** create an undefined `ATTRIBUTE_ZWAVE_NIF` for that ghost and does
+**not** move it to `ONLINE_INTERVIEWING` (device interviewer also skips the
+interview).
+
+A defined, non-zero KEX failure is a terminal commissioning result. Such a node
+does not make `network_monitor_is_end_device_inclusion_ongoing()` return true.
+Network Management remains busy while self-destruct cleanup is active, so
+SmartStart still defers new inclusion attempts until cleanup finishes.
 
 ## Network status queries
 
@@ -239,10 +244,10 @@ Factual helpers over end-device (not ZPC) network statuses:
 
 | API | True when any end device has |
 | --- | --- |
-| `network_monitor_is_end_device_inclusion_ongoing()` | `COMMISIONING_STARTED` |
+| `network_monitor_is_end_device_inclusion_ongoing()` | `COMMISIONING_STARTED` without a terminal KEX failure |
 | `network_monitor_is_any_end_device_interviewing()` | `ONLINE_INTERVIEWING` |
 
-These APIs report status only; they do not encode product policy.
+These APIs report active lifecycle facts; they do not encode product policy.
 
 ## SmartStart inclusion gate (consumer)
 
