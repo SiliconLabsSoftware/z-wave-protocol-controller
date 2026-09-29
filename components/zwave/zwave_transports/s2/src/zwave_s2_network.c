@@ -143,6 +143,7 @@ void zwave_s2_network_init()
 
 void zwave_s2_start_learn_mode(zwave_node_id_t node_id)
 {
+    zwave_s2_transport_set_inclusion_in_progress(true);
     zwave_s2_transport_lock();
     s2_connection_t s2_connection = {0};
 
@@ -165,7 +166,6 @@ void zwave_s2_start_learn_mode(zwave_node_id_t node_id)
     // Assume that we need to provide the static key
     // TODO: this part will change when we update the libs2 branch
     zwave_s2_keystore_set_ecdh_key_mode(ZWAVE_S2_KEYSTORE_STATIC_ECDH_KEY);
-    zwave_s2_transport_set_inclusion_in_progress(true);
     s2_inclusion_joining_start(s2_ctx, &s2_connection, 0);
     zwave_s2_transport_unlock();
 }
@@ -177,8 +177,14 @@ void zwave_s2_neighbor_discovery_complete()
     zwave_s2_transport_unlock();
 }
 
+void zwave_s2_set_node_add_active(bool active)
+{
+    zwave_s2_transport_set_inclusion_in_progress(active);
+}
+
 void zwave_s2_start_add_node(zwave_node_id_t node_id)
 {
+    zwave_s2_transport_set_inclusion_in_progress(true);
     zwave_s2_transport_lock();
     s2_connection_t s2_connection = {0};
 
@@ -189,7 +195,6 @@ void zwave_s2_start_add_node(zwave_node_id_t node_id)
     // CC:009F.01.00.11.09C
     // This keypair is used for adding nodes into a network. (controller side). //// This key pair MUST be dynamic
     zwave_s2_keystore_set_ecdh_key_mode(ZWAVE_S2_KEYSTORE_DYNAMIC_ECDH_KEY);
-    zwave_s2_transport_set_inclusion_in_progress(true);
     s2_inclusion_including_start(s2_ctx, &s2_connection);
     zwave_s2_transport_unlock();
 }
