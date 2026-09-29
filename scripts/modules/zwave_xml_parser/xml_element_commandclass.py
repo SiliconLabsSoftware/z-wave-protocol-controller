@@ -51,7 +51,7 @@ class CommandClass:
         for child in element:
             if child.tag == "cmd":
                 commands.append(Command.from_xml_element(
-                    child, version_tracker, name, version))
+                    child, version_tracker, name, version, id))
 
         return cls(
             name=name,
