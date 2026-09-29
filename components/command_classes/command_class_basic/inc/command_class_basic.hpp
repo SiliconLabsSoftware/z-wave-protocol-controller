@@ -31,6 +31,7 @@ namespace zwave_command_class
             sl_status_t on_basic_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length) override;
             static void on_command_class_basic_get_event(attribute_store::attribute endpoint_node);
             static void on_basic_version_reported(attribute_store_node_t version_node, attribute_store_change_t change);
+            static void on_basic_get_resolution_give_up(attribute_store_node_t group_node);
 
             // Basic is never advertised (CC:0020.01.00.21.003/004). Interview support
             // is inferred from a Basic Report (CL:0020.01.21.02.2); Version often returns 0.

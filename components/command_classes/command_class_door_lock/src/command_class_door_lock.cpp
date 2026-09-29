@@ -29,6 +29,12 @@ namespace zwave_command_class
 
     void command_class_door_lock::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(door_lock_operation_report_group_attributes_t::DOOR_LOCK_OPERATION_REPORT_GROUP));
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(door_lock_configuration_report_group_attributes_t::DOOR_LOCK_CONFIGURATION_REPORT_GROUP));
+        if (supported_version >= 4) {
+            invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(door_lock_capabilities_report_group_attributes_t::DOOR_LOCK_CAPABILITIES_REPORT_GROUP));
+        }
+
         if (supported_version >= 4) {
             auto capabilities_get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(door_lock_capabilities_get_group_attributes_t::DOOR_LOCK_CAPABILITIES_GET_GROUP));
             start_group_resolution(capabilities_get_node);

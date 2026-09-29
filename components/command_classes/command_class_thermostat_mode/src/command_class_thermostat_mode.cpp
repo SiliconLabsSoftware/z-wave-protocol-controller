@@ -34,6 +34,9 @@ namespace zwave_command_class
 
     void command_class_thermostat_mode::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(thermostat_mode_report_group_attributes_t::THERMOSTAT_MODE_REPORT_GROUP));
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(thermostat_mode_supported_report_group_attributes_t::THERMOSTAT_MODE_SUPPORTED_REPORT_GROUP));
+
         auto supported_get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_mode_supported_get_group_attributes_t::THERMOSTAT_MODE_SUPPORTED_GET_GROUP));
         start_group_resolution(supported_get_node);
 

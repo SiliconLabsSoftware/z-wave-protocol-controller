@@ -236,6 +236,32 @@ namespace zwave_command_class
         return SL_STATUS_ALREADY_EXISTS;
     }
 
+    uint8_t zwave_command_class_base::interview_supported_version(const attribute_store::attribute &endpoint_node) const
+    {
+        uint8_t version = endpoint_supported_version(endpoint_node);
+        if (version != 0) {
+            return version;
+        }
+
+        zwave_node_id_t node_id         = 0;
+        zwave_endpoint_id_t endpoint_id = 0;
+        if (attribute_store_network_helper_get_zwave_ids_from_node(endpoint_node, &node_id, &endpoint_id) == SL_STATUS_OK && endpoint_id != 0) {
+            auto ep0 = attribute_store::attribute(attribute_store_get_endpoint_0_node(endpoint_node.parent()));
+            if (ep0.is_valid()) {
+                version = endpoint_supported_version(ep0);
+            }
+        }
+
+        return version != 0 ? version : 1;
+    }
+
+    void zwave_command_class_base::invalidate_report_groups(attribute_store::attribute endpoint_node, attribute_store_type_t report_group_type)
+    {
+        for (auto report_group: endpoint_node.children(report_group_type)) {
+            report_group.delete_node();
+        }
+    }
+
     bool zwave_command_class_base::endpoint_supports_command_class(const attribute_store::attribute &endpoint_node) const
     {
         using s2_t           = command_class_security_2_types::security_2_commands_supported_report_group_attributes_t;
@@ -311,18 +337,6 @@ namespace zwave_command_class
             return SL_STATUS_OK;
         }
 
-        if (supporting_node_version == 0) {
-            zwave_node_id_t node_id         = 0;
-            zwave_endpoint_id_t endpoint_id = 0;
-            attribute_store_network_helper_get_zwave_ids_from_node(endpoint, &node_id, &endpoint_id);
-            if (endpoint_id != 0) {
-                auto ep0 = attribute_store::attribute(attribute_store_get_endpoint_0_node(endpoint.parent()));
-                if (ep0.is_valid()) {
-                    supporting_node_version = endpoint_supported_version(ep0);
-                }
-            }
-        }
-
         if (is_root_of_multi_endpoint_device(endpoint)) {
             for (const auto &sibling: endpoint.parent().children(ATTRIBUTE_ENDPOINT_ID)) {
                 if (sibling.reported_exists() && sibling.reported<uint8_t>() != 0 && endpoint_supports_command_class(sibling)) {
@@ -332,10 +346,9 @@ namespace zwave_command_class
             }
         }
 
-        const uint8_t version_for_callback = (supporting_node_version != 0) ? supporting_node_version : 1;
-        m_interview_resolution_options     = {.retry_count = 5};
-        m_interview_endpoint               = endpoint;
-        this->on_interview(endpoint, version_for_callback);
+        m_interview_resolution_options = {.retry_count = 5};
+        m_interview_endpoint           = endpoint;
+        this->on_interview(endpoint, interview_supported_version(endpoint));
         return SL_STATUS_OK;
     }
 
@@ -392,14 +405,8 @@ namespace zwave_command_class
         const auto extended = command_class_utils::get_extended_command_classes(command_classes);
         ids.insert(ids.end(), normal.begin(), normal.end());
         ids.insert(ids.end(), extended.begin(), extended.end());
-        // Basic is never advertised. Probe it only on the root: Version Command
-        // Class Get is always sent to ep0, so a Basic row on a non-root endpoint
-        // would stay ongoing forever.
-        zwave_node_id_t node_id         = 0;
-        zwave_endpoint_id_t endpoint_id = 0;
-        if (attribute_store_network_helper_get_zwave_ids_from_node(endpoint, &node_id, &endpoint_id) == SL_STATUS_OK && endpoint_id == 0) {
-            ids.push_back(COMMAND_CLASS_BASIC);
-        }
+        // Basic is never advertised, so probe it explicitly on every endpoint.
+        ids.push_back(COMMAND_CLASS_BASIC);
         std::sort(ids.begin(), ids.end());
         ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
         for (const auto id: ids) {
@@ -447,22 +454,30 @@ namespace zwave_command_class
         }
     }
 
+    bool zwave_command_class_base::is_cc_interview_ongoing(attribute_store::attribute endpoint, zwave_command_class_t cc_id)
+    {
+        auto group = endpoint.child_by_type(ATTRIBUTE_CC_INTERVIEW_ONGOING_GROUP);
+        if (!group.is_valid()) {
+            return false;
+        }
+        auto cc = group.child_by_type_and_value(ATTRIBUTE_CC_INTERVIEW_COMMAND_CLASS, static_cast<uint16_t>(cc_id));
+        if (!cc.is_valid()) {
+            return false;
+        }
+        auto state_node = cc.child_by_type(ATTRIBUTE_CC_INTERVIEW_STATE);
+        return state_node.is_valid() && state_node.reported_exists() && state_node.reported<uint8_t>() == static_cast<uint8_t>(cc_interview_state::ongoing);
+    }
+
     void zwave_command_class_base::set_cc_interview_state(attribute_store::attribute endpoint, zwave_command_class_t cc_id, cc_interview_state state)
     {
         // Only touch a seeded ongoing row. After FULLY_RESOLVED (or if this CC was
         // never part of the latch), late reports / MQTT must be a no-op.
-        auto group = endpoint.child_by_type(ATTRIBUTE_CC_INTERVIEW_ONGOING_GROUP);
-        if (!group.is_valid()) {
+        if (!is_cc_interview_ongoing(endpoint, cc_id)) {
             return;
         }
-        auto cc = group.child_by_type_and_value(ATTRIBUTE_CC_INTERVIEW_COMMAND_CLASS, static_cast<uint16_t>(cc_id));
-        if (!cc.is_valid()) {
-            return;
-        }
+        auto group      = endpoint.child_by_type(ATTRIBUTE_CC_INTERVIEW_ONGOING_GROUP);
+        auto cc         = group.child_by_type_and_value(ATTRIBUTE_CC_INTERVIEW_COMMAND_CLASS, static_cast<uint16_t>(cc_id));
         auto state_node = cc.child_by_type(ATTRIBUTE_CC_INTERVIEW_STATE);
-        if (!state_node.is_valid() || !state_node.reported_exists() || state_node.reported<uint8_t>() != static_cast<uint8_t>(cc_interview_state::ongoing)) {
-            return;
-        }
         state_node.set_reported<uint8_t>(static_cast<uint8_t>(state));
         if (state != cc_interview_state::ongoing) {
             check_cc_interview_state(endpoint);

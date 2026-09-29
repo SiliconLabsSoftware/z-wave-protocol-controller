@@ -22,6 +22,7 @@
 // Z-Wave defintions
 #include "ZW_classcmd.h"
 #include "attribute_callbacks.hpp"
+#include "attribute_resolver.h"
 #include "attribute_store_defined_attribute_types.h"
 #include "zpc_attribute_store_network_helper.h"
 
@@ -59,6 +60,7 @@ namespace zwave_command_class
         // Promote Version Report 0 → 1 when a Basic Report already proved support
         // (CL:0020.01.21.02.2). Basic is never advertised, so Version often returns 0.
         attribute_store::register_callback_by_type_and_state(&on_basic_version_reported, ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_BASIC), REPORTED_ATTRIBUTE);
+        attribute_resolver_set_resolution_give_up_listener(static_cast<attribute_store_type_t>(basic_get_group_attributes_t::BASIC_GET_GROUP), &command_class_basic::on_basic_get_resolution_give_up);
     }
 
     bool command_class_basic::has_basic_report(const attribute_store::attribute &endpoint_node)
@@ -194,6 +196,18 @@ namespace zwave_command_class
         // Basic MUST NOT be advertised. A report is the support signal; store v1.
         sl_log_debug(LOG_TAG.data(), "Basic Report present with Version 0; promoting to version 1");
         version_node.set_reported<uint8_t>(1);
+    }
+
+    void command_class_basic::on_basic_get_resolution_give_up(attribute_store_node_t group_node_id)
+    {
+        auto endpoint_node = attribute_store::attribute(group_node_id).parent();
+        if (!endpoint_node.is_valid() || !is_cc_interview_ongoing(endpoint_node, COMMAND_CLASS_BASIC)) {
+            return;
+        }
+
+        sl_log_debug(LOG_TAG.data(), "Basic Get exhausted; Basic CC is unsupported");
+        endpoint_node.emplace_node(ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_BASIC)).set_reported<uint8_t>(0);
+        set_cc_interview_state(endpoint_node, COMMAND_CLASS_BASIC, cc_interview_state::done);
     }
 
     void command_class_basic::on_command_class_basic_get_event(attribute_store::attribute endpoint_node)

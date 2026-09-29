@@ -141,6 +141,8 @@ namespace zwave_command_class
             enum class cc_interview_state : uint8_t { done = 0, ongoing = 1, cancelled = 2 };
 
             void set_cc_interview_state(cc_interview_state state);
+            /** Return true when the specified CC has active post-interview work. */
+            static bool is_cc_interview_ongoing(attribute_store::attribute endpoint, zwave_command_class_t cc_id);
             /** Update a seeded ongoing CC interview row; no-op if none is ongoing. */
             static void set_cc_interview_state(attribute_store::attribute endpoint, zwave_command_class_t cc_id, cc_interview_state state);
             static void check_cc_interview_state(attribute_store::attribute endpoint);
@@ -328,6 +330,12 @@ namespace zwave_command_class
              * without the CC needing to know about the device topology.
              */
             const group_resolution_options &interview_resolution_options() const;
+
+            /** Return the version passed to on_interview(), including root fallback. */
+            uint8_t interview_supported_version(const attribute_store::attribute &endpoint_node) const;
+
+            /** Delete all report groups of the given type from an endpoint. */
+            static void invalidate_report_groups(attribute_store::attribute endpoint_node, attribute_store_type_t report_group_type);
 
             /**
              * @brief MQTT command handler

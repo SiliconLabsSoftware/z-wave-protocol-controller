@@ -108,18 +108,25 @@ namespace zwave_command_class
 
     void command_class_manufacturer_specific::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(manufacturer_specific_report_group_attributes_t::MANUFACTURER_SPECIFIC_REPORT_GROUP));
+        if (supported_version >= 2) {
+            invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(device_specific_report_group_attributes_t::DEVICE_SPECIFIC_REPORT_GROUP));
+        }
+
         auto group_node_manufacturer_specific = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(manufacturer_specific_get_group_attributes_t::MANUFACTURER_SPECIFIC_GET_GROUP));
         command_class_manufacturer_specific_core::start_group_resolution(group_node_manufacturer_specific);
 
-        auto group_node_device_specific = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(device_specific_get_group_attributes_t::DEVICE_SPECIFIC_GET_GROUP));
-        command_class_manufacturer_specific_core::start_group_resolution(group_node_device_specific);
+        if (supported_version >= 2) {
+            auto group_node_device_specific = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(device_specific_get_group_attributes_t::DEVICE_SPECIFIC_GET_GROUP));
+            command_class_manufacturer_specific_core::start_group_resolution(group_node_device_specific);
+        }
     }
 
-    static sl_status_t complete_manufacturer_specific_interview(attribute_store::attribute endpoint, zwave_command_class_t command_class_id)
+    static sl_status_t complete_manufacturer_specific_interview(attribute_store::attribute endpoint, zwave_command_class_t command_class_id, bool requires_device_id)
     {
         const auto manufacturer_specific = endpoint.child_by_type(static_cast<attribute_store_type_t>(manufacturer_specific_report_group_attributes_t::MANUFACTURER_SPECIFIC_REPORT_GROUP));
         const auto device_specific       = endpoint.child_by_type(static_cast<attribute_store_type_t>(device_specific_report_group_attributes_t::DEVICE_SPECIFIC_REPORT_GROUP));
-        if (manufacturer_specific.is_valid() && device_specific.is_valid()) {
+        if (manufacturer_specific.is_valid() && (!requires_device_id || device_specific.is_valid())) {
             zwave_command_class_base::set_cc_interview_state(endpoint, command_class_id, zwave_command_class_base::cc_interview_state::done);
         }
         return SL_STATUS_OK;
@@ -127,12 +134,12 @@ namespace zwave_command_class
 
     sl_status_t command_class_manufacturer_specific::on_manufacturer_specific_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_manufacturer_specific_attribute_map_t payload)
     {
-        return complete_manufacturer_specific_interview(endpoint, cc_properties.command_class_id);
+        return complete_manufacturer_specific_interview(endpoint, cc_properties.command_class_id, interview_supported_version(endpoint) >= 2);
     }
 
     sl_status_t command_class_manufacturer_specific::on_device_specific_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_manufacturer_specific_attribute_map_t payload)
     {
-        return complete_manufacturer_specific_interview(endpoint, cc_properties.command_class_id);
+        return complete_manufacturer_specific_interview(endpoint, cc_properties.command_class_id, interview_supported_version(endpoint) >= 2);
     }
 
     sl_status_t command_class_manufacturer_specific::on_manufacturer_specific_get_support_requested_assemble_frame(const zwave_controller_connection_info_t * /*connection_info*/,
