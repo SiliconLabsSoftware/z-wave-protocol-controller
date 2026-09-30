@@ -162,9 +162,11 @@ namespace zwave_command_class
                     supported_on_endpoint = endpoint_supports_command_class(endpoint_0);
                 }
 
-                // Forced interviews, such as Basic, may establish support through
-                // a Version CC report even though the CC is absent from the NIF.
-                if (!supported_on_endpoint && force_interview_for_cc && supported_version > 0) {
+                // Forced interviews, such as Basic, are never advertised in the NIF.
+                // Allow the Basic Get probe while version is still unknown (0). Other
+                // commands (e.g. Basic Set) wait until a Basic Report promotes the
+                // version above 0 (CL:0020.01.21.02.2).
+                if (!supported_on_endpoint && force_interview_for_cc && (supported_version > 0 || command == BASIC_GET)) {
                     supported_on_endpoint = true;
                 }
 
