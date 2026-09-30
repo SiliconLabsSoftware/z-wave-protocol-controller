@@ -158,6 +158,9 @@ typedef struct sec_tx_session {
         struct timer_handle_t timer;  // Session timer
         uint8_t crypted_msg[ZWAVE_MAX_FRAME_SIZE];
         uint8_t seq;  // Sequence number used in multisegment messages
+        // True when the application message is NETWORK_KEY_SET; every fragment
+        // of that session uses the inclusion (zero) key for encrypt and MAC.
+        bool use_inclusion_key;
         // User supplied pointer which is returned in the callback
         const void *user;
         // Callback function, called when the Tx session has been terminated
@@ -493,7 +496,7 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
 
     memcpy(enc_data + 1, s->data, len);
 
-    if ((s->data[0] == COMMAND_CLASS_SECURITY) && (s->data[1] == NETWORK_KEY_SET)) {
+    if (s->use_inclusion_key) {
         sl_log_debug(LOG_TAG, "COMMAND_CLASS_SECURITY, NETWORK_KEY_SET\n");
         /*Encrypt */
         aes_set_key_tpt(enckeyz, iv);
@@ -521,7 +524,7 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
     auth->receiverNodeID = s->conn_info.remote.node_id;
     auth->payloadLength  = len + 1;
 
-    if ((s->data[0] == COMMAND_CLASS_SECURITY) && (s->data[1] == NETWORK_KEY_SET)) {
+    if (s->use_inclusion_key) {
         sl_log_debug(LOG_TAG, "COMMAND_CLASS_SECURITY, NETWORK_KEY_SET\n");
         /* Authtag */
         aes_set_key_tpt(authkeyz, iv);
@@ -566,11 +569,12 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
 static void reset_tx_session_data(sec_tx_session_t *s)
 {
     memset(&s->conn_info, 0, sizeof(zwave_controller_connection_info_t));
-    s->data_len      = 0;
-    s->callback      = NULL;
-    s->user          = NULL;
-    s->tx_ext_status = 0;
-    s->session_id    = NULL;
+    s->data_len          = 0;
+    s->use_inclusion_key = false;
+    s->callback          = NULL;
+    s->user              = NULL;
+    s->tx_ext_status     = 0;
+    s->session_id        = NULL;
     timer_stop(&s->timer);
 }
 
@@ -783,9 +787,12 @@ sl_status_t zwave_s0_send_data(const zwave_controller_connection_info_t *conn_in
     memcpy(s->buf, cmd_data, data_length);
     s->data     = &s->buf[0];
     s->data_len = data_length;
-    s->callback = on_send_complete;
-    s->user     = user;
-    s->seq      = get_seq();  // Fix this function to make seq according to sessions
+    // Inclusion key is a property of the application message, not of each
+    // fragment. Decide once here so ENC_MSG2 cannot mis-read payload bytes.
+    s->use_inclusion_key = (data_length >= 2) && (s->buf[0] == COMMAND_CLASS_SECURITY) && (s->buf[1] == NETWORK_KEY_SET);
+    s->callback          = on_send_complete;
+    s->user              = user;
+    s->seq               = get_seq();  // Fix this function to make seq according to sessions
 
     tx_session_state_set(s, NONCE_GET);
     return SL_STATUS_OK;
