@@ -656,6 +656,7 @@ zpc/<home_id>/Network/NLS/State
 ```
 
 Requests the current Network Layer Security (NLS) state and support for the given node.
+If the node is not part of the current Z-Wave network, the report contains the requested `node_id` and a `status` of `"fail"` without NLS state fields.
 
 ### NETWORK_NLS_STATE_REPORT
 

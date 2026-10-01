@@ -24,6 +24,7 @@
 #include "attribute_store.h"
 #include "attribute_store_helper.h"
 #include "attribute_store_defined_attribute_types.h"
+#include "zpc_attribute_store_network_helper.h"
 #include "attribute.hpp"
 #include "device_interviewer_types.hpp"
 #include "device_interviewer_events.hpp"
@@ -734,10 +735,18 @@ namespace zwave_command_class
 
         uint8_t nls_state   = 0;
         uint8_t nls_support = 0;
-        sl_status_t status  = zwapi_get_node_nls(node_id, &nls_state, &nls_support);
 
         nlohmann::json report;
         report["node_id"] = node_id;
+
+        if (attribute_store_network_helper_get_zwave_node_id_node(node_id) == ATTRIBUTE_STORE_INVALID_NODE) {
+            report["status"] = "fail";
+            sl_log_error(LOG_TAG.data(), "Unable to read NLS state: NodeID %d not found in the network", node_id);
+            publish_report(MQTT_API_NETWORK_NLS_STATE_REPORT_TOPIC, report.dump(), false);
+            return;
+        }
+
+        sl_status_t status = zwapi_get_node_nls(node_id, &nls_state, &nls_support);
 
         if (status == SL_STATUS_OK) {
             zwave_store_nls_state(node_id, nls_state != 0U, REPORTED_ATTRIBUTE);
