@@ -117,17 +117,7 @@ namespace zwave_command_class
              * This method registers all event handlers that listen to external events
              * (from other components) and queue them for processing on the device_interviewer thread.
              */
-            void register_event_handlers();
-
-            /**
-             * @brief Trigger the start of an interview
-             *
-             * This method is used to trigger the start of an interview from an external event.
-             *
-             * @param p The payload containing the interview information
-             * @return The status of the interview start operation
-             */
-            sl_status_t trigger_start_interview(const component_connector_node_added_payload_t &p);
+            static void register_event_handlers();
     };
 }  // namespace zwave_command_class
 #endif  // DEVICE_INTERVIEWER_H

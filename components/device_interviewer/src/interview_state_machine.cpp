@@ -19,6 +19,7 @@
 #include "log.h"
 #include "zpc_attribute_store_network_helper.h"
 #include "attribute_store.h"
+#include "attribute_store_defined_attribute_types.h"
 #include "component_connector_types.hpp"
 #include "component_connector.hpp"
 #include "component_connector_common_events.hpp"
@@ -338,8 +339,54 @@ namespace zwave_command_class
         sessions.erase(it);
     }
 
+    void InterviewStateMachine::handle_start_interview(const component_connector_node_added_payload_t &p)
+    {
+        // Do not interview nodes whose inclusion / security bootstrapping failed
+        // (e.g. SmartStart S2 timeout before self-destruct).
+        if ((p.status != SL_STATUS_OK) || (p.kex_fail_type != ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE)) {
+            sl_log_info(LOG_TAG.data(), "Node %d: Skipping interview after add/security failure (status=%d, kex_fail=%d).", p.node_id, static_cast<int>(p.status), static_cast<int>(p.kex_fail_type));
+            return;
+        }
+
+        attribute_store_node_t node_id_node = attribute_store_network_helper_get_zwave_node_id_node(p.node_id);
+        if (node_id_node == ATTRIBUTE_STORE_INVALID_NODE) {
+            sl_log_warning(LOG_TAG.data(), "Node %d: Node not found in attribute store. Interview will not be started.", p.node_id);
+            return;
+        }
+
+        attribute_store::attribute device_node(node_id_node);
+        attribute_store_node_t endpoint_0_node = device_node.child_by_type(ATTRIBUTE_ENDPOINT_ID);
+        if (endpoint_0_node == ATTRIBUTE_STORE_INVALID_NODE) {
+            sl_log_warning(LOG_TAG.data(), "Node %d: Endpoint 0 not found in attribute store. Interview will not be started.", p.node_id);
+            return;
+        }
+
+        auto *existing_session = get_session(p.node_id, 0);
+        if (existing_session != nullptr && existing_session->current_state != InterviewState::IDLE && existing_session->current_state != InterviewState::COMPLETED) {
+            if (existing_session->granted_keys != p.granted_keys) {
+                sl_log_debug(LOG_TAG.data(), "Node %d: Interview already in progress, updating granted_keys from 0x%02X to 0x%02X", p.node_id, existing_session->granted_keys, p.granted_keys);
+                existing_session->granted_keys = p.granted_keys;
+            }
+            return;
+        }
+
+        sl_log_info(LOG_TAG.data(), "Node %d: Starting interview (granted keys: 0x%02X, kex_fail: %d)", p.node_id, p.granted_keys, static_cast<int>(p.kex_fail_type));
+
+        start_interview(p.node_id, 0, device_node, attribute_store::attribute(endpoint_0_node), p.granted_keys);
+    }
+
     sl_status_t InterviewStateMachine::process_event(const device_interviewer_external_event_data &event)
     {
+        if (event.event == device_interviewer_external_event_t::START_INTERVIEW) {
+            try {
+                handle_start_interview(std::any_cast<component_connector_node_added_payload_t>(event.payload));
+                return SL_STATUS_OK;
+            } catch (const std::bad_any_cast &) {
+                sl_log_error(LOG_TAG.data(), "Invalid payload type for START_INTERVIEW event");
+                return SL_STATUS_FAIL;
+            }
+        }
+
         if (event.event == device_interviewer_external_event_t::NODE_DELETED) {
             try {
                 const auto &payload = std::any_cast<component_connector_node_deleted_payload_t>(event.payload);

@@ -104,50 +104,6 @@ namespace zwave_command_class
     }
 
     /**
-     * @brief Start (or skip) an interview for a node.
-     *
-     * Called directly from component_connector callbacks (not via external_event_queue), on the
-     * publisher thread. Invokes the interview state machine's start path when appropriate.
-     */
-    sl_status_t device_interviewer::trigger_start_interview(const component_connector_node_added_payload_t &p)
-    {
-        // Do not interview nodes whose inclusion / security bootstrapping failed
-        // (e.g. SmartStart S2 timeout before self-destruct).
-        if ((p.status != SL_STATUS_OK) || (p.kex_fail_type != ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE)) {
-            sl_log_info(LOG_TAG.data(), "Node %d: Skipping interview after add/security failure (status=%d, kex_fail=%d).", p.node_id, static_cast<int>(p.status), static_cast<int>(p.kex_fail_type));
-            return SL_STATUS_OK;
-        }
-
-        attribute_store_node_t node_id_node = attribute_store_network_helper_get_zwave_node_id_node(p.node_id);
-        if (node_id_node == ATTRIBUTE_STORE_INVALID_NODE) {
-            sl_log_warning(LOG_TAG.data(), "Node %d: Node not found in attribute store. Interview will not be started.", p.node_id);
-            return SL_STATUS_OK;
-        }
-
-        attribute_store::attribute device_node(node_id_node);
-        attribute_store_node_t endpoint_0_node = device_node.child_by_type(ATTRIBUTE_ENDPOINT_ID);
-        if (endpoint_0_node == ATTRIBUTE_STORE_INVALID_NODE) {
-            sl_log_warning(LOG_TAG.data(), "Node %d: Endpoint 0 not found in attribute store. Interview will not be started.", p.node_id);
-            return SL_STATUS_OK;
-        }
-
-        auto *existing_session = this->state_machine->get_session(p.node_id, 0);
-        if (existing_session != nullptr && existing_session->current_state != InterviewState::IDLE && existing_session->current_state != InterviewState::COMPLETED) {
-            if (existing_session->granted_keys != p.granted_keys) {
-                sl_log_debug(LOG_TAG.data(), "Node %d: Interview already in progress, updating granted_keys from 0x%02X to 0x%02X", p.node_id, existing_session->granted_keys, p.granted_keys);
-                existing_session->granted_keys = p.granted_keys;
-            }
-            return SL_STATUS_OK;
-        }
-
-        sl_log_info(LOG_TAG.data(), "Node %d: Starting interview (granted keys: 0x%02X, kex_fail: %d)", p.node_id, p.granted_keys, static_cast<int>(p.kex_fail_type));
-
-        this->state_machine->start_interview(p.node_id, 0, device_node, attribute_store::attribute(endpoint_0_node), p.granted_keys);
-
-        return SL_STATUS_OK;
-    }
-
-    /**
      * @brief Register handlers for events from other components.
      *
      * Most handlers call queue_event() so the device_interviewer thread (run()) can process
@@ -155,10 +111,11 @@ namespace zwave_command_class
      *
      * Event categories:
      * - Node lifecycle:
-     *   - NODE_ADDED: starts the interview synchronously on the callback thread.
-     *   - NODE_INTERVIEW_REQUESTED: starts the interview synchronously on the callback thread.
-     *     Fired by command_class_inclusion_controller (no-handoff fallback) and OTA (post-update
-     *     re-interview); deferral / handoff arbitration lives in those producers, not here.
+     *   - NODE_ADDED: queues START_INTERVIEW.
+     *   - NODE_INTERVIEW_REQUESTED: synthesizes a NODE_ADDED-shaped payload and queues
+     *     START_INTERVIEW. Fired by command_class_inclusion_controller (no-handoff fallback)
+     *     and OTA (post-update re-interview); deferral / handoff arbitration lives in those
+     *     producers, not here.
      *   - NODE_DELETED: queued for the state machine.
      * - Command class and connector reports: queued for state machine processing
      * - Synchronous handlers: simple requests that do not use the state machine (e.g. GET_NODE_INFORMATION)
@@ -183,11 +140,14 @@ namespace zwave_command_class
         });
 
         // Node added: local inclusion after security bootstrapping completes
-        connector.connect_typed<component_connector_common_events_t, component_connector_node_added_payload_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_NODE_ADDED, [this](const component_connector_node_added_payload_t &p) { return this->trigger_start_interview(p); });
+        connector.connect_typed<component_connector_common_events_t, component_connector_node_added_payload_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_NODE_ADDED, [](const component_connector_node_added_payload_t &p) {
+            queue_event(device_interviewer_external_event_t::START_INTERVIEW, p);
+            return SL_STATUS_OK;
+        });
 
         // Interview requested directly (no security handoff context). Synthesize a NODE_ADDED-shaped
         // payload from the attribute store and dispatch the same way as a real NODE_ADDED.
-        connector.connect_typed<component_connector_common_events_t, component_connector_node_interview_requested_payload_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_NODE_INTERVIEW_REQUESTED, [this](const component_connector_node_interview_requested_payload_t &p) {
+        connector.connect_typed<component_connector_common_events_t, component_connector_node_interview_requested_payload_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_NODE_INTERVIEW_REQUESTED, [](const component_connector_node_interview_requested_payload_t &p) {
             component_connector_node_added_payload_t synthesized {};
             synthesized.status             = SL_STATUS_OK;
             synthesized.node_id            = p.node_id;
@@ -195,7 +155,8 @@ namespace zwave_command_class
             if (zwave_get_node_granted_keys(p.node_id, &synthesized.granted_keys) != SL_STATUS_OK) {
                 synthesized.granted_keys = 0;
             }
-            return this->trigger_start_interview(synthesized);
+            queue_event(device_interviewer_external_event_t::START_INTERVIEW, synthesized);
+            return SL_STATUS_OK;
         });
 
         // ============================================================================
