@@ -30,6 +30,10 @@ namespace zwave_command_class
 
             sl_status_t on_switch_color_supported_report_received_store(attribute_store::attribute endpoint_node, command_class_switch_color_attribute_map_t attribute_map) override;
             sl_status_t on_switch_color_report_received_store(attribute_store::attribute endpoint_node, command_class_switch_color_attribute_map_t attribute_map) override;
+
+        protected:
+            static attribute_store::attribute find_report_group_by_color_component_id(attribute_store::attribute endpoint_node, uint8_t color_component_id);
+            static attribute_store::attribute find_or_create_report_group_by_color_component_id(attribute_store::attribute endpoint_node, uint8_t color_component_id);
     };
 
 }  // namespace zwave_command_class

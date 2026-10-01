@@ -154,6 +154,33 @@ namespace zwave_command_class
             static void seed_cc_interview_state(attribute_store::attribute endpoint);
 
             /**
+             * @brief Register an attribute that interview must collect for this command class.
+             *
+             * Clears any reported value already on the node. No-op unless this command
+             * class interview is ongoing for the node's endpoint.
+             */
+            void interview_require(attribute_store::attribute node);
+
+            /**
+             * @brief Hold the interview open for one more in-memory step (no attribute store node).
+             *
+             * Use when progress cannot be expressed as a durable reported attribute.
+             * Pair each hold with interview_release() when that step completes.
+             */
+            void interview_hold(attribute_store::attribute endpoint);
+
+            /**
+             * @brief Release one interview_hold() for this command class on the endpoint.
+             */
+            void interview_release(attribute_store::attribute endpoint);
+
+            /**
+             * @brief Retire required nodes that now have a reported value; mark the CC done when none remain.
+             */
+            void finish_cc_interview_if_idle(attribute_store::attribute endpoint) const;
+            static void finish_cc_interview_if_idle(attribute_store::attribute endpoint, zwave_command_class_t cc_id);
+
+            /**
              * @brief This is the function which will be executed when a Report frame of
              * a given Command Class is received.
              *
@@ -369,6 +396,19 @@ namespace zwave_command_class
             zwave_frame_generator m_frame_generator;
 
             std::map<std::string, std::function<void(attribute_store::attribute &endpoint_node, std::string)>> mqtt_callback_map;
+
+        private:
+            using interview_pending_key_t = std::pair<attribute_store_node_t, zwave_command_class_t>;
+
+            struct interview_pending_t {
+                    std::vector<attribute_store_node_t> nodes;
+                    size_t holds = 0;
+            };
+
+            static std::map<interview_pending_key_t, interview_pending_t> interview_pending;
+
+            static void clear_interview_pending_for_endpoint(attribute_store_node_t endpoint);
+            static attribute_store::attribute cc_interview_published_group(const attribute_store::attribute &endpoint);
     };
 }  // namespace zwave_command_class
 

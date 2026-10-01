@@ -37,6 +37,7 @@
 #include "ZW_classcmd.h"
 
 #include <algorithm>
+#include <map>
 #include <mutex>
 #include <vector>
 
@@ -349,6 +350,7 @@ namespace zwave_command_class
         m_interview_resolution_options = {.retry_count = 5};
         m_interview_endpoint           = endpoint;
         this->on_interview(endpoint, interview_supported_version(endpoint));
+        finish_cc_interview_if_idle(endpoint);
         return SL_STATUS_OK;
     }
 
@@ -381,12 +383,22 @@ namespace zwave_command_class
         zpc_mqtt::register_command(this->mqtt_command_class_namespace, [this](attribute_store::attribute endpoint_node, const std::string &command_name, const std::string &payload) { this->mqtt_command_handler(endpoint_node, command_name, payload); });
     }
 
-    void zwave_command_class_base::on_interview([[maybe_unused]] attribute_store::attribute endpoint_node, [[maybe_unused]] uint8_t supported_version)
+    void zwave_command_class_base::on_interview([[maybe_unused]] attribute_store::attribute endpoint_node, [[maybe_unused]] uint8_t supported_version) {}
+
+    std::map<zwave_command_class_base::interview_pending_key_t, zwave_command_class_base::interview_pending_t> zwave_command_class_base::interview_pending;
+
+    void zwave_command_class_base::clear_interview_pending_for_endpoint(attribute_store_node_t endpoint)
     {
-        set_cc_interview_state(cc_interview_state::done);
+        for (auto it = interview_pending.begin(); it != interview_pending.end();) {
+            if (it->first.first == endpoint) {
+                it = interview_pending.erase(it);
+            } else {
+                ++it;
+            }
+        }
     }
 
-    static attribute_store::attribute cc_interview_published_group(const attribute_store::attribute &endpoint)
+    attribute_store::attribute zwave_command_class_base::cc_interview_published_group(const attribute_store::attribute &endpoint)
     {
         auto device = endpoint.parent();
         auto ep0    = device.emplace_node(ATTRIBUTE_ENDPOINT_ID, 0);
@@ -395,6 +407,7 @@ namespace zwave_command_class
 
     void zwave_command_class_base::seed_cc_interview_state(attribute_store::attribute endpoint, const std::vector<uint8_t> &command_classes)
     {
+        clear_interview_pending_for_endpoint(endpoint);
         auto group = endpoint.emplace_node(ATTRIBUTE_CC_INTERVIEW_ONGOING_GROUP);
         // A reported value on the empty ep0 group is the device-wide "published"
         // latch. A new interview must clear it before any CC can complete.
@@ -450,6 +463,76 @@ namespace zwave_command_class
         if (m_interview_endpoint.is_valid()) {
             set_cc_interview_state(m_interview_endpoint, properties.command_class_id, state);
         }
+    }
+
+    void zwave_command_class_base::interview_require(attribute_store::attribute node)
+    {
+        if (!node.is_valid()) {
+            return;
+        }
+        const auto endpoint = node.first_parent_or_self(ATTRIBUTE_ENDPOINT_ID);
+        if (!endpoint.is_valid() || !is_cc_interview_ongoing(endpoint, properties.command_class_id)) {
+            return;
+        }
+        node.clear_reported();
+        auto &list = interview_pending[{endpoint, properties.command_class_id}].nodes;
+        if (std::find(list.begin(), list.end(), static_cast<attribute_store_node_t>(node)) == list.end()) {
+            list.push_back(node);
+        }
+    }
+
+    void zwave_command_class_base::interview_hold(attribute_store::attribute endpoint)
+    {
+        if (!endpoint.is_valid() || !is_cc_interview_ongoing(endpoint, properties.command_class_id)) {
+            return;
+        }
+        interview_pending[{endpoint, properties.command_class_id}].holds++;
+    }
+
+    void zwave_command_class_base::interview_release(attribute_store::attribute endpoint)
+    {
+        if (!endpoint.is_valid()) {
+            return;
+        }
+        const interview_pending_key_t map_key {endpoint, properties.command_class_id};
+        auto it = interview_pending.find(map_key);
+        if (it == interview_pending.end() || it->second.holds == 0) {
+            return;
+        }
+        it->second.holds--;
+        if (it->second.nodes.empty() && it->second.holds == 0) {
+            interview_pending.erase(it);
+        }
+    }
+
+    void zwave_command_class_base::finish_cc_interview_if_idle(attribute_store::attribute endpoint) const
+    {
+        finish_cc_interview_if_idle(endpoint, properties.command_class_id);
+    }
+
+    void zwave_command_class_base::finish_cc_interview_if_idle(attribute_store::attribute endpoint, zwave_command_class_t cc_id)
+    {
+        if (!is_cc_interview_ongoing(endpoint, cc_id)) {
+            return;
+        }
+        const interview_pending_key_t key {endpoint, cc_id};
+        auto it = interview_pending.find(key);
+        if (it != interview_pending.end()) {
+            auto &nodes = it->second.nodes;
+            for (auto node_it = nodes.begin(); node_it != nodes.end();) {
+                attribute_store::attribute node(*node_it);
+                if (!node.is_valid() || node.reported_exists()) {
+                    node_it = nodes.erase(node_it);
+                } else {
+                    ++node_it;
+                }
+            }
+            if (!nodes.empty() || it->second.holds != 0) {
+                return;
+            }
+            interview_pending.erase(it);
+        }
+        set_cc_interview_state(endpoint, cc_id, cc_interview_state::done);
     }
 
     bool zwave_command_class_base::is_cc_interview_ongoing(attribute_store::attribute endpoint, zwave_command_class_t cc_id)
@@ -526,6 +609,7 @@ namespace zwave_command_class
         }
         bool found = false;
         for (const auto &ep: device.children(ATTRIBUTE_ENDPOINT_ID)) {
+            clear_interview_pending_for_endpoint(ep);
             auto group = ep.child_by_type(ATTRIBUTE_CC_INTERVIEW_ONGOING_GROUP);
             if (!group.is_valid()) {
                 continue;

@@ -69,10 +69,9 @@ namespace zwave_command_class
         fire_check_command_in_group_list(endpoint_node);
 
         if (supported_version >= 2) {
-            auto supported_get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(notification_supported_get_group_attributes_t::NOTIFICATION_SUPPORTED_GET_GROUP));
-            start_group_resolution(supported_get_node);
-        } else {
-            set_cc_interview_state(cc_interview_state::done);
+            auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(notification_supported_report_group_attributes_t::NOTIFICATION_SUPPORTED_REPORT_GROUP));
+            interview_require(report.emplace_node(static_cast<attribute_store_type_t>(notification_supported_report_group_attributes_t::bit_mask)));
+            start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(notification_supported_get_group_attributes_t::NOTIFICATION_SUPPORTED_GET_GROUP)));
         }
     }
 
@@ -213,8 +212,11 @@ namespace zwave_command_class
 
         if (supported_types.empty()) {
             sl_log_debug(LOG_TAG.data(), "No supported notification types found");
-            set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
             return SL_STATUS_OK;
+        }
+
+        for (size_t i = 0; i < supported_types.size(); ++i) {
+            interview_hold(endpoint);
         }
 
         uint8_t supported_version = endpoint_supported_version(endpoint);
@@ -266,6 +268,10 @@ namespace zwave_command_class
     {
         (void)connection_info;
 
+        if (!is_cc_interview_ongoing(endpoint, properties.command_class_id)) {
+            return SL_STATUS_OK;
+        }
+
         uint8_t reported_type = get_value_or_default(payload, "notification_type", static_cast<uint8_t>(0));
 
         auto get_group = endpoint.child_by_type(static_cast<attribute_store_type_t>(notification_get_group_attributes_t::NOTIFICATION_GET_GROUP));
@@ -281,12 +287,12 @@ namespace zwave_command_class
             return SL_STATUS_OK;
         }
 
+        interview_release(endpoint);
+
         auto types = get_supported_types_from_store(endpoint);
         auto next  = find_next_type(types, reported_type);
         if (next.has_value()) {
             start_notification_get(endpoint, *next);
-        } else {
-            set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
         }
 
         return SL_STATUS_OK;

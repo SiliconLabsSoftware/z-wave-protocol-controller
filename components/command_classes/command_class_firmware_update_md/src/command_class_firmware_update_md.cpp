@@ -69,7 +69,9 @@ namespace zwave_command_class
     void command_class_firmware_update_md::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
         (void)supported_version;
-        // Automatically request firmware metadata during device interview
+
+        auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(firmware_md_report_group_attributes_t::FIRMWARE_MD_REPORT_GROUP));
+        interview_require(report.emplace_node(static_cast<attribute_store_type_t>(firmware_md_report_group_attributes_t::manufacturer_id)));
         component_connector connector;
         connector.fire_event(static_cast<uint32_t>(command_class_firmware_update_md_events_t::COMMAND_CLASS_FIRMWARE_UPDATE_MD_FIRMWARE_MD_GET), endpoint_node);
     }
@@ -376,7 +378,6 @@ namespace zwave_command_class
 
     sl_status_t command_class_firmware_update_md::on_firmware_md_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_firmware_update_md_attribute_map_t payload)
     {
-        set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
         (void)connection_info;
         fire_fw_update_event(command_class_firmware_update_md_events_t::FIRMWARE_MD_REPORT_PARSED, endpoint, payload);
         return SL_STATUS_OK;

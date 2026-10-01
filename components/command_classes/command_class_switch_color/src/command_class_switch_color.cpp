@@ -56,8 +56,10 @@ namespace zwave_command_class
     void command_class_switch_color::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
         (void)supported_version;
-        auto supported_get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_color_supported_get_group_attributes_t::SWITCH_COLOR_SUPPORTED_GET_GROUP));
-        start_group_resolution(supported_get_node);
+
+        auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_color_supported_report_group_attributes_t::SWITCH_COLOR_SUPPORTED_REPORT_GROUP));
+        interview_require(report.emplace_node(static_cast<attribute_store_type_t>(switch_color_supported_report_group_attributes_t::color_component_mask)));
+        start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_color_supported_get_group_attributes_t::SWITCH_COLOR_SUPPORTED_GET_GROUP)));
     }
 
     sl_status_t command_class_switch_color::on_switch_color_supported_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_switch_color_attribute_map_t payload)
@@ -68,10 +70,17 @@ namespace zwave_command_class
         raw_mask                                                      = get_value_or_default(payload, "color_component_mask", raw_mask);
         const uint16_t mask                                           = color_mask_to_native(raw_mask);
 
+        for (uint8_t id = 0; id < command_class_switch_color_constants::COLOR_COMPONENT_MASK_BITS; ++id) {
+            if ((mask & (1U << id)) == 0U) {
+                continue;
+            }
+            auto report_group = find_or_create_report_group_by_color_component_id(endpoint, id);
+            interview_require(report_group.emplace_node(static_cast<attribute_store_type_t>(switch_color_report_group_attributes_t::current_value)));
+        }
+
         auto first_component = next_supported_color_component(mask, 0);
         if (!first_component.has_value()) {
             sl_log_debug(LOG_TAG.data(), "No supported color components found in mask 0x%04X", mask);
-            set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
             return SL_STATUS_OK;
         }
 
@@ -109,7 +118,6 @@ namespace zwave_command_class
         const uint8_t current_id = color_component_id_node.desired<uint8_t>();
         auto next_component      = next_supported_color_component(mask, current_id + 1);
         if (!next_component.has_value()) {
-            set_cc_interview_state(endpoint, cc_properties.command_class_id, cc_interview_state::done);
             return SL_STATUS_OK;
         }
 
