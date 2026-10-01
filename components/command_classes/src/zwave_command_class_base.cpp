@@ -21,6 +21,7 @@
 #include "attribute_store_defined_attribute_types.h"
 #include "attribute_callbacks.hpp"
 #include "zpc_attribute_store_network_helper.h"
+#include "device_interviewer_attribute_store.hpp"
 
 // Component Connector
 #include "component_connector.hpp"
@@ -32,6 +33,7 @@
 #include "command_class_security_types.hpp"
 #include "command_class_multi_channel_generated_types.hpp"
 #include "zwave_command_class_utils.hpp"
+#include "ZW_classcmd.h"
 
 #include <algorithm>
 #include <vector>
@@ -134,6 +136,74 @@ namespace zwave_command_class
         return version;
     }
 
+    sl_status_t zwave_command_class_base::validate_command_version(attribute_store::attribute group_node, uint8_t command, uint8_t min_version) const
+    {
+        for (auto node = group_node; node.is_valid(); node = node.parent()) {
+            if (node.type() == ATTRIBUTE_ENDPOINT_ID) {
+                zwave_node_id_t node_id         = 0;
+                zwave_endpoint_id_t endpoint_id = 0;
+                attribute_store_network_helper_get_zwave_ids_from_node(node, &node_id, &endpoint_id);
+
+                uint8_t supported_version = endpoint_supported_version(node);
+                const auto endpoint_0     = attribute_store::attribute(attribute_store_get_endpoint_0_node(node.parent()));
+                if (supported_version == 0) {
+                    if (endpoint_0.is_valid()) {
+                        supported_version = endpoint_supported_version(endpoint_0);
+                    }
+                }
+
+                bool supported_on_endpoint = endpoint_supports_command_class(node);
+
+                // Security Commands Supported Get is how endpoint-specific secure
+                // capabilities are discovered. Security itself resides on the root,
+                // so this bootstrap command is allowed when the root advertises it.
+                const bool security_capability_get = (properties.command_class_id == COMMAND_CLASS_SECURITY && command == SECURITY_COMMANDS_SUPPORTED_GET) || (properties.command_class_id == COMMAND_CLASS_SECURITY_2 && command == SECURITY_2_COMMANDS_SUPPORTED_GET);
+                if (!supported_on_endpoint && endpoint_id != 0 && security_capability_get && endpoint_0.is_valid()) {
+                    supported_on_endpoint = endpoint_supports_command_class(endpoint_0);
+                }
+
+                // Forced interviews, such as Basic, are never advertised in the NIF.
+                // Allow the Basic Get probe while version is still unknown (0). Other
+                // commands (e.g. Basic Set) wait until a Basic Report promotes the
+                // version above 0 (CL:0020.01.21.02.2).
+                if (!supported_on_endpoint && force_interview_for_cc && (supported_version > 0 || command == BASIC_GET)) {
+                    supported_on_endpoint = true;
+                }
+
+                // An advertised CC supports at least its mandatory v1 commands.
+                // Keep this as a local lower bound: the attribute store remains 0
+                // until Version CC reports the exact version.
+                if (supported_on_endpoint && supported_version == 0) {
+                    supported_version = 1;
+                }
+
+                if (supported_on_endpoint && supported_version >= min_version) {
+                    return SL_STATUS_OK;
+                }
+
+                const auto status = attribute_store_set_reported_as_desired(group_node);
+                if (status != SL_STATUS_OK) {
+                    return status;
+                }
+
+                sl_log_warning(LOG_TAG, "Ignoring unsupported command 0x%02X for command class 0x%02X on endpoint %u: advertised=%u, node version %u, required version %u", command, properties.command_class_id, endpoint_id, supported_on_endpoint, supported_version, min_version);
+                // The resolver interprets ALREADY_EXISTS as a successful
+                // no-frame completion. The group was settled above, so this
+                // prevents it from being retried.
+                return SL_STATUS_ALREADY_EXISTS;
+            }
+        }
+
+        const auto status = attribute_store_set_reported_as_desired(group_node);
+        if (status != SL_STATUS_OK) {
+            return status;
+        }
+
+        sl_log_warning(LOG_TAG, "Ignoring command 0x%02X for command class 0x%02X: resolver group has no endpoint", command, properties.command_class_id);
+        // See above: this completes the resolver group without transmitting.
+        return SL_STATUS_ALREADY_EXISTS;
+    }
+
     bool zwave_command_class_base::endpoint_supports_command_class(const attribute_store::attribute &endpoint_node) const
     {
         using s2_t           = command_class_security_2_types::security_2_commands_supported_report_group_attributes_t;
@@ -141,12 +211,7 @@ namespace zwave_command_class
         using mc_t           = command_class_multi_channel_types::multi_channel_capability_report_group_attributes_t;
         const uint16_t cc_id = static_cast<uint16_t>(properties.command_class_id);
 
-        const auto check = [&endpoint_node, cc_id](attribute_store_type_t group_type, attribute_store_type_t list_type) {
-            auto grp = endpoint_node.child_by_type(group_type);
-            if (!grp.is_valid()) {
-                return false;
-            }
-            auto cc_node = grp.child_by_type(list_type);
+        const auto check_node = [cc_id](const attribute_store::attribute &cc_node) {
             if (!cc_node.is_valid() || !cc_node.reported_exists()) {
                 return false;
             }
@@ -169,9 +234,17 @@ namespace zwave_command_class
             }
         };
 
-        return check(static_cast<attribute_store_type_t>(s2_t::SECURITY_2_COMMANDS_SUPPORTED_REPORT_GROUP), static_cast<attribute_store_type_t>(s2_t::command_class))
-               || check(static_cast<attribute_store_type_t>(s0_t::SECURITY_COMMANDS_SUPPORTED_REPORT_GROUP), static_cast<attribute_store_type_t>(s0_t::command_class_support))
-               || check(static_cast<attribute_store_type_t>(mc_t::MULTI_CHANNEL_CAPABILITY_REPORT_GROUP), static_cast<attribute_store_type_t>(mc_t::command_class));
+        const auto check_group = [&endpoint_node, &check_node](attribute_store_type_t group_type, attribute_store_type_t list_type) {
+            const auto group = endpoint_node.child_by_type(group_type);
+            return group.is_valid() && check_node(group.child_by_type(list_type));
+        };
+
+        using nif_t = node_information_group_attributes_t;
+
+        return check_group(static_cast<attribute_store_type_t>(nif_t::NODE_INFORMATION_GROUP), static_cast<attribute_store_type_t>(nif_t::command_class_list)) || check_node(endpoint_node.child_by_type(ATTRIBUTE_ZWAVE_NIF)) || check_node(endpoint_node.child_by_type(ATTRIBUTE_ZWAVE_SECURE_NIF))
+               || check_group(static_cast<attribute_store_type_t>(s2_t::SECURITY_2_COMMANDS_SUPPORTED_REPORT_GROUP), static_cast<attribute_store_type_t>(s2_t::command_class))
+               || check_group(static_cast<attribute_store_type_t>(s0_t::SECURITY_COMMANDS_SUPPORTED_REPORT_GROUP), static_cast<attribute_store_type_t>(s0_t::command_class_support))
+               || check_group(static_cast<attribute_store_type_t>(mc_t::MULTI_CHANNEL_CAPABILITY_REPORT_GROUP), static_cast<attribute_store_type_t>(mc_t::command_class));
     }
 
     bool zwave_command_class_base::is_root_of_multi_endpoint_device(const attribute_store::attribute &endpoint_node)

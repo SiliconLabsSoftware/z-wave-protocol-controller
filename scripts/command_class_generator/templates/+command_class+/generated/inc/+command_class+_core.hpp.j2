@@ -33,6 +33,7 @@ namespace zwave_command_class {
             {% for command in command_class.commands %}
             static constexpr uint16_t {{command.name | lower}}_max_frame_size = {{command.max_frame_sizes | max}};
             static constexpr uint16_t {{command.name | lower}}_min_frame_size = {{command.min_frame_sizes | min}};
+            static constexpr uint8_t {{command.name | lower}}_min_version = {{command.min_version}};
             {% endfor %}
 
             template<typename T > T get_value_or_default(const {{command_class.name | lower}}_attribute_map_t &map, const std::string &key, const T &default_value)

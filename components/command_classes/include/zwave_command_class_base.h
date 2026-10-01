@@ -247,12 +247,12 @@ namespace zwave_command_class
             /**
              * @brief Returns true if the endpoint reports support for this command class.
              *
-             * Checks the endpoint-specific S2 and S0 Commands Supported report lists
-             * (not the Version CC). Use this when deciding whether to run interview
-             * or create attributes for a given endpoint.
+             * Checks the endpoint's NIF, S2/S0 Commands Supported, and Multi Channel
+             * Capability report lists (not the Version CC). Use this when deciding
+             * whether to run interview or create attributes for a given endpoint.
              *
              * @param endpoint_node The endpoint node (ATTRIBUTE_ENDPOINT_ID).
-             * @return true if this CC is in the endpoint's S2 or S0 reported list.
+             * @return true if this CC is advertised by the endpoint.
              */
             bool endpoint_supports_command_class(const attribute_store::attribute &endpoint_node) const;
 
@@ -272,6 +272,16 @@ namespace zwave_command_class
             static bool is_root_of_multi_endpoint_device(const attribute_store::attribute &endpoint_node);
 
         protected:
+            /**
+             * @brief Validates that a resolver group may send a command.
+             *
+             * The endpoint capability lists establish version 1 support until an
+             * exact Version CC report is available. If the command is unsupported,
+             * completes the group without transmitting a frame and returns
+             * SL_STATUS_ALREADY_EXISTS.
+             */
+            sl_status_t validate_command_version(attribute_store::attribute group_node, uint8_t command, uint8_t min_version) const;
+
             /**
              * @brief Constructor
              *

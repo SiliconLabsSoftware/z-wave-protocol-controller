@@ -37,15 +37,17 @@ class Command:
         return name_lower.endswith(("_report", "_notification"))
 
     @classmethod
-    def from_xml_element(cls, element: Element, version_tracker: XMLElementVersionTracker, cc_name: str, cc_version: int) -> 'Command':
+    def from_xml_element(cls, element: Element, version_tracker: XMLElementVersionTracker, cc_name: str, cc_version: int, cc_id: int) -> 'Command':
         params = []
         max_frame_sizes = []
         id = int(element.attrib.get("key", "0x00"), 16)
         name = element.attrib.get("name", "UNDEFINED_CMD_NAME")
         support_mode = element.attrib.get("support_mode", None)
 
+        # Key on the command class id. A rename (ALARM -> NOTIFICATION) keeps
+        # the same id and command keys, so the introduction version must too.
         min_version = version_tracker.track_element(
-            cls.__name__, id, cc_version, cc_name)
+            cls.__name__, id, cc_version, f"{cc_id:02X}")
 
         for child in element:
             if child.tag == "param":
