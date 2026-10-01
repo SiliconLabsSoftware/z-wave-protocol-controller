@@ -100,21 +100,17 @@ namespace zwave_command_class
         return endpoint_node.emplace_node(ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_BASIC));
     }
 
-    void command_class_basic::request_basic_version_if_needed(attribute_store::attribute endpoint_node)
+    void command_class_basic::request_basic_version(attribute_store::attribute endpoint_node)
     {
-        auto version_node          = basic_version_node(endpoint_node);
-        const bool unknown_or_zero = !version_node.reported_exists() || version_node.reported<uint8_t>() == 0;
-        if (!unknown_or_zero) {
-            // Support already established (and Version already queried on first discovery).
-            return;
-        }
-
+        auto version_node = basic_version_node(endpoint_node);
         // CL:0020.01.21.02.2: a Basic Report means the CC is supported. Record v1
         // immediately so Set is not blocked while Version Get is in flight or fails.
         // Version Get below may refine this to v2; a Version Report of 0 is promoted
         // back to 1 in on_basic_version_reported.
-        version_node.set_reported<uint8_t>(1);
-        sl_log_debug(LOG_TAG.data(), "Basic Report received; establishing Basic CC version 1");
+        if (!version_node.reported_exists() || version_node.reported<uint8_t>() == 0) {
+            version_node.set_reported<uint8_t>(1);
+            sl_log_debug(LOG_TAG.data(), "Basic Report received; establishing Basic CC version 1");
+        }
 
         command_class_version_types::command_class_version_cc_get_payload_t payload_map_version;
         payload_map_version.device_endpoint_node   = endpoint_node;
@@ -126,6 +122,16 @@ namespace zwave_command_class
 
         component_connector connector;
         connector.fire_event(static_cast<uint32_t>(command_class_version_events_t::COMMAND_CLASS_VERSION_CC_GET), payload_map_version);
+    }
+
+    void command_class_basic::request_basic_version_if_needed(attribute_store::attribute endpoint_node)
+    {
+        auto version_node = basic_version_node(endpoint_node);
+        if (version_node.reported_exists() && version_node.reported<uint8_t>() != 0) {
+            return;
+        }
+
+        request_basic_version(endpoint_node);
     }
 
     void command_class_basic::ensure_support_if_report_present(attribute_store::attribute endpoint_node)
@@ -151,6 +157,12 @@ namespace zwave_command_class
         // established only if a Basic Report is returned (CL:0020.01.21.02.2).
         component_connector connector;
         connector.fire_event(static_cast<uint32_t>(command_class_basic_events_t::COMMAND_CLASS_BASIC_GET), endpoint_node);
+
+        // Basic is stripped from the Version CC list (0x20). First discovery sends
+        // Version Get after the first report. Re-interview must send it again.
+        if (has_basic_report(endpoint_node)) {
+            request_basic_version(endpoint_node);
+        }
     }
 
     void command_class_basic::on_basic_version_reported(attribute_store_node_t version_node_id, attribute_store_change_t change)
@@ -200,8 +212,8 @@ namespace zwave_command_class
         current_value                              = get_value_or_default(payload, "current_value", current_value);
         sl_log_debug(LOG_TAG.data(), "Basic current_value received: %d", current_value);
 
-        // Report is already stored. Ask Version for 0x20 only when we do not yet
-        // have a non-zero Basic version (first support discovery).
+        // Report is already stored. First discovery asks Version for 0x20 here.
+        // Re-interview asks from on_interview because version is already non-zero.
         request_basic_version_if_needed(endpoint);
 
         return SL_STATUS_OK;

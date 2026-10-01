@@ -38,6 +38,7 @@ namespace zwave_command_class
             static void ensure_support_if_report_present(attribute_store::attribute endpoint_node);
             static bool has_basic_report(const attribute_store::attribute &endpoint_node);
             static attribute_store::attribute basic_version_node(attribute_store::attribute endpoint_node);
+            static void request_basic_version(attribute_store::attribute endpoint_node);
             static void request_basic_version_if_needed(attribute_store::attribute endpoint_node);
 
         protected:
