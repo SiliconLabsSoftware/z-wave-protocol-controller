@@ -16,6 +16,7 @@
 
 #include "command_class_basic_mqtt.hpp"
 #include "command_class_basic_attribute_store.hpp"
+#include "command_class_basic_types.hpp"
 
 namespace zwave_command_class
 {
@@ -29,21 +30,15 @@ namespace zwave_command_class
 
         private:
             sl_status_t on_basic_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length) override;
-            static void on_command_class_basic_get_event(attribute_store::attribute endpoint_node);
+            static sl_status_t on_command_class_basic_get_interview_requested(command_class_basic_types::basic_get_interview_payload_t payload);
             static void on_basic_version_reported(attribute_store_node_t version_node, attribute_store_change_t change);
             static void on_basic_get_resolution_give_up(attribute_store_node_t group_node);
 
             // Basic is never advertised (CC:0020.01.00.21.003/004). Interview support
             // is inferred from a Basic Report (CL:0020.01.21.02.2); Version often returns 0.
-            // If a report is already stored but version is still 0, record v1 so Set is not rejected.
-            static void ensure_support_if_report_present(attribute_store::attribute endpoint_node);
             static bool has_basic_report(const attribute_store::attribute &endpoint_node);
-            static attribute_store::attribute basic_version_node(attribute_store::attribute endpoint_node);
-            static void request_basic_version(attribute_store::attribute endpoint_node);
-            static void request_basic_version_if_needed(attribute_store::attribute endpoint_node);
 
         protected:
-            void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version) override;
             sl_status_t on_basic_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_basic_attribute_map_t payload) override;
     };
 

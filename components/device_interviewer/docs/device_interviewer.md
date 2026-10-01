@@ -51,6 +51,7 @@ device_interviewer
 │       ├── PrepareEndpointVersionsStep
 │       ├── GetEndpointZwavePlusInfoStep
 │       ├── EndpointAssociationIteratorStep
+│       ├── BasicInterviewStep
 │       └── CompletedStep
 ```
 
@@ -112,9 +113,9 @@ The state machine resolves `(current_state, result_code)` → `next_state` using
 | `POST_VALIDATE_LIFELINE` | `DONE` | `CHECK_MULTI_CHANNEL_SUPPORT` |
 | `POST_VALIDATE_LIFELINE` | `SKIP` | `ENDPOINT_ASSOCIATION_ITERATOR` |
 | `CHECK_MULTI_CHANNEL_SUPPORT` | `DONE` | `MC_ENDPOINT_GET` |
-| `CHECK_MULTI_CHANNEL_SUPPORT` | `SKIP` | `COMPLETED` |
+| `CHECK_MULTI_CHANNEL_SUPPORT` | `SKIP` | `INTERVIEW_BASIC` |
 | `MC_ENDPOINT_GET` | `DONE` | `GET_NUMBER_OF_ENDPOINTS` |
-| `MC_ENDPOINT_GET` | `SKIP` | `COMPLETED` |
+| `MC_ENDPOINT_GET` | `SKIP` | `INTERVIEW_BASIC` |
 | `GET_NUMBER_OF_ENDPOINTS` | `DONE` | `GET_ENDPOINT_CAPABILITIES` |
 | `GET_NUMBER_OF_ENDPOINTS` | `SKIP` | `GET_ENDPOINT_CAPABILITIES` |
 | `GET_ENDPOINT_CAPABILITIES` | `DONE` | `GET_ENDPOINT_S2_CAPABILITIES` |
@@ -130,7 +131,9 @@ The state machine resolves `(current_state, result_code)` → `next_state` using
 | `ENDPOINT_ZWAVEPLUS_INFO` | `DONE` | `ENDPOINT_ASSOCIATION_ITERATOR` |
 | `ENDPOINT_ZWAVEPLUS_INFO` | `SKIP` | `ENDPOINT_ASSOCIATION_ITERATOR` |
 | `ENDPOINT_ASSOCIATION_ITERATOR` | `DONE` | `GET_MULTI_CHANNEL_ASSOCIATION_SUPPORTED_GROUPINGS` |
-| `ENDPOINT_ASSOCIATION_ITERATOR` | `SKIP` | `COMPLETED` |
+| `ENDPOINT_ASSOCIATION_ITERATOR` | `SKIP` | `INTERVIEW_BASIC` |
+| `INTERVIEW_BASIC` | `DONE` | `COMPLETED` |
+| `INTERVIEW_BASIC` | `SKIP` | `COMPLETED` |
 
 > **Note:** `NODE_DELETED` bypasses the table and transitions directly to `FAILED` — it is an external override, not a step result.
 
@@ -174,6 +177,7 @@ The interview process progresses through the following states. All interviews st
 | `ENDPOINT_GET_VERSION_REPORT` | VersionGetStep (reused) | Wait for Version CC Report; advances iterator and loops back |
 | `ENDPOINT_ZWAVEPLUS_INFO` | GetEndpointZwavePlusInfoStep | Per-endpoint Z-Wave Plus Info (CC 0x5E) for icon discovery |
 | `ENDPOINT_ASSOCIATION_ITERATOR` | EndpointAssociationIteratorStep | Iterate endpoints: run MCA/Association + AGI + lifeline per endpoint |
+| `INTERVIEW_BASIC` | BasicInterviewStep | Probe Basic Get then Version Get for 0x20 on root and every discovered endpoint (CL:0020.01.21.01.1 / CL:0020.01.21.02.2); give-up marks unsupported and continues |
 | `COMPLETED` | CompletedStep | Starts post-interview command-class work for root and all endpoints; fires INTERVIEW_FULLY_RESOLVED once every seeded command class has explicitly completed it |
 | `FAILED` | - | Interview failed (e.g. node deleted during interview) |
 
@@ -215,6 +219,7 @@ stateDiagram-v2
     state "ENDPOINT_VERSION_CC_SEQUENCE ↔\nENDPOINT_GET_VERSION_REPORT\n(per-CC loop, reused)" as EP_VER_LOOP
     state "ENDPOINT_ZWAVEPLUS_INFO" as EP_ZWPLUS
     state "ENDPOINT_ASSOCIATION_ITERATOR" as EP_ITER
+    state "INTERVIEW_BASIC" as BASIC
     state "COMPLETED" as DONE_S
     state "FAILED" as FAILED_S
 
@@ -250,9 +255,9 @@ stateDiagram-v2
     POST_LIFE --> EP_ITER: SKIP\n(endpoint)
 
     MC_CHECK --> MC_EP: DONE
-    MC_CHECK --> DONE_S: SKIP
+    MC_CHECK --> BASIC: SKIP
     MC_EP --> NUM_EP: DONE
-    MC_EP --> DONE_S: SKIP
+    MC_EP --> BASIC: SKIP
     NUM_EP --> EP_CAP: DONE / SKIP
     EP_CAP --> EP_S2: DONE
     EP_S2 --> EP_S0: DONE / SKIP
@@ -263,7 +268,8 @@ stateDiagram-v2
     EP_ZWPLUS --> EP_ITER: DONE / SKIP
 
     EP_ITER --> MCA_GRP: DONE\n(next endpoint)
-    EP_ITER --> DONE_S: SKIP\n(all endpoints done)
+    EP_ITER --> BASIC: SKIP\n(all endpoints done)
+    BASIC --> DONE_S: DONE / SKIP
 
     DONE_S --> [*]
     FAILED_S --> [*]
@@ -663,11 +669,11 @@ stateDiagram-v2
 
 **Conditions**: Reached after VALIDATE_LIFELINE. Synchronous router step.
 
-**Purpose**: If `session.endpoint_id != 0` we just finished lifeline validation for an endpoint → return SKIP → `ENDPOINT_ASSOCIATION_ITERATOR` (next endpoint or COMPLETED). If `session.endpoint_id == 0` (root) → return DONE → `CHECK_MULTI_CHANNEL_SUPPORT`.
+**Purpose**: If `session.endpoint_id != 0` we just finished lifeline validation for an endpoint → return SKIP → `ENDPOINT_ASSOCIATION_ITERATOR` (next endpoint or INTERVIEW_BASIC). If `session.endpoint_id == 0` (root) → return DONE → `CHECK_MULTI_CHANNEL_SUPPORT`.
 
 ### 21. CheckMultiChannelSupportStep (`CHECK_MULTI_CHANNEL_SUPPORT`)
 
-**Conditions**: Reached after POST_VALIDATE_LIFELINE (root path). No skip condition; always runs. Result determines next state: Multi Channel supported → endpoint discovery; not supported → `COMPLETED`.
+**Conditions**: Reached after POST_VALIDATE_LIFELINE (root path). No skip condition; always runs. Result determines next state: Multi Channel supported → endpoint discovery; not supported → `INTERVIEW_BASIC`.
 
 **Purpose**: Check if the device supports Multi Channel command class (CC 0x60).
 
@@ -677,7 +683,7 @@ stateDiagram-v2
 
 **Transitions**:
 - Multi Channel supported → `MC_ENDPOINT_GET`
-- Not supported → `COMPLETED`
+- Not supported → `INTERVIEW_BASIC`
 
 ### 22. McEndpointGetStep (`MC_ENDPOINT_GET`)
 
@@ -697,7 +703,7 @@ stateDiagram-v2
 - For static endpoints: fills `session.endpoints.endpoint_ids` and sets `session.endpoints.current_endpoint_it`
 
 **Transitions**:
-- No endpoints → `COMPLETED`
+- No endpoints → `INTERVIEW_BASIC`
 - Static endpoints populated → `GET_NUMBER_OF_ENDPOINTS`
 
 ### 23. GetNumberOfEndpointsStep (`GET_NUMBER_OF_ENDPOINTS`)
@@ -822,7 +828,7 @@ stateDiagram-v2
 
 **Conditions**: Reached after ENDPOINT_ZWAVEPLUS_INFO. Runs the same Association/MCA + AGI + lifeline chain for each endpoint by setting `session.endpoint_node` and `session.endpoint_id` to each endpoint in turn.
 
-**Purpose**: Per-endpoint Association/MCA and AGI interview. On first enter: set session to first endpoint, return DONE → `GET_MULTI_CHANNEL_ASSOCIATION_SUPPORTED_GROUPINGS`. When re-entered after VALIDATE_LIFELINE (session.endpoint_id != 0): advance to next endpoint or restore root and return SKIP → `COMPLETED`.
+**Purpose**: Per-endpoint Association/MCA and AGI interview. On first enter: set session to first endpoint, return DONE → `GET_MULTI_CHANNEL_ASSOCIATION_SUPPORTED_GROUPINGS`. When re-entered after VALIDATE_LIFELINE (session.endpoint_id != 0): advance to next endpoint or restore root and return SKIP → `INTERVIEW_BASIC`.
 
 **Per-endpoint scoping**: Before re-entering the association chain for an endpoint, this step:
 - Resets AGI/association session progress (`agi_total_groups`, `agi_used_multi_channel`, group iterators) so root interview state is not reused
@@ -831,11 +837,29 @@ stateDiagram-v2
 Existing MCA / Association / AGI gates then skip naturally when the endpoint does not advertise those CCs.
 
 - More endpoints → `GET_MULTI_CHANNEL_ASSOCIATION_SUPPORTED_GROUPINGS` (same chain for next endpoint)
-- No endpoints or all done → `COMPLETED`
+- No endpoints or all done → `INTERVIEW_BASIC`
 
-### 31. CompletedStep (`COMPLETED`)
+### 31. BasicInterviewStep (`INTERVIEW_BASIC`)
 
-**Conditions**: Final state; reached after the interview flow completes or when Multi Channel is not supported.
+**Conditions**: Reached after Multi Channel is skipped, McEndpointGet finds no endpoints, or per-endpoint association/AGI finishes.
+
+**Purpose**: Discover Basic CC support. Basic is never advertised (CC:0020.01.00.21.003/004). The step always probes with Basic Get (CL:0020.01.21.01.1) on root and every ID in `session.endpoints.endpoint_ids`. Support is established only if a Basic Report arrives (CL:0020.01.21.02.2); then Version Command Class Get is sent for `0x20`. Give-up stores version 0 and continues. The step never fails the interview.
+
+**Actions on Enter**:
+- Builds `session.basic.endpoint_ids` as `[0]` plus non-zero discovered endpoints
+- Sets `PendingKick`
+
+**Handles Events**:
+- `BASIC_REPORT_RECEIVED` → establish version 1 if missing, fire `COMMAND_CLASS_VERSION_CC_GET` for Basic
+- `BASIC_GET_RESOLUTION_GIVE_UP` → store version 0, probe next endpoint
+- `VERSION_CC_GET_REQUESTED` with `command_class == COMMAND_CLASS_BASIC` → next endpoint
+
+**Transitions**:
+- All endpoints probed → `COMPLETED`
+
+### 32. CompletedStep (`COMPLETED`)
+
+**Conditions**: Final state; reached after `INTERVIEW_BASIC`.
 
 **Purpose**: Final state indicating interview completion. Fires two events with distinct semantics so that command classes can run their `on_interview` post-interview hooks before the user-visible "interview done" signal is published:
 
@@ -880,6 +904,8 @@ Existing MCA / Association / AGI gates then skip naturally when the endpoint doe
 | `ASSOCIATION_GRP_INFO_GROUP_NAME_REPORT_RECEIVED` | AGI Group Name Report received | `component_connector_agi_groupings_payload_t` |
 | `ASSOCIATION_GRP_INFO_GROUP_INFO_REPORT_RECEIVED` | AGI Group Info Report received | `component_connector_agi_groupings_payload_t` |
 | `ASSOCIATION_GRP_INFO_GROUP_COMMAND_LIST_REPORT_RECEIVED` | AGI Group Command List Report received | `component_connector_agi_groupings_payload_t` |
+| `BASIC_REPORT_RECEIVED` | Basic Report received (interview probe) | `basic_report_received_payload_t` |
+| `BASIC_GET_RESOLUTION_GIVE_UP` | Basic Get resolver retries exhausted | `basic_get_resolution_give_up_payload_t` |
 
 ### Event Flow
 
@@ -920,6 +946,9 @@ Each interview maintains a session (`InterviewSession`) that tracks:
   - `agi_used_multi_channel`: `true` if groupings came from Multi Channel Association step
   - `agi_total_groups`: Total association groups to query
   - `agi_current_group_id`: Current group being queried (1-based). Per-group flow is driven by states GET_AGI_GROUP_NAME → GET_AGI_GROUP_INFO → GET_AGI_GROUP_COMMAND_LIST → (next group or SET_LIFELINE)
+- **Basic**:
+  - `basic.phase`: `PendingKick` → `AwaitingReport` → `AwaitingVersion`
+  - `basic.endpoint_ids` / `basic.current_endpoint_it`: Root plus discovered endpoints to probe
 - **Security**: `granted_keys`
 
 ## Starting an Interview

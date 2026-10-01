@@ -51,6 +51,8 @@ namespace zwave_command_class
         ASSOCIATION_GRP_INFO_GROUP_NAME_REPORT_RECEIVED,
         ASSOCIATION_GRP_INFO_GROUP_INFO_REPORT_RECEIVED,
         ASSOCIATION_GRP_INFO_GROUP_COMMAND_LIST_REPORT_RECEIVED,
+        BASIC_REPORT_RECEIVED,
+        BASIC_GET_RESOLUTION_GIVE_UP,
     };
 
     struct device_interviewer_external_event_data {
@@ -117,6 +119,10 @@ namespace zwave_command_class
                 return "ASSOCIATION_GRP_INFO_GROUP_INFO_REPORT_RECEIVED";
             case device_interviewer_external_event_t::ASSOCIATION_GRP_INFO_GROUP_COMMAND_LIST_REPORT_RECEIVED:
                 return "ASSOCIATION_GRP_INFO_GROUP_COMMAND_LIST_REPORT_RECEIVED";
+            case device_interviewer_external_event_t::BASIC_REPORT_RECEIVED:
+                return "BASIC_REPORT_RECEIVED";
+            case device_interviewer_external_event_t::BASIC_GET_RESOLUTION_GIVE_UP:
+                return "BASIC_GET_RESOLUTION_GIVE_UP";
             default:
                 return "UNKNOWN_EVENT";
         }

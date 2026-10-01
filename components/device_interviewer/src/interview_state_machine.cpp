@@ -111,9 +111,9 @@ namespace zwave_command_class
 
         // Phase 5: Multi Channel discovery
         set_transition(InterviewState::CHECK_MULTI_CHANNEL_SUPPORT, StepResultCode::DONE, InterviewState::MC_ENDPOINT_GET);
-        set_transition(InterviewState::CHECK_MULTI_CHANNEL_SUPPORT, StepResultCode::SKIP, InterviewState::COMPLETED);
+        set_transition(InterviewState::CHECK_MULTI_CHANNEL_SUPPORT, StepResultCode::SKIP, InterviewState::INTERVIEW_BASIC);
         set_transition(InterviewState::MC_ENDPOINT_GET, StepResultCode::DONE, InterviewState::GET_NUMBER_OF_ENDPOINTS);
-        set_transition(InterviewState::MC_ENDPOINT_GET, StepResultCode::SKIP, InterviewState::COMPLETED);
+        set_transition(InterviewState::MC_ENDPOINT_GET, StepResultCode::SKIP, InterviewState::INTERVIEW_BASIC);
         set_transition(InterviewState::GET_NUMBER_OF_ENDPOINTS, StepResultCode::DONE, InterviewState::GET_ENDPOINT_CAPABILITIES);
         set_transition(InterviewState::GET_NUMBER_OF_ENDPOINTS, StepResultCode::SKIP, InterviewState::GET_ENDPOINT_CAPABILITIES);
         set_transition(InterviewState::GET_ENDPOINT_CAPABILITIES, StepResultCode::DONE, InterviewState::GET_ENDPOINT_S2_CAPABILITIES);
@@ -133,7 +133,9 @@ namespace zwave_command_class
         set_transition(InterviewState::ENDPOINT_ZWAVEPLUS_INFO, StepResultCode::DONE, InterviewState::ENDPOINT_ASSOCIATION_ITERATOR);
         set_transition(InterviewState::ENDPOINT_ZWAVEPLUS_INFO, StepResultCode::SKIP, InterviewState::ENDPOINT_ASSOCIATION_ITERATOR);
         set_transition(InterviewState::ENDPOINT_ASSOCIATION_ITERATOR, StepResultCode::DONE, InterviewState::GET_MULTI_CHANNEL_ASSOCIATION_SUPPORTED_GROUPINGS);
-        set_transition(InterviewState::ENDPOINT_ASSOCIATION_ITERATOR, StepResultCode::SKIP, InterviewState::COMPLETED);
+        set_transition(InterviewState::ENDPOINT_ASSOCIATION_ITERATOR, StepResultCode::SKIP, InterviewState::INTERVIEW_BASIC);
+        set_transition(InterviewState::INTERVIEW_BASIC, StepResultCode::DONE, InterviewState::COMPLETED);
+        set_transition(InterviewState::INTERVIEW_BASIC, StepResultCode::SKIP, InterviewState::COMPLETED);
     }
 
     void InterviewStateMachine::register_steps()
@@ -184,6 +186,7 @@ namespace zwave_command_class
         // Phase 7: Per-endpoint Z-Wave Plus Info and Association/AGI
         register_step(InterviewState::ENDPOINT_ZWAVEPLUS_INFO, std::make_unique<GetEndpointZwavePlusInfoStep>());
         register_step(InterviewState::ENDPOINT_ASSOCIATION_ITERATOR, std::make_unique<EndpointAssociationIteratorStep>());
+        register_step(InterviewState::INTERVIEW_BASIC, std::make_unique<BasicInterviewStep>());
 
         // Interview complete
         register_step(InterviewState::COMPLETED, std::make_unique<CompletedStep>());

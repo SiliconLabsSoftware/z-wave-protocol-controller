@@ -405,8 +405,6 @@ namespace zwave_command_class
         const auto extended = command_class_utils::get_extended_command_classes(command_classes);
         ids.insert(ids.end(), normal.begin(), normal.end());
         ids.insert(ids.end(), extended.begin(), extended.end());
-        // Basic is never advertised, so probe it explicitly on every endpoint.
-        ids.push_back(COMMAND_CLASS_BASIC);
         std::sort(ids.begin(), ids.end());
         ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
         for (const auto id: ids) {
