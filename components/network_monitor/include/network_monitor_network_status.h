@@ -16,7 +16,10 @@ typedef enum {
     NETWORK_MONITOR_NETWORK_STATUS_COMMISIONING_STARTED  = 5,
 } NetworkMonitorNetworkStatus;
 
-/** True if any end device (not ZPC) is in protocol commissioning (`COMMISIONING_STARTED`). */
+/**
+ * True if any end device (not ZPC) is in protocol commissioning
+ * (`COMMISIONING_STARTED`) without a terminal KEX failure.
+ */
 bool network_monitor_is_end_device_inclusion_ongoing(void);
 
 /** True if any end device (not ZPC) has status `ONLINE_INTERVIEWING`. */
