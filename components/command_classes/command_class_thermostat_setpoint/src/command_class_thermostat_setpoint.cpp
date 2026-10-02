@@ -120,6 +120,24 @@ namespace zwave_command_class
       0x0F,  // bit 11 → Full Power
     };
 
+    static bool bit_mask_has_bit(const std::vector<uint8_t> &bit_mask, uint8_t bit)
+    {
+        const uint8_t byte_idx = bit / 8;
+        const uint8_t bit_idx  = bit % 8;
+        return byte_idx < bit_mask.size() && (bit_mask[byte_idx] & (1U << bit_idx)) != 0U;
+    }
+
+    // v1/v2: bit N in the Supported Report bitmask is setpoint type N.
+    static uint8_t next_v1_supported_setpoint_type(const std::vector<uint8_t> &bit_mask, uint8_t after_type)
+    {
+        for (uint8_t type = after_type + 1; type <= 14; ++type) {
+            if (bit_mask_has_bit(bit_mask, type)) {
+                return type;
+            }
+        }
+        return 0;
+    }
+
     // Returns the first supported setpoint type identifier > after_type, or 0 if none.
     static uint8_t next_supported_setpoint_type(const std::vector<uint8_t> &bit_mask, uint8_t after_type)
     {
@@ -128,9 +146,7 @@ namespace zwave_command_class
             if (type <= after_type) {
                 continue;
             }
-            const uint8_t byte_idx = bit / 8;
-            const uint8_t bit_idx  = bit % 8;
-            if (byte_idx < bit_mask.size() && (bit_mask[byte_idx] & (1U << bit_idx)) != 0U) {
+            if (bit_mask_has_bit(bit_mask, bit)) {
                 return type;
             }
         }
@@ -186,13 +202,17 @@ namespace zwave_command_class
         (void)payload;
         const uint8_t supported_version = endpoint_supported_version(endpoint);
         if (supported_version >= 1 && supported_version <= 2) {
-            for (uint8_t type = 1; type <= 14; ++type) {
+            const auto bit_mask = get_supported_bit_mask(endpoint);
+            for (uint8_t type = next_v1_supported_setpoint_type(bit_mask, 0); type != 0; type = next_v1_supported_setpoint_type(bit_mask, type)) {
                 require_setpoint_type_attributes(endpoint, type, false);
             }
-            auto get_group_node     = endpoint.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::THERMOSTAT_SETPOINT_GET_GROUP));
-            auto setpoint_type_node = get_group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::setpoint_type));
-            setpoint_type_node.set_desired<uint8_t>(1);
-            start_group_resolution(get_group_node);
+            const uint8_t first = next_v1_supported_setpoint_type(bit_mask, 0);
+            if (first != 0) {
+                auto get_group_node     = endpoint.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::THERMOSTAT_SETPOINT_GET_GROUP));
+                auto setpoint_type_node = get_group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::setpoint_type));
+                setpoint_type_node.set_desired<uint8_t>(first);
+                start_group_resolution(get_group_node);
+            }
         }
 
         if (supported_version >= 3) {
@@ -255,10 +275,11 @@ namespace zwave_command_class
             auto setpoint_type_node = get_group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_get_group_attributes_t::setpoint_type));
             if (setpoint_type_node.desired_exists()) {
                 const uint8_t asked_type = setpoint_type_node.desired<uint8_t>();
-                if (asked_type >= 1 && asked_type < 14) {
+                const auto bit_mask      = get_supported_bit_mask(endpoint);
+                for (uint8_t next = next_v1_supported_setpoint_type(bit_mask, asked_type); next != 0; next = next_v1_supported_setpoint_type(bit_mask, next)) {
                     uint8_t next_scale = 0;
-                    if (!get_reported_scale_for_setpoint_type(endpoint, static_cast<uint8_t>(asked_type + 1), next_scale)) {
-                        setpoint_type_node.set_desired<uint8_t>(asked_type + 1);
+                    if (!get_reported_scale_for_setpoint_type(endpoint, next, next_scale)) {
+                        setpoint_type_node.set_desired<uint8_t>(next);
                         start_group_resolution(get_group_node);
                         return SL_STATUS_OK;
                     }
