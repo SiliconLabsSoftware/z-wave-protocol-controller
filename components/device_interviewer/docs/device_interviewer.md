@@ -968,6 +968,8 @@ S2/S0 bootstrapping failure (`kex_fail_type != none` or non-OK `status`) does **
 
 Sessions track `last_progress_at` on every state transition. If no progress for too long, `abort_stale_sessions()` (from the interviewer `run()` loop) fires `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED` with `status = FAIL` (no `INTERVIEW_DONE`) and erases the session. Network monitor maps non-OK FULLY_RESOLVED to `ONLINE_NON_FUNCTIONAL`.
 
+`COMPLETED` waits for command-class interviews (attribute resolver Gets), which do not update `last_progress_at`. It is **not** aborted while the node's attribute subtree still needs Get resolution. If the resolver is idle (reports received or Gets given up) and the stall timeout has still elapsed, remaining CC latch rows are **expired** (`FULLY_RESOLVED` OK) so a stuck `interview_require` cannot hang the session. That path does not FAIL the interview, so network monitor does not re-send Lifeline Set.
+
 | Node type | Stall timeout |
 |-----------|---------------|
 | AL / FL | **60 s** |

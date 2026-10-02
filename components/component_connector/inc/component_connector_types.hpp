@@ -169,7 +169,7 @@ namespace zwave_command_class
      * command_classes is used only by seed: an empty list makes the command-class
      * base read the endpoint's persisted S0/S2 capability reports.
      */
-    enum class component_connector_cc_interview_action_t : uint8_t { seed, check, cancel };
+    enum class component_connector_cc_interview_action_t : uint8_t { seed, check, cancel, expire };
 
     struct component_connector_cc_interview_action_payload_t {
             attribute_store_node_t endpoint_node;

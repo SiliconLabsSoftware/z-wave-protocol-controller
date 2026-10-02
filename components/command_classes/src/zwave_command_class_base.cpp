@@ -89,6 +89,11 @@ namespace zwave_command_class
                             connector.fire_event(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED), failure);
                         }
                         return SL_STATUS_OK;
+                    case component_connector_cc_interview_action_t::expire:
+                        if (!zwave_command_class_base::expire_cc_interview_state(endpoint)) {
+                            zwave_command_class_base::check_cc_interview_state(endpoint);
+                        }
+                        return SL_STATUS_OK;
                 }
                 return SL_STATUS_FAIL;
             });
@@ -632,6 +637,38 @@ namespace zwave_command_class
             connector.fire_event(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED), payload);
         }
         return true;
+    }
+
+    bool zwave_command_class_base::expire_cc_interview_state(attribute_store::attribute endpoint)
+    {
+        auto device = endpoint.parent();
+        if (!device.is_valid()) {
+            return false;
+        }
+        auto published_group = cc_interview_published_group(endpoint);
+        if (published_group.reported_exists()) {
+            return false;
+        }
+
+        bool found = false;
+        for (const auto &ep: device.children(ATTRIBUTE_ENDPOINT_ID)) {
+            clear_interview_pending_for_endpoint(ep);
+            auto group = ep.child_by_type(ATTRIBUTE_CC_INTERVIEW_ONGOING_GROUP);
+            if (!group.is_valid()) {
+                continue;
+            }
+            for (const auto &cc: group.children(ATTRIBUTE_CC_INTERVIEW_COMMAND_CLASS)) {
+                if (!cc.reported_exists()) {
+                    continue;
+                }
+                const auto cc_id = static_cast<zwave_command_class_t>(cc.reported<uint16_t>());
+                if (is_cc_interview_ongoing(ep, cc_id)) {
+                    found = true;
+                    set_cc_interview_state(ep, cc_id, cc_interview_state::done);
+                }
+            }
+        }
+        return found;
     }
 
     bool zwave_command_class_base::is_supported_on_node(attribute_store::attribute endpoint_node) const

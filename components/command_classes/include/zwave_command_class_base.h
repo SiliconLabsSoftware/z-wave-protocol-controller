@@ -147,6 +147,8 @@ namespace zwave_command_class
             static void set_cc_interview_state(attribute_store::attribute endpoint, zwave_command_class_t cc_id, cc_interview_state state);
             static void check_cc_interview_state(attribute_store::attribute endpoint);
             static bool cancel_cc_interview_state(attribute_store::attribute endpoint);
+            /** Mark remaining ongoing CCs done and publish FULLY_RESOLVED OK (resolver idle, latch stuck). */
+            static bool expire_cc_interview_state(attribute_store::attribute endpoint);
 
             /** Seed explicit post-interview state from a raw NIF/Security CC list. */
             static void seed_cc_interview_state(attribute_store::attribute endpoint, const std::vector<uint8_t> &command_classes);

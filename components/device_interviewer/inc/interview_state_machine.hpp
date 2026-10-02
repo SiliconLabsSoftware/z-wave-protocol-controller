@@ -223,7 +223,12 @@ namespace zwave_command_class
              * @brief Abort interviews that have made no state progress for too long.
              *
              * AL/FL: 60 s. NL: max(2 × zpc.default_wake_up_interval, 15 min).
-             * Fires INTERVIEW_FULLY_RESOLVED with fail status and erases the session.
+             * COMPLETED is aborted only when the attribute resolver is idle on the
+             * node (Gets given up or finished) and the stall timeout has elapsed.
+             * That expires remaining CC latch rows with FULLY_RESOLVED OK so a
+             * stuck CC cannot hang the session, and does not FAIL/re-interview.
+             * In-progress CC Gets are not aborted. Other states fire
+             * INTERVIEW_FULLY_RESOLVED FAIL and erase the session.
              */
             void abort_stale_sessions();
 

@@ -28,6 +28,7 @@
 #include "zwave_utils.h"
 #include "clock_platform.h"
 #include "zpc_config.h"
+#include "attribute_resolver.h"
 
 namespace zwave_command_class
 {
@@ -501,10 +502,17 @@ namespace zwave_command_class
     {
         const clock_time_t now = clock_time();
         std::vector<std::pair<zwave_node_id_t, uint8_t>> stale_keys;
+        std::vector<std::pair<zwave_node_id_t, uint8_t>> expired_completed;
 
         for (auto &[key, session]: sessions) {
             if (session->current_state == InterviewState::IDLE || session->current_state == InterviewState::FAILED) {
                 continue;
+            }
+
+            if (session->current_state == InterviewState::COMPLETED) {
+                if (session->device_node.is_valid() && attribute_resolver_node_or_child_needs_resolution(session->device_node)) {
+                    continue;
+                }
             }
 
             if ((now - session->last_progress_at) <= stall_timeout_ms_for_node(session->node_id)) {
@@ -513,9 +521,24 @@ namespace zwave_command_class
 
             auto *base_step             = get_step(session->current_state);
             const std::string step_name = (base_step != nullptr) ? base_step->name() : "UNKNOWN";
-            sl_log_warning(LOG_TAG.data(), "Node %d: interview stalled in step %s for %lu ms — aborting", session->node_id, step_name.c_str(), static_cast<unsigned long>(now - session->last_progress_at));
+            if (session->current_state == InterviewState::COMPLETED) {
+                sl_log_warning(LOG_TAG.data(), "Node %d: command-class interview latch still open after %lu ms with idle resolver — expiring", session->node_id, static_cast<unsigned long>(now - session->last_progress_at));
+                expired_completed.push_back(key);
+            } else {
+                sl_log_warning(LOG_TAG.data(), "Node %d: interview stalled in step %s for %lu ms — aborting", session->node_id, step_name.c_str(), static_cast<unsigned long>(now - session->last_progress_at));
+                stale_keys.push_back(key);
+            }
+        }
 
-            stale_keys.push_back(key);
+        for (const auto &key: expired_completed) {
+            auto it = sessions.find(key);
+            if (it == sessions.end() || !it->second->endpoint_node.is_valid()) {
+                continue;
+            }
+            component_connector connector;
+            component_connector_cc_interview_action_payload_t expire_payload {.endpoint_node = it->second->endpoint_node, .action = component_connector_cc_interview_action_t::expire};
+            static_cast<void>(connector.fire_event_async(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_CC_INTERVIEW_ACTION_REQUESTED), expire_payload).get());
+            sessions.erase(it);
         }
 
         for (const auto &key: stale_keys) {
