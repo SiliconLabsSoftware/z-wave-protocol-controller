@@ -507,6 +507,9 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
             } else if (ev == NM_EV_REMOVE_FAILED) {
                 sl_log_debug(LOG_TAG, "Sending a NOP to failed NodeID %d before removing it.\n", nms.node_id_being_handled);
                 nms.state = NM_FAILED_NODE_REMOVE;
+            } else {
+                sl_log_debug(LOG_TAG, "Ignoring %s in NM_SEND_NOP for NodeID %d\n", nm_event_name(ev), nms.node_id_being_handled);
+                break;
             }
             uint8_t nop_frame[1] = {0};
 
