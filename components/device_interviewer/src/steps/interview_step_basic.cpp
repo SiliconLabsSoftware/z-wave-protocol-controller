@@ -20,6 +20,7 @@
 #include "command_class_version_types.hpp"
 #include "attribute_store_defined_attribute_types.h"
 #include "zpc_attribute_store_network_helper.h"
+#include "zwave_command_class_utils.hpp"
 #include "ZW_classcmd.h"
 #include "log.h"
 
@@ -77,14 +78,17 @@ namespace zwave_command_class
             connector.fire_event(static_cast<uint32_t>(command_class_basic_events_t::COMMAND_CLASS_BASIC_GET_INTERVIEW), payload);
         }
 
-        void fire_basic_version_get(attribute_store::attribute endpoint_node)
+        void establish_basic_version_1(attribute_store::attribute endpoint_node)
         {
             auto version_node = basic_version_node(endpoint_node);
             if (!version_node.reported_exists() || version_node.reported<uint8_t>() == 0) {
                 version_node.set_reported<uint8_t>(1);
                 sl_log_debug(LOG_TAG.data(), "Basic Report received; establishing Basic CC version 1");
             }
+        }
 
+        void fire_basic_version_get(attribute_store::attribute endpoint_node)
+        {
             command_class_version_types::command_class_version_cc_get_payload_t payload_map_version;
             payload_map_version.device_endpoint_node   = endpoint_node;
             payload_map_version.command_class          = COMMAND_CLASS_BASIC;
@@ -93,6 +97,20 @@ namespace zwave_command_class
 
             component_connector connector;
             connector.fire_event(static_cast<uint32_t>(command_class_version_events_t::COMMAND_CLASS_VERSION_CC_GET), payload_map_version);
+        }
+
+        StepResult advance_to_next_basic_endpoint(InterviewSession &session)
+        {
+            ++session.basic.current_endpoint_it;
+            if (session.basic.current_endpoint_it == session.basic.endpoint_ids.end()) {
+                return StepResult(SL_STATUS_OK, StepResultCode::DONE);
+            }
+            session.basic.phase = BasicProgress::Phase::PendingKick;
+            heal_basic_version_if_report_present(current_basic_endpoint(session));
+            fire_basic_get(current_basic_endpoint(session));
+            session.basic.phase = BasicProgress::Phase::AwaitingReport;
+            sl_log_info(LOG_TAG.data(), "Node %d: Basic Get probe on endpoint %u", session.node_id, static_cast<unsigned>(*session.basic.current_endpoint_it));
+            return StepResult(SL_STATUS_OK, StepResultCode::STAY);
         }
 
     }  // namespace
@@ -147,7 +165,14 @@ namespace zwave_command_class
                 return stay(SL_STATUS_FAIL);
             }
 
-            fire_basic_version_get(current_basic_endpoint(session));
+            auto endpoint_node = current_basic_endpoint(session);
+            establish_basic_version_1(endpoint_node);
+            if (!command_class_utils::is_version_command_class_in_s2_s0_nif_lists(session.s2_supported_command_classes, session.s0_supported_command_classes, session.node_information_command_class_list)) {
+                sl_log_info(LOG_TAG.data(), "Node %d: Basic Report on endpoint %u; Version CC unsupported, keeping version 1", session.node_id, static_cast<unsigned>(*session.basic.current_endpoint_it));
+                return advance_to_next_basic_endpoint(session);
+            }
+
+            fire_basic_version_get(endpoint_node);
             session.basic.phase = BasicProgress::Phase::AwaitingVersion;
             sl_log_info(LOG_TAG.data(), "Node %d: Basic Report on endpoint %u; Version Get for 0x20", session.node_id, static_cast<unsigned>(*session.basic.current_endpoint_it));
             return stay();
@@ -170,17 +195,7 @@ namespace zwave_command_class
             auto endpoint_node = current_basic_endpoint(session);
             endpoint_node.emplace_node(ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_BASIC)).set_reported<uint8_t>(0);
             sl_log_info(LOG_TAG.data(), "Node %d: Basic Get exhausted on endpoint %u; leaving unsupported", session.node_id, static_cast<unsigned>(*session.basic.current_endpoint_it));
-
-            ++session.basic.current_endpoint_it;
-            if (session.basic.current_endpoint_it == session.basic.endpoint_ids.end()) {
-                return done();
-            }
-            session.basic.phase = BasicProgress::Phase::PendingKick;
-            heal_basic_version_if_report_present(current_basic_endpoint(session));
-            fire_basic_get(current_basic_endpoint(session));
-            session.basic.phase = BasicProgress::Phase::AwaitingReport;
-            sl_log_info(LOG_TAG.data(), "Node %d: Basic Get probe on endpoint %u", session.node_id, static_cast<unsigned>(*session.basic.current_endpoint_it));
-            return stay();
+            return advance_to_next_basic_endpoint(session);
         }
 
         if (event->event == device_interviewer_external_event_t::VERSION_CC_GET_REQUESTED) {
@@ -198,16 +213,7 @@ namespace zwave_command_class
             }
 
             sl_log_info(LOG_TAG.data(), "Node %d: Basic Version Report for endpoint %u", session.node_id, static_cast<unsigned>(*session.basic.current_endpoint_it));
-            ++session.basic.current_endpoint_it;
-            if (session.basic.current_endpoint_it == session.basic.endpoint_ids.end()) {
-                return done();
-            }
-            session.basic.phase = BasicProgress::Phase::PendingKick;
-            heal_basic_version_if_report_present(current_basic_endpoint(session));
-            fire_basic_get(current_basic_endpoint(session));
-            session.basic.phase = BasicProgress::Phase::AwaitingReport;
-            sl_log_info(LOG_TAG.data(), "Node %d: Basic Get probe on endpoint %u", session.node_id, static_cast<unsigned>(*session.basic.current_endpoint_it));
-            return stay();
+            return advance_to_next_basic_endpoint(session);
         }
 
         return stay();

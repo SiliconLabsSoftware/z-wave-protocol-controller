@@ -23,9 +23,10 @@ namespace zwave_command_class
      *
      * Basic MUST NOT be advertised (CC:0020.01.00.21.003/004). Support is
      * established only if a Basic Report is returned (CL:0020.01.21.02.2)
-     * after Basic Get (CL:0020.01.21.01.1). Version Get for 0x20 follows a
-     * report; Version 0 is promoted to 1 by the Basic CC. Give-up stores
-     * version 0 and continues; this step never fails the interview.
+     * after Basic Get (CL:0020.01.21.01.1). A report stores version 1
+     * immediately (CL:0020.01.21.02.2). Version Get for 0x20 follows only
+     * when Version CC (0x86) is advertised; otherwise version 1 is kept.
+     * Give-up stores version 0 and continues; this step never fails the interview.
      */
     class BasicInterviewStep : public InterviewStep
     {
