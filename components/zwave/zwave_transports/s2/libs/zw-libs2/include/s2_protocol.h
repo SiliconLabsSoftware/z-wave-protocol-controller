@@ -16,14 +16,6 @@
 #include "ZW_typedefs.h"
 #include "ZW_classcmd.h"
 
-/**
- * How many S2 sequence numbers are considered to be duplicates.
- * Specification requires at least one.  A value of zero would mean no
- * duplicate detection.
- */
-#define S2_SEQ_DUPL_WINDOW_SIZE           ((uint8_t)2)
-#define S2_SEQ_DUPL_WINDOW_SIZE_NONCE_GET ((uint8_t)1)
-
 #define UNENCRYPTED_CLASS 0xFF
 #if defined(ZW_CONTROLLER) && !defined(HOST_SECURITY_INCLUDED)
 /* Largest size that fits in uint8_t (minus 1). */
