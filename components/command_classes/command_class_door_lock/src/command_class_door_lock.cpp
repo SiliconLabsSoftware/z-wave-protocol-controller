@@ -29,15 +29,25 @@ namespace zwave_command_class
 
     void command_class_door_lock::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(door_lock_operation_report_group_attributes_t::DOOR_LOCK_OPERATION_REPORT_GROUP));
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(door_lock_configuration_report_group_attributes_t::DOOR_LOCK_CONFIGURATION_REPORT_GROUP));
         if (supported_version >= 4) {
-            auto capabilities_get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(door_lock_capabilities_get_group_attributes_t::DOOR_LOCK_CAPABILITIES_GET_GROUP));
-            start_group_resolution(capabilities_get_node);
+            invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(door_lock_capabilities_report_group_attributes_t::DOOR_LOCK_CAPABILITIES_REPORT_GROUP));
         }
-        auto operation_get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(door_lock_operation_get_group_attributes_t::DOOR_LOCK_OPERATION_GET_GROUP));
-        start_group_resolution(operation_get_node);
 
-        auto configuration_get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(door_lock_configuration_get_group_attributes_t::DOOR_LOCK_CONFIGURATION_GET_GROUP));
-        start_group_resolution(configuration_get_node);
+        auto operation_report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(door_lock_operation_report_group_attributes_t::DOOR_LOCK_OPERATION_REPORT_GROUP));
+        interview_require(operation_report.emplace_node(static_cast<attribute_store_type_t>(door_lock_operation_report_group_attributes_t::current_door_lock_mode)));
+        start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(door_lock_operation_get_group_attributes_t::DOOR_LOCK_OPERATION_GET_GROUP)));
+
+        auto configuration_report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(door_lock_configuration_report_group_attributes_t::DOOR_LOCK_CONFIGURATION_REPORT_GROUP));
+        interview_require(configuration_report.emplace_node(static_cast<attribute_store_type_t>(door_lock_configuration_report_group_attributes_t::operation_type)));
+        start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(door_lock_configuration_get_group_attributes_t::DOOR_LOCK_CONFIGURATION_GET_GROUP)));
+
+        if (supported_version >= 4) {
+            auto capabilities_report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(door_lock_capabilities_report_group_attributes_t::DOOR_LOCK_CAPABILITIES_REPORT_GROUP));
+            interview_require(capabilities_report.emplace_node(static_cast<attribute_store_type_t>(door_lock_capabilities_report_group_attributes_t::supported_operation_type_bit_mask_length)));
+            start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(door_lock_capabilities_get_group_attributes_t::DOOR_LOCK_CAPABILITIES_GET_GROUP)));
+        }
     }
 
     sl_status_t command_class_door_lock::on_door_lock_operation_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length)

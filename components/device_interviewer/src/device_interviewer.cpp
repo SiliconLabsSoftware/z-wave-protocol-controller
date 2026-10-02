@@ -51,6 +51,8 @@
 #include "command_class_zwaveplus_info_types.hpp"
 #include "command_class_wake_up_events.hpp"
 #include "command_class_wake_up_types.hpp"
+#include "command_class_basic_events.hpp"
+#include "command_class_basic_types.hpp"
 
 #include "zwave_command_class_utils.hpp"
 
@@ -136,6 +138,14 @@ namespace zwave_command_class
 
         connector.connect_typed<component_connector_common_events_t, component_connector_factory_reset_complete_payload_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_FACTORY_RESET_COMPLETE, [](const component_connector_factory_reset_complete_payload_t &p) {
             queue_event(device_interviewer_external_event_t::FACTORY_RESET, p);
+            return SL_STATUS_OK;
+        });
+
+        // The command-class base publishes this only once its tracked
+        // post-interview resolutions have settled. Queue it so session mutation
+        // stays on the Device Interviewer worker.
+        connector.connect_typed<component_connector_common_events_t, component_connector_interview_done_payload_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED, [](const component_connector_interview_done_payload_t &p) {
+            queue_event(device_interviewer_external_event_t::INTERVIEW_FULLY_RESOLVED, p, p.endpoint_node);
             return SL_STATUS_OK;
         });
 
@@ -305,6 +315,16 @@ namespace zwave_command_class
         });
         connector.connect_typed<command_class_association_grp_info_events_t, component_connector_agi_groupings_payload_t>(command_class_association_grp_info_events_t::COMMAND_CLASS_ASSOCIATION_GRP_INFO_GROUP_COMMAND_LIST_REPORT, [](const component_connector_agi_groupings_payload_t &p) {
             queue_event(device_interviewer_external_event_t::ASSOCIATION_GRP_INFO_GROUP_COMMAND_LIST_REPORT_RECEIVED, p, p.device_endpoint_node);
+            return SL_STATUS_OK;
+        });
+
+        connector.connect_typed<command_class_basic_events_t, command_class_basic_types::basic_report_received_payload_t>(command_class_basic_events_t::COMMAND_CLASS_BASIC_REPORT_RECEIVED, [](const command_class_basic_types::basic_report_received_payload_t &p) {
+            queue_event(device_interviewer_external_event_t::BASIC_REPORT_RECEIVED, p, p.device_endpoint_node);
+            return SL_STATUS_OK;
+        });
+
+        connector.connect_typed<command_class_basic_events_t, command_class_basic_types::basic_get_resolution_give_up_payload_t>(command_class_basic_events_t::COMMAND_CLASS_BASIC_GET_RESOLUTION_GIVE_UP, [](const command_class_basic_types::basic_get_resolution_give_up_payload_t &p) {
+            queue_event(device_interviewer_external_event_t::BASIC_GET_RESOLUTION_GIVE_UP, p, p.device_endpoint_node);
             return SL_STATUS_OK;
         });
 

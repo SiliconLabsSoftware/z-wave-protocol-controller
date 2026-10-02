@@ -191,8 +191,6 @@ namespace zwave_command_class
         return SL_STATUS_OK;
     }
 
-    void command_class_multi_channel_association::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version) {}
-
     sl_status_t command_class_multi_channel_association::on_multi_channel_association_get_requested_assemble_frame(const get_requested_args &args, uint8_t *data, uint16_t *length)
     {
         auto *frame_generator = args.get_frame_generator;

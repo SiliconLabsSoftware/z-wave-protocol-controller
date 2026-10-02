@@ -17,6 +17,8 @@
 
 // Other components
 #include "zpc_mqtt_utils.hpp"  // get_endpoint_node_from_topic
+#include "network_monitor_network_status.h"
+#include "zpc_attribute_store_network_helper.h"
 
 // fmt
 #include "fmt/format.h"
@@ -52,6 +54,20 @@ namespace zpc_mqtt
         auto command_info = utils::get_command_info_from_topic(topic);
         // If anything went wrong, no need to display anything, all the info should be already displayed
         if (command_info.command_class_name.empty() || command_info.command_name.empty()) {
+            return;
+        }
+
+        // Ignore client Commands until inclusion + interview have finished for
+        // this node. Network-management topics are not routed here.
+        zwave_node_id_t node_id         = 0;
+        zwave_endpoint_id_t endpoint_id = 0;
+        if (attribute_store_network_helper_get_zwave_ids_from_node(endpoint_node, &node_id, &endpoint_id) != SL_STATUS_OK || !network_monitor_is_node_ready_for_commands(node_id)) {
+            sl_log_debug(LOG_TAG,
+                         "Ignoring MQTT command '%s/%s' for NodeID %d: node not ready "
+                         "(inclusion/interview incomplete).",
+                         command_info.command_class_name.c_str(),
+                         command_info.command_name.c_str(),
+                         node_id);
             return;
         }
 

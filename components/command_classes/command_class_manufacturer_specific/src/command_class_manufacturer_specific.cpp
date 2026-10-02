@@ -108,11 +108,20 @@ namespace zwave_command_class
 
     void command_class_manufacturer_specific::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
-        auto group_node_manufacturer_specific = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(manufacturer_specific_get_group_attributes_t::MANUFACTURER_SPECIFIC_GET_GROUP));
-        command_class_manufacturer_specific_core::start_group_resolution(group_node_manufacturer_specific);
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(manufacturer_specific_report_group_attributes_t::MANUFACTURER_SPECIFIC_REPORT_GROUP));
+        if (supported_version >= 2) {
+            invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(device_specific_report_group_attributes_t::DEVICE_SPECIFIC_REPORT_GROUP));
+        }
 
-        auto group_node_device_specific = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(device_specific_get_group_attributes_t::DEVICE_SPECIFIC_GET_GROUP));
-        command_class_manufacturer_specific_core::start_group_resolution(group_node_device_specific);
+        auto manufacturer_report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(manufacturer_specific_report_group_attributes_t::MANUFACTURER_SPECIFIC_REPORT_GROUP));
+        interview_require(manufacturer_report.emplace_node(static_cast<attribute_store_type_t>(manufacturer_specific_report_group_attributes_t::manufacturer_id)));
+        start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(manufacturer_specific_get_group_attributes_t::MANUFACTURER_SPECIFIC_GET_GROUP)));
+
+        if (supported_version >= 2) {
+            auto device_report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(device_specific_report_group_attributes_t::DEVICE_SPECIFIC_REPORT_GROUP));
+            interview_require(device_report.emplace_node(static_cast<attribute_store_type_t>(device_specific_report_group_attributes_t::device_id_type)));
+            start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(device_specific_get_group_attributes_t::DEVICE_SPECIFIC_GET_GROUP)));
+        }
     }
 
     sl_status_t command_class_manufacturer_specific::on_manufacturer_specific_get_support_requested_assemble_frame(const zwave_controller_connection_info_t * /*connection_info*/,

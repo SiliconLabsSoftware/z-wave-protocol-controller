@@ -24,8 +24,6 @@ namespace zwave_command_class
     enum indicator_supported_indicator_store_attributes_t : attribute_store_type_t {
         SUPPORTED_INDICATORS_GROUP = @COMPONENT_ATTRIBUTE_BASE@,
         supported_indicators,
-        finished_indicators,
-        interview_finished,
     };
 }  // namespace zwave_command_class
 

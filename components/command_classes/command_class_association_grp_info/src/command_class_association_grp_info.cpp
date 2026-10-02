@@ -142,8 +142,6 @@ namespace zwave_command_class
         ensure_lifeline_group_for_current_home_id();
     }
 
-    void command_class_association_grp_info::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version) {}
-
     uint8_t command_class_association_grp_info::normalize_grouping_identifier_for_report(uint8_t requested_grouping_identifier)
     {
         attribute_store::attribute home_id_node(get_zpc_network_node());
