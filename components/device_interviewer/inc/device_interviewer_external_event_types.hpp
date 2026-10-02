@@ -22,6 +22,7 @@ namespace zwave_command_class
 {
     // Event types for device interviewer (defined at namespace level for use by state machine)
     enum class device_interviewer_external_event_t {
+        START_INTERVIEW,
         NODE_DELETED,
         FACTORY_RESET,
         S2_COMMANDS_SUPPORTED_REPORT,
@@ -62,6 +63,8 @@ namespace zwave_command_class
     inline const char *to_string(device_interviewer_external_event_t e)
     {
         switch (e) {
+            case device_interviewer_external_event_t::START_INTERVIEW:
+                return "START_INTERVIEW";
             case device_interviewer_external_event_t::NODE_DELETED:
                 return "NODE_DELETED";
             case device_interviewer_external_event_t::FACTORY_RESET:

@@ -18,6 +18,7 @@
 #include "sl_status.h"
 #include "device_interviewer_types.hpp"
 #include "device_interviewer_external_event_types.hpp"  // For device_interviewer_external_event_t and device_interviewer_external_event_data
+#include "component_connector_types.hpp"
 #include "attribute.hpp"
 #include "zwave_generic_types.h"
 #include "state_machine_base.hpp"
@@ -217,6 +218,12 @@ namespace zwave_command_class
         private:
             // Map: (node_id, endpoint_id) -> session
             std::map<std::pair<zwave_node_id_t, uint8_t>, std::unique_ptr<InterviewSession>> sessions;
+
+            /**
+             * @brief Handle START_INTERVIEW: validate the add result and attribute store,
+             *        skip if an interview is already in progress, otherwise start_interview().
+             */
+            void handle_start_interview(const component_connector_node_added_payload_t &p);
 
             /**
              * @brief Find or create session for an event
