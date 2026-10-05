@@ -47,11 +47,17 @@ static uint16_t g_received_msg_len;
 static s2_connection_t g_received_connection;
 static bool g_msg_received;
 
+// Test state to capture frames sent through the callback-based transport
+static uint8_t g_sent_frame[256];
+static uint16_t g_sent_frame_len;
+static uint32_t g_sent_frame_count;
+
 // Test state to capture Nonce Report with SOS
 static uint8_t g_nonce_report_buffer[32];
 static uint16_t g_nonce_report_len;
 static bool g_nonce_report_sent;
 static uint8_t g_nonce_report_flags;
+static uint32_t g_nonce_report_count;
 
 // Test state to capture resynchronization events
 static bool g_resync_event_received;
@@ -87,6 +93,11 @@ void S2_send_done_event(struct S2 *ctxt, s2_tx_status_t status)
  */
 uint8_t S2_send_frame(struct S2 *ctxt, const s2_connection_t *peer, uint8_t *buf, uint16_t len)
 {
+    if (len <= sizeof(g_sent_frame)) {
+        memcpy(g_sent_frame, buf, len);
+        g_sent_frame_len = len;
+    }
+    g_sent_frame_count++;
     return 1;  // Success
 }
 
@@ -103,6 +114,7 @@ uint8_t S2_send_frame_no_cb(struct S2 *ctxt, const s2_connection_t *peer, uint8_
         g_nonce_report_len   = len;
         g_nonce_report_flags = buf[3];
         g_nonce_report_sent  = true;
+        g_nonce_report_count++;
     }
     return 1;  // Success
 }
@@ -218,10 +230,15 @@ static void reset_test_state(void)
     memset(&g_received_connection, 0, sizeof(g_received_connection));
     g_msg_received = false;
 
+    memset(g_sent_frame, 0, sizeof(g_sent_frame));
+    g_sent_frame_len   = 0;
+    g_sent_frame_count = 0;
+
     memset(g_nonce_report_buffer, 0, sizeof(g_nonce_report_buffer));
     g_nonce_report_len   = 0;
     g_nonce_report_sent  = false;
     g_nonce_report_flags = 0;
+    g_nonce_report_count = 0;
 
     g_resync_event_received = false;
     g_resync_remote_node    = 0;
@@ -1894,7 +1911,395 @@ void test_span_decrypt_mismatched_homeid(void)
 }
 
 /**
- * @brief Test SPAN decrypt replay attack prevention
+ * @brief Nonce Get: N-1 after peer restart is new; immediate repeat is a duplicate
+ *
+ * Command under test: SECURITY_2_NONCE_GET.
+ * Spec: CC:009F.01.00.11.0AD, CC:009F.01.00.11.02D, CC:009F.01.00.11.02E,
+ * CC:009F.01.00.11.02F, CC:009F.01.00.11.030, CC:009F.01.00.12.00C.
+ * Corner case: a restarted peer may pick N-1 as its random startup sequence;
+ * that (Peer NodeID, Sequence Number) pair differs from the SPAN entry so the
+ * Nonce Get is accepted, while an immediate same-seq replay is discarded.
+ * Note: Nonce Get was already exact-match (window 1) before GH-84; this
+ * documents 02D for Get and is not the GH-84 regression net.
+ */
+void test_nonce_get_accepts_new_random_sequence_after_peer_restart(void)
+{
+    const node_t LOCAL_NODE_ID       = 1;
+    const node_t REMOTE_NODE_ID      = 2;
+    const uint8_t PREVIOUS_SEQUENCE  = 0xEA;
+    const uint8_t RESTARTED_SEQUENCE = 0xE9;
+    struct S2 s2_context             = {0};
+    s2_connection_t connection       = {0};
+    uint8_t nonce_get[]              = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_GET, RESTARTED_SEQUENCE};
+
+    connection.l_node = LOCAL_NODE_ID;
+    connection.r_node = REMOTE_NODE_ID;
+
+    struct SPAN *span = &s2_context.span_table[0];
+    span->lnode       = LOCAL_NODE_ID;
+    span->rnode       = REMOTE_NODE_ID;
+    span->state       = SPAN_NEGOTIATED;
+    span->rx_seq      = PREVIOUS_SEQUENCE;
+
+    S2_application_command_handler(&s2_context, &connection, nonce_get, sizeof(nonce_get));
+
+    TEST_ASSERT_EQUAL_UINT32(1, g_nonce_report_count);
+    TEST_ASSERT_EQUAL_HEX8(RESTARTED_SEQUENCE, span->rx_seq);
+    TEST_ASSERT_EQUAL(SPAN_SOS_LOCAL_NONCE, span->state);
+    TEST_ASSERT_EQUAL_HEX8(SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK, g_nonce_report_flags);
+
+    S2_application_command_handler(&s2_context, &connection, nonce_get, sizeof(nonce_get));
+
+    TEST_ASSERT_EQUAL_UINT32(1, g_nonce_report_count);
+    TEST_ASSERT_EQUAL_HEX8(RESTARTED_SEQUENCE, span->rx_seq);
+}
+
+/**
+ * @brief Nonce Get: 0xFF is a new sequence when rx_seq is 0x00 (uint8 wrap)
+ *
+ * Command under test: SECURITY_2_NONCE_GET.
+ * Spec: CC:009F.01.00.11.02F, CC:009F.01.00.11.030, CC:009F.01.00.12.00C.
+ * Corner case: uint8 wraparound; 0xFF must not be treated as the previous
+ * member of a numeric duplicate window. Would not have failed pre-GH-84
+ * (Nonce Get already used exact-match).
+ */
+void test_nonce_get_accepts_new_sequence_across_wraparound(void)
+{
+    const node_t LOCAL_NODE_ID  = 1;
+    const node_t REMOTE_NODE_ID = 2;
+    struct S2 s2_context        = {0};
+    s2_connection_t connection  = {0};
+    uint8_t nonce_get[]         = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_GET, 0xFF};
+
+    connection.l_node = LOCAL_NODE_ID;
+    connection.r_node = REMOTE_NODE_ID;
+
+    struct SPAN *span = &s2_context.span_table[0];
+    span->lnode       = LOCAL_NODE_ID;
+    span->rnode       = REMOTE_NODE_ID;
+    span->state       = SPAN_NEGOTIATED;
+    span->rx_seq      = 0x00;
+
+    S2_application_command_handler(&s2_context, &connection, nonce_get, sizeof(nonce_get));
+
+    TEST_ASSERT_EQUAL_UINT32(1, g_nonce_report_count);
+    TEST_ASSERT_EQUAL_HEX8(0xFF, span->rx_seq);
+}
+
+/**
+ * @brief Nonce Get: duplicate detection is scoped to (Peer NodeID, Sequence)
+ *
+ * Command under test: SECURITY_2_NONCE_GET.
+ * Spec: CC:009F.01.00.11.024, CC:009F.01.00.11.02F, CC:009F.01.00.11.030,
+ * CC:009F.01.00.12.00C.
+ * Corner case: the same sequence number from a different peer is not a
+ * duplicate; it creates a separate SPAN-table entry. A repetition from that
+ * peer is then discarded.
+ */
+void test_nonce_get_duplicate_detection_is_scoped_to_peer(void)
+{
+    const node_t LOCAL_NODE_ID         = 1;
+    const node_t FIRST_REMOTE_NODE_ID  = 2;
+    const node_t SECOND_REMOTE_NODE_ID = 3;
+    const uint8_t SEQUENCE             = 0x42;
+    struct S2 s2_context               = {0};
+    s2_connection_t second_connection  = {0};
+    uint8_t nonce_get[]                = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_GET, SEQUENCE};
+
+    struct SPAN *first_span = &s2_context.span_table[0];
+    first_span->lnode       = LOCAL_NODE_ID;
+    first_span->rnode       = FIRST_REMOTE_NODE_ID;
+    first_span->state       = SPAN_NEGOTIATED;
+    first_span->rx_seq      = SEQUENCE;
+
+    second_connection.l_node = LOCAL_NODE_ID;
+    second_connection.r_node = SECOND_REMOTE_NODE_ID;
+
+    S2_application_command_handler(&s2_context, &second_connection, nonce_get, sizeof(nonce_get));
+
+    TEST_ASSERT_EQUAL_UINT32(1, g_nonce_report_count);
+    TEST_ASSERT_EQUAL_HEX8(SEQUENCE, s2_context.span_table[1].rx_seq);
+    TEST_ASSERT_EQUAL(SECOND_REMOTE_NODE_ID, s2_context.span_table[1].rnode);
+
+    S2_application_command_handler(&s2_context, &second_connection, nonce_get, sizeof(nonce_get));
+
+    TEST_ASSERT_EQUAL_UINT32(1, g_nonce_report_count);
+}
+
+/**
+ * @brief Nonce Report: N-1 after peer restart is new; same-seq replay is dropped
+ *
+ * Command under test: SECURITY_2_NONCE_REPORT (GH-84 regression).
+ * Spec: CC:009F.01.00.11.0AD, CC:009F.01.00.11.02D, CC:009F.01.00.11.02E,
+ * CC:009F.01.00.11.02F, CC:009F.01.00.11.030, CC:009F.01.00.12.00C.
+ * Corner case: a restarted peer may pick N-1 as its random startup sequence;
+ * the old window-2 check treated that as a duplicate and dropped a valid
+ * Nonce Report. An immediate same-seq replay with a different REI is still
+ * rejected (02E / 02F).
+ */
+void test_nonce_report_accepts_new_random_sequence_after_peer_restart(void)
+{
+    const node_t LOCAL_NODE_ID        = 1;
+    const node_t REMOTE_NODE_ID       = 2;
+    const uint8_t PREVIOUS_SEQUENCE   = 0xBF;
+    const uint8_t RESTARTED_SEQUENCE  = 0xBE;
+    const uint8_t first_rei[16]       = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F};
+    const uint8_t replay_rei[16]      = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F};
+    struct S2 s2_context              = {0};
+    s2_connection_t connection        = {0};
+    uint8_t nonce_report[20]          = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_REPORT, RESTARTED_SEQUENCE, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK};
+    uint8_t replayed_nonce_report[20] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_REPORT, RESTARTED_SEQUENCE, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK};
+
+    connection.l_node = LOCAL_NODE_ID;
+    connection.r_node = REMOTE_NODE_ID;
+
+    struct SPAN *span = &s2_context.span_table[0];
+    span->lnode       = LOCAL_NODE_ID;
+    span->rnode       = REMOTE_NODE_ID;
+    span->state       = SPAN_NEGOTIATED;
+    span->rx_seq      = PREVIOUS_SEQUENCE;
+
+    memcpy(&nonce_report[4], first_rei, sizeof(first_rei));
+    S2_application_command_handler(&s2_context, &connection, nonce_report, sizeof(nonce_report));
+
+    TEST_ASSERT_EQUAL_HEX8(RESTARTED_SEQUENCE, span->rx_seq);
+    TEST_ASSERT_EQUAL(SPAN_SOS_REMOTE_NONCE, span->state);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(first_rei, span->d.r_nonce, sizeof(first_rei));
+
+    memcpy(&replayed_nonce_report[4], replay_rei, sizeof(replay_rei));
+    S2_application_command_handler(&s2_context, &connection, replayed_nonce_report, sizeof(replayed_nonce_report));
+
+    TEST_ASSERT_EQUAL_HEX8(RESTARTED_SEQUENCE, span->rx_seq);
+    TEST_ASSERT_EQUAL(SPAN_SOS_REMOTE_NONCE, span->state);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(first_rei, span->d.r_nonce, sizeof(first_rei));
+}
+
+/**
+ * @brief Nonce Report N-1 after restart must resume a pending secure send
+ *
+ * Command under test: SECURITY_2_NONCE_REPORT while FSM is WAIT_NONCE_RAPORT.
+ * Spec: CC:009F.01.00.11.01B, CC:009F.01.00.11.0AD, CC:009F.01.00.11.02D,
+ * CC:009F.01.00.11.02F, CC:009F.01.00.11.030, CC:009F.01.00.12.00C.
+ * Corner case: accepting N-1 must not only update SPAN (02F/030) but also
+ * resume encapsulation of the held payload (01B). The old window-2 drop
+ * left the controller stuck waiting for a Nonce Report.
+ */
+void test_nonce_report_after_peer_restart_resumes_pending_secure_send(void)
+{
+    const node_t LOCAL_NODE_ID       = 1;
+    const node_t REMOTE_NODE_ID      = 2;
+    const uint8_t PREVIOUS_SEQUENCE  = 0xBF;
+    const uint8_t RESTARTED_SEQUENCE = 0xBE;
+    const uint32_t HOME_ID           = 0x11223344;
+    struct S2 s2_context             = {0};
+    s2_connection_t connection       = {0};
+    uint8_t payload[]                = {0x25, 0x02};
+    uint8_t nonce_report[20]         = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_REPORT, RESTARTED_SEQUENCE, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK};
+
+    connection.l_node   = LOCAL_NODE_ID;
+    connection.r_node   = REMOTE_NODE_ID;
+    connection.class_id = 0;
+
+    memcpy(s2_context.sg[0].enc_key, test_nonce_key, sizeof(s2_context.sg[0].enc_key));
+    memcpy(s2_context.sg[0].nonce_key, test_nonce_key, sizeof(s2_context.sg[0].nonce_key));
+    s2_context.loaded_keys = 0x01;
+    s2_context.my_home_id  = HOME_ID;
+    s2_context.fsm         = IDLE;
+
+    struct SPAN *span = &s2_context.span_table[0];
+    span->lnode       = LOCAL_NODE_ID;
+    span->rnode       = REMOTE_NODE_ID;
+    span->class_id    = 0;
+    span->state       = SPAN_SOS_LOCAL_NONCE;
+    span->rx_seq      = PREVIOUS_SEQUENCE;
+    span->tx_seq      = 0x10;
+
+    TEST_ASSERT_TRUE(S2_send_data(&s2_context, &connection, payload, sizeof(payload)));
+    TEST_ASSERT_EQUAL(WAIT_NONCE_RAPORT, s2_context.fsm);
+    TEST_ASSERT_EQUAL_UINT32(1, g_sent_frame_count);
+    TEST_ASSERT_EQUAL_HEX8(SECURITY_2_NONCE_GET, g_sent_frame[1]);
+
+    memcpy(&nonce_report[4], test_rei_valid, sizeof(test_rei_valid));
+    S2_application_command_handler(&s2_context, &connection, nonce_report, sizeof(nonce_report));
+
+    TEST_ASSERT_EQUAL_HEX8(RESTARTED_SEQUENCE, span->rx_seq);
+    TEST_ASSERT_EQUAL(SENDING_MSG, s2_context.fsm);
+    TEST_ASSERT_EQUAL_UINT32(2, g_sent_frame_count);
+    TEST_ASSERT_GREATER_OR_EQUAL_UINT16(4, g_sent_frame_len);
+    TEST_ASSERT_EQUAL_HEX8(COMMAND_CLASS_SECURITY_2, g_sent_frame[0]);
+    TEST_ASSERT_EQUAL_HEX8(SECURITY_2_MESSAGE_ENCAPSULATION, g_sent_frame[1]);
+}
+
+/**
+ * @brief Nonce Report: 0xFF is a new sequence when rx_seq is 0x00 (uint8 wrap)
+ *
+ * Command under test: SECURITY_2_NONCE_REPORT.
+ * Spec: CC:009F.01.00.11.02F, CC:009F.01.00.11.030, CC:009F.01.00.12.00C.
+ * Corner case: uint8 wraparound; old window-2 treated (0x00 - 0xFF) == 1 as a
+ * duplicate and dropped a valid Nonce Report. 0xFF must be stored and the REI
+ * applied (02F / 030).
+ */
+void test_nonce_report_accepts_new_sequence_across_wraparound(void)
+{
+    const node_t LOCAL_NODE_ID  = 1;
+    const node_t REMOTE_NODE_ID = 2;
+    const uint8_t rei[16]       = {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F};
+    struct S2 s2_context        = {0};
+    s2_connection_t connection  = {0};
+    uint8_t nonce_report[20]    = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_REPORT, 0xFF, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK};
+
+    connection.l_node = LOCAL_NODE_ID;
+    connection.r_node = REMOTE_NODE_ID;
+
+    struct SPAN *span = &s2_context.span_table[0];
+    span->lnode       = LOCAL_NODE_ID;
+    span->rnode       = REMOTE_NODE_ID;
+    span->state       = SPAN_NEGOTIATED;
+    span->rx_seq      = 0x00;
+
+    memcpy(&nonce_report[4], rei, sizeof(rei));
+    S2_application_command_handler(&s2_context, &connection, nonce_report, sizeof(nonce_report));
+
+    TEST_ASSERT_EQUAL_HEX8(0xFF, span->rx_seq);
+    TEST_ASSERT_EQUAL(SPAN_SOS_REMOTE_NONCE, span->state);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(rei, span->d.r_nonce, sizeof(rei));
+}
+
+/**
+ * @brief Nonce Report: duplicate detection is scoped to (Peer NodeID, Sequence)
+ *
+ * Command under test: SECURITY_2_NONCE_REPORT.
+ * Spec: CC:009F.01.00.11.024, CC:009F.01.00.11.02F, CC:009F.01.00.11.030,
+ * CC:009F.01.00.12.00C.
+ * Corner case: the same sequence from another NodeID is not a duplicate; it
+ * must allocate a separate SPAN entry and store that peer's REI. An immediate
+ * same-seq replay from that peer must not replace the REI (02E / 02F).
+ */
+void test_nonce_report_duplicate_detection_is_scoped_to_peer(void)
+{
+    const node_t LOCAL_NODE_ID         = 1;
+    const node_t FIRST_REMOTE_NODE_ID  = 2;
+    const node_t SECOND_REMOTE_NODE_ID = 3;
+    const uint8_t SEQUENCE             = 0x42;
+    const uint8_t first_rei[16]        = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F};
+    const uint8_t replay_rei[16]       = {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F};
+    struct S2 s2_context               = {0};
+    s2_connection_t second_connection  = {0};
+    uint8_t nonce_report[20]           = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_REPORT, SEQUENCE, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK};
+    uint8_t replayed_nonce_report[20]  = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_REPORT, SEQUENCE, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK};
+
+    struct SPAN *first_span = &s2_context.span_table[0];
+    first_span->lnode       = LOCAL_NODE_ID;
+    first_span->rnode       = FIRST_REMOTE_NODE_ID;
+    first_span->state       = SPAN_NEGOTIATED;
+    first_span->rx_seq      = SEQUENCE;
+
+    second_connection.l_node = LOCAL_NODE_ID;
+    second_connection.r_node = SECOND_REMOTE_NODE_ID;
+
+    memcpy(&nonce_report[4], first_rei, sizeof(first_rei));
+    S2_application_command_handler(&s2_context, &second_connection, nonce_report, sizeof(nonce_report));
+
+    TEST_ASSERT_EQUAL_HEX8(SEQUENCE, first_span->rx_seq);
+    TEST_ASSERT_EQUAL(SPAN_NEGOTIATED, first_span->state);
+    TEST_ASSERT_EQUAL(SECOND_REMOTE_NODE_ID, s2_context.span_table[1].rnode);
+    TEST_ASSERT_EQUAL_HEX8(SEQUENCE, s2_context.span_table[1].rx_seq);
+    TEST_ASSERT_EQUAL(SPAN_SOS_REMOTE_NONCE, s2_context.span_table[1].state);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(first_rei, s2_context.span_table[1].d.r_nonce, sizeof(first_rei));
+
+    memcpy(&replayed_nonce_report[4], replay_rei, sizeof(replay_rei));
+    S2_application_command_handler(&s2_context, &second_connection, replayed_nonce_report, sizeof(replayed_nonce_report));
+
+    TEST_ASSERT_EQUAL_HEX8(SEQUENCE, s2_context.span_table[1].rx_seq);
+    TEST_ASSERT_EQUAL(SPAN_SOS_REMOTE_NONCE, s2_context.span_table[1].state);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(first_rei, s2_context.span_table[1].d.r_nonce, sizeof(first_rei));
+}
+
+/**
+ * @brief Nonce Report: any non-matching sequence is new (not only N-1)
+ *
+ * Command under test: SECURITY_2_NONCE_REPORT.
+ * Spec: CC:009F.01.00.11.0AD, CC:009F.01.00.11.02D, CC:009F.01.00.11.030,
+ * CC:009F.01.00.11.02F, CC:009F.01.00.12.00C.
+ * Corner case: startup sequence is random (0AD), so GH-84 is not limited to
+ * "previous minus one". 02F has no numeric neighborhood; stored 0x10 and
+ * incoming 0x13 must be accepted and the REI stored.
+ */
+void test_nonce_report_accepts_non_adjacent_new_sequence(void)
+{
+    const node_t LOCAL_NODE_ID      = 1;
+    const node_t REMOTE_NODE_ID     = 2;
+    const uint8_t PREVIOUS_SEQUENCE = 0x10;
+    const uint8_t NEW_SEQUENCE      = 0x13;
+    const uint8_t rei[16]           = {0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F};
+    struct S2 s2_context            = {0};
+    s2_connection_t connection      = {0};
+    uint8_t nonce_report[20]        = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_REPORT, NEW_SEQUENCE, SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK};
+
+    connection.l_node = LOCAL_NODE_ID;
+    connection.r_node = REMOTE_NODE_ID;
+
+    struct SPAN *span = &s2_context.span_table[0];
+    span->lnode       = LOCAL_NODE_ID;
+    span->rnode       = REMOTE_NODE_ID;
+    span->state       = SPAN_NEGOTIATED;
+    span->rx_seq      = PREVIOUS_SEQUENCE;
+
+    memcpy(&nonce_report[4], rei, sizeof(rei));
+    S2_application_command_handler(&s2_context, &connection, nonce_report, sizeof(nonce_report));
+
+    TEST_ASSERT_EQUAL_HEX8(NEW_SEQUENCE, span->rx_seq);
+    TEST_ASSERT_EQUAL(SPAN_SOS_REMOTE_NONCE, span->state);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(rei, span->d.r_nonce, sizeof(rei));
+}
+
+/**
+ * @brief Message Encapsulation: 0xFF is a new sequence when rx_seq is 0x00
+ *
+ * Command under test: SECURITY_2_MESSAGE_ENCAPSULATION.
+ * Spec: CC:009F.01.00.11.02D, CC:009F.01.00.11.02F, CC:009F.01.00.11.030,
+ * CC:009F.01.00.12.00C.
+ * Corner case: Encapsulate uses the same SPAN-table rule as Nonce Report
+ * (02D). Old window-2 dropped wraparound seq 0xFF. Decrypt may still fail;
+ * that is CCM auth failure, not duplicate detection. Exact-seq Encapsulate
+ * replay (02E / 02F) remains covered by test_span_decrypt_replay_attack.
+ */
+void test_message_encapsulation_accepts_new_sequence_across_wraparound(void)
+{
+    const node_t LOCAL_NODE_ID  = 1;
+    const node_t REMOTE_NODE_ID = 2;
+    struct S2 s2_context        = {0};
+    s2_connection_t connection  = {0};
+    /* Minimal Encapsulate frame: seq 0xFF, no valid CCM ciphertext required. */
+    uint8_t encap_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_MESSAGE_ENCAPSULATION, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    connection.l_node     = LOCAL_NODE_ID;
+    connection.r_node     = REMOTE_NODE_ID;
+    connection.rx_options = 0;
+    connection.class_id   = 0xFF;
+
+    memcpy(s2_context.sg[0].enc_key, test_nonce_key, sizeof(s2_context.sg[0].enc_key));
+    memcpy(s2_context.sg[0].nonce_key, test_nonce_key, sizeof(s2_context.sg[0].nonce_key));
+    s2_context.loaded_keys = 0x01;
+    s2_context.my_home_id  = 0x11223344;
+    s2_context.fsm         = IDLE;
+
+    struct SPAN *span = &s2_context.span_table[0];
+    span->lnode       = LOCAL_NODE_ID;
+    span->rnode       = REMOTE_NODE_ID;
+    span->class_id    = 0;
+    span->state       = SPAN_NEGOTIATED;
+    span->rx_seq      = 0x00;
+    next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, test_nonce_key);
+
+    S2_application_command_handler(&s2_context, &connection, encap_frame, sizeof(encap_frame));
+
+    TEST_ASSERT_EQUAL_HEX8(0xFF, span->rx_seq);
+    TEST_ASSERT_FALSE_MESSAGE(g_msg_received, "Invalid ciphertext must not decrypt; seq layer already accepted 0xFF");
+}
+
+/**
+ * @brief Message Encapsulation exact-seq replay is discarded (02E / 02F)
  *
  * Validates:
  * - Same encrypted message sent twice with same sequence number
@@ -1904,7 +2309,8 @@ void test_span_decrypt_mismatched_homeid(void)
  *
  * Z-Wave S2 has TWO layers of replay protection:
  * 1. Sequence number duplicate detection (S2_verify_seq) - rejects messages
- *    with recently seen sequence numbers before attempting decryption
+ *    whose (Peer NodeID, Sequence Number) matches the SPAN table entry
+ *    (CC:009F.01.00.11.02E, CC:009F.01.00.11.02F)
  * 2. SPAN advancement - even if an attacker uses a different sequence number,
  *    the old nonce would fail authentication
  *
