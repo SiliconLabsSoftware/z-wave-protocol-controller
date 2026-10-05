@@ -178,7 +178,7 @@ The interview process progresses through the following states. All interviews st
 | `ENDPOINT_ZWAVEPLUS_INFO` | GetEndpointZwavePlusInfoStep | Per-endpoint Z-Wave Plus Info (CC 0x5E) for icon discovery |
 | `ENDPOINT_ASSOCIATION_ITERATOR` | EndpointAssociationIteratorStep | Iterate endpoints: run MCA/Association + AGI + lifeline per endpoint |
 | `INTERVIEW_BASIC` | BasicInterviewStep | Probe Basic Get then Version Get for 0x20 on root and every discovered endpoint (CL:0020.01.21.01.1 / CL:0020.01.21.02.2); give-up marks unsupported and continues |
-| `COMPLETED` | CompletedStep | Starts post-interview command-class work for root and all endpoints; fires INTERVIEW_FULLY_RESOLVED once every seeded command class has explicitly completed it |
+| `COMPLETED` | CompletedStep | On-demand interview state: fires INTERVIEW_DONE for root and all endpoints, then finish_if_complete; stays until INTERVIEW_FULLY_RESOLVED |
 | `FAILED` | - | Interview failed (e.g. node deleted during interview) |
 
 ## State Transition Diagram
@@ -861,16 +861,16 @@ Existing MCA / Association / AGI gates then skip naturally when the endpoint doe
 
 **Conditions**: Final state; reached after `INTERVIEW_BASIC`.
 
-**Purpose**: Final state indicating interview completion. Fires two events with distinct semantics so that command classes can run their `on_interview` post-interview hooks before the user-visible "interview done" signal is published:
+**Purpose**: On-demand interview state. Command classes run their `on_interview` hooks and register required attributes; the session stays here until those Gets finish (or give-up), then `INTERVIEW_FULLY_RESOLVED` is published.
 
-1. `COMPONENT_CONNECTOR_INTERVIEW_DONE` — synchronous trigger for command classes' `on_interview` hooks. Fired per endpoint so each CC can queue post-interview work.
-2. `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED` — fired once every seeded command class on every endpoint has explicitly changed its post-interview state from `ongoing` to `done`. This is the signal MQTT clients (and other consumers that need the device to be fully ready) should listen to.
+1. `COMPONENT_CONNECTOR_INTERVIEW_DONE` — synchronous trigger for command classes' `on_interview` hooks. Fired per endpoint so each CC can queue post-interview work and register required attributes.
+2. `cc_interview_finish_if_complete` — allows publish; fires `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED` OK for every endpoint when nothing is still required. MQTT clients (and other consumers that need the device to be fully ready) should listen to that event.
 
 **Actions on Enter**:
-- Logs completion status
-- Seeds `ATTRIBUTE_CC_INTERVIEW_ONGOING_GROUP` for the root endpoint and every discovered endpoint before dispatching command classes. Each seeded row is keyed by command-class ID and begins in the `ongoing` state.
-- Fires `COMPONENT_CONNECTOR_INTERVIEW_DONE` with `SL_STATUS_OK` synchronously (`fire_event_async` + `.get()`) for the root endpoint (`session.endpoint_node`) and for each endpoint in `session.endpoints.endpoint_ids`. Synchronous dispatch ensures every CC has called `on_interview` and can begin its post-interview sequence.
-- Leaves successful completion to command-class implementations. Each implementation must call `set_cc_interview_state(..., done)` after its final required report is parsed; when no seeded row remains `ongoing`, ZPC fires `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED` once per endpoint. Resolver idleness alone does not complete the interview, because a command class can start a later stage from a parsed report.
+- Logs "Interview process completed successfully"
+- Fires `COMPONENT_CONNECTOR_INTERVIEW_DONE` with `SL_STATUS_OK` synchronously (`fire_event_async` + `.get()`) for the root endpoint (`session.endpoint_node`) and for each endpoint in `session.endpoints.endpoint_ids`
+- Calls `cc_interview_finish_if_complete` once for the device after every `on_interview` has returned
+- Session remains in `COMPLETED` until `INTERVIEW_FULLY_RESOLVED` arrives (or give-up / cancel)
 
 **Handles Events**:
 - None (no events processed in completed state)
@@ -968,7 +968,7 @@ S2/S0 bootstrapping failure (`kex_fail_type != none` or non-OK `status`) does **
 
 Sessions track `last_progress_at` on every state transition. If no progress for too long, `abort_stale_sessions()` (from the interviewer `run()` loop) fires `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED` with `status = FAIL` (no `INTERVIEW_DONE`) and erases the session. Network monitor maps non-OK FULLY_RESOLVED to `ONLINE_NON_FUNCTIONAL`.
 
-`COMPLETED` waits for command-class interviews (attribute resolver Gets), which do not update `last_progress_at`. It is **not** aborted while the node's attribute subtree still needs Get resolution. If the resolver is idle (reports received or Gets given up) and the stall timeout has still elapsed, remaining CC latch rows are **expired** (`FULLY_RESOLVED` OK) so a stuck `interview_require` cannot hang the session. That path does not FAIL the interview, so network monitor does not re-send Lifeline Set.
+`COMPLETED` is the on-demand interview state. While the attribute resolver still needs work on the node, `last_progress_at` is refreshed so in-flight Gets (including a chain still on the air) are not aborted. When the resolver is idle and the same stall timeout has elapsed, outstanding requirements are cancelled and `cc_interview_finish_if_complete` publishes `FULLY_RESOLVED` OK. That give-up path does not FAIL the interview, so network monitor does not re-send Lifeline Set. A warning logs the node id, idle duration, and command class ids that were still required.
 
 | Node type | Stall timeout |
 |-----------|---------------|
@@ -981,14 +981,17 @@ All interviews start at `NODE_INFORMATION` and progress through S0 and S2 steps 
 
 ## Cancelling an Interview
 
-Interviews are cancelled when:
+Every path that drops a session which may already have required attributes cancels outstanding post-interview work on the component-connector worker and waits, before the session is erased. That stops a late report from publishing OK. The state machine then publishes `INTERVIEW_FULLY_RESOLVED` with `SL_STATUS_FAIL` where it already does today:
 
-1. `COMPONENT_CONNECTOR_NODE_DELETED` event is received
-2. Node is being excluded from the network
+1. A step returns `fail()` (via `finalize_failed_session`)
+2. The node is deleted (`COMPONENT_CONNECTOR_NODE_DELETED`)
+3. Factory reset clears every session (cancel first, then erase)
+4. `start_interview` replaces a session that is still in `COMPLETED` (cancel first; new run opens a fresh require window at its own `INTERVIEW_DONE`)
 
-**Cancellation Process**:
-1. Fire `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED` with `status = FAIL` (publishes MQTT `Interview/Report`)
-2. Erase the session
+**Cancellation Process** (fail / delete):
+1. Cancel outstanding post-interview requirements
+2. Fire `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED` with `status = FAIL` (publishes MQTT `Interview/Report`)
+3. Erase the session
 
 ## Error Handling
 
@@ -1041,7 +1044,7 @@ The Device Interviewer publishes an MQTT message when a device interview termina
 
 **Topic:** `zpc/{home_id}/Interview/Report` (published by ZPC)
 
-**When:** Published when an interview completes for an endpoint—either successfully or after cancellation/failure. One report is sent per endpoint (including endpoint 0). For successful interviews, the report is delayed until every seeded command class explicitly closes its post-interview state (subscribed to `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED`), so receiving this message means the device is actually ready.
+**When:** Published when an interview completes for an endpoint—either successfully or after cancellation/failure. One report is sent per endpoint (including endpoint 0). For successful interviews, the report is delayed until post-interview Gets finish and `COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED` is published, so receiving this message means the device is actually ready.
 
 **Payload (JSON):**
 

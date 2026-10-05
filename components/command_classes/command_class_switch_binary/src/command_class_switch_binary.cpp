@@ -36,7 +36,7 @@ namespace zwave_command_class
         (void)supported_version;
 
         auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_binary_report_group_attributes_t::SWITCH_BINARY_REPORT_GROUP));
-        interview_require(report.emplace_node(static_cast<attribute_store_type_t>(switch_binary_report_group_attributes_t::current_value)));
+        cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(switch_binary_report_group_attributes_t::current_value)));
         start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_binary_get_group_attributes_t::SWITCH_BINARY_GET_GROUP)));
     }
 

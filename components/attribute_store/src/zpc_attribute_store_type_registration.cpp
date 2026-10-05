@@ -54,9 +54,6 @@ static const std::vector<attribute_schema_t> attribute_schema = {
   {ATTRIBUTE_ZWAVE_GENERIC_DEVICE_CLASS,   "Generic Device Class <DEPRECATED>",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
   {ATTRIBUTE_ZWAVE_SPECIFIC_DEVICE_CLASS,   "Specific Device Class <DEPRECATED>",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
   {ATTRIBUTE_ZWAVE_KEY_AND_PROTOCOL_TO_DISCOVER,   "Network Key / Protocol to probe",   ATTRIBUTE_ENDPOINT_ID,   BYTE_ARRAY_STORAGE_TYPE},
-  {ATTRIBUTE_CC_INTERVIEW_ONGOING_GROUP, "Command Class Interview Progress", ATTRIBUTE_ENDPOINT_ID, EMPTY_STORAGE_TYPE},
-  {ATTRIBUTE_CC_INTERVIEW_COMMAND_CLASS, "Command Class", ATTRIBUTE_CC_INTERVIEW_ONGOING_GROUP, U16_STORAGE_TYPE},
-  {ATTRIBUTE_CC_INTERVIEW_STATE, "Interview State", ATTRIBUTE_CC_INTERVIEW_COMMAND_CLASS, U8_STORAGE_TYPE},
   /////////////////////////////////////////////////////////////////////
   //        Alarm Sensor Command Class attributes
   /////////////////////////////////////////////////////////////////////

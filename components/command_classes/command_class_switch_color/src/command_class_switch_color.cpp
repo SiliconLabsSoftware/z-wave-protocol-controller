@@ -58,7 +58,7 @@ namespace zwave_command_class
         (void)supported_version;
 
         auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_color_supported_report_group_attributes_t::SWITCH_COLOR_SUPPORTED_REPORT_GROUP));
-        interview_require(report.emplace_node(static_cast<attribute_store_type_t>(switch_color_supported_report_group_attributes_t::color_component_mask)));
+        cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(switch_color_supported_report_group_attributes_t::color_component_mask)));
         start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_color_supported_get_group_attributes_t::SWITCH_COLOR_SUPPORTED_GET_GROUP)));
     }
 
@@ -75,7 +75,7 @@ namespace zwave_command_class
                 continue;
             }
             auto report_group = find_or_create_report_group_by_color_component_id(endpoint, id);
-            interview_require(report_group.emplace_node(static_cast<attribute_store_type_t>(switch_color_report_group_attributes_t::current_value)));
+            cc_interview_require_attribute(report_group.emplace_node(static_cast<attribute_store_type_t>(switch_color_report_group_attributes_t::current_value)));
         }
 
         auto first_component = next_supported_color_component(mask, 0);

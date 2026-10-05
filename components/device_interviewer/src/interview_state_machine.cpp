@@ -29,6 +29,11 @@
 #include "clock_platform.h"
 #include "zpc_config.h"
 #include "attribute_resolver.h"
+#include "attribute_store_helper.h"
+#include <fmt/format.h>
+#include <memory>
+#include <sstream>
+#include <vector>
 
 namespace zwave_command_class
 {
@@ -56,7 +61,58 @@ namespace zwave_command_class
             const uint32_t stall_s    = (from_wake > INTERVIEW_STALL_NL_MIN_S) ? from_wake : INTERVIEW_STALL_NL_MIN_S;
             return static_cast<clock_time_t>(stall_s) * CLOCK_SECOND;
         }
+
+        std::string format_command_class_ids(const std::vector<uint16_t> &ids)
+        {
+            if (ids.empty()) {
+                return "none";
+            }
+            std::ostringstream oss;
+            for (size_t i = 0; i < ids.size(); ++i) {
+                if (i != 0) {
+                    oss << ", ";
+                }
+                oss << fmt::format("0x{:02X}", ids[i]);
+            }
+            return oss.str();
+        }
     }  // namespace
+
+    std::vector<uint16_t> InterviewStateMachine::cc_interview_cancel_sync(attribute_store::attribute endpoint_node, const char *reason, zwave_node_id_t node_id)
+    {
+        auto cancelled = std::make_shared<std::vector<uint16_t>>();
+        component_connector connector;
+        component_connector_cc_interview_action_payload_t cancel_payload {
+          .endpoint_node             = endpoint_node,
+          .action                    = component_connector_cc_interview_action_t::cancel,
+          .cancelled_command_classes = cancelled,
+        };
+        if (connector.fire_event_async(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_CC_INTERVIEW_ACTION_REQUESTED), cancel_payload).get() != SL_STATUS_OK) {
+            sl_log_error(LOG_TAG.data(), "Node %d: cc_interview_cancel failed (%s)", node_id, reason);
+        } else {
+            sl_log_info(LOG_TAG.data(), "Node %d: cancelled command-class interview (%s)", node_id, reason);
+        }
+        return *cancelled;
+    }
+
+    void InterviewStateMachine::cc_interview_publish_fully_resolved_fail(attribute_store::attribute endpoint_node)
+    {
+        component_connector connector;
+        component_connector_interview_done_payload_t payload {.endpoint_node = endpoint_node, .status = SL_STATUS_FAIL};
+        connector.fire_event(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED), payload);
+    }
+
+    void InterviewStateMachine::cc_interview_finish_if_complete_sync(attribute_store::attribute endpoint_node, zwave_node_id_t node_id)
+    {
+        component_connector connector;
+        component_connector_cc_interview_action_payload_t finish_payload {
+          .endpoint_node = endpoint_node,
+          .action        = component_connector_cc_interview_action_t::finish_if_complete,
+        };
+        if (connector.fire_event_async(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_CC_INTERVIEW_ACTION_REQUESTED), finish_payload).get() != SL_STATUS_OK) {
+            sl_log_error(LOG_TAG.data(), "Node %d: cc_interview_finish_if_complete failed", node_id);
+        }
+    }
 
     void InterviewStateMachine::register_transitions()
     {
@@ -207,6 +263,9 @@ namespace zwave_command_class
         auto existing_it = sessions.find(key);
         if (existing_it != sessions.end()) {
             sl_log_info(LOG_TAG.data(), "Starting new interview for node %d, endpoint %d (replacing existing session in state %d)", node_id, endpoint_id, static_cast<int>(existing_it->second->current_state));
+            if (existing_it->second->endpoint_node.is_valid()) {
+                static_cast<void>(cc_interview_cancel_sync(existing_it->second->endpoint_node, "interview replaced", node_id));
+            }
             sessions.erase(existing_it);
         }
 
@@ -216,7 +275,17 @@ namespace zwave_command_class
 
         sessions[key] = std::move(session);
 
-        auto *session_ptr                = sessions[key].get();
+        auto *session_ptr = sessions[key].get();
+
+        // Undefining NIF reported puts the node back in ONLINE_INTERVIEWING via
+        // network_monitor's existing NIF callback (needed for user reinterview).
+        if (session_ptr->endpoint_node.is_valid()) {
+            auto nif = session_ptr->endpoint_node.child_by_type(ATTRIBUTE_ZWAVE_NIF);
+            if (nif.is_valid() && nif.reported_exists()) {
+                attribute_store_undefine_reported(nif);
+            }
+        }
+
         const InterviewState entry_point = InterviewState::NODE_INFORMATION;
         this->transition_to_state(*session_ptr, entry_point);
         session_ptr->last_progress_at = clock_time();
@@ -317,19 +386,18 @@ namespace zwave_command_class
         return nullptr;
     }
 
-    void InterviewStateMachine::publish_interview_failure(const InterviewSession &session)
+    void InterviewStateMachine::publish_interview_failure(const InterviewSession &session, const char *reason)
     {
         // Publish failure without INTERVIEW_DONE so CC on_interview hooks do not run on incomplete data.
         if (!session.endpoint_node.is_valid()) {
             return;
         }
 
-        component_connector connector;
-        component_connector_cc_interview_action_payload_t cancel_payload {.endpoint_node = session.endpoint_node, .action = component_connector_cc_interview_action_t::cancel};
         // This code runs on the Device Interviewer worker, not the Component
         // Connector worker. Waiting closes the cancel/re-interview race before
         // the session can be erased or replaced.
-        static_cast<void>(connector.fire_event_async(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_CC_INTERVIEW_ACTION_REQUESTED), cancel_payload).get());
+        static_cast<void>(cc_interview_cancel_sync(session.endpoint_node, reason, session.node_id));
+        cc_interview_publish_fully_resolved_fail(session.endpoint_node);
     }
 
     void InterviewStateMachine::finalize_failed_session(zwave_node_id_t node_id, uint8_t endpoint_id)
@@ -404,7 +472,7 @@ namespace zwave_command_class
                 const auto key     = std::make_pair(node_id, uint8_t {0});
                 const auto session = sessions.find(key);
                 if (session != sessions.end() && session->second->current_state == InterviewState::COMPLETED) {
-                    sl_log_debug(LOG_TAG.data(), "Node %d: command-class interview resolved; clearing completed session", node_id);
+                    sl_log_info(LOG_TAG.data(), "Node %d: command-class interview resolved; clearing completed session", node_id);
                     sessions.erase(session);
                 }
                 return SL_STATUS_OK;
@@ -424,7 +492,7 @@ namespace zwave_command_class
                     // Publish fail for in-progress interviews so MQTT clients unblock; then drop all sessions for the node.
                     if (session->current_state != InterviewState::FAILED) {
                         sl_log_info(LOG_TAG.data(), "Node %d deleted, failing interview for endpoint %d", payload.node_id, session->endpoint_id);
-                        publish_interview_failure(*session);
+                        publish_interview_failure(*session, "node deleted");
                     } else {
                         sl_log_debug(LOG_TAG.data(), "Node %d deleted, clearing interview for endpoint %d", payload.node_id, session->endpoint_id);
                     }
@@ -441,7 +509,13 @@ namespace zwave_command_class
         }
 
         if (event.event == device_interviewer_external_event_t::FACTORY_RESET) {
-            sl_log_info(LOG_TAG.data(), "Factory reset: clearing all interview sessions");
+            sl_log_info(LOG_TAG.data(), "Factory reset: cancelling and clearing all interview sessions");
+            for (auto &[key, session]: sessions) {
+                (void)key;
+                if (session->endpoint_node.is_valid()) {
+                    static_cast<void>(cc_interview_cancel_sync(session->endpoint_node, "factory reset", session->node_id));
+                }
+            }
             sessions.clear();
             return SL_STATUS_OK;
         }
@@ -511,6 +585,8 @@ namespace zwave_command_class
 
             if (session->current_state == InterviewState::COMPLETED) {
                 if (session->device_node.is_valid() && attribute_resolver_node_or_child_needs_resolution(session->device_node)) {
+                    // In-flight Gets (including a chain still on the air) refresh idle time.
+                    session->last_progress_at = now;
                     continue;
                 }
             }
@@ -522,7 +598,6 @@ namespace zwave_command_class
             auto *base_step             = get_step(session->current_state);
             const std::string step_name = (base_step != nullptr) ? base_step->name() : "UNKNOWN";
             if (session->current_state == InterviewState::COMPLETED) {
-                sl_log_warning(LOG_TAG.data(), "Node %d: command-class interview latch still open after %lu ms with idle resolver — expiring", session->node_id, static_cast<unsigned long>(now - session->last_progress_at));
                 expired_completed.push_back(key);
             } else {
                 sl_log_warning(LOG_TAG.data(), "Node %d: interview stalled in step %s for %lu ms — aborting", session->node_id, step_name.c_str(), static_cast<unsigned long>(now - session->last_progress_at));
@@ -535,10 +610,11 @@ namespace zwave_command_class
             if (it == sessions.end() || !it->second->endpoint_node.is_valid()) {
                 continue;
             }
-            component_connector connector;
-            component_connector_cc_interview_action_payload_t expire_payload {.endpoint_node = it->second->endpoint_node, .action = component_connector_cc_interview_action_t::expire};
-            static_cast<void>(connector.fire_event_async(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_CC_INTERVIEW_ACTION_REQUESTED), expire_payload).get());
-            sessions.erase(it);
+            const auto idle_ms   = static_cast<unsigned long>(now - it->second->last_progress_at);
+            const auto cancelled = cc_interview_cancel_sync(it->second->endpoint_node, "on-demand interview give-up", it->second->node_id);
+            sl_log_warning(LOG_TAG.data(), "Node %d: on-demand interview idle for %lu ms — giving up remaining command classes [%s]", it->second->node_id, idle_ms, format_command_class_ids(cancelled).c_str());
+            cc_interview_finish_if_complete_sync(it->second->endpoint_node, it->second->node_id);
+            // Session stays in COMPLETED until INTERVIEW_FULLY_RESOLVED arrives.
         }
 
         for (const auto &key: stale_keys) {

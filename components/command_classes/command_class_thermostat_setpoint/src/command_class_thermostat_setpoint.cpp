@@ -88,7 +88,7 @@ namespace zwave_command_class
         invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::THERMOSTAT_SETPOINT_CAPABILITIES_REPORT_GROUP));
 
         auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_supported_report_group_attributes_t::THERMOSTAT_SETPOINT_SUPPORTED_REPORT_GROUP));
-        interview_require(report.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_supported_report_group_attributes_t::bit_mask)));
+        cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_supported_report_group_attributes_t::bit_mask)));
         start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_supported_get_group_attributes_t::THERMOSTAT_SETPOINT_SUPPORTED_GET_GROUP)));
     }
 
@@ -184,7 +184,7 @@ namespace zwave_command_class
             report_group = endpoint.add_node(static_cast<attribute_store_type_t>(thermostat_setpoint_report_group_attributes_t::THERMOSTAT_SETPOINT_REPORT_GROUP));
             report_group.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_report_group_attributes_t::setpoint_type)).set_reported<uint8_t>(setpoint_type);
         }
-        interview_require(report_group.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_report_group_attributes_t::scale)));
+        cc_interview_require_attribute(report_group.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_report_group_attributes_t::scale)));
 
         if (require_capabilities) {
             auto cap_group = find_capabilities_report_group_by_setpoint_type(endpoint, setpoint_type);
@@ -192,7 +192,7 @@ namespace zwave_command_class
                 cap_group = endpoint.add_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::THERMOSTAT_SETPOINT_CAPABILITIES_REPORT_GROUP));
                 cap_group.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::setpoint_type)).set_reported<uint8_t>(setpoint_type);
             }
-            interview_require(cap_group.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::min_value)));
+            cc_interview_require_attribute(cap_group.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::min_value)));
         }
     }
 

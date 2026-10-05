@@ -76,6 +76,10 @@ stateDiagram-v2
   `ONLINE_FUNCTIONAL`. (NL re-interview is Wake Up Notification–driven; see
   the NL section.)
 
+- **ZPC restart**: Interview sessions are not persisted. On Network Monitor
+  init, every end device still marked `ONLINE_INTERVIEWING` gets a full
+  re-interview via `COMPONENT_CONNECTOR_NODE_INTERVIEW_REQUESTED`.
+
 ## Lifecycle — FLiRS (FL) Devices
 
 FLiRS (Frequently Listening Routing Slave) devices wake up periodically

@@ -45,16 +45,13 @@ namespace zwave_command_class
 
             component_connector connector;
 
-            // Seed root and every endpoint before INTERVIEW_DONE. Otherwise a
-            // default on_interview() completion can observe an empty tree and
-            // publish early, and root CCs would be missing from the latch.
+            // Fire INTERVIEW_DONE synchronously so every command class on_interview
+            // runs — and registers required attributes — before we allow publish.
             std::vector<std::future<sl_status_t>> futures;
             std::vector<attribute_store::attribute> endpoint_nodes;
 
             if (session.endpoint_node.is_valid()) {
                 endpoint_nodes.push_back(session.endpoint_node);
-                component_connector_cc_interview_action_payload_t seed_payload {.endpoint_node = session.endpoint_node, .action = component_connector_cc_interview_action_t::seed};
-                futures.push_back(connector.fire_event_async(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_CC_INTERVIEW_ACTION_REQUESTED), seed_payload));
             }
 
             for (const auto &ep_id: session.endpoints.endpoint_ids) {
@@ -67,17 +64,7 @@ namespace zwave_command_class
                     continue;
                 }
                 endpoint_nodes.push_back(ep_node);
-                component_connector_cc_interview_action_payload_t seed_payload {.endpoint_node = ep_node, .action = component_connector_cc_interview_action_t::seed};
-                futures.push_back(connector.fire_event_async(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_CC_INTERVIEW_ACTION_REQUESTED), seed_payload));
             }
-
-            for (auto &f: futures) {
-                if (f.get() != SL_STATUS_OK) {
-                    sl_log_error(LOG_TAG.data(), "Node %d: failed to seed endpoint command-class interview state", session.node_id);
-                    return fail();
-                }
-            }
-            futures.clear();
 
             for (const auto &ep_node: endpoint_nodes) {
                 component_connector_interview_done_payload_t ep_payload {.endpoint_node = ep_node, .status = SL_STATUS_OK};
@@ -88,9 +75,17 @@ namespace zwave_command_class
                 static_cast<void>(f.get());
             }
 
-            component_connector_cc_interview_action_payload_t check_payload {.endpoint_node = session.endpoint_node, .action = component_connector_cc_interview_action_t::check};
-            if (connector.fire_event_async(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_CC_INTERVIEW_ACTION_REQUESTED), check_payload).get() != SL_STATUS_OK) {
-                sl_log_error(LOG_TAG.data(), "Node %d: failed to check command-class interview state", session.node_id);
+            if (!session.endpoint_node.is_valid()) {
+                sl_log_error(LOG_TAG.data(), "Node %d: no root endpoint for cc_interview_finish_if_complete", session.node_id);
+                return fail();
+            }
+
+            component_connector_cc_interview_action_payload_t finish_payload {
+              .endpoint_node = session.endpoint_node,
+              .action        = component_connector_cc_interview_action_t::finish_if_complete,
+            };
+            if (connector.fire_event_async(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_CC_INTERVIEW_ACTION_REQUESTED), finish_payload).get() != SL_STATUS_OK) {
+                sl_log_error(LOG_TAG.data(), "Node %d: failed to cc_interview_finish_if_complete", session.node_id);
                 return fail();
             }
         }

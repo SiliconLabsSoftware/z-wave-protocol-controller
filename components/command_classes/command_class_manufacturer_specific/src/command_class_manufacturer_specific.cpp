@@ -114,12 +114,12 @@ namespace zwave_command_class
         }
 
         auto manufacturer_report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(manufacturer_specific_report_group_attributes_t::MANUFACTURER_SPECIFIC_REPORT_GROUP));
-        interview_require(manufacturer_report.emplace_node(static_cast<attribute_store_type_t>(manufacturer_specific_report_group_attributes_t::manufacturer_id)));
+        cc_interview_require_attribute(manufacturer_report.emplace_node(static_cast<attribute_store_type_t>(manufacturer_specific_report_group_attributes_t::manufacturer_id)));
         start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(manufacturer_specific_get_group_attributes_t::MANUFACTURER_SPECIFIC_GET_GROUP)));
 
         if (supported_version >= 2) {
             auto device_report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(device_specific_report_group_attributes_t::DEVICE_SPECIFIC_REPORT_GROUP));
-            interview_require(device_report.emplace_node(static_cast<attribute_store_type_t>(device_specific_report_group_attributes_t::device_id_type)));
+            cc_interview_require_attribute(device_report.emplace_node(static_cast<attribute_store_type_t>(device_specific_report_group_attributes_t::device_id_type)));
             start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(device_specific_get_group_attributes_t::DEVICE_SPECIFIC_GET_GROUP)));
         }
     }

@@ -25,19 +25,11 @@ namespace zwave_command_class
      * 1. Fires COMPONENT_CONNECTOR_INTERVIEW_DONE (synchronously, via
      *    fire_event_async + .get()) for the root and every discovered
      *    endpoint so that command classes can run their on_interview hooks
-     *    and queue any post-interview attribute resolutions before the
-     *    listener is installed.
-     * 2. Installs an attribute resolver listener on the device (NodeID)
-     *    node. When the listener fires, the decision is deferred briefly
-     *    via attribute_timeout_set_callback and re-checked: if any node in
-     *    the subtree picked up a new resolution in the meantime (e.g. a
-     *    CC's on_*_report_parsed hook chaining the next get like
-     *    command_class_switch_color iterating colour components), the
-     *    listener is re-armed and the device keeps interviewing. Only when
-     *    the subtree is genuinely settled does the step fire
-     *    COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED for the root and
-     *    every endpoint. This is the signal that the device is truly
-     *    ready for clients (e.g. the MQTT Interview/Report publisher).
+     *    and register required attributes before publish is allowed.
+     * 2. Calls cc_interview_finish_if_complete on the component-connector worker.
+     *    That publishes COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED OK for
+     *    every endpoint when nothing is still required; otherwise the
+     *    session stays in COMPLETED until chained Gets finish (or give-up).
      *
      * Handles no external events and never transitions out of this state.
      */

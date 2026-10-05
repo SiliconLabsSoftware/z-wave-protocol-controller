@@ -31,6 +31,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 
 // Generator & parsers
 #include "zwave_frame_parser.hpp"                   // zwave_frame_parser
@@ -137,50 +138,32 @@ namespace zwave_command_class
              */
             virtual void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version);
 
-            /** State of this command class' post-interview work. */
-            enum class cc_interview_state : uint8_t { done = 0, ongoing = 1, cancelled = 2 };
-
-            void set_cc_interview_state(cc_interview_state state);
-            /** Return true when the specified CC has active post-interview work. */
-            static bool is_cc_interview_ongoing(attribute_store::attribute endpoint, zwave_command_class_t cc_id);
-            /** Update a seeded ongoing CC interview row; no-op if none is ongoing. */
-            static void set_cc_interview_state(attribute_store::attribute endpoint, zwave_command_class_t cc_id, cc_interview_state state);
-            static void check_cc_interview_state(attribute_store::attribute endpoint);
-            static bool cancel_cc_interview_state(attribute_store::attribute endpoint);
-            /** Mark remaining ongoing CCs done and publish FULLY_RESOLVED OK (resolver idle, latch stuck). */
-            static bool expire_cc_interview_state(attribute_store::attribute endpoint);
-
-            /** Seed explicit post-interview state from a raw NIF/Security CC list. */
-            static void seed_cc_interview_state(attribute_store::attribute endpoint, const std::vector<uint8_t> &command_classes);
-            /** Seed from the endpoint's persisted S0/S2 capability reports. */
-            static void seed_cc_interview_state(attribute_store::attribute endpoint);
-
             /**
-             * @brief Register an attribute that interview must collect for this command class.
+             * @brief Require this attribute to have a reported value before the CC interview can finish.
              *
-             * Clears any reported value already on the node. No-op unless this command
-             * class interview is ongoing for the node's endpoint.
+             * Override on_interview when this command class sends post-interview Gets.
+             * Call cc_interview_require_attribute on each attribute that must receive a
+             * reported value before this command class is done. Call it in on_interview for
+             * values known up front. When a report reveals more values, call it in that parsed
+             * callback before the callback returns, then start_group_resolution as today.
+             * Clears any reported value already on the node so a reinterview sends the Get again.
+             * Do not close the interview; cc_interview_finish_if_complete drops attributes once
+             * reported and publishes INTERVIEW_FULLY_RESOLVED when none remain required.
+             * No-op when the endpoint's post-interview window is closed.
              */
-            void interview_require(attribute_store::attribute node);
+            void cc_interview_require_attribute(attribute_store::attribute node);
 
             /**
-             * @brief Hold the interview open for one more in-memory step (no attribute store node).
+             * @brief Finish the CC interview when every required attribute has a reported value.
              *
-             * Use when progress cannot be expressed as a durable reported attribute.
-             * Pair each hold with interview_release() when that step completes.
+             * Drops required attributes that are now reported. When none remain for the device
+             * and CompletedStep has allowed publish, fires INTERVIEW_FULLY_RESOLVED OK.
+             * Called by the generated report handler after on_*_parsed. Authors do not copy this.
              */
-            void interview_hold(attribute_store::attribute endpoint);
+            void cc_interview_finish_if_complete(attribute_store::attribute endpoint) const;
 
-            /**
-             * @brief Release one interview_hold() for this command class on the endpoint.
-             */
-            void interview_release(attribute_store::attribute endpoint);
-
-            /**
-             * @brief Retire required nodes that now have a reported value; mark the CC done when none remain.
-             */
-            void finish_cc_interview_if_idle(attribute_store::attribute endpoint) const;
-            static void finish_cc_interview_if_idle(attribute_store::attribute endpoint, zwave_command_class_t cc_id);
+            /** True while this endpoint's post-interview window is open. */
+            static bool cc_interview_is_open(attribute_store::attribute endpoint);
 
             /**
              * @brief This is the function which will be executed when a Report frame of
@@ -389,9 +372,6 @@ namespace zwave_command_class
             const command_class_properties properties;
             // Retry options resolved in interview() before on_interview() is called
             group_resolution_options m_interview_resolution_options;
-            // Endpoint currently executing on_interview(). Kept so simple command
-            // classes can mark their own post-interview work complete.
-            attribute_store::attribute m_interview_endpoint;
             // Command class name used in MQTT
             const std::string mqtt_command_class_namespace;
             // Frame Helpers
@@ -400,17 +380,28 @@ namespace zwave_command_class
             std::map<std::string, std::function<void(attribute_store::attribute &endpoint_node, std::string)>> mqtt_callback_map;
 
         private:
-            using interview_pending_key_t = std::pair<attribute_store_node_t, zwave_command_class_t>;
+            using cc_interview_pending_key_t = std::pair<attribute_store_node_t, zwave_command_class_t>;
 
-            struct interview_pending_t {
-                    std::vector<attribute_store_node_t> nodes;
-                    size_t holds = 0;
-            };
+            static std::map<cc_interview_pending_key_t, std::vector<attribute_store_node_t>> cc_interview_pending;
+            static std::set<attribute_store_node_t> cc_interview_open_endpoints;
+            static std::set<attribute_store_node_t> cc_interview_publish_allowed_devices;
+            static std::set<attribute_store_node_t> cc_interview_published_devices;
 
-            static std::map<interview_pending_key_t, interview_pending_t> interview_pending;
+            static void cc_interview_open(attribute_store::attribute endpoint);
+            static void cc_interview_clear_pending_for_endpoint(attribute_store_node_t endpoint);
+            static bool cc_interview_device_has_pending(attribute_store::attribute device);
+            static void cc_interview_publish_fully_resolved_ok(attribute_store::attribute device);
 
-            static void clear_interview_pending_for_endpoint(attribute_store_node_t endpoint);
-            static attribute_store::attribute cc_interview_published_group(const attribute_store::attribute &endpoint);
+            static void cc_interview_finish_if_complete(attribute_store::attribute endpoint, zwave_command_class_t cc_id);
+            static void cc_interview_finish_if_complete_for_device(attribute_store::attribute device);
+
+            /**
+             * @brief Clear outstanding requirements for the device. Returns the command class
+             *        ids that were still required. Does not publish FULLY_RESOLVED.
+             */
+            static std::vector<uint16_t> cc_interview_cancel(attribute_store::attribute endpoint);
+
+            static void cc_interview_register_action_handler();
     };
 }  // namespace zwave_command_class
 

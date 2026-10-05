@@ -64,6 +64,7 @@
 #define LOG_TAG "network_monitor"
 
 static NetworkMonitorNetworkStatus attribute_store_network_helper_get_network_status(attribute_store_node_t node);
+static void network_monitor_request_interviews_for_interviewing_nodes(attribute_store_node_t home_id_node);
 
 // NodeID attributes that should be created under all NodeIDs.
 constexpr attribute_store_type_t node_id_additional_attributes[] = {ATTRIBUTE_GRANTED_SECURITY_KEYS, ATTRIBUTE_ZWAVE_INCLUSION_PROTOCOL, ATTRIBUTE_ZWAVE_PROTOCOL_LISTENING, ATTRIBUTE_ZWAVE_OPTIONAL_PROTOCOL};
@@ -248,6 +249,9 @@ sl_status_t zwave_component::network_monitor_handler::initialize()
 
     // Activate network resolution
     activate_network_resolution(true);
+
+    // Interview sessions are not persisted; resume unfinished interviews from scratch.
+    network_monitor_request_interviews_for_interviewing_nodes(home_id_node);
 
     // Initialize supporting modules
     failing_node_monitor_init();
@@ -704,6 +708,33 @@ static void network_monitor_request_node_interview(zwave_node_id_t node_id)
 
     component_connector connector;
     connector.fire_event(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_NODE_INTERVIEW_REQUESTED), payload);
+}
+
+/**
+ * @brief After datastore load, restart interviews that were in progress when ZPC stopped.
+ *
+ * Interview sessions and the CC require window are RAM-only. Nodes still marked
+ * ONLINE_INTERVIEWING need a full re-interview so INTERVIEW_FULLY_RESOLVED can fire again.
+ */
+static void network_monitor_request_interviews_for_interviewing_nodes(attribute_store_node_t home_id_node)
+{
+    if (home_id_node == ATTRIBUTE_STORE_INVALID_NODE) {
+        return;
+    }
+
+    const zwave_node_id_t zpc_node_id   = zwave_network_management_get_node_id();
+    uint32_t index                      = 0;
+    attribute_store_node_t node_id_node = attribute_store_get_node_child_by_type(home_id_node, ATTRIBUTE_NODE_ID, index);
+    while (node_id_node != ATTRIBUTE_STORE_INVALID_NODE) {
+        zwave_node_id_t node_id = 0;
+        attribute_store_get_reported(node_id_node, &node_id, sizeof(node_id));
+        if (node_id != zpc_node_id && attribute_store_network_helper_get_network_status(node_id_node) == NETWORK_MONITOR_NETWORK_STATUS_ONLINE_INTERVIEWING) {
+            sl_log_info(LOG_TAG, "NodeID %d still interviewing after restart — requesting full re-interview", node_id);
+            network_monitor_request_node_interview(node_id);
+        }
+        index++;
+        node_id_node = attribute_store_get_node_child_by_type(home_id_node, ATTRIBUTE_NODE_ID, index);
+    }
 }
 
 /**

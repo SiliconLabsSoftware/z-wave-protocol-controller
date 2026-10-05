@@ -233,7 +233,8 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
 
     on_{{command.name | lower}}_parsed(connection_info, {% if command_class.has_endpoints == true %}store_endpoint_node{% else %}endpoint_node{% endif %}, attribute_map);
 
-    finish_cc_interview_if_idle({% if command_class.has_endpoints == true %}store_endpoint_node{% else %}endpoint_node{% endif %});
+    // Authors do not copy this call; the generator inserts it after every on_*_parsed.
+    cc_interview_finish_if_complete({% if command_class.has_endpoints == true %}store_endpoint_node{% else %}endpoint_node{% endif %});
 
     return SL_STATUS_OK;
 }

@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <fmt/base.h>
 #include <fmt/format.h>
-#include <map>
 #include <string_view>
 #include <vector>
 
@@ -41,9 +40,6 @@ namespace zwave_command_class
 
     [[maybe_unused]] static constexpr std::string_view LOG_TAG = "command_class_indicator";
 
-    // Endpoints still running Indicator Supported discovery (v2+).
-    static std::map<attribute_store_node_t, bool> indicator_discovery_open;
-
     command_class_indicator::command_class_indicator()
     {
         register_attribute_types({
@@ -57,19 +53,17 @@ namespace zwave_command_class
 
     void command_class_indicator::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
-        auto supported_list_group = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(indicator_supported_indicator_store_attributes_t::SUPPORTED_INDICATORS_GROUP));
-        auto supported_list_node  = supported_list_group.emplace_node(static_cast<attribute_store_type_t>(indicator_supported_indicator_store_attributes_t::supported_indicators));
-        supported_list_node.set_reported<std::vector<uint8_t>>({});
-
         // CL:0087.01.21.01.1
         if (supported_version >= 2) {
-            indicator_discovery_open[endpoint_node] = true;
-            interview_hold(endpoint_node);
+            auto supported_list_group = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(indicator_supported_indicator_store_attributes_t::SUPPORTED_INDICATORS_GROUP));
+            auto supported_list_node  = supported_list_group.emplace_node(static_cast<attribute_store_type_t>(indicator_supported_indicator_store_attributes_t::supported_indicators));
+            cc_interview_require_attribute(supported_list_node);
             auto get = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(indicator_supported_get_group_attributes_t::INDICATOR_SUPPORTED_GET_GROUP));
             get.emplace_node(static_cast<attribute_store_type_t>(indicator_supported_get_group_attributes_t::indicator_id)).set_desired<uint8_t>(static_cast<uint8_t>(command_class_indicator_constants::indicator_id::NA));
             start_group_resolution(get);
         } else {
-            interview_hold(endpoint_node);
+            auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(indicator_report_group_attributes_t::INDICATOR_REPORT_GROUP));
+            cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(indicator_report_group_attributes_t::indicator_0_value)));
             auto get = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(indicator_get_group_attributes_t::INDICATOR_GET_GROUP));
             get.emplace_node(static_cast<attribute_store_type_t>(indicator_get_group_attributes_t::indicator_id)).set_desired<uint8_t>(static_cast<uint8_t>(command_class_indicator_constants::indicator_id::NA));
             start_group_resolution(get, {.retry_count = 1});
@@ -79,21 +73,24 @@ namespace zwave_command_class
     sl_status_t command_class_indicator::on_indicator_supported_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_indicator_attribute_map_t payload)
     {
         (void)connection_info;
-        if (!is_cc_interview_ongoing(endpoint, properties.command_class_id) || !indicator_discovery_open[endpoint]) {
+        if (!cc_interview_is_open(endpoint)) {
+            return SL_STATUS_OK;
+        }
+
+        auto supported_list_group = endpoint.child_by_type(static_cast<attribute_store_type_t>(indicator_supported_indicator_store_attributes_t::SUPPORTED_INDICATORS_GROUP));
+        auto supported_list_node  = supported_list_group.child_by_type(static_cast<attribute_store_type_t>(indicator_supported_indicator_store_attributes_t::supported_indicators));
+        if (!supported_list_node.is_valid() || supported_list_node.reported_exists()) {
             return SL_STATUS_OK;
         }
 
         uint8_t next_indicator_id = get_value_or_default(payload, "next_indicator_id", static_cast<uint8_t>(command_class_indicator_constants::indicator_id::NA));
         uint8_t indicator_id      = get_value_or_default(payload, "indicator_id", static_cast<uint8_t>(command_class_indicator_constants::indicator_id::NA));
 
-        auto supported_list_group = endpoint.child_by_type(static_cast<attribute_store_type_t>(indicator_supported_indicator_store_attributes_t::SUPPORTED_INDICATORS_GROUP));
-        auto supported_list_node  = supported_list_group.child_by_type(static_cast<attribute_store_type_t>(indicator_supported_indicator_store_attributes_t::supported_indicators));
-
         const auto na_id         = static_cast<uint8_t>(command_class_indicator_constants::indicator_id::NA);
-        std::vector<uint8_t> ids = supported_list_node.reported<std::vector<uint8_t>>();
+        std::vector<uint8_t> ids = supported_list_node.desired_exists() ? supported_list_node.desired<std::vector<uint8_t>>() : std::vector<uint8_t> {};
         if (indicator_id != na_id && std::find(ids.begin(), ids.end(), indicator_id) == ids.end()) {
             ids.push_back(indicator_id);
-            supported_list_node.set_reported<std::vector<uint8_t>>(ids);
+            supported_list_node.set_desired<std::vector<uint8_t>>(ids);
         }
 
         if (next_indicator_id != na_id) {
@@ -104,12 +101,10 @@ namespace zwave_command_class
             return SL_STATUS_OK;
         }
 
-        indicator_discovery_open[endpoint] = false;
-        interview_release(endpoint);
-        for (size_t i = 0; i < ids.size(); ++i) {
-            interview_hold(endpoint);
-        }
+        supported_list_node.set_reported<std::vector<uint8_t>>(ids);
         if (!ids.empty()) {
+            auto report = endpoint.emplace_node(static_cast<attribute_store_type_t>(indicator_report_group_attributes_t::INDICATOR_REPORT_GROUP));
+            cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(indicator_report_group_attributes_t::vg1)));
             auto group_node        = endpoint.emplace_node(static_cast<attribute_store_type_t>(indicator_get_group_attributes_t::INDICATOR_GET_GROUP));
             auto indicator_id_node = group_node.emplace_node(static_cast<attribute_store_type_t>(indicator_get_group_attributes_t::indicator_id));
             indicator_id_node.set_desired<uint8_t>(ids.front());
@@ -121,7 +116,7 @@ namespace zwave_command_class
     sl_status_t command_class_indicator::on_indicator_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_indicator_attribute_map_t payload)
     {
         (void)connection_info;
-        if (!is_cc_interview_ongoing(endpoint, properties.command_class_id)) {
+        if (!cc_interview_is_open(endpoint)) {
             return SL_STATUS_OK;
         }
 
@@ -146,8 +141,6 @@ namespace zwave_command_class
             return SL_STATUS_OK;
         }
 
-        interview_release(endpoint);
-
         auto supported_list_group          = endpoint.child_by_type(static_cast<attribute_store_type_t>(indicator_supported_indicator_store_attributes_t::SUPPORTED_INDICATORS_GROUP));
         auto supported_list_node           = supported_list_group.child_by_type(static_cast<attribute_store_type_t>(indicator_supported_indicator_store_attributes_t::supported_indicators));
         std::vector<uint8_t> supported_ids = supported_list_node.is_valid() && supported_list_node.reported_exists() ? supported_list_node.reported<std::vector<uint8_t>>() : std::vector<uint8_t> {};
@@ -156,6 +149,8 @@ namespace zwave_command_class
             ++it;
         }
         if (it != supported_ids.end()) {
+            auto report = endpoint.emplace_node(static_cast<attribute_store_type_t>(indicator_report_group_attributes_t::INDICATOR_REPORT_GROUP));
+            cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(indicator_report_group_attributes_t::vg1)));
             auto indicator_id_node = get_group.emplace_node(static_cast<attribute_store_type_t>(indicator_get_group_attributes_t::indicator_id));
             indicator_id_node.set_desired<uint8_t>(*it);
             start_group_resolution(get_group);
