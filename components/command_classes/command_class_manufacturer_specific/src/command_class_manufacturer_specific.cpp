@@ -104,7 +104,12 @@ namespace zwave_command_class
         }
     }  // namespace
 
-    command_class_manufacturer_specific::command_class_manufacturer_specific() {}
+    command_class_manufacturer_specific::command_class_manufacturer_specific()
+    {
+        // DT:00.11.0004.1 — Manufacturer Specific is a Root Device requirement.
+        // End Points need not support it (DT:00.11.0005.1). Interview EP0 only.
+        interview_root_device_only = true;
+    }
 
     void command_class_manufacturer_specific::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {

@@ -334,6 +334,13 @@ namespace zwave_command_class
             bool force_interview_for_cc = false;
 
             /**
+             * When true, post-interview Gets run only on the Root Device (endpoint 0).
+             * Non-root endpoints are skipped, and root is not skipped when a sibling
+             * also advertises this CC.
+             */
+            bool interview_root_device_only = false;
+
+            /**
              * @brief Returns the resolution options appropriate for the endpoint currently being interviewed.
              *
              * Computed by interview() before on_interview() is called. Use this in on_interview()

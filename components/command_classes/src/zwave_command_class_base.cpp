@@ -333,6 +333,14 @@ namespace zwave_command_class
     {
         attribute_store::attribute endpoint(endpoint_node);
 
+        if (interview_root_device_only) {
+            zwave_node_id_t node_id         = 0;
+            zwave_endpoint_id_t endpoint_id = 0;
+            if (attribute_store_network_helper_get_zwave_ids_from_node(endpoint, &node_id, &endpoint_id) == SL_STATUS_OK && endpoint_id != 0) {
+                return SL_STATUS_OK;
+            }
+        }
+
         uint8_t supporting_node_version = endpoint_supported_version(endpoint);
         const bool supported            = endpoint_supports_command_class(endpoint);
 
@@ -343,7 +351,7 @@ namespace zwave_command_class
             return SL_STATUS_OK;
         }
 
-        if (is_root_of_multi_endpoint_device(endpoint)) {
+        if (!interview_root_device_only && is_root_of_multi_endpoint_device(endpoint)) {
             for (const auto &sibling: endpoint.parent().children(ATTRIBUTE_ENDPOINT_ID)) {
                 if (sibling.reported_exists() && sibling.reported<uint8_t>() != 0 && endpoint_supports_command_class(sibling)) {
                     cc_interview_finish_if_complete(endpoint);
