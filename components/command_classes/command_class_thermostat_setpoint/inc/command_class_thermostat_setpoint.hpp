@@ -49,8 +49,6 @@ namespace zwave_command_class
             static sl_status_t on_thermostat_mode_changed(const command_class_thermostat_mode_types::thermostat_mode_changed_payload_t &payload);
 
             static int32_t decode_signed_setpoint_value(const std::vector<uint8_t> &bytes, uint8_t size);
-
-            void require_setpoint_type_attributes(attribute_store::attribute endpoint, uint8_t setpoint_type, bool require_capabilities);
     };
 
 }  // namespace zwave_command_class

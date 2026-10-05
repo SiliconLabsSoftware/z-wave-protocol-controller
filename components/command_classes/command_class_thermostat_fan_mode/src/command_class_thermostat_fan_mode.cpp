@@ -33,8 +33,6 @@ namespace zwave_command_class
         invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(thermostat_fan_mode_report_group_attributes_t::THERMOSTAT_FAN_MODE_REPORT_GROUP));
         invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(thermostat_fan_mode_supported_report_group_attributes_t::THERMOSTAT_FAN_MODE_SUPPORTED_REPORT_GROUP));
 
-        auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_fan_mode_report_group_attributes_t::THERMOSTAT_FAN_MODE_REPORT_GROUP));
-        cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(thermostat_fan_mode_report_group_attributes_t::fan_mode)));
         start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_fan_mode_get_group_attributes_t::THERMOSTAT_FAN_MODE_GET_GROUP)));
 
         auto supported_report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_fan_mode_supported_report_group_attributes_t::THERMOSTAT_FAN_MODE_SUPPORTED_REPORT_GROUP));
