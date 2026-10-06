@@ -71,12 +71,6 @@ namespace zwave_command_class
         });
     }
 
-    void command_class_version::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
-    {
-        (void)endpoint_node;
-        (void)supported_version;
-    }
-
     sl_status_t command_class_version::on_version_cc_get_requested(command_class_version_types::command_class_version_cc_get_payload_t payload)
     {
         // We cannot ask for the version of extended CCs.

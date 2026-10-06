@@ -36,7 +36,6 @@ namespace zwave_command_class
             // and must survive factory resets, so the attribute store is not used.
             std::vector<std::pair<uint8_t, uint8_t>> lifeline_command_registry_;
 
-            void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version) override;
             static uint8_t normalize_grouping_identifier_for_report(uint8_t requested_grouping_identifier);
 
             static sl_status_t on_association_group_name_get_requested(const component_connector_agi_group_name_get_payload_t &payload);

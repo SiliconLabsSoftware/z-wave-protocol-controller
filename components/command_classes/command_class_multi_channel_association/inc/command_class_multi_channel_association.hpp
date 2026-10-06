@@ -50,8 +50,6 @@ namespace zwave_command_class
             sl_status_t on_multi_channel_association_get_requested_assemble_frame(const get_requested_args &args, uint8_t *data, uint16_t *length) override;
             sl_status_t on_multi_channel_association_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length) override;
             sl_status_t on_multi_channel_association_remove_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length) override;
-
-            void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version) override;
     };
 
 }  // namespace zwave_command_class

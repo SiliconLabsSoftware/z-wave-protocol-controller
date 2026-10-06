@@ -17,7 +17,9 @@
 #include <stdint.h>
 #include <array>
 #include <cstring>
+#include <memory>
 #include <string>
+#include <vector>
 #include "zwave_controller_types.h"
 #include "zwave_controller_connection_info.h"
 #include "zwave_keyset_definitions.h"
@@ -160,6 +162,20 @@ namespace zwave_command_class
     struct component_connector_interview_done_payload_t {
             attribute_store_node_t endpoint_node;  // The endpoint node that completed interview
             sl_status_t status;                    // Interview result (e.g. SL_STATUS_OK for success)
+    };
+
+    /**
+     * @brief Request finish or cancel of post-interview command-class work.
+     *
+     * finish_if_complete: allow publish and fire FULLY_RESOLVED OK when no required attributes remain.
+     * cancel: clear outstanding requirements; cancelled_command_classes is filled when provided.
+     */
+    enum class component_connector_cc_interview_action_t : uint8_t { finish_if_complete, cancel };
+
+    struct component_connector_cc_interview_action_payload_t {
+            attribute_store_node_t endpoint_node;
+            component_connector_cc_interview_action_t action;
+            std::shared_ptr<std::vector<uint16_t>> cancelled_command_classes;
     };
 }  // namespace zwave_command_class
 

@@ -69,8 +69,14 @@ namespace zwave_command_class
         fire_check_command_in_group_list(endpoint_node);
 
         if (supported_version >= 2) {
-            auto supported_get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(notification_supported_get_group_attributes_t::NOTIFICATION_SUPPORTED_GET_GROUP));
-            start_group_resolution(supported_get_node);
+            auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(notification_supported_report_group_attributes_t::NOTIFICATION_SUPPORTED_REPORT_GROUP));
+            cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(notification_supported_report_group_attributes_t::bit_mask)));
+            start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(notification_supported_get_group_attributes_t::NOTIFICATION_SUPPORTED_GET_GROUP)));
+        } else {
+            // Alarm v1 has no Supported Get. CL:0071.01.52.09.1 requires Alarm Get.
+            auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(notification_report_group_attributes_t::NOTIFICATION_REPORT_GROUP));
+            cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(notification_report_group_attributes_t::v1_alarm_type)));
+            start_notification_get(endpoint_node, 0);
         }
     }
 
@@ -205,6 +211,9 @@ namespace zwave_command_class
     sl_status_t command_class_notification::on_notification_supported_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_notification_attribute_map_t payload)
     {
         (void)connection_info;
+        if (!cc_interview_is_open(endpoint)) {
+            return SL_STATUS_OK;
+        }
 
         auto bit_mask        = get_value_or_default(payload, "bit_mask", notification_supported_report_bit_mask_t {});
         auto supported_types = extract_supported_types(bit_mask);
@@ -217,8 +226,12 @@ namespace zwave_command_class
         uint8_t supported_version = endpoint_supported_version(endpoint);
 
         if (supported_version >= 3) {
+            auto event_report = endpoint.emplace_node(static_cast<attribute_store_type_t>(event_supported_report_group_attributes_t::EVENT_SUPPORTED_REPORT_GROUP));
+            cc_interview_require_attribute(event_report.emplace_node(static_cast<attribute_store_type_t>(event_supported_report_group_attributes_t::bit_mask)));
             start_event_supported_get(endpoint, supported_types[0]);
         } else {
+            auto report = endpoint.emplace_node(static_cast<attribute_store_type_t>(notification_report_group_attributes_t::NOTIFICATION_REPORT_GROUP));
+            cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(notification_report_group_attributes_t::notification_type)));
             start_notification_get(endpoint, supported_types[0]);
         }
 
@@ -228,6 +241,9 @@ namespace zwave_command_class
     sl_status_t command_class_notification::on_event_supported_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_notification_attribute_map_t payload)
     {
         (void)connection_info;
+        if (!cc_interview_is_open(endpoint)) {
+            return SL_STATUS_OK;
+        }
 
         uint8_t reported_type = get_value_or_default(payload, "notification_type", static_cast<uint8_t>(0));
 
@@ -251,8 +267,12 @@ namespace zwave_command_class
         auto next  = find_next_type(types, reported_type);
 
         if (next.has_value()) {
+            auto event_report = endpoint.emplace_node(static_cast<attribute_store_type_t>(event_supported_report_group_attributes_t::EVENT_SUPPORTED_REPORT_GROUP));
+            cc_interview_require_attribute(event_report.emplace_node(static_cast<attribute_store_type_t>(event_supported_report_group_attributes_t::bit_mask)));
             start_event_supported_get(endpoint, *next);
         } else if (!types.empty()) {
+            auto report = endpoint.emplace_node(static_cast<attribute_store_type_t>(notification_report_group_attributes_t::NOTIFICATION_REPORT_GROUP));
+            cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(notification_report_group_attributes_t::notification_type)));
             start_notification_get(endpoint, types[0]);
         }
 
@@ -262,6 +282,10 @@ namespace zwave_command_class
     sl_status_t command_class_notification::on_notification_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_notification_attribute_map_t payload)
     {
         (void)connection_info;
+
+        if (!cc_interview_is_open(endpoint)) {
+            return SL_STATUS_OK;
+        }
 
         uint8_t reported_type = get_value_or_default(payload, "notification_type", static_cast<uint8_t>(0));
 
@@ -281,6 +305,8 @@ namespace zwave_command_class
         auto types = get_supported_types_from_store(endpoint);
         auto next  = find_next_type(types, reported_type);
         if (next.has_value()) {
+            auto report = endpoint.emplace_node(static_cast<attribute_store_type_t>(notification_report_group_attributes_t::NOTIFICATION_REPORT_GROUP));
+            cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(notification_report_group_attributes_t::notification_type)));
             start_notification_get(endpoint, *next);
         }
 
@@ -302,13 +328,15 @@ namespace zwave_command_class
         }
         frame_generator->add_value(v1_alarm_type_node, DESIRED_ATTRIBUTE);
 
-        auto notification_type_node = group_node.emplace_node(static_cast<attribute_store_type_t>(notification_get_group_attributes_t::notification_type));
-        if (!notification_type_node.desired_exists()) {
-            return SL_STATUS_NOT_READY;
+        // Alarm Get v1 is Alarm Type only. Notification Type is v2+; Event is v3+.
+        if (supported_version >= 2) {
+            auto notification_type_node = group_node.emplace_node(static_cast<attribute_store_type_t>(notification_get_group_attributes_t::notification_type));
+            if (!notification_type_node.desired_exists()) {
+                return SL_STATUS_NOT_READY;
+            }
+            frame_generator->add_value(notification_type_node, DESIRED_ATTRIBUTE);
         }
-        frame_generator->add_value(notification_type_node, DESIRED_ATTRIBUTE);
 
-        // Because of Alarm CC compatibility, we need to add the event node if the supported version is 3 or higher.
         if (supported_version >= 3) {
             auto event_node = group_node.emplace_node(static_cast<attribute_store_type_t>(notification_get_group_attributes_t::event));
             if (!event_node.desired_exists()) {

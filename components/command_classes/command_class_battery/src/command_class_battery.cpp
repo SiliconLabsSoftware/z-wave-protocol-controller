@@ -34,8 +34,11 @@ namespace zwave_command_class
 
     void command_class_battery::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
-        auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(battery_get_group_attributes_t::BATTERY_GET_GROUP));
-        command_class_battery_core::start_group_resolution(group_node);
+        (void)supported_version;
+
+        auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(battery_report_group_attributes_t::BATTERY_REPORT_GROUP));
+        cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(battery_report_group_attributes_t::battery_level)));
+        start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(battery_get_group_attributes_t::BATTERY_GET_GROUP)));
     }
 
 }  // namespace zwave_command_class

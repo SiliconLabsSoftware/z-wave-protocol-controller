@@ -71,6 +71,7 @@ namespace zwave_command_class
         ENDPOINT_GET_VERSION_REPORT,
         ENDPOINT_ZWAVEPLUS_INFO,
         ENDPOINT_ASSOCIATION_ITERATOR,
+        INTERVIEW_BASIC,
         COMPLETED,
         FAILED
     };
@@ -132,6 +133,16 @@ namespace zwave_command_class
     };
 
     /**
+     * @brief BasicInterviewStep: probe Basic Get then Version Get per endpoint.
+     */
+    struct BasicProgress {
+            enum class Phase { PendingKick, AwaitingReport, AwaitingVersion };
+            Phase phase = Phase::PendingKick;
+            std::vector<uint8_t> endpoint_ids;
+            std::vector<uint8_t>::iterator current_endpoint_it;
+    };
+
+    /**
      * @brief Context for tracking interview progress for a device/endpoint
      */
     struct InterviewSession {
@@ -159,6 +170,7 @@ namespace zwave_command_class
             MultiChannelProgress multi_channel;
             AssociationMembersProgress association_members;
             AgiProgress agi;
+            BasicProgress basic;
 
             /// Set from Version Capabilities Report during GET_VERSION_CAPABILITIES (Z-Wave Software bit).
             bool version_zwave_software_supported = false;
@@ -211,7 +223,12 @@ namespace zwave_command_class
              * @brief Abort interviews that have made no state progress for too long.
              *
              * AL/FL: 60 s. NL: max(2 × zpc.default_wake_up_interval, 15 min).
-             * Fires INTERVIEW_FULLY_RESOLVED with fail status and erases the session.
+             * While COMPLETED and the attribute resolver still needs work on the node,
+             * last_progress_at is refreshed so in-flight Gets are not aborted.
+             * When the resolver is idle and the stall timeout has elapsed, outstanding
+             * requirements are cancelled and finish_if_complete publishes FULLY_RESOLVED OK
+             * (give-up does not FAIL/re-interview). Other states fire
+             * INTERVIEW_FULLY_RESOLVED FAIL and erase the session.
              */
             void abort_stale_sessions();
 
@@ -238,12 +255,15 @@ namespace zwave_command_class
             void register_steps();
 
             /**
-             * @brief Publish INTERVIEW_FULLY_RESOLVED (FAIL) for a session's endpoint.
+             * @brief Cancel outstanding post-interview work and publish INTERVIEW_FULLY_RESOLVED (FAIL).
              *
              * Used by step fail(), NODE_DELETED, and stall abort so MQTT clients
              * always get Interview/Report.
+             *
+             * @param session Session whose endpoint is cancelled / failed.
+             * @param reason  Logged cancel reason (step failed, node deleted, ...).
              */
-            static void publish_interview_failure(const InterviewSession &session);
+            static void publish_interview_failure(const InterviewSession &session, const char *reason = "step failed");
 
             /**
              * @brief Publish interview failure and erase the session for (node_id, endpoint_id).
@@ -258,6 +278,10 @@ namespace zwave_command_class
              * @return true if extraction succeeded, false otherwise
              */
             static bool extract_node_info_from_endpoint(attribute_store::attribute endpoint_node, zwave_node_id_t &node_id, uint8_t &endpoint_id);
+
+            static std::vector<uint16_t> cc_interview_cancel_sync(attribute_store::attribute endpoint_node, const char *reason, zwave_node_id_t node_id);
+            static void cc_interview_publish_fully_resolved_fail(attribute_store::attribute endpoint_node);
+            static void cc_interview_finish_if_complete_sync(attribute_store::attribute endpoint_node, zwave_node_id_t node_id);
     };
 
 }  // namespace zwave_command_class

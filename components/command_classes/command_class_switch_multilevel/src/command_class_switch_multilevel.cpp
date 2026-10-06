@@ -34,12 +34,19 @@ namespace zwave_command_class
     // Base class only invokes on_interview for endpoints with reported CC version > 0 (i.e. that support this CC).
     void command_class_switch_multilevel::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
-        auto get_group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_multilevel_get_group_attributes_t::SWITCH_MULTILEVEL_GET_GROUP));
-        start_group_resolution(get_group_node, interview_resolution_options());
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(switch_multilevel_report_group_attributes_t::SWITCH_MULTILEVEL_REPORT_GROUP));
+        if (supported_version >= 3) {
+            invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(switch_multilevel_supported_report_group_attributes_t::SWITCH_MULTILEVEL_SUPPORTED_REPORT_GROUP));
+        }
+
+        auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_multilevel_report_group_attributes_t::SWITCH_MULTILEVEL_REPORT_GROUP));
+        cc_interview_require_attribute(report.emplace_node(static_cast<attribute_store_type_t>(switch_multilevel_report_group_attributes_t::current_value)));
+        start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_multilevel_get_group_attributes_t::SWITCH_MULTILEVEL_GET_GROUP)), interview_resolution_options());
 
         if (supported_version >= 3) {
-            auto supported_get_group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_multilevel_supported_get_group_attributes_t::SWITCH_MULTILEVEL_SUPPORTED_GET_GROUP));
-            start_group_resolution(supported_get_group_node, interview_resolution_options());
+            auto supported_report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_multilevel_supported_report_group_attributes_t::SWITCH_MULTILEVEL_SUPPORTED_REPORT_GROUP));
+            cc_interview_require_attribute(supported_report.emplace_node(static_cast<attribute_store_type_t>(switch_multilevel_supported_report_group_attributes_t::primary_switch_type)));
+            start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(switch_multilevel_supported_get_group_attributes_t::SWITCH_MULTILEVEL_SUPPORTED_GET_GROUP)), interview_resolution_options());
         }
     }
 

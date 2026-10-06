@@ -34,11 +34,16 @@ namespace zwave_command_class
 
     void command_class_thermostat_mode::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
-        auto supported_get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_mode_supported_get_group_attributes_t::THERMOSTAT_MODE_SUPPORTED_GET_GROUP));
-        start_group_resolution(supported_get_node);
+        (void)supported_version;
 
-        auto get_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_mode_get_group_attributes_t::THERMOSTAT_MODE_GET_GROUP));
-        start_group_resolution(get_node);
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(thermostat_mode_report_group_attributes_t::THERMOSTAT_MODE_REPORT_GROUP));
+        invalidate_report_groups(endpoint_node, static_cast<attribute_store_type_t>(thermostat_mode_supported_report_group_attributes_t::THERMOSTAT_MODE_SUPPORTED_REPORT_GROUP));
+
+        start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_mode_get_group_attributes_t::THERMOSTAT_MODE_GET_GROUP)));
+
+        auto supported_report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_mode_supported_report_group_attributes_t::THERMOSTAT_MODE_SUPPORTED_REPORT_GROUP));
+        cc_interview_require_attribute(supported_report.emplace_node(static_cast<attribute_store_type_t>(thermostat_mode_supported_report_group_attributes_t::bit_mask)));
+        start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_mode_supported_get_group_attributes_t::THERMOSTAT_MODE_SUPPORTED_GET_GROUP)));
     }
 
     sl_status_t command_class_thermostat_mode::on_thermostat_mode_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_thermostat_mode_attribute_map_t payload)

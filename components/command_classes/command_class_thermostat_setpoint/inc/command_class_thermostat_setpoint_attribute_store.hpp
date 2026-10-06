@@ -36,10 +36,11 @@ namespace zwave_command_class
 
             static bool get_reported_capabilities_precisions_for_setpoint_type(attribute_store::attribute endpoint_node, uint8_t setpoint_type, uint8_t &out_min_precision, uint8_t &out_max_precision);
 
-        private:
+        protected:
             static attribute_store::attribute find_report_group_by_setpoint_type(attribute_store::attribute endpoint_node, uint8_t setpoint_type);
             static attribute_store::attribute find_capabilities_report_group_by_setpoint_type(attribute_store::attribute endpoint_node, uint8_t setpoint_type);
 
+        private:
             sl_status_t on_thermostat_setpoint_report_received_store(attribute_store::attribute endpoint_node, command_class_thermostat_setpoint_attribute_map_t attribute_map) override;
             sl_status_t on_thermostat_setpoint_supported_report_received_store(attribute_store::attribute endpoint_node, command_class_thermostat_setpoint_attribute_map_t attribute_map) override;
             sl_status_t on_thermostat_setpoint_capabilities_report_received_store(attribute_store::attribute endpoint_node, command_class_thermostat_setpoint_attribute_map_t attribute_map) override;

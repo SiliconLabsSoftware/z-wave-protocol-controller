@@ -31,6 +31,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 
 // Generator & parsers
 #include "zwave_frame_parser.hpp"                   // zwave_frame_parser
@@ -136,6 +137,33 @@ namespace zwave_command_class
              * @param supported_version The version of the command class supported by the endpoint
              */
             virtual void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version);
+
+            /**
+             * @brief Require this attribute to have a reported value before the CC interview can finish.
+             *
+             * Override on_interview when this command class sends post-interview Gets.
+             * Call cc_interview_require_attribute on each attribute that must receive a
+             * reported value before this command class is done. Call it in on_interview for
+             * values known up front. When a report reveals more values, call it in that parsed
+             * callback before the callback returns, then start_group_resolution as today.
+             * Clears any reported value already on the node so a reinterview sends the Get again.
+             * Do not close the interview; cc_interview_finish_if_complete drops attributes once
+             * reported and publishes INTERVIEW_FULLY_RESOLVED when none remain required.
+             * No-op when the endpoint's post-interview window is closed.
+             */
+            void cc_interview_require_attribute(attribute_store::attribute node);
+
+            /**
+             * @brief Finish the CC interview when every required attribute has a reported value.
+             *
+             * Drops required attributes that are now reported. When none remain for the device
+             * and CompletedStep has allowed publish, fires INTERVIEW_FULLY_RESOLVED OK.
+             * Called by the generated report handler after on_*_parsed. Authors do not copy this.
+             */
+            void cc_interview_finish_if_complete(attribute_store::attribute endpoint) const;
+
+            /** True while this endpoint's post-interview window is open. */
+            static bool cc_interview_is_open(attribute_store::attribute endpoint);
 
             /**
              * @brief This is the function which will be executed when a Report frame of
@@ -306,6 +334,13 @@ namespace zwave_command_class
             bool force_interview_for_cc = false;
 
             /**
+             * When true, post-interview Gets run only on the Root Device (endpoint 0).
+             * Non-root endpoints are skipped, and root is not skipped when a sibling
+             * also advertises this CC.
+             */
+            bool interview_root_device_only = false;
+
+            /**
              * @brief Returns the resolution options appropriate for the endpoint currently being interviewed.
              *
              * Computed by interview() before on_interview() is called. Use this in on_interview()
@@ -314,6 +349,12 @@ namespace zwave_command_class
              * without the CC needing to know about the device topology.
              */
             const group_resolution_options &interview_resolution_options() const;
+
+            /** Return the version passed to on_interview(), including root fallback. */
+            uint8_t interview_supported_version(const attribute_store::attribute &endpoint_node) const;
+
+            /** Delete all report groups of the given type from an endpoint. */
+            static void invalidate_report_groups(attribute_store::attribute endpoint_node, attribute_store_type_t report_group_type);
 
             /**
              * @brief MQTT command handler
@@ -344,6 +385,30 @@ namespace zwave_command_class
             zwave_frame_generator m_frame_generator;
 
             std::map<std::string, std::function<void(attribute_store::attribute &endpoint_node, std::string)>> mqtt_callback_map;
+
+        private:
+            using cc_interview_pending_key_t = std::pair<attribute_store_node_t, zwave_command_class_t>;
+
+            static std::map<cc_interview_pending_key_t, std::vector<attribute_store_node_t>> cc_interview_pending;
+            static std::set<attribute_store_node_t> cc_interview_open_endpoints;
+            static std::set<attribute_store_node_t> cc_interview_publish_allowed_devices;
+            static std::set<attribute_store_node_t> cc_interview_published_devices;
+
+            static void cc_interview_open(attribute_store::attribute endpoint);
+            static void cc_interview_clear_pending_for_endpoint(attribute_store_node_t endpoint);
+            static bool cc_interview_device_has_pending(attribute_store::attribute device);
+            static void cc_interview_publish_fully_resolved_ok(attribute_store::attribute device);
+
+            static void cc_interview_finish_if_complete(attribute_store::attribute endpoint, zwave_command_class_t cc_id);
+            static void cc_interview_finish_if_complete_for_device(attribute_store::attribute device);
+
+            /**
+             * @brief Clear outstanding requirements for the device. Returns the command class
+             *        ids that were still required. Does not publish FULLY_RESOLVED.
+             */
+            static std::vector<uint16_t> cc_interview_cancel(attribute_store::attribute endpoint);
+
+            static void cc_interview_register_action_handler();
     };
 }  // namespace zwave_command_class
 

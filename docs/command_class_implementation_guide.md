@@ -203,6 +203,53 @@ sl_status_t command_class_switch_multilevel::on_switch_multilevel_set_requested_
 }
 ```
 
+### Closing the Command Class Interview
+
+Override `on_interview` when this command class sends post-interview Gets. Call `cc_interview_require_attribute` on each attribute that must receive a reported value before this command class is done. Call it in `on_interview` for values known up front. When a report reveals more values, call it in that parsed callback before the callback returns, then `start_group_resolution` as today.
+
+Do not close the interview. `cc_interview_finish_if_complete` drops an attribute once it has a reported value and publishes `INTERVIEW_FULLY_RESOLVED` when none remain required. A command class with no post-interview Gets does not call anything; `interview()` calls `cc_interview_finish_if_complete` after `on_interview`.
+
+```cpp
+void command_class_switch_color::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
+{
+    (void)supported_version;
+
+    auto report = endpoint_node.emplace_node(
+        static_cast<attribute_store_type_t>(
+            switch_color_supported_report_group_attributes_t::SWITCH_COLOR_SUPPORTED_REPORT_GROUP));
+    cc_interview_require_attribute(
+        report.emplace_node(
+            static_cast<attribute_store_type_t>(
+                switch_color_supported_report_group_attributes_t::color_component_mask)));
+    start_group_resolution(
+        endpoint_node.emplace_node(
+            static_cast<attribute_store_type_t>(
+                switch_color_supported_get_group_attributes_t::SWITCH_COLOR_SUPPORTED_GET_GROUP)));
+}
+
+sl_status_t command_class_switch_color::on_switch_color_supported_report_parsed(
+    const zwave_controller_connection_info_t *,
+    attribute_store::attribute endpoint,
+    command_class_switch_color_attribute_map_t payload)
+{
+    // ... decode color_component_mask ...
+
+    for (uint8_t id = 0; id < COLOR_COMPONENT_MASK_BITS; ++id) {
+        if ((mask & (1U << id)) == 0U) {
+            continue;
+        }
+        auto report_group = find_or_create_report_group_by_color_component_id(endpoint, id);
+        cc_interview_require_attribute(
+            report_group.emplace_node(
+                static_cast<attribute_store_type_t>(
+                    switch_color_report_group_attributes_t::current_value)));
+    }
+
+    // ... start_group_resolution for the first supported component Get ...
+    return SL_STATUS_OK;
+}
+```
+
 #### 2. `command_class_switch_multilevel_attribute_store.cpp`
 
 **Purpose**: This file handles the integration with the permanent store, responsible for persisting received command data.

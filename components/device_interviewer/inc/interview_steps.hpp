@@ -46,6 +46,7 @@
 #include "interview_step_prepare_endpoint_versions.hpp"
 #include "interview_step_get_endpoint_zwaveplus_info.hpp"
 #include "interview_step_endpoint_association_iterator.hpp"
+#include "interview_step_basic.hpp"
 #include "interview_step_completed.hpp"
 
 #endif  // INTERVIEW_STEPS_H

@@ -11,34 +11,29 @@
  *
  *****************************************************************************/
 
-#ifndef INTERVIEW_STEP_COMPLETED_H
-#define INTERVIEW_STEP_COMPLETED_H
+#ifndef INTERVIEW_STEP_BASIC_H
+#define INTERVIEW_STEP_BASIC_H
 
 #include "interview_step.hpp"
 
 namespace zwave_command_class
 {
     /**
-     * @brief Terminal step reached when all interview steps have completed.
+     * @brief Probes Basic CC (0x20) on root and every discovered endpoint.
      *
-     * On entry (handle_event with nullopt):
-     * 1. Fires COMPONENT_CONNECTOR_INTERVIEW_DONE (synchronously, via
-     *    fire_event_async + .get()) for the root and every discovered
-     *    endpoint so that command classes can run their on_interview hooks
-     *    and register required attributes before publish is allowed.
-     * 2. Calls cc_interview_finish_if_complete on the component-connector worker.
-     *    That publishes COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED OK for
-     *    every endpoint when nothing is still required; otherwise the
-     *    session stays in COMPLETED until chained Gets finish (or give-up).
-     *
-     * Handles no external events and never transitions out of this state.
+     * Basic MUST NOT be advertised (CC:0020.01.00.21.003/004). Support is
+     * established only if a Basic Report is returned (CL:0020.01.21.02.2)
+     * after Basic Get (CL:0020.01.21.01.1). A report stores version 1
+     * immediately (CL:0020.01.21.02.2). Version Get for 0x20 follows only
+     * when Version CC (0x86) is advertised; otherwise version 1 is kept.
+     * Give-up stores version 0 and continues; this step never fails the interview.
      */
-    class CompletedStep : public InterviewStep
+    class BasicInterviewStep : public InterviewStep
     {
         public:
             std::string name() const override
             {
-                return "Completed";
+                return "BasicInterview";
             }
 
             bool handles_external_event(device_interviewer_external_event_t event_type) const override;
@@ -50,4 +45,4 @@ namespace zwave_command_class
 
 }  // namespace zwave_command_class
 
-#endif  // INTERVIEW_STEP_COMPLETED_H
+#endif  // INTERVIEW_STEP_BASIC_H
