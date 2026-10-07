@@ -44,7 +44,8 @@
 {# (FIND_REPORT -> FIND), (REPORT -> GET) #}
 {% macro get_special_command_pairs(command_name) %}
     {% set command_map = {
-       "": "" 
+       "": "",
+       "SENSOR_BINARY_SUPPORTED_SENSOR_REPORT": "SENSOR_BINARY_SUPPORTED_GET_SENSOR"
     } %}
     {{ command_map | as_json }}
 {% endmacro %}
