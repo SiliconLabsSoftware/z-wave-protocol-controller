@@ -28,6 +28,7 @@ Example: `zpc/CAFECAFE/4/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoint 3
 | [COMMAND_CLASS_METER](command_class_meter/doc/generated/command_class_meter_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_MULTI_CHANNEL_ASSOCIATION](command_class_multi_channel_association/doc/generated/command_class_multi_channel_association_mqtt_interface.md) | true | true | true |
 | [COMMAND_CLASS_MULTI_CHANNEL](command_class_multi_channel/doc/generated/command_class_multi_channel_mqtt_interface.md) | true | false | true |
+| [COMMAND_CLASS_NODE_NAMING](command_class_node_naming/doc/generated/command_class_node_naming_mqtt_interface.md) | true | true | false |
 | [COMMAND_CLASS_POWERLEVEL](command_class_powerlevel/doc/generated/command_class_powerlevel_mqtt_interface.md) | false | true | false |
 | [COMMAND_CLASS_SECURITY](command_class_security/doc/generated/command_class_security_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_SWITCH_BINARY](command_class_switch_binary/doc/generated/command_class_switch_binary_mqtt_interface.md) | true | false | true |
@@ -61,6 +62,7 @@ Example: `zpc/CAFECAFE/4/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoint 3
 - [COMMAND_CLASS_METER](command_class_meter/doc/generated/command_class_meter_mqtt_interface.md)
 - [COMMAND_CLASS_MULTI_CHANNEL_ASSOCIATION](command_class_multi_channel_association/doc/generated/command_class_multi_channel_association_mqtt_interface.md)
 - [COMMAND_CLASS_MULTI_CHANNEL](command_class_multi_channel/doc/generated/command_class_multi_channel_mqtt_interface.md)
+- [COMMAND_CLASS_NODE_NAMING](command_class_node_naming/doc/generated/command_class_node_naming_mqtt_interface.md)
 - [COMMAND_CLASS_POWERLEVEL](command_class_powerlevel/doc/generated/command_class_powerlevel_mqtt_interface.md)
 - [COMMAND_CLASS_SECURITY](command_class_security/doc/generated/command_class_security_mqtt_interface.md)
 - [COMMAND_CLASS_SWITCH_BINARY](command_class_switch_binary/doc/generated/command_class_switch_binary_mqtt_interface.md)
