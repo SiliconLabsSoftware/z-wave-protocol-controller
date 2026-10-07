@@ -20,6 +20,18 @@
 #define {{ class_name | upper }}_H
 {% endmacro %}
 
+{% macro command_min_frame_size(command) -%}
+    {%- set sizes = namespace(values=[]) -%}
+    {%- for size in command.min_frame_sizes -%}
+        {%- set effective_size = size -%}
+        {%- if size > 0 and command.params | length > 0 and command.params[-1].type | lower == "array" and command.params[-1].min_version <= loop.index -%}
+            {%- set effective_size = size - command.params[-1].fields[0].len -%}
+        {%- endif -%}
+        {%- do sizes.values.append(effective_size) -%}
+    {%- endfor -%}
+    {{- sizes.values | min -}}
+{%- endmacro %}
+
 {% macro footer_guard(class_name) %}
 #endif // {{ class_name | upper }}_H
 {% endmacro %}

@@ -117,7 +117,7 @@ zpc/<home_id>/<node_id>/ep<endpoint_id>/Meter/Report/MeterSupportedReport
   },
   "properties2": {
     "scale_supported_0": "0x05",
-    "m.s.t": "0x05"
+    "m_s_t": "0x05"
   },
   "number_of_scale_supported_bytes_to_follow": "0x12",
   "scale_supported": [
