@@ -48,6 +48,7 @@ math(EXPR COMPONENT_ATTRIBUTE_BASE "${COMPONENT_ATTRIBUTE_BASE} + ${COMPONENT_AT
 add_subdirectory(network_monitor)
 add_subdirectory(discovery)
 add_subdirectory(security)
+add_subdirectory(jamming_detection)
 
 math(EXPR COMPONENT_EVENT_BASE "${COMPONENT_EVENT_BASE} + ${COMPONENT_EVENT_BASE_STEP}")
 math(EXPR COMPONENT_ATTRIBUTE_BASE "${COMPONENT_ATTRIBUTE_BASE} + ${COMPONENT_ATTRIBUTE_BASE_STEP}")
