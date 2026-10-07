@@ -64,8 +64,18 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
                     // Optional param - only when control bit set (optionaloffs/optionalmask)
                     if ((({% if ns_opt.control_param.type | lower == "struct_byte" %}{{utils.create_variable_name(ns_opt.control_param.name)}}.value{% else %}{{utils.create_variable_name(ns_opt.control_param.name)}}{% endif %} & {{ "0x{:02X}".format(attribute.optionalmask) }}) != 0)
                         && (read_bytes < frame_length)) {
+                        {% if attribute.type | lower == "variant" and attribute.fields is defined and attribute.fields | length > 0 and attribute.fields[0].param_offset != 255 %}
+                        {% if command.params[attribute.fields[0].param_offset].type | lower == "byte" %}
+                        uint16_t {{utils.create_variable_name(attribute.name)}}_size = ({{utils.create_variable_name(command.params[attribute.fields[0].param_offset].name)}} & {{attribute.fields[0].size_mask}}) + {{attribute.fields[0].size_change}};
+                        {% else %}
+                        uint16_t {{utils.create_variable_name(attribute.name)}}_size = ({{utils.create_variable_name(command.params[attribute.fields[0].param_offset].name)}}.value & {{attribute.fields[0].size_mask}}) + {{attribute.fields[0].size_change}};
+                        {% endif %}
+                        {{utils.create_variable_name(attribute.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(attribute.type)}}>({{utils.create_variable_name(attribute.name)}}_size);
+                        read_bytes += {{utils.create_variable_name(attribute.name)}}_size;
+                        {% else %}
                         {{utils.create_variable_name(attribute.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(attribute.type)}}>(sizeof({{utils.create_variable_name(attribute.name)}}));
                         read_bytes += sizeof({{utils.create_variable_name(attribute.name)}});
+                        {% endif %}
                     }
                     {% endif %}
                 {% elif (attribute.type | lower == "byte"  or 
@@ -175,12 +185,14 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
 
         {% for attribute in command.params %}
             {% if attribute.type | lower == "struct_byte" %}
-                {% for field in attribute.fields %}
-                    {% if version == field.min_version %}
+                {# Extract all final struct fields when the parent byte is read, so fieldenum
+                   upgrades in later XML versions do not gate inserts behind later frame bytes. #}
+                {% if version == attribute.min_version %}
+                    {% for field in attribute.fields %}
                         uint8_t {{utils.create_variable_name(attribute.name)}}_{{utils.create_variable_name(field.name)}} = {{utils.create_variable_name(attribute.name)}}.value & static_cast<uint8_t>({{command.name | lower}}_{{attribute.name | lower}}_attribute_masks_t::{{utils.create_variable_name(field.name)}}_mask);
                         attribute_map.insert({"{{utils.create_variable_name(field.name)}}", {{utils.create_variable_name(attribute.name)}}_{{utils.create_variable_name(field.name)}}});
-                    {% endif %}
-                {% endfor %}
+                    {% endfor %}
+                {% endif %}
             {% elif attribute.type | lower != "marker" %}
                 {% if attribute.type | lower == "variant_group" %}
                     {% if version == attribute.min_version %}
