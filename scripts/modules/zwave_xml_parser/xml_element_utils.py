@@ -1,6 +1,7 @@
 from modules.zwave_xml_parser.xml_element_param import Param
 from modules.zwave_xml_parser.xml_element_paramgroup import ParamGroup
 from modules.zwave_xml_parser.xml_element_variant import Variant
+from modules.zwave_xml_parser.xml_element_arrayattrib import ArrayAttrib
 
 class XmlElementUtils:
     @staticmethod
@@ -33,6 +34,11 @@ class XmlElementUtils:
                         else:
                             max_size = field.param_offset or 0
             return max_size
+        elif param.type == 'ARRAY':
+            for field in param.fields:
+                if isinstance(field, ArrayAttrib):
+                    return field.len
+            return 0
         else:
             return XmlElementUtils.get_type_size(param.type)
 
@@ -42,6 +48,11 @@ class XmlElementUtils:
             # For minimum size calculation, VARIANT type should be counted as 1
             return 0
         elif param.type == 'BITMASK':
+            return 0
+        elif param.type == 'ARRAY':
+            for field in param.fields:
+                if isinstance(field, ArrayAttrib):
+                    return field.len
             return 0
         else:
             return XmlElementUtils.get_type_size(param.type)
