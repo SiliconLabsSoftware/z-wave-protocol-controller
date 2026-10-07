@@ -45,44 +45,44 @@
     {% if attribute.type | lower == "struct_byte" %}
       {% set inner_payload = {} %}
       {% for field in attribute.fields %}
-        {% set param_name = field.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+        {% set param_name = utils.create_variable_name(field.name) %}
         {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
           {% set _ = inner_payload.update({param_name: "0x05"}) %}
         {% endif %}
       {% endfor %}
       {% set _ = payload.update({attribute.name | lower: inner_payload}) %}
     {% elif attribute.type | lower == "byte" %}
-      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% set param_name = utils.create_variable_name(attribute.name) %}
       {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
         {% set _ = payload.update({param_name: "0x12"}) %}
       {% endif %}
     {% elif attribute.type | lower == "word" %}
-      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% set param_name = utils.create_variable_name(attribute.name) %}
       {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
         {% set _ = payload.update({param_name: "0x2574"}) %}
       {% endif %}
     {% elif attribute.type | lower == "dword" %}
-      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% set param_name = utils.create_variable_name(attribute.name) %}
       {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
         {% set _ = payload.update({param_name: "0x9382A5FB"}) %}
       {% endif %}
     {% elif attribute.type | lower == "const" %}
-      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% set param_name = utils.create_variable_name(attribute.name) %}
       {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
         {% set _ = payload.update({param_name: "0x01"}) %}
       {% endif %}
     {% elif attribute.type | lower == "variant" %}
-      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% set param_name = utils.create_variable_name(attribute.name) %}
       {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
         {% set _ = payload.update({param_name: ["0x01", "0x02", "0x03"]}) %}
       {% endif %}
     {% elif attribute.type | lower == "bit_24" %}
-      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% set param_name = utils.create_variable_name(attribute.name) %}
       {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
         {% set _ = payload.update({param_name: "0x123"}) %}
       {% endif %}
     {% elif attribute.type | lower == "marker" %}
-      {% set param_name = attribute.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+      {% set param_name = utils.create_variable_name(attribute.name) %}
       {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
         {% set _ = payload.update({param_name: "0xFF"}) %}
       {% endif %}
@@ -90,7 +90,7 @@
         {% set param_values = [] %}
         {% set vg_payload = {} %}
         {% for param in attribute.params %}
-          {% set param_name = param.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+          {% set param_name = utils.create_variable_name(param.name) %}
           {% if param_name != "reserved" and param_name != "res" and param_name != "res1" and param_name != "res2" and param_name != "res3" %}
             {% if param.type | lower == "byte" %}
               {% set _ = vg_payload.update({param_name: "0x12"}) %}
@@ -109,9 +109,9 @@
             {% elif param.type | lower == "struct_byte" %}
               {% set inner_payload = {} %}
               {% for f in param.fields %}
-                {% set f_name = f.name.replace(" ", "_").replace("/", "_").replace("-", "_").replace("+", "_plus") | lower %}
+                {% set f_name = utils.create_variable_name(f.name) %}
                 {% if f_name != "reserved" and f_name != "res" and f_name != "res1" and f_name != "res2" and f_name != "res3" %}
-                  {% set _ = inner_payload.update({f_name | lower: "0x05"}) %}
+                  {% set _ = inner_payload.update({f_name: "0x05"}) %}
                 {% endif %}
               {% endfor %}
               {% set _ = vg_payload.update({param_name: inner_payload}) %}
