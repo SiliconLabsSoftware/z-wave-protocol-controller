@@ -29,6 +29,7 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 | [COMMAND_CLASS_MULTI_CHANNEL](command_class_multi_channel/doc/generated/command_class_multi_channel_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_POWERLEVEL](command_class_powerlevel/doc/generated/command_class_powerlevel_mqtt_interface.md) | false | true | false |
 | [COMMAND_CLASS_SECURITY](command_class_security/doc/generated/command_class_security_mqtt_interface.md) | false | true | true |
+| [COMMAND_CLASS_SENSOR_BINARY](command_class_sensor_binary/doc/generated/command_class_sensor_binary_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_SWITCH_BINARY](command_class_switch_binary/doc/generated/command_class_switch_binary_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_SWITCH_MULTILEVEL](command_class_switch_multilevel/doc/generated/command_class_switch_multilevel_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_THERMOSTAT_FAN_MODE](command_class_thermostat_fan_mode/doc/generated/command_class_thermostat_fan_mode_mqtt_interface.md) | true | false | true |
@@ -61,6 +62,7 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 - [COMMAND_CLASS_MULTI_CHANNEL](command_class_multi_channel/doc/generated/command_class_multi_channel_mqtt_interface.md)
 - [COMMAND_CLASS_POWERLEVEL](command_class_powerlevel/doc/generated/command_class_powerlevel_mqtt_interface.md)
 - [COMMAND_CLASS_SECURITY](command_class_security/doc/generated/command_class_security_mqtt_interface.md)
+- [COMMAND_CLASS_SENSOR_BINARY](command_class_sensor_binary/doc/generated/command_class_sensor_binary_mqtt_interface.md)
 - [COMMAND_CLASS_SWITCH_BINARY](command_class_switch_binary/doc/generated/command_class_switch_binary_mqtt_interface.md)
 - [COMMAND_CLASS_SWITCH_MULTILEVEL](command_class_switch_multilevel/doc/generated/command_class_switch_multilevel_mqtt_interface.md)
 - [COMMAND_CLASS_THERMOSTAT_FAN_MODE](command_class_thermostat_fan_mode/doc/generated/command_class_thermostat_fan_mode_mqtt_interface.md)
