@@ -4,6 +4,8 @@
         '_remove': 'set',
         '_find': 'get',
         '_get': 'get',
+        '_get_sensor': 'get',
+        '_get_scale': 'get',
         '_set': 'set',
         '_start_level_change': 'set',
         '_stop_level_change': 'set',
@@ -44,7 +46,8 @@
 {# (FIND_REPORT -> FIND), (REPORT -> GET) #}
 {% macro get_special_command_pairs(command_name) %}
     {% set command_map = {
-       "": "" 
+       "SENSOR_MULTILEVEL_SUPPORTED_SENSOR_REPORT": "SENSOR_MULTILEVEL_SUPPORTED_GET_SENSOR",
+       "SENSOR_MULTILEVEL_SUPPORTED_SCALE_REPORT": "SENSOR_MULTILEVEL_SUPPORTED_GET_SCALE"
     } %}
     {{ command_map | as_json }}
 {% endmacro %}
