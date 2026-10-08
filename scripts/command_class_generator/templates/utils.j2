@@ -25,7 +25,13 @@
 {% endmacro %}
 
 {% macro create_variable_name(str) -%}
-{{str | lower | replace(" ","_") | replace("/","_") | replace("-","_") | replace("+","_plus") }}
+{%- set name = str | lower | replace(" ","_") | replace("/","_") | replace("-","_") | replace("+","_plus") -%}
+{#- "Default" bitflags become the C++ keyword default; rename that one case. -#}
+{%- if name == "default" -%}
+default_flag
+{%- else -%}
+{{ name }}
+{%- endif -%}
 {%- endmacro %}
 
 {% macro convert_command_name_to_mqtt_topic_token(str) -%}
