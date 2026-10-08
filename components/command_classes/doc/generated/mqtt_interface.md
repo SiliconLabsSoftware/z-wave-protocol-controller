@@ -32,7 +32,10 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 | [COMMAND_CLASS_SWITCH_BINARY](command_class_switch_binary/doc/generated/command_class_switch_binary_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_SWITCH_MULTILEVEL](command_class_switch_multilevel/doc/generated/command_class_switch_multilevel_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_THERMOSTAT_FAN_MODE](command_class_thermostat_fan_mode/doc/generated/command_class_thermostat_fan_mode_mqtt_interface.md) | true | false | true |
+| [COMMAND_CLASS_THERMOSTAT_FAN_STATE](command_class_thermostat_fan_state/doc/generated/command_class_thermostat_fan_state_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_THERMOSTAT_MODE](command_class_thermostat_mode/doc/generated/command_class_thermostat_mode_mqtt_interface.md) | true | false | true |
+| [COMMAND_CLASS_THERMOSTAT_OPERATING_STATE](command_class_thermostat_operating_state/doc/generated/command_class_thermostat_operating_state_mqtt_interface.md) | true | false | true |
+| [COMMAND_CLASS_THERMOSTAT_SETBACK](command_class_thermostat_setback/doc/generated/command_class_thermostat_setback_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_THERMOSTAT_SETPOINT](command_class_thermostat_setpoint/doc/generated/command_class_thermostat_setpoint_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_TIME](command_class_time/doc/generated/command_class_time_mqtt_interface.md) | false | true | false |
 | [COMMAND_CLASS_VERSION](command_class_version/doc/generated/command_class_version_mqtt_interface.md) | true | true | true |
@@ -64,7 +67,10 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 - [COMMAND_CLASS_SWITCH_BINARY](command_class_switch_binary/doc/generated/command_class_switch_binary_mqtt_interface.md)
 - [COMMAND_CLASS_SWITCH_MULTILEVEL](command_class_switch_multilevel/doc/generated/command_class_switch_multilevel_mqtt_interface.md)
 - [COMMAND_CLASS_THERMOSTAT_FAN_MODE](command_class_thermostat_fan_mode/doc/generated/command_class_thermostat_fan_mode_mqtt_interface.md)
+- [COMMAND_CLASS_THERMOSTAT_FAN_STATE](command_class_thermostat_fan_state/doc/generated/command_class_thermostat_fan_state_mqtt_interface.md)
 - [COMMAND_CLASS_THERMOSTAT_MODE](command_class_thermostat_mode/doc/generated/command_class_thermostat_mode_mqtt_interface.md)
+- [COMMAND_CLASS_THERMOSTAT_OPERATING_STATE](command_class_thermostat_operating_state/doc/generated/command_class_thermostat_operating_state_mqtt_interface.md)
+- [COMMAND_CLASS_THERMOSTAT_SETBACK](command_class_thermostat_setback/doc/generated/command_class_thermostat_setback_mqtt_interface.md)
 - [COMMAND_CLASS_THERMOSTAT_SETPOINT](command_class_thermostat_setpoint/doc/generated/command_class_thermostat_setpoint_mqtt_interface.md)
 - [COMMAND_CLASS_TIME](command_class_time/doc/generated/command_class_time_mqtt_interface.md)
 - [COMMAND_CLASS_VERSION](command_class_version/doc/generated/command_class_version_mqtt_interface.md)
