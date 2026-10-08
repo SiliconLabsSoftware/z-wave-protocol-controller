@@ -135,6 +135,12 @@ supported_command_classes:
     support: false
     control: true
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
+  - name: "COMMAND_CLASS_CONFIGURATION"
+    version: 4
+    mqtt_support: true
+    support: false
+    control: true
+    minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
   - name: "COMMAND_CLASS_FIRMWARE_UPDATE_MD"
     version: 5
     mqtt_support: false
