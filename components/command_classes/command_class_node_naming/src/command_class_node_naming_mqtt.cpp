@@ -60,7 +60,7 @@ namespace zwave_command_class
             return parser.status();
         }
 
-        const sl_status_t status = command_class_node_naming::store_node_name(endpoint_node, char_presentation, characters);
+        const sl_status_t status = command_class_node_naming_attribute_store::store_node_name(endpoint_node, char_presentation, characters);
         if (status != SL_STATUS_OK) {
             return status;
         }
@@ -81,7 +81,7 @@ namespace zwave_command_class
             return parser.status();
         }
 
-        const sl_status_t status = command_class_node_naming::store_node_location(endpoint_node, char_presentation, characters);
+        const sl_status_t status = command_class_node_naming_attribute_store::store_node_location(endpoint_node, char_presentation, characters);
         if (status != SL_STATUS_OK) {
             return status;
         }
@@ -94,7 +94,7 @@ namespace zwave_command_class
     {
         uint8_t char_presentation = char_presentation_standard_ascii;
         std::vector<uint8_t> characters;
-        command_class_node_naming::load_node_name(endpoint_node, char_presentation, characters);
+        command_class_node_naming_attribute_store::load_node_name(endpoint_node, char_presentation, characters);
         mqtt_publish_report(endpoint_node, command_class_node_naming_commands_t::COMMAND_CLASS_NODE_NAMING_NODE_NAMING_NODE_NAME_REPORT, command_class_node_naming::make_report_attribute_map(char_presentation, characters, node_name_char_key));
         return SL_STATUS_OK;
     }
@@ -103,7 +103,7 @@ namespace zwave_command_class
     {
         uint8_t char_presentation = char_presentation_standard_ascii;
         std::vector<uint8_t> characters;
-        command_class_node_naming::load_node_location(endpoint_node, char_presentation, characters);
+        command_class_node_naming_attribute_store::load_node_location(endpoint_node, char_presentation, characters);
         mqtt_publish_report(endpoint_node, command_class_node_naming_commands_t::COMMAND_CLASS_NODE_NAMING_NODE_NAMING_NODE_LOCATION_REPORT, command_class_node_naming::make_report_attribute_map(char_presentation, characters, node_location_char_key));
         return SL_STATUS_OK;
     }
