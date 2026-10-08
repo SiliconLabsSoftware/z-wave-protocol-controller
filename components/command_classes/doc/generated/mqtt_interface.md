@@ -25,6 +25,7 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 | [COMMAND_CLASS_FIRMWARE_UPDATE_MD](command_class_firmware_update_md/doc/generated/command_class_firmware_update_md_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_INDICATOR](command_class_indicator/doc/generated/command_class_indicator_mqtt_interface.md) | true | true | true |
 | [COMMAND_CLASS_MANUFACTURER_SPECIFIC](command_class_manufacturer_specific/doc/generated/command_class_manufacturer_specific_mqtt_interface.md) | true | true | true |
+| [COMMAND_CLASS_METER](command_class_meter/doc/generated/command_class_meter_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_MULTI_CHANNEL_ASSOCIATION](command_class_multi_channel_association/doc/generated/command_class_multi_channel_association_mqtt_interface.md) | true | true | true |
 | [COMMAND_CLASS_MULTI_CHANNEL](command_class_multi_channel/doc/generated/command_class_multi_channel_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_POWERLEVEL](command_class_powerlevel/doc/generated/command_class_powerlevel_mqtt_interface.md) | false | true | false |
@@ -57,6 +58,7 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 - [COMMAND_CLASS_FIRMWARE_UPDATE_MD](command_class_firmware_update_md/doc/generated/command_class_firmware_update_md_mqtt_interface.md)
 - [COMMAND_CLASS_INDICATOR](command_class_indicator/doc/generated/command_class_indicator_mqtt_interface.md)
 - [COMMAND_CLASS_MANUFACTURER_SPECIFIC](command_class_manufacturer_specific/doc/generated/command_class_manufacturer_specific_mqtt_interface.md)
+- [COMMAND_CLASS_METER](command_class_meter/doc/generated/command_class_meter_mqtt_interface.md)
 - [COMMAND_CLASS_MULTI_CHANNEL_ASSOCIATION](command_class_multi_channel_association/doc/generated/command_class_multi_channel_association_mqtt_interface.md)
 - [COMMAND_CLASS_MULTI_CHANNEL](command_class_multi_channel/doc/generated/command_class_multi_channel_mqtt_interface.md)
 - [COMMAND_CLASS_POWERLEVEL](command_class_powerlevel/doc/generated/command_class_powerlevel_mqtt_interface.md)

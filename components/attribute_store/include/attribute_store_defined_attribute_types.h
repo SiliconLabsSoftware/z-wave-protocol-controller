@@ -481,46 +481,6 @@ DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_HUMIDITY_CONTROL_SETPOINT_MAX_VALUE_SCA
 DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_HUMIDITY_CONTROL_SETPOINT_MAX_VALUE_PRECISION, ((COMMAND_CLASS_HUMIDITY_CONTROL_SETPOINT << 8) | 0x0D))
 
 /////////////////////////////////////////////////
-// Meter Command Class
-///< This represents the version of the Meter Command class.
-/// zwave_cc_version_t
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_METER_VERSION, ((COMMAND_CLASS_METER << 8) | 0x01))
-
-/// Indicates if the nodes supports Meter Reset
-/// meter_reset_supported_t
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_METER_RESET_SUPPORTED, ((COMMAND_CLASS_METER << 8) | 0x02))
-
-/// This represents the supported scales for a Meter type.
-/// byte array
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_METER_SUPPORTED_SCALES, ((COMMAND_CLASS_METER << 8) | 0x03))
-
-/// This represents the supported rate types for a Meter type.
-/// meter_supported_rate_types_t
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_METER_SUPPORTED_RATE_TYPES, ((COMMAND_CLASS_METER << 8) | 0x04))
-
-/// This represents a Meter type.
-/// meter_type_t
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_METER_TYPE, ((COMMAND_CLASS_METER << 8) | 0x05))
-
-/// This represents a Meter scale.
-/// meter_scale_t
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_METER_SCALE, ((COMMAND_CLASS_METER << 8) | 0x06))
-
-/// This represents a Meter Rate type.
-/// meter_rate_type_t
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_METER_RATE_TYPE, ((COMMAND_CLASS_METER << 8) | 0x07))
-
-/// This represents a Meter Value.
-/// meter_value_t
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_METER_VALUE, ((COMMAND_CLASS_METER << 8) | 0x08))
-
-/// This represents a Meter Value's precision.
-/// meter_precision_t
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_METER_PRECISION, ((COMMAND_CLASS_METER << 8) | 0x09))
-
-/////////////////////////////////////////////////
-
-/////////////////////////////////////////////////
 // Notification Command Class
 DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_NOTIFICATION_VERSION, ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_NOTIFICATION_V4))
 

@@ -119,19 +119,6 @@ static const std::vector<attribute_schema_t> attribute_schema = {
   {ATTRIBUTE_COMMAND_CLASS_HUMIDITY_CONTROL_SETPOINT_MAX_VALUE_SCALE,   "Max Value Scale",   ATTRIBUTE_COMMAND_CLASS_HUMIDITY_CONTROL_SETPOINT_MAX_VALUE,   U8_STORAGE_TYPE},
   {ATTRIBUTE_COMMAND_CLASS_HUMIDITY_CONTROL_SETPOINT_MAX_VALUE_PRECISION, "Max Value Precision",   ATTRIBUTE_COMMAND_CLASS_HUMIDITY_CONTROL_SETPOINT_MAX_VALUE,   U8_STORAGE_TYPE},
   /////////////////////////////////////////////////////////////////////
-  //         Meter Command Class attributes
-  /////////////////////////////////////////////////////////////////////
-  {ATTRIBUTE_COMMAND_CLASS_METER_VERSION,   "Meter Version",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
-  {ATTRIBUTE_COMMAND_CLASS_METER_RESET_SUPPORTED,   "Meter Reset supported",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
-  {ATTRIBUTE_COMMAND_CLASS_METER_SUPPORTED_SCALES,   "Meter Supported Scales",   ATTRIBUTE_ENDPOINT_ID,   BYTE_ARRAY_STORAGE_TYPE},
-  {ATTRIBUTE_COMMAND_CLASS_METER_SUPPORTED_RATE_TYPES,   "Meter Supported Rate Types",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
-  // Meter type can be either under the Endpoint or under the Reset requested
-  {ATTRIBUTE_COMMAND_CLASS_METER_TYPE,   "Meter Type",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
-  {ATTRIBUTE_COMMAND_CLASS_METER_SCALE,   "Scale",   ATTRIBUTE_COMMAND_CLASS_METER_TYPE,   U16_STORAGE_TYPE},
-  {ATTRIBUTE_COMMAND_CLASS_METER_RATE_TYPE,   "Rate Type",   ATTRIBUTE_COMMAND_CLASS_METER_SCALE,   U8_STORAGE_TYPE},
-  {ATTRIBUTE_COMMAND_CLASS_METER_VALUE,   "Value",   ATTRIBUTE_COMMAND_CLASS_METER_RATE_TYPE,   I32_STORAGE_TYPE},
-  {ATTRIBUTE_COMMAND_CLASS_METER_PRECISION,   "Precision",   ATTRIBUTE_COMMAND_CLASS_METER_RATE_TYPE,   U8_STORAGE_TYPE},
-  /////////////////////////////////////////////////////////////////////
   //        Multilevel Sensor Command Class attributes
   /////////////////////////////////////////////////////////////////////
   {ATTRIBUTE_COMMAND_CLASS_SENSOR_MULTILEVEL_VERSION,   "Multilevel Sensor Command Class version",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
