@@ -22,7 +22,7 @@ Interview sends no Configuration traffic. The specification requires none for a 
 | Configuration Properties Get | 0x0E | TX | 16-bit parameter number |
 | Configuration Properties Report | 0x0F | RX | |
 | Configuration Default Reset | 0x01 | TX | Version 4 |
-| Configuration Bulk Get/Set/Report | 0x07-0x09 | - | Generated but not transmitted |
+| Configuration Bulk Get/Set/Report | 0x07-0x09 | TX/RX | MQTT + frame assembly; Bulk Set skipped for read-only / no_bulk_support |
 
 ## Interview
 
@@ -88,6 +88,8 @@ Endpoint Node
 |---|---|
 | ConfigurationGet | Read one parameter (1-255) |
 | ConfigurationSet | Write one parameter; payload `parameter_number`, optional `size`, `value`, optional `default_flag` |
+| ConfigurationBulkGet | Read a consecutive parameter range (`parameter_offset`, `number_of_parameters`) |
+| ConfigurationBulkSet | Write a consecutive range; payload includes `properties1.size` / `handshake` / `default_flag` and `vg[].parameter` |
 | ConfigurationNameGet | Read parameter name |
 | ConfigurationInfoGet | Read parameter info |
 | ConfigurationPropertiesGet | Read one parameter's properties |

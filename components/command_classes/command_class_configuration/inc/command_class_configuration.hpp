@@ -41,14 +41,17 @@ namespace zwave_command_class
             static void request_configuration_set(attribute_store::attribute endpoint_node, uint8_t parameter_number, uint8_t size, int64_t value, bool use_default);
             static void request_properties_get(attribute_store::attribute endpoint_node, uint16_t parameter_number);
             static void clear_reported_values_and_refresh(attribute_store::attribute endpoint_node);
+            static bool bulk_set_allowed(attribute_store::attribute endpoint_node, uint16_t parameter_offset, uint8_t number_of_parameters);
 
         private:
             sl_status_t control_handler(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length) override;
+            sl_status_t handle_configuration_bulk_report(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length);
 
             sl_status_t on_configuration_properties_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_configuration_attribute_map_t payload) override;
             sl_status_t on_configuration_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_configuration_attribute_map_t payload) override;
             sl_status_t on_configuration_name_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_configuration_attribute_map_t payload) override;
             sl_status_t on_configuration_info_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_configuration_attribute_map_t payload) override;
+            sl_status_t on_configuration_bulk_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_configuration_attribute_map_t payload) override;
 
             sl_status_t on_configuration_get_requested_assemble_frame(const get_requested_args &args, uint8_t *data, uint16_t *length) override;
             sl_status_t on_configuration_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length) override;

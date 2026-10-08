@@ -22,6 +22,8 @@
 #include "attribute_resolver.h"
 #include "log.h"
 #include "zwave_command_class_indices.h"
+#include "zwave_command_class_utils.hpp"
+#include "zwave_frame_parser.hpp"
 #include "zwave_tx.h"
 
 namespace zwave_command_class
@@ -194,7 +196,7 @@ namespace zwave_command_class
             return;
         }
 
-        if (size_index + 1 < PARAMETER_SIZES.size()) {
+        if (static_cast<size_t>(size_index) + 1U < PARAMETER_SIZES.size()) {
             const uint8_t next_index = static_cast<uint8_t>(size_index + 1);
             size_index_node.set_reported(next_index);
             request_configuration_set(endpoint_node, number, PARAMETER_SIZES[next_index], SCAN_PROBE_VALUE, false);
@@ -330,14 +332,103 @@ namespace zwave_command_class
         }
     }
 
+    bool command_class_configuration::bulk_set_allowed(attribute_store::attribute endpoint_node, uint16_t parameter_offset, uint8_t number_of_parameters)
+    {
+        for (uint8_t i = 0; i < number_of_parameters; ++i) {
+            const uint32_t parameter_number = static_cast<uint32_t>(parameter_offset) + i;
+            if (parameter_number > 0xFFFF) {
+                sl_log_warning(LOG_TAG.data(), "Configuration Bulk Set range overflows 16-bit parameter numbers");
+                return false;
+            }
+            auto parameter_node = endpoint_node.child_by_type_and_value(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::PARAMETER_ID), static_cast<uint16_t>(parameter_number));
+            if (!parameter_node.is_valid()) {
+                continue;
+            }
+            auto read_only_node = parameter_node.child_by_type(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::read_only));
+            if (read_only_node.is_valid() && read_only_node.reported_exists() && read_only_node.reported<uint8_t>() != 0) {
+                sl_log_debug(LOG_TAG.data(), "Skipping Bulk Set: parameter %u is read-only", static_cast<unsigned>(parameter_number));
+                return false;
+            }
+            auto no_bulk_node = parameter_node.child_by_type(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::no_bulk_support));
+            if (no_bulk_node.is_valid() && no_bulk_node.reported_exists() && no_bulk_node.reported<uint8_t>() != 0) {
+                sl_log_debug(LOG_TAG.data(), "Skipping Bulk Set: parameter %u advertises no_bulk_support", static_cast<unsigned>(parameter_number));
+                return false;
+            }
+        }
+        return true;
+    }
+
     sl_status_t command_class_configuration::control_handler(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length)
     {
+        if (frame_length >= 2 && frame_data[COMMAND_INDEX] == static_cast<uint8_t>(command_class_configuration_commands_t::COMMAND_CLASS_CONFIGURATION_CONFIGURATION_BULK_REPORT)) {
+            // Generated parser reads VARIANT size incorrectly inside the vg; handle Bulk Report here.
+            return handle_configuration_bulk_report(connection_info, frame_data, frame_length);
+        }
+
         if (frame_length >= 4 && frame_data[COMMAND_INDEX] == static_cast<uint8_t>(command_class_configuration_commands_t::COMMAND_CLASS_CONFIGURATION_CONFIGURATION_PROPERTIES_REPORT)) {
             pending_properties_frame_.assign(frame_data, frame_data + frame_length);
         } else {
             pending_properties_frame_.clear();
         }
         return command_class_configuration_core::control_handler(connection_info, frame_data, frame_length);
+    }
+
+    sl_status_t command_class_configuration::handle_configuration_bulk_report(const zwave_controller_connection_info_t *connection_info, const uint8_t *frame_data, uint16_t frame_length)
+    {
+        attribute_store::attribute endpoint_node {command_class_utils::get_endpoint_node(connection_info)};
+        zwave_frame_parser frame_parser(frame_data, frame_length);
+        command_class_configuration_attribute_map_t attribute_map;
+
+        try {
+            frame_parser.read_sequential<uint8_t>(1);  // command class
+            frame_parser.read_sequential<uint8_t>(1);  // command
+
+            const auto parameter_offset     = frame_parser.read_sequential<uint16_t>(sizeof(uint16_t));
+            const auto number_of_parameters = frame_parser.read_sequential<uint8_t>(sizeof(uint8_t));
+            const auto reports_to_follow    = frame_parser.read_sequential<uint8_t>(sizeof(uint8_t));
+            const auto properties1_value    = frame_parser.read_sequential<uint8_t>(sizeof(uint8_t));
+            const uint8_t size              = properties1_value & static_cast<uint8_t>(configuration_bulk_report_properties1_attribute_masks_t::size_mask);
+            const uint8_t handshake         = (properties1_value & static_cast<uint8_t>(configuration_bulk_report_properties1_attribute_masks_t::handshake_mask)) != 0 ? 1 : 0;
+            const uint8_t default_flag      = (properties1_value & static_cast<uint8_t>(configuration_bulk_report_properties1_attribute_masks_t::default_flag_mask)) != 0 ? 1 : 0;
+
+            configuration_bulk_report_vg_t vg;
+            if (is_valid_size(size)) {
+                for (uint8_t i = 0; i < number_of_parameters; ++i) {
+                    configuration_bulk_report_vg_t_item_t item;
+                    item.parameter = frame_parser.read_sequential<std::vector<uint8_t>>(size);
+                    vg.push_back(std::move(item));
+                }
+            }
+
+            attribute_map.insert({"parameter_offset", parameter_offset});
+            attribute_map.insert({"number_of_parameters", number_of_parameters});
+            attribute_map.insert({"reports_to_follow", reports_to_follow});
+            attribute_map.insert({"size", size});
+            attribute_map.insert({"handshake", handshake});
+            attribute_map.insert({"default_flag", default_flag});
+            attribute_map.insert({"vg", vg});
+        } catch (const std::exception &e) {
+            sl_log_error(LOG_TAG.data(), "Error while parsing CONFIGURATION_BULK_REPORT frame: %s", e.what());
+            return SL_STATUS_FAIL;
+        }
+
+        const sl_status_t parse_status = on_configuration_bulk_report_received_store(endpoint_node, attribute_map);
+        if (parse_status != SL_STATUS_OK) {
+            return parse_status;
+        }
+
+        auto get_group = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_get_group_attributes_t::CONFIGURATION_BULK_GET_GROUP));
+        if (get_group.is_valid()) {
+            stop_group_resolution(get_group);
+        }
+        auto set_group = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::CONFIGURATION_BULK_SET_GROUP));
+        if (set_group.is_valid()) {
+            stop_group_resolution(set_group);
+        }
+
+        mqtt_publish_report(endpoint_node, command_class_configuration_commands_t::COMMAND_CLASS_CONFIGURATION_CONFIGURATION_BULK_REPORT, attribute_map);
+        on_configuration_bulk_report_parsed(connection_info, endpoint_node, attribute_map);
+        return SL_STATUS_OK;
     }
 
     uint16_t command_class_configuration::apply_parameter_0_next_quirk(uint16_t parameter_number, uint16_t next_parameter_number)
@@ -420,7 +511,7 @@ namespace zwave_command_class
 
         const uint8_t expected_number = number_node.reported<uint8_t>();
         const uint8_t size_index      = size_index_node.reported<uint8_t>();
-        if (parameter_number != expected_number || size_index >= PARAMETER_SIZES.size()) {
+        if (parameter_number != expected_number || static_cast<size_t>(size_index) >= PARAMETER_SIZES.size()) {
             return SL_STATUS_OK;
         }
 
@@ -576,20 +667,89 @@ namespace zwave_command_class
         return frame_generator->generate_frame();
     }
 
+    sl_status_t command_class_configuration::on_configuration_bulk_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_configuration_attribute_map_t payload)
+    {
+        (void)endpoint;
+        configuration_bulk_report_reports_to_follow_t reports_to_follow = 0;
+        reports_to_follow                                               = get_value_or_default(payload, "reports_to_follow", reports_to_follow);
+        if (reports_to_follow > 0 && connection_info != nullptr) {
+            zwave_tx_set_expected_frames(connection_info->remote.node_id, reports_to_follow);
+        }
+        return SL_STATUS_OK;
+    }
+
     sl_status_t command_class_configuration::on_configuration_bulk_get_requested_assemble_frame(const get_requested_args &args, uint8_t *data, uint16_t *length)
     {
-        (void)args;
         (void)data;
         (void)length;
-        return SL_STATUS_NOT_SUPPORTED;
+        auto group_node             = args.node;
+        const auto &frame_generator = args.get_frame_generator;
+
+        auto parameter_offset_node     = group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_get_group_attributes_t::parameter_offset));
+        auto number_of_parameters_node = group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_get_group_attributes_t::number_of_parameters));
+        if (!parameter_offset_node.desired_exists() || !number_of_parameters_node.desired_exists()) {
+            return SL_STATUS_NOT_READY;
+        }
+
+        frame_generator->add_value(parameter_offset_node, DESIRED_ATTRIBUTE);
+        frame_generator->add_value(number_of_parameters_node, DESIRED_ATTRIBUTE);
+        return frame_generator->generate_frame();
     }
 
     sl_status_t command_class_configuration::on_configuration_bulk_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length)
     {
-        (void)args;
         (void)data;
         (void)length;
-        return SL_STATUS_NOT_SUPPORTED;
+        auto group_node             = args.node;
+        const auto &frame_generator = args.set_frame_generator;
+
+        auto parameter_offset_node     = group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::parameter_offset));
+        auto number_of_parameters_node = group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::number_of_parameters));
+        auto size_node                 = group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::size));
+        auto handshake_node            = group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::handshake));
+        auto default_node              = group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::default_flag));
+        auto vg_node                   = group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::vg));
+
+        if (!parameter_offset_node.desired_exists() || !number_of_parameters_node.desired_exists() || !size_node.desired_exists() || !handshake_node.desired_exists() || !default_node.desired_exists()) {
+            return SL_STATUS_NOT_READY;
+        }
+
+        const uint8_t size        = size_node.desired<uint8_t>();
+        const uint8_t use_default = default_node.desired<uint8_t>();
+        const uint8_t handshake   = handshake_node.desired<uint8_t>();
+        const uint8_t number      = number_of_parameters_node.desired<uint8_t>();
+        if (!is_valid_size(size) || number == 0) {
+            return SL_STATUS_FAIL;
+        }
+
+        frame_generator->add_value(parameter_offset_node, DESIRED_ATTRIBUTE);
+        frame_generator->add_value(number_of_parameters_node, DESIRED_ATTRIBUTE);
+
+        configuration_bulk_set_properties1_t properties1;
+        properties1.value                                     = 0;
+        properties1.flags.configuration_bulk_set_size         = size;
+        properties1.flags.configuration_bulk_set_handshake    = handshake != 0 ? 1 : 0;
+        properties1.flags.configuration_bulk_set_default_flag = use_default != 0 ? 1 : 0;
+        frame_generator->add_raw_byte(properties1.value);
+
+        if (use_default != 0) {
+            for (uint16_t i = 0; i < static_cast<uint16_t>(number) * size; ++i) {
+                frame_generator->add_raw_byte(0);
+            }
+        } else {
+            if (!vg_node.desired_exists()) {
+                return SL_STATUS_NOT_READY;
+            }
+            auto flat_values = vg_node.desired<std::vector<uint8_t>>();
+            if (flat_values.size() != static_cast<size_t>(number) * size) {
+                return SL_STATUS_FAIL;
+            }
+            for (uint8_t byte: flat_values) {
+                frame_generator->add_raw_byte(byte);
+            }
+        }
+
+        return frame_generator->generate_frame();
     }
 
 }  // namespace zwave_command_class
