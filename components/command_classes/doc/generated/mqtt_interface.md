@@ -21,6 +21,7 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 | [COMMAND_CLASS_ASSOCIATION](command_class_association/doc/generated/command_class_association_mqtt_interface.md) | true | true | true |
 | [COMMAND_CLASS_BASIC](command_class_basic/doc/generated/command_class_basic_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_BATTERY](command_class_battery/doc/generated/command_class_battery_mqtt_interface.md) | true | false | true |
+| [COMMAND_CLASS_CONFIGURATION](command_class_configuration/doc/generated/command_class_configuration_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_DOOR_LOCK](command_class_door_lock/doc/generated/command_class_door_lock_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_FIRMWARE_UPDATE_MD](command_class_firmware_update_md/doc/generated/command_class_firmware_update_md_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_INDICATOR](command_class_indicator/doc/generated/command_class_indicator_mqtt_interface.md) | true | true | true |
@@ -53,6 +54,7 @@ Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoin
 - [COMMAND_CLASS_ASSOCIATION](command_class_association/doc/generated/command_class_association_mqtt_interface.md)
 - [COMMAND_CLASS_BASIC](command_class_basic/doc/generated/command_class_basic_mqtt_interface.md)
 - [COMMAND_CLASS_BATTERY](command_class_battery/doc/generated/command_class_battery_mqtt_interface.md)
+- [COMMAND_CLASS_CONFIGURATION](command_class_configuration/doc/generated/command_class_configuration_mqtt_interface.md)
 - [COMMAND_CLASS_DOOR_LOCK](command_class_door_lock/doc/generated/command_class_door_lock_mqtt_interface.md)
 - [COMMAND_CLASS_FIRMWARE_UPDATE_MD](command_class_firmware_update_md/doc/generated/command_class_firmware_update_md_mqtt_interface.md)
 - [COMMAND_CLASS_INDICATOR](command_class_indicator/doc/generated/command_class_indicator_mqtt_interface.md)
