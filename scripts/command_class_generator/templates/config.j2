@@ -44,7 +44,7 @@
 {# (FIND_REPORT -> FIND), (REPORT -> GET) #}
 {% macro get_special_command_pairs(command_name) %}
     {% set command_map = {
-       "": "" 
+       "THERMOSTAT_OPERATING_LOGGING_SUPPORTED_REPORT": "THERMOSTAT_OPERATING_STATE_LOGGING_SUPPORTED_GET",
     } %}
     {{ command_map | as_json }}
 {% endmacro %}
