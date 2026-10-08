@@ -24,7 +24,7 @@ namespace zwave_command_class
 
     [[maybe_unused]] static constexpr std::string_view LOG_TAG = "command_class_meter";
 
-    command_class_meter::command_class_meter() : command_class_meter_attribute_store(), command_class_meter_mqtt() {}
+    command_class_meter::command_class_meter() = default;
 
     std::vector<uint8_t> command_class_meter::scales_from_supported_bitmask(uint8_t version, uint8_t scale_supported_0, uint8_t m_s_t, const std::vector<uint8_t> &scale_supported_follow)
     {
