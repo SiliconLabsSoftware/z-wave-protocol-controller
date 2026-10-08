@@ -68,16 +68,84 @@ namespace zwave_command_class
 
     sl_status_t command_class_configuration_mqtt::mqtt_on_configuration_bulk_get_command(attribute_store::attribute &endpoint_node, std::string payload)
     {
-        (void)endpoint_node;
-        (void)payload;
-        return SL_STATUS_NOT_SUPPORTED;
+        uint16_t parameter_offset    = 0;
+        uint8_t number_of_parameters = 0;
+
+        mqtt_payload_parser parser {payload, LOG_TAG.data()};
+        parser.parse("parameter_offset", parameter_offset).parse("number_of_parameters", number_of_parameters);
+        if (parser.status() != SL_STATUS_OK) {
+            return parser.status();
+        }
+        if (number_of_parameters == 0) {
+            sl_log_warning(LOG_TAG.data(), "Configuration Bulk Get requires number_of_parameters > 0");
+            return SL_STATUS_FAIL;
+        }
+
+        auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_get_group_attributes_t::CONFIGURATION_BULK_GET_GROUP));
+        group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_get_group_attributes_t::parameter_offset)).set_desired(parameter_offset);
+        group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_get_group_attributes_t::number_of_parameters)).set_desired(number_of_parameters);
+        command_class_configuration_core::start_group_resolution(group_node);
+        return SL_STATUS_OK;
     }
 
     sl_status_t command_class_configuration_mqtt::mqtt_on_configuration_bulk_set_command(attribute_store::attribute &endpoint_node, std::string payload)
     {
-        (void)endpoint_node;
-        (void)payload;
-        return SL_STATUS_NOT_SUPPORTED;
+        uint16_t parameter_offset    = 0;
+        uint8_t number_of_parameters = 0;
+        uint8_t size                 = 0;
+        uint8_t handshake            = 0;
+        uint8_t default_flag         = 0;
+        configuration_bulk_set_vg_t vg;
+
+        mqtt_payload_parser parser {payload, LOG_TAG.data()};
+        parser.parse("parameter_offset", parameter_offset).parse("number_of_parameters", number_of_parameters);
+        auto properties1 = parser.parse_nested("properties1");
+        properties1.parse("size", size).parse_optional("handshake", handshake).parse_optional("default_flag", default_flag);
+        if (default_flag == 0) {
+            properties1.parse_optional("default", default_flag);
+        }
+        for (auto &&[elem, item]: parser.parse_array("vg", vg)) {
+            elem.parse("parameter", item.parameter);
+        }
+        if (parser.status() != SL_STATUS_OK) {
+            return parser.status();
+        }
+
+        if (number_of_parameters == 0 || !is_valid_size(size)) {
+            sl_log_warning(LOG_TAG.data(), "Configuration Bulk Set missing valid size or number_of_parameters");
+            return SL_STATUS_FAIL;
+        }
+
+        if (!command_class_configuration::bulk_set_allowed(endpoint_node, parameter_offset, number_of_parameters)) {
+            return SL_STATUS_FAIL;
+        }
+
+        std::vector<uint8_t> flat_values;
+        if (default_flag == 0) {
+            if (vg.size() != number_of_parameters) {
+                sl_log_warning(LOG_TAG.data(), "Configuration Bulk Set vg length %zu does not match number_of_parameters %u", vg.size(), number_of_parameters);
+                return SL_STATUS_FAIL;
+            }
+            for (const auto &item: vg) {
+                if (item.parameter.size() != size) {
+                    sl_log_warning(LOG_TAG.data(), "Configuration Bulk Set parameter value length %zu does not match size %u", item.parameter.size(), size);
+                    return SL_STATUS_FAIL;
+                }
+                flat_values.insert(flat_values.end(), item.parameter.begin(), item.parameter.end());
+            }
+        } else {
+            flat_values.assign(static_cast<size_t>(number_of_parameters) * size, 0);
+        }
+
+        auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::CONFIGURATION_BULK_SET_GROUP));
+        group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::parameter_offset)).set_desired(parameter_offset);
+        group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::number_of_parameters)).set_desired(number_of_parameters);
+        group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::size)).set_desired(size);
+        group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::handshake)).set_desired(handshake);
+        group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::default_flag)).set_desired(default_flag);
+        group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_set_group_attributes_t::vg)).set_desired(flat_values);
+        command_class_configuration_core::start_group_resolution(group_node);
+        return SL_STATUS_OK;
     }
 
     sl_status_t command_class_configuration_mqtt::mqtt_on_configuration_get_command(attribute_store::attribute &endpoint_node, std::string payload)
