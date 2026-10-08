@@ -160,6 +160,12 @@ supported_command_classes:
     support: true
     control: true
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
+  - name: "COMMAND_CLASS_SENSOR_MULTILEVEL"
+    version: 11
+    mqtt_support: true
+    support: false
+    control: true
+    minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
   # Protocol Command Classes
   - name: "COMMAND_CLASS_SECURITY"
     version: 1
