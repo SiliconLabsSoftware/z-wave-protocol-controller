@@ -283,8 +283,58 @@ namespace zwave_command_class
 
     sl_status_t command_class_configuration_attribute_store::on_configuration_bulk_report_received_store(attribute_store::attribute endpoint_node, command_class_configuration_attribute_map_t attribute_map)
     {
-        (void)endpoint_node;
-        (void)attribute_map;
+        configuration_bulk_report_parameter_offset_t parameter_offset         = 0;
+        parameter_offset                                                      = get_value_or_default(attribute_map, "parameter_offset", parameter_offset);
+        configuration_bulk_report_number_of_parameters_t number_of_parameters = 0;
+        number_of_parameters                                                  = get_value_or_default(attribute_map, "number_of_parameters", number_of_parameters);
+        uint8_t size                                                          = 0;
+        size                                                                  = get_value_or_default(attribute_map, "size", size);
+        configuration_bulk_report_vg_t vg;
+        vg = get_value_or_default(attribute_map, "vg", vg);
+
+        auto report_group = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_report_group_attributes_t::CONFIGURATION_BULK_REPORT_GROUP));
+        report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_report_group_attributes_t::parameter_offset)).set_reported(parameter_offset);
+        report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_report_group_attributes_t::number_of_parameters)).set_reported(number_of_parameters);
+        report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_report_group_attributes_t::size)).set_reported(size);
+        if (attribute_map.contains("reports_to_follow")) {
+            configuration_bulk_report_reports_to_follow_t reports_to_follow = 0;
+            reports_to_follow                                               = get_value_or_default(attribute_map, "reports_to_follow", reports_to_follow);
+            report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_report_group_attributes_t::reports_to_follow)).set_reported(reports_to_follow);
+        }
+        if (attribute_map.contains("handshake")) {
+            uint8_t handshake = 0;
+            handshake         = get_value_or_default(attribute_map, "handshake", handshake);
+            report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_report_group_attributes_t::handshake)).set_reported(normalize_flag(handshake));
+        }
+        if (attribute_map.contains("default_flag")) {
+            uint8_t default_flag = 0;
+            default_flag         = get_value_or_default(attribute_map, "default_flag", default_flag);
+            report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_bulk_report_group_attributes_t::default_flag)).set_reported(normalize_flag(default_flag));
+        }
+
+        if (!is_valid_size(size) || vg.size() != number_of_parameters) {
+            return SL_STATUS_OK;
+        }
+
+        for (uint8_t i = 0; i < number_of_parameters; ++i) {
+            if (vg[i].parameter.size() != size) {
+                continue;
+            }
+            const uint16_t parameter_number = static_cast<uint16_t>(parameter_offset + i);
+            auto parameter_node             = emplace_parameter(endpoint_node, parameter_number);
+            parameter_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::size)).set_reported(size);
+
+            uint8_t format_value = static_cast<uint8_t>(command_class_configuration_constants::format::SIGNED_INTEGER);
+            auto format_node     = parameter_node.child_by_type(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::format));
+            if (format_node.is_valid() && format_node.reported_exists()) {
+                format_value = format_node.reported<uint8_t>();
+            } else {
+                parameter_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::format)).set_reported(format_value);
+            }
+
+            parameter_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::value)).set_reported(decode_configuration_value(vg[i].parameter, format_value));
+        }
+
         return SL_STATUS_OK;
     }
 
