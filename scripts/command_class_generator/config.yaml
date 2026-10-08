@@ -67,6 +67,12 @@ supported_command_classes:
     support: true
     control: true
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
+  - name: "COMMAND_CLASS_NODE_NAMING"
+    version: 1
+    mqtt_support: true
+    support: true
+    control: false
+    minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
   - name: "COMMAND_CLASS_ASSOCIATION"
     version: 4
     mqtt_support: true

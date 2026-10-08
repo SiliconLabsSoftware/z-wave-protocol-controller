@@ -37,6 +37,10 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
                     {% set populated_type_name = command.name | lower + "_" + populated_type + "_t" %}
                     {{populated_type_name}} {{utils.create_variable_name(attribute.name)}};
                     {{utils.create_variable_name(attribute.name)}}.value = 0;
+                {% elif attribute.type | lower == "array" or attribute.type | lower == "bitmask" or attribute.type | lower == "variant" %}
+                    {% set populated_type      = utils.create_variable_name(attribute.name) %}
+                    {% set populated_type_name = command.name | lower + "_" + populated_type + "_t" %}
+                    {{populated_type_name}} {{utils.create_variable_name(attribute.name)}} = {};
                 {% elif attribute.type | lower != "marker" %}
                     {% set populated_type      = utils.create_variable_name(attribute.name) %}
                     {% set populated_type_name = command.name | lower + "_" + populated_type + "_t" %}
@@ -347,6 +351,10 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
                     {% set populated_type_name = command.name | lower + "_" + populated_type + "_t" %}
                     {{populated_type_name}} {{utils.create_variable_name(attribute.name)}};
                     {{utils.create_variable_name(attribute.name)}}.value = 0;
+                {% elif attribute.type | lower == "array" or attribute.type | lower == "bitmask" or attribute.type | lower == "variant" %}
+                    {% set populated_type      = utils.create_variable_name(attribute.name) %}
+                    {% set populated_type_name = command.name | lower + "_" + populated_type + "_t" %}
+                    {{populated_type_name}} {{utils.create_variable_name(attribute.name)}} = {};
                 {% elif attribute.type | lower != "marker" %}
                     {% set populated_type      = utils.create_variable_name(attribute.name) %}
                     {% set populated_type_name = command.name | lower + "_" + populated_type + "_t" %}
@@ -370,15 +378,18 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
                 {% elif attribute.type | lower == "struct_byte" %}
                     {{utils.create_variable_name(attribute.name)}}.value = frame_parser.read_sequential<uint8_t>(sizeof({{utils.create_variable_name(attribute.name)}}.value));
                     read_bytes += sizeof({{utils.create_variable_name(attribute.name)}}.value);
-                {% elif attribute.type | lower == "array" or
-                        attribute.type | lower == "multi_array" %}
+                {% elif attribute.type | lower == "multi_array" %}
                     {% if command.params[attribute.fields[0].param_offset].type | lower == "struct_byte" %}
                         uint16_t {{utils.create_variable_name(attribute.name)}}_size = {{utils.create_variable_name(command.params[attribute.fields[0].param_offset].name)}}.value & {{attribute.fields[0].size_mask}};
                     {% else %}
                         uint16_t {{utils.create_variable_name(attribute.name)}}_size = {{utils.create_variable_name(command.params[attribute.fields[0].param_offset].name)}} & {{attribute.fields[0].size_mask}};
                     {% endif %}
-                    {{utils.convert_zwave_type_to_cpp_type(attribute.type)}} {{utils.create_variable_name(attribute.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(attribute.type)}}>({{utils.create_variable_name(attribute.name)}}_size);
+                    {{utils.create_variable_name(attribute.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(attribute.type)}}>({{utils.create_variable_name(attribute.name)}}_size);
                     read_bytes += {{utils.create_variable_name(attribute.name)}}_size;
+                {% elif attribute.type | lower == "array" %}
+                    uint16_t {{utils.create_variable_name(attribute.name)}}_length = {{attribute.fields[0].len}};
+                    {{utils.create_variable_name(attribute.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(attribute.type)}}>({{utils.create_variable_name(attribute.name)}}_length);
+                    read_bytes += {{utils.create_variable_name(attribute.name)}}_length;
                 {% elif attribute.type | lower == "bit_24" %}
                     {{utils.create_variable_name(attribute.name)}} = frame_parser.read_sequential<uint32_t>(3);
                     read_bytes += 3;
