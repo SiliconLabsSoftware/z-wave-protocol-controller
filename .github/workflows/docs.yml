@@ -15,6 +15,7 @@ on:
       - 'scripts/mkdocs/'
       - 'scripts/command_class_generator/**'
       - 'ci/scripts/check_mermaid.py'
+      - 'ci/scripts/test_check_mermaid.py'
       - 'ci/mermaid/'
       - 'README.md'
   pull_request:
@@ -30,6 +31,7 @@ on:
       - 'scripts/mkdocs/'
       - 'scripts/command_class_generator/**'
       - 'ci/scripts/check_mermaid.py'
+      - 'ci/scripts/test_check_mermaid.py'
       - 'ci/mermaid/'
       - 'README.md'
   workflow_dispatch:
@@ -117,6 +119,9 @@ jobs:
 
       - name: Prepare docs for MkDocs
         run: python3 scripts/mkdocs/prepare_docs_for_mkdocs.py
+
+      - name: Mermaid policy unit tests
+        run: python3 ci/scripts/test_check_mermaid.py
 
       - name: Check mermaid diagrams
         run: python3 ci/scripts/check_mermaid.py

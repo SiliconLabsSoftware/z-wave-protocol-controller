@@ -132,5 +132,7 @@ nav:
         - "Overview": api/command_classes/command_class_notification/command_class_notification.md
     # GENERATED_CC_NAV_START
     - "Firmware Update Md": api/command_classes/command_class_firmware_update_md/command_class_firmware_update_md_mqtt_interface.md
+    - "Security": api/command_classes/command_class_security/command_class_security_mqtt_interface.md
+    - "Security 2": api/command_classes/command_class_security_2/command_class_security_2_mqtt_interface.md
     - "Time": api/command_classes/command_class_time/command_class_time_mqtt_interface.md
     # GENERATED_CC_NAV_END

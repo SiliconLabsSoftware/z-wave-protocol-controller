@@ -55,9 +55,9 @@ sequenceDiagram
     Client->>MqttApi: Publish Network/Node/Add
     MqttApi->>NM: zwave_network_management_add_node
     NM->>NCP: Add node to network
-    NM-->>NM: NM_IDLE → NM_WAITING_FOR_ADD
+    NM-->>NM: NM_IDLE to NM_WAITING_FOR_ADD
 
-    alt S2: Keys requested (standard inclusion only)
+    alt Standard S2 key grant (not SmartStart)
         NCP->>NM: Keys request
         NM->>MqttApi: publish RequestedKeys/Report
         MqttApi->>Client: RequestedKeys/Report
@@ -65,7 +65,7 @@ sequenceDiagram
         MqttApi->>NM: Grant keys
     end
 
-    alt S2: DSK verification (standard inclusion only)
+    alt Standard S2 DSK verification (not SmartStart)
         NCP->>NM: DSK report
         NM->>MqttApi: publish RequestedDSK/Report
         MqttApi->>Client: RequestedDSK/Report
@@ -73,12 +73,12 @@ sequenceDiagram
         MqttApi->>NM: DSK accept
     end
 
-    Note over NM,NCP: SmartStart (not shown): ZPC grants all keys and auto-accepts DSK internally — no MQTT exchange with the client.
+    Note over NM,NCP: SmartStart skips client MQTT for keys and DSK (ZPC grants keys and auto-accepts DSK from provisioning)
 
     NCP->>NM: Node found / protocol done
-    NM-->>NM: NM_NODE_FOUND → NM_WAIT_FOR_PROTOCOL → NM_WAIT_FOR_SECURE_ADD
+    NM-->>NM: NM_NODE_FOUND to NM_WAIT_FOR_PROTOCOL to NM_WAIT_FOR_SECURE_ADD
     NCP->>NM: Security (S2/S0) done
-    NM-->>NM: → NM_IDLE
+    NM-->>NM: return to NM_IDLE
     NM->>MqttApi: Node added event
     MqttApi->>Client: Network/Node/Add/Report
 
