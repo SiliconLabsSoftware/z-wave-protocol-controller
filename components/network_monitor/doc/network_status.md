@@ -61,7 +61,8 @@ stateDiagram-v2
   report with `"status": "offline"` is published, and resolution is paused for
   the node. "No longer responding" is defined as `N` consecutive failed Z-Wave
   send-data attempts to the node, where `N` is the value of the
-  `accepted_transmit_failure` config option (see
+  `accepted_transmit_failure` config option (number of consecutive send failures
+  before a node is marked offline; see
   [Frame transmission failure counter](#frame-transmission-failure-counter-al-fl)
   below for what counts as a failure).
 

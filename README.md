@@ -56,11 +56,12 @@ ZPC uses a reported/desired value system where all state parameters have a repor
 | Battery | 3 | false | true | Network Scheme |
 | Device Reset Locally | 1 | true | true | Network Scheme |
 | Door Lock | 4 | false | true | Network Scheme |
-| Firmware Update MD | 5 | false | true | Network Scheme |
+| Firmware Update MD | 5 | true | true | Network Scheme |
 | Indicator | 4 | true | true | Network Scheme |
 | Manufacturer Specific | 2 | true | true | Network Scheme |
 | Multi Channel | 4 | false | true | Network Scheme |
 | Multi Channel Association | 3 | true | true | Network Scheme |
+| Multi Command | 1 | true | false | Network Scheme |
 | Notification | 8 | true | true | Network Scheme |
 | Power Level | 1 | true | false | Network Scheme |
 | Protocol (Z-Wave) | 1 | true | false | Network Scheme |
@@ -74,6 +75,7 @@ ZPC uses a reported/desired value system where all state parameters have a repor
 | Thermostat Fan Mode | 5 | false | true | Network Scheme |
 | Thermostat Mode | 3 | false | true | Network Scheme |
 | Thermostat Setpoint | 3 | false | true | Network Scheme |
+| Time | 3 | true | false | Network Scheme |
 | Transport Service | 2 | true | true | None |
 | Version | 3 | true | true | Network Scheme |
 | Wake Up | 3 | false | true | Network Scheme |
@@ -82,6 +84,14 @@ ZPC uses a reported/desired value system where all state parameters have a repor
 *Supported* means the controller responds to this command class (support handler). *Controlled* means the controller can send commands for this command class (control handler). For full MQTT APIs per command class, see the [Command Classes MQTT Interface](components/command_classes/doc/generated/mqtt_interface.md).
 
 Protocol (Z-Wave), Protocol Long Range, Security 0 (S0), Security 2 (S2), and Transport Service are generated with `protocol: true` and a `generate_commands` allowlist. They are not MQTT-facing. Segmentation stays in the Transport Service wrapper (`transport_service.c`); the Transport Service command class is only a manager registration stub.
+
+**Time (version 3):** ZPC answers Date Get and Time Get from the host computer's clock. The timezone offset stays zero. Time Set and Date Set from the network are ignored. There is no MQTT command topic for this class; reports can still be published.
+
+**Multi Command (version 1):** There is no MQTT API. When ZPC receives `MULTI_CMD_ENCAP`, it handles each command inside the frame. A truncated frame or a bad length is rejected. If one inner command cannot be handled, the rest still run.
+
+**Indicator:** An incoming Indicator Set is published on MQTT. After ZPC applies an Indicator Set, it sends an Indicator Report to the Lifeline destinations.
+
+**Firmware Update MD:** ZPC can start an OTA update toward a device (controlled). It also answers Firmware Update Meta Data Request Get and Prepare Get when another node asks the gateway (supported).
 
 ## How to run ZPC
 
@@ -287,6 +297,11 @@ Full documentation is built with [MkDocs](https://www.mkdocs.org/) and the [Mate
 ### Guides
 
 - [Command Class Implementation Guide](docs/command_class_implementation_guide.md) — Implementing Z-Wave command classes in ZPC
+
+### Release notes
+
+- [v2.0.1](docs/release-notes/v2.0.1.md) — Latest release
+- [v2.0.0](docs/release-notes/v2.0.0.md)
 
 ### Component docs
 

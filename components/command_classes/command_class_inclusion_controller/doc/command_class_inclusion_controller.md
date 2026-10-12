@@ -6,8 +6,8 @@ remaining setup steps (e.g. S2 bootstrapping, optional probing).
 
 ## Spec
 
-- v1 specification: `html/_sources/network_protocol_command_classes/command_class_definitions/inclusion_controller_command_class_version_1.rst.txt`
-- Frame definitions: `ZW_classcmd.h` (search for `INITIATE_PROXY_INCLUSION` / `COMPLETE_STEP_OK`).
+- Z-Wave Network Protocol Command Classes specification, Inclusion Controller Command Class, version 1
+- Frame definitions: `ZW_classcmd.h` (search for `INITIATE_PROXY_INCLUSION` / `COMPLETE_STEP_OK`)
 
 ZPC always plays the **SIS** role here. After receiving `INITIATE` from a
 non-SIS inclusion controller it requests the joining node's NIF and then

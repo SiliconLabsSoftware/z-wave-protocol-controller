@@ -24,7 +24,14 @@ brew install $(cat ci/dependencies/brew-packages.txt)
 pip3 install -r ci/dependencies/requirements.txt
 ```
 
-Code formatting uses **LLVM 19** — run `./ci/scripts/clang-format.sh format` or `check`. See [CONTRIBUTING.md](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/blob/main/CONTRIBUTING.md#formatting) and the optional pre-commit hook (`./.githooks/install.sh`).
+Code formatting uses **LLVM 19**:
+
+```bash
+./ci/scripts/clang-format.sh format   # apply formatting
+./ci/scripts/clang-format.sh check    # check without modifying
+```
+
+See [CONTRIBUTING.md](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/blob/main/CONTRIBUTING.md#formatting) and the optional pre-commit hook (`./.githooks/install.sh`).
 
 Static analysis uses **LLVM 19** (`llvm@19` from `brew-packages.txt`) — run `./ci/scripts/clang-tidy.sh check`. See [CONTRIBUTING.md](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/blob/main/CONTRIBUTING.md#clang-tidy).
 
@@ -139,6 +146,8 @@ zpc:
 ```
 
 ZPC is controlled entirely over MQTT — it does not read from the terminal. See the [MQTT API index](../components/mqtt_api/doc/mqtt_api_index.md) for the available commands.
+
+If the serial (or IP) link to the NCP drops, ZPC logs that the Z-Wave API connection was lost and exits. It does not reconnect on its own. Start ZPC again after the controller is back.
 
 ## What's next
 

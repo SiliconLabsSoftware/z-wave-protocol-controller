@@ -34,7 +34,7 @@ sequenceDiagram
 
     Controller->>DoorLockNode: Door Lock Capabilities Get (0x07)
     DoorLockNode-->>Controller: Door Lock Capabilities Report (0x08)
-    Note right of DoorLockNode: Supported modes, handles, door components, ARS/HRS/TAS/BTBS
+    Note right of DoorLockNode: Supported modes, handles, door components, ARS/HRS/TAS/BTBS (Auto-Relock / Hold-and-Release / Twist Assist / Block-to-Block Supported)
 
     Controller->>DoorLockNode: Door Lock Operation Get (0x02)
     DoorLockNode-->>Controller: Door Lock Operation Report (0x03)

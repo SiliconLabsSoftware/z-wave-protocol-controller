@@ -1,4 +1,4 @@
-## NETWORK MANAGEMENT MQTT API
+# Network Management MQTT API
 
 > **Breaking change:** Node inventory topics were renamed from the old
 > Device-prefixed variants to the Node-prefixed variants. Use:
@@ -61,8 +61,8 @@ zpc/<home_id>/Network/Node/Add/Report
 ```json
 {
   "node_id": 2,
-  "dsk": <dsk_string>,
-  "status": <status_code>
+  "dsk": "xxxxx-xxxxx-xxxxx-xxxxx-xxxxx-xxxxx-xxxxx-xxxxx",
+  "status": "success"
 }
 ```
 
@@ -79,9 +79,9 @@ For classic S2 Unauthenticated, S0, and non-secure inclusions, the node's authen
 **Payload (fail — request rejected):**
 ```json
 {
-  "status": <status_code>,
-  "reason": <reason_code>,
-  "activity": <activity_string>
+  "status": "fail",
+  "reason": "6401",
+  "activity": "inclusion"
 }
 ```
 
@@ -133,8 +133,6 @@ On security failure (classic **and** SmartStart), ZPC publishes this fail report
 
 **Activity values:**
 
-> **Note:** The `activity` field is a temporary field and will be removed in the future.
-
 | Value | Meaning |
 |-------|---------|
 | `"inclusion"` | An inclusion (add node) operation is in progress |
@@ -156,7 +154,7 @@ zpc/<home_id>/Network/Node/Add/Abort
 { }
 ```
 
-Aborts an ongoing add node (inclusion) operation. If the controller is currently in add mode, the operation is stopped and ZPC returns to idle. No report is published.
+Aborts an ongoing add node (inclusion) operation. The abort works while the controller is in add mode and while ZPC is waiting for the protocol to finish adding the node. The operation is stopped and ZPC returns to idle. No report is published.
 
 ## Exclusion and Remove Failed
 
@@ -184,13 +182,15 @@ zpc/<home_id>/Network/Node/Remove/Report
 {
   "node_id": 2,
   "dsk": "xxxxx-xxxxx-xxxxx-xxxxx-xxxxx-xxxxx-xxxxx-xxxxx",
-  "status": <status_code>
+  "status": "success"
 }
 ```
 
 Published when a node is removed from the network, whether by normal exclusion (`Network/Node/Remove`) or by a successful remove-failed operation (`Network/Node/RemoveFailed`).
 
 The `dsk` field is omitted if no authenticated or provisioned DSK was stored for the node.
+
+When the node is removed, ZPC also clears that node's retained MQTT command-class messages. A client that was still reading those retained messages will see them disappear.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -201,9 +201,9 @@ The `dsk` field is omitted if no authenticated or provisioned DSK was stored for
 **Payload (fail):**
 ```json
 {
-  "status": <status_code>,
-  "reason": <reason_code>,
-  "activity": <activity_string>
+  "status": "fail",
+  "reason": "6401",
+  "activity": "exclusion"
 }
 ```
 
@@ -213,36 +213,9 @@ Published immediately if `Network/Node/Remove` is rejected due to any of the fol
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `status` | string | Success or failure of the operation. See status codes below. |
-| `reason` | string | Present on failure. Why the request was rejected. See reason codes below. |
-| `activity` | string | Present when `reason` is `6401` (`NETWORK_MANAGEMENT_BUSY`). Describes what the network management module is currently doing. See activity values below. |
-
-**Status codes:**
-
-| Code | Meaning |
-|------|---------|
-| `"success"` | Success |
-| `"fail"` | Fail |
-
-**Reason codes:**
-
-| Code | Meaning |
-|------|---------|
-| `6401` (`zpc_status_t::NETWORK_MANAGEMENT_BUSY`) | Network management is busy |
-| `6402` (`zpc_status_t::FACTORY_RESET_ONGOING`) | Factory reset is ongoing |
-
-**Activity values:**
-
-> **Note:** The `activity` field is a temporary field and will be removed in the future.
-
-| Value | Meaning |
-|-------|---------|
-| `"inclusion"` | An inclusion (add node) operation is in progress |
-| `"exclusion"` | An exclusion (remove node) operation is in progress |
-| `"learning"` | Learn mode operation is in progress |
-| `"internal"` | An internal operation is in progress |
-| `"idle"` | No operation is in progress |
-| `"unknown"` | An unknown operation is in progress |
+| `status` | string | Success or failure of the operation. See [status codes](#network_node_add_report) under Add Report. |
+| `reason` | string | Present on failure. Why the request was rejected. Same reason codes as Add Report except `6404` (security fail) does not apply to remove. |
+| `activity` | string | Present when `reason` is `6401` (`NETWORK_MANAGEMENT_BUSY`). Same [activity values](#network_node_add_report) as Add Report. |
 
 ### NETWORK_NODE_REMOVE_FAILED
 
@@ -266,6 +239,7 @@ Removes a failing (non-responsive) node from the network. Use this when a node c
 
 **Behavior:**
 
+- If the node ID is **not in the network**: ZPC does not send a NOP. It publishes `{"node_id": <id>, "status": "fail", "reason": "operation_failed"}` on `zpc/<home_id>/Network/Node/RemoveFailed/Report`.
 - If the node is **not reachable** (NOP fails): the controller proceeds with the removal and reports `{"status": "ok", "reason": "operation_successful"}` on `zpc/<home_id>/Network/Node/RemoveFailed/Report`. A `zpc/<home_id>/Network/Node/Remove/Report` is also published with the node's DSK, just like a normal exclusion.
 - If the node is **reachable** (NOP succeeds): the node is not considered failed, so the controller does not remove it and reports `{"status": "fail", "reason": "node_online"}` on `zpc/<home_id>/Network/Node/RemoveFailed/Report`. Use the normal exclusion flow (`zpc/<home_id>/Network/Node/Remove`) instead.
 

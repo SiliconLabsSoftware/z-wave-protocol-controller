@@ -46,6 +46,7 @@ hooks:
 
 extra_javascript:
   - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
+  - javascripts/mermaid-init.js
 
 markdown_extensions:
   - admonition
