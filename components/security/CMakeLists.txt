@@ -1,3 +1,5 @@
+add_subdirectory(crypto)
+
 # OpenSSL libcrypto is already linked transitively by Paho-MQTT-C's TLS
 # variant; using it here adds no new runtime dependency.
 find_package(OpenSSL REQUIRED COMPONENTS Crypto)
