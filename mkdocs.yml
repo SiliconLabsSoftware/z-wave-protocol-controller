@@ -68,6 +68,7 @@ nav:
   - Guides:
     - Command Class Implementation: command_class_implementation_guide.md
   - Release Notes:
+    - v2.0.1: release-notes/v2.0.1.md
     - v2.0.0: release-notes/v2.0.0.md
   - Sequences:
     - Inclusion Flow: sequences/inclusion_flow.md
