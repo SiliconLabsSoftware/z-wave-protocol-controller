@@ -66,6 +66,6 @@ target_include_directories(
 target_link_libraries(
   zwave_s2
   PUBLIC zwave_s2_nonce_management
-  PRIVATE s2_controller zwave_controller zwave_s0 zpc_attribute_store)
+  PRIVATE s2_controller s2crypto_zwave zwave_controller zwave_s0 zpc_attribute_store)
 
 target_compile_definitions(zwave_s2 PRIVATE ZIPGW ZW_CONTROLLER)
