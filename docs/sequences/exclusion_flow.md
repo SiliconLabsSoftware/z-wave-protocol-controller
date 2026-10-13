@@ -19,7 +19,7 @@ Follow these steps to remove an end device from the network:
 | **2** | Fetch home ID from ZPC | Publish to `zpc/Discovery` with payload `{}`. Subscribe to `zpc/Discovery/Report` and read the `home_id` from the response. |
 | **3** | Send Remove Node request to ZPC | Publish to `zpc/<home_id>/Network/Node/Remove` with payload `{}`. ZPC enters remove mode and waits for a node to leave the network. |
 | **4** | Put end device into exclusion mode | On the end device, trigger exclusion/learn mode (e.g. push BTN1 or follow the device manual). The device will leave the network. |
-| **5** | Wait for Remove/Report and print result | Subscribe to `zpc/<home_id>/Network/Node/Remove/Report`. When the node is removed, ZPC publishes `{"node_id": <id>}` and includes `"dsk": "..."` only if a trusted DSK was stored. Use this to confirm which node was excluded. |
+| **5** | Wait for Remove/Report and print result | Subscribe to `zpc/<home_id>/Network/Node/Remove/Report`. When the node is removed, ZPC publishes `{"node_id": <id>}` and includes `"dsk": "..."` only if a trusted DSK was stored. Use this to confirm which node was excluded. ZPC also clears that node's retained MQTT command-class messages. |
 
 ## MQTT topics involved
 
@@ -75,10 +75,9 @@ The exclusion flow described above requires the device to actively participate. 
 2. Subscribe to `zpc/<home_id>/Network/Node/RemoveFailed/Report` for the result.
 3. If the result is `"ok"`, also expect a `Network/Node/Remove/Report` with the node ID and DSK (same report as a normal exclusion).
 
-The controller first sends a NOP to verify the node is truly unreachable:
-
-- **Node not reachable:** The controller removes the node and reports `{"node_id": <id>, "status": "ok", "reason": "operation_successful"}` on `RemoveFailed/Report`. A `Network/Node/Remove/Report` with the node's DSK is also published.
-- **Node reachable:** The node is not considered failed, so the controller does **not** remove it and reports `{"node_id": <id>, "status": "fail", "reason": "node_online"}` on `RemoveFailed/Report`. Use the normal exclusion flow (`Network/Node/Remove`) instead.
+- **Node ID not in the network:** ZPC does not send a NOP. It reports `{"node_id": <id>, "status": "fail", "reason": "operation_failed"}` on `RemoveFailed/Report`.
+- **Node not reachable:** The controller sends a NOP, then removes the node and reports `{"node_id": <id>, "status": "ok", "reason": "operation_successful"}` on `RemoveFailed/Report`. A `Network/Node/Remove/Report` with the node's DSK is also published.
+- **Node reachable:** The controller sends a NOP; the node is not considered failed, so the controller does **not** remove it and reports `{"node_id": <id>, "status": "fail", "reason": "node_online"}` on `RemoveFailed/Report`. Use the normal exclusion flow (`Network/Node/Remove`) instead.
 
 See [NETWORK_NODE_REMOVE_FAILED](../../components/network_manager/doc/network_management_mqtt_api.md#network_node_remove_failed) for full payload details.
 

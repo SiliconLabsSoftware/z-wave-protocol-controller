@@ -11,6 +11,7 @@ This site is the **full documentation for ZPC**. For a quick project overview, t
 - **[Debian packaging](packaging-debian.md)** — build a `.deb` on Linux
 - **[Switch On/Off demo](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/blob/main/README.md#switch-onoff-demo)** — full end-to-end walk-through in the top-level README
 - **[Command Class Implementation Guide](command_class_implementation_guide.md)** — add or modify Z-Wave command classes
+- **[Release notes v2.0.1](release-notes/v2.0.1.md)** — latest release (see also [v2.0.0](release-notes/v2.0.0.md))
 
 ## MQTT API
 

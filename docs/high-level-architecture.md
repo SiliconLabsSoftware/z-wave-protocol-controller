@@ -12,7 +12,7 @@
 
 **Command Classes** — Concrete implementations of Z-Wave application command classes.
 
-**Command Class Manager** — Maintains the registry of all supported and controlled command classes, validates that incoming frames arrive at the required security level, and dispatches them to the correct command classhandler.
+**Command Class Manager** — Maintains the registry of all supported and controlled command classes, validates that incoming frames arrive at the required security level, and dispatches them to the correct command class handler.
 
 **OTA (Over-The-Air)** — Over-the-air firmware update service.
 

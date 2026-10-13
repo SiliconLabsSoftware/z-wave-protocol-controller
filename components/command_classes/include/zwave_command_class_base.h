@@ -139,26 +139,23 @@ namespace zwave_command_class
             virtual void on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version);
 
             /**
-             * @brief Require this attribute to have a reported value before the CC interview can finish.
+             * @brief Require this attribute to have a reported value before this command class is done interviewing.
              *
-             * Override on_interview when this command class sends post-interview Gets.
-             * Call cc_interview_require_attribute on each attribute that must receive a
-             * reported value before this command class is done. Call it in on_interview for
-             * values known up front. When a report reveals more values, call it in that parsed
-             * callback before the callback returns, then start_group_resolution as today.
-             * Clears any reported value already on the node so a reinterview sends the Get again.
-             * Do not close the interview; cc_interview_finish_if_complete drops attributes once
-             * reported and publishes INTERVIEW_FULLY_RESOLVED when none remain required.
-             * No-op when the endpoint's post-interview window is closed.
+             * Call from on_interview for values known up front, or from a parsed callback when a
+             * report reveals more. Clears a reported value already stored so a second interview
+             * sends the Get again. Does nothing after the interview window for that endpoint has
+             * closed. Authors do not call cc_interview_finish_if_complete; the generated report
+             * handler does that after on_*_parsed. See the command class implementation guide.
              */
             void cc_interview_require_attribute(attribute_store::attribute node);
 
             /**
-             * @brief Finish the CC interview when every required attribute has a reported value.
+             * @brief Finish this command class interview when every required attribute has a reported value.
              *
-             * Drops required attributes that are now reported. When none remain for the device
-             * and CompletedStep has allowed publish, fires INTERVIEW_FULLY_RESOLVED OK.
-             * Called by the generated report handler after on_*_parsed. Authors do not copy this.
+             * Removes attributes from the wait list once they have a reported value. The stored
+             * value stays. When none remain for the device and CompletedStep has allowed publish,
+             * fires INTERVIEW_FULLY_RESOLVED OK. Called by the generated report handler after
+             * on_*_parsed. Authors do not call this.
              */
             void cc_interview_finish_if_complete(attribute_store::attribute endpoint) const;
 

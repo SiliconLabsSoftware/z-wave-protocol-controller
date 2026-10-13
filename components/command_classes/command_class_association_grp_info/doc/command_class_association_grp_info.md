@@ -134,6 +134,8 @@ zpc/<home_id>/<node_id>/<endpoint_id>/AssociationGrpInfo/Report/<ReportName>
 }
 ```
 
+`name` is an array of UTF-8 byte values (the example above decodes to `"Lifeline"`).
+
 #### AssociationGroupInfoReport
 
 ```json
@@ -141,9 +143,11 @@ zpc/<home_id>/<node_id>/<endpoint_id>/AssociationGrpInfo/Report/<ReportName>
   "group_count": 1,
   "dynamic_info": 0,
   "list_mode": 0,
-  "vg1": "complex_type"
+  "vg1": "serialized variant group data"
 }
 ```
+
+`vg1` holds the serialized Association Group Info Report variant-group data from the Z-Wave frame (profile and event fields per group; see Z-Wave Application Command Class specification, Association Group Info Report, CC:0059).
 
 #### AssociationGroupCommandListReport
 

@@ -203,11 +203,14 @@ sl_status_t command_class_switch_multilevel::on_switch_multilevel_set_requested_
 }
 ```
 
-### Closing the Command Class Interview
+### When this command class is done interviewing
 
-Override `on_interview` when this command class sends post-interview Gets. Call `cc_interview_require_attribute` on each attribute that must receive a reported value before this command class is done. Call it in `on_interview` for values known up front. When a report reveals more values, call it in that parsed callback before the callback returns, then `start_group_resolution` as today.
+You do not finish the interview yourself. Do not call `cc_interview_finish_if_complete`. The generated report handler does that after `on_*_parsed`.
 
-Do not close the interview. `cc_interview_finish_if_complete` drops an attribute once it has a reported value and publishes `INTERVIEW_FULLY_RESOLVED` when none remain required. A command class with no post-interview Gets does not call anything; `interview()` calls `cc_interview_finish_if_complete` after `on_interview`.
+- If this command class sends no Get from `on_interview`, do not override it. The base `interview()` finishes this command class when `on_interview` returns.
+- If it does send Gets, call `cc_interview_require_attribute` on each attribute that must get a reported value before this command class is done. Do that in `on_interview` for values you already know. If a later report reveals more values, call it in that parsed callback before the callback returns, then `start_group_resolution`.
+- `cc_interview_require_attribute` clears a reported value that is already stored, so a second interview sends the Get again. After the interview window for that endpoint has closed, the call does nothing.
+- Finishing means the attribute is removed from the wait list once it has a reported value. The stored value stays. When no required attributes remain for the device, ZPC publishes `INTERVIEW_FULLY_RESOLVED`.
 
 ```cpp
 void command_class_switch_color::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)

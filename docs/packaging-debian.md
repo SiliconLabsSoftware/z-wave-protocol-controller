@@ -11,7 +11,7 @@ On Linux, the project configures **CPack** with the **DEB** generator so you can
 
 The `debian` configure preset sets **`CMAKE_INSTALL_PREFIX`** from the parent environment (`$penv{CMAKE_INSTALL_PREFIX}` in `CMakePresets.json`). If unset, configure falls back to **`/usr/local`**. Override with the environment variable or `-DCMAKE_INSTALL_PREFIX=...`.
 
-For FHS paths and the `/var/lib/zpc` install rule in `applications/zpc/CMakeLists.txt`, set **`CMAKE_INSTALL_PREFIX=/usr`** when packaging (see `applications/zpc/CMakeLists.txt`).
+For FHS (Filesystem Hierarchy Standard) paths and the `/var/lib/zpc` install rule in `applications/zpc/CMakeLists.txt`, set **`CMAKE_INSTALL_PREFIX=/usr`** when packaging (see `applications/zpc/CMakeLists.txt`).
 
 ## Build and generate the `.deb`
 
