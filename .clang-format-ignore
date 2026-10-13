@@ -2,6 +2,7 @@
 build/**
 .venv/**
 .venv-docs/**
+.venv-cc-gen/**
 
 # Generator output (hand-written sources only)
 **/generated/**

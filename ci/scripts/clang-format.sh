@@ -85,7 +85,7 @@ git_clang_format_binary() {
 
 list_cpp_files() {
   # Performance: prune directories listed in .clang-format-ignore (clang-format skips them too).
-  find . \( -path ./build -o -path ./.venv -o -path ./.venv-docs -o -path '*/generated' \) -prune -o \
+  find . \( -path ./build -o -path ./.venv -o -path ./.venv-docs -o -path ./.venv-cc-gen -o -path '*/generated' \) -prune -o \
     \( -name '*.c' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) \
     -print0
 }
@@ -98,7 +98,12 @@ fi
 run_on_cpp_files() {
   local clang_format="$1"
   shift
-  list_cpp_files | xargs -0 "${xargs_flags[@]}" "$clang_format" "$@"
+  # macOS xargs has no -r; empty "${array[@]}" is unbound under `set -u`.
+  if ((${#xargs_flags[@]})); then
+    list_cpp_files | xargs -0 "${xargs_flags[@]}" "$clang_format" "$@"
+  else
+    list_cpp_files | xargs -0 "$clang_format" "$@"
+  fi
 }
 
 run_git_clang_format_staged() {

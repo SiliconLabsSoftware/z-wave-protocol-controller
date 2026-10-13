@@ -39,6 +39,7 @@ Example: `zpc/CAFECAFE/4/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoint 3
 | [COMMAND_CLASS_VERSION](command_class_version/doc/generated/command_class_version_mqtt_interface.md) | true | true | true |
 | [COMMAND_CLASS_WAKE_UP](command_class_wake_up/doc/generated/command_class_wake_up_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_SWITCH_COLOR](command_class_switch_color/doc/generated/command_class_switch_color_mqtt_interface.md) | true | false | true |
+| [COMMAND_CLASS_SCHEDULE](command_class_schedule/doc/generated/command_class_schedule_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_ASSOCIATION_GRP_INFO](command_class_association_grp_info/doc/generated/command_class_association_grp_info_mqtt_interface.md) | true | true | true |
 | [COMMAND_CLASS_DEVICE_RESET_LOCALLY](command_class_device_reset_locally/doc/generated/command_class_device_reset_locally_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_ZWAVEPLUS_INFO](command_class_zwaveplus_info/doc/generated/command_class_zwaveplus_info_mqtt_interface.md) | false | true | true |
@@ -72,6 +73,7 @@ Example: `zpc/CAFECAFE/4/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoint 3
 - [COMMAND_CLASS_VERSION](command_class_version/doc/generated/command_class_version_mqtt_interface.md)
 - [COMMAND_CLASS_WAKE_UP](command_class_wake_up/doc/generated/command_class_wake_up_mqtt_interface.md)
 - [COMMAND_CLASS_SWITCH_COLOR](command_class_switch_color/doc/generated/command_class_switch_color_mqtt_interface.md)
+- [COMMAND_CLASS_SCHEDULE](command_class_schedule/doc/generated/command_class_schedule_mqtt_interface.md)
 - [COMMAND_CLASS_ASSOCIATION_GRP_INFO](command_class_association_grp_info/doc/generated/command_class_association_grp_info_mqtt_interface.md)
 - [COMMAND_CLASS_DEVICE_RESET_LOCALLY](command_class_device_reset_locally/doc/generated/command_class_device_reset_locally_mqtt_interface.md)
 - [COMMAND_CLASS_ZWAVEPLUS_INFO](command_class_zwaveplus_info/doc/generated/command_class_zwaveplus_info_mqtt_interface.md)
