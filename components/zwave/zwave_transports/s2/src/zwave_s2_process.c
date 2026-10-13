@@ -19,6 +19,7 @@
 #include "zwave_s2_keystore_int.h"
 #include "zwave_s2_network.h"
 #include "zwave_s2_transport.h"
+#include "s2_psa_primitives.h"
 
 #define LOG_TAG "zwave_s2_process"
 
@@ -101,6 +102,11 @@ static void zwave_s2_init()
       .is_busy           = zwave_s2_transport_is_busy,
     };
     zwave_controller_transport_register(&transport);
+
+    if (s2_psa_crypto_init() != PSA_SUCCESS) {
+        sl_log_critical(LOG_TAG, "PSA Crypto init failed\n");
+        abort();
+    }
 
     zwave_s2_keystore_init();
     zwave_s2_network_init();
