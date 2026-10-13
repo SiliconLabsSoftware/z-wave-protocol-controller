@@ -22,8 +22,21 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ctr_drbg.h>
+#include "ctr_drbg.h"
+#include "psa/crypto.h"
+#include "psa/crypto_extra.h"
 #include <unity.h>
+
+void setUp(void)
+{
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
+}
+
+void tearDown(void)
+{
+    mbedtls_psa_crypto_free();
+}
+
 uint8_t dbgCTRDRBG = 0;
 
 typedef struct {

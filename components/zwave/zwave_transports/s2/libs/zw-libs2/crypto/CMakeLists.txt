@@ -11,11 +11,8 @@ set_source_files_properties(kderiv/kderiv.c PROPERTIES COMPILE_FLAGS
 set(CRYPTO_SRC
   aes-cmac/aes_cmac.c
   ccm/ccm.c
-  ctr_drbg/ctr_drbg.c
   curve25519/base.c
-  curve25519/smult.c
-  kderiv/kderiv.c
-  nextnonce/nextnonce.c)
+  curve25519/smult.c)
 
 add_library(aes aes/aes.c)
 add_library(s2crypto ${CRYPTO_SRC})
@@ -24,3 +21,4 @@ if(WIN32)
 endif()
 
 target_include_directories(s2crypto PUBLIC "${CURVE_INCLUDE_DIR}" ../include)
+target_link_libraries(s2crypto PUBLIC s2crypto_zwave s2crypto_ctr_drbg)
