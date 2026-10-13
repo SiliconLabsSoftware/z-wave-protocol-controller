@@ -127,5 +127,5 @@ void test_psa_ccm_decrypt_auth_failure(void)
 
     status = s2_psa_ccm_decrypt(key, S2_CCM_TAG_LEN, nonce, S2_CCM_NONCE_LEN, aad, sizeof(aad), buffer, ct_len, buffer, sizeof(buffer), &out_len);
     TEST_ASSERT_TRUE(status == PSA_ERROR_INVALID_SIGNATURE || status == PSA_ERROR_INVALID_ARGUMENT);
-    /* Unlike vendored CCM_decrypt_and_auth, PSA does not leave ciphertext intact on failure. */
+    /* PSA does not leave the in-place ciphertext intact on authentication failure. */
 }

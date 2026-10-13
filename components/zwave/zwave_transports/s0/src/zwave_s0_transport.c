@@ -37,7 +37,8 @@
 #include "S2.h"
 #include "zwave_s2_keystore.h"
 #include "s2_keystore.h"
-#include "aes.h"
+#include "psa/crypto.h"
+#include "s2_psa_primitives.h"
 
 // ZPC components
 #include "log.h"
@@ -195,9 +196,16 @@ static unsigned int block_next_elem; /* Cyclic counter for the next
 static uint8_t aes_key[16];
 static uint8_t aes_iv[16];
 
-static void aes_encrypt(uint8_t *in, uint8_t *out)
+static bool aes_encrypt(const uint8_t *in, uint8_t *out)
 {
-    AES128_ECB_encrypt(in, aes_key, out);
+    uint8_t input[16];
+
+    memcpy(input, in, sizeof(input));
+    if (s2_psa_aes128_ecb_encrypt(aes_key, input, out) != PSA_SUCCESS) {
+        memset(out, 0, 16);
+        return false;
+    }
+    return true;
 }
 
 static void aes_set_key_tpt(const uint8_t *key, const uint8_t *iv)
@@ -206,34 +214,44 @@ static void aes_set_key_tpt(const uint8_t *key, const uint8_t *iv)
     memcpy(aes_iv, iv, 16);
 }
 
-static void aes_ofb(uint8_t *data, uint8_t len)
+static bool aes_ofb(uint8_t *data, uint8_t len)
 {
     for (uint8_t i = 0; i < len; i++) {
         if ((i & 0xF) == 0x0) {
-            aes_encrypt(aes_iv, aes_iv);
+            if (!aes_encrypt(aes_iv, aes_iv)) {
+                return false;
+            }
         }
         data[i] ^= aes_iv[i & 0xF];
     }
+    return true;
 }
 
 /*
  * Calculate the authtag for the message,
  */
-static void aes_cbc_mac(const uint8_t *data, uint8_t len, uint8_t *mac)
+static bool aes_cbc_mac(const uint8_t *data, uint8_t len, uint8_t *mac)
 {
-    aes_encrypt(aes_iv, mac);
+    if (!aes_encrypt(aes_iv, mac)) {
+        return false;
+    }
     for (uint8_t i = 0; i < len; i++) {
         mac[i & 0xF] ^= data[i];
         if ((i & 0xF) == 0xF) {
-            aes_encrypt(mac, mac);
+            if (!aes_encrypt(mac, mac)) {
+                return false;
+            }
         }
     }
 
     /* if len is not divisible by 16 do the final pass, this is the padding
      * described in the spec */
     if (len & 0xF) {
-        aes_encrypt(mac, mac);
+        if (!aes_encrypt(mac, mac)) {
+            return false;
+        }
     }
+    return true;
 }
 
 /***************** Nonce Blocked list **************************************/
@@ -379,11 +397,13 @@ static uint8_t enckey[16];
 static uint8_t authkey[16];
 static uint8_t enckeyz[16];
 static uint8_t authkeyz[16];
+static bool s0_keys_valid;
 
 void s0_set_key(const uint8_t *network_key)
 {
     uint8_t p[16];
     uint8_t temp[16] = {0};
+    bool keys_valid  = true;
 
     if (memcmp(network_key, temp, 16) == 0) {
         sl_log_debug(LOG_TAG, "Setting S0 key with 0x00 16 times.\n");
@@ -393,15 +413,16 @@ void s0_set_key(const uint8_t *network_key)
 
     memcpy(aes_key, network_key, 16);
     memset(p, 0x55, 16);
-    aes_encrypt(p, authkey);
+    keys_valid &= aes_encrypt(p, authkey);
     memset(p, 0xAA, 16);
-    aes_encrypt(p, enckey);
+    keys_valid &= aes_encrypt(p, enckey);
 
     memcpy(aes_key, temp, 16);
     memset(p, 0x55, 16);
-    aes_encrypt(p, authkeyz);
+    keys_valid &= aes_encrypt(p, authkeyz);
     memset(p, 0xAA, 16);
-    aes_encrypt(p, enckeyz);
+    keys_valid &= aes_encrypt(p, enckeyz);
+    s0_keys_valid = keys_valid;
 }
 
 static void s0_timeout(void *user)
@@ -452,6 +473,10 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
     auth_data_t *auth;
     uint8_t maxlen = get_node_max_frame_size(s->conn_info.remote.node_id);
 
+    if (!s0_keys_valid) {
+        return 0;
+    }
+
     len          = s->data_len;
     more_to_send = 0;
 
@@ -466,7 +491,10 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
     /* Make the IV */
 
     do {
-        AES_CTR_DRBG_Generate(&s2_ctr_drbg, iv);
+        if (psa_generate_random(iv, sizeof(iv)) != PSA_SUCCESS) {
+            sl_log_error(LOG_TAG, "Failed to generate S0 IV\n");
+            return 0;
+        }
     } while (get_s0_nonce(s->conn_info.remote.node_id, s->conn_info.local.node_id, iv[0], tmp, false));
 
     /*Choose a nonce from sender */
@@ -505,7 +533,9 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
         aes_set_key_tpt(enckey, iv);
     }
 
-    aes_ofb(enc_data, len + 1);
+    if (!aes_ofb(enc_data, len + 1)) {
+        return 0;
+    }
 
     /*Fill in the auth structure*/
     /*
@@ -532,7 +562,9 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
         /* Authtag */
         aes_set_key_tpt(authkey, iv);
     }
-    aes_cbc_mac((uint8_t *)auth, 4 + len + 1, mac);
+    if (!aes_cbc_mac((uint8_t *)auth, 4 + len + 1, mac)) {
+        return 0;
+    }
     s->crypted_msg[0] = COMMAND_CLASS_SECURITY;
     s->crypted_msg[1] = auth->sh;
     memcpy(s->crypted_msg + 2, iv, 8);
@@ -913,7 +945,10 @@ static void s0_send_nonce(const zwave_controller_connection_info_t *conn_info)
     zwave_controller_connection_info_t c2 = {};
 
     do {
-        AES_CTR_DRBG_Generate(&s2_ctr_drbg, temp_nonce);
+        if (psa_generate_random(temp_nonce, sizeof(temp_nonce)) != PSA_SUCCESS) {
+            sl_log_error(LOG_TAG, "Failed to generate S0 nonce\n");
+            return;
+        }
         memcpy(nonce, temp_nonce, sizeof(nonce));
     } while (get_s0_nonce(conn_info->local.node_id, conn_info->remote.node_id, nonce[0], tmp, false));
 
@@ -951,6 +986,10 @@ static uint8_t s0_decrypt_message(const zwave_controller_connection_info_t *conn
     // Allocate a buffer that's large enough for the largest frame size that's valid
     // Maximum valid size is MAX_ENCRYPTED_MSG_SIZE + 20 bytes overhead + auth header size
     uint8_t auth_buff[MAX_ENCRYPTED_MSG_SIZE + S0_ENCAP_HEADER_LEN + sizeof(auth_data_t)];
+
+    if (!s0_keys_valid) {
+        return 0;
+    }
 
     frame_length = encrypted_frame_len & 0xff;  // FIXME as GW S0 code can handle
                                                 //  only uint8_t len
@@ -1020,7 +1059,9 @@ static uint8_t s0_decrypt_message(const zwave_controller_connection_info_t *conn
 
     /* Authtag */
     aes_set_key_tpt(authkey, iv);
-    aes_cbc_mac((uint8_t *)auth, sizeof(auth_data_t) + auth->payloadLength, mac);
+    if (!aes_cbc_mac((uint8_t *)auth, sizeof(auth_data_t) + auth->payloadLength, mac)) {
+        return 0;
+    }
 
     if (memcmp(mac, frame_data + frame_length - S0_MAC_SIZE, S0_MAC_SIZE) != 0) {
         sl_log_error(LOG_TAG, "Unable to verify auth tag\n");
@@ -1028,7 +1069,9 @@ static uint8_t s0_decrypt_message(const zwave_controller_connection_info_t *conn
     }
     /*Decrypt */
     aes_set_key_tpt(enckey, iv);
-    aes_ofb(enc_payload, auth->payloadLength);
+    if (!aes_ofb(enc_payload, auth->payloadLength)) {
+        return 0;
+    }
 
     flags = *enc_payload;
 
@@ -1224,6 +1267,11 @@ sl_status_t zwave_s0_transport_init()
       .abort_send_data   = zwave_s0_on_abort_send_data,
       .on_frame_received = zwave_s0_on_frame_received,
     };
+
+    if (psa_crypto_init() != PSA_SUCCESS) {
+        sl_log_error(LOG_TAG, "Failed to initialize PSA Crypto\n");
+        return SL_STATUS_INITIALIZATION;
+    }
 
     if (zwave_s0_network_init() != SL_STATUS_OK) {
         return SL_STATUS_FAIL;

@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "platform.h"
+#include "psa/crypto.h"
 #include "unity.h"
 #include "s2_protocol.h"
 
@@ -20,7 +21,10 @@
 #include "s2_classcmd.h"
 #include "s2_keystore.h"
 
-void setUpSuite(void) {}
+void setUpSuite(void)
+{
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
+}
 
 void tearDownSuite(void) {}
 
@@ -136,7 +140,6 @@ void test_kex_joining_node_state_machine_csa(void)
         mock_call_use_as_stub(TO_STR(keystore_network_key_read));
         mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
         mock_call_use_as_stub(TO_STR(keystore_network_key_write));
-        mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
         mock_call_use_as_stub(TO_STR(tempkey_extract));
 
         /**
@@ -440,7 +443,6 @@ void test_kex_joining_node_state_machine_authenticated_lr(void)
         mock_call_use_as_stub(TO_STR(keystore_network_key_read));
         mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
         mock_call_use_as_stub(TO_STR(keystore_network_key_write));
-        mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
         mock_call_use_as_stub(TO_STR(tempkey_extract));
 
         /**
@@ -696,7 +698,6 @@ void test_kex_joining_node_state_machine_ssa(void)
         mock_call_use_as_stub(TO_STR(keystore_network_key_read));
         mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
         mock_call_use_as_stub(TO_STR(keystore_network_key_write));
-        mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
         mock_call_use_as_stub(TO_STR(tempkey_extract));
 
         /**
@@ -1006,7 +1007,6 @@ void test_kex_joining_node_state_machine_unauthenticated(void)
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     /**
@@ -1253,7 +1253,6 @@ void test_kex_joining_timer_handling(void)
     mock_call_use_as_stub(TO_STR(s2_event_handler));
     mock_call_use_as_stub(TO_STR(S2_network_key_update));
     mock_call_use_as_stub(TO_STR(s2_keystore_mock.c));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     memset(&s2_context, 0, sizeof(s2_context));
@@ -1440,7 +1439,6 @@ void test_kex_inclusion_timeout_all_states(void)
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     memset(&s2_context, 0, sizeof(s2_context));
@@ -1696,7 +1694,6 @@ void test_kex_inclusion_invalid_frame_order_all_states(void)
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     memset(&s2_context, 0, sizeof(s2_context));
@@ -1947,7 +1944,6 @@ void test_kex_inclusion_duplicate_frame_all_states(void)
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     memset(&s2_context, 0, sizeof(s2_context));
@@ -2569,7 +2565,6 @@ void test_kex_inclusion_error_public_key_including_bit(void)
     mock_calls_clear();
     mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
     mock_call_use_as_stub(TO_STR(S2_network_key_update));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
     mock_call_use_as_stub(TO_STR(S2_network_key_update));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
@@ -2696,7 +2691,6 @@ void test_kex_inclusion_public_key_reserved_bits(void)
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     memset(&s2_context, 0, sizeof(s2_context));
@@ -3011,7 +3005,6 @@ void test_kex_inclusion_error_echo_kex_report(void)
     mock_calls_clear();
     mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
     mock_call_use_as_stub(TO_STR(S2_network_key_update));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
     mock_call_use_as_stub(TO_STR(S2_network_key_update));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
@@ -3219,7 +3212,6 @@ void test_kex_inclusion_invalid_key_report_set(void)
     mock_calls_clear();
     mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
     mock_call_use_as_stub(TO_STR(S2_network_key_update));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
@@ -3636,7 +3628,6 @@ void test_kex_inclusion_echo_kex_set_retry(void)
     mock_calls_clear();
     mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
     mock_call_use_as_stub(TO_STR(S2_network_key_update));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
@@ -3828,8 +3819,6 @@ void test_inclusion_keystore_handling(void)
     uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
                                0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-    uint8_t shared_secret[] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x0F, 0xED, 0xCB, 0xA9, 0x87, 0x65, 0x43, 0x21, 0x10, 0x29, 0x38, 0x47, 0x56, 0x65, 0x74, 0x83, 0x38, 0x63, 0x97, 0x47, 0x82, 0x12, 0x53, 0xc4};
-
     uint8_t expected_auth_tag[64];
 
     mock_calls_clear();
@@ -3838,7 +3827,6 @@ void test_inclusion_keystore_handling(void)
     mock_call_use_as_stub(TO_STR(S2_send_data));
     mock_call_use_as_stub(TO_STR(s2_event_handler));
     //  mock_call_use_as_stub(TO_STR(S2_network_key_update));
-    //  mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     //  mock_call_use_as_stub(TO_STR(tempkey_extract));
     //  mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     //  mock_call_use_as_stub(TO_STR(keystore_network_key_write));
@@ -3869,16 +3857,11 @@ void test_inclusion_keystore_handling(void)
     mock_call_expect(TO_STR(keystore_dynamic_private_key_read), &p_mock);
     p_mock->output_arg[0].pointer = private_key_b;
 
-    mock_call_expect(TO_STR(crypto_scalarmult_curve25519), &p_mock);
-    p_mock->output_arg[0].pointer = shared_secret;
-    p_mock->expect_arg[1].pointer = private_key_b;
-    p_mock->expect_arg[2].pointer = m_test_public_key_a;
-
     memcpy(expected_auth_tag, m_test_public_key_a, 32);
     memcpy(&expected_auth_tag[32], public_key_b, 32);
 
     mock_call_expect(TO_STR(tempkey_extract), &p_mock);
-    p_mock->expect_arg[0].pointer = shared_secret;
+    p_mock->compare_rule_arg[0]   = COMPARE_ANY;
     p_mock->expect_arg[1].pointer = expected_auth_tag;
     p_mock->output_arg[2].pointer = m_temp_key;
 
@@ -4123,7 +4106,6 @@ void test_kex_joining_node_wrong_dsk_input(void)
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     /**
@@ -4257,8 +4239,6 @@ void test_keystore_doorlock(void)
     uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
                                0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
-    uint8_t shared_secret[] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x0F, 0xED, 0xCB, 0xA9, 0x87, 0x65, 0x43, 0x21, 0x10, 0x29, 0x38, 0x47, 0x56, 0x65, 0x74, 0x83, 0x38, 0x63, 0x97, 0x47, 0x82, 0x12, 0x53, 0xc4};
-
     uint8_t expected_auth_tag[64];
 
     mock_calls_clear();
@@ -4293,16 +4273,11 @@ void test_keystore_doorlock(void)
     mock_call_expect(TO_STR(keystore_private_key_read), &p_mock);
     p_mock->output_arg[0].pointer = private_key_b;
 
-    mock_call_expect(TO_STR(crypto_scalarmult_curve25519), &p_mock);
-    p_mock->output_arg[0].pointer = shared_secret;
-    p_mock->expect_arg[1].pointer = private_key_b;
-    p_mock->expect_arg[2].pointer = m_test_public_key_a;
-
     memcpy(expected_auth_tag, m_test_public_key_a, 32);
     memcpy(&expected_auth_tag[32], public_key_b, 32);
 
     mock_call_expect(TO_STR(tempkey_extract), &p_mock);
-    p_mock->expect_arg[0].pointer = shared_secret;
+    p_mock->compare_rule_arg[0]   = COMPARE_ANY;
     p_mock->expect_arg[1].pointer = expected_auth_tag;
     p_mock->output_arg[2].pointer = m_temp_key;
 
@@ -4469,7 +4444,6 @@ void test_kex_inclusion_tx_queue_full(void)
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     memset(&s2_context, 0, sizeof(s2_context));
@@ -4760,7 +4734,6 @@ void test_kex_inclusion_transfer_end_key_not_verified_TO7507(void)
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     memset(&s2_context, 0, sizeof(s2_context));
@@ -4954,7 +4927,6 @@ void test_kex_inclusion_transfer_end_key_request_complete_error(void)
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     memset(&s2_context, 0, sizeof(s2_context));
@@ -5148,7 +5120,6 @@ void test_kex_joining_node_state_machine_csa_rejected_S2_unauth_S0_TO7654(void)
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     /**
@@ -5430,7 +5401,6 @@ void test_kex_joining_node_state_machine_retry_all_states(void)
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     /**
@@ -5895,7 +5865,6 @@ void test_kex_joining_node_state_machine_lr_requeesting_classic_keys(void)
         mock_call_use_as_stub(TO_STR(keystore_network_key_read));
         mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
         mock_call_use_as_stub(TO_STR(keystore_network_key_write));
-        mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
         mock_call_use_as_stub(TO_STR(tempkey_extract));
 
         /**
@@ -6091,7 +6060,6 @@ void test_kex_joining_node_error_transfer_end(void)
     mock_call_use_as_stub(TO_STR(keystore_network_key_read));
     mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
     mock_call_use_as_stub(TO_STR(keystore_network_key_write));
-    mock_call_use_as_stub(TO_STR(crypto_scalarmult_curve25519));
     mock_call_use_as_stub(TO_STR(tempkey_extract));
 
     /**
