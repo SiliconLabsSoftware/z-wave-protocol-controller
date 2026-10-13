@@ -262,6 +262,10 @@ The configure step (`cmake --preset <preset>`) also **regenerates all command cl
 
 Use the `unit-test` CMake preset (`UNIT_TEST=ON`) on macOS and Linux. Do not use the product `macos` / `debian` workflows for this — those skip tests. `--fresh` removes the existing CMake cache in `build/unit-test` so the same tree can be reused after switching OS or compiler.
 
+ZPC component tests use **GoogleTest** and **GoogleMock** (`add_zpc_gtest` in [cmake/include/gtest_test.cmake](cmake/include/gtest_test.cmake)). The embedded **zw-libs2** tree still uses **Unity** (`add_unity_test`).
+
+To add a component test, create `components/<name>/test/`, register it from the component `CMakeLists.txt` with `if(UNIT_TEST) add_subdirectory(test) endif()`, and call `add_zpc_gtest` from the test `CMakeLists.txt`.
+
 ```bash
 cmake --workflow --preset unit-test --fresh
 ```
