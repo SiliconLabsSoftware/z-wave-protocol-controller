@@ -15,7 +15,7 @@
 #include "ZW_classcmd.h"
 #include "s2_classcmd.h"
 #include "kderiv.h"
-#include "curve25519.h"
+#include "s2_psa_primitives.h"
 #include "s2_inclusion_internal.h"
 
 #define CHECK_AND_FAIL(CHECK, FAILURE) \
@@ -929,7 +929,12 @@ static void s2_public_key_read(uint8_t *buf)
 static void s2_do_ecdh_calc_b(void)
 {
     s2_private_key_read(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX]);
-    crypto_scalarmult_curve25519(shared_secret, &shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key);
+    if (s2_psa_x25519_shared_secret(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key, shared_secret) != PSA_SUCCESS) {
+        inclusion_failed_frame_send(KEX_FAIL_AUTH, NON_SECURE);
+        process_event(S2_INCLUSION_ERROR_SENT);
+        return;
+    }
+
     memcpy(&shared_key_mem[PUBLIC_KEY_A_INDEX], mp_context->public_key, 32);
     s2_public_key_read(&shared_key_mem[PUBLIC_KEY_B_INDEX]);
 
