@@ -31,6 +31,26 @@ namespace ota
     static constexpr uint16_t NOP_RETRY_DELAY_S = 5;
     static constexpr uint16_t MAX_NOP_RETRIES   = 60;
 
+    static constexpr uint16_t PROBE_MARGIN_SHORT_S    = 5;
+    static constexpr uint16_t PROBE_MARGIN_MID_S      = 10;
+    static constexpr uint16_t PROBE_MARGIN_LONG_S     = 30;
+    static constexpr uint16_t SHORT_MARGIN_MAX_WAIT_S = 20;
+    static constexpr uint16_t MID_MARGIN_MAX_WAIT_S   = 60;
+
+    uint32_t post_ota_probe_delay_s(uint16_t advertised_wait_time_s)
+    {
+        if (advertised_wait_time_s == 0) {
+            return PROBE_MARGIN_SHORT_S;
+        }
+        if (advertised_wait_time_s < SHORT_MARGIN_MAX_WAIT_S) {
+            return static_cast<uint32_t>(advertised_wait_time_s) + PROBE_MARGIN_SHORT_S;
+        }
+        if (advertised_wait_time_s < MID_MARGIN_MAX_WAIT_S) {
+            return static_cast<uint32_t>(advertised_wait_time_s) + PROBE_MARGIN_MID_S;
+        }
+        return static_cast<uint32_t>(advertised_wait_time_s) + PROBE_MARGIN_LONG_S;
+    }
+
     static std::promise<bool> *s_nop_promise = nullptr;
 
     static void on_nop_tx_complete(uint8_t tx_status, const zwapi_tx_report_t *tx_report, void *user)
@@ -54,9 +74,10 @@ namespace ota
 
     StepResult OtaStepWaitingForReconnect::on_enter(OtaSession &session)
     {
-        sl_log_info(LOG_TAG.data(), "Node %d: waiting %u s (WaitTime) before NOP probe", session.node_id, session.wait_time);
+        const uint32_t probe_delay_s = post_ota_probe_delay_s(session.wait_time);
+        sl_log_info(LOG_TAG.data(), "Node %d: advertised Wait Time %u s, probe delay %u s before NOP", session.node_id, session.wait_time, probe_delay_s);
 
-        std::this_thread::sleep_for(std::chrono::seconds(session.wait_time));
+        std::this_thread::sleep_for(std::chrono::seconds(probe_delay_s));
 
         for (uint16_t attempt = 0; attempt < MAX_NOP_RETRIES; ++attempt) {
             if (send_nop_sync(session)) {

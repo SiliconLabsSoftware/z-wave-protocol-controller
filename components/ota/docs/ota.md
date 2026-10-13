@@ -246,7 +246,7 @@ All state transitions are declared in `OtaStateMachine::register_transitions()` 
 | `UPLOAD_PROCESS_DEVICE_OUTCOME` | OtaStepProcessDeviceTransferOutcome | **Firmware Update MD Status Report** → MQTT completion; routes to post-transfer path based on `transfer_outcome` |
 | `WAITING_FOR_ACTIVATION` | OtaStepWaitingForActivation | Device reported status `0xFD`; waiting for `MQTT_ACTIVATE` command to send **Firmware Update Activation Set** |
 | `ACTIVATING` | OtaStepActivating | **Activation Set** sent; waiting for **Firmware Update Activation Status Report** (`0xFF` = success) |
-| `WAITING_FOR_RECONNECT` | OtaStepWaitingForReconnect | Wait `session.wait_time` seconds, then NOP-probe the node with retries until ACK or max retries exhausted |
+| `WAITING_FOR_RECONNECT` | OtaStepWaitingForReconnect | Sleep the post-OTA probe delay (advertised Wait Time plus a controller margin; MQTT `waittime` stays the device value), then NOP-probe the node with retries until ACK or max retries exhausted |
 | `TRIGGER_INTERVIEW` | OtaStepTriggerInterview | Node confirmed reachable; fire `COMPONENT_CONNECTOR_NODE_INTERVIEW_REQUESTED` to trigger re-interview |
 
 ### State transition diagram
@@ -369,7 +369,7 @@ Each step owns one `OtaState`. Sub-headings below are deliberately demoted (H4) 
 
 #### OtaStepWaitingForReconnect (`WAITING_FOR_RECONNECT`)
 
-**Purpose:** After successful activation (or immediate restart on `0xFF`), waits `session.wait_time` seconds, then sends NOP frames to verify the node is reachable. Retries up to 60 times with 5-second intervals. On ACK → `DONE` → `TRIGGER_INTERVIEW`. If all retries are exhausted → `FAIL`.
+**Purpose:** After successful activation (or immediate restart on `0xFF`), sleeps a probe delay derived from `session.wait_time`, then sends NOP frames to verify the node is reachable. The delay is controller policy on top of the device-advertised Wait Time: `0` waits 5 s, values below 20 wait advertised + 5 s, values below 60 wait advertised + 10 s, and larger values wait advertised + 30 s. Published MQTT `waittime` stays the raw device value. `stored_no_restart` (`0xFE`) does not enter this step. Retries up to 60 times with 5-second intervals. On ACK → `DONE` → `TRIGGER_INTERVIEW`. If all retries are exhausted → `FAIL`.
 
 **Handles events:** none (all work is done synchronously in `on_enter`).
 
