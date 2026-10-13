@@ -63,8 +63,6 @@ uint8_t S2_is_send_data_busy(struct S2 *p_context)
     return 0;
 }
 
-void S2_init_prng(void) {}
-
 struct S2 *S2_init_ctx(uint32_t home)
 {
     mock_t *p_mock;
