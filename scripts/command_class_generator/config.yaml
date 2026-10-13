@@ -110,6 +110,24 @@ supported_command_classes:
     support: false
     control: true
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
+  - name: "COMMAND_CLASS_THERMOSTAT_FAN_STATE"
+    version: 2
+    mqtt_support: true
+    support: false
+    control: true
+    minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
+  - name: "COMMAND_CLASS_THERMOSTAT_OPERATING_STATE"
+    version: 2
+    mqtt_support: true
+    support: false
+    control: true
+    minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
+  - name: "COMMAND_CLASS_THERMOSTAT_SETBACK"
+    version: 1
+    mqtt_support: true
+    support: false
+    control: true
+    minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
   - name: "COMMAND_CLASS_SWITCH_COLOR"
     version: 3
     mqtt_support: true

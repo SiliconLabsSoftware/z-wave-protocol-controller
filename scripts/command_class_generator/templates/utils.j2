@@ -25,7 +25,7 @@
 {% endmacro %}
 
 {% macro create_variable_name(str) -%}
-{{str | lower | replace(" ","_") | replace("/","_") | replace("-","_") | replace("+","_plus") }}
+{{str | lower | replace("(", "") | replace(")", "") | replace(" ","_") | replace("/","_") | replace("-","_") | replace("+","_plus") }}
 {%- endmacro %}
 
 {% macro convert_command_name_to_mqtt_topic_token(str) -%}
