@@ -33,6 +33,8 @@
 #include "nextnonce.h"
 #include "ccm.h"
 #include "ctr_drbg.h"
+#include "psa/crypto.h"
+#include "psa/crypto_extra.h"
 
 /*******************************************************************************
  * External Function Stubs
@@ -251,12 +253,13 @@ static void reset_test_state(void)
 
 void setUp(void)
 {
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
     reset_test_state();
 }
 
 void tearDown(void)
 {
-    // Called after each test
+    mbedtls_psa_crypto_free();
 }
 
 /*******************************************************************************
