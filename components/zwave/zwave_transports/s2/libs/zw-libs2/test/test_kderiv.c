@@ -5,7 +5,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "kderiv.h"
+#include "psa/crypto.h"
+#include "psa/crypto_extra.h"
 #include <unity.h>
+
+void setUp(void)
+{
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
+}
+
+void tearDown(void)
+{
+    mbedtls_psa_crypto_free();
+}
 
 void print_array(const char *name, uint8_t *arr, int len)
 {
