@@ -45,12 +45,12 @@ sequenceDiagram
     Client->>MqttApi: Publish Network/Node/Remove
     MqttApi->>NM: zwave_network_management_remove_node
     NM->>NCP: Remove node from network
-    NM-->>NM: NM_IDLE → NM_WAITING_FOR_NODE_REMOVAL
+    NM-->>NM: NM_IDLE to NM_WAITING_FOR_NODE_REMOVAL
 
     Note over Device: User triggers exclusion on device
     Device->>NCP: Exclusion (leave network)
     NCP->>NM: REMOVE_NODE_STATUS_DONE (callback)
-    NM-->>NM: → NM_IDLE
+    NM-->>NM: return to NM_IDLE
     NM->>MqttApi: Node deleted event
     MqttApi->>Client: Network/Node/Remove/Report
 ```
