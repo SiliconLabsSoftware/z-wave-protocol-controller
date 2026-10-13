@@ -290,24 +290,6 @@ static void send_frame_callback(uint8_t status, const zwapi_tx_report_t *tx_info
 
 /*************************** S2 external functions ****************************/
 
-void S2_get_hw_random(uint8_t *buf, uint8_t len)
-{
-    uint8_t rnd[32] = {0};
-    int n;
-    int left;
-    int pos;
-
-    left = len;
-    pos  = 0;
-    while (left > 0) {
-        zwapi_get_random_word(rnd, sizeof(rnd));
-        n = left > sizeof(rnd) ? sizeof(rnd) : left;
-        memcpy(&buf[pos], rnd, n);
-        left -= n;
-        pos += n;
-    }
-}
-
 // FIXME: LibS2 should probably have a public API for this.
 // S2 passes us a Class ID and we must de-cipher else we believe that LR key
 // classes are higher security.
