@@ -75,7 +75,7 @@ static uint8_t m_test_public_key_a[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77
 
 static uint8_t m_test_obfuscated_public_key_a[] = {0x00, 0x00, 0x00, 0x00, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00, 0x00, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11};
 
-static uint8_t m_temp_key[] = {0x7E, 0xFE, 0x12, 0x32, 0x45, 0x65, 0x78, 0x98, 0x7E, 0xFE, 0x12, 0x32, 0x45, 0x65, 0x78, 0x98};
+static uint8_t m_temp_key[] = {0x7E, 0xFE, 0x12, 0x32, 0x45, 0x65, 0x78, 0x98, 0x7E, 0xFE, 0x12, 0x32, 0x45, 0x65, 0x78, 0x98, 0x7E, 0xFE, 0x12, 0x32, 0x45, 0x65, 0x78, 0x98, 0x7E, 0xFE, 0x12, 0x32, 0x45, 0x65, 0x78, 0x98};
 
 static uint8_t m_test_network_key_s2_class_0[] = {0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99};
 
@@ -5416,6 +5416,13 @@ void test_kex_joining_node_state_machine_retry_all_states(void)
     uint8_t private_key_b[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22,  // Private key.
                                0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
 
+    uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_REPORT, 0x04, 0x02, 0x01, 0x01};
+    uint8_t s2_public_key_frame[3 + sizeof(public_key_b)];
+    uint8_t S2_echo_kex_set_frame[]   = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x01};
+    uint8_t s2_net_key_get_2_frame[]  = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x01};
+    uint8_t s2_net_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+    uint8_t S2_transfer_end_frame[]   = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
+
     mock_calls_clear();
 
     mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
@@ -5468,12 +5475,6 @@ void test_kex_joining_node_state_machine_retry_all_states(void)
 
     for (send_frame_tries = 0; send_frame_tries < 2; send_frame_tries++) {
         // Expect a S2 KEX Get to be sent.
-        uint8_t S2_kex_report_frame[] = {COMMAND_CLASS_SECURITY_2,
-                                         KEX_REPORT,
-                                         0x04,   // reserved | NLS support | Request CSA | Echo
-                                         0x02,   // Supported schemes. Scheme 0 and 2.
-                                         0x01,   // Supported ECDH Profiles, bit0=1 is curve 25519 value.
-                                         0x01};  // Requested keys bits. Security 2 class 0 key.
         mock_call_expect(TO_STR(S2_send_frame), &p_mock);
         p_mock->compare_rule_arg[0]   = COMPARE_ANY;       // For the outline, we just expect any/null pointers now.
         p_mock->compare_rule_arg[1]   = COMPARE_NOT_NULL;  // This shall be updated once excact frame is defined for S2 frames.
@@ -5486,7 +5487,9 @@ void test_kex_joining_node_state_machine_retry_all_states(void)
     mock_call_expect(TO_STR(keystore_dynamic_public_key_read), &p_mock);
     p_mock->output_arg[0].pointer = public_key_b;
 
-    uint8_t s2_public_key_frame[3 + sizeof(public_key_b)] = {COMMAND_CLASS_SECURITY_2, PUBLIC_KEY_REPORT, 0x00};  // Key exchange received from slave - public key for secure exchange of LTK.
+    s2_public_key_frame[0] = COMMAND_CLASS_SECURITY_2;
+    s2_public_key_frame[1] = PUBLIC_KEY_REPORT;
+    s2_public_key_frame[2] = 0x00;
     memcpy(&s2_public_key_frame[3], public_key_b, sizeof(public_key_b));
     for (send_frame_tries = 0; send_frame_tries < 2; send_frame_tries++) {
         mock_call_expect(TO_STR(S2_send_frame), &p_mock);
@@ -5513,7 +5516,6 @@ void test_kex_joining_node_state_machine_retry_all_states(void)
     p_mock->output_arg[0].pointer = public_key_b;
 
     // Expect Echo(KEX Set) to be sent.
-    uint8_t S2_echo_kex_set_frame[] = {COMMAND_CLASS_SECURITY_2, KEX_SET, 0x01, 0x02, 0x01, 0x01};  // Note: Echo flag set.
     for (send_frame_tries = 0; send_frame_tries < 3; send_frame_tries++) {
         mock_call_expect(TO_STR(S2_send_data), &p_mock);
         p_mock->compare_rule_arg[0]   = COMPARE_ANY;            // For the outline, we just expect any/null pointers now.
@@ -5523,7 +5525,6 @@ void test_kex_joining_node_state_machine_retry_all_states(void)
         p_mock->return_code.value     = 1;
     }
 
-    uint8_t s2_net_key_get_2_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_GET, 0x01};  // Keys requested, Security2, class 2 - Security0, network key.
     for (send_frame_tries = 0; send_frame_tries < 3; send_frame_tries++) {
         mock_call_expect(TO_STR(S2_send_data), &p_mock);
         p_mock->compare_rule_arg[0]   = COMPARE_ANY;             // For the outline, we just expect any/null pointers now.
@@ -5537,7 +5538,6 @@ void test_kex_joining_node_state_machine_retry_all_states(void)
     //  p_mock->compare_rule_arg[0]   = COMPARE_ANY;  // For the outline, we just expect any/null pointers now.
     //  p_mock->expect_arg[1].pointer = m_test_network_key_s2_class_1;
 
-    uint8_t s2_net_key_verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
     for (send_frame_tries = 0; send_frame_tries < 2; send_frame_tries++) {
         mock_call_expect(TO_STR(S2_send_data), &p_mock);
         p_mock->compare_rule_arg[0]   = COMPARE_ANY;              // For the outline, we just expect any/null pointers now.
@@ -5548,7 +5548,6 @@ void test_kex_joining_node_state_machine_retry_all_states(void)
     }
 
     // Expect S2 Transfer End to be sent.
-    uint8_t S2_transfer_end_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_TRANSFER_END, 0x01};
     for (send_frame_tries = 0; send_frame_tries < 2; send_frame_tries++) {
         mock_call_expect(TO_STR(S2_send_data), &p_mock);
         p_mock->compare_rule_arg[0]   = COMPARE_ANY;       // For the outline, we just expect any/null pointers now.

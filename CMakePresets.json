@@ -31,7 +31,9 @@
       "name": "unit-test",
       "inherits": ["zpc"],
       "cacheVariables": {
-        "UNIT_TEST": "ON"
+        "UNIT_TEST": "ON",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ZPC_ENABLE_SANITIZERS": "ON"
       }
     }
   ],
@@ -42,6 +44,12 @@
       "output": {
         "outputOnFailure": true,
         "outputJUnitFile": "test-results.xml"
+      },
+      "execution": {
+        "environment": {
+          "ASAN_OPTIONS": "detect_leaks=1:abort_on_error=1:halt_on_error=1",
+          "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+        }
       }
     }
   ],
