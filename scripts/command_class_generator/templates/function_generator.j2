@@ -1,6 +1,31 @@
 {% import "utils.j2" as utils with context %}
 {% import "config.j2" as config with context %}
 
+{# Shared field parse for one variant-group item (STRUCT_BYTE, length-prefixed VARIANT, or fixed types). #}
+{% macro parse_variant_group_item_fields(attribute) %}
+{% for field in attribute.params %}
+    {% if field.type | lower == "struct_byte" %}
+        item.{{utils.create_variable_name(field.name)}}.value = frame_parser.read_sequential<uint8_t>(sizeof(item.{{utils.create_variable_name(field.name)}}.value));
+        read_bytes += sizeof(item.{{utils.create_variable_name(field.name)}}.value);
+    {% elif field.type | lower == "variant" and field.fields[0].param_offset != 255 %}
+        {% set size_src = attribute.params[field.fields[0].param_offset] %}
+        {% if size_src.type | lower == "struct_byte" %}
+            uint16_t item_{{utils.create_variable_name(field.name)}}_size = (item.{{utils.create_variable_name(size_src.name)}}.value & {{field.fields[0].size_mask}}) + {{field.fields[0].size_change}};
+        {% else %}
+            uint16_t item_{{utils.create_variable_name(field.name)}}_size = (item.{{utils.create_variable_name(size_src.name)}} & {{field.fields[0].size_mask}}) + {{field.fields[0].size_change}};
+        {% endif %}
+        item.{{utils.create_variable_name(field.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(field.type)}}>(item_{{utils.create_variable_name(field.name)}}_size);
+        read_bytes += item_{{utils.create_variable_name(field.name)}}_size;
+    {% elif field.type | lower == "variant" %}
+        item.{{utils.create_variable_name(field.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(field.type)}}>(frame_length - read_bytes);
+        read_bytes = frame_length;
+    {% else %}
+        item.{{utils.create_variable_name(field.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(field.type)}}>(sizeof(item.{{utils.create_variable_name(field.name)}}));
+        read_bytes += sizeof(item.{{utils.create_variable_name(field.name)}});
+    {% endif %}
+{% endfor %}
+{% endmacro %}
+
 {% macro generate_report_received_function(command_class, command) %}
 {% set command_class_name_lower = command_class.name | lower %}
 sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_received(const report_received_args &args)
@@ -118,26 +143,14 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
 
                         for (uint16_t i = 0; i < {{variant_group_name}}_size; i++) {
                             {{variant_group_name}}_item_t item;
-                            {% for field in attribute.params %}
-                                item.{{utils.create_variable_name(field.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(field.type)}}>(sizeof(item.{{utils.create_variable_name(field.name)}}));
-                                read_bytes += sizeof(item.{{utils.create_variable_name(field.name)}});
-                            {% endfor %}
+                            {{ parse_variant_group_item_fields(attribute) }}
                             {{utils.create_variable_name(attribute.name)}}.push_back(item);
                         }
                     {% else %}
 
                         while (read_bytes < frame_length) {
                             {{variant_group_name}}_item_t item;
-                            {% for field in attribute.params %}
-                                {% if field.type | lower == "struct_byte" %}
-                                    item.{{utils.create_variable_name(field.name)}}.value = frame_parser.read_sequential<uint8_t>(sizeof(item.{{utils.create_variable_name(field.name)}}.value));
-                                    read_bytes += sizeof(item.{{utils.create_variable_name(field.name)}}.value);
-                                {% else %}
-                                    item.{{utils.create_variable_name(field.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(field.type)}}>(sizeof(item.{{utils.create_variable_name(field.name)}}));
-                                    read_bytes += sizeof(item.{{utils.create_variable_name(field.name)}});
-                                {% endif %}
-                                
-                            {% endfor %}
+                            {{ parse_variant_group_item_fields(attribute) }}
                             {{utils.create_variable_name(attribute.name)}}.push_back(item);
                         }
                     {% endif %}
@@ -393,11 +406,7 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
 
                         for (uint16_t i = 0; i < {{variant_group_name}}_size; i++) {
                             {{variant_group_name}}_item_t item;
-                            {% for field in attribute.params %}
-                                item.{{utils.create_variable_name(field.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(field.type)}}>(sizeof(item.{{utils.create_variable_name(field.name)}}));
-                                read_bytes += sizeof(item.{{utils.create_variable_name(field.name)}});
-
-                            {% endfor %}
+                            {{ parse_variant_group_item_fields(attribute) }}
                             {{utils.create_variable_name(attribute.name)}}.push_back(item);
                         }
                     {% else %}
@@ -406,16 +415,7 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
 
                         while (read_bytes < remaining_bytes) {
                             {{variant_group_name}}_item_t item;
-                            {% for field in attribute.params %}
-                                {% if field.type | lower == "struct_byte" %}
-                                    item.{{utils.create_variable_name(field.name)}}.value = frame_parser.read_sequential<uint8_t>(sizeof(item.{{utils.create_variable_name(field.name)}}.value));
-                                    read_bytes += sizeof(item.{{utils.create_variable_name(field.name)}}.value);
-                                {% else %}
-                                    item.{{utils.create_variable_name(field.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(field.type)}}>(sizeof(item.{{utils.create_variable_name(field.name)}}));
-                                    read_bytes += sizeof(item.{{utils.create_variable_name(field.name)}});
-                                {% endif %}
-
-                            {% endfor %}
+                            {{ parse_variant_group_item_fields(attribute) }}
                             {{utils.create_variable_name(attribute.name)}}.push_back(item);
                         }
                     {% endif %}
