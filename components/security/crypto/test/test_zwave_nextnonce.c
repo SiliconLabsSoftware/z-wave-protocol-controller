@@ -36,10 +36,10 @@ void test_nextnonce_deterministic_and_advances(void)
     uint8_t nonce_2[16];
     uint8_t nonce_1_second[16];
 
-    next_nonce_instantiate(&span_rng_1, test_sei_valid, test_rei_valid, test_nonce_key);
+    TEST_ASSERT_EQUAL_INT(1, next_nonce_instantiate(&span_rng_1, test_sei_valid, test_rei_valid, test_nonce_key));
     TEST_ASSERT_EQUAL_INT(1, next_nonce_generate(&span_rng_1, nonce_1));
 
-    next_nonce_instantiate(&span_rng_2, test_sei_valid, test_rei_valid, test_nonce_key);
+    TEST_ASSERT_EQUAL_INT(1, next_nonce_instantiate(&span_rng_2, test_sei_valid, test_rei_valid, test_nonce_key));
     TEST_ASSERT_EQUAL_INT(1, next_nonce_generate(&span_rng_2, nonce_2));
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY(nonce_1, nonce_2, 16);
@@ -53,7 +53,7 @@ void test_nextnonce_matches_legacy_vector(void)
     CTR_DRBG_CTX span_rng;
     uint8_t nonce[16];
 
-    next_nonce_instantiate(&span_rng, test_sei_valid, test_rei_valid, test_nonce_key);
+    TEST_ASSERT_EQUAL_INT(1, next_nonce_instantiate(&span_rng, test_sei_valid, test_rei_valid, test_nonce_key));
 
     TEST_ASSERT_EQUAL_INT(1, next_nonce_generate(&span_rng, nonce));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(legacy_nonce_1, nonce, sizeof(nonce));
