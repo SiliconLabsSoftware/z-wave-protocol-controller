@@ -17,6 +17,8 @@
 #include "mqtt_api_base.hpp"
 #include "sl_status.h"
 #include "component_connector_types.hpp"
+#include "zwave_node_id_definitions.h"
+#include <cstdint>
 #include <string>
 
 namespace zwave_command_class
@@ -24,10 +26,9 @@ namespace zwave_command_class
     /**
      * @brief MQTT API for device interviewer
      *
-     * Listens to COMPONENT_CONNECTOR_INTERVIEW_FULLY_RESOLVED and publishes a
-     * message when a device interview has fully terminated — i.e. after every
-     * command class on_interview-triggered resolution has completed, so the
-     * device is actually ready for clients.
+     * Publishes a message when a device interview has fully terminated. The
+     * completion event is handled on the Device Interviewer worker so report
+     * data can be fetched without blocking the Component Connector worker.
      */
     class DeviceInterviewerMqttApi : public MqttApiBase
     {
@@ -37,10 +38,10 @@ namespace zwave_command_class
 
             void setup_mqtt_api() override;
 
+            static sl_status_t publish_interview_terminated_report(const component_connector_interview_done_payload_t &payload);
+
         private:
             inline static std::string MQTT_API_INTERVIEW_TERMINATED_TOPIC = "Interview/Report";
-
-            static sl_status_t on_interview_terminated(const component_connector_interview_done_payload_t &payload);
     };
 }  // namespace zwave_command_class
 

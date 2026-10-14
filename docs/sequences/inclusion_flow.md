@@ -25,7 +25,7 @@ Follow these steps to include an S2-capable end device (e.g. Switch On/Off) with
 | **7** | Wait for RequestedDSK/Report | Subscribe to `zpc/<home_id>/Network/RequestedDSK/Report`. When DSK verification is needed, ZPC publishes the DSK string here. |
 | **8** | Send DSK Accept to ZPC | Publish to `zpc/<home_id>/Network/DSK/Accept` with payload `{"dsk": "<first_5_digits_or_full_DSK>"}` (e.g. first 5 digits from the device or full DSK from the report). |
 | **9** | Wait for Add/Report | Subscribe to `zpc/<home_id>/Network/Node/Add/Report`. On success ZPC publishes `{"node_id": <id>, "status": "success"}` and includes `"dsk": "..."` only when an authenticated or provisioned DSK is available. Security-failure reports likewise include a DSK only when available. |
-| **10** | Wait for Interview/Report and print result | Subscribe to `zpc/<home_id>/Interview/Report`. ZPC publishes one report per endpoint when the interview finishes: `{"node_id": <id>, "endpoint_id": <ep>, "status": <code>}`. Use this to know when the device is fully interviewed (e.g. status 0 = success). |
+| **10** | Wait for Interview/Report and print result | Subscribe to `zpc/<home_id>/Interview/Report`. ZPC publishes one report per endpoint when the interview finishes, with `node_id`, `endpoint_id`, and `status`. The endpoint 0 report also contains `node_information` and `version_report`, matching the objects in `Network/Node/List/Report`. Use this to know when the device is fully interviewed (e.g. status 0 = success). |
 
 ## MQTT topics involved
 

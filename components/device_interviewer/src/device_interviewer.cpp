@@ -425,6 +425,15 @@ namespace zwave_command_class
         std::optional<device_interviewer_external_event_data> ev = external_event_queue.pop(timeout_ms);
 
         if (ev.has_value()) {
+            if (ev->event == device_interviewer_external_event_t::INTERVIEW_FULLY_RESOLVED) {
+                try {
+                    const auto &payload = std::any_cast<const component_connector_interview_done_payload_t &>(ev->payload);
+                    DeviceInterviewerMqttApi::publish_interview_terminated_report(payload);
+                } catch (const std::bad_any_cast &) {
+                    sl_log_error(LOG_TAG.data(), "Invalid payload type for INTERVIEW_FULLY_RESOLVED MQTT report");
+                }
+            }
+
             // Process event through state machine
             state_machine->process_event(ev.value());
         }

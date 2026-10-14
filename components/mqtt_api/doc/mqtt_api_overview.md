@@ -139,7 +139,7 @@ sl_status_t device_interviewer::initialize() {
 }
 ```
 
-**Initialization Order:** The `device_interviewer` is initialized in `main.cpp` after the MQTT handler is ready. It publishes to `Interview/Report` when a device interview terminates (per node and per endpoint), including a `status` field for the interview result.
+**Initialization Order:** The `device_interviewer` is initialized in `main.cpp` after the MQTT handler is ready. It publishes to `Interview/Report` when a device interview terminates (per node and per endpoint), including a `status` field for the interview result. Endpoint 0 reports also include `node_information` and `version_report`, matching `Network/Node/List/Report` (see [Device Interviewer MQTT API](../../device_interviewer/docs/device_interviewer.md#interviewreport)).
 
 ### DiscoveryMqttApi
 
