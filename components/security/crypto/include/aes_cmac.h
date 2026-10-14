@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-void aes_cmac_calculate(const uint8_t *key, const uint8_t *message, const uint16_t message_length, uint8_t *mac);
+int aes_cmac_calculate(const uint8_t *key, const uint8_t *message, const uint16_t message_length, uint8_t *mac);
 
 #endif

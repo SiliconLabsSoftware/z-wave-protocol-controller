@@ -320,6 +320,12 @@ void S2_encrypt_and_send(struct S2 *p_context)
         S2_fsm_post_event(ctxt, SEND_DONE, &e);
         return;
     }
+    if (span->state != SPAN_NEGOTIATED && span->state != SPAN_SOS_REMOTE_NONCE) {
+        event_data_t e;
+        e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
+        S2_fsm_post_event(ctxt, SEND_DONE, &e);
+        return;
+    }
 
     msg    = ctxt->workbuf;
     msg[0] = COMMAND_CLASS_SECURITY_2;
@@ -343,7 +349,13 @@ void S2_encrypt_and_send(struct S2 *p_context)
         }
         memcpy(ei_receiver, span->d.r_nonce, sizeof(ei_receiver));
 
-        next_nonce_instantiate(&span->d.rng, ei_sender, ei_receiver, ctxt->sg[ctxt->peer.class_id].nonce_key);
+        if (!next_nonce_instantiate(&span->d.rng, ei_sender, ei_receiver, ctxt->sg[ctxt->peer.class_id].nonce_key)) {
+            event_data_t e;
+            span->state   = SPAN_SOS;
+            e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
+            S2_fsm_post_event(ctxt, SEND_DONE, &e);
+            return;
+        }
 
         span->class_id = ctxt->peer.class_id;
         span->state    = SPAN_NEGOTIATED;  // TODO is it better to set this on send_data complete?
@@ -354,6 +366,15 @@ void S2_encrypt_and_send(struct S2 *p_context)
         hdr_len += 2 + 16;
         ext_data += 16;
         n_ext++;
+    }
+
+    /*TODO we should consider to roll the nonce when we have recevied in ACK*/
+    if (!next_nonce_generate(&span->d.rng, nonce)) {  // Create the new nonce
+        event_data_t e;
+        span->state   = SPAN_SOS;
+        e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
+        S2_fsm_post_event(ctxt, SEND_DONE, &e);
+        return;
     }
 
     if ((ctxt->peer.tx_options & (S2_TXOPTION_SINGLECAST_FOLLOWUP | S2_TXOPTION_FIRST_SINGLECAST_FOLLOWUP)) && ctxt->mpan) {
@@ -404,8 +425,6 @@ void S2_encrypt_and_send(struct S2 *p_context)
 
     memcpy(ciphertext + shdr_len, ctxt->buf, ctxt->length);
     aad_len = (uint16_t)S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len, ctxt->length + shdr_len + hdr_len + AUTH_TAG_LEN, aad, sizeof(aad));
-    /*TODO we should consider to roll the nonce when we have recevied in ACK*/
-    next_nonce_generate(&span->d.rng, nonce);  // Create the new nonce
 
     if (s2_psa_ccm_encrypt(ctxt->sg[ctxt->peer.class_id].enc_key, AUTH_TAG_LEN, nonce, CCM_NONCE_LEN, aad, aad_len, ciphertext, ctxt->length + shdr_len, ciphertext, ctxt->length + shdr_len + AUTH_TAG_LEN, &encrypted_len) != PSA_SUCCESS) {
         event_data_t e;
@@ -752,9 +771,10 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
                     if (span && span->state == SPAN_SOS_LOCAL_NONCE && (ext_len == (2 + sizeof(span->d.r_nonce)))) { /*Save the nonces */
                         memcpy(s_nonce, &ext_data[2], 16);
                         memcpy(r_nonce, span->d.r_nonce, 16);
+                        if (!next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key)) {
+                            goto auth_fail;
+                        }
                         span->state = SPAN_INSTANTIATE;
-
-                        next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key);
                     }
                     break;
                 case S2_MSG_EXTHDR_TYPE_MGRP:
@@ -836,7 +856,10 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
                         memcpy(ciphertext, ctxt->workbuf, ciphertext_len);
                     }
 
-                    next_nonce_generate(&span->d.rng, nonce);
+                    if (!next_nonce_generate(&span->d.rng, nonce)) {
+                        memcpy(&span->d.rng, &saved_rng, sizeof(CTR_DRBG_CTX));
+                        goto auth_fail;
+                    }
 
                     if (s2_psa_ccm_decrypt(ctxt->sg[span->class_id].enc_key, AUTH_TAG_LEN, nonce, CCM_NONCE_LEN, aad, aad_len, ciphertext, ciphertext_len, ciphertext, ciphertext_len, &decrypt_len) != PSA_SUCCESS) {
                         decrypt_len = 0;
@@ -893,7 +916,9 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
             memcpy(ciphertext, ctxt->workbuf, ciphertext_len);
 
             /*reset prng to the negotiated state with the right new test key */
-            next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key);
+            if (!next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key)) {
+                goto auth_fail;
+            }
         }
     } else {
         /*Multicast decryption*/
@@ -1077,9 +1102,13 @@ uint8_t S2_network_key_update(struct S2 *p_context, uint32_t key_id, security_cl
         return 0;
     }
     if (temp_key_expand) {
-        tempkey_expand(key_id, net_key, ctxt->sg[class_id].enc_key, ctxt->sg[class_id].nonce_key, ctxt->sg[class_id].mpan_key);
+        if (!tempkey_expand(key_id, net_key, ctxt->sg[class_id].enc_key, ctxt->sg[class_id].nonce_key, ctxt->sg[class_id].mpan_key)) {
+            return 0;
+        }
     } else {
-        networkkey_expand(key_id, net_key, ctxt->sg[class_id].enc_key, ctxt->sg[class_id].nonce_key, ctxt->sg[class_id].mpan_key);
+        if (!networkkey_expand(key_id, net_key, ctxt->sg[class_id].enc_key, ctxt->sg[class_id].nonce_key, ctxt->sg[class_id].mpan_key)) {
+            return 0;
+        }
     }
 
     ctxt->loaded_keys |= 1 << class_id;
