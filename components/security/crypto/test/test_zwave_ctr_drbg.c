@@ -323,7 +323,7 @@ void test_ctr_dbrg(void)
         }
 #endif
         // AJ_DumpBytes("SEED", __data, size);
-        AES_CTR_DRBG_Instantiate(&ctx, __data, personal);
+        TEST_ASSERT_EQUAL_INT(1, AES_CTR_DRBG_Instantiate(&ctx, __data, personal));
         free(__data);
 
         if (rlen) {
@@ -331,7 +331,7 @@ void test_ctr_dbrg(void)
             __data = malloc(size);
             TEST_ASSERT_NOT_NULL(__data);
             AJ_HexToRaw(testVector[i].reseed, 2 * rlen, __data, size);
-            AES_CTR_DRBG_Reseed(&ctx, __data);
+            TEST_ASSERT_EQUAL_INT(1, AES_CTR_DRBG_Reseed(&ctx, __data));
             free(__data);
         }
 
@@ -342,8 +342,8 @@ void test_ctr_dbrg(void)
         TEST_ASSERT(rand);
         AJ_HexToRaw(testVector[i].rand, 2 * size, rand, size);
 
-        AES_CTR_DRBG_Generate(&ctx, __data);
-        AES_CTR_DRBG_Generate(&ctx, __data);
+        TEST_ASSERT_EQUAL_INT(1, AES_CTR_DRBG_Generate(&ctx, __data));
+        TEST_ASSERT_EQUAL_INT(1, AES_CTR_DRBG_Generate(&ctx, __data));
 
         sprintf(message, "Expected failed for test #%lu\n", (long unsigned)i);
         TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(__data, rand, size, message);
@@ -385,11 +385,25 @@ void test_ctr_drbg_different_entropy_yields_different_output(void)
     memcpy(entropy_b, entropy_a, sizeof(entropy_b));
     entropy_b[0] ^= 0xff;
 
-    AES_CTR_DRBG_Instantiate(&ctx, entropy_a, personalization);
-    AES_CTR_DRBG_Generate(&ctx, out_a);
+    TEST_ASSERT_EQUAL_INT(1, AES_CTR_DRBG_Instantiate(&ctx, entropy_a, personalization));
+    TEST_ASSERT_EQUAL_INT(1, AES_CTR_DRBG_Generate(&ctx, out_a));
 
-    AES_CTR_DRBG_Instantiate(&ctx, entropy_b, personalization);
-    AES_CTR_DRBG_Generate(&ctx, out_b);
+    TEST_ASSERT_EQUAL_INT(1, AES_CTR_DRBG_Instantiate(&ctx, entropy_b, personalization));
+    TEST_ASSERT_EQUAL_INT(1, AES_CTR_DRBG_Generate(&ctx, out_b));
 
     TEST_ASSERT_NOT_EQUAL(0, memcmp(out_a, out_b, RANDLEN));
+}
+
+void test_ctr_drbg_generate_rejects_null_output_without_advancing_state(void)
+{
+    CTR_DRBG_CTX ctx;
+    CTR_DRBG_CTX saved_ctx;
+    const uint8_t entropy[SEEDLEN]         = {1};
+    const uint8_t personalization[SEEDLEN] = {2};
+
+    TEST_ASSERT_EQUAL_INT(1, AES_CTR_DRBG_Instantiate(&ctx, entropy, personalization));
+    memcpy(&saved_ctx, &ctx, sizeof(saved_ctx));
+
+    TEST_ASSERT_EQUAL_INT(0, AES_CTR_DRBG_Generate(&ctx, NULL));
+    TEST_ASSERT_EQUAL_MEMORY(&saved_ctx, &ctx, sizeof(ctx));
 }

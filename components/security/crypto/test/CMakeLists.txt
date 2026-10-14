@@ -16,6 +16,11 @@ add_unity_test(NAME test_psa_curve25519 FILES test_psa_curve25519.c LIBRARIES ps
 
 add_unity_test(NAME test_psa_kderiv FILES test_psa_kderiv.c LIBRARIES psa_test_support s2crypto_zwave)
 
+add_unity_test(
+  NAME test_kderiv_failures
+  FILES test_kderiv_failures.c ../src/kderiv.c
+  INCLUDES ../include)
+
 add_unity_test(NAME test_zwave_ctr_drbg FILES test_zwave_ctr_drbg.c LIBRARIES psa_test_support s2crypto_ctr_drbg_kat)
 
 add_unity_test(NAME test_zwave_nextnonce FILES test_zwave_nextnonce.c LIBRARIES s2crypto_zwave s2crypto_ctr_drbg)
