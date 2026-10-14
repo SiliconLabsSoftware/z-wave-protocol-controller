@@ -35,15 +35,15 @@ void test_psa_key_derivation(void)
     const uint8_t py_temp_mpan_key[16]               = {0xc2, 0x8e, 0x57, 0x5f, 0x24, 0x6f, 0x59, 0xa4, 0xa5, 0x85, 0x0f, 0x20, 0x66, 0xf1, 0x06, 0x2b};
     const uint8_t py_pseudo_random_keymat_output[16] = {0x74, 0x77, 0x8f, 0x89, 0xd4, 0xd8, 0x8c, 0x6e, 0x46, 0x59, 0x63, 0x4a, 0x88, 0xea, 0x98, 0x7a};
 
-    networkkey_expand(0, network_key, ccm_key, pers_string, mpan_key);
+    TEST_ASSERT_TRUE(networkkey_expand(0, network_key, ccm_key, pers_string, mpan_key));
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(py_ccm_key, ccm_key, 16, "ccm_key");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(py_pers_string, pers_string, 32, "pers_string");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(py_mpan_key, mpan_key, 16, "mpan_key");
 
-    tempkey_extract(ecdh_share_secret, auth_tag, pseudo_random_keymat_output);
+    TEST_ASSERT_TRUE(tempkey_extract(ecdh_share_secret, auth_tag, pseudo_random_keymat_output));
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(py_pseudo_random_keymat_output, pseudo_random_keymat_output, 16, "prk");
 
-    tempkey_expand(0, pseudo_random_keymat_output, ccm_key, pers_string, mpan_key);
+    TEST_ASSERT_TRUE(tempkey_expand(0, pseudo_random_keymat_output, ccm_key, pers_string, mpan_key));
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(py_temp_ccm_key, ccm_key, 16, "temp ccm_key");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(py_temp_pers_string, pers_string, 32, "temp pers_string");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(py_temp_mpan_key, mpan_key, 16, "temp mpan_key");
