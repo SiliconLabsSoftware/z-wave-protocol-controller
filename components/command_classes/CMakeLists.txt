@@ -27,7 +27,6 @@ add_library(
   ${implementation_files}
   # Base class
   src/zwave_command_class_utils.cpp
-  src/zwave_command_class_mqtt_utils.cpp
   src/zwave_command_class_base.cpp
 )
 

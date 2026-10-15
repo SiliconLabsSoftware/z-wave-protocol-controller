@@ -11,7 +11,7 @@ zpc/{home_id}/{node_id}/ep{endpoint_id}/{command_class}/Command/{command_name}
 - **ep0** — root device (endpoint 0)
 - **ep1**, **ep2**, **ep3**, … — endpoint 1, 2, 3, etc.
 
-Example: `zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoint 3 of node 0x0004.
+Example: `zpc/CAFECAFE/4/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoint 3 of node 4. The node ID is published in decimal.
 
 ### Command class MQTT capabilities
 

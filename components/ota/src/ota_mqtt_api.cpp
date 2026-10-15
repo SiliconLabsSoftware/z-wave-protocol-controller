@@ -14,9 +14,11 @@
 #include "ota_mqtt_api.hpp"
 #include "ota_image_store.hpp"
 #include "ota_mqtt_constants.hpp"
+#include "zwave_command_class_mqtt_utils.hpp"
 #include "log.h"
 #include "nlohmann/json.hpp"
 
+#include <stdexcept>
 #include <string_view>
 
 namespace ota
@@ -82,7 +84,11 @@ namespace ota
             auto json_payload = nlohmann::json::parse(message);
 
             StartFirmwareUploadPayload payload;
-            payload.node_id             = json_payload[key::NODE_ID].get<zwave_node_id_t>();
+            zwave_command_class::mqtt_payload_parser parser {message, LOG_TAG.data()};
+            parser.parse(key::NODE_ID.data(), payload.node_id);
+            if (parser.status() != SL_STATUS_OK) {
+                throw std::runtime_error("invalid or missing node_id");
+            }
             payload.image_name          = json_payload[key::IMAGE_NAME].get<std::string>();
             payload.wait_for_activation = json_payload[key::WAIT_FOR_ACTIVATION].get<bool>();
 
@@ -136,10 +142,9 @@ namespace ota
     {
         ota_external_event_data ev;
         ev.event = ota_external_event_t::MQTT_PROGRESS_REQUEST;
-        try {
-            auto j     = nlohmann::json::parse(message);
-            ev.node_id = j.value(key::NODE_ID, static_cast<zwave_node_id_t>(0));
-        } catch (...) {
+        zwave_command_class::mqtt_payload_parser parser {message, LOG_TAG.data()};
+        parser.parse_optional(key::NODE_ID.data(), ev.node_id);
+        if (parser.status() != SL_STATUS_OK) {
             ev.node_id = 0;  // fall back: process_event will pick any in-progress session
         }
         event_queue.push(ev);
@@ -148,10 +153,13 @@ namespace ota
     void OTAMqttApi::on_abort(const std::string &topic, const std::string &message)
     {
         try {
-            auto j = nlohmann::json::parse(message);
             ota_external_event_data ev;
-            ev.event   = ota_external_event_t::MQTT_ABORT;
-            ev.node_id = j[key::NODE_ID].get<zwave_node_id_t>();
+            ev.event = ota_external_event_t::MQTT_ABORT;
+            zwave_command_class::mqtt_payload_parser parser {message, LOG_TAG.data()};
+            parser.parse(key::NODE_ID.data(), ev.node_id);
+            if (parser.status() != SL_STATUS_OK) {
+                throw std::runtime_error("invalid or missing node_id");
+            }
             event_queue.push(ev);
         } catch (const std::exception &e) {
             sl_log_error(LOG_TAG.data(), "Failed to parse Abort: %s", e.what());
@@ -165,10 +173,12 @@ namespace ota
     void OTAMqttApi::on_activate(const std::string &topic, const std::string &message)
     {
         try {
-            auto j = nlohmann::json::parse(message);
-
             ActivatePayload payload;
-            payload.node_id = j[key::NODE_ID].get<zwave_node_id_t>();
+            zwave_command_class::mqtt_payload_parser parser {message, LOG_TAG.data()};
+            parser.parse(key::NODE_ID.data(), payload.node_id);
+            if (parser.status() != SL_STATUS_OK) {
+                throw std::runtime_error("invalid or missing node_id");
+            }
 
             ota_external_event_data ev;
             ev.event   = ota_external_event_t::MQTT_ACTIVATE;

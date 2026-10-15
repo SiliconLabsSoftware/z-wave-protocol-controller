@@ -38,6 +38,7 @@ target_link_libraries(ota_update_manager
     command_class_firmware_update_md_interface
     fmt::fmt
   PRIVATE
+    utils
     log
     config
     crc16_ccitt

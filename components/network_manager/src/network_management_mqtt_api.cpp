@@ -12,6 +12,7 @@
  *****************************************************************************/
 
 #include "network_management_mqtt_api.hpp"
+#include "zwave_command_class_mqtt_utils.hpp"
 #include "log.h"
 #include "sl_status.h"
 #include "zwave_network_management.h"
@@ -156,7 +157,7 @@ namespace zwave_command_class
 
     sl_status_t NetworkManagementMqttApi::on_node_deleted(const component_connector_node_deleted_payload_t &payload)
     {
-        const std::string node_topic_prefix = fmt::format("{}/{:04X}/", get_base_topic(), payload.node_id);
+        const std::string node_topic_prefix = fmt::format("{}/{}/", get_base_topic(), payload.node_id);
         zwave_component::mqtt_handler::get_instance().unretain(node_topic_prefix);
 
         nlohmann::json report;
@@ -449,30 +450,10 @@ namespace zwave_command_class
         (void)topic;
         sl_log_debug(LOG_TAG.data(), "%s: %s %s", __func__, topic.c_str(), message.c_str());
 
-        nlohmann::json json_data;
-        if (!message.empty()) {
-            try {
-                json_data = nlohmann::json::parse(message);
-            } catch (const nlohmann::json::exception &) {
-                sl_log_error(LOG_TAG.data(), "Node interview request: invalid request payload");
-                return;
-            }
-        } else {
-            sl_log_error(LOG_TAG.data(), "Node interview request: empty payload");
-            return;
-        }
-
-        auto it = json_data.find("node_id");
-        if (it == json_data.end()) {
-            sl_log_error(LOG_TAG.data(), "Node interview request: node_id not found in payload");
-            return;
-        }
-
         zwave_node_id_t node_id = 0;
-        try {
-            node_id = static_cast<zwave_node_id_t>(it->get<int>());
-        } catch (const nlohmann::json::exception &) {
-            sl_log_error(LOG_TAG.data(), "Node interview request: node_id must be an integer");
+        mqtt_payload_parser parser {message, LOG_TAG.data()};
+        parser.parse("node_id", node_id);
+        if (parser.status() != SL_STATUS_OK) {
             return;
         }
         if (node_id == 0) {
@@ -493,25 +474,12 @@ namespace zwave_command_class
         (void)topic;
         sl_log_debug(LOG_TAG.data(), "%s: %s %s", __func__, topic.c_str(), message.c_str());
 
-        nlohmann::json json_data;
-        if (!message.empty()) {
-            try {
-                json_data = nlohmann::json::parse(message);
-            } catch (const nlohmann::json::exception &) {
-                sl_log_error(LOG_TAG.data(), "Node properties request: invalid request payload");
-                return;
-            }
-        } else {
-            sl_log_error(LOG_TAG.data(), "Node properties request: empty payload");
+        zwave_node_id_t node_id = 0;
+        mqtt_payload_parser parser {message, LOG_TAG.data()};
+        parser.parse("node_id", node_id);
+        if (parser.status() != SL_STATUS_OK) {
             return;
         }
-
-        auto it = json_data.find("node_id");
-        if (it == json_data.end()) {
-            sl_log_error(LOG_TAG.data(), "Node properties request: node_id not found in payload");
-            return;
-        }
-        zwave_node_id_t node_id = static_cast<zwave_node_id_t>(it->get<int>());
         if (node_id == 0) {
             sl_log_error(LOG_TAG.data(), "Node properties request: node_id must be non-zero");
             return;
@@ -658,26 +626,12 @@ namespace zwave_command_class
         (void)topic;
         sl_log_debug(LOG_TAG.data(), "%s: %s %s", __func__, topic.c_str(), message.c_str());
 
-        nlohmann::json json_data;
-        if (!message.empty()) {
-            try {
-                json_data = nlohmann::json::parse(message);
-            } catch (const nlohmann::json::exception &) {
-                sl_log_error(LOG_TAG.data(), "NLS Enable: invalid request payload");
-                return;
-            }
-        } else {
-            sl_log_error(LOG_TAG.data(), "NLS Enable: empty payload");
+        zwave_node_id_t node_id = 0;
+        mqtt_payload_parser parser {message, LOG_TAG.data()};
+        parser.parse("node_id", node_id);
+        if (parser.status() != SL_STATUS_OK) {
             return;
         }
-
-        auto it = json_data.find("node_id");
-        if (it == json_data.end()) {
-            sl_log_error(LOG_TAG.data(), "NLS Enable: node_id not found in payload");
-            return;
-        }
-
-        zwave_node_id_t node_id = static_cast<zwave_node_id_t>(it->get<int>());
         if (node_id == 0) {
             sl_log_error(LOG_TAG.data(), "NLS Enable: node_id must be non-zero");
             return;
@@ -708,26 +662,12 @@ namespace zwave_command_class
         (void)topic;
         sl_log_debug(LOG_TAG.data(), "%s: %s %s", __func__, topic.c_str(), message.c_str());
 
-        nlohmann::json json_data;
-        if (!message.empty()) {
-            try {
-                json_data = nlohmann::json::parse(message);
-            } catch (const nlohmann::json::exception &) {
-                sl_log_error(LOG_TAG.data(), "NLS State: invalid request payload");
-                return;
-            }
-        } else {
-            sl_log_error(LOG_TAG.data(), "NLS State: empty payload");
+        zwave_node_id_t node_id = 0;
+        mqtt_payload_parser parser {message, LOG_TAG.data()};
+        parser.parse("node_id", node_id);
+        if (parser.status() != SL_STATUS_OK) {
             return;
         }
-
-        auto it = json_data.find("node_id");
-        if (it == json_data.end()) {
-            sl_log_error(LOG_TAG.data(), "NLS State: node_id not found in payload");
-            return;
-        }
-
-        zwave_node_id_t node_id = static_cast<zwave_node_id_t>(it->get<int>());
         if (node_id == 0) {
             sl_log_error(LOG_TAG.data(), "NLS State: node_id must be non-zero");
             return;
@@ -768,26 +708,12 @@ namespace zwave_command_class
         (void)topic;
         sl_log_debug(LOG_TAG.data(), "%s: %s %s", __func__, topic.c_str(), message.c_str());
 
-        if (message.empty()) {
-            sl_log_error(LOG_TAG.data(), "Remove Failed Node: empty payload");
+        zwave_node_id_t node_id = 0;
+        mqtt_payload_parser parser {message, LOG_TAG.data()};
+        parser.parse("node_id", node_id);
+        if (parser.status() != SL_STATUS_OK) {
             return;
         }
-
-        nlohmann::json json_data;
-        try {
-            json_data = nlohmann::json::parse(message);
-        } catch (const nlohmann::json::exception &) {
-            sl_log_error(LOG_TAG.data(), "Remove Failed Node: invalid request payload");
-            return;
-        }
-
-        auto it = json_data.find("node_id");
-        if (it == json_data.end()) {
-            sl_log_error(LOG_TAG.data(), "Remove Failed Node: node_id not found in payload");
-            return;
-        }
-
-        zwave_node_id_t node_id = static_cast<zwave_node_id_t>(it->get<int>());
         if (node_id == 0) {
             sl_log_error(LOG_TAG.data(), "Remove Failed Node: node_id must be non-zero");
             return;
