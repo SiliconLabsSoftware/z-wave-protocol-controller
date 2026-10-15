@@ -69,8 +69,8 @@ set(CMAKE_CXX_EXTENSIONS ON) # Enable gnu++11 extentions
 # Build Type Specific Compiler Flags
 # ##############################################################################
 # Common flags for all build types
-set(COMMON_C_FLAGS "-pipe -Wall -Werror")
-set(COMMON_CXX_FLAGS "-pipe -Wall -Werror -Wc++20-extensions")
+set(COMMON_C_FLAGS "-pipe -Wall -Werror -fstack-protector-strong")
+set(COMMON_CXX_FLAGS "-pipe -Wall -Werror -Wc++20-extensions -fstack-protector-strong")
 
 # Debug: No optimization, full debug info
 set(CMAKE_C_FLAGS_DEBUG "${COMMON_C_FLAGS} -g3 -O0")
