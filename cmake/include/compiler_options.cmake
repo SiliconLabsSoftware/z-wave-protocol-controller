@@ -86,6 +86,24 @@ if(APPLE)
 endif()
 
 # ##############################################################################
+# Sanitizers (unit-test preset sets ZPC_ENABLE_SANITIZERS=ON)
+# ##############################################################################
+option(ZPC_ENABLE_SANITIZERS "Build with AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+
+if(ZPC_ENABLE_SANITIZERS)
+  if(COVERAGE OR CMAKE_GCOV)
+    message(FATAL_ERROR "ZPC_ENABLE_SANITIZERS is incompatible with COVERAGE / CMAKE_GCOV")
+  endif()
+  message(STATUS "Enabling ASan and UBSan for unit-test sanitizer build")
+  add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
+  add_link_options(-fsanitize=address,undefined)
+  if(APPLE)
+    # zw-libs2 mock_control uses sprintf in macros; AppleClang treats it as deprecated.
+    add_compile_options(-Wno-deprecated-declarations)
+  endif()
+endif()
+
+# ##############################################################################
 # Code Coverage Support
 # ##############################################################################
 # Only add code coverage when CMAKE_GCOV is True

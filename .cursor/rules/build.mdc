@@ -13,7 +13,7 @@ alwaysApply: true
 - `cmake --preset <preset>`: Configure the project and regenerate the command classes.
 - `cmake --build <preset>`: Build the project for the given preset.
 
-- unit-test preset: `unit-test` (macos, debian, and docker)
+- unit-test preset: `unit-test` (macos, debian, and docker; ASan, UBSan, LSan on Linux via `ASAN_OPTIONS`)
 - `cmake --workflow --preset unit-test --fresh`: Configure, build, and run unit tests. `--fresh` removes the existing CMake cache in `build/unit-test`.
 - `cmake --preset unit-test --fresh`: Configure the project with unit tests enabled.
 - `cmake --build --preset unit-test`: Build the unit-test targets.
