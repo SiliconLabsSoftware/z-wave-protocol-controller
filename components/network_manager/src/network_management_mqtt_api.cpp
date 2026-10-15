@@ -233,8 +233,42 @@ namespace zwave_command_class
     void NetworkManagementMqttApi::on_network_node_remove(const std::string &topic, const std::string &message)
     {
         (void)topic;
-        (void)message;
+        zwave_node_id_t node_id_filter = 0;
         nlohmann::json report;
+        const auto publish_invalid_payload = [&report]() {
+            report["reason"] = SL_STATUS_INVALID_PARAMETER;
+            report["status"] = MQTT_STATUS_FAIL;
+            publish_report(MQTT_API_NETWORK_NODE_REMOVE_REPORT_TOPIC, report.dump(), false);
+        };
+        if (!message.empty()) {
+            try {
+                const nlohmann::json payload = nlohmann::json::parse(message);
+                if (!payload.is_object()) {
+                    sl_log_error(LOG_TAG.data(), "Remove Node payload must be a JSON object");
+                    publish_invalid_payload();
+                    return;
+                }
+                const auto node_id = payload.find("node_id");
+                if (node_id != payload.end()) {
+                    if (!node_id->is_number_unsigned() && !node_id->is_number_integer()) {
+                        sl_log_error(LOG_TAG.data(), "Remove Node node_id must be an integer");
+                        publish_invalid_payload();
+                        return;
+                    }
+                    const int requested_node_id = node_id->get<int>();
+                    if (requested_node_id < ZW_MIN_NODE_ID || requested_node_id > ZW_MAX_NODES) {
+                        sl_log_error(LOG_TAG.data(), "Remove Node node_id is out of range: %d", requested_node_id);
+                        publish_invalid_payload();
+                        return;
+                    }
+                    node_id_filter = static_cast<zwave_node_id_t>(requested_node_id);
+                }
+            } catch (const nlohmann::json::exception &e) {
+                sl_log_error(LOG_TAG.data(), "Failed to parse Remove Node payload: %s", e.what());
+                publish_invalid_payload();
+                return;
+            }
+        }
         if (zwave_controller_is_reset_ongoing()) {
             // `zwave_controller_is_reset_ongoing` is used in favor of
             // `zwave_network_management_get_state() == NM_IDLE` because it is possible that
@@ -253,7 +287,7 @@ namespace zwave_command_class
                 report["activity"] = nm_activity_to_string(zwave_network_management_get_activity(nm_state));  // Temporary field: will be replaced by another API in the future.
                 publish_report(MQTT_API_NETWORK_NODE_REMOVE_REPORT_TOPIC, report.dump(), false);
             } else {
-                sl_status_t status = zwave_network_management_remove_node();
+                sl_status_t status = zwave_network_management_remove_node(node_id_filter);
                 if (status != SL_STATUS_OK) {
                     sl_log_error(LOG_TAG.data(), "Failed to remove node: %d", status);
                 }

@@ -321,7 +321,7 @@ namespace zwave_component
                     }
                 } break;
                 case NM_TOPIC_REMOVE_NODE:
-                    zwave_network_management_remove_node();
+                    zwave_network_management_remove_node(0);
                     break;
                 case NM_TOPIC_JOIN_NETWORK:
                     break;
