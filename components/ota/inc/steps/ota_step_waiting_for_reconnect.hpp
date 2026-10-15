@@ -22,6 +22,18 @@ namespace ota
     using state_machine::StepResult;
 
     /**
+     * @brief Seconds slept before the post-OTA NOP probe.
+     *
+     * Controller margin on the device-advertised Wait Time. Published MQTT
+     * `waittime` stays that advertised value.
+     *   - advertised 0 (or missing, stored as 0) → 5 s
+     *   - advertised < 20 → advertised + 5 s
+     *   - advertised < 60 → advertised + 10 s
+     *   - otherwise → advertised + 30 s
+     */
+    uint32_t post_ota_probe_delay_s(uint16_t advertised_wait_time_s);
+
+    /**
      * @brief Waits for the node to restart and become reachable again after firmware activation.
      *
      * Entered after:
@@ -30,7 +42,8 @@ namespace ota
      *     Activation Status Report.
      *
      * Flow (all synchronous in on_enter):
-     *   1. Sleep for session.wait_time seconds.
+     *   1. Sleep post_ota_probe_delay_s(session.wait_time) seconds. session.wait_time
+     *      stays the device-advertised Wait Time.
      *   2. Send a Z-Wave NOP and block until the TX callback fires.
      *   3. On ACK: return done() to advance to TRIGGER_INTERVIEW.
      *   4. On failure: sleep NOP_RETRY_DELAY_S seconds and retry from step 2.
