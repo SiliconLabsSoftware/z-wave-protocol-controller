@@ -16,9 +16,10 @@ include(FetchContent)
 
 FetchContent_Declare(
   paho-mqtt-cpp
-  GIT_REPOSITORY https://github.com/eclipse/paho.mqtt.cpp.git
-  GIT_TAG        v1.5.3
+  GIT_REPOSITORY https://github.com/eclipse-paho/paho.mqtt.cpp.git
+  GIT_TAG        v1.6.0
   GIT_SHALLOW    TRUE
+  GIT_SUBMODULES "externals/paho.mqtt.c"
 )
 
 # Avoid re-downloading on subsequent configures
@@ -33,27 +34,7 @@ set(PAHO_BUILD_EXAMPLES FALSE CACHE BOOL "Build examples" FORCE)
 set(PAHO_BUILD_TESTS FALSE CACHE BOOL "Build tests" FORCE)
 set(PAHO_WITH_MQTT_C TRUE CACHE BOOL "Build bundled Paho C library" FORCE)
 
-# Temporarily disable deprecation warnings for external dependencies
-if(CMAKE_VERSION VERSION_GREATER_EQUAL "4.4")
-  cmake_diagnostic(GET CMD_DEPRECATED _PAHO_SAVE_DEPRECATED_ACTION)
-  cmake_diagnostic(SET CMD_DEPRECATED IGNORE RECURSE)
-else()
-  if(CMAKE_WARN_DEPRECATED)
-    set(_PAHO_SAVE_WARN_DEPRECATED ${CMAKE_WARN_DEPRECATED})
-  else()
-    set(_PAHO_SAVE_WARN_DEPRECATED ON)
-  endif()
-  set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
-endif()
-
 FetchContent_MakeAvailable(paho-mqtt-cpp)
-
-# Restore deprecation warnings for our own code
-if(CMAKE_VERSION VERSION_GREATER_EQUAL "4.4")
-  cmake_diagnostic(SET CMD_DEPRECATED ${_PAHO_SAVE_DEPRECATED_ACTION} RECURSE)
-else()
-  set(CMAKE_WARN_DEPRECATED ${_PAHO_SAVE_WARN_DEPRECATED} CACHE BOOL "" FORCE)
-endif()
 
 # --- Resolve C++ target (prefer static) ---
 set(PAHO_CPP_TARGET "")

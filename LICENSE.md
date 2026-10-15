@@ -70,7 +70,7 @@ under the Apache License, Version 2.0
 The following component is used as a build-time dependency and is distributed
 under the dual EPL-2.0 / EDL-1.0 license:
 
-- **Eclipse Paho MQTT C/C++** (https://github.com/eclipse/paho.mqtt.cpp, v1.5.3)
+- **Eclipse Paho MQTT C/C++** (https://github.com/eclipse-paho/paho.mqtt.cpp, v1.6.0)
 
 ---
 
