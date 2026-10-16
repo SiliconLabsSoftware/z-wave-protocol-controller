@@ -219,3 +219,9 @@ optional_param_overrides:
     param: "Sequence Number"
     optionaloffs: "0x06"
     optionalmask: "0x80"
+  # Delta Time is 16-bit; any nonzero value indicates a Previous Meter Value.
+  - command_class: "COMMAND_CLASS_METER"
+    command: "METER_REPORT"
+    param: "Previous Meter Value"
+    optionaloffs: "0x03"
+    optionalmask: "0xFFFF"
