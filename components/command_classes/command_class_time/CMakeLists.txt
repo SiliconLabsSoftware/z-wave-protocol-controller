@@ -16,6 +16,8 @@ target_link_libraries(
   PUBLIC
     command_class_common
     command_class_time_interface
+    timer
+    zwave_tx_scheme_selector
 )
 
 add_subdirectory(interface)
