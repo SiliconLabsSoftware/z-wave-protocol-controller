@@ -15,6 +15,7 @@ static int ckdf_nonce0_expand(uint8_t *prk, uint8_t *mei)
     uint8_t t1[16] = {0};
     uint8_t t2[16] = {0};
 
+    /* TODO FIXME SPEC: The specification says Constant(NK); this should be Constant(EI). */
     memcpy(t0, constant_ei, 15);
     t0[15] = 0;
 
