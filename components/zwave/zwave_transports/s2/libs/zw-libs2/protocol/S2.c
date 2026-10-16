@@ -610,11 +610,11 @@ static void S2_send_nonce_report(struct S2 *p_context, const s2_connection_t *co
     nonce_report[2] = span->tx_seq;
 
     if (flags & SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK) {
-        span->state = SPAN_SOS_LOCAL_NONCE;
         if (psa_generate_random(rnd, sizeof(rnd)) != PSA_SUCCESS) {
             return;
         }
         memcpy(span->d.r_nonce, rnd, 16);
+        span->state = SPAN_SOS_LOCAL_NONCE;
         memcpy(&nonce_report[4], span->d.r_nonce, sizeof(span->d.r_nonce));
     }
 
