@@ -223,7 +223,7 @@ mosquitto_pub -t 'zpc/<home_id>/Network/Node/Add' -m '{}'
 mosquitto_pub -t 'zpc/<home_id>/Network/DSK/Accept' -m '{"dsk":"12345"}'
 ```
 
-* When the device interview finishes (per endpoint), ZPC publishes to `zpc/<home_id>/Interview/Report` with payload `{"node_id":<id>,"endpoint_id":<ep>,"status":<code>}`. Subscribe to that topic to know when the device is fully interviewed.
+* When the device interview finishes (per endpoint), ZPC publishes to `zpc/<home_id>/Interview/Report` with `node_id`, `endpoint_id`, and `status`. Endpoint 0 reports also include `node_information` and `version_report`, matching the objects in `Network/Node/List/Report`. Subscribe to that topic to know when the device is fully interviewed.
 
 ### Step 4: Control the Switch On/Off device via MQTT
 

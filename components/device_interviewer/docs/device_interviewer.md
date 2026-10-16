@@ -1053,8 +1053,23 @@ The Device Interviewer publishes an MQTT message when a device interview termina
 | `node_id` | number | Z-Wave node ID. |
 | `endpoint_id` | number | Endpoint ID (0 for root). |
 | `status` | number | Interview result (e.g. 0 for success; non-zero for failure or cancelled). |
+| `node_information` | object | Present for endpoint 0 reports. Same fields and values as `node_information` in `Network/Node/List/Report`. |
+| `version_report` | object | Present for endpoint 0 reports. Same fields and values as `version_report` in `Network/Node/List/Report`. |
 
-**Example:** Subscribe to `zpc/<home_id>/Interview/Report` to receive notifications such as `{"node_id":2,"endpoint_id":0,"status":0}` when the interview for node 2 endpoint 0 finishes successfully.
+**Example:**
+
+```json
+{"node_id":2,"endpoint_id":0,"status":0,"node_information":{"node_id":2,"listening_protocol":211,"optional_protocol":156,"basic_device_class":4,"generic_device_class":16,"specific_device_class":0,"command_class_list":[113,114,115],"s2_command_class_list":[113,114,115],"s0_command_class_list":[113,114],"inclusion_protocol":0,"granted_keys":2},"version_report":{"z_wave_library_type":6,"z_wave_protocol_version":7,"z_wave_protocol_sub_version":0,"firmware_0_version":1,"firmware_0_sub_version":0,"hardware_version":1,"number_of_firmware_targets":1}}
+```
+
+`node_information` and `version_report` use the same schemas as `Network/Node/List/Report`. They are included when endpoint 0's interview finishes; endpoint reports for other endpoints omit them.
+
+Values and optional-field behavior match `Network/Node/List/Report`: unavailable node-information scalar fields are `null`, unavailable security command-class lists are empty arrays, and command class identifiers are JSON numbers.
+
+Other MQTT topics expose related device information:
+
+- `Network/Node/List/Report` includes a `node_information` object per node, with the root device classes and command class lists, plus inclusion and granted-key information. See [Network Node List](../../network_manager/doc/network_management_mqtt_api.md#network_node_list_report).
+- `MultiChannel/Report/MultiChannelCapabilityReport` reports device classes and command classes for individual non-root endpoints. See [Multi Channel MQTT API](../command_classes/command_class_multi_channel/command_class_multi_channel_mqtt_interface.md).
 
 ## Synchronous Operations
 
