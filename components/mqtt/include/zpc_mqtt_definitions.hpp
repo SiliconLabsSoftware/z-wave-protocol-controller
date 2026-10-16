@@ -47,7 +47,7 @@ namespace zpc_mqtt
     // Root name
     const std::string MQTT_ROOT_NAME = "zpc";
     // Base topic : zpc/{home_id}/{node_id}/
-    inline constexpr std::string_view MQTT_BASE_TOPIC = "zpc/{home_id:8X}/{node_id:04X}/";
+    inline constexpr std::string_view MQTT_BASE_TOPIC = "zpc/{home_id:8X}/{node_id}/";
     // Endpoint (if applicable)
     inline constexpr std::string_view MQTT_ENDPOINT = "ep{endpoint_id}/";
     // Used to subscribe to command topic. Must match MQTT_BASE_TOPIC + MQTT_COMMAND_TOPIC
@@ -57,7 +57,7 @@ namespace zpc_mqtt
     // Attribute topic (ZWaveCC/Attribute/MyAttribute/)
     inline constexpr std::string_view MQTT_ATTRIBUTE_TOPIC = "{command_class}/Attribute{attribute_path}{attribute_name}/";
     // Base topic with endpoint: MQTT_BASE_TOPIC + MQTT_ENDPOINT
-    inline constexpr std::string_view MQTT_BASE_TOPIC_WITH_ENDPOINT = "zpc/{home_id:8X}/{node_id:04X}/ep{endpoint_id}/";
+    inline constexpr std::string_view MQTT_BASE_TOPIC_WITH_ENDPOINT = "zpc/{home_id:8X}/{node_id}/ep{endpoint_id}/";
     // Command subscription topic (MQTT_COMMAND_BASE_TOPIC + MQTT_COMMAND_TOPIC + "#")
     inline constexpr std::string_view MQTT_COMMAND_SUBSCRIBE_TOPIC = "zpc/+/+/+/{command_class}/Command/#";
     /////////////////////// MQTT Topics /////////////////////////
@@ -65,7 +65,7 @@ namespace zpc_mqtt
     /**
      * @brief Callback for MQTT commands
      *
-     * For example zpc/CAFECAFE/0004/ep3/ZWaveCC/Command/MyCommand {"value": 12} will
+     * For example zpc/CAFECAFE/4/ep3/ZWaveCC/Command/MyCommand {"value": 12} will
      * trigger the callback for ZWaveCC command class handler with :
      *  - attribute : ATTRIBUTE_ENDPOINT_ID (3)
      *  - command_name : MyCommand

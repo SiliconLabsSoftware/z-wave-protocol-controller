@@ -16,7 +16,7 @@ add_library(
 target_link_libraries(
   network_manager
   PUBLIC zwave_definitions
-  PRIVATE zpc_attribute_store timer mqtt threading mqtt_api component_connector device_interviewer fmt::fmt zwave_api zwave_controller)
+  PRIVATE zpc_attribute_store timer mqtt threading mqtt_api component_connector device_interviewer utils fmt::fmt zwave_api zwave_controller)
 
 target_include_directories(
   network_manager

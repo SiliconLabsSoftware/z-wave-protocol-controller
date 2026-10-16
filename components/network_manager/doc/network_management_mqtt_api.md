@@ -235,7 +235,7 @@ Removes a failing (non-responsive) node from the network. Use this when a node c
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `node_id` | number | The NodeID of the failing node to remove (must be non-zero). |
+| `node_id` | number or string | The NodeID of the failing node to remove (must be non-zero). Decimal number/string, or hexadecimal string with `0x` prefix. |
 
 **Behavior:**
 
@@ -509,7 +509,7 @@ zpc/<home_id>/Network/Node/Interview
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `node_id` | number | Z-Wave NodeID to interview. Must be non-zero. |
+| `node_id` | number or string | Z-Wave NodeID to interview. Must be non-zero. Decimal number/string, or hexadecimal string with `0x` prefix. |
 
 Invalid or missing `node_id` is logged and ignored. On success, ZPC fires `COMPONENT_CONNECTOR_NODE_INTERVIEW_REQUESTED`; the Device Interviewer starts (or restarts) the interview state machine for that node. When the interview fully resolves, ZPC publishes `zpc/<home_id>/Interview/Report`.
 

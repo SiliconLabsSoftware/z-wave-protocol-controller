@@ -18,7 +18,9 @@
 #include "fmt/format.h"
 
 // Cpp
+#include <limits>
 #include <regex>
+#include <stdexcept>
 
 // ZPC
 #include "attribute_store_defined_attribute_types.h"  // ATTRIBUTE_HOME_ID, ATTRIBUTE_NODE_ID, ATTRIBUTE_ENDPOINT_ID
@@ -44,12 +46,13 @@ namespace zpc_mqtt
 
         zwave_node_id_t str_to_node_id(const std::string &str)
         {
-            zwave_node_id_t node_id;
-            std::stringstream ss;
-            ss << std::hex << str;
-            ss >> node_id;
-
-            return node_id;
+            // Decimal by default, hexadecimal if prefixed with 0x/0X (e.g. "256" or "0x100")
+            const bool is_hex           = str.size() > 2 && str[0] == '0' && (str[1] == 'x' || str[1] == 'X');
+            const unsigned long node_id = std::stoul(str, nullptr, is_hex ? 16 : 10);
+            if (node_id > std::numeric_limits<zwave_node_id_t>::max()) {
+                throw std::out_of_range("Node ID out of range: " + str);
+            }
+            return static_cast<zwave_node_id_t>(node_id);
         }
 
         zwave_endpoint_id_t str_to_endpoint_id(const std::string &str)
@@ -65,7 +68,7 @@ namespace zpc_mqtt
 
         attribute_store::attribute get_endpoint_node_from_topic(const std::string &topic)
         {
-            std::regex rgx(MQTT_ROOT_NAME + "/([A-F0-9]+)/([A-F0-9]+)/ep(\\d+)");
+            std::regex rgx(MQTT_ROOT_NAME + "/([A-F0-9]+)/(0[xX][A-Fa-f0-9]+|\\d+)/ep(\\d+)");
             std::smatch match;
             attribute_store::attribute empty_attribute;
 
