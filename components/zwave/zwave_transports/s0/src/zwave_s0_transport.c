@@ -1268,7 +1268,7 @@ sl_status_t zwave_s0_transport_init()
       .on_frame_received = zwave_s0_on_frame_received,
     };
 
-    if (psa_crypto_init() != PSA_SUCCESS) {
+    if (s2_psa_crypto_init() != PSA_SUCCESS) {
         sl_log_error(LOG_TAG, "Failed to initialize PSA Crypto\n");
         return SL_STATUS_INITIALIZATION;
     }
