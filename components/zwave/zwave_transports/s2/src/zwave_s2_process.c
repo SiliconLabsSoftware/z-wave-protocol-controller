@@ -19,6 +19,8 @@
 #include "zwave_s2_keystore_int.h"
 #include "zwave_s2_network.h"
 #include "zwave_s2_transport.h"
+#include "s2_psa_primitives.h"
+#include "sl_status.h"
 
 #define LOG_TAG "zwave_s2_process"
 
@@ -107,9 +109,15 @@ static void zwave_s2_init()
     zwave_s2_transport_init();
 }
 
-void zwave_s2_process_init(void)
+sl_status_t zwave_s2_process_init(void)
 {
+    if (s2_psa_crypto_init() != PSA_SUCCESS) {
+        sl_log_error(LOG_TAG, "Failed to initialize PSA Crypto\n");
+        return SL_STATUS_INITIALIZATION;
+    }
+
     timer_stop(&s2_timer);
     timer_stop(&s2_inclusion_timer);
     zwave_s2_init();
+    return SL_STATUS_OK;
 }

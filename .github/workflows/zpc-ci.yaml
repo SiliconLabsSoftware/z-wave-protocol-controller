@@ -111,6 +111,48 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
+  unit_test_release:
+    name: unit-test-release
+    needs: [format]
+    if: needs.format.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          submodules: recursive
+          fetch-tags: true
+          fetch-depth: 0
+
+      - name: Install dependencies
+        uses: ./.github/actions/setup-linux-deps
+        with:
+          package_lists: ci/dependencies/apt-packages-base.txt
+          pip_requirements: "true"
+
+      - name: Configure, build, and run Release unit tests
+        env:
+          CC: gcc-14
+          CXX: g++-14
+        run: cmake --workflow --preset unit-test-release
+
+      - name: Publish Release unit test summary
+        if: always()
+        uses: test-summary/action@v2
+        with:
+          paths: build/unit-test-release/test-results-release.xml
+
+      - name: Upload Release unit test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-release-report
+          path: build/unit-test-release/test-results-release.xml
+          retention-days: 1
+          if-no-files-found: warn
+
   clang_tidy:
     name: clang-tidy
     needs: [format, unit_test]
@@ -169,7 +211,7 @@ jobs:
 
   success:
     name: success
-    needs: [format, unit_test, clang_tidy, build_linux, build_macos]
+    needs: [format, unit_test, unit_test_release, clang_tidy, build_linux, build_macos]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: always()
@@ -182,6 +224,10 @@ jobs:
           fi
           if [ "${{ needs.unit_test.result }}" != "success" ]; then
             echo "::error title=CI gate::unit_test was '${{ needs.unit_test.result }}' (expected success)"
+            exit 1
+          fi
+          if [ "${{ needs.unit_test_release.result }}" != "success" ]; then
+            echo "::error title=CI gate::unit_test_release was '${{ needs.unit_test_release.result }}' (expected success)"
             exit 1
           fi
           if [ "${{ needs.clang_tidy.result }}" != "success" ]; then

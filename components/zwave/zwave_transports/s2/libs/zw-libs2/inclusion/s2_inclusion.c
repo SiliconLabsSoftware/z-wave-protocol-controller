@@ -15,7 +15,7 @@
 #include "ZW_classcmd.h"
 #include "s2_classcmd.h"
 #include "kderiv.h"
-#include "curve25519.h"
+#include "s2_psa_primitives.h"
 #include "s2_inclusion_internal.h"
 
 #define CHECK_AND_FAIL(CHECK, FAILURE) \
@@ -331,7 +331,9 @@ void s2_restore_keys(struct S2 *p_context)
     for (i = 0; i < ELEM_COUNT(m_key_slot_pair); i++) {
         ret_val = keystore_network_key_read(m_key_slot_pair[i][0], shared_key_mem);
         if (true == ret_val) {
-            S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, m_key_slot_pair[i][1], shared_key_mem, 0);
+            if (!S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, m_key_slot_pair[i][1], shared_key_mem, 0)) {
+                memset(shared_key_mem, 0, NETWORK_KEY_SIZE);
+            }
         }
     }
     // Clearing of memory to ensure key is not exposed accidentially elsewhere.
@@ -828,11 +830,14 @@ static void s2_send_net_key_verify(void)
         goto error_handling;
     }
 
-    keystore_network_key_write(received_key, &mp_context->buf[SECURITY_2_NET_KEY_REP_KEY_POS]);
-
-    mp_context->key_exchange <<= 1;
     // Update context with new key.
-    S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, NETWORK_KEY_SECURE, &mp_context->buf[SECURITY_2_NET_KEY_REP_KEY_POS], 0);
+    if (!S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, NETWORK_KEY_SECURE, &mp_context->buf[SECURITY_2_NET_KEY_REP_KEY_POS], 0)) {
+        inclusion_failed_frame_send(KEX_FAIL_AUTH, NON_SECURE);
+        process_event(S2_INCLUSION_ERROR_SENT);
+        return;
+    }
+    keystore_network_key_write(received_key, &mp_context->buf[SECURITY_2_NET_KEY_REP_KEY_POS]);
+    mp_context->key_exchange <<= 1;
 
     mp_context->u.inclusion_buf[SECURITY_2_COMMAND_CLASS_POS] = COMMAND_CLASS_SECURITY_2;
     mp_context->u.inclusion_buf[SECURITY_2_COMMAND_POS]       = SECURITY_2_NETWORK_KEY_VERIFY;
@@ -929,12 +934,20 @@ static void s2_public_key_read(uint8_t *buf)
 static void s2_do_ecdh_calc_b(void)
 {
     s2_private_key_read(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX]);
-    crypto_scalarmult_curve25519(shared_secret, &shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key);
+    if (s2_psa_x25519_shared_secret(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key, shared_secret) != PSA_SUCCESS) {
+        inclusion_failed_frame_send(KEX_FAIL_AUTH, NON_SECURE);
+        process_event(S2_INCLUSION_ERROR_SENT);
+        return;
+    }
+
     memcpy(&shared_key_mem[PUBLIC_KEY_A_INDEX], mp_context->public_key, 32);
     s2_public_key_read(&shared_key_mem[PUBLIC_KEY_B_INDEX]);
 
-    tempkey_extract(shared_secret, shared_key_mem, mp_context->public_key);
-    S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1);
+    if (!tempkey_extract(shared_secret, shared_key_mem, mp_context->public_key) || !S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1)) {
+        inclusion_failed_frame_send(KEX_FAIL_AUTH, NON_SECURE);
+        process_event(S2_INCLUSION_ERROR_SENT);
+        return;
+    }
 
     m_retry_counter = TBI1_TIMEOUT / TB5_TIMEOUT;
     s2_send_echo_kex_set();

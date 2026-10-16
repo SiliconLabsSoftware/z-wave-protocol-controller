@@ -14,7 +14,16 @@ add_unity_test(
     test_span.c
     ../S2.c
     ../../inclusion/s2_inclusion.c
-  LIBRARIES s2crypto mock s2_inclusion_mocks crypto_mocks aes
+  LIBRARIES s2crypto mock s2_inclusion_mocks
+)
+
+add_unity_test(
+  NAME test_s2_key_update_failure
+  FILES
+    test_s2_key_update_failure.c
+    ../S2.c
+    ../../inclusion/s2_inclusion.c
+  LIBRARIES mock s2_mock s2_inclusion_mocks s2crypto
 )
 
 # Additional protocol tests can be added here as needed

@@ -31,8 +31,20 @@
 #include "s2_protocol.h"
 #include "S2_external.h"
 #include "nextnonce.h"
-#include "ccm.h"
 #include "ctr_drbg.h"
+#include "psa/crypto.h"
+#include "psa/crypto_extra.h"
+#include "s2_psa_primitives.h"
+
+#define S2_CCM_NONCE_LEN 13U
+#define S2_CCM_TAG_LEN   8U
+
+static uint32_t encrypt_test_frame(const uint8_t *key, const uint8_t *nonce, const uint8_t *aad, uint32_t aad_len, uint8_t *plaintext, uint16_t plaintext_len)
+{
+    size_t ciphertext_len;
+    const psa_status_t status = s2_psa_ccm_encrypt(key, S2_CCM_TAG_LEN, nonce, S2_CCM_NONCE_LEN, aad, aad_len, plaintext, plaintext_len, plaintext, plaintext_len + S2_CCM_TAG_LEN, &ciphertext_len);
+    return status == PSA_SUCCESS ? (uint32_t)ciphertext_len : 0;
+}
 
 /*******************************************************************************
  * External Function Stubs
@@ -144,17 +156,6 @@ void S2_stop_timeout(struct S2 *ctxt)
 }
 
 /**
- * @brief Stub for S2_get_hw_random - hardware random
- */
-void S2_get_hw_random(uint8_t *buf, uint8_t len)
-{
-    // Provide deterministic "random" bytes for testing
-    for (uint8_t i = 0; i < len; i++) {
-        buf[i] = i + 0x42;
-    }
-}
-
-/**
  * @brief Stub for S2_get_commands_supported - command class list
  */
 void S2_get_commands_supported(node_t lnode, uint8_t class_id, const uint8_t **cmdClasses, uint8_t *length)
@@ -251,12 +252,13 @@ static void reset_test_state(void)
 
 void setUp(void)
 {
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
     reset_test_state();
 }
 
 void tearDown(void)
 {
-    // Called after each test
+    mbedtls_psa_crypto_free();
 }
 
 /*******************************************************************************
@@ -615,7 +617,7 @@ void test_span_decrypt_success_first_attempt(void)
 
     // Step 9: Encrypt plaintext with CCM using SPAN nonce
     memcpy(&frame_buffer[hdr_len], plaintext, sizeof(plaintext));
-    ciphertext_len = CCM_encrypt_and_auth(encryption_key, sender_nonce, aad, aad_len, &frame_buffer[hdr_len], sizeof(plaintext));
+    ciphertext_len = encrypt_test_frame(encryption_key, sender_nonce, aad, aad_len, &frame_buffer[hdr_len], sizeof(plaintext));
     TEST_ASSERT_GREATER_THAN(0, ciphertext_len);
 
     // Total frame length: header + ciphertext (includes auth tag)
@@ -751,12 +753,12 @@ void test_span_decrypt_with_retry_sync_recovery(void)
 
     // Step 11: Encrypt plaintext with CCM using sender's nonce (N+1)
     memcpy(&frame_buffer[hdr_len], plaintext, sizeof(plaintext));
-    ciphertext_len = CCM_encrypt_and_auth(encryption_key,
-                                          sender_nonce,  // This is nonce N+1
-                                          aad,
-                                          aad_len,
-                                          &frame_buffer[hdr_len],
-                                          sizeof(plaintext));
+    ciphertext_len = encrypt_test_frame(encryption_key,
+                                        sender_nonce,  // This is nonce N+1
+                                        aad,
+                                        aad_len,
+                                        &frame_buffer[hdr_len],
+                                        sizeof(plaintext));
     TEST_ASSERT_GREATER_THAN(0, ciphertext_len);
 
     uint16_t frame_len = hdr_len + ciphertext_len;
@@ -998,7 +1000,7 @@ void test_span_message_reception_complete_flow(void)
 
     // Step 7: Encrypt plaintext with CCM
     memcpy(&frame_buffer[hdr_len], plaintext, sizeof(plaintext));
-    ciphertext_len = CCM_encrypt_and_auth(encryption_key, nonce, aad, aad_len, &frame_buffer[hdr_len], sizeof(plaintext));
+    ciphertext_len = encrypt_test_frame(encryption_key, nonce, aad, aad_len, &frame_buffer[hdr_len], sizeof(plaintext));
     TEST_ASSERT_GREATER_THAN(0, ciphertext_len);
 
     // Total frame length: header + ciphertext
@@ -1143,7 +1145,7 @@ void test_span_resynchronization_after_desync(void)
 
     // Encrypt with sender's nonce (N+6)
     memcpy(&frame_buffer[hdr_len], plaintext, sizeof(plaintext));
-    ciphertext_len = CCM_encrypt_and_auth(encryption_key, sender_nonce, aad, aad_len, &frame_buffer[hdr_len], sizeof(plaintext));
+    ciphertext_len = encrypt_test_frame(encryption_key, sender_nonce, aad, aad_len, &frame_buffer[hdr_len], sizeof(plaintext));
     TEST_ASSERT_GREATER_THAN(0, ciphertext_len);
 
     uint16_t frame_len = hdr_len + ciphertext_len;
@@ -1236,7 +1238,7 @@ void test_span_resynchronization_after_desync(void)
 
     // Encrypt new plaintext
     memcpy(&new_frame[new_hdr_len], new_plaintext, sizeof(new_plaintext));
-    uint16_t new_ciphertext_len = CCM_encrypt_and_auth(encryption_key, new_sender_nonce, new_aad, new_aad_len, &new_frame[new_hdr_len], sizeof(new_plaintext));
+    uint16_t new_ciphertext_len = encrypt_test_frame(encryption_key, new_sender_nonce, new_aad, new_aad_len, &new_frame[new_hdr_len], sizeof(new_plaintext));
     TEST_ASSERT_GREATER_THAN(0, new_ciphertext_len);
 
     uint16_t new_frame_len = new_hdr_len + new_ciphertext_len;
@@ -1305,7 +1307,7 @@ void test_span_resynchronization_after_desync(void)
 
     // Encrypt
     memcpy(&continued_frame[continued_hdr_len], continued_plaintext, sizeof(continued_plaintext));
-    uint16_t continued_ciphertext_len = CCM_encrypt_and_auth(encryption_key, continued_nonce, continued_aad, continued_aad_len, &continued_frame[continued_hdr_len], sizeof(continued_plaintext));
+    uint16_t continued_ciphertext_len = encrypt_test_frame(encryption_key, continued_nonce, continued_aad, continued_aad_len, &continued_frame[continued_hdr_len], sizeof(continued_plaintext));
     TEST_ASSERT_GREATER_THAN(0, continued_ciphertext_len);
 
     uint16_t continued_frame_len = continued_hdr_len + continued_ciphertext_len;
@@ -1449,12 +1451,12 @@ void test_span_decrypt_wrong_key(void)
 
     // Encrypt with SENDER's (wrong) encryption key
     memcpy(&frame_buffer[hdr_len], plaintext, sizeof(plaintext));
-    ciphertext_len = CCM_encrypt_and_auth(sender_encryption_key,  // WRONG KEY - different from receiver's
-                                          sender_nonce,
-                                          aad,
-                                          aad_len,
-                                          &frame_buffer[hdr_len],
-                                          sizeof(plaintext));
+    ciphertext_len = encrypt_test_frame(sender_encryption_key,  // WRONG KEY - different from receiver's
+                                        sender_nonce,
+                                        aad,
+                                        aad_len,
+                                        &frame_buffer[hdr_len],
+                                        sizeof(plaintext));
     TEST_ASSERT_GREATER_THAN(0, ciphertext_len);
 
     uint16_t frame_len = hdr_len + ciphertext_len;
@@ -1557,12 +1559,12 @@ void test_span_decrypt_wrong_key(void)
 
     // Encrypt with CORRECT encryption key this time
     memcpy(&new_frame[new_hdr_len], new_plaintext, sizeof(new_plaintext));
-    uint16_t new_ciphertext_len = CCM_encrypt_and_auth(receiver_encryption_key,  // CORRECT KEY now
-                                                       new_sender_nonce,
-                                                       new_aad,
-                                                       new_aad_len,
-                                                       &new_frame[new_hdr_len],
-                                                       sizeof(new_plaintext));
+    uint16_t new_ciphertext_len = encrypt_test_frame(receiver_encryption_key,  // CORRECT KEY now
+                                                     new_sender_nonce,
+                                                     new_aad,
+                                                     new_aad_len,
+                                                     &new_frame[new_hdr_len],
+                                                     sizeof(new_plaintext));
     TEST_ASSERT_GREATER_THAN(0, new_ciphertext_len);
 
     uint16_t new_frame_len = new_hdr_len + new_ciphertext_len;
@@ -1692,7 +1694,7 @@ void test_span_decrypt_modified_nonce(void)
 
     // Encrypt with correct sender nonce
     memcpy(&frame_buffer[hdr_len], plaintext, sizeof(plaintext));
-    ciphertext_len = CCM_encrypt_and_auth(encryption_key, sender_nonce, aad, aad_len, &frame_buffer[hdr_len], sizeof(plaintext));
+    ciphertext_len = encrypt_test_frame(encryption_key, sender_nonce, aad, aad_len, &frame_buffer[hdr_len], sizeof(plaintext));
     TEST_ASSERT_GREATER_THAN(0, ciphertext_len);
 
     uint16_t frame_len = hdr_len + ciphertext_len;
@@ -1873,7 +1875,7 @@ void test_span_decrypt_mismatched_homeid(void)
 
     // Encrypt with sender's nonce and SENDER's HomeID in AAD
     memcpy(&frame_buffer[hdr_len], plaintext, sizeof(plaintext));
-    ciphertext_len = CCM_encrypt_and_auth(encryption_key, sender_nonce, aad, aad_len, &frame_buffer[hdr_len], sizeof(plaintext));
+    ciphertext_len = encrypt_test_frame(encryption_key, sender_nonce, aad, aad_len, &frame_buffer[hdr_len], sizeof(plaintext));
     TEST_ASSERT_GREATER_THAN(0, ciphertext_len);
 
     uint16_t frame_len = hdr_len + ciphertext_len;
@@ -1952,6 +1954,33 @@ void test_nonce_get_accepts_new_random_sequence_after_peer_restart(void)
 
     TEST_ASSERT_EQUAL_UINT32(1, g_nonce_report_count);
     TEST_ASSERT_EQUAL_HEX8(RESTARTED_SEQUENCE, span->rx_seq);
+}
+
+void test_nonce_get_random_failure_preserves_span_and_nonce(void)
+{
+    const node_t LOCAL_NODE_ID       = 1;
+    const node_t REMOTE_NODE_ID      = 2;
+    const uint8_t ORIGINAL_NONCE[16] = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F};
+    struct S2 s2_context             = {0};
+    s2_connection_t connection       = {0};
+    uint8_t nonce_get[]              = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_GET, 0x42};
+
+    connection.l_node = LOCAL_NODE_ID;
+    connection.r_node = REMOTE_NODE_ID;
+
+    struct SPAN *span = &s2_context.span_table[0];
+    span->lnode       = LOCAL_NODE_ID;
+    span->rnode       = REMOTE_NODE_ID;
+    span->state       = SPAN_NEGOTIATED;
+    memcpy(span->d.r_nonce, ORIGINAL_NONCE, sizeof(ORIGINAL_NONCE));
+
+    mbedtls_psa_crypto_free();
+    S2_application_command_handler(&s2_context, &connection, nonce_get, sizeof(nonce_get));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
+
+    TEST_ASSERT_FALSE(g_nonce_report_sent);
+    TEST_ASSERT_EQUAL(SPAN_NEGOTIATED, span->state);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ORIGINAL_NONCE, span->d.r_nonce, sizeof(ORIGINAL_NONCE));
 }
 
 /**
@@ -2400,7 +2429,7 @@ void test_span_decrypt_replay_attack(void)
     aad_len = i + (hdr_len - 2);
 
     memcpy(&frame_buffer[hdr_len], plaintext, sizeof(plaintext));
-    ciphertext_len = CCM_encrypt_and_auth(encryption_key, sender_nonce, aad, aad_len, &frame_buffer[hdr_len], sizeof(plaintext));
+    ciphertext_len = encrypt_test_frame(encryption_key, sender_nonce, aad, aad_len, &frame_buffer[hdr_len], sizeof(plaintext));
     TEST_ASSERT_GREATER_THAN(0, ciphertext_len);
 
     uint16_t frame_len = hdr_len + ciphertext_len;
@@ -2448,12 +2477,12 @@ void test_span_decrypt_replay_attack(void)
 
     uint8_t replay_plaintext[] = {0x25, 0x03, 0xFF};
     memcpy(&replay_frame[hdr_len], replay_plaintext, sizeof(replay_plaintext));
-    CCM_encrypt_and_auth(encryption_key,
-                         sender_nonce,  // SAME nonce as first message (replay)
-                         aad,
-                         aad_len,
-                         &replay_frame[hdr_len],
-                         sizeof(replay_plaintext));
+    encrypt_test_frame(encryption_key,
+                       sender_nonce,  // SAME nonce as first message (replay)
+                       aad,
+                       aad_len,
+                       &replay_frame[hdr_len],
+                       sizeof(replay_plaintext));
 
     connection.class_id = 0xFF;
     S2_application_command_handler(&s2_context, &connection, replay_frame, frame_len);
@@ -2573,7 +2602,7 @@ void test_span_decrypt_delay_attack(void)
     uint16_t m1_aad_len = idx + (m1_hdr_len - 2);
 
     memcpy(&m1_frame[m1_hdr_len], m1_plaintext, sizeof(m1_plaintext));
-    uint16_t m1_cipher_len = CCM_encrypt_and_auth(encryption_key, m1_nonce, m1_aad, m1_aad_len, &m1_frame[m1_hdr_len], sizeof(m1_plaintext));
+    uint16_t m1_cipher_len = encrypt_test_frame(encryption_key, m1_nonce, m1_aad, m1_aad_len, &m1_frame[m1_hdr_len], sizeof(m1_plaintext));
     TEST_ASSERT_GREATER_THAN(0, m1_cipher_len);
     uint16_t m1_frame_len = m1_hdr_len + m1_cipher_len;
 
@@ -2613,7 +2642,7 @@ void test_span_decrypt_delay_attack(void)
         uint16_t msg_aad_len = j + (msg_hdr_len - 2);
 
         memcpy(&msg_frame[msg_hdr_len], msg_plaintext, sizeof(msg_plaintext));
-        uint16_t msg_cipher_len = CCM_encrypt_and_auth(encryption_key, msg_nonce, msg_aad, msg_aad_len, &msg_frame[msg_hdr_len], sizeof(msg_plaintext));
+        uint16_t msg_cipher_len = encrypt_test_frame(encryption_key, msg_nonce, msg_aad, msg_aad_len, &msg_frame[msg_hdr_len], sizeof(msg_plaintext));
         TEST_ASSERT_GREATER_THAN(0, msg_cipher_len);
         uint16_t msg_frame_len = msg_hdr_len + msg_cipher_len;
 

@@ -14,11 +14,11 @@
 #include <assert.h>
 #include <string.h>
 
-#include "ccm.h"
 #include "aes_cmac.h"
 #include "nextnonce.h"
 #include "kderiv.h"
-#include "aes.h"
+#include "psa/crypto.h"
+#include "s2_psa_primitives.h"
 
 #include <platform.h>
 #include "ZW_classcmd.h"
@@ -30,13 +30,12 @@ struct S2 the_context;
 
 #define CTX_DEF struct S2 *ctxt = p_context;
 
-CTR_DRBG_CTX s2_ctr_drbg;
-
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wunused-function"  // TODO: Remove after merging in complete multicast support
 #endif
 
-#define AUTH_TAG_LEN 8
+#define AUTH_TAG_LEN  8
+#define CCM_NONCE_LEN 13
 
 /* Maximum number of SPAN retry iterations for decryption.
  * Per Z-Wave specification: "The maximum number of iterations performed by a
@@ -109,7 +108,9 @@ static struct MPAN *find_mpan_by_group_id(struct S2 *p_context, node_t owner_id,
         return 0;
     }
     /*We need to be find an unused group handle */
-    AES_CTR_DRBG_Generate(&s2_ctr_drbg, rnd);
+    if (psa_generate_random(rnd, sizeof(rnd)) != PSA_SUCCESS) {
+        return 0;
+    }
 
     /*Allocate new entry if possible */
     for (i = 0; i < MPAN_TABLE_SIZE; i++) {
@@ -131,8 +132,10 @@ static struct MPAN *find_mpan_by_group_id(struct S2 *p_context, node_t owner_id,
     ctxt->mpan_table[i].owner_id = owner_id;
     ctxt->mpan_table[i].class_id = ctxt->peer.class_id;  // Here we assume that peer is set...
 
-    AES_CTR_DRBG_Generate(&s2_ctr_drbg, ctxt->mpan_table[i].inner_state);
-    ;
+    if (psa_generate_random(ctxt->mpan_table[i].inner_state, sizeof(ctxt->mpan_table[i].inner_state)) != PSA_SUCCESS) {
+        ctxt->mpan_table[i].state = MPAN_NOT_USED;
+        return 0;
+    }
 
     return &ctxt->mpan_table[i];
 }
@@ -149,7 +152,9 @@ static struct SPAN *find_span_by_node(struct S2 *p_context, const s2_connection_
         }
     }
 
-    AES_CTR_DRBG_Generate(&s2_ctr_drbg, rnd);
+    if (psa_generate_random(rnd, sizeof(rnd)) != PSA_SUCCESS) {
+        return 0;
+    }
 
     /*Allocate new entry if possible */
     for (i = 0; i < SPAN_TABLE_SIZE; i++) {
@@ -197,7 +202,9 @@ static void S2_send_nonce_get(struct S2 *p_context)
 
     const struct SPAN *span = find_span_by_node(ctxt, &ctxt->peer);
 
-    assert(span);
+    if (!span) {
+        return;
+    }
 
     nonce_get[2] = span->tx_seq;
     S2_send_raw(ctxt, nonce_get, 3);
@@ -216,6 +223,10 @@ static int S2_verify_seq(struct S2 *p_context, const s2_connection_t *peer, uint
 {
     CTX_DEF
     struct SPAN *span = find_span_by_node(ctxt, peer);
+
+    if (!span) {
+        return 0;
+    }
 
     if (span->state != SPAN_NO_SEQ && span->rx_seq == seq) {
         return 0;
@@ -299,8 +310,22 @@ void S2_encrypt_and_send(struct S2 *p_context)
     uint8_t *msg;
     uint8_t n_ext;
     uint16_t msg_len;
+    size_t encrypted_len;
 
     struct SPAN *span = find_span_by_node(ctxt, &ctxt->peer);
+
+    if (!span) {
+        event_data_t e;
+        e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
+        S2_fsm_post_event(ctxt, SEND_DONE, &e);
+        return;
+    }
+    if (span->state != SPAN_NEGOTIATED && span->state != SPAN_SOS_REMOTE_NONCE) {
+        event_data_t e;
+        e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
+        S2_fsm_post_event(ctxt, SEND_DONE, &e);
+        return;
+    }
 
     msg    = ctxt->workbuf;
     msg[0] = COMMAND_CLASS_SECURITY_2;
@@ -316,10 +341,21 @@ void S2_encrypt_and_send(struct S2 *p_context)
     ext_data = &msg[4];
 
     if (span->state == SPAN_SOS_REMOTE_NONCE) {
-        AES_CTR_DRBG_Generate(&s2_ctr_drbg, ei_sender);
+        if (psa_generate_random(ei_sender, sizeof(ei_sender)) != PSA_SUCCESS) {
+            event_data_t e;
+            e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
+            S2_fsm_post_event(ctxt, SEND_DONE, &e);
+            return;
+        }
         memcpy(ei_receiver, span->d.r_nonce, sizeof(ei_receiver));
 
-        next_nonce_instantiate(&span->d.rng, ei_sender, ei_receiver, ctxt->sg[ctxt->peer.class_id].nonce_key);
+        if (!next_nonce_instantiate(&span->d.rng, ei_sender, ei_receiver, ctxt->sg[ctxt->peer.class_id].nonce_key)) {
+            event_data_t e;
+            span->state   = SPAN_SOS;
+            e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
+            S2_fsm_post_event(ctxt, SEND_DONE, &e);
+            return;
+        }
 
         span->class_id = ctxt->peer.class_id;
         span->state    = SPAN_NEGOTIATED;  // TODO is it better to set this on send_data complete?
@@ -330,6 +366,15 @@ void S2_encrypt_and_send(struct S2 *p_context)
         hdr_len += 2 + 16;
         ext_data += 16;
         n_ext++;
+    }
+
+    /*TODO we should consider to roll the nonce when we have recevied in ACK*/
+    if (!next_nonce_generate(&span->d.rng, nonce)) {  // Create the new nonce
+        event_data_t e;
+        span->state   = SPAN_SOS;
+        e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
+        S2_fsm_post_event(ctxt, SEND_DONE, &e);
+        return;
     }
 
     if ((ctxt->peer.tx_options & (S2_TXOPTION_SINGLECAST_FOLLOWUP | S2_TXOPTION_FIRST_SINGLECAST_FOLLOWUP)) && ctxt->mpan) {
@@ -380,12 +425,14 @@ void S2_encrypt_and_send(struct S2 *p_context)
 
     memcpy(ciphertext + shdr_len, ctxt->buf, ctxt->length);
     aad_len = (uint16_t)S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len, ctxt->length + shdr_len + hdr_len + AUTH_TAG_LEN, aad, sizeof(aad));
-    /*TODO we should consider to roll the nonce when we have recevied in ACK*/
-    next_nonce_generate(&span->d.rng, nonce);  // Create the new nonce
 
-    msg_len = (uint16_t)CCM_encrypt_and_auth(ctxt->sg[ctxt->peer.class_id].enc_key, nonce, aad, aad_len, ciphertext, ctxt->length + shdr_len);
-
-    assert(msg_len > 0);
+    if (s2_psa_ccm_encrypt(ctxt->sg[ctxt->peer.class_id].enc_key, AUTH_TAG_LEN, nonce, CCM_NONCE_LEN, aad, aad_len, ciphertext, ctxt->length + shdr_len, ciphertext, ctxt->length + shdr_len + AUTH_TAG_LEN, &encrypted_len) != PSA_SUCCESS) {
+        event_data_t e;
+        e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
+        S2_fsm_post_event(ctxt, SEND_DONE, &e);
+        return;
+    }
+    msg_len = (uint16_t)encrypted_len;
     S2_send_raw(ctxt, msg, msg_len + hdr_len);
 }
 
@@ -418,6 +465,7 @@ void S2_encrypt_and_send_multi(struct S2 *p_context)
     uint16_t hdr_len;
     uint8_t *msg;
     uint16_t msg_len;
+    size_t encrypted_len;
     event_data_t e;
     msg    = ctxt->workbuf;
     msg[0] = COMMAND_CLASS_SECURITY_2;
@@ -438,13 +486,20 @@ void S2_encrypt_and_send_multi(struct S2 *p_context)
 
     aad_len = (uint16_t)S2_make_aad(ctxt, ctxt->peer.l_node, ctxt->peer.r_node, msg, hdr_len, ctxt->length + hdr_len + AUTH_TAG_LEN, aad, sizeof(aad));
 
-    AES128_ECB_encrypt(ctxt->mpan->inner_state, ctxt->sg[ctxt->mpan->class_id].mpan_key, nonce);
+    if (s2_psa_aes128_ecb_encrypt(ctxt->sg[ctxt->mpan->class_id].mpan_key, ctxt->mpan->inner_state, nonce) != PSA_SUCCESS) {
+        e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
+        S2_fsm_post_event(ctxt, SEND_DONE, &e);
+        return;
+    }
 
     next_mpan_state(ctxt->mpan);
 
-    msg_len = (uint16_t)CCM_encrypt_and_auth(ctxt->sg[ctxt->mpan->class_id].enc_key, nonce, aad, aad_len, ciphertext, ctxt->length);
-
-    assert(msg_len > 0);
+    if (s2_psa_ccm_encrypt(ctxt->sg[ctxt->mpan->class_id].enc_key, AUTH_TAG_LEN, nonce, CCM_NONCE_LEN, aad, aad_len, ciphertext, ctxt->length, ciphertext, ctxt->length + AUTH_TAG_LEN, &encrypted_len) != PSA_SUCCESS) {
+        e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
+        S2_fsm_post_event(ctxt, SEND_DONE, &e);
+        return;
+    }
+    msg_len = (uint16_t)encrypted_len;
 
     if (S2_send_frame_multi(ctxt, &ctxt->peer, msg, msg_len + hdr_len)) {
         // TX seq?
@@ -500,7 +555,9 @@ static void S2_send_raw(struct S2 *p_context, uint8_t *buf, uint16_t len)
 
     if (S2_send_frame(ctxt, &ctxt->peer, buf, len)) {
         struct SPAN *span = find_span_by_node(ctxt, &ctxt->peer);
-        span->tx_seq++;
+        if (span) {
+            span->tx_seq++;
+        }
     } else {
         e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
         S2_fsm_post_event(ctxt, SEND_DONE, &e);
@@ -543,16 +600,21 @@ static void S2_send_nonce_report(struct S2 *p_context, const s2_connection_t *co
 
     static uint8_t nonce_report[2 + 2 + sizeof(span->d.r_nonce)];
 
-    span            = find_span_by_node(ctxt, conn);
+    span = find_span_by_node(ctxt, conn);
+    if (!span) {
+        return;
+    }
     nonce_report[0] = COMMAND_CLASS_SECURITY_2;
     nonce_report[1] = SECURITY_2_NONCE_REPORT;
     nonce_report[3] = flags;
     nonce_report[2] = span->tx_seq;
 
     if (flags & SECURITY_2_NONCE_REPORT_PROPERTIES1_SOS_BIT_MASK) {
-        span->state = SPAN_SOS_LOCAL_NONCE;
-        AES_CTR_DRBG_Generate(&s2_ctr_drbg, rnd);
+        if (psa_generate_random(rnd, sizeof(rnd)) != PSA_SUCCESS) {
+            return;
+        }
         memcpy(span->d.r_nonce, rnd, 16);
+        span->state = SPAN_SOS_LOCAL_NONCE;
         memcpy(&nonce_report[4], span->d.r_nonce, sizeof(span->d.r_nonce));
     }
 
@@ -659,7 +721,7 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
     uint8_t flags;
     uint8_t *ciphertext;
     uint16_t ciphertext_len;
-    uint16_t decrypt_len;
+    size_t decrypt_len;
 
     uint8_t *ext_data;
     uint8_t ext_len;
@@ -709,9 +771,10 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
                     if (span && span->state == SPAN_SOS_LOCAL_NONCE && (ext_len == (2 + sizeof(span->d.r_nonce)))) { /*Save the nonces */
                         memcpy(s_nonce, &ext_data[2], 16);
                         memcpy(r_nonce, span->d.r_nonce, 16);
+                        if (!next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key)) {
+                            goto auth_fail;
+                        }
                         span->state = SPAN_INSTANTIATE;
-
-                        next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key);
                     }
                     break;
                 case S2_MSG_EXTHDR_TYPE_MGRP:
@@ -767,7 +830,7 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
          * we will try de-crypting with all our classes */
 
         /*Check the fsm before using the workbuf. Need backup for both INSTANTIATE (class iteration)
-         * and NEGOTIATED (SPAN retry) cases, as CCM_decrypt_and_auth modifies ciphertext in place */
+         * and NEGOTIATED (SPAN retry) cases, as PSA CCM decryption modifies ciphertext in place */
         if (ctxt->fsm == IDLE && (span->state == SPAN_INSTANTIATE || span->state == SPAN_NEGOTIATED)) {
             if (ciphertext_len > sizeof(ctxt->workbuf)) {
                 goto auth_fail;
@@ -788,14 +851,19 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
                 memcpy(&saved_rng, &span->d.rng, sizeof(CTR_DRBG_CTX));
 
                 for (uint8_t span_attempt = 0; span_attempt < max_span_attempts; span_attempt++) {
-                    /* Restore ciphertext before each retry attempt, as CCM_decrypt_and_auth modifies it in place */
+                    /* Restore ciphertext before each retry attempt, as PSA CCM decryption modifies it in place */
                     if (span_attempt > 0) {
                         memcpy(ciphertext, ctxt->workbuf, ciphertext_len);
                     }
 
-                    next_nonce_generate(&span->d.rng, nonce);
+                    if (!next_nonce_generate(&span->d.rng, nonce)) {
+                        memcpy(&span->d.rng, &saved_rng, sizeof(CTR_DRBG_CTX));
+                        goto auth_fail;
+                    }
 
-                    decrypt_len = CCM_decrypt_and_auth(ctxt->sg[span->class_id].enc_key, nonce, aad, aad_len, ciphertext, ciphertext_len);
+                    if (s2_psa_ccm_decrypt(ctxt->sg[span->class_id].enc_key, AUTH_TAG_LEN, nonce, CCM_NONCE_LEN, aad, aad_len, ciphertext, ciphertext_len, ciphertext, ciphertext_len, &decrypt_len) != PSA_SUCCESS) {
+                        decrypt_len = 0;
+                    }
 
                     if (decrypt_len) {
                         /* Decryption successful - keep the advanced RNG state */
@@ -848,14 +916,20 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
             memcpy(ciphertext, ctxt->workbuf, ciphertext_len);
 
             /*reset prng to the negotiated state with the right new test key */
-            next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key);
+            if (!next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key)) {
+                goto auth_fail;
+            }
         }
     } else {
         /*Multicast decryption*/
-        AES128_ECB_encrypt(mpan->inner_state, ctxt->sg[mpan->class_id].mpan_key, nonce);
+        if (s2_psa_aes128_ecb_encrypt(ctxt->sg[mpan->class_id].mpan_key, mpan->inner_state, nonce) != PSA_SUCCESS) {
+            goto auth_fail;
+        }
         next_mpan_state(mpan);
 
-        decrypt_len    = CCM_decrypt_and_auth(ctxt->sg[mpan->class_id].enc_key, nonce, aad, aad_len, ciphertext, ciphertext_len);
+        if (s2_psa_ccm_decrypt(ctxt->sg[mpan->class_id].enc_key, AUTH_TAG_LEN, nonce, CCM_NONCE_LEN, aad, aad_len, ciphertext, ciphertext_len, ciphertext, ciphertext_len, &decrypt_len) != PSA_SUCCESS) {
+            decrypt_len = 0;
+        }
         conn->class_id = mpan->class_id;
     }
 
@@ -885,6 +959,9 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
                         goto parse_fail;
                     }
                     mpan = find_mpan_by_group_id(ctxt, conn->r_node, ext_data[2], 1);
+                    if (!mpan) {
+                        goto auth_fail;
+                    }
                     memcpy(mpan->inner_state, &ext_data[3], 16);
                     mpan->state    = MPAN_SET;
                     mpan->class_id = span->class_id;
@@ -908,7 +985,7 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
     }
 
     *plain_text     = ciphertext + hdr_len;
-    *plain_text_len = decrypt_len - hdr_len;
+    *plain_text_len = (uint16_t)(decrypt_len - hdr_len);
     return AUTH_OK;
 
 parse_fail:
@@ -973,14 +1050,6 @@ uint8_t S2_is_send_data_busy(struct S2 *p_context)
     return (ctxt->fsm != IDLE) && (ctxt->fsm != IS_MOS_WAIT_REPLY);
 }
 
-void S2_init_prng(void)
-{
-    uint8_t entropy[32] = {0};
-
-    S2_get_hw_random(entropy, sizeof(entropy));
-    AES_CTR_DRBG_Instantiate(&s2_ctr_drbg, entropy, NULL);
-}
-
 struct S2 *S2_init_ctx(uint32_t home)
 {
     struct S2 *ctx;
@@ -1033,9 +1102,13 @@ uint8_t S2_network_key_update(struct S2 *p_context, uint32_t key_id, security_cl
         return 0;
     }
     if (temp_key_expand) {
-        tempkey_expand(key_id, net_key, ctxt->sg[class_id].enc_key, ctxt->sg[class_id].nonce_key, ctxt->sg[class_id].mpan_key);
+        if (!tempkey_expand(key_id, net_key, ctxt->sg[class_id].enc_key, ctxt->sg[class_id].nonce_key, ctxt->sg[class_id].mpan_key)) {
+            return 0;
+        }
     } else {
-        networkkey_expand(key_id, net_key, ctxt->sg[class_id].enc_key, ctxt->sg[class_id].nonce_key, ctxt->sg[class_id].mpan_key);
+        if (!networkkey_expand(key_id, net_key, ctxt->sg[class_id].enc_key, ctxt->sg[class_id].nonce_key, ctxt->sg[class_id].mpan_key)) {
+            return 0;
+        }
     }
 
     ctxt->loaded_keys |= 1 << class_id;
@@ -1049,14 +1122,17 @@ void S2_destroy(struct S2 *p_context)
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
     void *result = memset_explicit(ctxt, 0, sizeof(struct S2));
     assert(result == ctxt);
+    (void)result;
 #elif defined(HAVE_EXPLICIT_BZERO)  // for gcc-12
     explicit_bzero(ctxt, sizeof(struct S2));
 #elif defined(__APPLE__)            // for MacOS
     errno_t result = memset_s(ctxt, sizeof(struct S2), 0, sizeof(struct S2));
     assert(result == 0);
+    (void)result;
 #else
     void *result = memset(ctxt, 0, sizeof(struct S2));  // NOSONAR: Fallback option
     assert(result == ctxt);
+    (void)result;
 #endif
 
 #ifndef SINGLE_CONTEXT
@@ -1285,8 +1361,14 @@ void S2_fsm_post_event(struct S2 *p_context, event_t e, event_data_t *d)
             } else if (e == SEND_MULTICAST) {
                 S2_set_peer(ctxt, d->con, d->d.buf.buffer, d->d.buf.len);
                 // For Multicast: 8-bit group_id is stored in d->con->r_node
-                ctxt->mpan = find_mpan_by_group_id(ctxt, 0, (uint8_t)d->con->r_node, 1);
                 ctxt->fsm  = SENDING_MSG;
+                ctxt->mpan = find_mpan_by_group_id(ctxt, 0, (uint8_t)d->con->r_node, 1);
+                if (!ctxt->mpan) {
+                    event_data_t failure;
+                    failure.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
+                    S2_fsm_post_event(ctxt, SEND_DONE, &failure);
+                    break;
+                }
                 S2_encrypt_and_send_multi(ctxt);
             } else if (e == SEND_DONE) {
                 /* pass message to the inclusion FSM */

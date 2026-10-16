@@ -35,6 +35,13 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "ZPC_ENABLE_SANITIZERS": "ON"
       }
+    },
+    {
+      "name": "unit-test-release",
+      "inherits": ["unit-test"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     }
   ],
   "testPresets": [
@@ -50,6 +57,14 @@
           "ASAN_OPTIONS": "detect_leaks=1:abort_on_error=1:halt_on_error=1",
           "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
         }
+      }
+    },
+    {
+      "name": "unit-test-release",
+      "configurePreset": "unit-test-release",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "test-results-release.xml"
       }
     }
   ],
@@ -69,6 +84,12 @@
     {
       "name": "unit-test",
       "configurePreset": "unit-test",
+      "targets": ["UNIT_TEST"],
+      "jobs": 8
+    },
+    {
+      "name": "unit-test-release",
+      "configurePreset": "unit-test-release",
       "targets": ["UNIT_TEST"],
       "jobs": 8
     }
@@ -101,6 +122,14 @@
         { "type": "configure", "name": "unit-test" },
         { "type": "build", "name": "unit-test" },
         { "type": "test", "name": "unit-test" }
+      ]
+    },
+    {
+      "name": "unit-test-release",
+      "steps": [
+        { "type": "configure", "name": "unit-test-release" },
+        { "type": "build", "name": "unit-test-release" },
+        { "type": "test", "name": "unit-test-release" }
       ]
     }
   ]
