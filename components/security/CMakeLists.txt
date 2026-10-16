@@ -1,7 +1,3 @@
-if(NOT TARGET s2crypto_zwave)
-  add_subdirectory(crypto)
-endif()
-
 # OpenSSL libcrypto is already linked transitively by Paho-MQTT-C's TLS
 # variant; using it here adds no new runtime dependency.
 find_package(OpenSSL REQUIRED COMPONENTS Crypto)
