@@ -22,5 +22,6 @@ add_unity_test(
   INCLUDES ../include)
 
 add_unity_test(NAME test_zwave_ctr_drbg FILES test_zwave_ctr_drbg.c LIBRARIES psa_test_support s2crypto_ctr_drbg_kat)
+target_compile_definitions(test_zwave_ctr_drbg PRIVATE RANDLEN=64)
 
 add_unity_test(NAME test_zwave_nextnonce FILES test_zwave_nextnonce.c LIBRARIES s2crypto_zwave s2crypto_ctr_drbg)
