@@ -168,9 +168,16 @@ namespace zwave_command_class
         (void)payload;
 
         const uint8_t version = endpoint_supported_version(endpoint);
-        if (version >= 2) {
-            start_next_missing_meter_get(endpoint, version);
+        if (version < 2) {
+            // V1 reports their actual scale, so discard the provisional scale-0 requirement.
+            auto scale_zero_report = find_meter_report_group(endpoint, 0, command_class_meter_constants::RATE_TYPE_DEFAULT);
+            if (scale_zero_report.is_valid()) {
+                cc_interview_unrequire_attribute(scale_zero_report.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::meter_value)));
+            }
+            return SL_STATUS_OK;
         }
+
+        start_next_missing_meter_get(endpoint, version);
         return SL_STATUS_OK;
     }
 

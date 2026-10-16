@@ -150,6 +150,13 @@ namespace zwave_command_class
             void cc_interview_require_attribute(attribute_store::attribute node);
 
             /**
+             * @brief Remove an attribute from the current command class interview requirements.
+             *
+             * Use this when a response makes a previously registered requirement inapplicable.
+             */
+            void cc_interview_unrequire_attribute(attribute_store::attribute node);
+
+            /**
              * @brief Finish this command class interview when every required attribute has a reported value.
              *
              * Removes attributes from the wait list once they have a reported value. The stored

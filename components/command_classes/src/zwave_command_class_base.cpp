@@ -476,6 +476,26 @@ namespace zwave_command_class
         }
     }
 
+    void zwave_command_class_base::cc_interview_unrequire_attribute(attribute_store::attribute node)
+    {
+        if (!node.is_valid()) {
+            return;
+        }
+        const auto endpoint = node.first_parent_or_self(ATTRIBUTE_ENDPOINT_ID);
+        if (!cc_interview_is_open(endpoint)) {
+            return;
+        }
+        auto it = cc_interview_pending.find({endpoint, properties.command_class_id});
+        if (it == cc_interview_pending.end()) {
+            return;
+        }
+        auto &nodes = it->second;
+        std::erase(nodes, static_cast<attribute_store_node_t>(node));
+        if (nodes.empty()) {
+            cc_interview_pending.erase(it);
+        }
+    }
+
     void zwave_command_class_base::cc_interview_finish_if_complete(attribute_store::attribute endpoint) const
     {
         cc_interview_finish_if_complete(endpoint, properties.command_class_id);
