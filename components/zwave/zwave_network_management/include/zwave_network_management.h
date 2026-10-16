@@ -187,7 +187,7 @@ sl_status_t zwave_network_management_dsk_set(zwave_dsk_t dsk);
  *
  * @return sl_status_t FAILURE is state is not IDLE
  */
-sl_status_t zwave_network_management_remove_node();
+sl_status_t zwave_network_management_remove_node(zwave_node_id_t node_id);
 
 /**
  * @brief Put the Z-Wave controller in learn mode.

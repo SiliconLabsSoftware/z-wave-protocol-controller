@@ -457,6 +457,7 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
         case FUNC_ID_ZW_CONTROLLER_CHANGE:
         case FUNC_ID_ZW_CREATE_NEW_PRIMARY:
         case FUNC_ID_ZW_REMOVE_NODE_FROM_NETWORK:
+        case FUNC_ID_ZW_REMOVE_NODE_ID_FROM_NETWORK:
         case FUNC_ID_ZW_ADD_NODE_TO_NETWORK:
             switch (pData[IDX_CMD]) {
                 case FUNC_ID_ZW_CONTROLLER_CHANGE:
@@ -466,6 +467,7 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
                     funcLearnInfo = zwapi_create_new_primarly_ctrl_callback;
                     break;
                 case FUNC_ID_ZW_REMOVE_NODE_FROM_NETWORK:
+                case FUNC_ID_ZW_REMOVE_NODE_ID_FROM_NETWORK:
                     funcLearnInfo = zwapi_remove_node_from_network_callback;
                     break;
                 case FUNC_ID_ZW_ADD_NODE_TO_NETWORK:

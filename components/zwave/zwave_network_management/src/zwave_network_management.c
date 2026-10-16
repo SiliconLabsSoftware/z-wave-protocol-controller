@@ -157,8 +157,13 @@ sl_status_t zwave_network_management_remove_failed(zwave_node_id_t node_id)
     return SL_STATUS_OK;
 }
 
-sl_status_t zwave_network_management_remove_node()
+sl_status_t zwave_network_management_remove_node(zwave_node_id_t node_id)
 {
+    if (node_id > ZW_MAX_NODES) {
+        sl_log_warning(LOG_TAG, "Cannot target NodeID %d for exclusion; targeted removal supports NodeIDs 1 through %d\n", node_id, ZW_MAX_NODES);
+        return SL_STATUS_INVALID_PARAMETER;
+    }
+
     if (false == network_management_is_ready_for_a_new_operation()) {
         sl_log_info(LOG_TAG,
                     "Network management is not ready for a new operation. "
@@ -167,6 +172,7 @@ sl_status_t zwave_network_management_remove_node()
     }
 
     sl_log_info(LOG_TAG, "Initiating a Z-Wave Network Exclusion\n");
+    nms.exclusion_node_id_filter = node_id;
     zwave_network_management_post_event(NM_EV_NODE_REMOVE, 0);
     return SL_STATUS_OK;
 }
