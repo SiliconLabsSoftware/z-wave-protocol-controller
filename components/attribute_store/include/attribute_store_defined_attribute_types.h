@@ -375,58 +375,7 @@ DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_ASSOCIATION_GROUP_CONTENT_COMMAND_COUNT
 
 ///////////////////////////////////
 // Configuration Command Class
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_VERSION, ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_CONFIGURATION))
-
-// Next Parameter ID to try to discover. configuration_parameter_id_t type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_NEXT_SUPPORTED_PARAMETER_ID, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x02))
-
-// If the node supports Bulk Commands. configuration_bulk_support_t type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_BULK_SUPPORT, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x03))
-
-// Configuration parameter ID (parameter number). configuration_parameter_id_t type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETER_ID, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x04))
-
-// Configuration parameter size. configuration_parameter_size_t type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETER_SIZE, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x05))
-
-// Configuration parameter format. configuration_parameter_format_t type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETER_FORMAT, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x06))
-
-// Configuration parameter name. String type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETER_NAME, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x07))
-
-// Configuration parameter information. String type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETER_INFO, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x08))
-
-// Configuration parameter current value. configuration_parameter_value_t type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETER_VALUE, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x09))
-
-// Configuration parameter minimum value. configuration_parameter_value_t type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETER_MIN_VALUE, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x0A))
-
-// Configuration parameter maximum value. configuration_parameter_value_t type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETER_MAX_VALUE, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x0B))
-
-// Configuration parameter default value. configuration_parameter_value_t type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETER_DEFAULT_VALUE, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x0C))
-
-// Configuration parameter advanced flag. configuration_parameter_flag_t type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETER_ADVANCED, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x0D))
-
-// Configuration parameter read-only flag. configuration_parameter_flag_t type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETER_READ_ONLY, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x0E))
-
-// Configuration parameter altering capabilities flag. configuration_parameter_flag_t type
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETER_ALTERING_CAPABILITIES, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x0F))
-
-// Default Reset all parameter have been requested. command_status_values_t
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_DEFAULT_RESET_REQUESTED, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x10))
-
-// Attribute used to store underneath a list of configuration parameters ID
-// that we need to discover. This attribute is used by the ZCL cluster server
-// it has no value. A set of ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_NEXT_SUPPORTED_PARAMETER_ID
-// are stored under this attribute
-DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_CONFIGURATION_PARAMETERS_TO_DISCOVER, ((COMMAND_CLASS_CONFIGURATION << 8) | 0x11))
+// Registered by command_class_configuration via register_attribute_types.
 
 /////////////////////////////////////////////////
 // CRC16 Command Class
