@@ -5,17 +5,7 @@
 
 static psa_status_t s2_psa_ensure_init(void)
 {
-    static int initialized;
-
-    if (initialized) {
-        return PSA_SUCCESS;
-    }
-
-    const psa_status_t status = psa_crypto_init();
-    if (status == PSA_SUCCESS) {
-        initialized = 1;
-    }
-    return status;
+    return psa_crypto_init();
 }
 
 psa_status_t s2_psa_crypto_init(void)

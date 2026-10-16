@@ -1956,6 +1956,33 @@ void test_nonce_get_accepts_new_random_sequence_after_peer_restart(void)
     TEST_ASSERT_EQUAL_HEX8(RESTARTED_SEQUENCE, span->rx_seq);
 }
 
+void test_nonce_get_random_failure_preserves_span_and_nonce(void)
+{
+    const node_t LOCAL_NODE_ID       = 1;
+    const node_t REMOTE_NODE_ID      = 2;
+    const uint8_t ORIGINAL_NONCE[16] = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F};
+    struct S2 s2_context             = {0};
+    s2_connection_t connection       = {0};
+    uint8_t nonce_get[]              = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_GET, 0x42};
+
+    connection.l_node = LOCAL_NODE_ID;
+    connection.r_node = REMOTE_NODE_ID;
+
+    struct SPAN *span = &s2_context.span_table[0];
+    span->lnode       = LOCAL_NODE_ID;
+    span->rnode       = REMOTE_NODE_ID;
+    span->state       = SPAN_NEGOTIATED;
+    memcpy(span->d.r_nonce, ORIGINAL_NONCE, sizeof(ORIGINAL_NONCE));
+
+    mbedtls_psa_crypto_free();
+    S2_application_command_handler(&s2_context, &connection, nonce_get, sizeof(nonce_get));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
+
+    TEST_ASSERT_FALSE(g_nonce_report_sent);
+    TEST_ASSERT_EQUAL(SPAN_NEGOTIATED, span->state);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ORIGINAL_NONCE, span->d.r_nonce, sizeof(ORIGINAL_NONCE));
+}
+
 /**
  * @brief Nonce Get: 0xFF is a new sequence when rx_seq is 0x00 (uint8 wrap)
  *

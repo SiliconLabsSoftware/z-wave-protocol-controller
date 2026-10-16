@@ -104,11 +104,6 @@ static void zwave_s2_init()
     };
     zwave_controller_transport_register(&transport);
 
-    if (s2_psa_crypto_init() != PSA_SUCCESS) {
-        sl_log_critical(LOG_TAG, "PSA Crypto init failed\n");
-        abort();
-    }
-
     zwave_s2_keystore_init();
     zwave_s2_network_init();
     zwave_s2_transport_init();
@@ -116,7 +111,7 @@ static void zwave_s2_init()
 
 sl_status_t zwave_s2_process_init(void)
 {
-    if (psa_crypto_init() != PSA_SUCCESS) {
+    if (s2_psa_crypto_init() != PSA_SUCCESS) {
         sl_log_error(LOG_TAG, "Failed to initialize PSA Crypto\n");
         return SL_STATUS_INITIALIZATION;
     }
