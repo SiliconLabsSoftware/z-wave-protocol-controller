@@ -26,7 +26,10 @@ zpc_pop_external_compiler_flags()
 # ZPC uses -Werror globally; relax warnings for third-party googletest sources.
 foreach(_zpc_gtest_dep gtest gtest_main gmock gmock_main)
   if(TARGET ${_zpc_gtest_dep})
-    target_compile_options(${_zpc_gtest_dep} PRIVATE -Wno-error -Wno-character-conversion)
+    target_compile_options(${_zpc_gtest_dep} PRIVATE -Wno-error)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+      target_compile_options(${_zpc_gtest_dep} PRIVATE -Wno-character-conversion)
+    endif()
   endif()
 endforeach()
 

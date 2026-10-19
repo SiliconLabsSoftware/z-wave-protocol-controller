@@ -18,3 +18,4 @@ alwaysApply: true
 - `ctest --preset unit-test`: Run unit tests after they have been built.
 - debug-sanitize preset: Debug `zpc` with ASan and UBSan (not a product package). `cmake --workflow --preset debug-sanitize` then, on Linux, `cpack --preset debug-sanitize` → `build/debug-sanitize/zpc-<arch>-debug-sanitize.deb`. Scheduled CI uploads that artifact like product Linux CI.
 - Linux packaging (CI): after `cmake --workflow --preset release` with `CMAKE_INSTALL_PREFIX=/usr`, run `cpack --preset release`. Output: `build/release/*.deb`.
+- PR CI product jobs: macOS and Linux amd64-gcc build `debug` then `release`; arm64-gcc and Linux clang build `release` only. Package gcc `release` only.

@@ -26,7 +26,7 @@ jobs:
   build_linux:
     name: linux-${{ matrix.id }}
     runs-on: ${{ matrix.runs-on }}
-    timeout-minutes: 20
+    timeout-minutes: ${{ matrix.timeout-minutes }}
     strategy:
       fail-fast: false
       matrix:
@@ -35,17 +35,23 @@ jobs:
             runs-on: ubuntu-24.04
             cc: gcc-14
             cxx: g++-14
+            debug: true
             package: true
+            timeout-minutes: 30
           - id: arm64-gcc
             runs-on: ubuntu-24.04-arm
             cc: gcc-14
             cxx: g++-14
+            debug: false
             package: true
+            timeout-minutes: 20
           - id: amd64-clang
             runs-on: ubuntu-24.04
             cc: clang-17
             cxx: clang++-17
+            debug: false
             package: false
+            timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -61,7 +67,15 @@ jobs:
           package_lists: ci/dependencies/apt-packages-base.txt
           pip_requirements: "true"
 
-      - name: Build ZPC
+      - name: Build ZPC (debug)
+        if: matrix.debug
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+          CMAKE_INSTALL_PREFIX: /usr
+        run: cmake --workflow --preset debug
+
+      - name: Build ZPC (release)
         env:
           CC: ${{ matrix.cc }}
           CXX: ${{ matrix.cxx }}

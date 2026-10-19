@@ -132,7 +132,7 @@ Fixes #123
    - All CI/CD checks must pass before a PR can be merged
    - PR CI runs the following gates in order:
      1. **clang-format** — fails if formatting drift is detected (`--dry-run --Werror`)
-     2. **clang-tidy**, **Linux build** (`amd64-gcc`, `arm64-gcc`, `amd64-clang`), and **macOS build** — run in parallel on native runners after format passes
+     2. **clang-tidy**, **Linux build** (`amd64-gcc` debug then release, `arm64-gcc`/`amd64-clang` release), and **macOS build** (debug then release) — run in parallel on native runners after format passes
 
 6. **Merge**
    - Once approved and all checks pass, a maintainer will merge your PR
@@ -283,7 +283,7 @@ ctest --preset unit-test
 PR CI runs these gates automatically — you do not need to replicate all of them locally:
 
 1. **clang-format** — formatting is checked first; drift fails the format job
-2. **clang-tidy**, **Linux builds** (Debian packages for `amd64` and `arm64`), and **macOS build** — run in parallel after format passes
+2. **clang-tidy**, **Linux builds** (`debug` then `release` on amd64-gcc; `release` on arm64-gcc and amd64-clang; Debian packages for gcc `amd64`/`arm64`), and **macOS build** (`debug` then `release`) — run in parallel after format passes
 
 ## Documentation
 
