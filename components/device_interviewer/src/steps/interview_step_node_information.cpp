@@ -15,7 +15,6 @@
 #include "interview_state_machine.hpp"
 #include "device_interviewer_attribute_store.hpp"
 #include "component_connector.hpp"
-#include "component_connector_common_events.hpp"
 #include "component_connector_types.hpp"
 #include "zpc_attribute_store_network_helper.h"
 #include "attribute_store_defined_attribute_types.h"
