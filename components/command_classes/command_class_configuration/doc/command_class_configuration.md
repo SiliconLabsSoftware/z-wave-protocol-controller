@@ -93,6 +93,6 @@ Endpoint Node
 | ConfigurationNameGet | Read parameter name |
 | ConfigurationInfoGet | Read parameter info |
 | ConfigurationPropertiesGet | Read one parameter's properties |
-| ConfigurationPropertiesDiscover | Walk all parameters via Properties Get |
+| ConfigurationPropertiesDiscover | Walk parameter properties on versions 3+; completes with no properties on versions 1–2 |
 | ConfigurationParameterScan | Version 1-2 size scan |
 | ConfigurationDefaultReset | Reset all parameters (version 4) |

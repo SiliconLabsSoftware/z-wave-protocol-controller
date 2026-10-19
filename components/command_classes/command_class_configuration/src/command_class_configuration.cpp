@@ -88,14 +88,14 @@ namespace zwave_command_class
 
     void command_class_configuration::request_configuration_get(attribute_store::attribute endpoint_node, uint8_t parameter_number)
     {
-        auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_get_group_attributes_t::CONFIGURATION_GET_GROUP));
+        auto group_node = endpoint_node.add_node(static_cast<attribute_store_type_t>(configuration_get_group_attributes_t::CONFIGURATION_GET_GROUP));
         group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_get_group_attributes_t::parameter_number)).set_desired(parameter_number);
         command_class_configuration_core::start_group_resolution(group_node);
     }
 
     void command_class_configuration::request_configuration_set(attribute_store::attribute endpoint_node, uint8_t parameter_number, uint8_t size, int64_t value, bool use_default)
     {
-        auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_set_group_attributes_t::CONFIGURATION_SET_GROUP));
+        auto group_node = endpoint_node.add_node(static_cast<attribute_store_type_t>(configuration_set_group_attributes_t::CONFIGURATION_SET_GROUP));
         group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_set_group_attributes_t::parameter_number)).set_desired(parameter_number);
         group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_set_group_attributes_t::size)).set_desired(size);
         group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_set_group_attributes_t::default_flag)).set_desired(static_cast<uint8_t>(use_default ? 1 : 0));
@@ -106,6 +106,11 @@ namespace zwave_command_class
 
     void command_class_configuration::start_properties_walk(attribute_store::attribute endpoint_node)
     {
+        if (configuration_version(endpoint_node) < 3) {
+            endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::properties_walk_active)).set_reported<uint8_t>(0);
+            endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete)).set_reported<uint8_t>(1);
+            return;
+        }
         endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::properties_walk_active)).set_reported<uint8_t>(1);
         endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete)).clear_reported();
         request_properties_get(endpoint_node, PARAMETER_NUMBER_PROBE_START);
@@ -113,6 +118,7 @@ namespace zwave_command_class
 
     void command_class_configuration::start_parameter_scan(attribute_store::attribute endpoint_node)
     {
+        endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete)).clear_reported();
         endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::parameter_scan_active)).set_reported<uint8_t>(1);
         endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::parameter_scan_number)).set_reported<uint8_t>(PARAMETER_NUMBER_V1_MIN);
         endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::parameter_scan_size_index)).set_reported<uint8_t>(0);
@@ -164,6 +170,10 @@ namespace zwave_command_class
             active_node.set_reported<uint8_t>(0);
         }
         start_default_bit_probe(endpoint_node);
+        auto scan_active_node = endpoint_node.child_by_type(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::parameter_scan_active));
+        if (!scan_active_node.is_valid() || !scan_active_node.reported_exists() || scan_active_node.reported<uint8_t>() == 0) {
+            endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete)).set_reported<uint8_t>(1);
+        }
     }
 
     void command_class_configuration::advance_parameter_scan(attribute_store::attribute endpoint_node, bool parameter_found)
@@ -292,6 +302,7 @@ namespace zwave_command_class
             auto second_default = second_param.child_by_type(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::default_value));
             if (!first_size.is_valid() || !first_size.reported_exists() || !second_size.is_valid() || !second_size.reported_exists() || !first_default.is_valid() || !first_default.reported_exists() || !second_default.is_valid() || !second_default.reported_exists()) {
                 endpoint.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::parameter_scan_active)).set_reported<uint8_t>(0);
+                endpoint.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete)).set_reported<uint8_t>(1);
                 return;
             }
 
@@ -329,6 +340,7 @@ namespace zwave_command_class
             }
             endpoint.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::default_resets_every_parameter)).set_reported(resets_every);
             endpoint.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::parameter_scan_active)).set_reported<uint8_t>(0);
+            endpoint.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete)).set_reported<uint8_t>(1);
         }
     }
 
@@ -477,6 +489,15 @@ namespace zwave_command_class
     {
         (void)connection_info;
 
+        const uint8_t reported_parameter = get_value_or_default(payload, "parameter_number", static_cast<uint8_t>(0));
+        for (auto group_node: endpoint.children(static_cast<attribute_store_type_t>(configuration_get_group_attributes_t::CONFIGURATION_GET_GROUP))) {
+            auto parameter_node = group_node.child_by_type(static_cast<attribute_store_type_t>(configuration_get_group_attributes_t::parameter_number));
+            if (parameter_node.is_valid() && parameter_node.desired_exists() && parameter_node.desired<uint8_t>() == reported_parameter) {
+                command_class_configuration_core::stop_group_resolution(group_node);
+                break;
+            }
+        }
+
         auto scan_active = endpoint.child_by_type(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::parameter_scan_active));
         if (!scan_active.is_valid() || !scan_active.reported_exists() || scan_active.reported<uint8_t>() == 0) {
             return SL_STATUS_OK;
@@ -581,7 +602,7 @@ namespace zwave_command_class
         const uint8_t use_default      = default_node.desired<uint8_t>();
 
         if (!is_valid_size(size)) {
-            return SL_STATUS_FAIL;
+            return SL_STATUS_ALREADY_EXISTS;
         }
 
         auto parameter_node = endpoint_node.child_by_type_and_value(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::PARAMETER_ID), static_cast<uint16_t>(parameter_number));
@@ -589,7 +610,7 @@ namespace zwave_command_class
             auto read_only_node = parameter_node.child_by_type(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::read_only));
             if (read_only_node.is_valid() && read_only_node.reported_exists() && read_only_node.reported<uint8_t>() != 0) {
                 sl_log_debug(LOG_TAG.data(), "Skipping Set for read-only parameter %u", parameter_number);
-                return SL_STATUS_FAIL;
+                return SL_STATUS_ALREADY_EXISTS;
             }
         }
 
@@ -607,7 +628,7 @@ namespace zwave_command_class
             }
             auto value_bytes = value_node.desired<std::vector<uint8_t>>();
             if (value_bytes.size() != size) {
-                return SL_STATUS_FAIL;
+                return SL_STATUS_ALREADY_EXISTS;
             }
             for (uint8_t byte: value_bytes) {
                 frame_generator->add_raw_byte(byte);

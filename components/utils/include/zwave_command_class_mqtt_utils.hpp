@@ -51,8 +51,15 @@ namespace zwave_command_class
             template<typename T> static T parse_numeric(const nlohmann::json &v)
             {
                 if (v.is_number_integer() || v.is_number_unsigned()) {
-                    const auto n = v.template get<long long>();
-                    if (n < 0 || n > std::numeric_limits<T>::max()) {
+                    if (v.is_number_unsigned()) {
+                        const auto n = v.template get<uint64_t>();
+                        if (n > static_cast<uint64_t>(std::numeric_limits<T>::max())) {
+                            throw std::runtime_error("value out of range");
+                        }
+                        return static_cast<T>(n);
+                    }
+                    const auto n = v.template get<int64_t>();
+                    if ((!std::numeric_limits<T>::is_signed && n < 0) || n < std::numeric_limits<T>::min() || n > std::numeric_limits<T>::max()) {
                         throw std::runtime_error("value out of range");
                     }
                     return static_cast<T>(n);
@@ -68,7 +75,7 @@ namespace zwave_command_class
                         }
                         std::size_t idx = 0;
                         const auto n    = std::stoll(s.substr(start), &idx, base);
-                        if (idx != s.size() - start || n < 0 || n > std::numeric_limits<T>::max()) {
+                        if (idx != s.size() - start || (!std::numeric_limits<T>::is_signed && n < 0) || n < std::numeric_limits<T>::min() || n > std::numeric_limits<T>::max()) {
                             throw std::runtime_error("value out of range");
                         }
                         return static_cast<T>(n);
