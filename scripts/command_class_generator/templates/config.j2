@@ -4,6 +4,8 @@
         '_remove': 'set',
         '_find': 'get',
         '_get': 'get',
+        '_get_sensor': 'get',
+        '_get_scale': 'get',
         '_set': 'set',
         '_reset': 'set',
         '_start_level_change': 'set',
@@ -20,13 +22,15 @@
 {% set tx_fallback_exceptions = [
 ] %}
 
-{# TX report commands that have no paired GET command.
-   These are excluded from stop_group_resolution in the report handler
-   because get_command_pairs would reference a nonexistent group attribute. #}
+{# TX report commands that must not automatically stop their paired GET group.
+   Reports with a correlation field are stopped manually after that field is
+   checked in the parsed callback. Commands with no paired GET also belong here. #}
 {% set command_has_no_pair = [
     "FIRMWARE_UPDATE_MD_GET",
     "FIRMWARE_UPDATE_MD_STATUS_REPORT",
     "FIRMWARE_UPDATE_ACTIVATION_STATUS_REPORT",
+    "SENSOR_MULTILEVEL_REPORT",
+    "SENSOR_MULTILEVEL_SUPPORTED_SCALE_REPORT",
 ] %}
 
 {# Incoming (TX) commands that ZPC handles internally but must NOT map to MQTT Report/* topics.
@@ -45,7 +49,8 @@
 {# (FIND_REPORT -> FIND), (REPORT -> GET) #}
 {% macro get_special_command_pairs(command_name) %}
     {% set command_map = {
-       "": "" 
+       "SENSOR_MULTILEVEL_SUPPORTED_SENSOR_REPORT": "SENSOR_MULTILEVEL_SUPPORTED_GET_SENSOR",
+       "SENSOR_MULTILEVEL_SUPPORTED_SCALE_REPORT": "SENSOR_MULTILEVEL_SUPPORTED_GET_SCALE"
     } %}
     {{ command_map | as_json }}
 {% endmacro %}
