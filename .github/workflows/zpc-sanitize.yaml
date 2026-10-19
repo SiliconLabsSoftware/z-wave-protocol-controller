@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: Zlib
+# SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
+---
+name: ZPC Sanitizer
+
+on:
+  schedule:
+    - cron: "0 5 * * 1,4"
+  workflow_dispatch:
+
+concurrency:
+  group: zpc-sanitize-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  debug_sanitize:
+    name: debug-sanitize
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CC: gcc-14
+      CXX: g++-14
+      CMAKE_INSTALL_PREFIX: /usr
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-tags: true
+          fetch-depth: 0
+
+      - name: Install dependencies
+        uses: ./.github/actions/setup-linux-deps
+        with:
+          package_lists: ci/dependencies/apt-packages-base.txt
+          pip_requirements: "true"
+
+      - name: Configure and build sanitized Debug zpc
+        run: cmake --workflow --preset debug-sanitize
+
+      - name: Package ZPC
+        run: cpack --preset debug-sanitize
+
+      - name: Upload ZPC debian package
+        uses: actions/upload-artifact@v4
+        with:
+          name: zpc-deb-amd64-gcc-debug-sanitize
+          path: build/debug-sanitize/*.deb
+          retention-days: 1
+          if-no-files-found: error

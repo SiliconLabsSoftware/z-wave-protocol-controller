@@ -262,7 +262,7 @@ The configure step (`cmake --preset <preset>`) also **regenerates all command cl
 
 Use the `unit-test` CMake preset (`UNIT_TEST=ON`) on macOS and Linux. Do not use the product `macos` / `debian` workflows for this — those skip tests. `--fresh` removes the existing CMake cache in `build/unit-test` so the same tree can be reused after switching OS or compiler.
 
-The `unit-test` preset builds with **AddressSanitizer** and **UndefinedBehaviorSanitizer** (`ZPC_ENABLE_SANITIZERS=ON`). CTest sets `ASAN_OPTIONS` with `detect_leaks=1` (LeakSanitizer on Linux) and `UBSAN_OPTIONS` for halt-on-error. On macOS, leak-at-exit detection is limited compared to Linux. Do not combine unit tests with `COVERAGE` or gcov in the same configure. For a faster non-sanitizer run only, configure with `-DZPC_ENABLE_SANITIZERS=OFF` (requires `--fresh` if toggling).
+The `unit-test` preset builds with **AddressSanitizer** and **UndefinedBehaviorSanitizer**. A sanitizer hit aborts the test. Do not combine unit tests with `COVERAGE` or gcov in the same configure.
 
 ZPC component tests use **GoogleTest** and **GoogleMock** (`add_zpc_gtest` in [cmake/include/gtest_test.cmake](cmake/include/gtest_test.cmake)). The embedded **zw-libs2** tree still uses **Unity** (`add_unity_test`).
 

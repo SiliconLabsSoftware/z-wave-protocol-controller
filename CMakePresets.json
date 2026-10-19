@@ -35,6 +35,14 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "ZPC_ENABLE_SANITIZERS": "ON"
       }
+    },
+    {
+      "name": "debug-sanitize",
+      "inherits": ["zpc"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ZPC_ENABLE_SANITIZERS": "ON"
+      }
     }
   ],
   "testPresets": [
@@ -71,12 +79,22 @@
       "configurePreset": "unit-test",
       "targets": ["UNIT_TEST"],
       "jobs": 8
+    },
+    {
+      "name": "debug-sanitize",
+      "configurePreset": "debug-sanitize",
+      "targets": ["zpc"],
+      "jobs": 8
     }
   ],
   "packagePresets": [
     {
       "name": "debian",
       "configurePreset": "debian"
+    },
+    {
+      "name": "debug-sanitize",
+      "configurePreset": "debug-sanitize"
     }
   ],
   "workflowPresets": [
@@ -101,6 +119,13 @@
         { "type": "configure", "name": "unit-test" },
         { "type": "build", "name": "unit-test" },
         { "type": "test", "name": "unit-test" }
+      ]
+    },
+    {
+      "name": "debug-sanitize",
+      "steps": [
+        { "type": "configure", "name": "debug-sanitize" },
+        { "type": "build", "name": "debug-sanitize" }
       ]
     }
   ]
