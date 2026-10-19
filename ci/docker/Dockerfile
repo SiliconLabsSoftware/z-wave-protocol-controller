@@ -44,10 +44,10 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         $(cat dependencies/apt-runtime-deps.txt) \
     && rm -rf /var/lib/apt/lists/* \
-    && cmake --preset debian -DCMAKE_INSTALL_PREFIX=/usr \
-    && cmake --build build/debian -j "$(nproc)" \
-    && cmake --build build/debian --target package \
-    && dpkg -i build/debian/zpc-amd64.deb \
+    && cmake --preset release -DCMAKE_INSTALL_PREFIX=/usr \
+    && cmake --build build/release -j "$(nproc)" \
+    && cpack --preset release \
+    && dpkg -i build/release/zpc-amd64.deb \
     && zpc --help
 
 ENTRYPOINT ["zpc"]

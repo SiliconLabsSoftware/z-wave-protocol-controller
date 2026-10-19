@@ -6,16 +6,15 @@ alwaysApply: true
 
 # Commands
 
-- preset: `macos` or `debian`
-  - on macos, the preset is `macos`
-  - on debian and docker, the preset is `debian`
+- product presets: `debug` or `release` (macOS, Linux, and docker)
 - `cmake --workflow --preset <preset>`: Configure and build the project for the given preset.
 - `cmake --preset <preset>`: Configure the project and regenerate the command classes.
-- `cmake --build <preset>`: Build the project for the given preset.
+- `cmake --build --preset <preset>`: Build the project for the given preset.
 
-- unit-test preset: `unit-test` (macos, debian, and docker; ASan, UBSan, LSan on Linux via `ASAN_OPTIONS`; halt on sanitizer error)
+- unit-test preset: `unit-test` (macOS, Linux, and docker; ASan, UBSan, LSan on Linux via `ASAN_OPTIONS`; halt on sanitizer error)
 - `cmake --workflow --preset unit-test --fresh`: Configure, build, and run unit tests. `--fresh` removes the existing CMake cache in `build/unit-test`.
 - `cmake --preset unit-test --fresh`: Configure the project with unit tests enabled.
 - `cmake --build --preset unit-test`: Build the unit-test targets.
 - `ctest --preset unit-test`: Run unit tests after they have been built.
 - debug-sanitize preset: Debug `zpc` with ASan and UBSan (not a product package). `cmake --workflow --preset debug-sanitize` then, on Linux, `cpack --preset debug-sanitize` → `build/debug-sanitize/zpc-<arch>-debug-sanitize.deb`. Scheduled CI uploads that artifact like product Linux CI.
+- Linux packaging (CI): after `cmake --workflow --preset release` with `CMAKE_INSTALL_PREFIX=/usr`, run `cpack --preset release`. Output: `build/release/*.deb`.

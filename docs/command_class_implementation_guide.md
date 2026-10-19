@@ -644,7 +644,7 @@ Instead of duplicating source code in this document, use the canonical implement
   minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
 ```
 
-After modifying the configuration file, re-run CMake configuration (e.g. `cmake --preset macos`) to regenerate the multilevel switch command class skeleton.
+After modifying the configuration file, re-run CMake configuration (e.g. `cmake --preset debug`) to regenerate the multilevel switch command class skeleton.
 
 ### Main Implementation (`src/command_class_switch_multilevel.cpp`)
 

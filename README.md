@@ -130,7 +130,7 @@ Flash the Switch On/Off device firmware and consult the [firmware documentation]
 ### Building ZPC
 
 ```bash
-# <preset_name>: macos or debian
+# <preset_name>: debug or release
 cmake --workflow --preset <preset_name>
 ```
 

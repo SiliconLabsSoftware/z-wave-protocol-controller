@@ -45,12 +45,12 @@
     "inputs": [
         {
             "id": "target",
-            "description": "Target platform",
-            "default": "macos",
+            "description": "Build type",
+            "default": "debug",
             "type": "pickString",
             "options": [
-                "macos",
-                "debian"
+                "debug",
+                "release"
             ]
         }
     ]

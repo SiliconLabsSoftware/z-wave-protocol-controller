@@ -54,7 +54,7 @@
     "clangd.arguments": ["-log=verbose", 
                          "-pretty", 
                          "--background-index",
-                         "--compile-commands-dir=build/macos"
+                         "--compile-commands-dir=build/debug"
                         ],
     "editor.defaultFormatter": "xaver.clang-format"
 }

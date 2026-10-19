@@ -165,7 +165,7 @@ jobs:
           pip3 install -r ci/dependencies/requirements.txt --break-system-packages
 
       - name: Build ZPC
-        run: cmake --workflow --preset macos
+        run: cmake --workflow --preset debug
 
   success:
     name: success

@@ -252,15 +252,15 @@ Before building or testing, install the platform dependencies. See [docs/getting
 Ensure the project builds on your target platform:
 
 ```bash
-cmake --workflow --preset macos   # on macOS
-cmake --workflow --preset debian  # on Linux / inside Docker
+cmake --workflow --preset debug     # both OS
+cmake --workflow --preset release   # both OS
 ```
 
 The configure step (`cmake --preset <preset>`) also **regenerates all command class code** by invoking the command class generator; keep this in mind when adding or modifying command classes.
 
 ### Unit Tests
 
-Use the `unit-test` CMake preset (`UNIT_TEST=ON`) on macOS and Linux. Do not use the product `macos` / `debian` workflows for this — those skip tests. `--fresh` removes the existing CMake cache in `build/unit-test` so the same tree can be reused after switching OS or compiler.
+Use the `unit-test` CMake preset (`UNIT_TEST=ON`) on macOS and Linux. Do not use the product `debug` / `release` workflows for this — those skip tests. `--fresh` removes the existing CMake cache in `build/unit-test` so the same tree can be reused after switching OS or compiler.
 
 The `unit-test` preset builds with **AddressSanitizer** and **UndefinedBehaviorSanitizer**. A sanitizer hit aborts the test. Do not combine unit tests with `COVERAGE` or gcov in the same configure.
 

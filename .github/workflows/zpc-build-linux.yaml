@@ -66,14 +66,20 @@ jobs:
           CC: ${{ matrix.cc }}
           CXX: ${{ matrix.cxx }}
           CMAKE_INSTALL_PREFIX: /usr
-        run: cmake --workflow --preset debian
+        run: cmake --workflow --preset release
+
+      - name: Package ZPC
+        if: matrix.package == true
+        env:
+          CMAKE_INSTALL_PREFIX: /usr
+        run: cpack --preset release
 
       - name: Upload ZPC debian package
         if: matrix.package == true
         uses: actions/upload-artifact@v4
         with:
           name: zpc-deb-${{ matrix.id }}
-          path: build/debian/*.deb
+          path: build/release/*.deb
           retention-days: 1
           if-no-files-found: error
 

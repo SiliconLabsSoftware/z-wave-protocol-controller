@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(z-wave-protocol-controller)
 
-# debian preset maps CMAKE_INSTALL_PREFIX from $penv{}; unset → empty → restore CMake default.
+# Presets map CMAKE_INSTALL_PREFIX from $penv{}; unset → empty → restore CMake default.
 if(CMAKE_INSTALL_PREFIX STREQUAL "")
   set(CMAKE_INSTALL_PREFIX
       "/usr/local"

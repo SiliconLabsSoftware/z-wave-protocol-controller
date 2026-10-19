@@ -13,18 +13,22 @@
       "generator": "Ninja",
       "cacheVariables": {
         "CMAKE_VERBOSE_MAKEFILE": "OFF",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "1"
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "1",
+        "CMAKE_INSTALL_PREFIX": "$penv{CMAKE_INSTALL_PREFIX}"
       }
     },
     {
-      "name": "macos",
-      "inherits": ["zpc"]
-    },
-    {
-      "name": "debian",
+      "name": "debug",
       "inherits": ["zpc"],
       "cacheVariables": {
-        "CMAKE_INSTALL_PREFIX": "$penv{CMAKE_INSTALL_PREFIX}"
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": ["zpc"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
@@ -63,14 +67,14 @@
   ],
   "buildPresets": [
     {
-      "name": "macos",
-      "configurePreset": "macos",
+      "name": "debug",
+      "configurePreset": "debug",
       "hidden": false,
       "jobs": 8
     },
     {
-      "name": "debian",
-      "configurePreset": "debian",
+      "name": "release",
+      "configurePreset": "release",
       "hidden": false,
       "jobs": 8
     },
@@ -89,8 +93,8 @@
   ],
   "packagePresets": [
     {
-      "name": "debian",
-      "configurePreset": "debian"
+      "name": "release",
+      "configurePreset": "release"
     },
     {
       "name": "debug-sanitize",
@@ -99,18 +103,17 @@
   ],
   "workflowPresets": [
     {
-      "name": "macos",
+      "name": "debug",
       "steps": [
-        { "type": "configure", "name": "macos" },
-        { "type": "build", "name": "macos" }
+        { "type": "configure", "name": "debug" },
+        { "type": "build", "name": "debug" }
       ]
     },
     {
-      "name": "debian",
+      "name": "release",
       "steps": [
-        { "type": "configure", "name": "debian" },
-        { "type": "build", "name": "debian" },
-        { "type": "package", "name": "debian" }
+        { "type": "configure", "name": "release" },
+        { "type": "build", "name": "release" }
       ]
     },
     {
