@@ -18,6 +18,9 @@ if(NOT TARGET MbedTLS::tfpsacrypto)
   set(TF_PSA_CRYPTO_USER_CONFIG_FILE
       "${CMAKE_CURRENT_LIST_DIR}/../../components/security/config/tf_psa_crypto_user_config.h"
       CACHE FILEPATH "" FORCE)
+  set(MBEDTLS_USER_CONFIG_FILE
+      "${CMAKE_CURRENT_LIST_DIR}/../../components/security/config/mbedtls_user_config.h"
+      CACHE FILEPATH "" FORCE)
 
   get_directory_property(_compile_options COMPILE_OPTIONS)
   add_compile_options(-w)
