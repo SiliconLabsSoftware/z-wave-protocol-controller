@@ -26,6 +26,14 @@ void zwapi_timestamp_get(zwapi_timestamp_t *timestamp, int period_ms)
 
     timestamp->tm.tv_sec += (period_ms / 1000);
     timestamp->tm.tv_nsec += ((period_ms % 1000) * 1000000);
+
+    // Normalize tv_nsec into [0, 1e9); otherwise zwapi_is_timestamp_elapsed(),
+    // which compares tv_sec before tv_nsec, treats the deadline as reached up
+    // to one second early.
+    if (timestamp->tm.tv_nsec >= 1000000000) {
+        timestamp->tm.tv_sec += timestamp->tm.tv_nsec / 1000000000;
+        timestamp->tm.tv_nsec %= 1000000000;
+    }
 }
 
 bool zwapi_is_timestamp_elapsed(const zwapi_timestamp_t *timestamp_1)
