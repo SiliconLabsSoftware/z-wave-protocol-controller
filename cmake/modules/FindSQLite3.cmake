@@ -29,6 +29,7 @@ set(_SQLITE_AMALG_VER 3530000)
 set(SQLite3_VERSION 3.53.0)
 
 include(FetchContent)
+include(${CMAKE_CURRENT_LIST_DIR}/../include/external_compiler_flags.cmake)
 set(FETCHCONTENT_QUIET TRUE)
 if(POLICY CMP0135)
   cmake_policy(SET CMP0135 NEW)
@@ -39,6 +40,7 @@ FetchContent_Declare(
   URL "https://www.sqlite.org/2026/sqlite-amalgamation-${_SQLITE_AMALG_VER}.zip"
   URL_HASH SHA256=bf3733d7c71b3ab0f6fd8a9ea0052ad87fa037d94333e14ce09878ba3492c3b0)
 
+zpc_push_external_compiler_flags()
 FetchContent_MakeAvailable(sqlite_amalgamation)
 
 set(_sqlite_src "${sqlite_amalgamation_SOURCE_DIR}")
@@ -54,16 +56,12 @@ if(NOT EXISTS "${_sqlite_src}/sqlite3.c")
       "SQLite amalgamation: sqlite3.c not found under ${sqlite_amalgamation_SOURCE_DIR}")
 endif()
 
-add_library(sqlite3_amalgamation STATIC "${_sqlite_src}/sqlite3.c")
-target_include_directories(sqlite3_amalgamation PUBLIC "${_sqlite_src}")
-set_target_properties(
-  sqlite3_amalgamation
-  PROPERTIES POSITION_INDEPENDENT_CODE ON C_STANDARD 99)
-target_compile_options(sqlite3_amalgamation PRIVATE -w)
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  target_link_libraries(sqlite3_amalgamation PUBLIC dl m pthread)
-endif()
+set(ZPC_SQLITE3_C "${_sqlite_src}/sqlite3.c")
+set(ZPC_SQLITE3_DIR "${_sqlite_src}")
+add_subdirectory(
+  ${CMAKE_CURRENT_LIST_DIR}/../external/sqlite
+  ${CMAKE_BINARY_DIR}/_deps/zpc-sqlite3-build)
+zpc_pop_external_compiler_flags()
 
 add_library(SQLite::SQLite3 ALIAS sqlite3_amalgamation)
 

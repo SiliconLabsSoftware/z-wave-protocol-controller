@@ -5,6 +5,7 @@ if(COMMAND ADD_ZPC_GTEST)
 endif()
 
 include(FetchContent)
+include(${CMAKE_CURRENT_LIST_DIR}/external_compiler_flags.cmake)
 
 set(GTEST_REPOSITORY https://github.com/google/googletest.git)
 set(GTEST_TAG v1.15.2)
@@ -18,7 +19,9 @@ FetchContent_Declare(
   GIT_REPOSITORY ${GTEST_REPOSITORY}
   GIT_TAG ${GTEST_TAG}
   GIT_SHALLOW TRUE)
+zpc_push_external_compiler_flags()
 FetchContent_MakeAvailable(googletest)
+zpc_pop_external_compiler_flags()
 
 # ZPC uses -Werror globally; relax warnings for third-party googletest sources.
 foreach(_zpc_gtest_dep gtest gtest_main gmock gmock_main)
