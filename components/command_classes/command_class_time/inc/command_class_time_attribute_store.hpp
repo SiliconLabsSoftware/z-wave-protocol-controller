@@ -27,6 +27,14 @@ namespace zwave_command_class
         public:
             command_class_time_attribute_store();
             ~command_class_time_attribute_store() = default;
+
+            sl_status_t on_time_report_received_store(attribute_store::attribute endpoint_node, command_class_time_attribute_map_t attribute_map) override;
+            sl_status_t on_date_report_received_store(attribute_store::attribute endpoint_node, command_class_time_attribute_map_t attribute_map) override;
+            sl_status_t on_time_offset_report_received_store(attribute_store::attribute endpoint_node, command_class_time_attribute_map_t attribute_map) override;
+
+        private:
+            template<typename Enum, typename T> static void set_reported_child(attribute_store::attribute parent, Enum type, T value);
+            static uint8_t logical_flag(uint8_t masked_bit);
     };
 
 }  // namespace zwave_command_class
