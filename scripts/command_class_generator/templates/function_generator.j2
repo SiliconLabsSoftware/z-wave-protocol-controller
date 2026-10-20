@@ -7,7 +7,7 @@
     {% if field.type | lower == "struct_byte" %}
         item.{{utils.create_variable_name(field.name)}}.value = frame_parser.read_sequential<uint8_t>(sizeof(item.{{utils.create_variable_name(field.name)}}.value));
         read_bytes += sizeof(item.{{utils.create_variable_name(field.name)}}.value);
-    {% elif field.type | lower == "variant" and field.fields[0].param_offset != 255 %}
+    {% elif field.type | lower == "variant" and field.fields[0].param_offset != 255 and field.fields[0].param_offset < attribute.params | length %}
         {% set size_src = attribute.params[field.fields[0].param_offset] %}
         {% if size_src.type | lower == "struct_byte" %}
             uint16_t item_{{utils.create_variable_name(field.name)}}_size = (item.{{utils.create_variable_name(size_src.name)}}.value & {{field.fields[0].size_mask}}) + {{field.fields[0].size_change}};
