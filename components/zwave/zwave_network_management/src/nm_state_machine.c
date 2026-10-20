@@ -199,6 +199,12 @@ static void on_remove_node_status_update(LEARN_INFO *remove_node_information)
 
         case REMOVE_NODE_STATUS_REMOVING_END_NODE:
         case REMOVE_NODE_STATUS_REMOVING_CONTROLLER:
+            if (nms.exclusion_node_id_filter != 0 && remove_node_information->bSource != nms.exclusion_node_id_filter) {
+                sl_log_info(LOG_TAG, "Ignoring exclusion of unexpected NodeID %d (requested NodeID %d)\n", remove_node_information->bSource, nms.exclusion_node_id_filter);
+                zwapi_remove_node_id_from_network(REMOVE_NODE_STOP, nms.exclusion_node_id_filter, NULL);
+                zwave_network_management_post_event(NM_EV_NODE_REMOVE_FAILED, 0);
+                break;
+            }
             // At that point, we get notified of which NodeID is being excluded.
             // Save it somewhere as when it is not told in any of the other callbacks
             nms.node_id_being_handled = remove_node_information->bSource;
@@ -468,8 +474,13 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
                 /*TODO: we were sending COMMAND_SMART_START_JOIN_STARTED_REPORT here*/
             } else if (ev == NM_EV_NODE_REMOVE) {
                 network_management_stop_ongoing_operations();
-                nms.node_id_being_handled      = 0;
-                sl_status_t remove_node_status = zwapi_remove_node_from_network((REMOVE_NODE_ANY | REMOVE_NODE_OPTION_NETWORK_WIDE), on_remove_node_status_update);
+                nms.node_id_being_handled = 0;
+                sl_status_t remove_node_status;
+                if (nms.exclusion_node_id_filter != 0) {
+                    remove_node_status = zwapi_remove_node_id_from_network(REMOVE_NODE_ANY | REMOVE_NODE_OPTION_NETWORK_WIDE, nms.exclusion_node_id_filter, on_remove_node_status_update);
+                } else {
+                    remove_node_status = zwapi_remove_node_from_network((REMOVE_NODE_ANY | REMOVE_NODE_OPTION_NETWORK_WIDE), on_remove_node_status_update);
+                }
                 if (remove_node_status == SL_STATUS_OK) {
                     nms.state = NM_WAITING_FOR_NODE_REMOVAL;
                     timer_set(&nms.timer, ADD_REMOVE_TIMEOUT, nm_nms_timer_callback, NULL);
@@ -843,10 +854,18 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
             break;
         case NM_WAITING_FOR_NODE_REMOVAL:
             if (ev == NM_EV_TIMEOUT || ev == NM_EV_NODE_REMOVE_FAILED || ev == NM_EV_ABORT) {
-                zwapi_remove_node_from_network(REMOVE_NODE_STOP, NULL);
+                if (nms.exclusion_node_id_filter != 0) {
+                    zwapi_remove_node_id_from_network(REMOVE_NODE_STOP, nms.exclusion_node_id_filter, NULL);
+                } else {
+                    zwapi_remove_node_from_network(REMOVE_NODE_STOP, NULL);
+                }
                 nms.state = NM_IDLE;
             } else if (ev == NM_EV_NODE_REMOVE_COMPLETE) {
-                zwapi_remove_node_from_network(REMOVE_NODE_STOP, NULL);
+                if (nms.exclusion_node_id_filter != 0) {
+                    zwapi_remove_node_id_from_network(REMOVE_NODE_STOP, nms.exclusion_node_id_filter, NULL);
+                } else {
+                    zwapi_remove_node_from_network(REMOVE_NODE_STOP, NULL);
+                }
                 // Tell the controller (who then tells everybody) that a node was removed.
                 network_management_refresh_cached_node_list();
                 zwave_controller_on_node_deleted(nms.node_id_being_handled);

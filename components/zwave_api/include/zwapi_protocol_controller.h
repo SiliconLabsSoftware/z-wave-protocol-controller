@@ -745,6 +745,14 @@ sl_status_t zwapi_add_node_to_network(uint8_t bMode, void (*completedFunc)(LEARN
 sl_status_t zwapi_remove_node_from_network(uint8_t bMode, void (*completedFunc)(LEARN_INFO *));
 
 /**
+ * @brief Start or stop exclusion restricted to a specific classic NodeID.
+ *
+ * Node IDs outside the classic range are not supported by this Serial API command.
+ * When stopping, node_id is ignored by the Serial API.
+ */
+sl_status_t zwapi_remove_node_id_from_network(uint8_t bMode, zwave_node_id_t node_id, void (*completedFunc)(LEARN_INFO *));
+
+/**
  * @brief Transfer the role as primary controller to another controller.
  *
  * @param bMode one of:
