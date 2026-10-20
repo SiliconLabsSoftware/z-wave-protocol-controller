@@ -138,6 +138,23 @@ sl_status_t zwapi_remove_node_from_network(uint8_t bMode, void (*completedFunc)(
     return zwapi_send_command(FUNC_ID_ZW_REMOVE_NODE_FROM_NETWORK, request_buffer, index);
 }
 
+sl_status_t zwapi_remove_node_id_from_network(uint8_t bMode, zwave_node_id_t node_id, void (*completedFunc)(LEARN_INFO *))
+{
+    uint8_t func_id;
+    uint8_t index                               = 0;
+    uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
+    func_id                                     = (completedFunc == NULL ? 0 : 0x03);
+    request_buffer[index++]                     = bMode;
+    // The captured Serial API STOP frame for 0x3F contains only mode and callback ID.
+    if (bMode != REMOVE_NODE_STOP) {
+        zwapi_write_node_id(request_buffer, &index, node_id);
+    }
+    request_buffer[index++]                 = func_id;
+    zwapi_remove_node_from_network_callback = completedFunc;
+
+    return zwapi_send_command(FUNC_ID_ZW_REMOVE_NODE_ID_FROM_NETWORK, request_buffer, index);
+}
+
 uint8_t zwapi_remove_failed_node(zwave_node_id_t NodeID, void (*completedFunc)(uint8_t))
 {
     uint8_t func_id;

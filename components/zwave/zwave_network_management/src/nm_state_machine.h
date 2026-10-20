@@ -40,6 +40,8 @@ typedef struct network_mgmt_state {
          * - The node being probed to reply to a NodeInfoCachedGet.
          * - etc. */
         zwave_node_id_t node_id_being_handled;
+        /// Optional node ID required for a user requested exclusion (0 means any node).
+        zwave_node_id_t exclusion_node_id_filter;
         /*This buffer is global, because the node info is only present in the */
         zwave_network_management_state_t state;
         /** Sub-state flags on the current state. */

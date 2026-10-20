@@ -170,6 +170,14 @@ zpc/<home_id>/Network/Node/Remove
 { }
 ```
 
+To only remove a specific node, provide its NodeID. If another node initiates exclusion, ZPC stops the operation and leaves that node in the network. Omitting `node_id` keeps the existing behavior of accepting any node.
+
+```json
+{ "node_id": 2 }
+```
+
+`node_id` must be an integer from 1 through 232 (classic Z-Wave NodeIDs).
+
 ### NETWORK_NODE_REMOVE_REPORT
 
 **Report (published by ZPC):**

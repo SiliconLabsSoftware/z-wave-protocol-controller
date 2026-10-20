@@ -37,6 +37,7 @@
 void reset_nms_last_operation_data()
 {
     nms.node_id_being_handled    = 0;
+    nms.exclusion_node_id_filter = 0;
     nms.is_controller            = 0;
     nms.flags                    = 0;
     nms.inclusion_protocol       = PROTOCOL_ZWAVE;
