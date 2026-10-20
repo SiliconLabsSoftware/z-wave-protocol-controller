@@ -60,7 +60,7 @@ namespace zwave_command_class
             const attribute_store::attribute endpoint(payload.endpoint_node);
             const attribute_store::attribute device_node = endpoint.parent();
 
-            device_interviewer_get_node_information_payload_t request;
+            device_interviewer_get_node_information_payload_t request {};
             request.device_node = device_node;
             component_connector connector;
             auto future                            = connector.fire_event_async<device_interviewer_get_node_information_payload_t, device_interviewer_get_node_information_payload_t>(static_cast<uint32_t>(device_interviewer_events_t::DEVICE_INTERVIEWER_GET_NODE_INFORMATION), request);
