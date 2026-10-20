@@ -35,6 +35,8 @@ set(_zpc_deb_depends
     "libc6 (>= 2.31), libssl3 (>= 3.0.0), libyaml-cpp0.8 | libyaml-cpp0.7, libfmt9 | libfmt10")
 if(ZPC_ENABLE_SANITIZERS)
   string(APPEND _zpc_deb_depends ", libasan8, libubsan1")
+elseif(ZPC_ENABLE_TSAN)
+  string(APPEND _zpc_deb_depends ", libtsan2")
 endif()
 set(CPACK_DEBIAN_PACKAGE_DEPENDS
     "${_zpc_deb_depends}"
@@ -72,6 +74,9 @@ endif()
 if(ZPC_ENABLE_SANITIZERS)
   set(CPACK_PACKAGE_FILE_NAME
       "zpc-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}-debug-sanitize")
+elseif(ZPC_ENABLE_TSAN)
+  set(CPACK_PACKAGE_FILE_NAME
+      "zpc-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}-debug-tsan")
 else()
   set(CPACK_PACKAGE_FILE_NAME "zpc-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 endif()

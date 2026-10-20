@@ -47,6 +47,14 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "ZPC_ENABLE_SANITIZERS": "ON"
       }
+    },
+    {
+      "name": "debug-tsan",
+      "inherits": ["zpc"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ZPC_ENABLE_TSAN": "ON"
+      }
     }
   ],
   "testPresets": [
@@ -89,6 +97,12 @@
       "configurePreset": "debug-sanitize",
       "targets": ["zpc"],
       "jobs": 8
+    },
+    {
+      "name": "debug-tsan",
+      "configurePreset": "debug-tsan",
+      "targets": ["zpc"],
+      "jobs": 8
     }
   ],
   "packagePresets": [
@@ -99,6 +113,10 @@
     {
       "name": "debug-sanitize",
       "configurePreset": "debug-sanitize"
+    },
+    {
+      "name": "debug-tsan",
+      "configurePreset": "debug-tsan"
     }
   ],
   "workflowPresets": [
@@ -129,6 +147,13 @@
       "steps": [
         { "type": "configure", "name": "debug-sanitize" },
         { "type": "build", "name": "debug-sanitize" }
+      ]
+    },
+    {
+      "name": "debug-tsan",
+      "steps": [
+        { "type": "configure", "name": "debug-tsan" },
+        { "type": "build", "name": "debug-tsan" }
       ]
     }
   ]

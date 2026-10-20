@@ -35,9 +35,14 @@ set(PAHO_BUILD_EXAMPLES FALSE CACHE BOOL "Build examples" FORCE)
 set(PAHO_BUILD_TESTS FALSE CACHE BOOL "Build tests" FORCE)
 set(PAHO_WITH_MQTT_C TRUE CACHE BOOL "Build bundled Paho C library" FORCE)
 
-zpc_push_external_compiler_flags()
-FetchContent_MakeAvailable(paho-mqtt-cpp)
-zpc_pop_external_compiler_flags()
+# TSan must instrument Paho (threaded MQTT). ASan/UBSan still use vanilla flags.
+if(ZPC_ENABLE_TSAN)
+  FetchContent_MakeAvailable(paho-mqtt-cpp)
+else()
+  zpc_push_external_compiler_flags()
+  FetchContent_MakeAvailable(paho-mqtt-cpp)
+  zpc_pop_external_compiler_flags()
+endif()
 
 # --- Resolve C++ target (prefer static) ---
 set(PAHO_CPP_TARGET "")
