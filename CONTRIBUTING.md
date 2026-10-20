@@ -260,7 +260,7 @@ The configure step (`cmake --preset <preset>`) also **regenerates all command cl
 
 ### Unit Tests
 
-Use the `unit-test` CMake preset (`UNIT_TEST=ON`) on macOS and Linux. Do not use the product `debug` / `release` workflows for this — those skip tests. `--fresh` removes the existing CMake cache in `build/unit-test` so the same tree can be reused after switching OS or compiler.
+Use the `unit-test` CMake preset (`UNIT_TEST=ON`) on macOS and Linux. Do not use the `debug` / `release` workflows for this — those skip tests. `--fresh` removes the existing CMake cache in `build/unit-test` so the same tree can be reused after switching OS or compiler.
 
 The `unit-test` preset builds with **AddressSanitizer** and **UndefinedBehaviorSanitizer**. A sanitizer hit aborts the test. Do not combine unit tests with `COVERAGE` or gcov in the same configure.
 

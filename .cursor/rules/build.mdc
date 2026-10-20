@@ -6,7 +6,7 @@ alwaysApply: true
 
 # Commands
 
-- product presets: `debug` or `release` (macOS, Linux, and docker)
+- debug / release presets: default `zpc` builds (macOS, Linux, and docker)
 - `cmake --workflow --preset <preset>`: Configure and build the project for the given preset.
 - `cmake --preset <preset>`: Configure the project and regenerate the command classes.
 - `cmake --build --preset <preset>`: Build the project for the given preset.
@@ -16,7 +16,7 @@ alwaysApply: true
 - `cmake --preset unit-test --fresh`: Configure the project with unit tests enabled.
 - `cmake --build --preset unit-test`: Build the unit-test targets.
 - `ctest --preset unit-test`: Run unit tests after they have been built.
-- debug-sanitize preset: Debug `zpc` with ASan and UBSan (not a product package). `cmake --workflow --preset debug-sanitize` then, on Linux, `cpack --preset debug-sanitize` → `build/debug-sanitize/zpc-<arch>-debug-sanitize.deb`. Scheduled CI uploads that artifact like product Linux CI.
-- debug-tsan preset: Debug `zpc` with TSan only (not ASan/UBSan; not a product package). `cmake --workflow --preset debug-tsan` then, on Linux, `cpack --preset debug-tsan` → `build/debug-tsan/zpc-<arch>-debug-tsan.deb`. Same scheduled CI as debug-sanitize.
+- debug-sanitize preset: Debug `zpc` with ASan and UBSan. Linux: `cpack --preset debug-sanitize` → `build/debug-sanitize/zpc-<arch>-debug-sanitize.deb`. Scheduled sanitizer CI; not a release artifact.
+- debug-tsan preset: Debug `zpc` with TSan only. Linux: `cpack --preset debug-tsan` → `build/debug-tsan/zpc-<arch>-debug-tsan.deb`. Same sanitizer CI; not a release artifact.
 - Linux packaging (CI): after `cmake --workflow --preset release` with `CMAKE_INSTALL_PREFIX=/usr`, run `cpack --preset release`. Output: `build/release/*.deb`.
-- PR CI product jobs: macOS and Linux amd64-gcc build `debug` then `release`; arm64-gcc and Linux clang build `release` only. Package gcc `release` only.
+- PR CI build jobs: macOS and Linux amd64-gcc build `debug` then `release`; arm64-gcc and Linux clang build `release` only. Package gcc `release` only.

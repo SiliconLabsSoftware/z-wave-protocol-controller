@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: Zlib
 # SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
+#
+# Native Linux sanitizer builds of zpc: ASan+UBSan (debug-sanitize) and TSan
+# (debug-tsan) on amd64 and arm64. Packages a .deb. Manual run and Mon/Thu
+# schedule. Not a PR merge gate.
 ---
 name: ZPC Sanitizer
 

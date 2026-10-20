@@ -41,7 +41,7 @@ endif()
 include(cmake/include/compiler_options.cmake)
 include(cmake/include/version.cmake)
 
-# CTest + unit test helpers (product presets leave UNIT_TEST off; unit-test preset turns it on)
+# CTest + unit test helpers (debug / release presets leave UNIT_TEST off; unit-test preset turns it on)
 include(CTest)
 option(UNIT_TEST "Configure unit tests" OFF)
 if(UNIT_TEST)
