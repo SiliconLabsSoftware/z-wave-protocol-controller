@@ -48,7 +48,7 @@ zpc/<home_id>/<node_id>/ep<endpoint_id>/Configuration/Report/ConfigurationBulkRe
   "properties1": {
     "size": "0x05",
     "handshake": "0x05",
-    "default": "0x05"
+    "default_flag": "0x05"
   },
   "vg": [
     {
@@ -76,7 +76,7 @@ zpc/<home_id>/<node_id>/ep<endpoint_id>/Configuration/Command/ConfigurationBulkS
   "properties1": {
     "size": "0x05",
     "handshake": "0x05",
-    "default": "0x05"
+    "default_flag": "0x05"
   },
   "vg": [
     {
@@ -136,7 +136,7 @@ zpc/<home_id>/<node_id>/ep<endpoint_id>/Configuration/Command/ConfigurationSet
   "parameter_number": "0x12",
   "level": {
     "size": "0x05",
-    "default": "0x05"
+    "default_flag": "0x05"
   },
   "configuration_value": [
     "0x01",
