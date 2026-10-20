@@ -18,13 +18,19 @@ permissions:
 
 jobs:
   debug_sanitize:
-    name: ${{ matrix.preset }}
-    runs-on: ubuntu-24.04
+    name: ${{ matrix.preset }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.runs-on }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         preset: [debug-sanitize, debug-tsan]
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runs-on: ubuntu-24.04
+          - arch: arm64
+            runs-on: ubuntu-24.04-arm
     env:
       CC: gcc-14
       CXX: g++-14
@@ -52,7 +58,7 @@ jobs:
       - name: Upload ZPC debian package
         uses: actions/upload-artifact@v4
         with:
-          name: zpc-deb-amd64-gcc-${{ matrix.preset }}
+          name: zpc-deb-${{ matrix.arch }}-gcc-${{ matrix.preset }}
           path: build/${{ matrix.preset }}/*.deb
           retention-days: 1
           if-no-files-found: error
