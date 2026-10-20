@@ -167,9 +167,9 @@ supported_command_classes:
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NETWORK_SCHEME
   - name: "COMMAND_CLASS_TIME"
     version: 3
-    mqtt_support: false
+    mqtt_support: true
     support: true
-    control: false
+    control: true
     minimal_scheme: ZWAVE_CONTROLLER_ENCAPSULATION_NONE
     manual_security_validation: true
   - name: "COMMAND_CLASS_ASSOCIATION_GRP_INFO"
