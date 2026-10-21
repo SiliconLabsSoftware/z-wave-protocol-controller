@@ -11,7 +11,7 @@ ZPC builds on **Linux** and **macOS**. The following environments have been test
 
 CMake rejects unsupported compilers at configure time — see `cmake/include/compiler_options.cmake`.
 
-- **CMake** 3.25+ and **Ninja** — required by the `macos` and `debian` presets (`CMakePresets.json`)
+- **CMake** 3.25+ and **Ninja** — required by the `debug` and `release` presets (`CMakePresets.json`)
 
 ## Install dependencies
 
@@ -103,7 +103,7 @@ Flash the **Z-Wave NCP Serial API Controller** firmware onto your Silicon Labs b
 
 ## Build ZPC
 
-ZPC uses CMake presets. Use `macos` on macOS and `debian` on Debian (and inside Docker):
+ZPC uses CMake presets. Use `debug` or `release` on macOS, Linux, and inside Docker:
 
 ```bash
 cmake --workflow --preset <preset>

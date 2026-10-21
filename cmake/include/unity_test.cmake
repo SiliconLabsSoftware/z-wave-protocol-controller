@@ -14,12 +14,15 @@ set(TEST_TOOLS_DIR
     CACHE INTERNAL "Directory containing gen_test_runner.py")
 
 include(FetchContent)
+include(${CMAKE_CURRENT_LIST_DIR}/external_compiler_flags.cmake)
 FetchContent_Declare(
   throwtheswitch_unity
   GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git
   GIT_TAG v2.6.1
   GIT_SHALLOW TRUE)
+zpc_push_external_compiler_flags()
 FetchContent_MakeAvailable(throwtheswitch_unity)
+zpc_pop_external_compiler_flags()
 
 if(NOT TARGET unity)
   add_library(unity STATIC ${throwtheswitch_unity_SOURCE_DIR}/src/unity.c)

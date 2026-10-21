@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(z-wave-protocol-controller)
 
-# debian preset maps CMAKE_INSTALL_PREFIX from $penv{}; unset → empty → restore CMake default.
+# Presets map CMAKE_INSTALL_PREFIX from $penv{}; unset → empty → restore CMake default.
 if(CMAKE_INSTALL_PREFIX STREQUAL "")
   set(CMAKE_INSTALL_PREFIX
       "/usr/local"
@@ -41,7 +41,7 @@ endif()
 include(cmake/include/compiler_options.cmake)
 include(cmake/include/version.cmake)
 
-# CTest + unit test helpers (product presets leave UNIT_TEST off; unit-test preset turns it on)
+# CTest + unit test helpers (debug / release presets leave UNIT_TEST off; unit-test preset turns it on)
 include(CTest)
 option(UNIT_TEST "Configure unit tests" OFF)
 if(UNIT_TEST)

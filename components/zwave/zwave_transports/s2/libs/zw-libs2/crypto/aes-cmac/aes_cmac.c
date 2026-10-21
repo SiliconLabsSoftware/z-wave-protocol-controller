@@ -41,6 +41,7 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>
 #include "aes.h"
 #include "aes_cmac.h"
 
@@ -152,7 +153,10 @@ void aes_cmac_calculate(const uint8_t *key, const uint8_t *message, const uint16
     {
         xor_128(&message[16 * (n - 1)], K1, M_last);
     } else {
-        padding(&message[16 * (n - 1)], padded, message_length % 16);
+        /* RFC 4493 empty message: length 0 and message may be NULL. Forming
+         * &message[0] from a null pointer is UB even with a zero offset. */
+        const uint8_t *last_block = (0 == message_length) ? NULL : &message[16 * (n - 1)];
+        padding(last_block, padded, message_length % 16);
         xor_128(padded, K2, M_last);
     }
 

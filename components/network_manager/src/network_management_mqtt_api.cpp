@@ -422,7 +422,7 @@ namespace zwave_command_class
                 nlohmann::json node_information = nlohmann::json::object();
                 nlohmann::json version_report   = nlohmann::json::object();
 
-                device_interviewer_get_node_information_payload_t payload_struct;
+                device_interviewer_get_node_information_payload_t payload_struct {};
                 payload_struct.device_node = attribute_store::attribute(node_id_node);
 
                 // NODE_INFORMATION_GROUP

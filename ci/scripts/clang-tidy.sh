@@ -15,9 +15,10 @@ check) ;;
   ;;
 esac
 
+preset="${CMAKE_PRESET:-debug}"
+
 case "$(uname -s)" in
 Darwin)
-  preset="${CMAKE_PRESET:-macos}"
   jobs="$(sysctl -n hw.ncpu)"
   tidy="${CLANG_TIDY:-}"
   runner="${RUN_CLANG_TIDY:-}"
@@ -30,7 +31,6 @@ Darwin)
   fi
   ;;
 *)
-  preset="${CMAKE_PRESET:-debian}"
   jobs="$(nproc)"
   tidy="${CLANG_TIDY:-clang-tidy-19}"
   runner="${RUN_CLANG_TIDY:-run-clang-tidy-19}"

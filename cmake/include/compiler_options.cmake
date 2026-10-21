@@ -4,6 +4,8 @@ else()
   return()
 endif()
 
+include(${CMAKE_CURRENT_LIST_DIR}/external_compiler_flags.cmake)
+
 # ##############################################################################
 # Build Type Configuration
 # ##############################################################################
@@ -72,9 +74,9 @@ set(CMAKE_CXX_EXTENSIONS ON) # Enable gnu++11 extentions
 set(COMMON_C_FLAGS "-pipe -Wall -Werror -fstack-protector-strong")
 set(COMMON_CXX_FLAGS "-pipe -Wall -Werror -Wc++20-extensions -fstack-protector-strong")
 
-# Debug: No optimization, full debug info
-set(CMAKE_C_FLAGS_DEBUG "${COMMON_C_FLAGS} -g3 -O0")
-set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_CXX_FLAGS} -g3 -O0")
+# Debug: No optimization, full debug info, compile-time hardening (no sanitizer runtime)
+set(CMAKE_C_FLAGS_DEBUG "${COMMON_C_FLAGS} -g3 -O0 -ftrivial-auto-var-init=pattern -fstack-protector-strong")
+set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_CXX_FLAGS} -g3 -O0 -ftrivial-auto-var-init=pattern -fstack-protector-strong")
 
 # Release: Optimize for size (-Os), minimal debug info
 set(CMAKE_C_FLAGS_RELEASE "${COMMON_C_FLAGS} -Os -DNDEBUG")
@@ -86,21 +88,39 @@ if(APPLE)
 endif()
 
 # ##############################################################################
-# Sanitizers (unit-test preset sets ZPC_ENABLE_SANITIZERS=ON)
+# Sanitizers (unit-test / debug-sanitize: ASan+UBSan; debug-tsan: TSan)
 # ##############################################################################
 option(ZPC_ENABLE_SANITIZERS "Build with AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+option(ZPC_ENABLE_TSAN "Build with ThreadSanitizer (incompatible with ASan/UBSan)" OFF)
+
+if(ZPC_ENABLE_SANITIZERS AND ZPC_ENABLE_TSAN)
+  message(FATAL_ERROR "ZPC_ENABLE_SANITIZERS and ZPC_ENABLE_TSAN cannot be enabled together")
+endif()
 
 if(ZPC_ENABLE_SANITIZERS)
   if(COVERAGE OR CMAKE_GCOV)
     message(FATAL_ERROR "ZPC_ENABLE_SANITIZERS is incompatible with COVERAGE / CMAKE_GCOV")
   endif()
-  message(STATUS "Enabling ASan and UBSan for unit-test sanitizer build")
-  add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
+  message(STATUS "Enabling ASan and UBSan (halt on error)")
+  add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer
+                      -fno-sanitize-recover=address,undefined)
   add_link_options(-fsanitize=address,undefined)
   if(APPLE)
     # zw-libs2 mock_control uses sprintf in macros; AppleClang treats it as deprecated.
     add_compile_options(-Wno-deprecated-declarations)
   endif()
+endif()
+
+if(ZPC_ENABLE_TSAN)
+  if(COVERAGE OR CMAKE_GCOV)
+    message(FATAL_ERROR "ZPC_ENABLE_TSAN is incompatible with COVERAGE / CMAKE_GCOV")
+  endif()
+  message(STATUS "Enabling TSan (halt on error, -O1)")
+  string(REPLACE "-O0" "-O1" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+  string(REPLACE "-O0" "-O1" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+  add_compile_options(-fsanitize=thread -fno-omit-frame-pointer
+                      -fno-sanitize-recover=thread)
+  add_link_options(-fsanitize=thread)
 endif()
 
 # ##############################################################################

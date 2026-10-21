@@ -9,7 +9,7 @@
             "type": "lldb",
             "cwd": "${workspaceFolder}",
             "request": "launch",
-            "program": "${workspaceFolder}/build/macos/applications/zpc/zpc",
+            "program": "${workspaceFolder}/build/debug/applications/zpc/zpc",
             "args": [
                 "--conf",
                 "${env:ZPC_CONF_PATH}",

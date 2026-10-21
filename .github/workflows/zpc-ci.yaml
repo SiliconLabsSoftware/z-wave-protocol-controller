@@ -149,7 +149,7 @@ jobs:
     name: macos-amd64-clang
     needs: [format, unit_test]
     runs-on: macos-26
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -164,8 +164,11 @@ jobs:
           brew install $(cat ci/dependencies/brew-packages.txt)
           pip3 install -r ci/dependencies/requirements.txt --break-system-packages
 
-      - name: Build ZPC
-        run: cmake --workflow --preset macos
+      - name: Build ZPC (debug)
+        run: cmake --workflow --preset debug
+
+      - name: Build ZPC (release)
+        run: cmake --workflow --preset release
 
   success:
     name: success

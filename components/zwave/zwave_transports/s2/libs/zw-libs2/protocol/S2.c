@@ -1049,14 +1049,17 @@ void S2_destroy(struct S2 *p_context)
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
     void *result = memset_explicit(ctxt, 0, sizeof(struct S2));
     assert(result == ctxt);
+    (void)result;
 #elif defined(HAVE_EXPLICIT_BZERO)  // for gcc-12
     explicit_bzero(ctxt, sizeof(struct S2));
 #elif defined(__APPLE__)            // for MacOS
     errno_t result = memset_s(ctxt, sizeof(struct S2), 0, sizeof(struct S2));
     assert(result == 0);
+    (void)result;
 #else
     void *result = memset(ctxt, 0, sizeof(struct S2));  // NOSONAR: Fallback option
     assert(result == ctxt);
+    (void)result;
 #endif
 
 #ifndef SINGLE_CONTEXT

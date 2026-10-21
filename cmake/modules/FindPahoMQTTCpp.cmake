@@ -13,6 +13,7 @@ endif()
 message(NOTICE "-- Finding Paho MQTT C++")
 
 include(FetchContent)
+include(${CMAKE_CURRENT_LIST_DIR}/../include/external_compiler_flags.cmake)
 
 FetchContent_Declare(
   paho-mqtt-cpp
@@ -34,7 +35,40 @@ set(PAHO_BUILD_EXAMPLES FALSE CACHE BOOL "Build examples" FORCE)
 set(PAHO_BUILD_TESTS FALSE CACHE BOOL "Build tests" FORCE)
 set(PAHO_WITH_MQTT_C TRUE CACHE BOOL "Build bundled Paho C library" FORCE)
 
-FetchContent_MakeAvailable(paho-mqtt-cpp)
+# Paho is statically linked into zpc. Skip its install()/export() so CPack does
+# not require unused Paho variants (3a/3c/3cs) that a zpc-only build never
+# produces. CMAKE_SKIP_INSTALL_RULES does not apply inside FetchContent subdirs.
+# Wrap install()/export() once: a second function(install) rebinds _install to
+# the previous wrapper (a no-op), which dropped zpc from the .deb.
+if(NOT COMMAND _zpc_fetchcontent_install_wrapped)
+  function(_zpc_fetchcontent_install_wrapped)
+  endfunction()
+  function(install)
+    if(ZPC_SKIP_FETCHCONTENT_INSTALL)
+      return()
+    endif()
+    _install(${ARGV})
+  endfunction()
+  function(export)
+    if(ZPC_SKIP_FETCHCONTENT_INSTALL)
+      return()
+    endif()
+    _export(${ARGV})
+  endfunction()
+endif()
+
+set(ZPC_SKIP_FETCHCONTENT_INSTALL TRUE CACHE INTERNAL "")
+
+# TSan must instrument Paho (threaded MQTT). ASan/UBSan still use vanilla flags.
+if(ZPC_ENABLE_TSAN)
+  FetchContent_MakeAvailable(paho-mqtt-cpp)
+else()
+  zpc_push_external_compiler_flags()
+  FetchContent_MakeAvailable(paho-mqtt-cpp)
+  zpc_pop_external_compiler_flags()
+endif()
+
+set(ZPC_SKIP_FETCHCONTENT_INSTALL FALSE CACHE INTERNAL "")
 
 # --- Resolve C++ target (prefer static) ---
 set(PAHO_CPP_TARGET "")

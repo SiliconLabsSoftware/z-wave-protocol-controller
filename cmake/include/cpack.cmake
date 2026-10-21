@@ -31,9 +31,17 @@ set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://www.silabs.com")
 # -D CPACK_DEBIAN_PACKAGE_DEPENDS=... at configure time if needed.
 # SQLite is compiled from the official amalgamation via FetchContent (see
 # cmake/modules/FindSQLite3.cmake), not linked as libsqlite3-0.
+set(_zpc_deb_depends
+    "libc6 (>= 2.31), libssl3 (>= 3.0.0), libyaml-cpp0.8 | libyaml-cpp0.7, libfmt9 | libfmt10")
+if(ZPC_ENABLE_SANITIZERS)
+  string(APPEND _zpc_deb_depends ", libasan8, libubsan1")
+elseif(ZPC_ENABLE_TSAN)
+  string(APPEND _zpc_deb_depends ", libtsan2")
+endif()
 set(CPACK_DEBIAN_PACKAGE_DEPENDS
-    "libc6 (>= 2.31), libssl3 (>= 3.0.0), libyaml-cpp0.8 | libyaml-cpp0.7, libfmt9 | libfmt10"
+    "${_zpc_deb_depends}"
     CACHE STRING "Debian package runtime dependencies (comma-separated list)")
+unset(_zpc_deb_depends)
 
 # Architecture: cross toolchains (cmake/arm64_debian.cmake, armhf_debian.cmake) set this;
 # native Linux builds resolve via dpkg when available.
@@ -62,8 +70,16 @@ if(NOT DEFINED CPACK_DEBIAN_PACKAGE_ARCHITECTURE OR CPACK_DEBIAN_PACKAGE_ARCHITE
   endif()
 endif()
 
-# Output: zpc-<arch>.deb (e.g. zpc-amd64.deb); CPack adds .deb for the DEB generator
-set(CPACK_PACKAGE_FILE_NAME "zpc-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+# Output: zpc-<arch>.deb (e.g. zpc-amd64.deb); sanitizer builds use a distinct name.
+if(ZPC_ENABLE_SANITIZERS)
+  set(CPACK_PACKAGE_FILE_NAME
+      "zpc-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}-debug-sanitize")
+elseif(ZPC_ENABLE_TSAN)
+  set(CPACK_PACKAGE_FILE_NAME
+      "zpc-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}-debug-tsan")
+else()
+  set(CPACK_PACKAGE_FILE_NAME "zpc-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+endif()
 
 set(CPACK_GENERATOR "DEB" CACHE STRING "CPack generator(s); DEB for Debian package")
 
