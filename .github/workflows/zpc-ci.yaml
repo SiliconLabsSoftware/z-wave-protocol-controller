@@ -43,7 +43,7 @@ jobs:
     needs: [format]
     if: needs.format.result == 'success'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -108,6 +108,27 @@ jobs:
         with:
           name: unit-test-reports
           path: unit-test-reports/
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Add coverage header for summary
+        run: echo "### Unit test coverage (gcc)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Configure, build, and run unit tests (gcc coverage)
+        env:
+          CC: gcc-14
+          CXX: g++-14
+        run: cmake --workflow --preset unit-test-coverage --fresh
+
+      - name: Check component coverage
+        run: python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
+
+      - name: Upload unit test coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: build/unit-test-coverage/coverage/
           retention-days: 1
           if-no-files-found: error
 

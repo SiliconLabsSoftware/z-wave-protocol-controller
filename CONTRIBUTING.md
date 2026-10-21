@@ -262,7 +262,9 @@ The configure step (`cmake --preset <preset>`) also **regenerates all command cl
 
 Use the `unit-test` CMake preset (`UNIT_TEST=ON`) on macOS and Linux. Do not use the `debug` / `release` workflows for this — those skip tests. `--fresh` removes the existing CMake cache in `build/unit-test` so the same tree can be reused after switching OS or compiler.
 
-The `unit-test` preset builds with **AddressSanitizer** and **UndefinedBehaviorSanitizer**. A sanitizer hit aborts the test. Do not combine unit tests with `COVERAGE` or gcov in the same configure.
+The `unit-test` preset builds with **AddressSanitizer** and **UndefinedBehaviorSanitizer**. A sanitizer hit aborts the test. Do not combine sanitizers with `COVERAGE` or gcov in the same configure.
+
+Coverage uses a **second** preset, `unit-test-coverage` (`COVERAGE=ON`, sanitizers off), then [`ci/scripts/check_coverage.py`](ci/scripts/check_coverage.py). Components listed in [`ci/coverage/component_blacklist.yaml`](ci/coverage/component_blacklist.yaml) are exempt from the 80% line-coverage gate until tests exist. When adding tests, follow [`.cursor/skills/unit-test/SKILL.md`](.cursor/skills/unit-test/SKILL.md): remove the component path from the blacklist first, then run sanitizers, then coverage.
 
 ZPC component tests use **GoogleTest** and **GoogleMock** (`add_zpc_gtest` in [cmake/include/gtest_test.cmake](cmake/include/gtest_test.cmake)). The embedded **zw-libs2** tree still uses **Unity** (`add_unity_test`).
 
@@ -278,12 +280,22 @@ To re-run tests after a configure and build:
 ctest --preset unit-test
 ```
 
+Coverage (after sanitizer tests pass):
+
+```bash
+cmake --workflow --preset unit-test-coverage --fresh
+python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
+```
+
+Reports: `build/unit-test-coverage/coverage/html/index.html` and `build/unit-test-coverage/coverage/coverage.xml`. PR CI uploads those as the `unit-test-coverage` artifact after the sanitizer unit-test runs.
+
 ### CI Expectations
 
 PR CI runs these gates automatically — you do not need to replicate all of them locally:
 
 1. **clang-format** — formatting is checked first; drift fails the format job
-2. **clang-tidy**, **Linux builds** (`debug` then `release` on amd64-gcc; `release` on arm64-gcc and amd64-clang; Debian packages for gcc `amd64`/`arm64`), and **macOS build** (`debug` then `release`) — run in parallel after format passes
+2. **unit-test** — sanitizer gcc, sanitizer clang, then gcc `unit-test-coverage` and the 80% gcovr gate (`ci/scripts/check_coverage.py`; blacklist in `ci/coverage/component_blacklist.yaml`). Coverage HTML/XML is the `unit-test-coverage` artifact.
+3. **clang-tidy**, **Linux builds** (`debug` then `release` on amd64-gcc; `release` on arm64-gcc and amd64-clang; Debian packages for gcc `amd64`/`arm64`), and **macOS build** (`debug` then `release`) — run in parallel after format passes
 
 ## Documentation
 

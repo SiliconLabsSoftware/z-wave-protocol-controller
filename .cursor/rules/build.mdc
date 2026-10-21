@@ -11,11 +11,15 @@ alwaysApply: true
 - `cmake --preset <preset>`: Configure the project and regenerate the command classes.
 - `cmake --build --preset <preset>`: Build the project for the given preset.
 
-- unit-test preset: `unit-test` (macOS, Linux, and docker; ASan, UBSan, LSan on Linux via `ASAN_OPTIONS`; halt on sanitizer error)
+- unit-test preset: `unit-test` (macOS, Linux, and docker; ASan, UBSan, LSan on Linux via `ASAN_OPTIONS`; halt on sanitizer error). Do not set `COVERAGE` on this configure.
 - `cmake --workflow --preset unit-test --fresh`: Configure, build, and run unit tests. `--fresh` removes the existing CMake cache in `build/unit-test`.
 - `cmake --preset unit-test --fresh`: Configure the project with unit tests enabled.
 - `cmake --build --preset unit-test`: Build the unit-test targets.
 - `ctest --preset unit-test`: Run unit tests after they have been built.
+- unit-test-coverage preset: `unit-test-coverage` (`UNIT_TEST=ON`, `COVERAGE=ON`, sanitizers OFF). Mutually exclusive with `ZPC_ENABLE_SANITIZERS`.
+- `cmake --workflow --preset unit-test-coverage --fresh` then `python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage`. Reports: `build/unit-test-coverage/coverage/html/index.html` and `coverage.xml`.
+- PR CI unit-test job: sanitizer gcc, sanitizer clang, then gcc coverage + gcovr gate. Artifacts: `unit-test-reports` (JUnit), `unit-test-coverage` (HTML+XML).
+- Component tests: `.cursor/skills/unit-test/SKILL.md` (unblacklist in `ci/coverage/component_blacklist.yaml` step 0).
 - debug-sanitize preset: Debug `zpc` with ASan and UBSan. Linux: `cpack --preset debug-sanitize` → `build/debug-sanitize/zpc-<arch>-debug-sanitize.deb`. Scheduled sanitizer CI; not a release artifact.
 - debug-tsan preset: Debug `zpc` with TSan only. Linux: `cpack --preset debug-tsan` → `build/debug-tsan/zpc-<arch>-debug-tsan.deb`. Same sanitizer CI; not a release artifact.
 - Linux packaging (CI): after `cmake --workflow --preset release` with `CMAKE_INSTALL_PREFIX=/usr`, run `cpack --preset release`. Output: `build/release/*.deb`.
