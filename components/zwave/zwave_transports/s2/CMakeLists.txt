@@ -50,8 +50,7 @@ set_target_properties(
 
 target_link_libraries(
   s2_controller
-  s2crypto
-  aes)
+  s2crypto)
 
 target_include_directories(
   s2_controller
@@ -59,14 +58,17 @@ target_include_directories(
   include
   PRIVATE
   ${ZPC_SOURCE_DIR}/../../components/zwave/zwave_definitions/include
-  ${ZW-LIBS2_PATH}/include
   ${ZW-LIBS2_PATH}/inclusion
   src)
+# libs2 headers (S2.h, s2_keystore.h, ...) are consumed by targets that link
+# s2_controller, so they must be exported. This was previously exported through
+# the legacy s2crypto target.
+target_include_directories(s2_controller PUBLIC ${ZW-LIBS2_PATH}/include)
 
 target_link_libraries(
   zwave_s2
   PUBLIC zwave_s2_nonce_management
-  PRIVATE s2_controller s2crypto_psa zwave_controller zwave_s0
+  PRIVATE s2_controller s2crypto zwave_controller zwave_s0
           zpc_attribute_store)
 
 target_compile_definitions(zwave_s2 PRIVATE ZIPGW ZW_CONTROLLER)
