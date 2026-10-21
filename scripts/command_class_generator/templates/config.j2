@@ -30,6 +30,7 @@
     "FIRMWARE_UPDATE_MD_STATUS_REPORT",
     "FIRMWARE_UPDATE_ACTIVATION_STATUS_REPORT",
     "SENSOR_MULTILEVEL_REPORT",
+    "SENSOR_BINARY_REPORT",
     "SENSOR_MULTILEVEL_SUPPORTED_SCALE_REPORT",
     "CONFIGURATION_REPORT",
 ] %}
@@ -48,10 +49,11 @@
 {# In the function_generator.j2, we use this list to get the command pairs for the special commands #}
 {# If the command is not in the list, the generator will use a lazy approach to get the command pairs #}
 {# (FIND_REPORT -> FIND), (REPORT -> GET) #}
-{% macro get_special_command_pairs(command_name) %}
+{% macro get_special_command_pairs() %}
     {% set command_map = {
        "SENSOR_MULTILEVEL_SUPPORTED_SENSOR_REPORT": "SENSOR_MULTILEVEL_SUPPORTED_GET_SENSOR",
-       "SENSOR_MULTILEVEL_SUPPORTED_SCALE_REPORT": "SENSOR_MULTILEVEL_SUPPORTED_GET_SCALE"
+       "SENSOR_MULTILEVEL_SUPPORTED_SCALE_REPORT": "SENSOR_MULTILEVEL_SUPPORTED_GET_SCALE",
+       "SENSOR_BINARY_SUPPORTED_SENSOR_REPORT": "SENSOR_BINARY_SUPPORTED_GET_SENSOR"
     } %}
     {{ command_map | as_json }}
 {% endmacro %}
