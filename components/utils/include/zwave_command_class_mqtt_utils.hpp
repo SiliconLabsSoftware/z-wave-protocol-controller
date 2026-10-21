@@ -387,6 +387,11 @@ namespace zwave_command_class
                 return m_status;
             }
 
+            bool contains(const char *key) const noexcept
+            {
+                return m_status == SL_STATUS_OK && m_payload.contains(key);
+            }
+
         private:
             const char *m_log_tag;
             sl_status_t m_status;
