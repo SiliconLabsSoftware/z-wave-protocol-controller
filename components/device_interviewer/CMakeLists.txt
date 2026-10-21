@@ -1,5 +1,4 @@
-# Find nlohmann_json for MQTT API (same pattern as discovery/network_manager)
-find_path(nlohmann_json_include nlohmann/json.hpp REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 add_library(
   device_interviewer STATIC
@@ -46,7 +45,6 @@ target_include_directories(device_interviewer
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/inc>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/inc/steps>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/inc/generated>
-  PRIVATE ${nlohmann_json_include}
 )
 
 target_link_libraries(device_interviewer
@@ -67,6 +65,7 @@ target_link_libraries(device_interviewer
   command_class_basic_interface
   fmt::fmt
   mqtt_api
+  nlohmann_json::nlohmann_json
   PRIVATE
   attribute_timeouts
   config)

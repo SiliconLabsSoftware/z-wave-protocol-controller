@@ -1,4 +1,2 @@
 libc6
 libssl3
-libyaml-cpp0.8
-libfmt10

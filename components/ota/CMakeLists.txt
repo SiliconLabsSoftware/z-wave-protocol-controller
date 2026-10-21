@@ -1,5 +1,4 @@
-# Find nlohmann_json for MQTT API JSON parsing
-find_path(nlohmann_json_include nlohmann/json.hpp REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 add_library(
   ota_update_manager STATIC
@@ -25,7 +24,6 @@ target_include_directories(ota_update_manager
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/inc>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/inc/steps>
-  PRIVATE ${nlohmann_json_include}
 )
 
 target_link_libraries(ota_update_manager
@@ -37,6 +35,7 @@ target_link_libraries(ota_update_manager
     zwave_definitions
     command_class_firmware_update_md_interface
     fmt::fmt
+    nlohmann_json::nlohmann_json
   PRIVATE
     utils
     log

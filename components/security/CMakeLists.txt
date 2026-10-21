@@ -2,9 +2,7 @@
 # variant; using it here adds no new runtime dependency.
 find_package(OpenSSL REQUIRED COMPONENTS Crypto)
 
-# nlohmann_json is found this way elsewhere in the tree (find_package
-# doesn't work reliably with cross-compile setups for this header-only lib).
-find_path(nlohmann_json_include nlohmann/json.hpp REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 add_library(security
   src/seal_x25519.cpp
@@ -14,8 +12,7 @@ add_library(security
 target_include_directories(
   security
   PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
-  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
-          ${nlohmann_json_include})
+  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>)
 
 target_link_libraries(
   security
@@ -31,4 +28,5 @@ target_link_libraries(
           zwave_definitions
           zwave_network_management
           zwave_controller
-          fmt::fmt)
+          fmt::fmt
+          nlohmann_json::nlohmann_json)
