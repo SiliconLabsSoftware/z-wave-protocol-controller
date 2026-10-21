@@ -1,7 +1,7 @@
 add_compile_definitions(UNIT_TEST)
 
 add_library(psa_test_support STATIC psa_test_support.c)
-target_link_libraries(psa_test_support PUBLIC s2crypto_psa s2crypto_zwave)
+target_link_libraries(psa_test_support PUBLIC s2crypto s2crypto_zwave)
 target_include_directories(psa_test_support PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_unity_test(NAME test_psa_smoke FILES test_psa_smoke.c LIBRARIES psa_test_support)
