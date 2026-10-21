@@ -154,6 +154,15 @@ namespace
         return PROTOCOL_UNKNOWN;
     }
 
+    zwave_protocol_t get_most_preferred_protocol(const std::vector<std::string> &preferred_protocols)
+    {
+        const node_protocol_capabilities_t all_capabilities = {true, true};
+        if (preferred_protocols.empty()) {
+            return get_preferred_inclusion_protocol_from_config(all_capabilities);
+        }
+        return get_preferred_inclusion_protocol_from_list(preferred_protocols, all_capabilities);
+    }
+
     bool has_several_protocol_candidates(const std::vector<std::string> &preferred_protocols)
     {
         if (preferred_protocols.empty()) {
@@ -263,7 +272,8 @@ namespace
         std::lock_guard<std::mutex> protocol_discovery_lock(protocol_discovery_db_mutex);
 
         if (has_several_protocol_candidates(matched->preferred_protocols)) {
-            protocol_discover_state_t state = get_protocol_discovery_state(matched->dsk);
+            const zwave_protocol_t most_preferred_protocol = get_most_preferred_protocol(matched->preferred_protocols);
+            protocol_discover_state_t state                = get_protocol_discovery_state(matched->dsk);
             switch (state) {
                 case protocol_discover_state_t::DISCOVERED_ZERO: {
                     auto entry = std::make_shared<ProtocolDiscoveryEntry>();
@@ -271,9 +281,15 @@ namespace
                     timer_set(&entry->timer, PROTOCOL_DISCOVERY_COOLDOWN * TIMER_SECOND, nullptr, 0);
                     protocol_discovery_db[matched->dsk] = entry;
                     sl_log_debug(LOG_TAG, "Discovered %s for NWI HomeID %X", zwave_get_protocol_name(protocol), home_id);
+                    if (entry->has_capability(most_preferred_protocol)) {
+                        goto done_protocol_discovery;
+                    }
                     return;
                 }
                 case protocol_discover_state_t::DISCOVERED_ONE: {
+                    if (protocol_discovery_db[matched->dsk]->has_capability(most_preferred_protocol)) {
+                        goto done_protocol_discovery;
+                    }
                     if (!protocol_discovery_db[matched->dsk]->has_capability(protocol)) {
                         timer_restart(&protocol_discovery_db[matched->dsk]->timer);
                         protocol_discovery_db[matched->dsk]->add_capability(protocol);
