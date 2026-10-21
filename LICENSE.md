@@ -28,22 +28,6 @@ Copyright 2022-2025 Z-Wave Alliance <https://z-wavealliance.org/>
 
 ---
 
-## Public Domain / The Unlicense
-
-```
-components/zwave/zwave_transports/s2/libs/zw-libs2/crypto/aes/aes.c
-components/zwave/zwave_transports/s2/libs/zw-libs2/crypto/curve25519/base.c
-components/zwave/zwave_transports/s2/libs/zw-libs2/crypto/curve25519/smult.c
-```
-
-`aes.c` — tiny-AES128-C by kokke, released into the public domain (see
-`crypto/aes/unlicense.txt`).
-
-`curve25519/base.c`, `curve25519/smult.c` — derived from public domain code by
-D. J. Bernstein and Matthew Dempsky (version 20081011).
-
----
-
 ## MIT License
 
 The following components are used as build-time or runtime dependencies and are
@@ -57,11 +41,13 @@ distributed under the MIT License:
 
 ## Apache License 2.0
 
-The following component is used as a runtime dependency and is distributed
+The following components are used as runtime dependencies and are distributed
 under the Apache License, Version 2.0
 (https://www.apache.org/licenses/LICENSE-2.0):
 
 - **OpenSSL** (https://www.openssl.org/)
+- **Mbed TLS / TF-PSA-Crypto** (https://github.com/Mbed-TLS/mbedtls, v4.2.0).
+  Dual-licensed Apache-2.0 OR GPL-2.0-or-later; used here under Apache-2.0.
 
 ---
 

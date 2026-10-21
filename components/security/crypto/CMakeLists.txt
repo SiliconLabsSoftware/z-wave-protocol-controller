@@ -24,8 +24,8 @@ if(UNIT_TEST)
   set_target_properties(s2crypto_ctr_drbg_kat PROPERTIES POSITION_INDEPENDENT_CODE ON C_STANDARD 99)
 endif()
 
-add_library(s2crypto_psa INTERFACE)
-target_link_libraries(s2crypto_psa INTERFACE s2crypto_zwave)
+add_library(s2crypto INTERFACE)
+target_link_libraries(s2crypto INTERFACE s2crypto_zwave s2crypto_ctr_drbg)
 
 if(UNIT_TEST)
   add_subdirectory(test)
