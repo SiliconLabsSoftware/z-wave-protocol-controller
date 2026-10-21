@@ -15,9 +15,11 @@ Follow this sequence in order. The skill is not done until the coverage check pa
 
 - If a test is failing, modify the **source code**, not the test.
   - Summarize the failure, then **ask the user** before changing the test.
-- **Specification injection:** check whether the Z-Wave specification is in the workspace or the repo. If it is not, ask the user where it is. The previous specification matters.
+- **Specification injection:** check whether the Z-Wave specification is in the workspace or the repo. If it is not, ask the user where it is. The previous specification matters. Let the user know if you found the specification and where it is.
 - Write tests **according to the specification**, not from implementation guesswork.
+- In case of command classes there are multiple versions of each. Create test cases for each versions, based on the specification.
 - If a requirement number exists, put it on the test (`CC:` IDs such as `CC:008A.03.02.11.008`). Skip the ID only when the spec has none for that behavior.
+- Add a short description for each test case what do they test exactly
 
 Sanitizers (`unit-test`) and gcov (`unit-test-coverage`) are **separate configures**. CMake fatals if `ZPC_ENABLE_SANITIZERS` and `COVERAGE` are both ON. CI runs sanitizer gcc, then sanitizer clang, then gcc coverage + `check_coverage.py`. HTML and Cobertura XML upload as artifact `unit-test-coverage`.
 
@@ -54,6 +56,7 @@ Do not change `attribute_store.h` or the store implementation.
 - `TEST` for independent cases; `TEST_F` when `SetUp`/`TearDown` is needed. `ASSERT_*` for preconditions, `EXPECT_*` for checks that should all run.
 - Prefer fakes for state; gMock (`MOCK_METHOD` + `EXPECT_CALL`) for interaction seams (MQTT / TX), not the attribute-store tree.
 - Tests must be deterministic: no `sleep` for sync, no real network/time, unique temp paths, reset process-global state in the fixture.
+- Add comments into the test cases for easier understanding for humans
 
 ## Sanitizer run (correctness)
 
@@ -74,7 +77,7 @@ cmake --workflow --preset unit-test-coverage --fresh
 python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
 ```
 
-- The YAML is the only exemption list. A tested component (`CMakeLists.txt` + `test/`) omitted from it must be **≥ 80% line coverage**.
+- The YAML is the only exemption list. A tested component (`CMakeLists.txt` + `test/`) omitted from it must be **≥ 90% line coverage**.
 - Confirm the child’s own row in the `check_coverage.py` table is `pass`, not rolled into a blacklisted parent.
 - Reports: `build/unit-test-coverage/coverage/html/index.html` and `build/unit-test-coverage/coverage/coverage.xml`.
 - Do not finish if `check_coverage.py` fails. Add tests or fix the path prefix; do not re-add the component to the blacklist to silence the gate.
