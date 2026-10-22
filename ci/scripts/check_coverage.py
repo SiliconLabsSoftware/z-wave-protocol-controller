@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 from collections import defaultdict
@@ -111,14 +112,53 @@ def discover_prefixes(repo: Path, blacklist: list[str]) -> list[str]:
     return sorted(prefixes)
 
 
+def cmake_c_compiler(build_dir: Path) -> str | None:
+    cache = build_dir / "CMakeCache.txt"
+    if not cache.is_file():
+        return None
+    for line in cache.read_text().splitlines():
+        if line.startswith("CMAKE_C_COMPILER:"):
+            _, _, value = line.partition("=")
+            value = value.strip()
+            if value:
+                return value
+    return None
+
+
+def gcov_from_compiler(compiler: str | None) -> str | None:
+    if not compiler:
+        return None
+    name = Path(compiler.split()[0]).name
+    if "gcc" not in name:
+        return None
+    return name.replace("gcc", "gcov", 1)
+
+
+def gcovr_gcov_args(build_dir: Path) -> list[str]:
+    """Use the gcov that matches the compiler that wrote the .gcno files.
+
+    CI builds coverage with gcc-14 (notes version B42*). Default `gcov` on
+    ubuntu-24.04 is gcc-13 (B33*), which makes gcovr abort on the first .gcda.
+    """
+    gcov = os.environ.get("GCOV") or gcov_from_compiler(cmake_c_compiler(build_dir)) or gcov_from_compiler(os.environ.get("CC"))
+    if not gcov:
+        return []
+    executable = gcov.split()[0]
+    if shutil.which(executable) is None:
+        raise SystemExit(f"error: gcov executable {executable!r} not found; install the matching gcc package or set GCOV")
+    return ["--gcov-executable", gcov]
+
+
 def run_gcovr(build_dir: Path, coverage_dir: Path) -> Path:
     coverage_dir.mkdir(parents=True, exist_ok=True)
     json_path = coverage_dir / "coverage.json"
     xml_path = coverage_dir / "coverage.xml"
     html_dir = coverage_dir / "html"
     html_dir.mkdir(parents=True, exist_ok=True)
+    gcov_args = gcovr_gcov_args(build_dir)
     common = [
         "gcovr",
+        *gcov_args,
         "--root",
         str(REPO_ROOT),
         "--filter",
