@@ -135,6 +135,11 @@ namespace zwave_command_class
 
         tx_options.transport.is_protocol_frame = true;
 
+        if (protocol_metadata_length > sizeof(s_metadata.data)) {
+            sl_log_error(LOG_TAG.data(), "Protocol CC encryption metadata length %u exceeds the %zu-byte buffer; dropping request", static_cast<unsigned>(protocol_metadata_length), sizeof(s_metadata.data));
+            return;
+        }
+
         s_metadata.session_id  = session_id;
         s_metadata.data_length = protocol_metadata_length;
         std::memcpy(s_metadata.data, protocol_metadata_data, protocol_metadata_length);
