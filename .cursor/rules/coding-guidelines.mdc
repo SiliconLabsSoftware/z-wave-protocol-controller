@@ -67,6 +67,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 A verify step is only complete when the success criterion has been directly observed. A successful build, compile, or link is not verification of behavior — run the test, check the output, see the bug not happen.
 
+Component GoogleTest work follows `.cursor/skills/unit-test/SKILL.md` (unblacklist, TDD, sanitizer preset, then coverage gate).
+
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.

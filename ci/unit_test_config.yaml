@@ -1,0 +1,3 @@
+# Unit-test configuration. Add future unit-test settings here.
+min_line_percent: 90
+min_branch_percent: 90

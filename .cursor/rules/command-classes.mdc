@@ -13,3 +13,7 @@ Command classes must not take direct dependencies on each other's internals.
 - Cross-CC communication goes through `component_connector` events.
 - If you find yourself adding an `#include` of one CC's header into another CC's implementation, stop and use an event instead.
 - Static, spec-mandated data owned by a CC (e.g. AGI's "Lifeline" name) lives in that CC. Dynamic data contributed by other CCs is registered via connector events at construction.
+
+## Unit tests
+
+When adding command-class unit tests, follow `.cursor/skills/unit-test/SKILL.md`: remove the CC path from `ci/coverage/component_blacklist.yaml` first, then TDD, `unit-test` (sanitizers), and `unit-test-coverage` + `ci/scripts/check_coverage.py` last. New CCs are appended to the blacklist by `generate-new-cc` until that skill runs.

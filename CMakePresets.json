@@ -41,6 +41,16 @@
       }
     },
     {
+      "name": "unit-test-coverage",
+      "inherits": ["zpc"],
+      "cacheVariables": {
+        "UNIT_TEST": "ON",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "COVERAGE": "ON",
+        "ZPC_ENABLE_SANITIZERS": "OFF"
+      }
+    },
+    {
       "name": "debug-sanitize",
       "inherits": ["zpc"],
       "cacheVariables": {
@@ -71,6 +81,14 @@
           "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
         }
       }
+    },
+    {
+      "name": "unit-test-coverage",
+      "configurePreset": "unit-test-coverage",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "test-results.xml"
+      }
     }
   ],
   "buildPresets": [
@@ -89,6 +107,12 @@
     {
       "name": "unit-test",
       "configurePreset": "unit-test",
+      "targets": ["UNIT_TEST"],
+      "jobs": 8
+    },
+    {
+      "name": "unit-test-coverage",
+      "configurePreset": "unit-test-coverage",
       "targets": ["UNIT_TEST"],
       "jobs": 8
     },
@@ -140,6 +164,14 @@
         { "type": "configure", "name": "unit-test" },
         { "type": "build", "name": "unit-test" },
         { "type": "test", "name": "unit-test" }
+      ]
+    },
+    {
+      "name": "unit-test-coverage",
+      "steps": [
+        { "type": "configure", "name": "unit-test-coverage" },
+        { "type": "build", "name": "unit-test-coverage" },
+        { "type": "test", "name": "unit-test-coverage" }
       ]
     },
     {

@@ -262,6 +262,9 @@ static bool datastore_contains_internal(const char *table, const datastore_key_t
 ////////////////////////////////////////////////////////////////////////////////
 sl_status_t datastore_start_transaction()
 {
+    if (db == NULL) {
+        return SL_STATUS_OK;
+    }
     if (ongoing_transaction) {
         sl_log_warning(LOG_TAG,
                        "Attempt to start a new transaction while another is still "
@@ -280,6 +283,10 @@ sl_status_t datastore_start_transaction()
 
 sl_status_t datastore_commit_transaction()
 {
+    if (db == NULL) {
+        ongoing_transaction = false;
+        return SL_STATUS_OK;
+    }
     ongoing_transaction = false;
     int rc              = sqlite3_exec(db, "END TRANSACTION", NULL, NULL, NULL);
     if (rc != SQLITE_OK) {
