@@ -1,6 +1,4 @@
-# Find nlohmann_json, unfortunately the find_package doesn't work for this when
-# cross compiling, thus we use the simplified method find_path instead
-find_path(nlohmann_json_include nlohmann/json.hpp REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 add_library(
   mqtt_api
@@ -17,6 +15,7 @@ target_link_libraries(
     network_manager
     zwave_smartstart_management
     main
+    nlohmann_json::nlohmann_json
     # We link with main and not directly with mqtt to be able
     # to mock this service in the tests
     fmt::fmt)
@@ -24,6 +23,5 @@ target_link_libraries(
 target_include_directories(
   mqtt_api
   PUBLIC include
-  PRIVATE ${nlohmann_json_include}
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../network_manager/include>
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../smartstart/include>)

@@ -17,10 +17,7 @@ endif()
 
 # NOTE: This should be called only once for all components
 #
-# Find nlohmann_json, unfortunately the find_package doesn't work for this when
-# cross compiling, thus we use the simplified method find_path instead
-find_path(nlohmann_json_include nlohmann/json.hpp REQUIRED)
-
+find_package(nlohmann_json REQUIRED)
 find_package(FMT)
 
 # MQTT library
@@ -58,6 +55,7 @@ target_link_libraries(
   network_monitor
   utils
   threading
+  nlohmann_json::nlohmann_json
   # We link with main and not directly with mqtt to be able
   # to mock this service in the tests 
   fmt::fmt)
@@ -66,7 +64,6 @@ target_include_directories(
   zpc_mqtt
   PUBLIC include
   PRIVATE
-  ${nlohmann_json_include}
   ${MQTT_LIBRARY_INCLUDE_DIR}
   ${PAHO_MQTT_C_INCLUDE_DIR}
   src/private

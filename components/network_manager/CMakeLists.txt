@@ -1,9 +1,7 @@
 if(POLICY CMP0167)
   cmake_policy(SET CMP0167 NEW)
 endif()
-# Find nlohmann_json, unfortunately the find_package doesn't work for this when
-# cross compiling, thus we use the simplified method find_path instead
-find_path(nlohmann_json_include nlohmann/json.hpp REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 # UCL MQTT library
 add_library(
@@ -15,12 +13,11 @@ add_library(
 
 target_link_libraries(
   network_manager
-  PUBLIC zwave_definitions
+  PUBLIC zwave_definitions nlohmann_json::nlohmann_json
   PRIVATE zpc_attribute_store timer mqtt threading mqtt_api component_connector device_interviewer utils fmt::fmt zwave_api zwave_controller)
 
 target_include_directories(
   network_manager
   PUBLIC include
-  PRIVATE ${nlohmann_json_include}
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
   PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../network_monitor/include)

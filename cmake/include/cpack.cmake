@@ -29,10 +29,10 @@ set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://www.silabs.com")
 
 # Runtime deps: default is conservative for Debian bookworm/trixie; override with
 # -D CPACK_DEBIAN_PACKAGE_DEPENDS=... at configure time if needed.
-# SQLite is compiled from the official amalgamation via FetchContent (see
-# cmake/modules/FindSQLite3.cmake), not linked as libsqlite3-0.
-set(_zpc_deb_depends
-    "libc6 (>= 2.31), libssl3 (>= 3.0.0), libyaml-cpp0.8 | libyaml-cpp0.7, libfmt9 | libfmt10")
+# SQLite, fmt, yaml-cpp, and nlohmann/json are compiled via FetchContent
+# (static / header-only), not linked as distro packages. OpenSSL and libc stay
+# system shared libs.
+set(_zpc_deb_depends "libc6 (>= 2.31), libssl3 (>= 3.0.0)")
 if(ZPC_ENABLE_SANITIZERS)
   string(APPEND _zpc_deb_depends ", libasan8, libubsan1")
 elseif(ZPC_ENABLE_TSAN)

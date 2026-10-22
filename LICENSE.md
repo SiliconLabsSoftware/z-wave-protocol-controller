@@ -50,8 +50,8 @@ The following components are used as build-time or runtime dependencies and are
 distributed under the MIT License:
 
 - **{fmt}** (https://github.com/fmtlib/fmt, v12.1.0)
-- **yaml-cpp** (https://github.com/jbeder/yaml-cpp)
-- **nlohmann/json** (https://github.com/nlohmann/json)
+- **yaml-cpp** (https://github.com/jbeder/yaml-cpp, v0.8.0)
+- **nlohmann/json** (https://github.com/nlohmann/json, v3.12.0)
 
 ---
 
