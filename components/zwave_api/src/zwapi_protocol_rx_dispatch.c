@@ -253,8 +253,7 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
                 if (zwave_api_detect_buffer_overflow(learnNodeInfo.bLen)) {
                     break;
                 }
-                // The rest of the data is 3 bytes + the node info content
-                for (i = 0; i < learnNodeInfo.bLen + 3; i++) {
+                for (i = 0; i < learnNodeInfo.bLen; i++) {
                     zwapi_command_buffer[i] = pData[current_index + i];
                 }
                 learnNodeInfo.pCmd = zwapi_command_buffer;
