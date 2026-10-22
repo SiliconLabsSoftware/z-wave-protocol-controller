@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gate component line coverage using gcovr and ci/coverage/component_blacklist.yaml.
+"""Gate component line and branch coverage using gcovr and the component blacklist.
 
 From the repository root, after cmake --workflow --preset unit-test-coverage:
 
@@ -33,7 +33,13 @@ def parse_args() -> argparse.Namespace:
         "--blacklist",
         type=Path,
         default=REPO_ROOT / "ci" / "coverage" / "component_blacklist.yaml",
-        help="YAML with min_line_percent and blacklist paths",
+        help="YAML listing component paths exempt from coverage checks",
+    )
+    parser.add_argument(
+        "--thresholds",
+        type=Path,
+        default=REPO_ROOT / "ci" / "unit_test_config.yaml",
+        help="YAML with unit-test configuration, including coverage minimums",
     )
     parser.add_argument(
         "--skip-gcovr",
@@ -43,11 +49,14 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_config(path: Path) -> tuple[float, list[str]]:
+def load_blacklist(path: Path) -> list[str]:
     data = yaml.safe_load(path.read_text())
-    minimum = float(data["min_line_percent"])
-    blacklist = [normalize_prefix(p) for p in data["blacklist"]]
-    return minimum, blacklist
+    return [normalize_prefix(p) for p in data["blacklist"]]
+
+
+def load_thresholds(path: Path) -> tuple[float, float]:
+    data = yaml.safe_load(path.read_text())
+    return float(data["min_line_percent"]), float(data["min_branch_percent"])
 
 
 def normalize_prefix(path: str) -> str:
@@ -92,23 +101,17 @@ def _is_tested_component(path: Path) -> bool:
 def discover_prefixes(repo: Path, blacklist: list[str]) -> list[str]:
     """Blacklist paths plus tested components omitted from the YAML.
 
-    A child of a blacklisted parent (e.g. a command class) is gated on its own
-    path when it has a test/ directory, so unblacklisting it is enough. crc16
-    is gated the same way: it is omitted from the YAML and has tests.
+    Find tested components recursively so nested libraries and command classes
+    under a blacklisted parent are gated on their own paths when they have a
+    test/ directory. crc16 is gated the same way: it is omitted from the YAML.
     """
     prefixes = set(blacklist)
     components = repo / "components"
     if components.is_dir():
-        for child in components.iterdir():
-            if _is_tested_component(child):
-                prefixes.add(normalize_prefix(str(child.relative_to(repo))))
-    for parent in blacklist:
-        path = repo / parent
-        if not path.is_dir():
-            continue
-        for child in path.iterdir():
-            if _is_tested_component(child):
-                prefixes.add(normalize_prefix(str(child.relative_to(repo))))
+        for cmake_file in components.rglob("CMakeLists.txt"):
+            component = cmake_file.parent
+            if _is_tested_component(component):
+                prefixes.add(normalize_prefix(str(component.relative_to(repo))))
     return sorted(prefixes)
 
 
@@ -205,10 +208,26 @@ def file_line_counts(entry: dict) -> tuple[int, int]:
     return covered, executable
 
 
-def aggregate(json_path: Path, prefixes: list[str]) -> tuple[dict[str, tuple[int, int]], list[str]]:
+def file_branch_counts(entry: dict) -> tuple[int, int]:
+    covered = 0
+    total = 0
+    for line in entry.get("lines", []):
+        if line.get("gcovr/noncode"):
+            continue
+        for branch in line.get("branches", []):
+            count = branch.get("count")
+            if count is None:
+                continue
+            total += 1
+            if count > 0:
+                covered += 1
+    return covered, total
+
+
+def aggregate(json_path: Path, prefixes: list[str]) -> tuple[dict[str, tuple[int, int, int, int]], list[str]]:
     payload = json.loads(json_path.read_text())
     files = payload.get("files", [])
-    totals: dict[str, list[int]] = defaultdict(lambda: [0, 0])
+    totals: dict[str, list[int]] = defaultdict(lambda: [0, 0, 0, 0])
     unmatched: list[str] = []
     for entry in files:
         rel = posix_rel(entry.get("file", ""), REPO_ROOT)
@@ -221,9 +240,12 @@ def aggregate(json_path: Path, prefixes: list[str]) -> tuple[dict[str, tuple[int
             unmatched.append(rel)
             continue
         covered, total = file_line_counts(entry)
+        branches_covered, branches_total = file_branch_counts(entry)
         totals[prefix][0] += covered
         totals[prefix][1] += total
-    return {k: (v[0], v[1]) for k, v in totals.items()}, unmatched
+        totals[prefix][2] += branches_covered
+        totals[prefix][3] += branches_total
+    return {k: (v[0], v[1], v[2], v[3]) for k, v in totals.items()}, unmatched
 
 
 def percent(covered: int, total: int) -> float:
@@ -232,17 +254,27 @@ def percent(covered: int, total: int) -> float:
     return 100.0 * covered / total
 
 
-def coverage_table(prefixes: list[str], totals: dict[str, tuple[int, int]], blacklist: list[str], minimum: float) -> str:
-    rows = ["| Component | Line coverage | Result |", "|---|---:|---|"]
+def coverage_table(
+    prefixes: list[str],
+    totals: dict[str, tuple[int, int, int, int]],
+    blacklist: list[str],
+    min_line: float,
+    min_branch: float,
+) -> str:
+    rows = ["| Component | Line coverage | Branch coverage | Result |", "|---|---:|---:|---|"]
     for prefix in sorted((set(prefixes) | set(totals)) - set(blacklist)):
-        covered, total = totals.get(prefix, (0, 0))
-        if total == 0:
-            coverage, result = "—", "No data"
+        lines_covered, lines_total, branches_covered, branches_total = totals.get(prefix, (0, 0, 0, 0))
+        line_pct = percent(lines_covered, lines_total) if lines_total else None
+        branch_pct = percent(branches_covered, branches_total) if branches_total else None
+        line_coverage = f"{line_pct:.1f}% ({lines_covered}/{lines_total})" if line_pct is not None else "—"
+        branch_coverage = f"{branch_pct:.1f}% ({branches_covered}/{branches_total})" if branch_pct is not None else "—"
+        if line_pct is None and branch_pct is None:
+            result = "No data"
+        elif (line_pct is None or line_pct + 1e-9 >= min_line) and (branch_pct is None or branch_pct + 1e-9 >= min_branch):
+            result = "✅ Pass"
         else:
-            pct = percent(covered, total)
-            coverage = f"{pct:.1f}% ({covered}/{total})"
-            result = "✅ Pass" if pct + 1e-9 >= minimum else "❌ Fail"
-        rows.append(f"| `{prefix}` | {coverage} | {result} |")
+            result = "❌ Fail"
+        rows.append(f"| `{prefix}` | {line_coverage} | {branch_coverage} | {result} |")
     return "\n".join(rows) + "\n"
 
 
@@ -259,9 +291,11 @@ def main() -> int:
     args = parse_args()
     build_dir = args.build_dir if args.build_dir.is_absolute() else REPO_ROOT / args.build_dir
     blacklist_path = args.blacklist if args.blacklist.is_absolute() else REPO_ROOT / args.blacklist
+    thresholds_path = args.thresholds if args.thresholds.is_absolute() else REPO_ROOT / args.thresholds
     coverage_dir = build_dir / "coverage"
 
-    minimum, blacklist = load_config(blacklist_path)
+    blacklist = load_blacklist(blacklist_path)
+    min_line, min_branch = load_thresholds(thresholds_path)
     prefixes = discover_prefixes(REPO_ROOT, blacklist)
 
     json_path = coverage_dir / "coverage.json"
@@ -273,16 +307,23 @@ def main() -> int:
         json_path = run_gcovr(build_dir, coverage_dir)
 
     totals, unmatched = aggregate(json_path, prefixes)
-    report_table(coverage_table(prefixes, totals, blacklist, minimum))
+    report_table(coverage_table(prefixes, totals, blacklist, min_line, min_branch))
 
     failures: list[str] = []
     for prefix in sorted(set(prefixes) | set(totals)):
-        covered, total = totals.get(prefix, (0, 0))
-        pct = percent(covered, total)
         if prefix in blacklist:
             continue
-        if total > 0 and pct + 1e-9 < minimum:
-            failures.append(f"{prefix}: {pct:.1f}% ({covered}/{total}) < {minimum:g}%")
+        lines_covered, lines_total, branches_covered, branches_total = totals.get(prefix, (0, 0, 0, 0))
+        if lines_total and percent(lines_covered, lines_total) + 1e-9 < min_line:
+            failures.append(
+                f"{prefix}: line {percent(lines_covered, lines_total):.1f}% "
+                f"({lines_covered}/{lines_total}) < {min_line:g}%"
+            )
+        if branches_total and percent(branches_covered, branches_total) + 1e-9 < min_branch:
+            failures.append(
+                f"{prefix}: branch {percent(branches_covered, branches_total):.1f}% "
+                f"({branches_covered}/{branches_total}) < {min_branch:g}%"
+            )
 
     if unmatched:
         print("error: source files under components/ matched no known component prefix:", file=sys.stderr)

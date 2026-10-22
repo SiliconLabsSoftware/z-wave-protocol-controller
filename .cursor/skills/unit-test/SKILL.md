@@ -78,11 +78,11 @@ cmake --workflow --preset unit-test-coverage --fresh
 python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
 ```
 
-- The YAML is the only exemption list. A tested component (`CMakeLists.txt` + `test/`) omitted from it must be **≥ 90% line coverage**.
-- Confirm the child’s own row in the `check_coverage.py` table is `pass`, not rolled into a blacklisted parent.
+- [`ci/coverage/component_blacklist.yaml`](ci/coverage/component_blacklist.yaml) is the only exemption list. Coverage minimums come from [`ci/unit_test_config.yaml`](ci/unit_test_config.yaml). A tested component (`CMakeLists.txt` + `test/`) omitted from the blacklist must meet both configured minimums for line and branch coverage.
+- Confirm the child’s own row in the `check_coverage.py` table is `pass` for both line and branch coverage, not rolled into a blacklisted parent.
 - Reports: `build/unit-test-coverage/coverage/html/index.html` and `build/unit-test-coverage/coverage/coverage.xml`.
 - Do not finish if `check_coverage.py` fails. Add tests or fix the path prefix; do not re-add the component to the blacklist to silence the gate.
 
 ## CI
 
-PR `unit-test` job: sanitizer gcc → sanitizer clang → gcc `unit-test-coverage` → `check_coverage.py` → artifacts `unit-test-reports` (JUnit) and `unit-test-coverage` (HTML+XML).
+PR `unit-test` job: sanitizer gcc → sanitizer clang → gcc `unit-test-coverage` → `check_coverage.py` (minimums from `ci/unit_test_config.yaml`) → `unit-test-coverage` artifact (HTML+XML) and coverage table in the job summary.

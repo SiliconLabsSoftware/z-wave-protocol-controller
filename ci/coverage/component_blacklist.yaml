@@ -1,8 +1,7 @@
-# Components exempt from the 90% line-coverage gate until unit tests exist.
+# Components exempt from line and branch coverage gates until unit tests exist.
 # unit-test skill step 0: remove the path being tested.
 # generate-new-cc: append a new command class path here when the CC is created.
 # crc16_ccitt is omitted: it already has gtests and stays gated.
-min_line_percent: 90
 blacklist:
   - components/attribute_resolver
   - components/attribute_store
@@ -76,6 +75,9 @@ blacklist:
   - components/zwave/zwave_transports/multicast_follow_ups_transport
   - components/zwave/zwave_transports/s0
   - components/zwave/zwave_transports/s2
+  - components/zwave/zwave_transports/s2/libs/zw-libs2
+  - components/zwave/zwave_transports/s2/libs/zw-libs2/inclusion
+  - components/zwave/zwave_transports/s2/libs/zw-libs2/protocol
   - components/zwave/zwave_transports/transport_service_wrapper
   - components/zwave/zwave_transports/transport_service_wrapper/transport_service
   - components/zwave/zwave_transports/zwave_api_transport
