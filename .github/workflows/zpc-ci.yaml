@@ -94,24 +94,13 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-      - name: Unit test report (gcc)
+      - name: Unit test report
         if: ${{ !cancelled() }}
         uses: dorny/test-reporter@v3
         with:
-          name: Unit tests (gcc)
-          report-title: Unit tests (gcc)
-          path: unit-test-reports/gcc-test-results.xml
-          reporter: java-junit
-          fail-on-error: false
-          fail-on-empty: false
-
-      - name: Unit test report (clang)
-        if: ${{ !cancelled() }}
-        uses: dorny/test-reporter@v3
-        with:
-          name: Unit tests (clang)
-          report-title: Unit tests (clang)
-          path: unit-test-reports/clang-test-results.xml
+          name: Unit tests
+          report-title: Unit tests
+          path: unit-test-reports/*.xml
           reporter: java-junit
           fail-on-error: false
           fail-on-empty: false
