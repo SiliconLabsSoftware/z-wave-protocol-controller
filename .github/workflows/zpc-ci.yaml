@@ -14,7 +14,6 @@ concurrency:
 permissions:
   contents: read
   actions: write
-  checks: write
 
 jobs:
   format:
@@ -67,43 +66,11 @@ jobs:
           CXX: g++-14
         run: cmake --workflow --preset unit-test
 
-      - name: Collect gcc test report
-        if: ${{ !cancelled() }}
-        run: |
-          mkdir -p unit-test-reports
-          cp build/unit-test/test-results.xml unit-test-reports/gcc-test-results.xml
-
       - name: Configure, build, and run unit tests (clang)
         env:
           CC: clang-17
           CXX: clang++-17
         run: cmake --workflow --preset unit-test --fresh
-
-      - name: Collect clang test report
-        if: ${{ !cancelled() }}
-        run: |
-          mkdir -p unit-test-reports
-          cp build/unit-test/test-results.xml unit-test-reports/clang-test-results.xml
-
-      - name: Upload unit test reports
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit-test-reports
-          path: unit-test-reports/
-          retention-days: 1
-          if-no-files-found: error
-
-      - name: Unit test report
-        if: ${{ !cancelled() }}
-        uses: dorny/test-reporter@v3
-        with:
-          name: Unit tests
-          report-title: Unit tests
-          path: unit-test-reports/*.xml
-          reporter: java-junit
-          fail-on-error: false
-          fail-on-empty: false
 
       - name: Configure, build, and run unit tests (gcc coverage)
         env:
@@ -111,7 +78,7 @@ jobs:
           CXX: g++-14
         run: cmake --workflow --preset unit-test-coverage --fresh
 
-      - name: Check component coverage
+      - name: Report and check component coverage
         run: python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
 
       - name: Upload unit test coverage

@@ -232,6 +232,29 @@ def percent(covered: int, total: int) -> float:
     return 100.0 * covered / total
 
 
+def coverage_table(prefixes: list[str], totals: dict[str, tuple[int, int]], blacklist: list[str], minimum: float) -> str:
+    rows = ["| Component | Line coverage | Result |", "|---|---:|---|"]
+    for prefix in sorted((set(prefixes) | set(totals)) - set(blacklist)):
+        covered, total = totals.get(prefix, (0, 0))
+        if total == 0:
+            coverage, result = "—", "No data"
+        else:
+            pct = percent(covered, total)
+            coverage = f"{pct:.1f}% ({covered}/{total})"
+            result = "✅ Pass" if pct + 1e-9 >= minimum else "❌ Fail"
+        rows.append(f"| `{prefix}` | {coverage} | {result} |")
+    return "\n".join(rows) + "\n"
+
+
+def report_table(table: str) -> None:
+    print(table, end="")
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_path:
+        with open(summary_path, "a", encoding="utf-8") as summary:
+            summary.write("## Component line coverage\n\n")
+            summary.write(table)
+
+
 def main() -> int:
     args = parse_args()
     build_dir = args.build_dir if args.build_dir.is_absolute() else REPO_ROOT / args.build_dir
@@ -250,6 +273,7 @@ def main() -> int:
         json_path = run_gcovr(build_dir, coverage_dir)
 
     totals, unmatched = aggregate(json_path, prefixes)
+    report_table(coverage_table(prefixes, totals, blacklist, minimum))
 
     failures: list[str] = []
     for prefix in sorted(set(prefixes) | set(totals)):
