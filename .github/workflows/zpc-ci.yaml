@@ -14,6 +14,7 @@ concurrency:
 permissions:
   contents: read
   actions: write
+  checks: write
 
 jobs:
   format:
@@ -60,9 +61,6 @@ jobs:
           pip_requirements: "true"
           extra_packages: clang-17
 
-      - name: Add gcc unit tests header for summary
-        run: echo "### Unit tests (gcc)" >> $GITHUB_STEP_SUMMARY
-
       - name: Configure, build, and run unit tests (gcc)
         env:
           CC: gcc-14
@@ -70,19 +68,10 @@ jobs:
         run: cmake --workflow --preset unit-test
 
       - name: Collect gcc test report
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           mkdir -p unit-test-reports
           cp build/unit-test/test-results.xml unit-test-reports/gcc-test-results.xml
-
-      - name: Test Summary for gcc unit tests
-        if: always()
-        uses: test-summary/action@v2
-        with:
-          paths: unit-test-reports/gcc-test-results.xml
-
-      - name: Add clang unit tests header for summary
-        run: echo "### Unit tests (clang)" >> $GITHUB_STEP_SUMMARY
 
       - name: Configure, build, and run unit tests (clang)
         env:
@@ -91,19 +80,13 @@ jobs:
         run: cmake --workflow --preset unit-test --fresh
 
       - name: Collect clang test report
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           mkdir -p unit-test-reports
           cp build/unit-test/test-results.xml unit-test-reports/clang-test-results.xml
 
-      - name: Test Summary for clang unit tests
-        if: always()
-        uses: test-summary/action@v2
-        with:
-          paths: unit-test-reports/clang-test-results.xml
-
       - name: Upload unit test reports
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-reports
@@ -111,8 +94,27 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-      - name: Add coverage header for summary
-        run: echo "### Unit test coverage (gcc)" >> $GITHUB_STEP_SUMMARY
+      - name: Unit test report (gcc)
+        if: ${{ !cancelled() }}
+        uses: dorny/test-reporter@v3
+        with:
+          name: Unit tests (gcc)
+          report-title: Unit tests (gcc)
+          path: unit-test-reports/gcc-test-results.xml
+          reporter: java-junit
+          fail-on-error: false
+          fail-on-empty: false
+
+      - name: Unit test report (clang)
+        if: ${{ !cancelled() }}
+        uses: dorny/test-reporter@v3
+        with:
+          name: Unit tests (clang)
+          report-title: Unit tests (clang)
+          path: unit-test-reports/clang-test-results.xml
+          reporter: java-junit
+          fail-on-error: false
+          fail-on-empty: false
 
       - name: Configure, build, and run unit tests (gcc coverage)
         env:

@@ -26,7 +26,7 @@ In this repository, command class generator is being used to generate the comman
    - If `on_interview()` starts post-interview Gets, call `cc_interview_require_attribute` on each attribute that must receive a reported value before this command class is done (in `on_interview` for values known up front, and again from a parsed callback when a report reveals more). Do not finish the interview yourself — see [When this command class is done interviewing](/docs/command_class_implementation_guide.md#when-this-command-class-is-done-interviewing).
 7. Build the project
 8. Create documentation for the command class.
-9. Append `components/command_classes/command_class_<cc-name>` to [`ci/coverage/component_blacklist.yaml`](ci/coverage/component_blacklist.yaml) so CI does not require 80% coverage before tests exist. Leave the parent `components/command_classes` entry in place (shared `src/`). Do not add a coverage allowlist.
+9. Append `components/command_classes/command_class_<cc-name>` to [`ci/coverage/component_blacklist.yaml`](ci/coverage/component_blacklist.yaml) so CI does not require 90% coverage before tests exist. Leave the parent `components/command_classes` entry in place (shared `src/`). Do not add a coverage allowlist.
 10. Tell the user to run the `unit-test` skill (`.cursor/skills/unit-test/SKILL.md`). That skill **removes** this child path in step 0 (blacklist only), writes tests, then runs sanitizers and the coverage gate.
 
 ## Documentation

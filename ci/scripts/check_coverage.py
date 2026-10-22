@@ -232,15 +232,6 @@ def percent(covered: int, total: int) -> float:
     return 100.0 * covered / total
 
 
-def write_summary(lines: list[str]) -> None:
-    text = "\n".join(lines) + "\n"
-    sys.stdout.write(text)
-    summary = os.environ.get("GITHUB_STEP_SUMMARY")
-    if summary:
-        with open(summary, "a", encoding="utf-8") as handle:
-            handle.write(text)
-
-
 def main() -> int:
     args = parse_args()
     build_dir = args.build_dir if args.build_dir.is_absolute() else REPO_ROOT / args.build_dir
@@ -260,36 +251,14 @@ def main() -> int:
 
     totals, unmatched = aggregate(json_path, prefixes)
 
-    rows: list[str] = [
-        "### Unit test coverage",
-        "",
-        f"Minimum line coverage for non-blacklisted components: {minimum:g}%",
-        "",
-        "| Component | Lines | Covered | % | Status |",
-        "|-----------|------:|--------:|--:|--------|",
-    ]
     failures: list[str] = []
     for prefix in sorted(set(prefixes) | set(totals)):
         covered, total = totals.get(prefix, (0, 0))
         pct = percent(covered, total)
-        blacklisted = prefix in blacklist
-        if total == 0 and blacklisted:
-            status = "blacklist (no data)"
-        elif blacklisted:
-            status = "blacklist"
-            if pct >= minimum:
-                status = "blacklist (already ≥ gate; remove from YAML)"
-                print(f"warning: {prefix} is {pct:.1f}% covered; remove it from the blacklist", file=sys.stderr)
-        elif total == 0:
-            status = "gated (no executable lines)"
-        elif pct + 1e-9 < minimum:
-            status = "FAIL"
+        if prefix in blacklist:
+            continue
+        if total > 0 and pct + 1e-9 < minimum:
             failures.append(f"{prefix}: {pct:.1f}% ({covered}/{total}) < {minimum:g}%")
-        else:
-            status = "pass"
-        rows.append(f"| `{prefix}` | {total} | {covered} | {pct:.1f} | {status} |")
-
-    write_summary(rows)
 
     if unmatched:
         print("error: source files under components/ matched no known component prefix:", file=sys.stderr)

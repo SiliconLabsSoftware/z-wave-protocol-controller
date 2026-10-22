@@ -1,8 +1,8 @@
-# Components exempt from the 80% line-coverage gate until unit tests exist.
+# Components exempt from the 90% line-coverage gate until unit tests exist.
 # unit-test skill step 0: remove the path being tested.
 # generate-new-cc: append a new command class path here when the CC is created.
 # crc16_ccitt is omitted: it already has gtests and stays gated.
-min_line_percent: 80
+min_line_percent: 90
 blacklist:
   - components/attribute_resolver
   - components/attribute_store
