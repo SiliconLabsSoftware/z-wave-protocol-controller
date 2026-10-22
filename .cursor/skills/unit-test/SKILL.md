@@ -18,6 +18,7 @@ Follow this sequence in order. The skill is not done until the coverage check pa
 - **Specification injection:** check whether the Z-Wave specification is in the workspace or the repo. If it is not, ask the user where it is. The previous specification matters. Let the user know if you found the specification and where it is.
 - Write tests **according to the specification**, not from implementation guesswork.
 - In case of command classes there are multiple versions of each. Create test cases for each versions, based on the specification.
+- **Outgoing CC version (CC:0000.00.00.11):** a receiving node MUST NOT discard a frame based on length. It uses Command Class + Command IDs and interprets the version-N prefix of a newer command. Tests MUST expect the **controller's implemented version** of an existing command (including trailing fields added in later versions), even when the destination advertises a lower CC version. Do not assert a shorter Set/Get because the node reported v1. Incoming reports are the other direction of the same rule: still parse the shorter older frame. Gate only **new Command IDs** (commands that do not exist in the destination version) with destination version.
 - If a requirement number exists, put it on the test (`CC:` IDs such as `CC:008A.03.02.11.008`). Skip the ID only when the spec has none for that behavior.
 - Add a short description for each test case what do they test exactly
 

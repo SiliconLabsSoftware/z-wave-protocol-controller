@@ -22,6 +22,7 @@ In this repository, command class generator is being used to generate the comman
 6. Implement the command class in the `command_class_<cc-name>` directory.
    - The generated files can determine the attributes to implement, the core logic, the MQTT interface, etc.
    - Implement the required functions in the `cpp` and `hpp` files.
+   - **Outgoing frames (CC:0000.00.00.11):** assemble the **controller's implemented version** of an existing command (all trailing fields). Do not omit later-version fields because the destination advertised a lower CC version. A v1 node interprets the v1 prefix and MUST NOT discard extra bytes. New Command IDs that only exist in later versions stay gated by destination version.
    - If `on_interview()` starts post-interview Gets, call `cc_interview_require_attribute` on each attribute that must receive a reported value before this command class is done (in `on_interview` for values known up front, and again from a parsed callback when a report reveals more). Do not finish the interview yourself — see [When this command class is done interviewing](/docs/command_class_implementation_guide.md#when-this-command-class-is-done-interviewing).
 7. Build the project
 8. Create documentation for the command class.
