@@ -37,8 +37,9 @@
 #include "S2.h"
 #include "zwave_s2_keystore.h"
 #include "s2_keystore.h"
-#include "psa/crypto.h"
-#include "s2_psa_primitives.h"
+#include "x25519.h"
+#include "rand.h"
+#include "aes_ecb.h"
 
 // ZPC components
 #include "log.h"
@@ -196,18 +197,6 @@ static unsigned int block_next_elem; /* Cyclic counter for the next
 static uint8_t aes_key[16];
 static uint8_t aes_iv[16];
 
-static bool aes_encrypt(const uint8_t *in, uint8_t *out)
-{
-    uint8_t input[16];
-
-    memcpy(input, in, sizeof(input));
-    if (s2_psa_aes128_ecb_encrypt(aes_key, input, out) != PSA_SUCCESS) {
-        memset(out, 0, 16);
-        return false;
-    }
-    return true;
-}
-
 static void aes_set_key_tpt(const uint8_t *key, const uint8_t *iv)
 {
     memcpy(aes_key, key, 16);
@@ -218,7 +207,7 @@ static bool aes_ofb(uint8_t *data, uint8_t len)
 {
     for (uint8_t i = 0; i < len; i++) {
         if ((i & 0xF) == 0x0) {
-            if (!aes_encrypt(aes_iv, aes_iv)) {
+            if (crypto_aes_ecb_encrypt(aes_key, aes_iv, aes_iv) != SL_STATUS_OK) {
                 return false;
             }
         }
@@ -232,13 +221,13 @@ static bool aes_ofb(uint8_t *data, uint8_t len)
  */
 static bool aes_cbc_mac(const uint8_t *data, uint8_t len, uint8_t *mac)
 {
-    if (!aes_encrypt(aes_iv, mac)) {
+    if (crypto_aes_ecb_encrypt(aes_key, aes_iv, mac) != SL_STATUS_OK) {
         return false;
     }
     for (uint8_t i = 0; i < len; i++) {
         mac[i & 0xF] ^= data[i];
         if ((i & 0xF) == 0xF) {
-            if (!aes_encrypt(mac, mac)) {
+            if (crypto_aes_ecb_encrypt(aes_key, mac, mac) != SL_STATUS_OK) {
                 return false;
             }
         }
@@ -247,7 +236,7 @@ static bool aes_cbc_mac(const uint8_t *data, uint8_t len, uint8_t *mac)
     /* if len is not divisible by 16 do the final pass, this is the padding
      * described in the spec */
     if (len & 0xF) {
-        if (!aes_encrypt(mac, mac)) {
+        if (crypto_aes_ecb_encrypt(aes_key, mac, mac) != SL_STATUS_OK) {
             return false;
         }
     }
@@ -413,15 +402,15 @@ void s0_set_key(const uint8_t *network_key)
 
     memcpy(aes_key, network_key, 16);
     memset(p, 0x55, 16);
-    keys_valid &= aes_encrypt(p, authkey);
+    keys_valid &= crypto_aes_ecb_encrypt(aes_key, p, authkey) == SL_STATUS_OK;
     memset(p, 0xAA, 16);
-    keys_valid &= aes_encrypt(p, enckey);
+    keys_valid &= crypto_aes_ecb_encrypt(aes_key, p, enckey) == SL_STATUS_OK;
 
     memcpy(aes_key, temp, 16);
     memset(p, 0x55, 16);
-    keys_valid &= aes_encrypt(p, authkeyz);
+    keys_valid &= crypto_aes_ecb_encrypt(aes_key, p, authkeyz) == SL_STATUS_OK;
     memset(p, 0xAA, 16);
-    keys_valid &= aes_encrypt(p, enckeyz);
+    keys_valid &= crypto_aes_ecb_encrypt(aes_key, p, enckeyz) == SL_STATUS_OK;
     s0_keys_valid = keys_valid;
 }
 
@@ -491,7 +480,7 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
     /* Make the IV */
 
     do {
-        if (psa_generate_random(iv, sizeof(iv)) != PSA_SUCCESS) {
+        if (crypto_generate_random(iv, sizeof(iv)) != SL_STATUS_OK) {
             sl_log_error(LOG_TAG, "Failed to generate S0 IV\n");
             return 0;
         }
@@ -533,7 +522,7 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
         aes_set_key_tpt(enckey, iv);
     }
 
-    if (!aes_ofb(enc_data, len + 1)) {
+    if (crypto_aes_ofb_encrypt(aes_key, aes_iv, enc_data, len + 1) != SL_STATUS_OK) {
         return 0;
     }
 
@@ -945,7 +934,7 @@ static void s0_send_nonce(const zwave_controller_connection_info_t *conn_info)
     zwave_controller_connection_info_t c2 = {};
 
     do {
-        if (psa_generate_random(temp_nonce, sizeof(temp_nonce)) != PSA_SUCCESS) {
+        if (crypto_generate_random(temp_nonce, sizeof(temp_nonce)) != SL_STATUS_OK) {
             sl_log_error(LOG_TAG, "Failed to generate S0 nonce\n");
             return;
         }
@@ -1069,7 +1058,7 @@ static uint8_t s0_decrypt_message(const zwave_controller_connection_info_t *conn
     }
     /*Decrypt */
     aes_set_key_tpt(enckey, iv);
-    if (!aes_ofb(enc_payload, auth->payloadLength)) {
+    if (crypto_aes_ofb_encrypt(aes_key, aes_iv, enc_payload, auth->payloadLength) != SL_STATUS_OK) {
         return 0;
     }
 
@@ -1267,11 +1256,6 @@ sl_status_t zwave_s0_transport_init()
       .abort_send_data   = zwave_s0_on_abort_send_data,
       .on_frame_received = zwave_s0_on_frame_received,
     };
-
-    if (s2_psa_crypto_init() != PSA_SUCCESS) {
-        sl_log_error(LOG_TAG, "Failed to initialize PSA Crypto\n");
-        return SL_STATUS_INITIALIZATION;
-    }
 
     if (zwave_s0_network_init() != SL_STATUS_OK) {
         return SL_STATUS_FAIL;

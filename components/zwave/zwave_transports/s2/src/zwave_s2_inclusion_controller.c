@@ -3,8 +3,8 @@
  * s2_inclusion_controller.c
  *
  */
-#include "kderiv.h"
-#include "s2_psa_primitives.h"
+#include "zwave_s2_key_derivation.h"
+#include "x25519.h"
 #include "s2_protocol.h"
 #include "s2_keystore.h"
 #include "s2_inclusion_internal.h"
@@ -151,7 +151,7 @@ void execute_action_controller(uint8_t action)
 static void s2_do_ecdh_calc_a(void)
 {
     keystore_private_key_read(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX]);
-    if (s2_psa_x25519_shared_secret(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key, shared_secret) != PSA_SUCCESS) {
+    if (crypto_x25519_derive_shared_secret(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key, shared_secret) != SL_STATUS_OK) {
         inclusion_failed_frame_send(KEX_FAIL_AUTH, NON_SECURE);
         process_event(S2_INCLUSION_ERROR_SENT);
         return;
@@ -160,7 +160,7 @@ static void s2_do_ecdh_calc_a(void)
     memcpy(&shared_key_mem[PUBLIC_KEY_B_INDEX], mp_context->public_key, 32);
     keystore_public_key_read(&shared_key_mem[PUBLIC_KEY_A_INDEX]);
 
-    if (!tempkey_extract(shared_secret, shared_key_mem, mp_context->public_key) || !S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1)) {
+    if (zwave_s2_extract_pseudo_random_key(shared_secret, shared_key_mem, mp_context->public_key) != SL_STATUS_OK || !S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1)) {
         inclusion_failed_frame_send(KEX_FAIL_AUTH, NON_SECURE);
         process_event(S2_INCLUSION_ERROR_SENT);
     }

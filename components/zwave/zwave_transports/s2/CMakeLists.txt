@@ -14,6 +14,18 @@ target_compile_definitions(zwave_s2_nonce_management PRIVATE ZW_CONTROLLER)
 
 set(KEYSTORE_SOURCES "src/zwave_s2_keystore.c")
 
+add_library(zwave_s2_key_derivation STATIC src/zwave_s2_key_derivation.c)
+target_include_directories(zwave_s2_key_derivation PUBLIC include)
+target_link_libraries(zwave_s2_key_derivation PUBLIC crypto_core)
+set_target_properties(zwave_s2_key_derivation PROPERTIES POSITION_INDEPENDENT_CODE ON C_STANDARD 99)
+set_source_files_properties(src/zwave_s2_key_derivation.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
+
+# NextNonce combines S2 nonce derivation with the generic CTR-DRBG.
+add_library(zwave_s2_nextnonce STATIC src/nextnonce.c)
+target_include_directories(zwave_s2_nextnonce PUBLIC include)
+target_link_libraries(zwave_s2_nextnonce PUBLIC crypto_ctr_drbg)
+set_target_properties(zwave_s2_nextnonce PROPERTIES POSITION_INDEPENDENT_CODE ON C_STANDARD 99)
+
 # Z-Wave S2 main library
 add_library(
   zwave_s2
@@ -50,7 +62,9 @@ set_target_properties(
 
 target_link_libraries(
   s2_controller
-  s2crypto)
+  crypto
+  zwave_s2_nextnonce
+  zwave_s2_key_derivation)
 
 target_include_directories(
   s2_controller
@@ -61,14 +75,17 @@ target_include_directories(
   ${ZW-LIBS2_PATH}/inclusion
   src)
 # libs2 headers (S2.h, s2_keystore.h, ...) are consumed by targets that link
-# s2_controller, so they must be exported. This was previously exported through
-# the legacy s2crypto target.
+# s2_controller, so they must be exported.
 target_include_directories(s2_controller PUBLIC ${ZW-LIBS2_PATH}/include)
 
 target_link_libraries(
   zwave_s2
   PUBLIC zwave_s2_nonce_management
-  PRIVATE s2_controller s2crypto zwave_controller zwave_s0
+  PRIVATE s2_controller crypto zwave_controller zwave_s0
           zpc_attribute_store)
 
 target_compile_definitions(zwave_s2 PRIVATE ZIPGW ZW_CONTROLLER)
+
+if(UNIT_TEST)
+  add_subdirectory(test)
+endif()

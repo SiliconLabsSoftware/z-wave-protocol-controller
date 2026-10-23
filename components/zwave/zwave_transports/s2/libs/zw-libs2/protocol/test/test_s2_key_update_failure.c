@@ -2,42 +2,40 @@
 #include <string.h>
 
 #include "S2.h"
-#include "kderiv.h"
+#include "zwave_s2_key_derivation.h"
 #include "s2_protocol.h"
 #include "unity.h"
 
-static int expand_result;
+static sl_status_t expand_result;
 static unsigned networkkey_expand_calls;
 static unsigned tempkey_expand_calls;
 
-int networkkey_expand(uint32_t key_id, const uint8_t *network_key, uint8_t *ccm_key, uint8_t *nonce_pstring, uint8_t *mpan_key)
+sl_status_t zwave_s2_derive_network_key(const uint8_t *network_key, uint8_t *ccm_key, uint8_t *nonce_pers_string, uint8_t *mpan_key)
 {
-    (void)key_id;
     (void)network_key;
     (void)ccm_key;
-    (void)nonce_pstring;
+    (void)nonce_pers_string;
     (void)mpan_key;
     networkkey_expand_calls++;
     return expand_result;
 }
 
-int tempkey_expand(uint32_t key_id, const uint8_t *prk, uint8_t *temp_ccm_key, uint8_t *temp_nonce_pstring, uint8_t *temp_mpan_key)
+sl_status_t zwave_s2_derive_temp_key(const uint8_t *prk, uint8_t *ccm_key, uint8_t *nonce_pers_string, uint8_t *mpan_key)
 {
-    (void)key_id;
     (void)prk;
-    (void)temp_ccm_key;
-    (void)temp_nonce_pstring;
-    (void)temp_mpan_key;
+    (void)ccm_key;
+    (void)nonce_pers_string;
+    (void)mpan_key;
     tempkey_expand_calls++;
     return expand_result;
 }
 
-int tempkey_extract(const uint8_t *const ecdh_share_secret, const uint8_t *const auth_tag, uint8_t *pseudo_random_keymat_output)
+sl_status_t zwave_s2_extract_pseudo_random_key(const uint8_t *ecdh_shared_secret, const uint8_t *public_keys, uint8_t *prk)
 {
-    (void)ecdh_share_secret;
-    (void)auth_tag;
-    (void)pseudo_random_keymat_output;
-    return 0;
+    (void)ecdh_shared_secret;
+    (void)public_keys;
+    (void)prk;
+    return SL_STATUS_OK;
 }
 
 uint8_t S2_send_frame_no_cb(struct S2 *ctxt, const s2_connection_t *peer, uint8_t *buf, uint16_t len)
@@ -76,7 +74,7 @@ void S2_resynchronization_event(node_t remote_node, sos_event_reason_t reason, u
 
 void setUp(void)
 {
-    expand_result           = 0;
+    expand_result           = SL_STATUS_FAIL;
     networkkey_expand_calls = 0;
     tempkey_expand_calls    = 0;
 }
