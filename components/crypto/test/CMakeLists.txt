@@ -8,6 +8,8 @@ add_unity_test(NAME test_psa_smoke FILES test_psa_smoke.c LIBRARIES psa_test_sup
 
 add_unity_test(NAME test_psa_aes_ecb FILES test_psa_aes_ecb.c LIBRARIES psa_test_support)
 
+add_unity_test(NAME test_psa_aes_ofb FILES test_psa_aes_ofb.c LIBRARIES psa_test_support)
+
 add_unity_test(NAME test_psa_aes_cmac FILES test_psa_aes_cmac.c LIBRARIES psa_test_support)
 
 add_unity_test(NAME test_psa_ccm FILES test_psa_ccm.c LIBRARIES psa_test_support)
