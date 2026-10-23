@@ -39,6 +39,7 @@
 #include "s2_keystore.h"
 #include "x25519.h"
 #include "rand.h"
+#include "aes_cbc_mac.h"
 #include "aes_ecb.h"
 #include "aes_ofb.h"
 
@@ -202,33 +203,6 @@ static void aes_set_key_tpt(const uint8_t *key, const uint8_t *iv)
 {
     memcpy(aes_key, key, 16);
     memcpy(aes_iv, iv, 16);
-}
-
-/*
- * Calculate the authtag for the message,
- */
-static bool aes_cbc_mac(const uint8_t *data, uint8_t len, uint8_t *mac)
-{
-    if (crypto_aes_ecb_encrypt(aes_key, aes_iv, mac) != SL_STATUS_OK) {
-        return false;
-    }
-    for (uint8_t i = 0; i < len; i++) {
-        mac[i & 0xF] ^= data[i];
-        if ((i & 0xF) == 0xF) {
-            if (crypto_aes_ecb_encrypt(aes_key, mac, mac) != SL_STATUS_OK) {
-                return false;
-            }
-        }
-    }
-
-    /* if len is not divisible by 16 do the final pass, this is the padding
-     * described in the spec */
-    if (len & 0xF) {
-        if (crypto_aes_ecb_encrypt(aes_key, mac, mac) != SL_STATUS_OK) {
-            return false;
-        }
-    }
-    return true;
 }
 
 /***************** Nonce Blocked list **************************************/
@@ -531,15 +505,8 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
     auth->receiverNodeID = s->conn_info.remote.node_id;
     auth->payloadLength  = len + 1;
 
-    if (s->use_inclusion_key) {
-        sl_log_debug(LOG_TAG, "COMMAND_CLASS_SECURITY, NETWORK_KEY_SET\n");
-        /* Authtag */
-        aes_set_key_tpt(authkeyz, iv);
-    } else {
-        /* Authtag */
-        aes_set_key_tpt(authkey, iv);
-    }
-    if (!aes_cbc_mac((uint8_t *)auth, 4 + len + 1, mac)) {
+    const uint8_t *auth_key = s->use_inclusion_key ? authkeyz : authkey;
+    if (crypto_aes_cbc_mac(auth_key, iv, (const uint8_t *)auth, (uint8_t)(4 + len + 1), mac) != SL_STATUS_OK) {
         return 0;
     }
     s->crypted_msg[0] = COMMAND_CLASS_SECURITY;
@@ -1034,9 +1001,7 @@ static uint8_t s0_decrypt_message(const zwave_controller_connection_info_t *conn
     auth->payloadLength  = frame_length - 19;
     memcpy((uint8_t *)auth + sizeof(auth_data_t), enc_payload, auth->payloadLength);
 
-    /* Authtag */
-    aes_set_key_tpt(authkey, iv);
-    if (!aes_cbc_mac((uint8_t *)auth, sizeof(auth_data_t) + auth->payloadLength, mac)) {
+    if (crypto_aes_cbc_mac(authkey, iv, (const uint8_t *)auth, (uint8_t)(sizeof(auth_data_t) + auth->payloadLength), mac) != SL_STATUS_OK) {
         return 0;
     }
 
