@@ -1,6 +1,6 @@
 find_package(MbedTLS REQUIRED)
 
-set(CRYPTO_CORE_SOURCES src/x25519.c src/aes_cmac.c src/aes_ccm.c src/aes_ecb.c src/rand.c src/helpers.c)
+set(CRYPTO_CORE_SOURCES src/x25519.c src/aes_cmac.c src/aes_ccm.c src/aes_ecb.c src/aes_ofb.c src/rand.c src/helpers.c)
 
 add_library(crypto_core STATIC ${CRYPTO_CORE_SOURCES})
 target_include_directories(crypto_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

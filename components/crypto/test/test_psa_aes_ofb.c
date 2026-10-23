@@ -36,7 +36,7 @@ void test_nist_sp800_38a_ofb_aes128_encrypt_one_block(void)
     memcpy(iv, nist_iv, sizeof(iv));
     memcpy(buffer, nist_plain_64, sizeof(buffer));
 
-    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ofb_encrypt(nist_key_128, iv, buffer, sizeof(buffer)));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ofb_xor(nist_key_128, iv, buffer, sizeof(buffer)));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(nist_cipher_64, buffer, sizeof(buffer));
 }
 
@@ -48,7 +48,7 @@ void test_nist_sp800_38a_ofb_aes128_encrypt_64_bytes(void)
     memcpy(iv, nist_iv, sizeof(iv));
     memcpy(buffer, nist_plain_64, sizeof(buffer));
 
-    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ofb_encrypt(nist_key_128, iv, buffer, sizeof(buffer)));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ofb_xor(nist_key_128, iv, buffer, sizeof(buffer)));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(nist_cipher_64, buffer, sizeof(buffer));
 }
 
@@ -60,7 +60,7 @@ void test_nist_sp800_38a_ofb_aes128_encrypt_partial_seven_bytes(void)
     memcpy(iv, nist_iv, sizeof(iv));
     memcpy(buffer, nist_plain_64, sizeof(buffer));
 
-    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ofb_encrypt(nist_key_128, iv, buffer, sizeof(buffer)));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ofb_xor(nist_key_128, iv, buffer, sizeof(buffer)));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(nist_cipher_64, buffer, sizeof(buffer));
 }
 
@@ -72,7 +72,7 @@ void test_nist_sp800_38a_ofb_aes128_decrypt_via_xor(void)
     memcpy(iv, nist_iv, sizeof(iv));
     memcpy(buffer, nist_cipher_64, sizeof(buffer));
 
-    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ofb_encrypt(nist_key_128, iv, buffer, sizeof(buffer)));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ofb_xor(nist_key_128, iv, buffer, sizeof(buffer)));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(nist_plain_64, buffer, sizeof(buffer));
 }
 
@@ -85,7 +85,7 @@ void test_ofb_aes128_zero_length_leaves_iv_and_data_unchanged(void)
     memcpy(iv, nist_iv, sizeof(iv));
     memcpy(data, data_expected, sizeof(data));
 
-    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ofb_encrypt(nist_key_128, iv, data, 0));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ofb_xor(nist_key_128, iv, data, 0));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(nist_iv, iv, sizeof(iv));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(data_expected, data, sizeof(data));
 }

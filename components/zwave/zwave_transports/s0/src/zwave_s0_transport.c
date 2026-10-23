@@ -40,6 +40,7 @@
 #include "x25519.h"
 #include "rand.h"
 #include "aes_ecb.h"
+#include "aes_ofb.h"
 
 // ZPC components
 #include "log.h"
@@ -201,19 +202,6 @@ static void aes_set_key_tpt(const uint8_t *key, const uint8_t *iv)
 {
     memcpy(aes_key, key, 16);
     memcpy(aes_iv, iv, 16);
-}
-
-static bool aes_ofb(uint8_t *data, uint8_t len)
-{
-    for (uint8_t i = 0; i < len; i++) {
-        if ((i & 0xF) == 0x0) {
-            if (crypto_aes_ecb_encrypt(aes_key, aes_iv, aes_iv) != SL_STATUS_OK) {
-                return false;
-            }
-        }
-        data[i] ^= aes_iv[i & 0xF];
-    }
-    return true;
 }
 
 /*
@@ -522,7 +510,7 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
         aes_set_key_tpt(enckey, iv);
     }
 
-    if (crypto_aes_ofb_encrypt(aes_key, aes_iv, enc_data, len + 1) != SL_STATUS_OK) {
+    if (crypto_aes_ofb_xor(aes_key, aes_iv, enc_data, len + 1) != SL_STATUS_OK) {
         return 0;
     }
 
@@ -1058,7 +1046,7 @@ static uint8_t s0_decrypt_message(const zwave_controller_connection_info_t *conn
     }
     /*Decrypt */
     aes_set_key_tpt(enckey, iv);
-    if (crypto_aes_ofb_encrypt(aes_key, aes_iv, enc_payload, auth->payloadLength) != SL_STATUS_OK) {
+    if (crypto_aes_ofb_xor(aes_key, aes_iv, enc_payload, auth->payloadLength) != SL_STATUS_OK) {
         return 0;
     }
 
