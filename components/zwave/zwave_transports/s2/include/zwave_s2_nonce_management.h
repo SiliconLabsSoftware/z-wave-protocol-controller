@@ -41,7 +41,6 @@
  * Refer to LibS2 for field descriptions.
  */
 typedef struct span_entry {
-        uint8_t df;
         uint8_t working_state[CTR_DRBG_INTERNAL_STATE_LENGTH];
         uint8_t key[CTR_DRBG_KEY_LENGTH];
         uint8_t rx_sequence;

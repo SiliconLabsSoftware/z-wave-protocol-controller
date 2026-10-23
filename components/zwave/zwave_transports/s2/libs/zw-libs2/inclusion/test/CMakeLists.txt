@@ -15,5 +15,5 @@ add_unity_test(NAME test_inclusion_joining_node_slave
     s2_mock
     s2_inclusion_mocks
     crypto_mocks
-    s2crypto
+    crypto
 )
