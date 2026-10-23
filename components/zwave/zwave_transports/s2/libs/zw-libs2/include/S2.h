@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <platform.h>
 
-#include "ctr_drbg.h"
+#include "aes_ctr_drbg.h"
 
 // #include <ZW_transport_api.h>
 

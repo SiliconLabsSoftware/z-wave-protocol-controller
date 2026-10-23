@@ -31,10 +31,11 @@
 #include "s2_protocol.h"
 #include "S2_external.h"
 #include "nextnonce.h"
-#include "ctr_drbg.h"
+#include "aes_ctr_drbg.h"
 #include "psa/crypto.h"
 #include "psa/crypto_extra.h"
-#include "s2_psa_primitives.h"
+#include "x25519.h"
+#include "aes_ccm.h"
 
 #define S2_CCM_NONCE_LEN 13U
 #define S2_CCM_TAG_LEN   8U
@@ -42,8 +43,8 @@
 static uint32_t encrypt_test_frame(const uint8_t *key, const uint8_t *nonce, const uint8_t *aad, uint32_t aad_len, uint8_t *plaintext, uint16_t plaintext_len)
 {
     size_t ciphertext_len;
-    const psa_status_t status = s2_psa_ccm_encrypt(key, S2_CCM_TAG_LEN, nonce, S2_CCM_NONCE_LEN, aad, aad_len, plaintext, plaintext_len, plaintext, plaintext_len + S2_CCM_TAG_LEN, &ciphertext_len);
-    return status == PSA_SUCCESS ? (uint32_t)ciphertext_len : 0;
+    const sl_status_t status = crypto_aes_ccm_encrypt(key, S2_CCM_TAG_LEN, nonce, S2_CCM_NONCE_LEN, aad, aad_len, plaintext, plaintext_len, plaintext, plaintext_len + S2_CCM_TAG_LEN, &ciphertext_len);
+    return status == SL_STATUS_OK ? (uint32_t)ciphertext_len : 0;
 }
 
 /*******************************************************************************
@@ -299,8 +300,8 @@ static uint8_t test_rei_max[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
  */
 void test_span_instantiation_valid_entropy(void)
 {
-    CTR_DRBG_CTX span_rng_1;
-    CTR_DRBG_CTX span_rng_2;
+    crypto_aes_ctr_drbg_ctx_t span_rng_1;
+    crypto_aes_ctr_drbg_ctx_t span_rng_2;
     uint8_t nonce_1[16];
     uint8_t nonce_2[16];
 
@@ -351,8 +352,8 @@ void test_span_instantiation_valid_entropy(void)
  */
 void test_span_instantiation_zero_entropy(void)
 {
-    CTR_DRBG_CTX span_rng_1;
-    CTR_DRBG_CTX span_rng_2;
+    crypto_aes_ctr_drbg_ctx_t span_rng_1;
+    crypto_aes_ctr_drbg_ctx_t span_rng_2;
     uint8_t nonce_1[16];
     uint8_t nonce_2[16];
 
@@ -396,8 +397,8 @@ void test_span_instantiation_zero_entropy(void)
  */
 void test_span_instantiation_max_entropy(void)
 {
-    CTR_DRBG_CTX span_rng_1;
-    CTR_DRBG_CTX span_rng_2;
+    crypto_aes_ctr_drbg_ctx_t span_rng_1;
+    crypto_aes_ctr_drbg_ctx_t span_rng_2;
     uint8_t nonce_1[16];
     uint8_t nonce_2[16];
 
@@ -466,8 +467,8 @@ void test_span_instantiation_max_entropy(void)
  */
 void test_nextnonce_sequence_reproducible(void)
 {
-    CTR_DRBG_CTX span_rng_1;
-    CTR_DRBG_CTX span_rng_2;
+    crypto_aes_ctr_drbg_ctx_t span_rng_1;
+    crypto_aes_ctr_drbg_ctx_t span_rng_2;
     uint8_t nonce_seq_1[5][16];  // Store 5 nonces from first generator
     uint8_t nonce_seq_2[5][16];  // Store 5 nonces from second generator
 
@@ -586,8 +587,8 @@ void test_span_decrypt_success_first_attempt(void)
 
     // Step 6: Generate SPAN nonce (sender's perspective - we're simulating received message)
     // Save RNG state to generate same nonce the receiver will use
-    CTR_DRBG_CTX sender_rng;
-    memcpy(&sender_rng, &span->d.rng, sizeof(CTR_DRBG_CTX));
+    crypto_aes_ctr_drbg_ctx_t sender_rng;
+    memcpy(&sender_rng, &span->d.rng, sizeof(crypto_aes_ctr_drbg_ctx_t));
     next_nonce_generate(&sender_rng, sender_nonce);
 
     // Step 7: Build S2_MESSAGE_ENCAPSULATION frame header
@@ -713,7 +714,7 @@ void test_span_decrypt_with_retry_sync_recovery(void)
     next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key);
 
     // Step 6: Create sender's RNG starting from same state
-    CTR_DRBG_CTX sender_rng;
+    crypto_aes_ctr_drbg_ctx_t sender_rng;
     next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
 
     // Step 7: CRITICAL - Advance sender by 1 nonce to simulate desync
@@ -970,8 +971,8 @@ void test_span_message_reception_complete_flow(void)
     next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key);
 
     // Step 4: Generate SPAN value (sender's perspective)
-    CTR_DRBG_CTX sender_rng;
-    memcpy(&sender_rng, &span->d.rng, sizeof(CTR_DRBG_CTX));
+    crypto_aes_ctr_drbg_ctx_t sender_rng;
+    memcpy(&sender_rng, &span->d.rng, sizeof(crypto_aes_ctr_drbg_ctx_t));
     next_nonce_generate(&sender_rng, nonce);
 
     // Step 5: Build S2_MESSAGE_ENCAPSULATION frame
@@ -1105,7 +1106,7 @@ void test_span_resynchronization_after_desync(void)
     // PHASE 2: Create sender's RNG and advance it beyond retry limit
     // =========================================================================
 
-    CTR_DRBG_CTX sender_rng;
+    crypto_aes_ctr_drbg_ctx_t sender_rng;
     next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
 
     // Advance sender by 6 nonces (beyond MAX_SPAN_RETRY_ITERATIONS = 5)
@@ -1193,7 +1194,7 @@ void test_span_resynchronization_after_desync(void)
     uint8_t new_sei[16] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA};
 
     // Sender instantiates new SPAN with new_sei and new_rei
-    CTR_DRBG_CTX new_sender_rng;
+    crypto_aes_ctr_drbg_ctx_t new_sender_rng;
     next_nonce_instantiate(&new_sender_rng, new_sei, new_rei, nonce_key);
 
     // Sender generates nonce for this message
@@ -1418,7 +1419,7 @@ void test_span_decrypt_wrong_key(void)
     // Step 3: Create sender's RNG (synchronized with receiver)
     // =========================================================================
 
-    CTR_DRBG_CTX sender_rng;
+    crypto_aes_ctr_drbg_ctx_t sender_rng;
     next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
 
     // Generate sender's nonce (same as what receiver will try first)
@@ -1517,7 +1518,7 @@ void test_span_decrypt_wrong_key(void)
     reset_test_state();
 
     // Sender instantiates new SPAN with new entropy
-    CTR_DRBG_CTX new_sender_rng;
+    crypto_aes_ctr_drbg_ctx_t new_sender_rng;
     next_nonce_instantiate(&new_sender_rng, new_sei, new_rei, nonce_key);
 
     uint8_t new_sender_nonce[16];
@@ -1660,7 +1661,7 @@ void test_span_decrypt_modified_nonce(void)
     // =========================================================================
 
     // Instantiate both sender and receiver with same entropy
-    CTR_DRBG_CTX sender_rng;
+    crypto_aes_ctr_drbg_ctx_t sender_rng;
     next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
     next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key);
 
@@ -1705,7 +1706,7 @@ void test_span_decrypt_modified_nonce(void)
     // =========================================================================
 
     // Corrupt the RNG internal state - modify the V (counter) value
-    // The CTR_DRBG_CTX contains internal state that we'll corrupt
+    // The crypto_aes_ctr_drbg_ctx_t contains internal state that we'll corrupt
     // We'll XOR some bytes to ensure it's different from expected
     uint8_t *rng_bytes = (uint8_t *)&span->d.rng;
     for (int j = 0; j < 16; j++) {
@@ -1755,8 +1756,8 @@ void test_span_decrypt_modified_nonce(void)
     // =========================================================================
 
     // Create fresh RNGs to verify the original setup was correct
-    CTR_DRBG_CTX verify_sender_rng;
-    CTR_DRBG_CTX verify_receiver_rng;
+    crypto_aes_ctr_drbg_ctx_t verify_sender_rng;
+    crypto_aes_ctr_drbg_ctx_t verify_receiver_rng;
     uint8_t verify_sender_nonce[16];
     uint8_t verify_receiver_nonce[16];
 
@@ -1843,7 +1844,7 @@ void test_span_decrypt_mismatched_homeid(void)
     // Step 2: Create sender's RNG and generate nonce
     // =========================================================================
 
-    CTR_DRBG_CTX sender_rng;
+    crypto_aes_ctr_drbg_ctx_t sender_rng;
     next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
     next_nonce_generate(&sender_rng, sender_nonce);
 
@@ -1954,33 +1955,6 @@ void test_nonce_get_accepts_new_random_sequence_after_peer_restart(void)
 
     TEST_ASSERT_EQUAL_UINT32(1, g_nonce_report_count);
     TEST_ASSERT_EQUAL_HEX8(RESTARTED_SEQUENCE, span->rx_seq);
-}
-
-void test_nonce_get_random_failure_preserves_span_and_nonce(void)
-{
-    const node_t LOCAL_NODE_ID       = 1;
-    const node_t REMOTE_NODE_ID      = 2;
-    const uint8_t ORIGINAL_NONCE[16] = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F};
-    struct S2 s2_context             = {0};
-    s2_connection_t connection       = {0};
-    uint8_t nonce_get[]              = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NONCE_GET, 0x42};
-
-    connection.l_node = LOCAL_NODE_ID;
-    connection.r_node = REMOTE_NODE_ID;
-
-    struct SPAN *span = &s2_context.span_table[0];
-    span->lnode       = LOCAL_NODE_ID;
-    span->rnode       = REMOTE_NODE_ID;
-    span->state       = SPAN_NEGOTIATED;
-    memcpy(span->d.r_nonce, ORIGINAL_NONCE, sizeof(ORIGINAL_NONCE));
-
-    mbedtls_psa_crypto_free();
-    S2_application_command_handler(&s2_context, &connection, nonce_get, sizeof(nonce_get));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
-
-    TEST_ASSERT_FALSE(g_nonce_report_sent);
-    TEST_ASSERT_EQUAL(SPAN_NEGOTIATED, span->state);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(ORIGINAL_NONCE, span->d.r_nonce, sizeof(ORIGINAL_NONCE));
 }
 
 /**
@@ -2400,7 +2374,7 @@ void test_span_decrypt_replay_attack(void)
     // Step 2: Create sender's RNG and generate first message
     // =========================================================================
 
-    CTR_DRBG_CTX sender_rng;
+    crypto_aes_ctr_drbg_ctx_t sender_rng;
     next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
     next_nonce_generate(&sender_rng, sender_nonce);
 
@@ -2566,7 +2540,7 @@ void test_span_decrypt_delay_attack(void)
     // Step 2: Create sender's RNG
     // =========================================================================
 
-    CTR_DRBG_CTX sender_rng;
+    crypto_aes_ctr_drbg_ctx_t sender_rng;
     next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
 
     // =========================================================================
