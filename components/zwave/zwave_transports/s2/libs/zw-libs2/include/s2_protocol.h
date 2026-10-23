@@ -11,7 +11,7 @@
 #define PROTOCOL_S2_PROTOCOL_H_
 #include <stdbool.h>
 #include "S2.h"
-#include "ctr_drbg.h"
+#include "aes_ctr_drbg.h"
 #include "s2_classcmd.h"
 #include "ZW_typedefs.h"
 #include "ZW_classcmd.h"
@@ -69,7 +69,7 @@ typedef enum {
 
 struct SPAN {
         union {
-                CTR_DRBG_CTX rng;
+                crypto_aes_ctr_drbg_ctx_t rng;
                 uint8_t r_nonce[16];
         } d;
         node_t lnode;
@@ -269,7 +269,7 @@ void s2_restore_keys(struct S2 *p_context);
  * A context is unique to a node id, ie a bridge module will have multiple contexts.
  *
  * \param ctx Pointer to the context to update.
- * \param key_id Must be \ref ZWAVE_KEY_ID_NONE. Retained for API compatibility with key derivation.
+ * \param key_id Must be \ref ZWAVE_KEY_ID_NONE. Unused; retained for API compatibility.
  *
  * \param class_id security class to update
  *

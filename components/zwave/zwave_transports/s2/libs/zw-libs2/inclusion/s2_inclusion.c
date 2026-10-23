@@ -14,8 +14,8 @@
 #include <platform.h>
 #include "ZW_classcmd.h"
 #include "s2_classcmd.h"
-#include "kderiv.h"
-#include "s2_psa_primitives.h"
+#include "zwave_s2_key_derivation.h"
+#include "x25519.h"
 #include "s2_inclusion_internal.h"
 
 #define CHECK_AND_FAIL(CHECK, FAILURE) \
@@ -189,7 +189,7 @@ static uint8_t m_schemes;
 static uint8_t m_curves;
 static uint8_t m_keys;  //< Bitmask of keys this node should request when joining.
 uint8_t shared_secret[32];
-uint8_t shared_key_mem[64];  //< Shared memory array for handling of keys/auth tag during inclusion.
+uint8_t shared_key_mem[64];  //< ECDH scratch and KeyPub_A||KeyPub_B for zwave_s2_extract_pseudo_random_key.
 
 struct S2 *mp_context;
 
@@ -934,7 +934,7 @@ static void s2_public_key_read(uint8_t *buf)
 static void s2_do_ecdh_calc_b(void)
 {
     s2_private_key_read(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX]);
-    if (s2_psa_x25519_shared_secret(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key, shared_secret) != PSA_SUCCESS) {
+    if (crypto_x25519_derive_shared_secret(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key, shared_secret) != SL_STATUS_OK) {
         inclusion_failed_frame_send(KEX_FAIL_AUTH, NON_SECURE);
         process_event(S2_INCLUSION_ERROR_SENT);
         return;
@@ -943,7 +943,7 @@ static void s2_do_ecdh_calc_b(void)
     memcpy(&shared_key_mem[PUBLIC_KEY_A_INDEX], mp_context->public_key, 32);
     s2_public_key_read(&shared_key_mem[PUBLIC_KEY_B_INDEX]);
 
-    if (!tempkey_extract(shared_secret, shared_key_mem, mp_context->public_key) || !S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1)) {
+    if (zwave_s2_extract_pseudo_random_key(shared_secret, shared_key_mem, mp_context->public_key) != SL_STATUS_OK || !S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1)) {
         inclusion_failed_frame_send(KEX_FAIL_AUTH, NON_SECURE);
         process_event(S2_INCLUSION_ERROR_SENT);
         return;
