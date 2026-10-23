@@ -873,8 +873,8 @@ sl_status_t zwave_s2_on_frame_received(const zwave_controller_connection_info_t 
     s2_connection.zw_rx_RSSIval = rx_options->rssi;
     s2_connection.rx_options    = rx_options->status_flags & (RECEIVE_STATUS_TYPE_BROAD | RECEIVE_STATUS_TYPE_MULTI) ? S2_RXOPTION_MULTICAST : 0;
 
-    if (frame_length >= sizeof(frame_buffer)) {
-        assert(0);
+    if (frame_length > sizeof(frame_buffer)) {
+        sl_log_warning(LOG_TAG, "S2 frame length %u exceeds the %zu-byte buffer; dropping\n", frame_length, sizeof(frame_buffer));
         return SL_STATUS_WOULD_OVERFLOW;
     }
     // As libs2 is doing inplace decryption of the frame to save memory, we need
