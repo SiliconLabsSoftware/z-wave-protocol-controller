@@ -7,9 +7,9 @@
 #include "sl_status.h"
 
 /**
- * AES-128 OFB keystream XOR (NIST SP 800-38A OFB).
+ * AES-128 OFB keystream XOR (NIST SP 800-38A OFB) via PSA_ALG_OFB.
  *
- * Updates \p iv in place (OFB state) and XORs keystream into \p data.
+ * Uses \p iv as the OFB initial vector for this call and XORs keystream into \p data.
  */
 sl_status_t crypto_aes_ofb_xor(const uint8_t *key, uint8_t iv[16], uint8_t *data, size_t len);
 
