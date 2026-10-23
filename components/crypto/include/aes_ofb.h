@@ -6,6 +6,11 @@
 
 #include "sl_status.h"
 
-sl_status_t crypto_aes_ofb_encrypt(const uint8_t *key, const uint8_t *iv, uint8_t *data, size_t data_len);
+/**
+ * AES-128 OFB keystream XOR (NIST SP 800-38A OFB).
+ *
+ * Updates \p iv in place (OFB state) and XORs keystream into \p data.
+ */
+sl_status_t crypto_aes_ofb_xor(const uint8_t *key, uint8_t iv[16], uint8_t *data, size_t len);
 
 #endif
