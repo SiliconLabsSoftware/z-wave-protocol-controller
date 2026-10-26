@@ -1,7 +1,8 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "nextnonce.h"
+#include "zwave_s2_next_nonce.h"
+#include "sl_status.h"
 #include "psa/crypto.h"
 #include "psa/crypto_extra.h"
 #include "unity.h"
@@ -36,15 +37,15 @@ void test_nextnonce_deterministic_and_advances(void)
     uint8_t nonce_2[16];
     uint8_t nonce_1_second[16];
 
-    TEST_ASSERT_EQUAL_INT(1, next_nonce_instantiate(&span_rng_1, test_sei_valid, test_rei_valid, test_nonce_key));
-    TEST_ASSERT_EQUAL_INT(1, next_nonce_generate(&span_rng_1, nonce_1));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span_rng_1, test_sei_valid, test_rei_valid, test_nonce_key));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&span_rng_1, nonce_1));
 
-    TEST_ASSERT_EQUAL_INT(1, next_nonce_instantiate(&span_rng_2, test_sei_valid, test_rei_valid, test_nonce_key));
-    TEST_ASSERT_EQUAL_INT(1, next_nonce_generate(&span_rng_2, nonce_2));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span_rng_2, test_sei_valid, test_rei_valid, test_nonce_key));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&span_rng_2, nonce_2));
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY(nonce_1, nonce_2, 16);
 
-    TEST_ASSERT_EQUAL_INT(1, next_nonce_generate(&span_rng_1, nonce_1_second));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&span_rng_1, nonce_1_second));
     TEST_ASSERT_NOT_EQUAL(0, memcmp(nonce_1, nonce_1_second, 16));
 }
 
@@ -53,11 +54,11 @@ void test_nextnonce_matches_legacy_vector(void)
     crypto_aes_ctr_drbg_ctx_t span_rng;
     uint8_t nonce[16];
 
-    TEST_ASSERT_EQUAL_INT(1, next_nonce_instantiate(&span_rng, test_sei_valid, test_rei_valid, test_nonce_key));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span_rng, test_sei_valid, test_rei_valid, test_nonce_key));
 
-    TEST_ASSERT_EQUAL_INT(1, next_nonce_generate(&span_rng, nonce));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&span_rng, nonce));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(legacy_nonce_1, nonce, sizeof(nonce));
 
-    TEST_ASSERT_EQUAL_INT(1, next_nonce_generate(&span_rng, nonce));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&span_rng, nonce));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(legacy_nonce_2, nonce, sizeof(nonce));
 }
