@@ -14,7 +14,7 @@ add_unity_test(
     test_span.c
     ../S2.c
     ../../inclusion/s2_inclusion.c
-  LIBRARIES crypto zwave_s2_key_derivation zwave_s2_nextnonce mock s2_inclusion_mocks
+  LIBRARIES crypto zwave_s2_key_derivation zwave_s2_next_nonce mock s2_inclusion_mocks
 )
 
 add_unity_test(
@@ -23,7 +23,7 @@ add_unity_test(
     test_s2_key_update_failure.c
     ../S2.c
     ../../inclusion/s2_inclusion.c
-  LIBRARIES mock s2_mock s2_inclusion_mocks crypto zwave_s2_nextnonce
+  LIBRARIES mock s2_mock s2_inclusion_mocks crypto zwave_s2_next_nonce
   INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/../../../../include
 )
 

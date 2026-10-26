@@ -6,7 +6,7 @@ add_unity_test(
   NAME test_zwave_nextnonce
   FILES test_zwave_nextnonce.c
   INCLUDES ../include
-  LIBRARIES zwave_s2_nextnonce)
+  LIBRARIES zwave_s2_next_nonce)
 
 add_unity_test(
   NAME test_zwave_s2_key_derivation
