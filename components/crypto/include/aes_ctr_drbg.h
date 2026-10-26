@@ -1,5 +1,5 @@
-#ifndef AES_CTR_DRBG_H
-#define AES_CTR_DRBG_H
+#ifndef AES_CTR_DRBG_H_
+#define AES_CTR_DRBG_H_
 
 #include <stdint.h>
 
@@ -17,7 +17,15 @@ typedef struct crypto_aes_ctr_drbg_ctx {
         uint8_t key[CRYPTO_AES_KEY_SIZE];
 } crypto_aes_ctr_drbg_ctx_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 sl_status_t crypto_aes_ctr_drbg_init(crypto_aes_ctr_drbg_ctx_t *ctx, const uint8_t *entropy_input, const uint8_t *pers_string);
 sl_status_t crypto_aes_ctr_drbg_generate(crypto_aes_ctr_drbg_ctx_t *ctx, uint8_t *out);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
