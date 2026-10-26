@@ -30,7 +30,8 @@
 #include "S2.h"
 #include "s2_protocol.h"
 #include "S2_external.h"
-#include "nextnonce.h"
+#include "zwave_s2_next_nonce.h"
+#include "sl_status.h"
 #include "aes_ctr_drbg.h"
 #include "psa/crypto.h"
 #include "psa/crypto_extra.h"
@@ -307,20 +308,20 @@ void test_span_instantiation_valid_entropy(void)
 
     // Test 1: Instantiate SPAN generator with valid entropy inputs
     // This simulates the receiver creating a SPAN generator from SEI and REI
-    next_nonce_instantiate(&span_rng_1, test_sei_valid, test_rei_valid, test_nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span_rng_1, test_sei_valid, test_rei_valid, test_nonce_key));
 
     // Test 2: Generate a nonce from the instantiated generator
     // This validates that the DRBG is properly initialized
-    int result = next_nonce_generate(&span_rng_1, nonce_1);
-    TEST_ASSERT_EQUAL_INT(1, result);
+    sl_status_t result = crypto_aes_ctr_drbg_generate(&span_rng_1, nonce_1);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
 
     // Test 3: Verify that the same inputs produce the same initial DRBG state
     // by instantiating a second generator with identical inputs
-    next_nonce_instantiate(&span_rng_2, test_sei_valid, test_rei_valid, test_nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span_rng_2, test_sei_valid, test_rei_valid, test_nonce_key));
 
     // Test 4: Generate nonce from second generator
-    result = next_nonce_generate(&span_rng_2, nonce_2);
-    TEST_ASSERT_EQUAL_INT(1, result);
+    result = crypto_aes_ctr_drbg_generate(&span_rng_2, nonce_2);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
 
     // Test 5: Verify both generators produce identical first nonce
     // This confirms deterministic behavior required for SPAN synchronization
@@ -328,8 +329,8 @@ void test_span_instantiation_valid_entropy(void)
 
     // Test 6: Generate second nonce from first generator
     uint8_t nonce_1_second[16];
-    result = next_nonce_generate(&span_rng_1, nonce_1_second);
-    TEST_ASSERT_EQUAL_INT(1, result);
+    result = crypto_aes_ctr_drbg_generate(&span_rng_1, nonce_1_second);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
 
     // Test 7: Verify second nonce is different from first (uniqueness)
     // This ensures the DRBG advances its internal state
@@ -360,11 +361,11 @@ void test_span_instantiation_zero_entropy(void)
     // Test 1: Instantiate SPAN generator with zero entropy inputs
     // Even with all-zero entropy, the system should still produce valid output
     // due to the nonce key providing personalization
-    next_nonce_instantiate(&span_rng_1, test_sei_zero, test_rei_zero, test_nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span_rng_1, test_sei_zero, test_rei_zero, test_nonce_key));
 
     // Test 2: Generate a nonce from the zero-entropy generator
-    int result = next_nonce_generate(&span_rng_1, nonce_1);
-    TEST_ASSERT_EQUAL_INT(1, result);
+    sl_status_t result = crypto_aes_ctr_drbg_generate(&span_rng_1, nonce_1);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
 
     // Test 3: Verify output is non-zero (nonce_key should provide entropy)
     // Even with zero EI, the personalization string (nonce_key) ensures non-zero output
@@ -374,15 +375,15 @@ void test_span_instantiation_zero_entropy(void)
 
     // Test 4: Verify deterministic behavior with zero entropy
     // Same zero inputs should produce same output
-    next_nonce_instantiate(&span_rng_2, test_sei_zero, test_rei_zero, test_nonce_key);
-    result = next_nonce_generate(&span_rng_2, nonce_2);
-    TEST_ASSERT_EQUAL_INT(1, result);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span_rng_2, test_sei_zero, test_rei_zero, test_nonce_key));
+    result = crypto_aes_ctr_drbg_generate(&span_rng_2, nonce_2);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(nonce_1, nonce_2, 16);
 
     // Test 5: Verify second nonce is different from first
     uint8_t nonce_1_second[16];
-    result = next_nonce_generate(&span_rng_1, nonce_1_second);
-    TEST_ASSERT_EQUAL_INT(1, result);
+    result = crypto_aes_ctr_drbg_generate(&span_rng_1, nonce_1_second);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
     int nonces_identical = (memcmp(nonce_1, nonce_1_second, 16) == 0);
     TEST_ASSERT_FALSE(nonces_identical);
 }
@@ -404,11 +405,11 @@ void test_span_instantiation_max_entropy(void)
 
     // Test 1: Instantiate SPAN generator with maximum entropy inputs (all 0xFF)
     // This tests the upper boundary condition for entropy values
-    next_nonce_instantiate(&span_rng_1, test_sei_max, test_rei_max, test_nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span_rng_1, test_sei_max, test_rei_max, test_nonce_key));
 
     // Test 2: Generate a nonce from the max-entropy generator
-    int result = next_nonce_generate(&span_rng_1, nonce_1);
-    TEST_ASSERT_EQUAL_INT(1, result);
+    sl_status_t result = crypto_aes_ctr_drbg_generate(&span_rng_1, nonce_1);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
 
     // Test 3: Verify output is not all 0xFF (proper mixing occurred)
     // The CKDF and DRBG operations should produce well-distributed output
@@ -424,15 +425,15 @@ void test_span_instantiation_max_entropy(void)
 
     // Test 5: Verify deterministic behavior with max entropy
     // Same maximum inputs should produce same output
-    next_nonce_instantiate(&span_rng_2, test_sei_max, test_rei_max, test_nonce_key);
-    result = next_nonce_generate(&span_rng_2, nonce_2);
-    TEST_ASSERT_EQUAL_INT(1, result);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span_rng_2, test_sei_max, test_rei_max, test_nonce_key));
+    result = crypto_aes_ctr_drbg_generate(&span_rng_2, nonce_2);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(nonce_1, nonce_2, 16);
 
     // Test 6: Verify second nonce is different from first (no wrap-around issues)
     uint8_t nonce_1_second[16];
-    result = next_nonce_generate(&span_rng_1, nonce_1_second);
-    TEST_ASSERT_EQUAL_INT(1, result);
+    result = crypto_aes_ctr_drbg_generate(&span_rng_1, nonce_1_second);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
     int nonces_identical = (memcmp(nonce_1, nonce_1_second, 16) == 0);
     TEST_ASSERT_FALSE(nonces_identical);
 
@@ -442,8 +443,8 @@ void test_span_instantiation_max_entropy(void)
     memcpy(nonce_prev, nonce_1_second, 16);
     for (int i = 0; i < 10; i++) {
         uint8_t nonce_next[16];
-        result = next_nonce_generate(&span_rng_1, nonce_next);
-        TEST_ASSERT_EQUAL_INT(1, result);
+        result = crypto_aes_ctr_drbg_generate(&span_rng_1, nonce_next);
+        TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
 
         // Each nonce should be different
         int same = (memcmp(nonce_prev, nonce_next, 16) == 0);
@@ -473,21 +474,21 @@ void test_nextnonce_sequence_reproducible(void)
     uint8_t nonce_seq_2[5][16];  // Store 5 nonces from second generator
 
     // Test 1: Instantiate first SPAN generator
-    next_nonce_instantiate(&span_rng_1, test_sei_valid, test_rei_valid, test_nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span_rng_1, test_sei_valid, test_rei_valid, test_nonce_key));
 
     // Test 2: Generate sequence of 5 nonces from first generator
     for (int i = 0; i < 5; i++) {
-        int result = next_nonce_generate(&span_rng_1, nonce_seq_1[i]);
-        TEST_ASSERT_EQUAL_INT(1, result);
+        sl_status_t result = crypto_aes_ctr_drbg_generate(&span_rng_1, nonce_seq_1[i]);
+        TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
     }
 
     // Test 3: Instantiate second SPAN generator with identical inputs
-    next_nonce_instantiate(&span_rng_2, test_sei_valid, test_rei_valid, test_nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span_rng_2, test_sei_valid, test_rei_valid, test_nonce_key));
 
     // Test 4: Generate sequence of 5 nonces from second generator
     for (int i = 0; i < 5; i++) {
-        int result = next_nonce_generate(&span_rng_2, nonce_seq_2[i]);
-        TEST_ASSERT_EQUAL_INT(1, result);
+        sl_status_t result = crypto_aes_ctr_drbg_generate(&span_rng_2, nonce_seq_2[i]);
+        TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
     }
 
     // Test 5: Verify both generators produce identical sequences
@@ -509,11 +510,11 @@ void test_nextnonce_sequence_reproducible(void)
     uint8_t nonce_1_next[16];
     uint8_t nonce_2_next[16];
 
-    int result = next_nonce_generate(&span_rng_1, nonce_1_next);
-    TEST_ASSERT_EQUAL_INT(1, result);
+    sl_status_t result = crypto_aes_ctr_drbg_generate(&span_rng_1, nonce_1_next);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
 
-    result = next_nonce_generate(&span_rng_2, nonce_2_next);
-    TEST_ASSERT_EQUAL_INT(1, result);
+    result = crypto_aes_ctr_drbg_generate(&span_rng_2, nonce_2_next);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, result);
 
     // Both generators should still be synchronized
     TEST_ASSERT_EQUAL_UINT8_ARRAY(nonce_1_next, nonce_2_next, 16);
@@ -583,13 +584,13 @@ void test_span_decrypt_success_first_attempt(void)
 
     // Step 5: Instantiate SPAN RNG with known entropy (same as sender would use)
     // The sender and receiver must be synchronized for decryption to succeed
-    next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // Step 6: Generate SPAN nonce (sender's perspective - we're simulating received message)
     // Save RNG state to generate same nonce the receiver will use
     crypto_aes_ctr_drbg_ctx_t sender_rng;
     memcpy(&sender_rng, &span->d.rng, sizeof(crypto_aes_ctr_drbg_ctx_t));
-    next_nonce_generate(&sender_rng, sender_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, sender_nonce));
 
     // Step 7: Build S2_MESSAGE_ENCAPSULATION frame header
     // Frame format: [CC_SECURITY_2, MSG_ENCAP, seq_props, seq_num, <encrypted_payload>]
@@ -711,19 +712,19 @@ void test_span_decrypt_with_retry_sync_recovery(void)
     span->tx_seq      = 0;
 
     // Step 5: Instantiate SPAN RNG for receiver (this is the receiver's current state)
-    next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // Step 6: Create sender's RNG starting from same state
     crypto_aes_ctr_drbg_ctx_t sender_rng;
-    next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // Step 7: CRITICAL - Advance sender by 1 nonce to simulate desync
     // This simulates a message that was sent but not received by us
     uint8_t discarded_nonce[16];
-    next_nonce_generate(&sender_rng, discarded_nonce);  // Sender used this for a message we missed
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, discarded_nonce));  // Sender used this for a message we missed
 
     // Step 8: Sender generates the nonce for this message (N+1)
-    next_nonce_generate(&sender_rng, sender_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, sender_nonce));
 
     // At this point:
     // - Receiver's RNG will generate nonce N on first attempt
@@ -794,8 +795,8 @@ void test_span_decrypt_with_retry_sync_recovery(void)
     uint8_t receiver_next_nonce[16];
     uint8_t sender_next_nonce[16];
 
-    next_nonce_generate(&span->d.rng, receiver_next_nonce);
-    next_nonce_generate(&sender_rng, sender_next_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&span->d.rng, receiver_next_nonce));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, sender_next_nonce));
 
     // Both should now be synchronized at the same position
     TEST_ASSERT_EQUAL_UINT8_ARRAY(sender_next_nonce, receiver_next_nonce, 16);
@@ -968,12 +969,12 @@ void test_span_message_reception_complete_flow(void)
     span->tx_seq      = 0;
 
     // Instantiate SPAN with known entropy
-    next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // Step 4: Generate SPAN value (sender's perspective)
     crypto_aes_ctr_drbg_ctx_t sender_rng;
     memcpy(&sender_rng, &span->d.rng, sizeof(crypto_aes_ctr_drbg_ctx_t));
-    next_nonce_generate(&sender_rng, nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, nonce));
 
     // Step 5: Build S2_MESSAGE_ENCAPSULATION frame
     // Frame format: [CC, CMD, seq_num, properties, <encrypted_payload>]
@@ -1100,24 +1101,24 @@ void test_span_resynchronization_after_desync(void)
     span->tx_seq      = 0;
 
     // Instantiate SPAN RNG for receiver
-    next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // =========================================================================
     // PHASE 2: Create sender's RNG and advance it beyond retry limit
     // =========================================================================
 
     crypto_aes_ctr_drbg_ctx_t sender_rng;
-    next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // Advance sender by 6 nonces (beyond MAX_SPAN_RETRY_ITERATIONS = 5)
     // This simulates 6 messages that the receiver missed
     uint8_t discarded_nonce[16];
     for (int i = 0; i < 6; i++) {
-        next_nonce_generate(&sender_rng, discarded_nonce);
+        TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, discarded_nonce));
     }
 
     // Generate the nonce for this message (N+6)
-    next_nonce_generate(&sender_rng, sender_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, sender_nonce));
 
     // =========================================================================
     // PHASE 3: Build encrypted message that will fail all retry attempts
@@ -1195,11 +1196,11 @@ void test_span_resynchronization_after_desync(void)
 
     // Sender instantiates new SPAN with new_sei and new_rei
     crypto_aes_ctr_drbg_ctx_t new_sender_rng;
-    next_nonce_instantiate(&new_sender_rng, new_sei, new_rei, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&new_sender_rng, new_sei, new_rei, nonce_key));
 
     // Sender generates nonce for this message
     uint8_t new_sender_nonce[16];
-    next_nonce_generate(&new_sender_rng, new_sender_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&new_sender_rng, new_sender_nonce));
 
     // Build message with SN extension
     // Frame format: [CC, CMD, seq, props(Ext=1), SN_ext(18 bytes), encrypted_payload]
@@ -1279,7 +1280,7 @@ void test_span_resynchronization_after_desync(void)
 
     // Generate next nonce from sender's RNG
     uint8_t continued_nonce[16];
-    next_nonce_generate(&new_sender_rng, continued_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&new_sender_rng, continued_nonce));
 
     // Build simple message without extensions
     uint8_t continued_frame[128];
@@ -1413,17 +1414,17 @@ void test_span_decrypt_wrong_key(void)
 
     // Instantiate SPAN RNG - both sender and receiver have same SPAN
     // (the problem is the encryption key, not the SPAN synchronization)
-    next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // =========================================================================
     // Step 3: Create sender's RNG (synchronized with receiver)
     // =========================================================================
 
     crypto_aes_ctr_drbg_ctx_t sender_rng;
-    next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // Generate sender's nonce (same as what receiver will try first)
-    next_nonce_generate(&sender_rng, sender_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, sender_nonce));
 
     // =========================================================================
     // Step 4: Build encrypted message using WRONG encryption key
@@ -1519,10 +1520,10 @@ void test_span_decrypt_wrong_key(void)
 
     // Sender instantiates new SPAN with new entropy
     crypto_aes_ctr_drbg_ctx_t new_sender_rng;
-    next_nonce_instantiate(&new_sender_rng, new_sei, new_rei, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&new_sender_rng, new_sei, new_rei, nonce_key));
 
     uint8_t new_sender_nonce[16];
-    next_nonce_generate(&new_sender_rng, new_sender_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&new_sender_rng, new_sender_nonce));
 
     // Build message with SN extension and CORRECT encryption key
     uint8_t new_frame[128];
@@ -1662,11 +1663,11 @@ void test_span_decrypt_modified_nonce(void)
 
     // Instantiate both sender and receiver with same entropy
     crypto_aes_ctr_drbg_ctx_t sender_rng;
-    next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
-    next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // Sender generates nonce for encryption
-    next_nonce_generate(&sender_rng, sender_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, sender_nonce));
 
     // =========================================================================
     // Step 3: Build encrypted message using correct nonce
@@ -1761,11 +1762,11 @@ void test_span_decrypt_modified_nonce(void)
     uint8_t verify_sender_nonce[16];
     uint8_t verify_receiver_nonce[16];
 
-    next_nonce_instantiate(&verify_sender_rng, test_sei_valid, test_rei_valid, nonce_key);
-    next_nonce_instantiate(&verify_receiver_rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&verify_sender_rng, test_sei_valid, test_rei_valid, nonce_key));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&verify_receiver_rng, test_sei_valid, test_rei_valid, nonce_key));
 
-    next_nonce_generate(&verify_sender_rng, verify_sender_nonce);
-    next_nonce_generate(&verify_receiver_rng, verify_receiver_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&verify_sender_rng, verify_sender_nonce));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&verify_receiver_rng, verify_receiver_nonce));
 
     // These should match - confirming our original sender_nonce was correct
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(verify_sender_nonce, verify_receiver_nonce, 16, "Verification: sender and receiver should generate identical nonces with same entropy");
@@ -1838,15 +1839,15 @@ void test_span_decrypt_mismatched_homeid(void)
     span->tx_seq      = 0;
 
     // Instantiate SPAN RNG - synchronized between sender and receiver
-    next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // =========================================================================
     // Step 2: Create sender's RNG and generate nonce
     // =========================================================================
 
     crypto_aes_ctr_drbg_ctx_t sender_rng;
-    next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
-    next_nonce_generate(&sender_rng, sender_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, sender_nonce));
 
     // =========================================================================
     // Step 3: Build encrypted message using SENDER's (wrong) HomeID in AAD
@@ -2293,7 +2294,7 @@ void test_message_encapsulation_accepts_new_sequence_across_wraparound(void)
     span->class_id    = 0;
     span->state       = SPAN_NEGOTIATED;
     span->rx_seq      = 0x00;
-    next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, test_nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, test_nonce_key));
 
     S2_application_command_handler(&s2_context, &connection, encap_frame, sizeof(encap_frame));
 
@@ -2368,15 +2369,15 @@ void test_span_decrypt_replay_attack(void)
     span->tx_seq      = 0;
 
     // Instantiate synchronized SPAN
-    next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // =========================================================================
     // Step 2: Create sender's RNG and generate first message
     // =========================================================================
 
     crypto_aes_ctr_drbg_ctx_t sender_rng;
-    next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
-    next_nonce_generate(&sender_rng, sender_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key));
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, sender_nonce));
 
     // =========================================================================
     // Step 3: Build encrypted message
@@ -2534,21 +2535,21 @@ void test_span_decrypt_delay_attack(void)
     span->tx_seq      = 0;
 
     // Instantiate synchronized SPAN
-    next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&span->d.rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // =========================================================================
     // Step 2: Create sender's RNG
     // =========================================================================
 
     crypto_aes_ctr_drbg_ctx_t sender_rng;
-    next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, zwave_s2_next_nonce_instantiate(&sender_rng, test_sei_valid, test_rei_valid, nonce_key));
 
     // =========================================================================
     // Step 3: Sender creates message M1 (this will be "captured" and delayed)
     // =========================================================================
 
     uint8_t m1_nonce[16];
-    next_nonce_generate(&sender_rng, m1_nonce);
+    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, m1_nonce));
 
     uint8_t m1_frame[128];
     uint8_t m1_plaintext[] = {0x25, 0x03, 0xFF};  // Binary Switch ON
@@ -2588,7 +2589,7 @@ void test_span_decrypt_delay_attack(void)
 
     for (int msg_num = 2; msg_num <= 7; msg_num++) {
         uint8_t msg_nonce[16];
-        next_nonce_generate(&sender_rng, msg_nonce);
+        TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&sender_rng, msg_nonce));
 
         uint8_t msg_frame[128];
         uint8_t msg_plaintext[] = {0x20, 0x02, (uint8_t)msg_num};  // Basic Report
