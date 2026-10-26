@@ -1,17 +1,7 @@
-#include "psa_test_support.h"
+#include "psa_test_support.hpp"
 
 #include "psa/crypto.h"
 #include "psa/crypto_extra.h"
-
-void s2_psa_test_setUp(void)
-{
-    (void)psa_crypto_init();
-}
-
-void s2_psa_test_tearDown(void)
-{
-    mbedtls_psa_crypto_free();
-}
 
 sl_status_t aes128_ecb_decrypt(const uint8_t *key, const uint8_t *input, uint8_t *output)
 {
