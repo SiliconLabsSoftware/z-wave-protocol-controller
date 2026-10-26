@@ -262,9 +262,9 @@ The configure step (`cmake --preset <preset>`) also **regenerates all command cl
 
 Use the `unit-test` CMake preset (`UNIT_TEST=ON`) on macOS and Linux. Do not use the `debug` / `release` workflows for this — those skip tests. `--fresh` removes the existing CMake cache in `build/unit-test` so the same tree can be reused after switching OS or compiler.
 
-The `unit-test` preset builds with **AddressSanitizer** and **UndefinedBehaviorSanitizer**. A sanitizer hit aborts the test. Do not combine sanitizers with `COVERAGE` or gcov in the same configure.
+The `unit-test` preset builds with **AddressSanitizer** and **UndefinedBehaviorSanitizer**. A sanitizer hit aborts the test. Do not combine sanitizers with `COVERAGE` in the same configure.
 
-Coverage uses a **second** preset, `unit-test-coverage` (`COVERAGE=ON`, sanitizers off), then [`ci/scripts/check_coverage.py`](ci/scripts/check_coverage.py). Components listed in [`ci/coverage/component_blacklist.yaml`](ci/coverage/component_blacklist.yaml) are exempt from the 90% line-coverage gate until tests exist. When adding tests, follow [`.cursor/skills/unit-test/SKILL.md`](.cursor/skills/unit-test/SKILL.md): remove the component path from the blacklist first, then run sanitizers, then coverage.
+Coverage uses a **second** preset, `unit-test-coverage` (`COVERAGE=ON`, sanitizers off), then [`ci/scripts/check_coverage.py`](ci/scripts/check_coverage.py). Components listed in [`ci/coverage/component_blacklist.yaml`](ci/coverage/component_blacklist.yaml) are exempt from the configured line and branch coverage gates until tests exist (currently 90% for both). When adding tests, follow [`.cursor/skills/unit-test/SKILL.md`](.cursor/skills/unit-test/SKILL.md): remove the component path from the blacklist first, then run sanitizers, then coverage.
 
 ZPC component tests use **GoogleTest** and **GoogleMock** (`add_zpc_gtest` in [cmake/include/gtest_test.cmake](cmake/include/gtest_test.cmake)). The embedded **zw-libs2** tree still uses **Unity** (`add_unity_test`).
 
@@ -280,21 +280,34 @@ To re-run tests after a configure and build:
 ctest --preset unit-test
 ```
 
-Coverage (after sanitizer tests pass):
+Coverage uses **Clang native source coverage on both macOS and CI**, separately from sanitizer tests. Install `ci/dependencies/requirements.txt` into your Python environment first. No extra Python coverage package is needed. The coverage preset defaults to Clang; explicit compiler overrides still take precedence. On a Mac with Xcode command line tools, run:
 
 ```bash
 cmake --workflow --preset unit-test-coverage --fresh
 python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
 ```
 
-Reports: `build/unit-test-coverage/coverage/html/index.html` and `build/unit-test-coverage/coverage/coverage.xml`. PR CI uploads those as the `unit-test-coverage` artifact after the sanitizer unit-test runs.
+Reports: `build/unit-test-coverage/coverage/html/index.html` and `build/unit-test-coverage/coverage/coverage.json`. PR CI uploads those as the `unit-test-coverage` artifact after the sanitizer unit-test runs.
+
+What happens:
+
+1. CMake enables native LLVM instrumentation with optimizations disabled and clears the previous coverage output.
+2. CTest runs the tests. Each executable writes profiles under `build/unit-test-coverage/coverage/profiles/`. LLVM’s `%m` filename pattern safely merges separate test processes for the same binary.
+3. `check_coverage.py` merges profiles with `llvm-profdata`, then asks `llvm-cov` to export file summaries as JSON and render HTML with branch details. Both reports use the same component sources. There is no coverage-format conversion.
+4. The script sums LLVM’s file summaries for each required component and checks the configured line and branch minimums. Missing component data fails; straight-line code with zero branches is valid.
+
+Branch coverage measures true/false outcomes of source conditions. No exception-branch or unreachable-branch filters are applied. Test meaningful error and exception handling explicitly as well.
+
+Use `llvm-profdata` and `llvm-cov` from the compiler's toolchain. By default the script finds them beside the configured compiler. For versioned Linux tools, set `LLVM_PROFDATA=llvm-profdata-17` (the script uses the corresponding `llvm-cov-17`). CI uses Clang 17; local AppleClang uses the same coverage model, but OS-specific code and compiler versions can change counts. Use the same toolchain and target when comparing exact percentages.
+
+Profiles older than their executable are ignored; missing current profiles fail collection. LLVM warnings remain visible in the command output. After changing code, rebuild and run **all** coverage tests before reporting. Reconfigure with `--fresh` for a clean baseline. If CMake selects a Python interpreter different from the one containing your dependencies, configure with `cmake --preset unit-test-coverage --fresh -DPython3_EXECUTABLE=/path/to/python`, then run `cmake --build --preset unit-test-coverage`, `ctest --preset unit-test-coverage`, and the reporting script using that Python interpreter.
 
 ### CI Expectations
 
 PR CI runs these gates automatically — you do not need to replicate all of them locally:
 
 1. **clang-format** — formatting is checked first; drift fails the format job
-2. **unit-test** — sanitizer gcc, sanitizer clang, then gcc `unit-test-coverage` and the 90% gcovr gate (`ci/scripts/check_coverage.py`; blacklist in `ci/coverage/component_blacklist.yaml`). Coverage HTML/XML is the `unit-test-coverage` artifact.
+2. **unit-test** — sanitizer gcc, sanitizer clang, then clang `unit-test-coverage` and the 90% line/branch gate (`ci/scripts/check_coverage.py`; blacklist in `ci/coverage/component_blacklist.yaml`). Coverage HTML/JSON is the `unit-test-coverage` artifact.
 3. **clang-tidy**, **Linux builds** (`debug` then `release` on amd64-gcc; `release` on arm64-gcc and amd64-clang; Debian packages for gcc `amd64`/`arm64`), and **macOS build** (`debug` then `release`) — run in parallel after format passes
 
 ## Documentation

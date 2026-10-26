@@ -16,8 +16,7 @@ target_include_directories(
   PRIVATE src)
 
 target_link_libraries(
-  zpc_attribute_store_core PUBLIC datastore log config
-                             timer threading)
+  zpc_attribute_store_core PUBLIC zpc_datastore log config timer threading)
 
 # ZPC attribute store Library (Z-Wave specific extensions)
 add_library(

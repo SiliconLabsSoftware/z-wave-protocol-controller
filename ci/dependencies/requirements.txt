@@ -4,4 +4,3 @@ defusedxml
 jinja2
 lxml
 pyyaml
-gcovr

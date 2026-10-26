@@ -79,6 +79,10 @@ function(ADD_UNITY_TEST)
   add_executable(${ADD_UNITY_TEST_NAME} ${RUNNER_FILE} ${RUNNER_BASE}
                  ${ADD_UNITY_TEST_FILES})
   add_test(NAME ${ADD_UNITY_TEST_NAME} COMMAND ${ADD_UNITY_TEST_NAME})
+  if(COVERAGE)
+    set_property(TEST ${ADD_UNITY_TEST_NAME} APPEND PROPERTY ENVIRONMENT
+      "LLVM_PROFILE_FILE=${CMAKE_BINARY_DIR}/coverage/profiles/${ADD_UNITY_TEST_NAME}/%m.profraw")
+  endif()
   target_link_libraries(${ADD_UNITY_TEST_NAME} PRIVATE unity
                       ${ADD_UNITY_TEST_LIBRARIES})
   target_include_directories(${ADD_UNITY_TEST_NAME} PRIVATE .

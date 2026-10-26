@@ -1,4 +1,14 @@
 cmake_minimum_required(VERSION 3.21)
+# The coverage preset selects Clang by default. Explicit compiler selections
+# (including CI's versioned CC/CXX) still take precedence. macOS already defaults to Clang.
+if(COVERAGE AND NOT CMAKE_HOST_APPLE)
+  if(NOT DEFINED CMAKE_C_COMPILER AND "$ENV{CC}" STREQUAL "")
+    set(CMAKE_C_COMPILER clang CACHE FILEPATH "C compiler")
+  endif()
+  if(NOT DEFINED CMAKE_CXX_COMPILER AND "$ENV{CXX}" STREQUAL "")
+    set(CMAKE_CXX_COMPILER clang++ CACHE FILEPATH "C++ compiler")
+  endif()
+endif()
 project(z-wave-protocol-controller)
 
 # Presets map CMAKE_INSTALL_PREFIX from $penv{}; unset → empty → restore CMake default.
@@ -30,10 +40,19 @@ else()
   set(CMAKE_WARN_DEPRECATED ON CACHE BOOL "Enable warnings for deprecated CMake commands and variables")
 endif() 
 option(COVERAGE "Enable coverage reporting" OFF)
-if(COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    message(STATUS "Building with code coverage")
-    add_compile_options(--coverage -O0 -g)
-    add_link_options(--coverage)
+if(COVERAGE)
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        message(FATAL_ERROR "Coverage requires Clang. Remove a conflicting compiler override and configure again with --fresh.")
+    endif()
+    message(STATUS "Building with LLVM source-based coverage")
+    add_compile_options(
+      -fprofile-instr-generate
+      -fcoverage-mapping
+      -fprofile-list=${CMAKE_SOURCE_DIR}/ci/coverage/llvm_profile_list.txt
+      -O0 -g)
+    add_link_options(-fprofile-instr-generate)
+    # A configure starts a new measurement. Run all tests before reporting.
+    file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/coverage")
 endif()
 
 # Include compiler options early (before other includes that might use compiler settings)
@@ -47,6 +66,9 @@ option(UNIT_TEST "Configure unit tests" OFF)
 if(UNIT_TEST)
   include(cmake/include/unity_test.cmake)
   include(cmake/include/gtest_test.cmake)
+  add_test(NAME coverage_reporting
+    COMMAND ${Python3_EXECUTABLE} -m unittest discover
+      -s ${CMAKE_SOURCE_DIR}/ci/scripts -p test_check_coverage.py)
 endif()
 
 

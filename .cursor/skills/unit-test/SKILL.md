@@ -3,7 +3,7 @@ name: unit-test
 description: >-
   Write or update ZPC GoogleTest/GoogleMock component tests. Unblacklist the
   component first, then TDD, sanitizer unit-test preset, and coverage gate.
-  Use when adding tests, diagnosing unit-test or gcovr failures, or changing
+  Use when adding tests, diagnosing unit-test or coverage failures, or changing
   ci/coverage/component_blacklist.yaml.
 ---
 
@@ -22,7 +22,7 @@ Follow this sequence in order. The skill is not done until the coverage check pa
 - If a requirement number exists, put it on the test (`CC:` IDs such as `CC:008A.03.02.11.008`). Skip the ID only when the spec has none for that behavior.
 - Add a short description for each test case what do they test exactly
 
-Sanitizers (`unit-test`) and gcov (`unit-test-coverage`) are **separate configures**. CMake fatals if `ZPC_ENABLE_SANITIZERS` and `COVERAGE` are both ON. CI runs sanitizer gcc, then sanitizer clang, then gcc coverage + `check_coverage.py`. HTML and Cobertura XML upload as artifact `unit-test-coverage`.
+Sanitizers (`unit-test`) and coverage (`unit-test-coverage`) are **separate configures**. CMake fatals if `ZPC_ENABLE_SANITIZERS` and `COVERAGE` are both ON. Coverage uses Clang native LLVM profiles on macOS and in CI, read directly by LLVM’s own tools. CI keeps both GCC and Clang sanitizer runs, followed by Clang coverage. HTML, native JSON, and LCOV upload as artifact `unit-test-coverage`.
 
 ## Step 0 — unblacklist the component
 
@@ -80,9 +80,14 @@ python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
 
 - [`ci/coverage/component_blacklist.yaml`](ci/coverage/component_blacklist.yaml) is the only exemption list. Coverage minimums come from [`ci/unit_test_config.yaml`](ci/unit_test_config.yaml). A tested component (`CMakeLists.txt` + `test/`) omitted from the blacklist must meet both configured minimums for line and branch coverage.
 - Confirm the child’s own row in the `check_coverage.py` table is `pass` for both line and branch coverage, not rolled into a blacklisted parent.
-- Reports: `build/unit-test-coverage/coverage/html/index.html` and `build/unit-test-coverage/coverage/coverage.xml`.
+- Missing executable line data for a gated component is a failure. Zero branches is valid for straight-line code.
+- Install Python dependencies from `ci/dependencies/requirements.txt` (no additional Python coverage package is needed). Run the reporting script with that Python environment.
+- The script uses `llvm-profdata` and `llvm-cov` beside the configured compiler. Set `LLVM_PROFDATA` for a versioned/custom toolchain, e.g. `llvm-profdata-17`; the script uses the corresponding `llvm-cov` name.
+- Configuring coverage clears previous coverage output. After code changes, rebuild and run all coverage tests before reporting; use `--fresh` for a clean baseline.
+- Branches are source condition outcomes; no throw/unreachable branch filters are applied. Still test meaningful error and exception behavior explicitly. Exact counts can differ between OS targets and compiler versions.
+- Reports: `build/unit-test-coverage/coverage/html/index.html`, `build/unit-test-coverage/coverage/coverage.json`, and `build/unit-test-coverage/coverage/lcov.info` (for editor coverage plugins).
 - Do not finish if `check_coverage.py` fails. Add tests or fix the path prefix; do not re-add the component to the blacklist to silence the gate.
 
 ## CI
 
-PR `unit-test` job: sanitizer gcc → sanitizer clang → gcc `unit-test-coverage` → `check_coverage.py` (minimums from `ci/unit_test_config.yaml`) → `unit-test-coverage` artifact (HTML+XML) and coverage table in the job summary.
+PR `unit-test` job: sanitizer gcc → sanitizer clang → clang `unit-test-coverage` → `check_coverage.py` (minimums from `ci/unit_test_config.yaml`) → `unit-test-coverage` artifact (HTML, native JSON, and LCOV) and coverage table in the job summary.

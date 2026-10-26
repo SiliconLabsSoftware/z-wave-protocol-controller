@@ -1,0 +1,3 @@
+# Keep third-party header-only implementation code out of component coverage.
+[clang]
+source:*nlohmann*=skip

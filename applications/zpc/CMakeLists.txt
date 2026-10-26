@@ -66,7 +66,7 @@ target_link_libraries(
          security
          command_classes
          ota_update_manager
-         zwave_command_class_manager
+         zwave_command_class_manager_fixt
 
          component_connector
          system
