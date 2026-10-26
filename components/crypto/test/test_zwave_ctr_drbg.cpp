@@ -18,23 +18,17 @@
  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
-#include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
-#include "aes_ctr_drbg.h"
-#include "psa/crypto.h"
-#include "psa/crypto_extra.h"
-#include "unity.h"
+#include <array>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <vector>
 
-void setUp(void)
-{
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
-}
+#include <gtest/gtest.h>
 
-void tearDown(void)
-{
-    mbedtls_psa_crypto_free();
-}
+#include "aes_ctr_drbg.hpp"
+#include "psa_test_support.hpp"
 
 uint8_t dbgCTRDRBG = 0;
 
@@ -228,7 +222,16 @@ int AJ_HexToRaw(const char *hex, size_t hexLen, uint8_t *raw, size_t rawLen)
  */
 #define ArraySize(a) (sizeof(a) / sizeof(a[0]))
 
-void test_ctr_dbrg(void)
+namespace
+{
+    void ExpectBytesEq(const uint8_t *expected, const uint8_t *actual, size_t len)
+    {
+        EXPECT_THAT(std::vector<uint8_t>(actual, actual + len), ::testing::ElementsAreArray(expected, len));
+    }
+}  // namespace
+
+// NIST CTR-DRBG known-answer tests (AES-128, use DF, no prediction resistance).
+TEST_F(PsaTest, CtrDbrg)
 {
     crypto_aes_ctr_drbg_ctx_t ctx;
     size_t i;
@@ -246,10 +249,10 @@ void test_ctr_dbrg(void)
         size_t plen = strlen(testVector[i].personal) / 2;
 
         size     = elen + nlen;
-        __data   = malloc(size);
-        personal = malloc(size);
-        TEST_ASSERT_NOT_NULL(__data);
-        TEST_ASSERT_NOT_NULL(personal);
+        __data   = static_cast<uint8_t *>(malloc(size));
+        personal = static_cast<uint8_t *>(malloc(size));
+        ASSERT_NE(nullptr, __data);
+        ASSERT_NE(nullptr, personal);
         d = __data;
         p = personal;
         AJ_HexToRaw(testVector[i].entropy, 2 * elen, d, size);
@@ -267,21 +270,22 @@ void test_ctr_dbrg(void)
         }
 #endif
         // AJ_DumpBytes("SEED", __data, size);
-        TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&ctx, __data, personal));
+        ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&ctx, __data, personal));
         free(__data);
 
         size   = strlen(testVector[i].rand) / 2;
-        __data = malloc(size);
-        rand   = malloc(size);
-        TEST_ASSERT(__data);
-        TEST_ASSERT(rand);
+        __data = static_cast<uint8_t *>(malloc(size));
+        rand   = static_cast<uint8_t *>(malloc(size));
+        ASSERT_NE(nullptr, __data);
+        ASSERT_NE(nullptr, rand);
         AJ_HexToRaw(testVector[i].rand, 2 * size, rand, size);
 
-        TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&ctx, __data));
-        TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&ctx, __data));
+        ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&ctx, __data));
+        ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&ctx, __data));
 
-        sprintf(message, "Expected failed for test #%lu\n", (long unsigned)i);
-        TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(__data, rand, size, message);
+        snprintf(message, sizeof(message), "Expected failed for test #%lu", static_cast<unsigned long>(i));
+        SCOPED_TRACE(message);
+        ExpectBytesEq(rand, __data, size);
 
         free(__data);
         free(rand);
@@ -289,7 +293,8 @@ void test_ctr_dbrg(void)
     }
 }
 
-void test_ctr_drbg_different_entropy_yields_different_output(void)
+// Different entropy inputs produce different DRBG output.
+TEST_F(PsaTest, CtrDrbgDifferentEntropyYieldsDifferentOutput)
 {
     crypto_aes_ctr_drbg_ctx_t ctx;
     const uint8_t personalization[CRYPTO_AES_CTR_DRBG_SEED_SIZE] = {0};
@@ -301,25 +306,49 @@ void test_ctr_drbg_different_entropy_yields_different_output(void)
     memcpy(entropy_b, entropy_a, sizeof(entropy_b));
     entropy_b[0] ^= 0xff;
 
-    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&ctx, entropy_a, personalization));
-    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&ctx, out_a));
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&ctx, entropy_a, personalization));
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&ctx, out_a));
 
-    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&ctx, entropy_b, personalization));
-    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&ctx, out_b));
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&ctx, entropy_b, personalization));
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&ctx, out_b));
 
-    TEST_ASSERT_NOT_EQUAL(0, memcmp(out_a, out_b, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE));
+    EXPECT_NE(0, memcmp(out_a, out_b, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE));
 }
 
-void test_ctr_drbg_generate_rejects_null_output_without_advancing_state(void)
+// NULL output on generate is rejected and internal state is unchanged.
+TEST_F(PsaTest, CtrDrbgGenerateRejectsNullOutputWithoutAdvancingState)
 {
     crypto_aes_ctr_drbg_ctx_t ctx;
     crypto_aes_ctr_drbg_ctx_t saved_ctx;
     const uint8_t entropy[CRYPTO_AES_CTR_DRBG_SEED_SIZE]         = {1};
     const uint8_t personalization[CRYPTO_AES_CTR_DRBG_SEED_SIZE] = {2};
 
-    TEST_ASSERT_EQUAL(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&ctx, entropy, personalization));
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&ctx, entropy, personalization));
     memcpy(&saved_ctx, &ctx, sizeof(saved_ctx));
 
-    TEST_ASSERT_EQUAL(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_generate(&ctx, NULL));
-    TEST_ASSERT_EQUAL_MEMORY(&saved_ctx, &ctx, sizeof(ctx));
+    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_generate(&ctx, nullptr));
+    EXPECT_EQ(0, memcmp(&saved_ctx, &ctx, sizeof(ctx)));
+}
+
+// C++ CTR-DRBG generate API matches first NIST vector after two generate calls.
+TEST_F(PsaTest, AesCtrDrbgGenerateCppApi)
+{
+    crypto_aes_ctr_drbg_ctx_t ctx {};
+    const char *entropy_str       = "cee23de86a69c7ef57f6e1e12bd16e35e51624226fa19597bf93ec476a44b0f2";
+    const char *personal_str      = "a2ef16f226ea324f23abd59d5e3c660561c25e73638fe21c87566e86a9e04c3e";
+    const char *expected_rand_hex = "2a76d71b329f449c98dc08fff1d205a2fbd9e4ade120c7611c225c984eac8531288dd3049f3dc3bb3671501ab8fbf9ad49c86cce307653bd8caf29cb0cf07764";
+
+    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> entropy {};
+    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> personal {};
+    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE> output {};
+    std::vector<uint8_t> expected(strlen(expected_rand_hex) / 2);
+
+    AJ_HexToRaw(entropy_str, strlen(entropy_str), entropy.data(), entropy.size());
+    AJ_HexToRaw(personal_str, strlen(personal_str), personal.data(), personal.size());
+    AJ_HexToRaw(expected_rand_hex, strlen(expected_rand_hex), expected.data(), expected.size());
+
+    ASSERT_EQ(SL_STATUS_OK, crypto::aes_ctr_drbg_init(ctx, entropy, personal));
+    ASSERT_EQ(SL_STATUS_OK, crypto::aes_ctr_drbg_generate(ctx, output));
+    ASSERT_EQ(SL_STATUS_OK, crypto::aes_ctr_drbg_generate(ctx, output));
+    ExpectBytesEq(expected.data(), output.data(), expected.size());
 }
