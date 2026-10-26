@@ -14,7 +14,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include "nextnonce.h"
+#include "zwave_s2_next_nonce.h"
 #include "zwave_s2_key_derivation.h"
 #include "x25519.h"
 #include "aes_ccm.h"
@@ -350,7 +350,7 @@ void S2_encrypt_and_send(struct S2 *p_context)
         }
         memcpy(ei_receiver, span->d.r_nonce, sizeof(ei_receiver));
 
-        if (!next_nonce_instantiate(&span->d.rng, ei_sender, ei_receiver, ctxt->sg[ctxt->peer.class_id].nonce_key)) {
+        if (zwave_s2_next_nonce_instantiate(&span->d.rng, ei_sender, ei_receiver, ctxt->sg[ctxt->peer.class_id].nonce_key) != SL_STATUS_OK) {
             event_data_t e;
             span->state   = SPAN_SOS;
             e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
@@ -370,7 +370,7 @@ void S2_encrypt_and_send(struct S2 *p_context)
     }
 
     /*TODO we should consider to roll the nonce when we have recevied in ACK*/
-    if (!next_nonce_generate(&span->d.rng, nonce)) {  // Create the new nonce
+    if (crypto_aes_ctr_drbg_generate(&span->d.rng, nonce) != SL_STATUS_OK) {  // Create the new nonce
         event_data_t e;
         span->state   = SPAN_SOS;
         e.d.tx.status = S2_TRANSMIT_COMPLETE_FAIL;
@@ -772,7 +772,7 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
                     if (span && span->state == SPAN_SOS_LOCAL_NONCE && (ext_len == (2 + sizeof(span->d.r_nonce)))) { /*Save the nonces */
                         memcpy(s_nonce, &ext_data[2], 16);
                         memcpy(r_nonce, span->d.r_nonce, 16);
-                        if (!next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key)) {
+                        if (zwave_s2_next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key) != SL_STATUS_OK) {
                             goto auth_fail;
                         }
                         span->state = SPAN_INSTANTIATE;
@@ -857,7 +857,7 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
                         memcpy(ciphertext, ctxt->workbuf, ciphertext_len);
                     }
 
-                    if (!next_nonce_generate(&span->d.rng, nonce)) {
+                    if (crypto_aes_ctr_drbg_generate(&span->d.rng, nonce) != SL_STATUS_OK) {
                         memcpy(&span->d.rng, &saved_rng, sizeof(crypto_aes_ctr_drbg_ctx_t));
                         goto auth_fail;
                     }
@@ -917,7 +917,7 @@ static decrypt_return_code_t S2_decrypt_msg(struct S2 *p_context, s2_connection_
             memcpy(ciphertext, ctxt->workbuf, ciphertext_len);
 
             /*reset prng to the negotiated state with the right new test key */
-            if (!next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key)) {
+            if (zwave_s2_next_nonce_instantiate(&span->d.rng, s_nonce, r_nonce, ctxt->sg[span->class_id].nonce_key) != SL_STATUS_OK) {
                 goto auth_fail;
             }
         }

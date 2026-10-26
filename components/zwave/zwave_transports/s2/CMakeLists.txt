@@ -21,10 +21,10 @@ set_target_properties(zwave_s2_key_derivation PROPERTIES POSITION_INDEPENDENT_CO
 set_source_files_properties(src/zwave_s2_key_derivation.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
 
 # NextNonce combines S2 nonce derivation with the generic CTR-DRBG.
-add_library(zwave_s2_nextnonce STATIC src/nextnonce.c)
-target_include_directories(zwave_s2_nextnonce PUBLIC include)
-target_link_libraries(zwave_s2_nextnonce PUBLIC crypto_ctr_drbg)
-set_target_properties(zwave_s2_nextnonce PROPERTIES POSITION_INDEPENDENT_CODE ON C_STANDARD 99)
+add_library(zwave_s2_next_nonce STATIC src/zwave_s2_next_nonce.c)
+target_include_directories(zwave_s2_next_nonce PUBLIC include)
+target_link_libraries(zwave_s2_next_nonce PUBLIC crypto_ctr_drbg)
+set_target_properties(zwave_s2_next_nonce PROPERTIES POSITION_INDEPENDENT_CODE ON C_STANDARD 99)
 
 # Z-Wave S2 main library
 add_library(
@@ -63,7 +63,7 @@ set_target_properties(
 target_link_libraries(
   s2_controller
   crypto
-  zwave_s2_nextnonce
+  zwave_s2_next_nonce
   zwave_s2_key_derivation)
 
 target_include_directories(
