@@ -1,5 +1,5 @@
-#ifndef PSA_TEST_SUPPORT_HPP_
-#define PSA_TEST_SUPPORT_HPP_
+#ifndef TEST_FIXTURE_HPP_
+#define TEST_FIXTURE_HPP_
 
 #include <cstdint>
 
@@ -9,8 +9,7 @@
 #include "psa/crypto_extra.h"
 #include "sl_status.h"
 
-/** PSA crypto init/teardown for crypto component gtests. */
-class PsaTest : public ::testing::Test
+class Crypto : public ::testing::Test
 {
     protected:
         void SetUp() override
