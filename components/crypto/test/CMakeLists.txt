@@ -1,8 +1,8 @@
 add_compile_definitions(UNIT_TEST)
 
-add_library(psa_test_support STATIC psa_test_support.cpp)
-target_link_libraries(psa_test_support PUBLIC crypto_core GTest::gtest GTest::gmock)
-target_include_directories(psa_test_support PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(psa_test_support INTERFACE)
+target_link_libraries(psa_test_support INTERFACE crypto_core GTest::gtest GTest::gmock)
+target_include_directories(psa_test_support INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_zpc_gtest(NAME test_psa_smoke SRCS test_psa_smoke.cpp LIBS psa_test_support)
 
