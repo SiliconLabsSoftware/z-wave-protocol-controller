@@ -70,16 +70,8 @@ if(NOT DEFINED CPACK_DEBIAN_PACKAGE_ARCHITECTURE OR CPACK_DEBIAN_PACKAGE_ARCHITE
   endif()
 endif()
 
-# Output: zpc-<arch>.deb (e.g. zpc-amd64.deb); sanitizer builds use a distinct name.
-if(ZPC_ENABLE_SANITIZERS)
-  set(CPACK_PACKAGE_FILE_NAME
-      "zpc-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}-debug-sanitize")
-elseif(ZPC_ENABLE_TSAN)
-  set(CPACK_PACKAGE_FILE_NAME
-      "zpc-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}-debug-tsan")
-else()
-  set(CPACK_PACKAGE_FILE_NAME "zpc-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
-endif()
+# Output: zpc-<arch>.deb (e.g. zpc-amd64.deb); CPack adds .deb for the DEB generator
+set(CPACK_PACKAGE_FILE_NAME "zpc-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 
 set(CPACK_GENERATOR "DEB" CACHE STRING "CPack generator(s); DEB for Debian package")
 
