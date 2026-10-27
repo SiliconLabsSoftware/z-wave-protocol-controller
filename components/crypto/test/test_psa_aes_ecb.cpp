@@ -63,7 +63,7 @@ TEST_F(PsaTest, PsaAesDecryptEcb)
     const uint8_t out[] = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
     uint8_t buffer[16];
 
-    ASSERT_EQ(SL_STATUS_OK, aes128_ecb_decrypt(key, in, buffer));
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ecb_decrypt(key, in, buffer));
     ExpectBytesEq(out, buffer, 16);
 }
 
