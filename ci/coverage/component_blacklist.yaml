@@ -29,7 +29,6 @@ blacklist:
   - components/command_classes/command_class_supervision
   - components/command_classes/command_class_switch_color
   - components/command_classes/command_class_switch_multilevel
-  - components/command_classes/command_class_thermostat_fan_mode
   - components/command_classes/command_class_thermostat_mode
   - components/command_classes/command_class_thermostat_setpoint
   - components/command_classes/command_class_time
