@@ -11,17 +11,16 @@
  *
  *****************************************************************************/
 
-#include <array>
 #include <cstdint>
 
 #include <gtest/gtest.h>
 
-#include "psa_test_support.hpp"
-#include "rand.hpp"
+#include "test_fixture.hpp"
+#include "rand.h"
 
 namespace
 {
-    bool BufferIsAllZeros(const uint8_t *buf, size_t len)
+    bool buffer_is_all_zeros(const uint8_t *buf, size_t len)
     {
         for (size_t i = 0; i < len; i++) {
             if (buf[i] != 0) {
@@ -32,20 +31,15 @@ namespace
     }
 }  // namespace
 
-// C API fills a buffer with non-deterministic bytes.
-TEST_F(PsaTest, CryptoGenerateRandomCApi)
+TEST_F(Crypto, GenerateRandomFillsBuffer)
 {
     uint8_t buf[32] {};
 
     ASSERT_EQ(SL_STATUS_OK, crypto_generate_random(buf, sizeof(buf)));
-    EXPECT_FALSE(BufferIsAllZeros(buf, sizeof(buf)));
+    EXPECT_FALSE(buffer_is_all_zeros(buf, sizeof(buf)));
 }
 
-// C++ generate_random fills a fixed-size buffer with non-zero data.
-TEST_F(PsaTest, CryptoGenerateRandomCppApi)
+TEST_F(Crypto, GenerateRandomRejectsNullOutput)
 {
-    std::array<uint8_t, 32> buf {};
-
-    ASSERT_EQ(SL_STATUS_OK, crypto::generate_random(buf));
-    EXPECT_FALSE(BufferIsAllZeros(buf.data(), buf.size()));
+    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_generate_random(nullptr, 32));
 }

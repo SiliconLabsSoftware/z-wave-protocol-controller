@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "aes_ofb.hpp"
-#include "psa_test_support.hpp"
+#include "test_fixture.hpp"
 
 /* NIST SP 800-38A Appendix F.4.1 (OFB-AES128.Encrypt) */
 
@@ -42,7 +42,7 @@ namespace
 }  // namespace
 
 // NIST OFB-AES128 encrypt over one 16-byte block.
-TEST_F(PsaTest, NistSp80038aOfbAes128EncryptOneBlock)
+TEST_F(Crypto, NistSp80038aOfbAes128EncryptOneBlock)
 {
     uint8_t iv[16];
     uint8_t buffer[16];
@@ -55,7 +55,7 @@ TEST_F(PsaTest, NistSp80038aOfbAes128EncryptOneBlock)
 }
 
 // NIST OFB-AES128 encrypt over 64 bytes.
-TEST_F(PsaTest, NistSp80038aOfbAes128Encrypt64Bytes)
+TEST_F(Crypto, NistSp80038aOfbAes128Encrypt64Bytes)
 {
     uint8_t iv[16];
     uint8_t buffer[64];
@@ -68,7 +68,7 @@ TEST_F(PsaTest, NistSp80038aOfbAes128Encrypt64Bytes)
 }
 
 // NIST OFB-AES128 encrypt over a 7-byte partial block.
-TEST_F(PsaTest, NistSp80038aOfbAes128EncryptPartialSevenBytes)
+TEST_F(Crypto, NistSp80038aOfbAes128EncryptPartialSevenBytes)
 {
     uint8_t iv[16];
     uint8_t buffer[7];
@@ -81,7 +81,7 @@ TEST_F(PsaTest, NistSp80038aOfbAes128EncryptPartialSevenBytes)
 }
 
 // OFB decrypt is XOR with the same keystream; ciphertext round-trips to plaintext.
-TEST_F(PsaTest, NistSp80038aOfbAes128DecryptViaXor)
+TEST_F(Crypto, NistSp80038aOfbAes128DecryptViaXor)
 {
     uint8_t iv[16];
     uint8_t buffer[64];
@@ -94,7 +94,7 @@ TEST_F(PsaTest, NistSp80038aOfbAes128DecryptViaXor)
 }
 
 // Zero-length OFB leaves IV and data unchanged.
-TEST_F(PsaTest, OfbAes128ZeroLengthLeavesIvAndDataUnchanged)
+TEST_F(Crypto, OfbAes128ZeroLengthLeavesIvAndDataUnchanged)
 {
     uint8_t iv[16];
     const uint8_t data_expected[] = {0x01, 0x02, 0x03, 0x04};
@@ -109,7 +109,7 @@ TEST_F(PsaTest, OfbAes128ZeroLengthLeavesIvAndDataUnchanged)
 }
 
 // C++ span OFB API matches NIST one-block encrypt vector.
-TEST_F(PsaTest, AesOfbXorCppApi)
+TEST_F(Crypto, AesOfbXorCppApi)
 {
     std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     memcpy(key.data(), nist_key_128, sizeof(key));
@@ -123,7 +123,7 @@ TEST_F(PsaTest, AesOfbXorCppApi)
 }
 
 // Zero-length C API with null pointers returns OK without touching spans.
-TEST_F(PsaTest, OfbAes128ZeroLengthNullPointersOk)
+TEST_F(Crypto, OfbAes128ZeroLengthNullPointersOk)
 {
     EXPECT_EQ(SL_STATUS_OK, crypto_aes_ofb_xor(nullptr, nullptr, nullptr, 0));
 }
