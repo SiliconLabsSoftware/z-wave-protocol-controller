@@ -28,7 +28,7 @@
 #include <gtest/gtest.h>
 
 #include "aes_ctr_drbg.hpp"
-#include "psa_test_support.hpp"
+#include "test_fixture.hpp"
 
 uint8_t dbgCTRDRBG = 0;
 
@@ -231,7 +231,7 @@ namespace
 }  // namespace
 
 // NIST CTR-DRBG known-answer tests (AES-128, use DF, no prediction resistance).
-TEST_F(PsaTest, CtrDbrg)
+TEST_F(Crypto, CtrDbrg)
 {
     crypto_aes_ctr_drbg_ctx_t ctx;
     size_t i;
@@ -294,7 +294,7 @@ TEST_F(PsaTest, CtrDbrg)
 }
 
 // Different entropy inputs produce different DRBG output.
-TEST_F(PsaTest, CtrDrbgDifferentEntropyYieldsDifferentOutput)
+TEST_F(Crypto, CtrDrbgDifferentEntropyYieldsDifferentOutput)
 {
     crypto_aes_ctr_drbg_ctx_t ctx;
     const uint8_t personalization[CRYPTO_AES_CTR_DRBG_SEED_SIZE] = {0};
@@ -316,7 +316,7 @@ TEST_F(PsaTest, CtrDrbgDifferentEntropyYieldsDifferentOutput)
 }
 
 // NULL output on generate is rejected and internal state is unchanged.
-TEST_F(PsaTest, CtrDrbgGenerateRejectsNullOutputWithoutAdvancingState)
+TEST_F(Crypto, CtrDrbgGenerateRejectsNullOutputWithoutAdvancingState)
 {
     crypto_aes_ctr_drbg_ctx_t ctx;
     crypto_aes_ctr_drbg_ctx_t saved_ctx;
@@ -331,7 +331,7 @@ TEST_F(PsaTest, CtrDrbgGenerateRejectsNullOutputWithoutAdvancingState)
 }
 
 // C++ CTR-DRBG generate API matches first NIST vector after two generate calls.
-TEST_F(PsaTest, AesCtrDrbgGenerateCppApi)
+TEST_F(Crypto, AesCtrDrbgGenerateCppApi)
 {
     crypto_aes_ctr_drbg_ctx_t ctx {};
     const char *entropy_str       = "cee23de86a69c7ef57f6e1e12bd16e35e51624226fa19597bf93ec476a44b0f2";

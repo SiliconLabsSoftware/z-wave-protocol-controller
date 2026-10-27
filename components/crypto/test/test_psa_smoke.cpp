@@ -16,10 +16,10 @@
 #include <gtest/gtest.h>
 #include "psa/crypto.h"
 
-#include "psa_test_support.hpp"
+#include "test_fixture.hpp"
 
 // PSA random generation succeeds after crypto init.
-TEST_F(PsaTest, PsaGenerateRandom)
+TEST_F(Crypto, PsaGenerateRandom)
 {
     uint8_t buf[16]     = {0};
     psa_status_t status = psa_generate_random(buf, sizeof(buf));

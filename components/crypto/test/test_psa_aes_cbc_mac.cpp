@@ -22,7 +22,7 @@
 
 #include "aes_cbc_mac.hpp"
 #include "aes_ecb.h"
-#include "psa_test_support.hpp"
+#include "test_fixture.hpp"
 
 /* NIST SP 800-38A AES-128 key and IV (same material as OFB/CMAC tests). */
 
@@ -86,7 +86,7 @@ namespace
 }  // namespace
 
 // Empty auth payload: MAC state is only E_K(IV) (NIST AES-128-ECB encrypt IV).
-TEST_F(PsaTest, S0CbcMacEmptyMessageEqualsAesEcbOfIv)
+TEST_F(Crypto, S0CbcMacEmptyMessageEqualsAesEcbOfIv)
 {
     const uint8_t expected_mac[] = {0x50, 0xfe, 0x67, 0xcc, 0x99, 0x6d, 0x32, 0xb6, 0xda, 0x09, 0x37, 0xe9, 0x9b, 0xaf, 0xec, 0x60};
     uint8_t ecb_out[16];
@@ -97,7 +97,7 @@ TEST_F(PsaTest, S0CbcMacEmptyMessageEqualsAesEcbOfIv)
 }
 
 // One full 16-byte block (NIST SP 800-38A plaintext); exercises one mid-loop ECB step.
-TEST_F(PsaTest, S0CbcMacNistPlaintextOneBlock)
+TEST_F(Crypto, S0CbcMacNistPlaintextOneBlock)
 {
     const uint8_t expected_mac[] = {0x66, 0x8b, 0xcf, 0x60, 0xbe, 0xb0, 0x05, 0xa3, 0x53, 0x54, 0xa2, 0x01, 0xda, 0xb3, 0x6b, 0xda};
 
@@ -105,7 +105,7 @@ TEST_F(PsaTest, S0CbcMacNistPlaintextOneBlock)
 }
 
 // Partial final block: spec padding path (final AES encrypt when len % 16 != 0).
-TEST_F(PsaTest, S0CbcMacNistPlaintextSevenBytes)
+TEST_F(Crypto, S0CbcMacNistPlaintextSevenBytes)
 {
     const uint8_t expected_mac[] = {0x13, 0x73, 0x94, 0x01, 0x8c, 0xdf, 0xe1, 0x7f, 0x59, 0xf9, 0x77, 0x97, 0x9e, 0xff, 0x71, 0x08};
 
@@ -113,7 +113,7 @@ TEST_F(PsaTest, S0CbcMacNistPlaintextSevenBytes)
 }
 
 // Two AES blocks: second block triggers another ECB iteration at byte index 15.
-TEST_F(PsaTest, S0CbcMacNistPlaintextTwoBlocks)
+TEST_F(Crypto, S0CbcMacNistPlaintextTwoBlocks)
 {
     uint8_t message[32];
     const uint8_t expected_mac[] = {0x11, 0xe0, 0xad, 0xbc, 0x92, 0x31, 0xe1, 0x3d, 0xd8, 0x43, 0x6e, 0x69, 0xd9, 0xf3, 0x14, 0xcc};
@@ -125,7 +125,7 @@ TEST_F(PsaTest, S0CbcMacNistPlaintextTwoBlocks)
 }
 
 // Typical S0 authentication data size (header + short encrypted payload).
-TEST_F(PsaTest, S0CbcMacMessageEncapsulationAuthData)
+TEST_F(Crypto, S0CbcMacMessageEncapsulationAuthData)
 {
     const uint8_t expected_mac[] = {0x4c, 0x5c, 0xb1, 0x62, 0xa5, 0x17, 0x4c, 0x77, 0xf4, 0x11, 0x84, 0xa2, 0x5a, 0xe7, 0xb6, 0x0c};
 
@@ -133,7 +133,7 @@ TEST_F(PsaTest, S0CbcMacMessageEncapsulationAuthData)
 }
 
 // C++ CBC-MAC API matches the S0 encapsulation auth-data vector.
-TEST_F(PsaTest, AesCbcMacCppApi)
+TEST_F(Crypto, AesCbcMacCppApi)
 {
     std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     memcpy(key.data(), nist_key_128, sizeof(key));
@@ -147,7 +147,7 @@ TEST_F(PsaTest, AesCbcMacCppApi)
 }
 
 // C++ API rejects message lengths that exceed the C API uint8_t limit.
-TEST_F(PsaTest, AesCbcMacCppApiRejectsOversizedData)
+TEST_F(Crypto, AesCbcMacCppApiRejectsOversizedData)
 {
     std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> iv {};
@@ -158,7 +158,7 @@ TEST_F(PsaTest, AesCbcMacCppApiRejectsOversizedData)
 }
 
 // Maximum C API payload length (uint8_t): padded IV||data must fit internal buffer.
-TEST_F(PsaTest, S0CbcMacMaxPayloadLength255)
+TEST_F(Crypto, S0CbcMacMaxPayloadLength255)
 {
     uint8_t data[UINT8_MAX];
     uint8_t expected_mac[CRYPTO_AES_BLOCK_SIZE];
@@ -174,7 +174,7 @@ TEST_F(PsaTest, S0CbcMacMaxPayloadLength255)
 }
 
 // C++ CBC-MAC at max span length matches C API and ECB-chained reference.
-TEST_F(PsaTest, AesCbcMacCppApiMaxPayloadLength255)
+TEST_F(Crypto, AesCbcMacCppApiMaxPayloadLength255)
 {
     std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     memcpy(key.data(), nist_key_128, sizeof(key));
