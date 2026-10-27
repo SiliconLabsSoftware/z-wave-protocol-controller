@@ -24,6 +24,4 @@ class PsaTest : public ::testing::Test
         }
 };
 
-sl_status_t aes128_ecb_decrypt(const uint8_t *key, const uint8_t *input, uint8_t *output);
-
 #endif
