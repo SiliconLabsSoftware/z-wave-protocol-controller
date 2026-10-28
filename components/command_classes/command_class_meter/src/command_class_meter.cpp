@@ -21,7 +21,6 @@
 
 namespace zwave_command_class
 {
-
     [[maybe_unused]] static constexpr std::string_view LOG_TAG = "command_class_meter";
 
     command_class_meter::command_class_meter() = default;
@@ -268,6 +267,12 @@ namespace zwave_command_class
         bool include_scale_2        = false;
         command_class_meter_constants::write_meter_get_scale(logical_scale, version, scale_bits, scale_2, include_scale_2);
 
+        const uint8_t size     = size_node.desired<uint8_t>();
+        const auto value_bytes = value_node.desired<std::vector<uint8_t>>();
+        if ((size != command_class_meter_constants::METER_VALUE_SIZE_ONE_BYTE && size != command_class_meter_constants::METER_VALUE_SIZE_TWO_BYTES && size != command_class_meter_constants::METER_VALUE_SIZE_FOUR_BYTES) || size != value_bytes.size()) {
+            return SL_STATUS_INVALID_PARAMETER;
+        }
+
         meter_reset_properties1_t properties1;
         properties1.value                         = 0;
         properties1.flags.meter_reset_meter_type  = meter_type_node.desired<uint8_t>();
@@ -277,12 +282,11 @@ namespace zwave_command_class
 
         meter_reset_properties2_t properties2;
         properties2.value                           = 0;
-        properties2.flags.meter_reset_size          = size_node.desired<uint8_t>();
+        properties2.flags.meter_reset_size          = size;
         properties2.flags.meter_reset_scale_bits_10 = static_cast<uint8_t>(scale_bits & command_class_meter_constants::SCALE_BITS_10_VALUE_MASK);
         properties2.flags.meter_reset_precision     = precision_node.desired<uint8_t>();
         frame_generator->add_raw_byte(properties2.value);
 
-        const auto value_bytes = value_node.desired<std::vector<uint8_t>>();
         for (uint8_t byte: value_bytes) {
             frame_generator->add_raw_byte(byte);
         }

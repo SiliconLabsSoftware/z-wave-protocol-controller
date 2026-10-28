@@ -46,6 +46,10 @@ namespace zwave_command_class
         constexpr uint8_t SCALE_BIT_2_SHIFT         = 0x07;
         constexpr uint8_t SCALE_HIGH_TO_SCALE_SHIFT = 0x02;
 
+        constexpr uint8_t METER_VALUE_SIZE_ONE_BYTE   = 1;
+        constexpr uint8_t METER_VALUE_SIZE_TWO_BYTES  = 2;
+        constexpr uint8_t METER_VALUE_SIZE_FOUR_BYTES = 4;
+
         inline uint8_t rate_type_from_masked(uint8_t masked_rate_type)
         {
             return static_cast<uint8_t>((masked_rate_type >> RATE_TYPE_SHIFT) & RATE_TYPE_VALUE_MASK);

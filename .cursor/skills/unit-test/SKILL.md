@@ -13,12 +13,14 @@ Follow this sequence in order. The skill is not done until the coverage check pa
 
 ## Failures and specification
 
-- If a test is failing, modify the **source code**, not the test.
-  - Summarize the failure, then **ask the user** before changing the test.
-- **Specification injection:** check whether the Z-Wave specification is in the workspace or the repo. If it is not, ask the user where it is. The previous specification matters. Let the user know if you found the specification and where it is.
-- Write tests **according to the specification**, not from implementation guesswork.
+- **Specification injection:** check whether the relevant Z-Wave specification is in the workspace or repo. If it is not, ask the user where it is. The previous specification matters. Tell the user which specification and version you found.
+- The specification is authoritative for expected behavior. Do not infer expected behavior from the implementation or change a test merely to make it pass.
+- For each failing test, inspect the individual assertion and compare expected and actual behavior with the applicable specification requirement:
+  - If the test expectation conflicts with the specification, correct the test and cite the relevant requirement.
+  - If the implementation conflicts with the specification, treat it as a source defect and preserve a test for the specified behavior. Summarize the evidence and follow the user's authorization before changing source.
+  - Report remaining failures one by one, including the expected behavior, actual behavior, and whether the test or implementation is inconsistent with the specification.
 - In case of command classes there are multiple versions of each. Create test cases for each versions, based on the specification.
-- **Outgoing CC version (CC:0000.00.00.11):** a receiving node MUST NOT discard a frame based on length. It uses Command Class + Command IDs and interprets the version-N prefix of a newer command. Tests MUST expect the **controller's implemented version** of an existing command (including trailing fields added in later versions), even when the destination advertises a lower CC version. Do not assert a shorter Set/Get because the node reported v1. Incoming reports are the other direction of the same rule: still parse the shorter older frame. Gate only **new Command IDs** (commands that do not exist in the destination version) with destination version.
+- **Command Class version compatibility (CC:0000.00.00.11.002):** for an existing Command ID, outgoing controller tests MUST assert the controller's implemented wire format, including appended fields, even when the peer advertises an older version. The older receiver MUST NOT discard the frame because of its length; it interprets the portion defined by its version. Do not shorten a Set/Get solely because the peer reports v1 or v3. Use values that are valid and meaningful in the older version's prefix; do not send a value introduced in a later version as though the older peer supported it. Gate a command only when its Command ID does not exist in the peer's version. For incoming commands, test both the older shorter frame and the current-version frame, confirming that the supported older prefix is parsed.
 - If a requirement number exists, put it on the test (`CC:` IDs such as `CC:008A.03.02.11.008`). Skip the ID only when the spec has none for that behavior.
 - Add a short description for each test case what do they test exactly
 
@@ -31,7 +33,7 @@ Coverage uses a **blacklist only** ([`ci/coverage/component_blacklist.yaml`](ci/
 Identify the directory under test (same prefix as the YAML).
 
 - **Existing module:** delete that path from the YAML **before writing tests**.
-- **Path missing from the YAML:** stop. For a *new* untested module, `generate-new-cc` (or the owner) must **append** the path first. Then come back and remove it here.
+- **Path missing from the YAML:** stop. For a *new* untested module, `generate-new-cc` (or the owner) must **append** the path first. Then come back and remove it here. Except if the test is already exist and you are updating it, that case you have nothing to do with the yaml file. Only check it if the test is not accidently blacklisted.
 - A **parent** prefix may stay listed (e.g. `components/command_classes` for shared `src/`). Delete only the child being tested (`components/command_classes/command_class_<name>`).
 - After `test/` exists, `check_coverage.py` gates that child on its own path even if the parent remains blacklisted. Untested siblings stay under the parent exemption.
 - Do not leave the tested component on the blacklist after this skill runs.
@@ -57,7 +59,13 @@ Do not change `attribute_store.h` or the store implementation.
 - `TEST` for independent cases; `TEST_F` when `SetUp`/`TearDown` is needed. `ASSERT_*` for preconditions, `EXPECT_*` for checks that should all run.
 - Prefer fakes for state; gMock (`MOCK_METHOD` + `EXPECT_CALL`) for interaction seams (MQTT / TX), not the attribute-store tree.
 - Tests must be deterministic: no `sleep` for sync, no real network/time, unique temp paths, reset process-global state in the fixture.
-- Add comments into the test cases for easier understanding for humans
+- Add verbose comments to the test cases to be easier to follow what and why it is going on. Comment each block inside the test cases.
+- Explain fixture maps and wire-frame bytes at the point of use. Comments should identify what each field or byte represents and why the selected value is used; a general comment above a fixture is not a substitute for field-level explanations.
+- In case of command classes, create separated test functions for each version tests to have more atomic test cases.
+- Use meaningful test case names that describe the behavior and reflect the Command Class version when relevant.
+- Do not use unexplained magic numbers. Define named constants for protocol values, expected counts, lengths, offsets, and fixture sizes; if a literal is clearer, add an inline comment explaining its meaning.
+- Shared test helpers may reduce duplication, but must accept version-specific inputs or expectations when the specification defines different valid values. Keep each version's assertion independently identifiable in test output.
+- Run `clang-format` on changed test files and verify formatting before finishing.
 
 ## Sanitizer run (correctness)
 
