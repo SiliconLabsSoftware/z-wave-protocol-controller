@@ -86,10 +86,10 @@ zpc/<home_id>/<node_id>/ep<endpoint_id>/ThermostatOperatingState/Report/Thermost
       "properties1": {
         "operating_state_log_type": "0x05"
       },
-      "usage_today_(hours)": "0x12",
-      "usage_today_(minutes)": "0x12",
-      "usage_yesterday_(hours)": "0x12",
-      "usage_yesterday_(minutes)": "0x12"
+      "usage_today_hours": "0x12",
+      "usage_today_minutes": "0x12",
+      "usage_yesterday_hours": "0x12",
+      "usage_yesterday_minutes": "0x12"
     }
   ]
 }
