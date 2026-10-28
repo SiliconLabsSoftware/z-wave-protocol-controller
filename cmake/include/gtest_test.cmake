@@ -56,7 +56,13 @@ function(ADD_ZPC_GTEST)
     PRIVATE GTest::gtest_main GTest::gmock ${ADD_ZPC_GTEST_LIBS})
   target_include_directories(${ADD_ZPC_GTEST_NAME} PRIVATE ${ADD_ZPC_GTEST_INCLUDES})
 
-  gtest_discover_tests(${ADD_ZPC_GTEST_NAME} DISCOVERY_TIMEOUT 30)
+  set(_coverage_properties)
+  if(COVERAGE)
+    # Apply only to test execution, not the --gtest_list_tests discovery process.
+    set(_coverage_properties PROPERTIES ENVIRONMENT
+      "LLVM_PROFILE_FILE=${CMAKE_BINARY_DIR}/coverage/profiles/${ADD_ZPC_GTEST_NAME}/%m.profraw")
+  endif()
+  gtest_discover_tests(${ADD_ZPC_GTEST_NAME} DISCOVERY_TIMEOUT 30 ${_coverage_properties})
 
   add_dependencies(UNIT_TEST ${ADD_ZPC_GTEST_NAME})
 endfunction()

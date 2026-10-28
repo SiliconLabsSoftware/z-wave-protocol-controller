@@ -9,6 +9,11 @@ execute_process(COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/command_class_genera
 )
 message(NOTICE "-- Command classes generation completed")
 
+# Public headers shared by the command-class manager and implementations.
+add_library(zwave_command_class_base_interface INTERFACE)
+target_include_directories(zwave_command_class_base_interface
+  INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 ### Create command class common library object
 
 ### THESE generated_files are legacy ones, will be removed later!!
@@ -36,7 +41,6 @@ target_link_libraries(
     zpc_mqtt
     zpc_attribute_store
     zpc_attribute_resolver
-    zwave_security_validation
     zwave_command_class_manager
     utils
     zwave_definitions 
@@ -117,8 +121,7 @@ target_link_libraries(command_classes
     command_class_common_generated
     command_class_common
   PRIVATE
-    ${SUBDIR_NAMES}
-    zwave_command_class_manager)
+    ${SUBDIR_NAMES})
 
 # Avoid "warning: relocation against" errors
 target_compile_options(command_classes PRIVATE "-fPIC")
