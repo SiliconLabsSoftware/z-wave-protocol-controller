@@ -36,7 +36,8 @@ namespace zwave_command_class
         for (size_t byte_idx = 0; byte_idx < bit_mask.size(); ++byte_idx) {
             for (uint8_t bit_idx = 0; bit_idx < 8; ++bit_idx) {
                 uint8_t sensor_type = static_cast<uint8_t>((byte_idx * 8) + bit_idx + SENSOR_TYPE_BIT_MASK_OFFSET);
-                if (sensor_type < from) {
+                // Bit 0 is reserved, so never treat a set reserved bit as Sensor Type 0.
+                if (sensor_type == 0 || sensor_type < from) {
                     continue;
                 }
                 if (((bit_mask[byte_idx] >> bit_idx) & 0x01U) != 0U) {
