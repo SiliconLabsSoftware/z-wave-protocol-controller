@@ -113,8 +113,8 @@ namespace zwave_command_class
         if (parser.status() != SL_STATUS_OK) {
             return parser.status();
         }
-        if (meter_value.empty() || meter_value.size() > 4) {
-            sl_log_warning(LOG_TAG.data(), "MeterReset v6: meter_value size must be 1..4 bytes");
+        if (meter_value.size() != command_class_meter_constants::METER_VALUE_SIZE_ONE_BYTE && meter_value.size() != command_class_meter_constants::METER_VALUE_SIZE_TWO_BYTES && meter_value.size() != command_class_meter_constants::METER_VALUE_SIZE_FOUR_BYTES) {
+            sl_log_warning(LOG_TAG.data(), "MeterReset v6: meter_value size must be 1, 2, or 4 bytes");
             return SL_STATUS_INVALID_PARAMETER;
         }
 

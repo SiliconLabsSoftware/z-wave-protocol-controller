@@ -18,7 +18,6 @@ blacklist:
   - components/command_classes/command_class_inclusion_controller
   - components/command_classes/command_class_indicator
   - components/command_classes/command_class_manufacturer_specific
-  - components/command_classes/command_class_meter
   - components/command_classes/command_class_multi_channel
   - components/command_classes/command_class_multi_channel_association
   - components/command_classes/command_class_multi_cmd
