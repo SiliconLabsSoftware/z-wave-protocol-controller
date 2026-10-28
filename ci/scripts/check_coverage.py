@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gate component line and branch coverage using gcovr and the component blacklist.
+"""Gate component line and branch coverage using native LLVM reports and the component blacklist.
 
 From the repository root, after cmake --workflow --preset unit-test-coverage:
 
@@ -42,9 +42,10 @@ def parse_args() -> argparse.Namespace:
         help="YAML with unit-test configuration, including coverage minimums",
     )
     parser.add_argument(
-        "--skip-gcovr",
+        "--skip-report", "--skip-gcovr",
+        dest="skip_report",
         action="store_true",
-        help="Reuse existing coverage/coverage.json instead of running gcovr",
+        help="Reuse existing LLVM coverage/coverage.json instead of collecting profiles",
     )
     return parser.parse_args()
 
@@ -115,12 +116,12 @@ def discover_prefixes(repo: Path, blacklist: list[str]) -> list[str]:
     return sorted(prefixes)
 
 
-def cmake_c_compiler(build_dir: Path) -> str | None:
+def cmake_cache_value(build_dir: Path, key: str) -> str | None:
     cache = build_dir / "CMakeCache.txt"
     if not cache.is_file():
         return None
     for line in cache.read_text().splitlines():
-        if line.startswith("CMAKE_C_COMPILER:"):
+        if line.startswith(key + ":"):
             _, _, value = line.partition("=")
             value = value.strip()
             if value:
@@ -128,123 +129,89 @@ def cmake_c_compiler(build_dir: Path) -> str | None:
     return None
 
 
-def gcov_from_compiler(compiler: str | None) -> str | None:
-    if not compiler:
-        return None
-    name = Path(compiler.split()[0]).name
-    if "gcc" not in name:
-        return None
-    return name.replace("gcc", "gcov", 1)
+def run_llvm_coverage(build_dir: Path, coverage_dir: Path) -> Path:
+    """Merge test profiles, then let LLVM produce both the gate data and HTML."""
+    compiler = cmake_cache_value(build_dir, "CMAKE_CXX_COMPILER")
+    if not compiler or cmake_cache_value(build_dir, "COVERAGE") != "ON":
+        raise SystemExit("error: configure and build the unit-test-coverage preset first")
+    profdata = os.environ.get("LLVM_PROFDATA") or str(Path(compiler).resolve().with_name("llvm-profdata"))
+    cov = profdata.replace("llvm-profdata", "llvm-cov")
+    if not shutil.which(profdata) or not shutil.which(cov):
+        raise SystemExit("error: LLVM coverage tools missing; set LLVM_PROFDATA to the tool matching your Clang")
 
+    tests = json.loads(subprocess.check_output(
+        ["ctest", "--test-dir", str(build_dir), "--show-only=json-v1"], text=True,
+    ))
+    binaries = set()
+    for test in tests["tests"]:
+        properties = {p["name"]: p["value"] for p in test.get("properties", [])}
+        if not properties.get("DISABLED") and any(
+            value.startswith("LLVM_PROFILE_FILE=") for value in properties.get("ENVIRONMENT", [])
+        ):
+            binaries.add(Path(test["command"][0]))
+    if not binaries:
+        raise SystemExit("error: no coverage tests found; configure and build the coverage preset first")
 
-def gcovr_gcov_args(build_dir: Path) -> list[str]:
-    """Use the gcov that matches the compiler that wrote the .gcno files.
-
-    CI builds coverage with gcc-14 (notes version B42*). Default `gcov` on
-    ubuntu-24.04 is gcc-13 (B33*), which makes gcovr abort on the first .gcda.
-    """
-    gcov = os.environ.get("GCOV") or gcov_from_compiler(cmake_c_compiler(build_dir)) or gcov_from_compiler(os.environ.get("CC"))
-    if not gcov:
-        return []
-    executable = gcov.split()[0]
-    if shutil.which(executable) is None:
-        raise SystemExit(f"error: gcov executable {executable!r} not found; install the matching gcc package or set GCOV")
-    return ["--gcov-executable", gcov]
-
-
-def run_gcovr(build_dir: Path, coverage_dir: Path) -> Path:
+    profiles = []
+    for binary in sorted(binaries):
+        # Ignore counters left by an earlier build of this executable.
+        current = [p for p in (coverage_dir / "profiles" / binary.name).glob("*.profraw")
+                   if p.stat().st_mtime_ns >= binary.stat().st_mtime_ns]
+        if not current:
+            raise SystemExit(f"error: no current profiles for {binary.name}; run ctest --preset unit-test-coverage")
+        profiles.extend(sorted(current))
     coverage_dir.mkdir(parents=True, exist_ok=True)
+    merged = coverage_dir / "coverage.profdata"
+    print(f"Merging LLVM profiles from {len(binaries)} test executables", flush=True)
+    subprocess.run([profdata, "merge", "-sparse", *map(str, profiles), "-o", str(merged)], check=True)
+
+    # LLVM merges shared files and inline instantiations across these binaries.
+    objects = [arg for binary in sorted(binaries) for arg in ["-object", str(binary)]]
+    common = [*objects, "-instr-profile=" + str(merged)]
+    # Ask LLVM which files are mapped, then use the same source scope for HTML and JSON.
+    mapped = json.loads(subprocess.check_output([cov, "export", *common, "-summary-only"], text=True))
+    sources = sorted({entry["filename"] for dataset in mapped["data"] for entry in dataset["files"]
+                      if posix_rel(entry["filename"], REPO_ROOT).startswith("components/")
+                      and not should_skip_file(posix_rel(entry["filename"], REPO_ROOT))})
+    if not sources:
+        raise SystemExit("error: LLVM found no component source files in the test executables")
+    common.extend(["--sources", *sources])
     json_path = coverage_dir / "coverage.json"
-    xml_path = coverage_dir / "coverage.xml"
-    html_dir = coverage_dir / "html"
-    html_dir.mkdir(parents=True, exist_ok=True)
-    gcov_args = gcovr_gcov_args(build_dir)
-    common = [
-        "gcovr",
-        *gcov_args,
-        "--root",
-        str(REPO_ROOT),
-        "--filter",
-        "components/",
-        "--exclude",
-        ".*/generated/.*",
-        "--exclude",
-        ".*/_deps/.*",
-        "--exclude",
-        ".*/googletest/.*",
-        "--json",
-        str(json_path),
-        "--xml",
-        str(xml_path),
-        "--html-details",
-        str(html_dir / "index.html"),
-        "--print-summary",
-    ]
-    obj_dir = str(build_dir.resolve())
-    for flag in ("--gcov-object-directory", "--object-directory"):
-        result = subprocess.run(common[:1] + [flag, obj_dir] + common[1:], cwd=REPO_ROOT)
-        if result.returncode == 0:
-            return json_path
-    raise SystemExit("error: gcovr failed (tried --gcov-object-directory and --object-directory)")
-
-
-def file_line_counts(entry: dict) -> tuple[int, int]:
-    lines = entry.get("lines")
-    if not lines:
-        covered = int(entry.get("line_covered", 0))
-        total = int(entry.get("line_total", 0))
-        return covered, total
-    executable = 0
-    covered = 0
-    for line in lines:
-        if line.get("gcovr/noncode"):
-            continue
-        count = line.get("count")
-        if count is None:
-            continue
-        executable += 1
-        if count > 0:
-            covered += 1
-    return covered, executable
-
-
-def file_branch_counts(entry: dict) -> tuple[int, int]:
-    covered = 0
-    total = 0
-    for line in entry.get("lines", []):
-        if line.get("gcovr/noncode"):
-            continue
-        for branch in line.get("branches", []):
-            count = branch.get("count")
-            if count is None:
-                continue
-            total += 1
-            if count > 0:
-                covered += 1
-    return covered, total
+    print("Exporting LLVM file summaries for the component gates", flush=True)
+    with json_path.open("w") as output:
+        subprocess.run([cov, "export", *common, "-summary-only"], stdout=output, check=True)
+    lcov_path = coverage_dir / "lcov.info"
+    print("Exporting LCOV report: " + str(lcov_path), flush=True)
+    with lcov_path.open("w") as output:
+        subprocess.run([cov, "export", *common, "-format=lcov"], stdout=output, check=True)
+    print("Writing LLVM HTML report: " + str(coverage_dir / "html/index.html"), flush=True)
+    subprocess.run([
+        cov, "show", *common, "-format=html", "-output-dir=" + str(coverage_dir / "html"),
+        "-show-branches=count", "-show-expansions", "-show-branch-summary",
+    ], check=True)
+    return json_path
 
 
 def aggregate(json_path: Path, prefixes: list[str]) -> tuple[dict[str, tuple[int, int, int, int]], list[str]]:
     payload = json.loads(json_path.read_text())
-    files = payload.get("files", [])
+    if payload.get("type") != "llvm.coverage.json.export":
+        raise SystemExit("error: expected a native LLVM coverage report; rerun without --skip-report")
     totals: dict[str, list[int]] = defaultdict(lambda: [0, 0, 0, 0])
     unmatched: list[str] = []
-    for entry in files:
-        rel = posix_rel(entry.get("file", ""), REPO_ROOT)
-        if not rel.startswith("components/"):
-            continue
-        if should_skip_file(rel):
-            continue
-        prefix = longest_prefix(rel, prefixes)
-        if prefix is None:
-            unmatched.append(rel)
-            continue
-        covered, total = file_line_counts(entry)
-        branches_covered, branches_total = file_branch_counts(entry)
-        totals[prefix][0] += covered
-        totals[prefix][1] += total
-        totals[prefix][2] += branches_covered
-        totals[prefix][3] += branches_total
+    for dataset in payload["data"]:
+        for entry in dataset["files"]:
+            rel = posix_rel(entry["filename"], REPO_ROOT)
+            if not rel.startswith("components/") or should_skip_file(rel):
+                continue
+            prefix = longest_prefix(rel, prefixes)
+            if prefix is None:
+                unmatched.append(rel)
+                continue
+            summary = entry["summary"]
+            totals[prefix][0] += summary["lines"]["covered"]
+            totals[prefix][1] += summary["lines"]["count"]
+            totals[prefix][2] += summary["branches"]["covered"]
+            totals[prefix][3] += summary["branches"]["count"]
     return {k: (v[0], v[1], v[2], v[3]) for k, v in totals.items()}, unmatched
 
 
@@ -268,8 +235,8 @@ def coverage_table(
         branch_pct = percent(branches_covered, branches_total) if branches_total else None
         line_coverage = f"{line_pct:.1f}% ({lines_covered}/{lines_total})" if line_pct is not None else "—"
         branch_coverage = f"{branch_pct:.1f}% ({branches_covered}/{branches_total})" if branch_pct is not None else "—"
-        if line_pct is None and branch_pct is None:
-            result = "No data"
+        if line_pct is None:
+            result = "❌ No data"
         elif (line_pct is None or line_pct + 1e-9 >= min_line) and (branch_pct is None or branch_pct + 1e-9 >= min_branch):
             result = "✅ Pass"
         else:
@@ -283,7 +250,7 @@ def report_table(table: str) -> None:
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as summary:
-            summary.write("## Component line coverage\n\n")
+            summary.write("## Component line and branch coverage\n\n")
             summary.write(table)
 
 
@@ -299,12 +266,12 @@ def main() -> int:
     prefixes = discover_prefixes(REPO_ROOT, blacklist)
 
     json_path = coverage_dir / "coverage.json"
-    if args.skip_gcovr:
+    if args.skip_report:
         if not json_path.is_file():
-            print(f"error: {json_path} missing; run without --skip-gcovr", file=sys.stderr)
+            print(f"error: {json_path} missing; run without --skip-report", file=sys.stderr)
             return 2
     else:
-        json_path = run_gcovr(build_dir, coverage_dir)
+        json_path = run_llvm_coverage(build_dir, coverage_dir)
 
     totals, unmatched = aggregate(json_path, prefixes)
     report_table(coverage_table(prefixes, totals, blacklist, min_line, min_branch))
@@ -314,6 +281,9 @@ def main() -> int:
         if prefix in blacklist:
             continue
         lines_covered, lines_total, branches_covered, branches_total = totals.get(prefix, (0, 0, 0, 0))
+        if not lines_total:
+            failures.append(f"{prefix}: no executable line coverage data; configure, build, and run its tests")
+            continue
         if lines_total and percent(lines_covered, lines_total) + 1e-9 < min_line:
             failures.append(
                 f"{prefix}: line {percent(lines_covered, lines_total):.1f}% "

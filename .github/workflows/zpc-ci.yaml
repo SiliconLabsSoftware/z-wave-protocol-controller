@@ -58,7 +58,7 @@ jobs:
         with:
           package_lists: ci/dependencies/apt-packages-base.txt
           pip_requirements: "true"
-          extra_packages: clang-17
+          extra_packages: clang-17 llvm-17
 
       - name: Configure, build, and run unit tests (gcc)
         env:
@@ -72,13 +72,15 @@ jobs:
           CXX: clang++-17
         run: cmake --workflow --preset unit-test --fresh
 
-      - name: Configure, build, and run unit tests (gcc coverage)
+      - name: Configure, build, and run unit tests (clang coverage)
         env:
-          CC: gcc-14
-          CXX: g++-14
+          CC: clang-17
+          CXX: clang++-17
         run: cmake --workflow --preset unit-test-coverage --fresh
 
       - name: Report and check component coverage
+        env:
+          LLVM_PROFDATA: llvm-profdata-17
         run: python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
 
       - name: Upload unit test coverage

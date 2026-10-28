@@ -765,12 +765,16 @@ sl_status_t attribute_store_get_node_attribute_value(attribute_store_node_t id, 
     }
     if (value_state == DESIRED_ATTRIBUTE) {
         *value_size = node_to_read->desired_value.size();
-        memcpy(value, node_to_read->desired_value.data(), *value_size);
+        if (*value_size > 0) {
+            memcpy(value, node_to_read->desired_value.data(), *value_size);
+        }
         return SL_STATUS_OK;
     }
     if (value_state == REPORTED_ATTRIBUTE) {
         *value_size = node_to_read->reported_value.size();
-        memcpy(value, node_to_read->reported_value.data(), *value_size);
+        if (*value_size > 0) {
+            memcpy(value, node_to_read->reported_value.data(), *value_size);
+        }
         return SL_STATUS_OK;
     }
 
