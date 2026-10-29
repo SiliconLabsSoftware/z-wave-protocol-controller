@@ -39,6 +39,8 @@ namespace zwave_command_class
             static void advance_parameter_scan(attribute_store::attribute endpoint_node, bool parameter_found);
             static void request_configuration_get(attribute_store::attribute endpoint_node, uint8_t parameter_number);
             static void request_configuration_set(attribute_store::attribute endpoint_node, uint8_t parameter_number, uint8_t size, int64_t value, bool use_default);
+            static void request_configuration_name_get(attribute_store::attribute endpoint_node, uint16_t parameter_number);
+            static void request_configuration_info_get(attribute_store::attribute endpoint_node, uint16_t parameter_number);
             static void request_properties_get(attribute_store::attribute endpoint_node, uint16_t parameter_number);
             static void clear_reported_values_and_refresh(attribute_store::attribute endpoint_node);
             static bool bulk_set_allowed(attribute_store::attribute endpoint_node, uint16_t parameter_offset, uint8_t number_of_parameters);
@@ -67,6 +69,7 @@ namespace zwave_command_class
             static void start_default_bit_probe(attribute_store::attribute endpoint_node);
             static void handle_default_probe_report(attribute_store::attribute endpoint, uint8_t parameter_number, int64_t value);
             static uint8_t configuration_version(attribute_store::attribute endpoint_node);
+            static void request_next_discovery_description(attribute_store::attribute endpoint_node, uint16_t after_parameter_number);
             uint16_t apply_parameter_0_next_quirk(uint16_t parameter_number, uint16_t next_parameter_number);
 
             std::vector<uint8_t> pending_properties_frame_;
