@@ -1,31 +1,31 @@
 #include <array>
 
 #include "aes_ecb.hpp"
-#include "mock_helpers.hpp"
+#include "mock_psa_wrappers.hpp"
 #include "test_fixture.hpp"
 
 using ::testing::_;
 using ::testing::Return;
 using ::testing::StrictMock;
 
-TEST_F(Crypto, HelpersTranslatePsaStatuses)
+TEST_F(Crypto, PsaWrappersTranslatePsaStatuses)
 {
-    crypto::Helpers helpers;
-    EXPECT_EQ(SL_STATUS_OK, helpers.psa_status_to_sl_status(PSA_SUCCESS));
-    EXPECT_EQ(SL_STATUS_INVALID_SIGNATURE, helpers.psa_status_to_sl_status(PSA_ERROR_INVALID_SIGNATURE));
-    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, helpers.psa_status_to_sl_status(PSA_ERROR_INVALID_ARGUMENT));
-    EXPECT_EQ(SL_STATUS_NOT_SUPPORTED, helpers.psa_status_to_sl_status(PSA_ERROR_NOT_SUPPORTED));
-    EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, helpers.psa_status_to_sl_status(PSA_ERROR_INSUFFICIENT_MEMORY));
-    EXPECT_EQ(SL_STATUS_INVALID_STATE, helpers.psa_status_to_sl_status(PSA_ERROR_BAD_STATE));
-    EXPECT_EQ(SL_STATUS_FAIL, helpers.psa_status_to_sl_status(PSA_ERROR_GENERIC_ERROR));
+    crypto::PsaWrappers psa_wrappers;
+    EXPECT_EQ(SL_STATUS_OK, psa_wrappers.psa_status_to_sl_status(PSA_SUCCESS));
+    EXPECT_EQ(SL_STATUS_INVALID_SIGNATURE, psa_wrappers.psa_status_to_sl_status(PSA_ERROR_INVALID_SIGNATURE));
+    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, psa_wrappers.psa_status_to_sl_status(PSA_ERROR_INVALID_ARGUMENT));
+    EXPECT_EQ(SL_STATUS_NOT_SUPPORTED, psa_wrappers.psa_status_to_sl_status(PSA_ERROR_NOT_SUPPORTED));
+    EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, psa_wrappers.psa_status_to_sl_status(PSA_ERROR_INSUFFICIENT_MEMORY));
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, psa_wrappers.psa_status_to_sl_status(PSA_ERROR_BAD_STATE));
+    EXPECT_EQ(SL_STATUS_FAIL, psa_wrappers.psa_status_to_sl_status(PSA_ERROR_GENERIC_ERROR));
 }
 
-TEST_F(Crypto, HelpersImportAesKeyWithRequestedAttributes)
+TEST_F(Crypto, PsaWrappersImportAesKeyWithRequestedAttributes)
 {
-    crypto::Helpers helpers;
+    crypto::PsaWrappers psa_wrappers;
     const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     psa_key_id_t key_id;
-    ASSERT_EQ(PSA_SUCCESS, helpers.import_aes_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, key.data(), &key_id));
+    ASSERT_EQ(PSA_SUCCESS, psa_wrappers.import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, key.data(), &key_id, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS, CRYPTO_AES_KEY_SIZE));
 
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     const auto status               = psa_get_key_attributes(key_id, &attributes);
@@ -40,9 +40,9 @@ TEST_F(Crypto, HelpersImportAesKeyWithRequestedAttributes)
     EXPECT_EQ(PSA_SUCCESS, psa_destroy_key(key_id));
 }
 
-TEST_F(Crypto, HelpersInterceptCallsFromCppCryptoApi)
+TEST_F(Crypto, PsaWrappersInterceptCallsFromCppCryptoApi)
 {
-    StrictMock<crypto::test::MockHelpers> mock;
+    StrictMock<crypto::test::MockPsaWrappers> mock;
     crypto::Crypto algorithms(mock);
     const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     const std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> input {};
@@ -51,7 +51,8 @@ TEST_F(Crypto, HelpersInterceptCallsFromCppCryptoApi)
     const auto original_output = output;
 
     ::testing::InSequence sequence;
-    EXPECT_CALL(mock, import_aes_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, key.data(), _)).WillOnce(Return(PSA_ERROR_INSUFFICIENT_MEMORY));
+    EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, key.data(), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS, CRYPTO_AES_KEY_SIZE)).WillOnce(Return(PSA_ERROR_INSUFFICIENT_MEMORY));
     EXPECT_CALL(mock, psa_status_to_sl_status(PSA_ERROR_INSUFFICIENT_MEMORY)).WillOnce(Return(SL_STATUS_ALLOCATION_FAILED));
 
     EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.aes_ecb_encrypt(key, input, output));
