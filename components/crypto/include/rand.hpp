@@ -2,6 +2,7 @@
 #define RAND_HPP
 
 #include "rand.h"
+#include "crypto.hpp"
 
 #include <span>
 

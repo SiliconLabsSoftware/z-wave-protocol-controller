@@ -2,10 +2,10 @@
 
 #include "aes.h"
 
-namespace crypto::helpers
+namespace crypto
 {
 
-    psa_status_t import_aes_key(psa_key_usage_t usage, psa_algorithm_t algorithm, const uint8_t *key, psa_key_id_t *key_id)
+    psa_status_t Helpers::import_aes_key(psa_key_usage_t usage, psa_algorithm_t algorithm, const uint8_t *key, psa_key_id_t *key_id)
     {
         psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
 
@@ -17,7 +17,7 @@ namespace crypto::helpers
         return psa_import_key(&attributes, key, CRYPTO_AES_KEY_SIZE, key_id);
     }
 
-    sl_status_t psa_status_to_sl_status(psa_status_t status)
+    sl_status_t Helpers::psa_status_to_sl_status(psa_status_t status)
     {
         switch (status) {
             case PSA_SUCCESS:
@@ -37,4 +37,4 @@ namespace crypto::helpers
         }
     }
 
-}  // namespace crypto::helpers
+}  // namespace crypto

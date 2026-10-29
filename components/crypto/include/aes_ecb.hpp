@@ -2,6 +2,7 @@
 #define AES_ECB_HPP
 
 #include "aes_ecb.h"
+#include "crypto.hpp"
 
 #include <span>
 

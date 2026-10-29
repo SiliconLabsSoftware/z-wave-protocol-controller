@@ -2,6 +2,7 @@
 #define AES_CTR_DRBG_HPP
 
 #include "aes_ctr_drbg.h"
+#include "crypto.hpp"
 
 #include <span>
 

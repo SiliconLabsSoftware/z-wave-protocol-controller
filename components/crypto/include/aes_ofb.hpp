@@ -2,6 +2,7 @@
 #define AES_OFB_HPP
 
 #include "aes_ofb.h"
+#include "crypto.hpp"
 
 #include <span>
 
