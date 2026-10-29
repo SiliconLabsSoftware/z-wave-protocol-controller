@@ -55,7 +55,6 @@ blacklist:
   - components/platform/threading
   - components/platform/timer
   - components/security
-  - components/crypto
   - components/smartstart
   - components/state_machine
   - components/system
