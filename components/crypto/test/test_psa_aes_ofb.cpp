@@ -11,6 +11,7 @@
  *
  *****************************************************************************/
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <cstring>
@@ -126,4 +127,17 @@ TEST_F(Crypto, AesOfbXorCppApi)
 TEST_F(Crypto, OfbAes128ZeroLengthNullPointersOk)
 {
     EXPECT_EQ(SL_STATUS_OK, crypto_aes_ofb_xor(nullptr, nullptr, nullptr, 0));
+}
+
+TEST_F(Crypto, OfbCppEmptyDataPreservesKeyAndIv)
+{
+    std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key;
+    std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> iv;
+    std::copy_n(nist_key_128, key.size(), key.begin());
+    std::copy_n(nist_iv, iv.size(), iv.begin());
+    const auto saved_key = key;
+    const auto saved_iv  = iv;
+    EXPECT_EQ(SL_STATUS_OK, crypto::aes_ofb_xor(key, iv, {}));
+    EXPECT_EQ(saved_key, key);
+    EXPECT_EQ(saved_iv, iv);
 }

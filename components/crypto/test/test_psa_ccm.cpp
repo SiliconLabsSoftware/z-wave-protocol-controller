@@ -168,3 +168,82 @@ TEST_F(Crypto, AesCcmEncryptDecryptCppApi)
     ASSERT_EQ(sizeof(plaintext), plaintext_len);
     ExpectBytesEq(plaintext, ciphertext.data(), plaintext_len);
 }
+
+// Exercise the public wrapper against the real PSA backend. Invalid inputs must
+// be rejected, and a subsequent valid request must still work.
+TEST_F(Crypto, CcmRejectsInvalidNonceAndTagLengths)
+{
+    const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
+    const std::array<uint8_t, 14> nonce {};
+    const std::array<uint8_t, 1> plaintext {0x42};
+    std::array<uint8_t, 32> ciphertext {};
+    size_t ciphertext_len = 0;
+    struct Parameters {
+            size_t nonce_len;
+            size_t tag_len;
+    };
+    const Parameters invalid[] = {{6, 8}, {14, 8}, {13, 3}, {13, 5}, {13, 18}};
+    for (const auto &[nonce_len, tag_len]: invalid) {
+        SCOPED_TRACE(::testing::Message() << "nonce=" << nonce_len << " tag=" << tag_len);
+        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ccm_encrypt(key.data(), tag_len, nonce.data(), nonce_len, nullptr, 0, plaintext.data(), plaintext.size(), ciphertext.data(), ciphertext.size(), &ciphertext_len));
+        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ccm_decrypt(key.data(), tag_len, nonce.data(), nonce_len, nullptr, 0, ciphertext.data(), ciphertext.size(), ciphertext.data(), ciphertext.size(), &ciphertext_len));
+    }
+    EXPECT_EQ(SL_STATUS_OK, crypto_aes_ccm_encrypt(key.data(), 8, nonce.data(), 13, nullptr, 0, plaintext.data(), plaintext.size(), ciphertext.data(), ciphertext.size(), &ciphertext_len));
+    EXPECT_EQ(plaintext.size() + 8, ciphertext_len);
+}
+
+TEST_F(Crypto, CcmRejectsUndersizedOutputBuffers)
+{
+    const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
+    const std::array<uint8_t, S2_CCM_NONCE_LEN> nonce {};
+    const std::array<uint8_t, 2> plaintext {0x42, 0x24};
+    std::array<uint8_t, 10> ciphertext {};
+    size_t length = 0;
+    EXPECT_EQ(SL_STATUS_FAIL, crypto_aes_ccm_encrypt(key.data(), 8, nonce.data(), nonce.size(), nullptr, 0, plaintext.data(), plaintext.size(), ciphertext.data(), ciphertext.size() - 1, &length));
+    EXPECT_EQ(0U, length);
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_encrypt(key.data(), 8, nonce.data(), nonce.size(), nullptr, 0, plaintext.data(), plaintext.size(), ciphertext.data(), ciphertext.size(), &length));
+    ASSERT_EQ(ciphertext.size(), length);
+    std::array<uint8_t, 2> recovered {};
+    EXPECT_EQ(SL_STATUS_FAIL, crypto_aes_ccm_decrypt(key.data(), 8, nonce.data(), nonce.size(), nullptr, 0, ciphertext.data(), ciphertext.size(), recovered.data(), recovered.size() - 1, &length));
+    EXPECT_EQ(0U, length);
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_decrypt(key.data(), 8, nonce.data(), nonce.size(), nullptr, 0, ciphertext.data(), ciphertext.size(), recovered.data(), recovered.size(), &length));
+    EXPECT_EQ(plaintext.size(), length);
+    EXPECT_EQ(plaintext, recovered);
+}
+
+TEST_F(Crypto, CcmAuthenticatesNonceAadCiphertextAndKey)
+{
+    const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
+    const std::array<uint8_t, S2_CCM_NONCE_LEN> nonce {};
+    const std::array<uint8_t, 2> aad {0x01, 0x02};
+    const std::array<uint8_t, 2> plaintext {0x42, 0x24};
+    std::array<uint8_t, 10> ciphertext {};
+    size_t length = 0;
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_encrypt(key.data(), 8, nonce.data(), nonce.size(), aad.data(), aad.size(), plaintext.data(), plaintext.size(), ciphertext.data(), ciphertext.size(), &length));
+    for (int tampered = 0; tampered < 4; ++tampered) {
+        SCOPED_TRACE(tampered);
+        auto changed_key        = key;
+        auto changed_nonce      = nonce;
+        auto changed_aad        = aad;
+        auto changed_ciphertext = ciphertext;
+        switch (tampered) {
+            case 0:
+                changed_key[0] ^= 1;
+                break;
+            case 1:
+                changed_nonce[0] ^= 1;
+                break;
+            case 2:
+                changed_aad[0] ^= 1;
+                break;
+            case 3:
+                changed_ciphertext[0] ^= 1;
+                break;
+        }
+        std::array<uint8_t, 2> recovered {0xa5, 0xa5};
+        EXPECT_EQ(SL_STATUS_INVALID_SIGNATURE, crypto_aes_ccm_decrypt(changed_key.data(), 8, changed_nonce.data(), changed_nonce.size(), changed_aad.data(), changed_aad.size(), changed_ciphertext.data(), changed_ciphertext.size(), recovered.data(), recovered.size(), &length));
+        EXPECT_EQ(0U, length);
+        ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_decrypt(key.data(), 8, nonce.data(), nonce.size(), aad.data(), aad.size(), ciphertext.data(), ciphertext.size(), recovered.data(), recovered.size(), &length));
+        EXPECT_EQ(plaintext, recovered);
+    }
+}
