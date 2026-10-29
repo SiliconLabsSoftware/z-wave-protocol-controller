@@ -4,8 +4,8 @@ namespace crypto
 {
     Crypto &Crypto::instance()
     {
-        static Helpers helpers;
-        static Crypto instance(helpers);
+        static PsaWrappers psa_wrappers;
+        static Crypto instance(psa_wrappers);
         return instance;
     }
 }  // namespace crypto
