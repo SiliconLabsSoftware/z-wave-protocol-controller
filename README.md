@@ -300,7 +300,8 @@ Full documentation is built with [MkDocs](https://www.mkdocs.org/) and the [Mate
 
 ### Release notes
 
-- [v2.0.1](docs/release-notes/v2.0.1.md) — Latest release
+- [v2.1.0](docs/release-notes/v2.1.0.md) — Latest release
+- [v2.0.1](docs/release-notes/v2.0.1.md)
 - [v2.0.0](docs/release-notes/v2.0.0.md)
 
 ### Component docs
