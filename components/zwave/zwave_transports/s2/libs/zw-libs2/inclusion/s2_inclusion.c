@@ -486,7 +486,7 @@ static void s2_inclusion_post_event_internal(struct S2 *p_context)
     event            = mp_context->buf[SECURITY_2_COMMAND_POS];
     event_rule_index = mp_context->buf[SECURITY_2_COMMAND_POS] - S2_INCLUSION_COMMAND_OFFSET;
 
-    if ((ELEM_COUNT(m_frame_rules) < event_rule_index) || (mp_context->inclusion_state == S2_INC_IDLE)) {
+    if ((ELEM_COUNT(m_frame_rules) <= event_rule_index) || (mp_context->inclusion_state == S2_INC_IDLE)) {
         // Not an inclusion event. Just return.
         return;
     }
