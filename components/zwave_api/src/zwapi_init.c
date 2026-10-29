@@ -226,7 +226,12 @@ sl_status_t zwapi_refresh_capabilities(void)
 
         if (response_length > (IDX_DATA + 1) && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
             uint8_t current_index = IDX_DATA + 1;
-            memcpy(chip.supported_setup_bitmask, &(response_buffer[current_index]), response_length - (current_index - 1));
+            uint8_t setup_length  = response_length - (current_index - 1);
+            if (setup_length > sizeof(chip.supported_setup_bitmask)) {
+                sl_log_warning(LOG_TAG, "zwapi_refresh_capabilities: clamping supported_setup_bitmask response from %d to %d\n", setup_length, sizeof(chip.supported_setup_bitmask));
+                setup_length = sizeof(chip.supported_setup_bitmask);
+            }
+            memcpy(chip.supported_setup_bitmask, &(response_buffer[current_index]), setup_length);
         } else {
             return SL_STATUS_FAIL;
         }
