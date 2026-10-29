@@ -1,7 +1,5 @@
 #include "aes_cbc_mac.hpp"
 
-#include "helpers.hpp"
-
 #include <cstring>
 
 #include "psa/crypto.h"
@@ -16,7 +14,7 @@ namespace
 namespace crypto
 {
 
-    sl_status_t aes_cbc_mac(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE> iv, std::span<const uint8_t> data, std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE> mac)
+    sl_status_t Crypto::aes_cbc_mac(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE> iv, std::span<const uint8_t> data, std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE> mac) const
     {
         if (data.size() > UINT8_MAX) {
             return SL_STATUS_INVALID_PARAMETER;
@@ -45,39 +43,39 @@ namespace crypto
 
         status = psa_crypto_init();
         if (status != PSA_SUCCESS) {
-            return helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
-        status = helpers::import_aes_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_CBC_NO_PADDING, key.data(), &key_id);
+        status = helpers_.import_aes_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_CBC_NO_PADDING, key.data(), &key_id);
         if (status != PSA_SUCCESS) {
-            return helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         status = psa_cipher_encrypt_setup(&operation, key_id, PSA_ALG_CBC_NO_PADDING);
         if (status != PSA_SUCCESS) {
             psa_destroy_key(key_id);
-            return helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         status = psa_cipher_set_iv(&operation, cbc_mac_zero_iv, CRYPTO_AES_BLOCK_SIZE);
         if (status != PSA_SUCCESS) {
             psa_cipher_abort(&operation);
             psa_destroy_key(key_id);
-            return helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         status = psa_cipher_update(&operation, message, message_len, ciphertext, sizeof(ciphertext), &update_len);
         if (status != PSA_SUCCESS) {
             psa_cipher_abort(&operation);
             psa_destroy_key(key_id);
-            return helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         status = psa_cipher_finish(&operation, ciphertext + update_len, sizeof(ciphertext) - update_len, &finish_len);
         if (status != PSA_SUCCESS) {
             psa_cipher_abort(&operation);
             psa_destroy_key(key_id);
-            return helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         psa_destroy_key(key_id);
@@ -88,6 +86,11 @@ namespace crypto
         }
         memcpy(mac.data(), ciphertext + ciphertext_len - CRYPTO_AES_BLOCK_SIZE, CRYPTO_AES_BLOCK_SIZE);
         return SL_STATUS_OK;
+    }
+
+    sl_status_t aes_cbc_mac(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE> iv, std::span<const uint8_t> data, std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE> mac)
+    {
+        return Crypto::instance().aes_cbc_mac(key, iv, data, mac);
     }
 
 }  // namespace crypto

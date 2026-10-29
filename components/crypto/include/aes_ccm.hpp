@@ -2,6 +2,7 @@
 #define AES_CCM_HPP
 
 #include "aes_ccm.h"
+#include "crypto.hpp"
 
 #include <span>
 

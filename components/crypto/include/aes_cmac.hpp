@@ -2,6 +2,7 @@
 #define AES_CMAC_HPP
 
 #include "aes_cmac.h"
+#include "crypto.hpp"
 
 #include <span>
 
