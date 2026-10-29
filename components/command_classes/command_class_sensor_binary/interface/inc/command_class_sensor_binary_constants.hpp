@@ -20,8 +20,8 @@ namespace zwave_command_class
 {
     namespace command_class_sensor_binary_constants
     {
-        // Bit 0 of Bit Mask 1 maps to Sensor Type 0x01 (CC:0030.02.01.11.001).
-        constexpr uint8_t SENSOR_TYPE_BIT_MASK_OFFSET = 1;
+        // Sensor Type uses the bit position directly; bit 0 is reserved by CC:0030.02.01.11.001.
+        constexpr uint8_t SENSOR_TYPE_BIT_MASK_OFFSET = 0;
     }  // namespace command_class_sensor_binary_constants
 }  // namespace zwave_command_class
 
