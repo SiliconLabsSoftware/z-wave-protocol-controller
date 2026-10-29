@@ -352,3 +352,42 @@ TEST_F(Crypto, AesCtrDrbgGenerateCppApi)
     ASSERT_EQ(SL_STATUS_OK, crypto::aes_ctr_drbg_generate(ctx, output));
     ExpectBytesEq(expected.data(), output.data(), expected.size());
 }
+
+TEST_F(Crypto, CtrDrbgRejectsNullArgumentsWithoutChangingContext)
+{
+    crypto_aes_ctr_drbg_ctx_t ctx {};
+    std::memset(&ctx, 0xa5, sizeof(ctx));
+    const auto original = ctx;
+    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> seed {};
+    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE> output {};
+    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_init(nullptr, seed.data(), seed.data()));
+    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_init(&ctx, nullptr, seed.data()));
+    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_init(&ctx, seed.data(), nullptr));
+    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_generate(nullptr, output.data()));
+    EXPECT_EQ(0, std::memcmp(&original, &ctx, sizeof(ctx)));
+}
+
+TEST_F(Crypto, CtrDrbgCounterRolloverMatchesAesKnownAnswers)
+{
+    // With K=0 and V=2^128-1, the four output blocks encrypt counters 0..3.
+    // The post-generation update then encrypts counters 4 and 5. These values
+    // were independently checked with OpenSSL AES-128-ECB, without padding.
+    static_assert(CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE == 64);
+    const char *expected_hex       = "66e94bd4ef8a2c3b884cfa59ca342b2e"
+                                     "58e2fccefa7e3061367f1d57a4e7455a"
+                                     "0388dace60b6a392f328c2b971b2fe78"
+                                     "f795aaab494b5923f7fd89ff948bc1e0";
+    const char *expected_state_hex = "200211214e7394da2089b6acd093abe0"
+                                     "c94da219118e297d7b7ebcbcc9c388f2";
+    crypto_aes_ctr_drbg_ctx_t ctx {};
+    std::memset(ctx.counter, 0xff, sizeof(ctx.counter));
+    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE> output {};
+    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE> expected {};
+    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> expected_state {};
+    ASSERT_EQ(0, AJ_HexToRaw(expected_hex, strlen(expected_hex), expected.data(), expected.size()));
+    ASSERT_EQ(0, AJ_HexToRaw(expected_state_hex, strlen(expected_state_hex), expected_state.data(), expected_state.size()));
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&ctx, output.data()));
+    EXPECT_EQ(expected, output);
+    ExpectBytesEq(expected_state.data(), ctx.key, sizeof(ctx.key));
+    ExpectBytesEq(expected_state.data() + sizeof(ctx.key), ctx.counter, sizeof(ctx.counter));
+}
