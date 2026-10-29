@@ -225,7 +225,9 @@ zwapi_connection_status_t zwapi_connection_tx(uint8_t cmd,        /* IN Command 
     *c++ = type;
     *c++ = cmd;
 
-    memcpy(c, Buf, len);
+    if (len > 0) {
+        memcpy(c, Buf, len);
+    }
     c += len;
 
     uint8_t tx_checksum = 0xFF;
