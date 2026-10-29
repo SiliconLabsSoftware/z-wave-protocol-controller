@@ -43,3 +43,11 @@ TEST_F(Crypto, GenerateRandomRejectsNullOutput)
 {
     EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_generate_random(nullptr, 32));
 }
+
+TEST_F(Crypto, GenerateRandomAcceptsEmptyOutput)
+{
+    EXPECT_EQ(SL_STATUS_OK, crypto_generate_random(nullptr, 0));
+    uint8_t sentinel = 0xa5;
+    EXPECT_EQ(SL_STATUS_OK, crypto_generate_random(&sentinel, 0));
+    EXPECT_EQ(0xa5, sentinel);
+}
