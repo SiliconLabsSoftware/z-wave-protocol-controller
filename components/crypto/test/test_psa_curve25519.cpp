@@ -87,3 +87,17 @@ TEST_F(Crypto, X25519DeriveSharedSecretCppApi)
     ASSERT_EQ(SL_STATUS_OK, crypto::x25519_derive_shared_secret(alice_priv, bob_pub, shared));
     ExpectBytesEq(expected_shared_secret, shared.data(), shared.size());
 }
+
+TEST_F(Crypto, X25519RejectsLowOrderPeerPublicKeys)
+{
+    // u=0 and u=1 produce an all-zero shared secret and must be rejected.
+    for (const uint8_t u: {0, 1}) {
+        SCOPED_TRACE(u);
+        std::array<uint8_t, KEY_SIZE> peer {};
+        std::array<uint8_t, KEY_SIZE> secret {};
+        peer[0] = u;
+        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_x25519_derive_shared_secret(alice_secret_key, peer.data(), secret.data()));
+        ASSERT_EQ(SL_STATUS_OK, crypto_x25519_derive_public_key(bob_secret_key, peer.data()));
+        EXPECT_EQ(SL_STATUS_OK, crypto_x25519_derive_shared_secret(alice_secret_key, peer.data(), secret.data()));
+    }
+}
