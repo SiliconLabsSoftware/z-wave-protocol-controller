@@ -100,20 +100,51 @@ namespace zwave_command_class
         mqtt_payload_parser parser {payload, LOG_TAG.data()};
         parser.parse("parameter_offset", parameter_offset).parse("number_of_parameters", number_of_parameters);
         auto properties1 = parser.parse_nested("properties1");
-        properties1.parse("size", size).parse_optional("handshake", handshake).parse_optional("default_flag", default_flag);
+        properties1.parse_optional("size", size).parse_optional("handshake", handshake).parse_optional("default_flag", default_flag);
         if (default_flag == 0) {
             properties1.parse_optional("default", default_flag);
         }
-        for (auto &&[elem, item]: parser.parse_array("vg", vg)) {
-            elem.parse("parameter", item.parameter);
+        if (default_flag == 0) {
+            for (auto &&[elem, item]: parser.parse_array("vg", vg)) {
+                elem.parse("parameter", item.parameter);
+            }
         }
         if (parser.status() != SL_STATUS_OK) {
             return parser.status();
         }
 
-        if (number_of_parameters == 0 || !is_valid_size(size)) {
-            sl_log_warning(LOG_TAG.data(), "Configuration Bulk Set missing valid size or number_of_parameters");
+        if (number_of_parameters == 0) {
+            sl_log_warning(LOG_TAG.data(), "Configuration Bulk Set requires number_of_parameters > 0");
             return SL_STATUS_FAIL;
+        }
+
+        // Use the reported parameter sizes when size was omitted. Bulk Set
+        // requires one common size for the entire range.
+        if (!is_valid_size(size)) {
+            uint8_t reported_size = 0;
+            for (uint16_t i = 0; i < number_of_parameters; ++i) {
+                const uint32_t parameter_number = static_cast<uint32_t>(parameter_offset) + i;
+                if (parameter_number > 0xFFFF) {
+                    return SL_STATUS_FAIL;
+                }
+                auto parameter_node = endpoint_node.child_by_type_and_value(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::PARAMETER_ID), static_cast<uint16_t>(parameter_number));
+                if (!parameter_node.is_valid()) {
+                    sl_log_warning(LOG_TAG.data(), "Configuration Bulk Set cannot infer size: parameter %u has no reported size", static_cast<unsigned>(parameter_number));
+                    return SL_STATUS_FAIL;
+                }
+                auto size_node = parameter_node.child_by_type(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::size));
+                if (!size_node.is_valid() || !size_node.reported_exists()) {
+                    sl_log_warning(LOG_TAG.data(), "Configuration Bulk Set cannot infer size: parameter %u has no reported size", static_cast<unsigned>(parameter_number));
+                    return SL_STATUS_FAIL;
+                }
+                const uint8_t parameter_size = size_node.reported<uint8_t>();
+                if (!is_valid_size(parameter_size) || (reported_size != 0 && reported_size != parameter_size)) {
+                    sl_log_warning(LOG_TAG.data(), "Configuration Bulk Set requires a common reported size for all parameters");
+                    return SL_STATUS_FAIL;
+                }
+                reported_size = parameter_size;
+            }
+            size = reported_size;
         }
 
         if (!command_class_configuration::bulk_set_allowed(endpoint_node, parameter_offset, number_of_parameters)) {

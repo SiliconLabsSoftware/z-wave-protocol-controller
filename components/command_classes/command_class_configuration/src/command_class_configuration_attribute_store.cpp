@@ -57,6 +57,10 @@ namespace zwave_command_class
           {static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::parameter_scan_probe_second), "parameter_scan_probe_second", ATTRIBUTE_ENDPOINT_ID, U8_STORAGE_TYPE},
           {static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::name_reports_to_follow), "name_reports_to_follow", ATTRIBUTE_ENDPOINT_ID, U8_STORAGE_TYPE},
           {static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::info_reports_to_follow), "info_reports_to_follow", ATTRIBUTE_ENDPOINT_ID, U8_STORAGE_TYPE},
+          {static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_active), "discovery_descriptions_active", ATTRIBUTE_ENDPOINT_ID, U8_STORAGE_TYPE},
+          {static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_description_parameter), "discovery_description_parameter", ATTRIBUTE_ENDPOINT_ID, U16_STORAGE_TYPE},
+          {static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_description_phase), "discovery_description_phase", ATTRIBUTE_ENDPOINT_ID, U8_STORAGE_TYPE},
+          {static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_requested), "discovery_descriptions_requested", ATTRIBUTE_ENDPOINT_ID, U8_STORAGE_TYPE},
         });
     }
 
