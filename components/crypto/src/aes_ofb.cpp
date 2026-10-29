@@ -1,30 +1,11 @@
 #include "aes_ofb.hpp"
 
-#include "helpers.hpp"
-
 #include "psa/crypto.h"
-
-namespace
-{
-
-    psa_status_t import_aes_ofb_key(const uint8_t *key, psa_key_id_t *key_id)
-    {
-        psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
-
-        psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_ENCRYPT);
-        psa_set_key_algorithm(&attributes, PSA_ALG_OFB);
-        psa_set_key_type(&attributes, PSA_KEY_TYPE_AES);
-        psa_set_key_bits(&attributes, CRYPTO_AES_KEY_BITS);
-
-        return psa_import_key(&attributes, key, CRYPTO_AES_KEY_SIZE, key_id);
-    }
-
-}  // namespace
 
 namespace crypto
 {
 
-    sl_status_t aes_ofb_xor(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE> iv, std::span<uint8_t> data)
+    sl_status_t Crypto::aes_ofb_xor(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE> iv, std::span<uint8_t> data) const
     {
         psa_key_id_t key_id;
         psa_cipher_operation_t operation = PSA_CIPHER_OPERATION_INIT;
@@ -39,39 +20,39 @@ namespace crypto
 
         status = psa_crypto_init();
         if (status != PSA_SUCCESS) {
-            return helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
-        status = import_aes_ofb_key(key.data(), &key_id);
+        status = helpers_.import_aes_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB, key.data(), &key_id);
         if (status != PSA_SUCCESS) {
-            return helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         status = psa_cipher_encrypt_setup(&operation, key_id, PSA_ALG_OFB);
         if (status != PSA_SUCCESS) {
             psa_destroy_key(key_id);
-            return helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         status = psa_cipher_set_iv(&operation, iv.data(), CRYPTO_AES_BLOCK_SIZE);
         if (status != PSA_SUCCESS) {
             psa_cipher_abort(&operation);
             psa_destroy_key(key_id);
-            return helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         status = psa_cipher_update(&operation, data.data(), len, data.data(), len, &update_len);
         if (status != PSA_SUCCESS) {
             psa_cipher_abort(&operation);
             psa_destroy_key(key_id);
-            return helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         status = psa_cipher_finish(&operation, data.data() + update_len, len - update_len, &finish_len);
         if (status != PSA_SUCCESS) {
             psa_cipher_abort(&operation);
             psa_destroy_key(key_id);
-            return helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         psa_destroy_key(key_id);
@@ -81,6 +62,11 @@ namespace crypto
         }
 
         return SL_STATUS_OK;
+    }
+
+    sl_status_t aes_ofb_xor(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE> iv, std::span<uint8_t> data)
+    {
+        return Crypto::instance().aes_ofb_xor(key, iv, data);
     }
 
 }  // namespace crypto

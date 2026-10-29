@@ -1,5 +1,4 @@
 #include "x25519.hpp"
-#include "helpers.hpp"
 
 namespace
 {
@@ -21,7 +20,7 @@ namespace
 namespace crypto
 {
 
-    sl_status_t x25519_derive_public_key(std::span<const uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key, std::span<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key)
+    sl_status_t Crypto::x25519_derive_public_key(std::span<const uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key, std::span<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key) const
     {
         psa_key_id_t key_id;
         size_t public_key_len;
@@ -29,12 +28,12 @@ namespace crypto
 
         status = psa_crypto_init();
         if (status != PSA_SUCCESS) {
-            return crypto::helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         status = import_x25519_private_key(private_key.data(), &key_id);
         if (status != PSA_SUCCESS) {
-            return crypto::helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         status = psa_export_public_key(key_id, public_key.data(), CRYPTO_X25519_PUBLIC_KEY_SIZE, &public_key_len);
@@ -42,10 +41,10 @@ namespace crypto
         if (status == PSA_SUCCESS && public_key_len != CRYPTO_X25519_PUBLIC_KEY_SIZE) {
             return SL_STATUS_FAIL;
         }
-        return crypto::helpers::psa_status_to_sl_status(status);
+        return helpers_.psa_status_to_sl_status(status);
     }
 
-    sl_status_t x25519_derive_shared_secret(std::span<const uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key, std::span<const uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> peer_public_key, std::span<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE> shared_secret)
+    sl_status_t Crypto::x25519_derive_shared_secret(std::span<const uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key, std::span<const uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> peer_public_key, std::span<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE> shared_secret) const
     {
         psa_key_id_t key_id;
         size_t shared_secret_len;
@@ -53,12 +52,12 @@ namespace crypto
 
         status = psa_crypto_init();
         if (status != PSA_SUCCESS) {
-            return crypto::helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         status = import_x25519_private_key(private_key.data(), &key_id);
         if (status != PSA_SUCCESS) {
-            return crypto::helpers::psa_status_to_sl_status(status);
+            return helpers_.psa_status_to_sl_status(status);
         }
 
         status = psa_raw_key_agreement(PSA_ALG_ECDH, key_id, peer_public_key.data(), CRYPTO_X25519_PUBLIC_KEY_SIZE, shared_secret.data(), CRYPTO_X25519_SHARED_SECRET_SIZE, &shared_secret_len);
@@ -66,7 +65,17 @@ namespace crypto
         if (status == PSA_SUCCESS && shared_secret_len != CRYPTO_X25519_SHARED_SECRET_SIZE) {
             return SL_STATUS_FAIL;
         }
-        return crypto::helpers::psa_status_to_sl_status(status);
+        return helpers_.psa_status_to_sl_status(status);
+    }
+
+    sl_status_t x25519_derive_public_key(std::span<const uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key, std::span<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key)
+    {
+        return Crypto::instance().x25519_derive_public_key(private_key, public_key);
+    }
+
+    sl_status_t x25519_derive_shared_secret(std::span<const uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key, std::span<const uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> peer_public_key, std::span<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE> shared_secret)
+    {
+        return Crypto::instance().x25519_derive_shared_secret(private_key, peer_public_key, shared_secret);
     }
 
 }  // namespace crypto

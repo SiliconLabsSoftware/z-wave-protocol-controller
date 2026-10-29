@@ -2,6 +2,7 @@
 #define AES_CBC_MAC_HPP
 
 #include "aes_cbc_mac.h"
+#include "crypto.hpp"
 
 #include <span>
 
