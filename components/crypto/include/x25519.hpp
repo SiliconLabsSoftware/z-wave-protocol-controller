@@ -2,6 +2,7 @@
 #define X25519_HPP
 
 #include "x25519.h"
+#include "crypto.hpp"
 
 #include <span>
 

@@ -23,7 +23,12 @@ namespace
         return SL_STATUS_OK;
     }
 
-    sl_status_t update(crypto_aes_ctr_drbg_ctx_t &ctx, const uint8_t *data)
+}  // namespace
+
+namespace crypto
+{
+
+    sl_status_t Crypto::update_ctr_drbg(crypto_aes_ctr_drbg_ctx_t &ctx, const uint8_t *data) const
     {
         uint8_t tmp[CRYPTO_AES_CTR_DRBG_SEED_SIZE] = {0};
 
@@ -32,7 +37,7 @@ namespace
             if (status != SL_STATUS_OK) {
                 return status;
             }
-            status = crypto::aes_ecb_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(ctx.key), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(ctx.counter), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(&tmp[i], CRYPTO_AES_BLOCK_SIZE));
+            status = aes_ecb_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(ctx.key), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(ctx.counter), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(&tmp[i], CRYPTO_AES_BLOCK_SIZE));
             if (status != SL_STATUS_OK) {
                 return status;
             }
@@ -47,12 +52,7 @@ namespace
         return SL_STATUS_OK;
     }
 
-}  // namespace
-
-namespace crypto
-{
-
-    sl_status_t aes_ctr_drbg_init(crypto_aes_ctr_drbg_ctx_t &ctx, std::span<const uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> entropy_input, std::span<const uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> pers_string)
+    sl_status_t Crypto::aes_ctr_drbg_init(crypto_aes_ctr_drbg_ctx_t &ctx, std::span<const uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> entropy_input, std::span<const uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> pers_string) const
     {
         crypto_aes_ctr_drbg_ctx_t next_ctx = {};
         uint8_t seed[CRYPTO_AES_CTR_DRBG_SEED_SIZE];
@@ -62,7 +62,7 @@ namespace crypto
             seed[i] ^= pers_string[i];
         }
 
-        sl_status_t status = update(next_ctx, seed);
+        sl_status_t status = update_ctr_drbg(next_ctx, seed);
         if (status != SL_STATUS_OK) {
             return status;
         }
@@ -71,8 +71,12 @@ namespace crypto
         return SL_STATUS_OK;
     }
 
-    sl_status_t aes_ctr_drbg_generate(crypto_aes_ctr_drbg_ctx_t &ctx, std::span<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE> out)
+    sl_status_t Crypto::aes_ctr_drbg_generate(crypto_aes_ctr_drbg_ctx_t &ctx, std::span<uint8_t> out) const
     {
+        if (out.data() == nullptr || out.size() != CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE) {
+            return SL_STATUS_INVALID_PARAMETER;
+        }
+
         crypto_aes_ctr_drbg_ctx_t next_ctx = ctx;
         uint8_t block[CRYPTO_AES_BLOCK_SIZE];
         uint8_t provided_data[CRYPTO_AES_CTR_DRBG_SEED_SIZE] = {0};
@@ -86,7 +90,7 @@ namespace crypto
             if (status != SL_STATUS_OK) {
                 return status;
             }
-            status = crypto::aes_ecb_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(next_ctx.key), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(next_ctx.counter), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(block));
+            status = aes_ecb_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(next_ctx.key), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(next_ctx.counter), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(block));
             if (status != SL_STATUS_OK) {
                 return status;
             }
@@ -97,7 +101,7 @@ namespace crypto
         }
 
         memset(provided_data, 0, sizeof(provided_data));
-        sl_status_t status = update(next_ctx, provided_data);
+        sl_status_t status = update_ctr_drbg(next_ctx, provided_data);
         if (status != SL_STATUS_OK) {
             return status;
         }
@@ -105,6 +109,16 @@ namespace crypto
         ctx = next_ctx;
         memcpy(out.data(), generated, sizeof(generated));
         return SL_STATUS_OK;
+    }
+
+    sl_status_t aes_ctr_drbg_init(crypto_aes_ctr_drbg_ctx_t &ctx, std::span<const uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> entropy_input, std::span<const uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> pers_string)
+    {
+        return Crypto::instance().aes_ctr_drbg_init(ctx, entropy_input, pers_string);
+    }
+
+    sl_status_t aes_ctr_drbg_generate(crypto_aes_ctr_drbg_ctx_t &ctx, std::span<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE> out)
+    {
+        return Crypto::instance().aes_ctr_drbg_generate(ctx, out);
     }
 
 }  // namespace crypto
