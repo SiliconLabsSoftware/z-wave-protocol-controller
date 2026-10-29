@@ -18,44 +18,44 @@ namespace crypto
             return SL_STATUS_OK;
         }
 
-        status = psa_crypto_init();
+        status = psa_wrappers_.crypto_init();
         if (status != PSA_SUCCESS) {
-            return helpers_.psa_status_to_sl_status(status);
+            return psa_wrappers_.psa_status_to_sl_status(status);
         }
 
-        status = helpers_.import_aes_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB, key.data(), &key_id);
+        status = psa_wrappers_.import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB, key.data(), &key_id, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS, CRYPTO_AES_KEY_SIZE);
         if (status != PSA_SUCCESS) {
-            return helpers_.psa_status_to_sl_status(status);
+            return psa_wrappers_.psa_status_to_sl_status(status);
         }
 
-        status = psa_cipher_encrypt_setup(&operation, key_id, PSA_ALG_OFB);
+        status = psa_wrappers_.cipher_encrypt_setup(&operation, key_id, PSA_ALG_OFB);
         if (status != PSA_SUCCESS) {
-            psa_destroy_key(key_id);
-            return helpers_.psa_status_to_sl_status(status);
+            psa_wrappers_.destroy_key(key_id);
+            return psa_wrappers_.psa_status_to_sl_status(status);
         }
 
-        status = psa_cipher_set_iv(&operation, iv.data(), CRYPTO_AES_BLOCK_SIZE);
+        status = psa_wrappers_.cipher_set_iv(&operation, iv.data(), CRYPTO_AES_BLOCK_SIZE);
         if (status != PSA_SUCCESS) {
-            psa_cipher_abort(&operation);
-            psa_destroy_key(key_id);
-            return helpers_.psa_status_to_sl_status(status);
+            psa_wrappers_.cipher_abort(&operation);
+            psa_wrappers_.destroy_key(key_id);
+            return psa_wrappers_.psa_status_to_sl_status(status);
         }
 
-        status = psa_cipher_update(&operation, data.data(), len, data.data(), len, &update_len);
+        status = psa_wrappers_.cipher_update(&operation, data.data(), len, data.data(), len, &update_len);
         if (status != PSA_SUCCESS) {
-            psa_cipher_abort(&operation);
-            psa_destroy_key(key_id);
-            return helpers_.psa_status_to_sl_status(status);
+            psa_wrappers_.cipher_abort(&operation);
+            psa_wrappers_.destroy_key(key_id);
+            return psa_wrappers_.psa_status_to_sl_status(status);
         }
 
-        status = psa_cipher_finish(&operation, data.data() + update_len, len - update_len, &finish_len);
+        status = psa_wrappers_.cipher_finish(&operation, data.data() + update_len, len - update_len, &finish_len);
         if (status != PSA_SUCCESS) {
-            psa_cipher_abort(&operation);
-            psa_destroy_key(key_id);
-            return helpers_.psa_status_to_sl_status(status);
+            psa_wrappers_.cipher_abort(&operation);
+            psa_wrappers_.destroy_key(key_id);
+            return psa_wrappers_.psa_status_to_sl_status(status);
         }
 
-        psa_destroy_key(key_id);
+        psa_wrappers_.destroy_key(key_id);
 
         if (update_len + finish_len != len) {
             return SL_STATUS_FAIL;

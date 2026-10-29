@@ -11,7 +11,7 @@
 #include "rand.h"
 #include "x25519.h"
 #include "aes_ctr_drbg.h"
-#include "helpers.hpp"
+#include "psa_wrappers.hpp"
 
 namespace crypto
 {
@@ -19,7 +19,7 @@ namespace crypto
     {
         public:
             // The dependency is not owned and must outlive this object.
-            explicit Crypto(HelpersInterface &helpers) : helpers_(helpers) {}
+            explicit Crypto(PsaWrappersInterface &psa_wrappers) : psa_wrappers_(psa_wrappers) {}
 
             // Production instance used by the C and free-function adapters.
             static Crypto &instance();
@@ -41,7 +41,7 @@ namespace crypto
 
         private:
             sl_status_t update_ctr_drbg(crypto_aes_ctr_drbg_ctx_t &ctx, const uint8_t *data) const;
-            HelpersInterface &helpers_;
+            PsaWrappersInterface &psa_wrappers_;
     };
 }  // namespace crypto
 
