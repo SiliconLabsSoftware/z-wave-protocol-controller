@@ -523,6 +523,8 @@ Common strings are defined in `ota_mqtt_constants.hpp`:
 | `status_code` | Raw firmware status byte on failure |
 | `wait_for_activation` | Boolean on start command |
 
+`node_id` command fields accept a JSON number, a decimal string, or a hexadecimal string prefixed with `0x` (for example, `2` or `"0x02"`). This applies to Start, Abort, Activate, and the optional node selector on Progress. MQTT reports publish node IDs as decimal numbers.
+
 ### Progress: command triggers the report
 
 Progress is a **request/response** pair over MQTT:

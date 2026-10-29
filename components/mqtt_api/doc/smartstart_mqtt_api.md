@@ -26,6 +26,10 @@ This message **replaces ZPC's entire SmartStart provisioning list** with the ent
 
 The client publishes the SmartStart provisioning list as JSON. The payload contains a `value` array of provisioning entries. Each entry includes the device DSK and optional fields such as `PreferredProtocols` (e.g. `"Z-Wave"` or `"Z-Wave Long Range"`). Every entry in the list is eligible for automatic inclusion; to keep a DSK from being included, leave it out of the list (or remove it via [`Remove`](#network_smartstart_remove) / [`Clear`](#network_smartstart_clear)).
 
+### Protocol selection and the first Prime
+
+When an entry allows more than one protocol, ZPC may need to discover which protocols the device supports before choosing one. If the first SmartStart Prime announces the highest-priority protocol in the entry (or configured protocol preference), ZPC can start inclusion immediately. If the first Prime announces a lower-priority protocol, ZPC continues protocol discovery before choosing. For an entry restricted to one protocol, ZPC uses that protocol directly.
+
 **Example:**
 ```json
 {

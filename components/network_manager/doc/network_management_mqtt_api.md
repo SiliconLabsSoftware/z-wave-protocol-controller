@@ -1,5 +1,7 @@
 # Network Management MQTT API
 
+Node IDs in reports are JSON numbers in decimal. For command payloads, each operation documents its accepted `node_id` format. Node Properties, NLS, Remove Failed, and Interview commands accept a JSON number, a decimal string, or a hexadecimal string prefixed with `0x`. Normal `Network/Node/Remove` accepts a JSON integer from 1 through 232 because it targets classic Z-Wave nodes.
+
 > **Breaking change:** Node inventory topics were renamed from the old
 > Device-prefixed variants to the Node-prefixed variants. Use:
 > `Network/Node/List`, `Network/Node/List/Report`,
@@ -243,7 +245,7 @@ Removes a failing (non-responsive) node from the network. Use this when a node c
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `node_id` | number or string | The NodeID of the failing node to remove (must be non-zero). Decimal number/string, or hexadecimal string with `0x` prefix. |
+| `node_id` | number or string | The NodeID of the failing node to remove (must be non-zero). Accepts a number, decimal string, or hexadecimal string with `0x` prefix. |
 
 **Behavior:**
 
@@ -460,6 +462,8 @@ zpc/<home_id>/Network/Node/Properties
 }
 ```
 
+`node_id` accepts a JSON number, a decimal string, or a hexadecimal string prefixed with `0x` (for example, `"0x04"`).
+
 ### NETWORK_NODE_PROPERTIES_REPORT
 
 **Report (published by ZPC):**
@@ -517,7 +521,7 @@ zpc/<home_id>/Network/Node/Interview
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `node_id` | number or string | Z-Wave NodeID to interview. Must be non-zero. Decimal number/string, or hexadecimal string with `0x` prefix. |
+| `node_id` | number or string | Z-Wave NodeID to interview. Must be non-zero. Accepts a number, decimal string, or hexadecimal string with `0x` prefix. |
 
 Invalid or missing `node_id` is logged and ignored. On success, ZPC fires `COMPONENT_CONNECTOR_NODE_INTERVIEW_REQUESTED`; the Device Interviewer starts (or restarts) the interview state machine for that node. When the interview fully resolves, ZPC publishes `zpc/<home_id>/Interview/Report`.
 
@@ -603,6 +607,8 @@ zpc/<home_id>/Network/NLS/Enable
 
 Enables Network Layer Security (NLS) for the given node. ZPC queries whether the node supports NLS. If it does, ZPC stores the desired NLS state and reports the result on the report topic. If the node does not support NLS, the report status is `"not supported"`. If NLS support cannot be read, the report status is `"fail"`.
 
+`node_id` accepts a JSON number, a decimal string, or a hexadecimal string prefixed with `0x`.
+
 ### NETWORK_NLS_ENABLE_REPORT
 
 **Report (published by ZPC):**
@@ -639,6 +645,8 @@ zpc/<home_id>/Network/NLS/State
 
 Requests the current Network Layer Security (NLS) state and support for the given node.
 If the node is not part of the current Z-Wave network, the report contains the requested `node_id` and a `status` of `"fail"` without NLS state fields.
+
+`node_id` accepts a JSON number, a decimal string, or a hexadecimal string prefixed with `0x`.
 
 ### NETWORK_NLS_STATE_REPORT
 
