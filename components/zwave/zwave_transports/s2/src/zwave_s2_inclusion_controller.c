@@ -4,7 +4,7 @@
  *
  */
 #include "zwave_s2_key_derivation.h"
-#include "x25519.h"
+#include "crypto.h"
 #include "s2_protocol.h"
 #include "s2_keystore.h"
 #include "s2_inclusion_internal.h"

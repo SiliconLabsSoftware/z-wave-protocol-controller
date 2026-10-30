@@ -32,11 +32,9 @@
 #include "S2_external.h"
 #include "zwave_s2_next_nonce.h"
 #include "sl_status.h"
-#include "aes_ctr_drbg.h"
+#include "crypto.h"
 #include "psa/crypto.h"
 #include "psa/crypto_extra.h"
-#include "x25519.h"
-#include "aes_ccm.h"
 
 #define S2_CCM_NONCE_LEN 13U
 #define S2_CCM_TAG_LEN   8U

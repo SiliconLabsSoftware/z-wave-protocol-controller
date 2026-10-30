@@ -1,8 +1,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "aes_ctr_drbg.h"
-#include "aes_cmac.h"
+#include "crypto.h"
 #include "sl_status.h"
 #include "zwave_s2_next_nonce.h"
 

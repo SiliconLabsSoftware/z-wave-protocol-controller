@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <platform.h>
 
-#include "aes_ctr_drbg.h"
+#include "crypto.h"
 
 // #include <ZW_transport_api.h>
 

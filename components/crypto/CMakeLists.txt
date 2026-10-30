@@ -1,6 +1,7 @@
 add_subdirectory(backend)
 
-set(CRYPTO_CORE_SOURCES src/crypto.cpp src/x25519.cpp src/aes_cmac.cpp src/aes_cbc_mac.cpp src/aes_ccm.cpp src/aes_ecb.cpp src/aes_ofb.cpp src/rand.cpp src/psa_status.cpp)
+# Keep every virtual method in the same library as the Crypto vtable.
+set(CRYPTO_CORE_SOURCES src/crypto.cpp src/aes_ctr_drbg.cpp src/x25519.cpp src/aes_cmac.cpp src/aes_cbc_mac.cpp src/aes_ccm.cpp src/aes_ecb.cpp src/aes_ofb.cpp src/rand.cpp src/psa_status.cpp)
 
 add_library(crypto_core STATIC ${CRYPTO_CORE_SOURCES})
 target_include_directories(crypto_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -10,16 +11,16 @@ if(UNIT_TEST)
   target_compile_definitions(crypto_core PRIVATE UNIT_TEST)
 endif()
 
-add_library(crypto_ctr_drbg STATIC src/aes_ctr_drbg.cpp)
-target_include_directories(crypto_ctr_drbg PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(crypto_ctr_drbg PUBLIC crypto_core)
-set_target_properties(crypto_ctr_drbg PROPERTIES POSITION_INDEPENDENT_CODE ON)
+# Preserve the existing DRBG target for callers.
+add_library(crypto_ctr_drbg INTERFACE)
+target_link_libraries(crypto_ctr_drbg INTERFACE crypto_core)
 
 if(UNIT_TEST)
-  add_library(crypto_ctr_drbg_kat STATIC src/aes_ctr_drbg.cpp)
-  target_compile_definitions(crypto_ctr_drbg_kat PRIVATE CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE=64)
+  # The KAT executable needs a complete implementation with 64-byte DRBG output.
+  add_library(crypto_ctr_drbg_kat STATIC ${CRYPTO_CORE_SOURCES})
+  target_compile_definitions(crypto_ctr_drbg_kat PUBLIC CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE=64 PRIVATE UNIT_TEST)
   target_include_directories(crypto_ctr_drbg_kat PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-  target_link_libraries(crypto_ctr_drbg_kat PUBLIC crypto_core)
+  target_link_libraries(crypto_ctr_drbg_kat PUBLIC common crypto_backend)
   set_target_properties(crypto_ctr_drbg_kat PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 

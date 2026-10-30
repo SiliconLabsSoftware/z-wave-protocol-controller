@@ -1,8 +1,7 @@
 #include <cstring>
 #include <stdint.h>
 
-#include "aes_ctr_drbg.hpp"
-#include "aes_ecb.hpp"
+#include "crypto.hpp"
 
 namespace
 {
@@ -111,16 +110,6 @@ namespace crypto
         return SL_STATUS_OK;
     }
 
-    sl_status_t aes_ctr_drbg_init(crypto_aes_ctr_drbg_ctx_t &ctx, std::span<const uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> entropy_input, std::span<const uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> pers_string)
-    {
-        return Crypto::instance().aes_ctr_drbg_init(ctx, entropy_input, pers_string);
-    }
-
-    sl_status_t aes_ctr_drbg_generate(crypto_aes_ctr_drbg_ctx_t &ctx, std::span<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE> out)
-    {
-        return Crypto::instance().aes_ctr_drbg_generate(ctx, out);
-    }
-
 }  // namespace crypto
 
 extern "C" {
@@ -131,7 +120,7 @@ sl_status_t crypto_aes_ctr_drbg_init(crypto_aes_ctr_drbg_ctx_t *ctx, const uint8
         return SL_STATUS_INVALID_PARAMETER;
     }
 
-    return crypto::aes_ctr_drbg_init(*ctx, std::span<const uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE>(entropy_input, CRYPTO_AES_CTR_DRBG_SEED_SIZE), std::span<const uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE>(pers_string, CRYPTO_AES_CTR_DRBG_SEED_SIZE));
+    return crypto::Crypto::instance().aes_ctr_drbg_init(*ctx, std::span<const uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE>(entropy_input, CRYPTO_AES_CTR_DRBG_SEED_SIZE), std::span<const uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE>(pers_string, CRYPTO_AES_CTR_DRBG_SEED_SIZE));
 }
 
 sl_status_t crypto_aes_ctr_drbg_generate(crypto_aes_ctr_drbg_ctx_t *ctx, uint8_t *out)
@@ -140,7 +129,7 @@ sl_status_t crypto_aes_ctr_drbg_generate(crypto_aes_ctr_drbg_ctx_t *ctx, uint8_t
         return SL_STATUS_INVALID_PARAMETER;
     }
 
-    return crypto::aes_ctr_drbg_generate(*ctx, std::span<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE>(out, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE));
+    return crypto::Crypto::instance().aes_ctr_drbg_generate(*ctx, std::span<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE>(out, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE));
 }
 
 }  // extern "C"

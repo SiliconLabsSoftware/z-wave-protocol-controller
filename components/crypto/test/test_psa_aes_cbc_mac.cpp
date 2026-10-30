@@ -20,8 +20,8 @@
 
 #include <gtest/gtest.h>
 
-#include "aes_cbc_mac.hpp"
-#include "aes_ecb.h"
+#include "crypto.hpp"
+#include "crypto.h"
 #include "test_fixture.hpp"
 
 /* NIST SP 800-38A AES-128 key and IV (same material as OFB/CMAC tests). */
@@ -142,7 +142,7 @@ TEST_F(Crypto, AesCbcMacCppApi)
     const uint8_t expected_mac[] = {0x4c, 0x5c, 0xb1, 0x62, 0xa5, 0x17, 0x4c, 0x77, 0xf4, 0x11, 0x84, 0xa2, 0x5a, 0xe7, 0xb6, 0x0c};
     std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> mac {};
 
-    ASSERT_EQ(SL_STATUS_OK, crypto::aes_cbc_mac(key, iv, std::span<const uint8_t>(s0_auth_data, sizeof(s0_auth_data)), mac));
+    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_cbc_mac(key, iv, std::span<const uint8_t>(s0_auth_data, sizeof(s0_auth_data)), mac));
     ExpectBytesEq(expected_mac, mac.data(), mac.size());
 }
 
@@ -154,7 +154,7 @@ TEST_F(Crypto, AesCbcMacCppApiRejectsOversizedData)
     std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> mac {};
     std::vector<uint8_t> oversized(static_cast<size_t>(UINT8_MAX) + 1U);
 
-    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto::aes_cbc_mac(key, iv, oversized, mac));
+    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto::Crypto::instance().aes_cbc_mac(key, iv, oversized, mac));
 }
 
 // Maximum C API payload length (uint8_t): padded IV||data must fit internal buffer.
@@ -190,7 +190,7 @@ TEST_F(Crypto, AesCbcMacCppApiMaxPayloadLength255)
 
     ComputeS0CbcMacReference(nist_key_128, nist_iv, data.data(), UINT8_MAX, expected_mac);
     ASSERT_EQ(SL_STATUS_OK, crypto_aes_cbc_mac(nist_key_128, nist_iv, data.data(), UINT8_MAX, calculated_mac));
-    ASSERT_EQ(SL_STATUS_OK, crypto::aes_cbc_mac(key, iv, std::span<const uint8_t>(data.data(), data.size()), mac_cpp));
+    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_cbc_mac(key, iv, std::span<const uint8_t>(data.data(), data.size()), mac_cpp));
 
     ExpectBytesEq(expected_mac, calculated_mac, CRYPTO_AES_BLOCK_SIZE);
     ExpectBytesEq(expected_mac, mac_cpp.data(), mac_cpp.size());

@@ -1,4 +1,4 @@
-#include "aes_ccm.hpp"
+#include "crypto.hpp"
 
 #include "psa/crypto.h"
 #include "psa_status.hpp"
@@ -49,40 +49,30 @@ namespace crypto
         return psa_status_to_sl_status(status);
     }
 
-    sl_status_t aes_ccm_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, size_t tag_len, std::span<const uint8_t> nonce, std::span<const uint8_t> aad, std::span<const uint8_t> plaintext, std::span<uint8_t> ciphertext, size_t &ciphertext_len)
-    {
-        return Crypto::instance().aes_ccm_encrypt(key, tag_len, nonce, aad, plaintext, ciphertext, ciphertext_len);
-    }
-
-    sl_status_t aes_ccm_decrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, size_t tag_len, std::span<const uint8_t> nonce, std::span<const uint8_t> aad, std::span<const uint8_t> ciphertext, std::span<uint8_t> plaintext, size_t &plaintext_len)
-    {
-        return Crypto::instance().aes_ccm_decrypt(key, tag_len, nonce, aad, ciphertext, plaintext, plaintext_len);
-    }
-
 }  // namespace crypto
 
 extern "C" {
 
 sl_status_t crypto_aes_ccm_encrypt(const uint8_t *key, size_t tag_len, const uint8_t *nonce, size_t nonce_len, const uint8_t *aad, size_t aad_len, const uint8_t *plaintext, size_t plaintext_len, uint8_t *ciphertext, size_t ciphertext_size, size_t *ciphertext_len)
 {
-    return crypto::aes_ccm_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE),
-                                   tag_len,
-                                   std::span<const uint8_t>(nonce, nonce_len),
-                                   std::span<const uint8_t>(aad, aad_len),
-                                   std::span<const uint8_t>(plaintext, plaintext_len),
-                                   std::span<uint8_t>(ciphertext, ciphertext_size),
-                                   *ciphertext_len);
+    return crypto::Crypto::instance().aes_ccm_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE),
+                                                      tag_len,
+                                                      std::span<const uint8_t>(nonce, nonce_len),
+                                                      std::span<const uint8_t>(aad, aad_len),
+                                                      std::span<const uint8_t>(plaintext, plaintext_len),
+                                                      std::span<uint8_t>(ciphertext, ciphertext_size),
+                                                      *ciphertext_len);
 }
 
 sl_status_t crypto_aes_ccm_decrypt(const uint8_t *key, size_t tag_len, const uint8_t *nonce, size_t nonce_len, const uint8_t *aad, size_t aad_len, const uint8_t *ciphertext, size_t ciphertext_len, uint8_t *plaintext, size_t plaintext_size, size_t *plaintext_len)
 {
-    return crypto::aes_ccm_decrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE),
-                                   tag_len,
-                                   std::span<const uint8_t>(nonce, nonce_len),
-                                   std::span<const uint8_t>(aad, aad_len),
-                                   std::span<const uint8_t>(ciphertext, ciphertext_len),
-                                   std::span<uint8_t>(plaintext, plaintext_size),
-                                   *plaintext_len);
+    return crypto::Crypto::instance().aes_ccm_decrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE),
+                                                      tag_len,
+                                                      std::span<const uint8_t>(nonce, nonce_len),
+                                                      std::span<const uint8_t>(aad, aad_len),
+                                                      std::span<const uint8_t>(ciphertext, ciphertext_len),
+                                                      std::span<uint8_t>(plaintext, plaintext_size),
+                                                      *plaintext_len);
 }
 
 }  // extern "C"
