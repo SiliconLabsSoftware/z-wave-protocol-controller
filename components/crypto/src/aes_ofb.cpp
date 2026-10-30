@@ -1,4 +1,4 @@
-#include "aes_ofb.hpp"
+#include "crypto.hpp"
 
 #include "psa/crypto.h"
 #include "psa_status.hpp"
@@ -66,11 +66,6 @@ namespace crypto
         return SL_STATUS_OK;
     }
 
-    sl_status_t aes_ofb_xor(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE> iv, std::span<uint8_t> data)
-    {
-        return Crypto::instance().aes_ofb_xor(key, iv, data);
-    }
-
 }  // namespace crypto
 
 extern "C" {
@@ -81,7 +76,7 @@ sl_status_t crypto_aes_ofb_xor(const uint8_t *key, uint8_t iv[16], uint8_t *data
         return SL_STATUS_OK;
     }
 
-    return crypto::aes_ofb_xor(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(iv, CRYPTO_AES_BLOCK_SIZE), std::span<uint8_t>(data, len));
+    return crypto::Crypto::instance().aes_ofb_xor(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(iv, CRYPTO_AES_BLOCK_SIZE), std::span<uint8_t>(data, len));
 }
 
 }  // extern "C"

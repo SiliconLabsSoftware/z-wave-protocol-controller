@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "zwave_s2_key_derivation.h"
-#include "aes_cmac.h"
+#include "crypto.h"
 #include "sl_status.h"
 #include "unity.h"
 

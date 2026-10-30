@@ -1,8 +1,7 @@
 #include <string.h>
 
 #include "zwave_s2_key_derivation.h"
-#include "aes_cmac.h"
-#include "x25519.h"
+#include "crypto.h"
 
 #define CKDF_EXPAND_CONSTANT_LEN 15U
 

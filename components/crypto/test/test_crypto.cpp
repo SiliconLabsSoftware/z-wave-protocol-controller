@@ -1,7 +1,9 @@
+#include <algorithm>
 #include <array>
 #include <cstring>
 
 #include "crypto.hpp"
+#include "mock_crypto.hpp"
 #include "mock_psa_wrappers.hpp"
 #include "psa_wrappers.hpp"
 #include "test_fixture.hpp"
@@ -24,7 +26,8 @@ class CryptoInjection : public Crypto
     protected:
         crypto::PsaWrappers real_psa_wrappers;
         StrictMock<crypto::test::MockPsaWrappers> mock;
-        crypto::Crypto algorithms {mock};
+        crypto::Crypto implementation {mock};
+        crypto::CryptoInterface &algorithms {implementation};
         const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
         const std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> input {};
         std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> output {};
@@ -512,4 +515,18 @@ TEST_F(CryptoInjection, X25519SharedSecretChecksOutputLengthAndReleasesKey)
 
         EXPECT_EQ(SL_STATUS_FAIL, algorithms.x25519_derive_shared_secret(private_key, public_key, shared_secret));
     }
+}
+
+TEST(CryptoInterface, ApplicationCanUseMockWithoutPsaBackend)
+{
+    StrictMock<crypto::test::MockCrypto> mock;
+    const crypto::CryptoInterface &algorithms = mock;
+    std::array<uint8_t, 8> output {};
+    EXPECT_CALL(mock, generate_random(SameBuffer(std::span(output)))).WillOnce([](std::span<uint8_t> bytes) {
+        std::fill(bytes.begin(), bytes.end(), 0xa5);
+        return SL_STATUS_OK;
+    });
+
+    EXPECT_EQ(SL_STATUS_OK, algorithms.generate_random(output));
+    EXPECT_THAT(output, ::testing::Each(0xa5));
 }

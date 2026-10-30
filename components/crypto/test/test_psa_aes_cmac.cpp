@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "aes_cmac.hpp"
+#include "crypto.hpp"
 #include "test_fixture.hpp"
 
 namespace
@@ -86,6 +86,6 @@ TEST_F(Crypto, AesCmacComputeCppApi)
     const uint8_t expected_mac[]                       = {0x07, 0x0a, 0x16, 0xb4, 0x6b, 0x4d, 0x41, 0x44, 0xf7, 0x9b, 0xdd, 0x9d, 0xd0, 0x4a, 0x28, 0x7c};
     std::array<uint8_t, CRYPTO_AES_CMAC_OUTPUT_LEN> mac {};
 
-    ASSERT_EQ(SL_STATUS_OK, crypto::aes_cmac_compute(key, std::span<const uint8_t>(message, sizeof(message)), mac));
+    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_cmac_compute(key, std::span<const uint8_t>(message, sizeof(message)), mac));
     ExpectBytesEq(expected_mac, mac.data(), mac.size());
 }

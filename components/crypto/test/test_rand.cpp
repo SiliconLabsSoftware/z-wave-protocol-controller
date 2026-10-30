@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "test_fixture.hpp"
-#include "rand.h"
+#include "crypto.h"
 
 namespace
 {
