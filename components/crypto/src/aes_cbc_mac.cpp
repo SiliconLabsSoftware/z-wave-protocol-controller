@@ -3,6 +3,8 @@
 #include <cstring>
 
 #include "psa/crypto.h"
+#include "psa_status.hpp"
+#include "psa_wrappers_interface.hpp"
 
 namespace
 {
@@ -43,39 +45,39 @@ namespace crypto
 
         status = psa_wrappers_.crypto_init();
         if (status != PSA_SUCCESS) {
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_CBC_NO_PADDING, key.data(), &key_id, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS, CRYPTO_AES_KEY_SIZE);
+        status = psa_wrappers_.import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_CBC_NO_PADDING, key, key_id, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS);
         if (status != PSA_SUCCESS) {
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.cipher_encrypt_setup(&operation, key_id, PSA_ALG_CBC_NO_PADDING);
+        status = psa_wrappers_.cipher_encrypt_setup(operation, key_id, PSA_ALG_CBC_NO_PADDING);
         if (status != PSA_SUCCESS) {
             psa_wrappers_.destroy_key(key_id);
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.cipher_set_iv(&operation, cbc_mac_zero_iv, CRYPTO_AES_BLOCK_SIZE);
+        status = psa_wrappers_.cipher_set_iv(operation, cbc_mac_zero_iv);
         if (status != PSA_SUCCESS) {
-            psa_wrappers_.cipher_abort(&operation);
+            psa_wrappers_.cipher_abort(operation);
             psa_wrappers_.destroy_key(key_id);
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.cipher_update(&operation, message, message_len, ciphertext, sizeof(ciphertext), &update_len);
+        status = psa_wrappers_.cipher_update(operation, std::span<const uint8_t>(message, message_len), ciphertext, update_len);
         if (status != PSA_SUCCESS) {
-            psa_wrappers_.cipher_abort(&operation);
+            psa_wrappers_.cipher_abort(operation);
             psa_wrappers_.destroy_key(key_id);
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.cipher_finish(&operation, ciphertext + update_len, sizeof(ciphertext) - update_len, &finish_len);
+        status = psa_wrappers_.cipher_finish(operation, std::span(ciphertext).subspan(update_len), finish_len);
         if (status != PSA_SUCCESS) {
-            psa_wrappers_.cipher_abort(&operation);
+            psa_wrappers_.cipher_abort(operation);
             psa_wrappers_.destroy_key(key_id);
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
         psa_wrappers_.destroy_key(key_id);
