@@ -320,3 +320,196 @@ TEST_F(Crypto, PsaWrappersInterceptCallsFromCppCryptoApi)
     // Supplying a mock for one call does not affect callers using the default.
     EXPECT_EQ(SL_STATUS_OK, crypto_aes_ecb_encrypt(key.data(), input.data(), output.data()));
 }
+
+TEST_F(CryptoInjection, X25519SharedSecretReturnsImportFailure)
+{
+    const std::array<uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key {};
+    const std::array<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key {};
+    std::array<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE> shared_secret;
+    shared_secret.fill(0xa5);
+    const auto original_output = shared_secret;
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, SameBuffer(std::span(private_key)), _, CRYPTO_X25519_KEY_TYPE, CRYPTO_X25519_KEY_BITS)).WillOnce(Return(PSA_ERROR_INSUFFICIENT_MEMORY));
+
+    EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.x25519_derive_shared_secret(private_key, public_key, shared_secret));
+    EXPECT_EQ(original_output, shared_secret);
+}
+
+TEST_F(CryptoInjection, DrbgGenerateKeepsContextAndOutputWhenFirstBlockFails)
+{
+    crypto_aes_ctr_drbg_ctx_t ctx {};
+    ctx.counter[0]      = 0x42;
+    const auto original = ctx;
+    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE> generated;
+    generated.fill(0xa5);
+    const auto original_output = generated;
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, ::testing::SizeIs(CRYPTO_AES_KEY_SIZE), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(Return(PSA_ERROR_INSUFFICIENT_MEMORY));
+
+    EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.aes_ctr_drbg_generate(ctx, generated));
+    EXPECT_EQ(0, std::memcmp(&original, &ctx, sizeof(ctx)));
+    EXPECT_EQ(original_output, generated);
+}
+
+TEST_F(CryptoInjection, EcbDecryptReleasesKeyWhenOperationFails)
+{
+    ::testing::InSequence sequence;
+    EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DECRYPT, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_decrypt(42, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(input)), SameBuffer(std::span(output)), _)).WillOnce(Return(PSA_ERROR_BAD_STATE));
+    EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_ecb_decrypt(key, input, output));
+}
+
+TEST_F(CryptoInjection, CmacReleasesKeyWhenOperationFails)
+{
+    ::testing::InSequence sequence;
+    EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_SIGN_MESSAGE, PSA_ALG_CMAC, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, mac_compute(42, PSA_ALG_CMAC, SameBuffer(std::span(input)), SameBuffer(std::span(output)), _)).WillOnce(Return(PSA_ERROR_BAD_STATE));
+    EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_cmac_compute(key, input, output));
+}
+
+TEST_F(CryptoInjection, OfbRejectsIncompleteOutputAndReleasesKey)
+{
+    output.fill(0xa5);
+    const auto original_output = output;
+    ::testing::InSequence sequence;
+    EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_encrypt_setup(_, 42, PSA_ALG_OFB)).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, cipher_set_iv(_, ::testing::SizeIs(CRYPTO_AES_BLOCK_SIZE))).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, cipher_update(_, _, _, _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(0), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_finish(_, _, _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<2>(CRYPTO_AES_BLOCK_SIZE - 1), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+    EXPECT_EQ(SL_STATUS_FAIL, algorithms.aes_ofb_xor(key, input, output));
+    EXPECT_EQ(original_output, output);
+}
+
+TEST_F(CryptoInjection, CbcMacRejectsIncompleteOutputAndReleasesKey)
+{
+    output.fill(0xa5);
+    const auto original_output = output;
+    ::testing::InSequence sequence;
+    EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_CBC_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_encrypt_setup(_, 42, PSA_ALG_CBC_NO_PADDING)).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, cipher_set_iv(_, ::testing::SizeIs(CRYPTO_AES_BLOCK_SIZE))).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, cipher_update(_, _, _, _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(0), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_finish(_, _, _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<2>(CRYPTO_AES_BLOCK_SIZE - 1), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+    EXPECT_EQ(SL_STATUS_FAIL, algorithms.aes_cbc_mac(key, input, input, output));
+    EXPECT_EQ(original_output, output);
+}
+
+TEST_F(CryptoInjection, InitFailuresLeaveOutputsUntouched)
+{
+    EXPECT_CALL(mock, crypto_init()).Times(10).WillRepeatedly(Return(PSA_ERROR_BAD_STATE));
+    output.fill(0xa5);
+    const auto original_output = output;
+    const std::array<uint8_t, 13> nonce {};
+    const std::array<uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key {};
+    std::array<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key;
+    public_key.fill(0xa5);
+    const auto original_public_key = public_key;
+    std::array<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE> shared_secret;
+    shared_secret.fill(0xa5);
+    const auto original_shared_secret = shared_secret;
+    size_t length                     = 123;
+
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_ecb_encrypt(key, input, output));
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_ecb_decrypt(key, input, output));
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_cmac_compute(key, input, output));
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_ofb_xor(key, input, output));
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_cbc_mac(key, input, input, output));
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_ccm_encrypt(key, 8, nonce, {}, input, output, length));
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_ccm_decrypt(key, 8, nonce, {}, input, output, length));
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.generate_random(output));
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.x25519_derive_public_key(private_key, public_key));
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.x25519_derive_shared_secret(private_key, public_key, shared_secret));
+    EXPECT_EQ(original_output, output);
+    EXPECT_EQ(original_public_key, public_key);
+    EXPECT_EQ(original_shared_secret, shared_secret);
+    EXPECT_EQ(123u, length);
+}
+
+TEST_F(CryptoInjection, EcbEncryptChecksOutputLengthAndReleasesKey)
+{
+
+    for (const size_t length: {size_t {0}, size_t {CRYPTO_AES_BLOCK_SIZE - 1}, size_t {CRYPTO_AES_BLOCK_SIZE + 1}}) {
+        SCOPED_TRACE(length);
+        ::testing::InSequence sequence;
+        EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, cipher_encrypt(42, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(input)), SameBuffer(std::span(output)), _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<4>(length), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+        EXPECT_EQ(SL_STATUS_FAIL, algorithms.aes_ecb_encrypt(key, input, output));
+    }
+}
+
+TEST_F(CryptoInjection, EcbDecryptChecksOutputLengthAndReleasesKey)
+{
+
+    for (const size_t length: {size_t {0}, size_t {CRYPTO_AES_BLOCK_SIZE - 1}, size_t {CRYPTO_AES_BLOCK_SIZE + 1}}) {
+        SCOPED_TRACE(length);
+        ::testing::InSequence sequence;
+        EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DECRYPT, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, cipher_decrypt(42, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(input)), SameBuffer(std::span(output)), _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<4>(length), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+        EXPECT_EQ(SL_STATUS_FAIL, algorithms.aes_ecb_decrypt(key, input, output));
+    }
+}
+
+TEST_F(CryptoInjection, CmacChecksOutputLengthAndReleasesKey)
+{
+
+    for (const size_t length: {size_t {0}, size_t {CRYPTO_AES_CMAC_OUTPUT_LEN - 1}, size_t {CRYPTO_AES_CMAC_OUTPUT_LEN + 1}}) {
+        SCOPED_TRACE(length);
+        ::testing::InSequence sequence;
+        EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_SIGN_MESSAGE, PSA_ALG_CMAC, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, mac_compute(42, PSA_ALG_CMAC, SameBuffer(std::span(input)), SameBuffer(std::span(output)), _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<4>(length), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+        EXPECT_EQ(SL_STATUS_FAIL, algorithms.aes_cmac_compute(key, input, output));
+    }
+}
+
+TEST_F(CryptoInjection, X25519PublicKeyChecksOutputLengthAndReleasesKey)
+{
+    const std::array<uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key {};
+    std::array<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key {};
+    for (const size_t length: {size_t {0}, size_t {CRYPTO_X25519_PUBLIC_KEY_SIZE - 1}, size_t {CRYPTO_X25519_PUBLIC_KEY_SIZE + 1}}) {
+        SCOPED_TRACE(length);
+        ::testing::InSequence sequence;
+        EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, SameBuffer(std::span(private_key)), _, CRYPTO_X25519_KEY_TYPE, CRYPTO_X25519_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, export_public_key(42, SameBuffer(std::span(public_key)), _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<2>(length), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+        EXPECT_EQ(SL_STATUS_FAIL, algorithms.x25519_derive_public_key(private_key, public_key));
+    }
+}
+
+TEST_F(CryptoInjection, X25519SharedSecretChecksOutputLengthAndReleasesKey)
+{
+    const std::array<uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key {};
+    const std::array<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key {};
+    std::array<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE> shared_secret {};
+    for (const size_t length: {size_t {0}, size_t {CRYPTO_X25519_SHARED_SECRET_SIZE - 1}, size_t {CRYPTO_X25519_SHARED_SECRET_SIZE + 1}}) {
+        SCOPED_TRACE(length);
+        ::testing::InSequence sequence;
+        EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, SameBuffer(std::span(private_key)), _, CRYPTO_X25519_KEY_TYPE, CRYPTO_X25519_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, raw_key_agreement(PSA_ALG_ECDH, 42, SameBuffer(std::span(public_key)), SameBuffer(std::span(shared_secret)), _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<4>(length), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+        EXPECT_EQ(SL_STATUS_FAIL, algorithms.x25519_derive_shared_secret(private_key, public_key, shared_secret));
+    }
+}
