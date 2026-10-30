@@ -11,6 +11,54 @@ description: >-
 
 Follow this sequence in order. The skill is not done until the coverage check passes.
 
+## Required completion checklist
+
+Before considering a test-writing task complete, verify every item below:
+
+- [ ] Every `TEST` / `TEST_F` has a short comment immediately above it describing
+      the behavior the test proves.
+- [ ] Every test has the applicable `CC:` requirement ID from the specification.
+      If the specification defines no requirement for that behavior, omit the
+      ID rather than guessing one.
+- [ ] Comments explain the meaningful setup, action, and assertion blocks inside
+      the test. Explain non-obvious choices; do not add comments that merely
+      restate the next line.
+- [ ] Fixture maps explain each field at the point of use. Wire-frame fixtures
+      and assertions explain the byte order and the meaning of each non-obvious
+      value, including why the selected version and values apply.
+- [ ] There are no unexplained numeric literals. Give protocol values, expected
+      counts, lengths, offsets, fixture sizes, and byte positions named constants;
+      a literal may remain only when it is immediately explained at its use.
+- [ ] Command Class versions with different behavior have separate, identifiable
+      tests, and success, rejection, fallback, and storage behaviors are atomic.
+- [ ] Review the full component scope: list the public handlers, supported
+      Command Class versions, and meaningful success, rejection, fallback, and
+      error paths. Map each to a test or explain why it is not testable.
+- [ ] For important validation, capacity, optional-field, and state-lookup
+      conditions, test both outcomes where meaningful. Do not invent invalid
+      inputs solely to reach defensive branches that cannot occur in valid use.
+- [ ] Verify that each test would fail if the behavior it covers were removed
+      or reversed. Tests must assert the observable result, not only that a call
+      returned success.
+- [ ] Verify test isolation: each test resets shared mocks, connector state,
+      attribute-store state, and process-global state so outcomes do not depend
+      on test execution order.
+- [ ] Review the complete diff and confirm that only intended test, test-support,
+      build-registration, and coverage-policy files changed. Get explicit user
+      authorization before changing production source.
+- [ ] After the final edit, rebuild and run the full sanitizer suite, then run
+      the full coverage suite and coverage gate. Focused test runs and reports
+      generated before the last edit do not satisfy this check.
+- [ ] If a coverage gate fails, report the component's line and branch counts
+      and the specific uncovered paths. Explain why meaningful tests cannot
+      exercise them and consult the user about authorized next steps.
+- [ ] `clang-format` and `git diff --check` pass for the changed tests.
+
+Do this comment-and-requirement audit explicitly after writing the tests. Do not
+assume that descriptive test names or comments above the fixture satisfy these
+items. If a required `CC:` ID is unclear, check the specification before
+omitting it.
+
 ## Failures and specification
 
 - **Specification injection:** check whether the relevant Z-Wave specification is in the workspace or repo. If it is not, ask the user where it is. The previous specification matters. Tell the user which specification and version you found.
@@ -58,10 +106,15 @@ Do not change `attribute_store.h` or the store implementation.
 - TDD: RED (failing test that names the spec behavior, with `CC:` when present) → GREEN (smallest change) → REFACTOR (tests stay green).
 - `TEST` for independent cases; `TEST_F` when `SetUp`/`TearDown` is needed. `ASSERT_*` for preconditions, `EXPECT_*` for checks that should all run.
 - Prefer fakes for state; gMock (`MOCK_METHOD` + `EXPECT_CALL`) for interaction seams (MQTT / TX), not the attribute-store tree.
+- **Isolate the unit under test from collaborators:** replace collaborators at their public boundary when their implementation is outside the unit's scope. Use a fake for simple stateful responses and GoogleMock (`MOCK_METHOD` / `EXPECT_CALL`) when interactions matter. Link the implementation under test without constructing or linking real collaborator implementations; this keeps tests focused and lets them control collaborator responses. For example, when testing one Command Class (CC) that queries or notifies another over `component_connector`, bind a mock to the peer CC's typed connector events.
+- Keep a reusable collaborator fake/mock in a separate test-support header/source when it has boundary bindings, default behavior, or synchronization helpers. Configure ordinary responses with simple defaults; use focused interaction expectations only where the interaction itself is under test. Add support files to the test target's `SRCS` so they are visible in the build definition.
+- Await completion at asynchronous boundaries. For request/response calls, wait on the returned future and assert status and result. For fire-and-forget notifications, synchronize on the fake/mock callback before inspecting its state. Avoid sleeps and unrelated operations used only as synchronization fences.
+- Keep collaborator state separate from the unit's own state. For Command Class state, use the RAM attribute store and reserve the fake/mock for collaborator behavior. Reset expectations and configurable responses between tests, especially when a process-wide fake/mock is used.
 - Tests must be deterministic: no `sleep` for sync, no real network/time, unique temp paths, reset process-global state in the fixture.
 - Add verbose comments to the test cases to be easier to follow what and why it is going on. Comment each block inside the test cases.
 - Explain fixture maps and wire-frame bytes at the point of use. Comments should identify what each field or byte represents and why the selected value is used; a general comment above a fixture is not a substitute for field-level explanations.
 - In case of command classes, create separated test functions for each version tests to have more atomic test cases.
+- Keep command behavior cases atomic: use one test for each distinct success, rejection, fallback, or storage behavior rather than combining multiple unrelated outcomes. Shared setup helpers are fine, but assertions should make each behavior independently identifiable by the test name and failure output.
 - Use meaningful test case names that describe the behavior and reflect the Command Class version when relevant.
 - Do not use unexplained magic numbers. Define named constants for protocol values, expected counts, lengths, offsets, and fixture sizes; if a literal is clearer, add an inline comment explaining its meaning.
 - Shared test helpers may reduce duplication, but must accept version-specific inputs or expectations when the specification defines different valid values. Keep each version's assertion independently identifiable in test output.
@@ -87,6 +140,8 @@ python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
 ```
 
 - [`ci/coverage/component_blacklist.yaml`](ci/coverage/component_blacklist.yaml) is the only exemption list. Coverage minimums come from [`ci/unit_test_config.yaml`](ci/unit_test_config.yaml). A tested component (`CMakeLists.txt` + `test/`) omitted from the blacklist must meet both configured minimums for line and branch coverage.
+- Require at least **90% line and 90% branch coverage** for every tested
+  component. Both gates must pass before the work is complete.
 - Confirm the child’s own row in the `check_coverage.py` table is `pass` for both line and branch coverage, not rolled into a blacklisted parent.
 - Missing executable line data for a gated component is a failure. Zero branches is valid for straight-line code.
 - Install Python dependencies from `ci/dependencies/requirements.txt` (no additional Python coverage package is needed). Run the reporting script with that Python environment.
@@ -94,7 +149,14 @@ python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
 - Configuring coverage clears previous coverage output. After code changes, rebuild and run all coverage tests before reporting; use `--fresh` for a clean baseline.
 - Branches are source condition outcomes; no throw/unreachable branch filters are applied. Still test meaningful error and exception behavior explicitly. Exact counts can differ between OS targets and compiler versions.
 - Reports: `build/unit-test-coverage/coverage/html/index.html`, `build/unit-test-coverage/coverage/coverage.json`, and `build/unit-test-coverage/coverage/lcov.info` (for editor coverage plugins).
-- Do not finish if `check_coverage.py` fails. Add tests or fix the path prefix; do not re-add the component to the blacklist to silence the gate.
+- Do not finish if `check_coverage.py` fails. Add focused tests for meaningful
+  paths or correct a component-path mistake; do not lower the threshold or
+  re-blacklist a tested component to silence the gate.
+- If valid tests cannot reach 90% line or branch coverage, report the component's
+  counts and specific uncovered paths, explain why valid tests cannot exercise
+  them, then consult the user about next steps before changing source or
+  coverage policy. Options include an authorized testability change or an
+  explicit component-owner-approved exemption through repository policy.
 
 ## CI
 
