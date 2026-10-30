@@ -1,5 +1,7 @@
 #include "crypto.hpp"
 
+#include "psa_wrappers.hpp"
+
 namespace crypto
 {
     Crypto &Crypto::instance()

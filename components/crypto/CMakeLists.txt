@@ -1,10 +1,10 @@
-find_package(MbedTLS REQUIRED)
+add_subdirectory(backend)
 
-set(CRYPTO_CORE_SOURCES src/crypto.cpp src/x25519.cpp src/aes_cmac.cpp src/aes_cbc_mac.cpp src/aes_ccm.cpp src/aes_ecb.cpp src/aes_ofb.cpp src/rand.cpp src/psa_wrappers.cpp)
+set(CRYPTO_CORE_SOURCES src/crypto.cpp src/x25519.cpp src/aes_cmac.cpp src/aes_cbc_mac.cpp src/aes_ccm.cpp src/aes_ecb.cpp src/aes_ofb.cpp src/rand.cpp src/psa_status.cpp)
 
 add_library(crypto_core STATIC ${CRYPTO_CORE_SOURCES})
 target_include_directories(crypto_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(crypto_core PUBLIC common MbedTLS::tfpsacrypto)
+target_link_libraries(crypto_core PUBLIC common crypto_backend)
 set_target_properties(crypto_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
 if(UNIT_TEST)
   target_compile_definitions(crypto_core PRIVATE UNIT_TEST)

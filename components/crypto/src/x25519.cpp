@@ -1,5 +1,8 @@
 #include "x25519.hpp"
 
+#include "psa_status.hpp"
+#include "psa_wrappers_interface.hpp"
+
 namespace crypto
 {
 
@@ -11,20 +14,20 @@ namespace crypto
 
         status = psa_wrappers_.crypto_init();
         if (status != PSA_SUCCESS) {
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, private_key.data(), &key_id, CRYPTO_X25519_KEY_TYPE, CRYPTO_X25519_KEY_BITS, CRYPTO_X25519_PRIVATE_KEY_SIZE);
+        status = psa_wrappers_.import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, private_key, key_id, CRYPTO_X25519_KEY_TYPE, CRYPTO_X25519_KEY_BITS);
         if (status != PSA_SUCCESS) {
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.export_public_key(key_id, public_key.data(), CRYPTO_X25519_PUBLIC_KEY_SIZE, &public_key_len);
+        status = psa_wrappers_.export_public_key(key_id, public_key, public_key_len);
         psa_wrappers_.destroy_key(key_id);
         if (status == PSA_SUCCESS && public_key_len != CRYPTO_X25519_PUBLIC_KEY_SIZE) {
             return SL_STATUS_FAIL;
         }
-        return psa_wrappers_.psa_status_to_sl_status(status);
+        return psa_status_to_sl_status(status);
     }
 
     sl_status_t Crypto::x25519_derive_shared_secret(std::span<const uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key, std::span<const uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> peer_public_key, std::span<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE> shared_secret) const
@@ -35,20 +38,20 @@ namespace crypto
 
         status = psa_wrappers_.crypto_init();
         if (status != PSA_SUCCESS) {
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, private_key.data(), &key_id, CRYPTO_X25519_KEY_TYPE, CRYPTO_X25519_KEY_BITS, CRYPTO_X25519_PRIVATE_KEY_SIZE);
+        status = psa_wrappers_.import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, private_key, key_id, CRYPTO_X25519_KEY_TYPE, CRYPTO_X25519_KEY_BITS);
         if (status != PSA_SUCCESS) {
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.raw_key_agreement(PSA_ALG_ECDH, key_id, peer_public_key.data(), CRYPTO_X25519_PUBLIC_KEY_SIZE, shared_secret.data(), CRYPTO_X25519_SHARED_SECRET_SIZE, &shared_secret_len);
+        status = psa_wrappers_.raw_key_agreement(PSA_ALG_ECDH, key_id, peer_public_key, shared_secret, shared_secret_len);
         psa_wrappers_.destroy_key(key_id);
         if (status == PSA_SUCCESS && shared_secret_len != CRYPTO_X25519_SHARED_SECRET_SIZE) {
             return SL_STATUS_FAIL;
         }
-        return psa_wrappers_.psa_status_to_sl_status(status);
+        return psa_status_to_sl_status(status);
     }
 
     sl_status_t x25519_derive_public_key(std::span<const uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key, std::span<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key)
