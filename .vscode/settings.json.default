@@ -53,8 +53,7 @@
     "clangd.path": "/usr/bin/clangd",
     "clangd.arguments": ["-log=verbose", 
                          "-pretty", 
-                         "--background-index",
-                         "--compile-commands-dir=build/debug"
+                         "--background-index"
                         ],
     "editor.defaultFormatter": "xaver.clang-format"
 }

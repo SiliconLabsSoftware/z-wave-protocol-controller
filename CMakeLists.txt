@@ -88,6 +88,30 @@ add_subdirectory(applications)
 # Extra targets
 # ##############################################################################
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR UNIT_TEST)
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
+  set(ZPC_PYTHON_EXECUTABLE "${Python3_EXECUTABLE}")
+  if(EXISTS "${CMAKE_SOURCE_DIR}/.venv/bin/python")
+    set(ZPC_PYTHON_EXECUTABLE "${CMAKE_SOURCE_DIR}/.venv/bin/python")
+  elseif(EXISTS "${CMAKE_SOURCE_DIR}/.venv/Scripts/python.exe")
+    set(ZPC_PYTHON_EXECUTABLE "${CMAKE_SOURCE_DIR}/.venv/Scripts/python.exe")
+  endif()
+
+  add_custom_target(
+    merge_compile_commands
+    COMMAND "${ZPC_PYTHON_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/ci/scripts/merge_compile_commands.py"
+    COMMENT "Merging Debug and unit-test compilation databases"
+    VERBATIM)
+
+  if(TARGET zpc)
+    add_dependencies(zpc merge_compile_commands)
+  endif()
+  if(TARGET UNIT_TEST)
+    add_dependencies(UNIT_TEST merge_compile_commands)
+  endif()
+endif()
+
 include(cmake/include/version_file.cmake)
 
 # Debian .deb packaging (CPack); Linux hosts only — see docs/packaging-debian.md
