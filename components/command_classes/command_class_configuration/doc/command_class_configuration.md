@@ -6,7 +6,7 @@ Command Class ID: `0x70` (112 decimal)
 
 Control-only implementation. ZPC sends Configuration commands to end devices and stores parameter records. It does not answer Configuration commands as a supporting node.
 
-Interview sends no Configuration traffic. The specification requires none for a controlling node. Discovery and value access are on-demand MQTT commands.
+For version 3 and later, interview starts a Properties Get walk at parameter 0. It follows each report's next-parameter number until the list terminates, then requests names and info for each supported nonzero parameter. Version 1 and 2 interviews do not scan parameters; their properties walk is marked complete without sending Configuration commands. The Version Command Class interview obtains the Configuration version before this flow starts.
 
 ## Supported Commands
 
@@ -26,11 +26,11 @@ Interview sends no Configuration traffic. The specification requires none for a 
 
 ## Interview
 
-`on_interview` sends no frames for any version.
+For version 3+, the controller requests Properties Get for parameter 0, then follows `next_parameter_number` through the supported parameter list. After the walk ends, it requests Name Get for each discovered nonzero parameter, followed by Info Get for each. A next parameter number of 0 ends the walk. Versions 1-2 have no Properties Get walk and are marked complete without a parameter scan.
 
-## On-demand Properties Walk (version 3+)
+## Properties Walk (version 3+)
 
-MQTT command: `ConfigurationPropertiesDiscover`
+The interview and the MQTT command `ConfigurationPropertiesDiscover` use the same properties walk. After the walk, interview requests names and info for discovered parameters. On-demand discovery stops after the properties walk and marks discovery complete; it does not request names or info.
 
 ```mermaid
 sequenceDiagram
@@ -87,9 +87,9 @@ Endpoint Node
 | Command | Purpose |
 |---|---|
 | ConfigurationGet | Read one parameter (1-255) |
-| ConfigurationSet | Write one parameter; payload `parameter_number`, optional `size`, `value`, optional `default_flag` |
+| ConfigurationSet | Write one parameter; payload `parameter_number`, optional top-level `size`, `value`, optional top-level `default_flag` (omit `value` when using the default) |
 | ConfigurationBulkGet | Read a consecutive parameter range (`parameter_offset`, `number_of_parameters`) |
-| ConfigurationBulkSet | Write a consecutive range; payload includes `properties1.size` / `handshake` / `default_flag` and `vg[].parameter` |
+| ConfigurationBulkSet | Write a consecutive range; payload includes `parameter_offset`, `number_of_parameters`, optional `properties1.size`, optional `handshake` / `default_flag`, and a `vg` array of `{ "parameter": [...] }` byte arrays. The array length must equal `number_of_parameters`, and each parameter byte array must match `size`. When `size` is omitted, ZPC uses the previously reported size for every parameter in the range; all must have a known, matching size. Set `default_flag` to 1 to restore defaults and omit `vg`. |
 | ConfigurationNameGet | Read parameter name |
 | ConfigurationInfoGet | Read parameter info |
 | ConfigurationPropertiesGet | Read one parameter's properties |

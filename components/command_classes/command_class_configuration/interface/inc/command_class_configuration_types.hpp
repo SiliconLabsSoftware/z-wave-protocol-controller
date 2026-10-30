@@ -51,6 +51,15 @@ namespace zwave_command_class
             parameter_scan_probe_second,
             name_reports_to_follow,
             info_reports_to_follow,
+            discovery_descriptions_active,
+            discovery_description_parameter,
+            discovery_description_phase,
+            discovery_descriptions_requested,
+        };
+
+        enum class discovery_description_phase_t : uint8_t {
+            NAME = 1,
+            INFO = 2,
         };
 
         enum class parameter_scan_phase_t : uint8_t {

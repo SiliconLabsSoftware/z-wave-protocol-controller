@@ -65,9 +65,31 @@ namespace zwave_command_class
 
     void command_class_configuration::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
-        (void)endpoint_node;
-        (void)supported_version;
-        // The specification requires no Configuration command during interview.
+        if (supported_version < 3) {
+            endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::properties_walk_active)).set_reported<uint8_t>(0);
+            endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_active)).set_reported<uint8_t>(0);
+            endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_requested)).set_reported<uint8_t>(0);
+            endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete)).set_reported<uint8_t>(1);
+            return;
+        }
+
+        endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_active)).set_reported<uint8_t>(0);
+        endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_requested)).set_reported<uint8_t>(1);
+
+        for (auto parameter_node: endpoint_node.children(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::PARAMETER_ID))) {
+            auto size_node = parameter_node.child_by_type(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::size));
+            if (size_node.is_valid()) {
+                size_node.clear_reported();
+            }
+        }
+
+        auto discovery_complete = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete));
+        cc_interview_require_attribute(discovery_complete);
+
+        // Version 3+ exposes the parameter list through the Properties Get
+        // next-parameter chain. Start at parameter 0 to discover its head.
+        endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::properties_walk_active)).set_reported<uint8_t>(1);
+        request_properties_get(endpoint_node, PARAMETER_NUMBER_PROBE_START);
     }
 
     uint8_t command_class_configuration::configuration_version(attribute_store::attribute endpoint_node)
@@ -104,6 +126,65 @@ namespace zwave_command_class
         command_class_configuration_core::start_group_resolution(group_node);
     }
 
+    void command_class_configuration::request_configuration_name_get(attribute_store::attribute endpoint_node, uint16_t parameter_number)
+    {
+        auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_name_get_group_attributes_t::CONFIGURATION_NAME_GET_GROUP));
+        group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_name_get_group_attributes_t::parameter_number)).set_desired(parameter_number);
+        command_class_configuration_core::start_group_resolution(group_node);
+    }
+
+    void command_class_configuration::request_configuration_info_get(attribute_store::attribute endpoint_node, uint16_t parameter_number)
+    {
+        auto group_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_info_get_group_attributes_t::CONFIGURATION_INFO_GET_GROUP));
+        group_node.emplace_node(static_cast<attribute_store_type_t>(configuration_info_get_group_attributes_t::parameter_number)).set_desired(parameter_number);
+        command_class_configuration_core::start_group_resolution(group_node);
+    }
+
+    void command_class_configuration::request_next_discovery_description(attribute_store::attribute endpoint_node, uint16_t after_parameter_number)
+    {
+        auto phase_node = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_description_phase));
+        if (!phase_node.reported_exists()) {
+            phase_node.set_reported(static_cast<uint8_t>(discovery_description_phase_t::NAME));
+        }
+        const auto phase = static_cast<discovery_description_phase_t>(phase_node.reported<uint8_t>());
+
+        uint16_t next_parameter   = 0;
+        bool found_next_parameter = false;
+        for (auto parameter_node: endpoint_node.children(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::PARAMETER_ID))) {
+            if (!parameter_node.reported_exists()) {
+                continue;
+            }
+            const uint16_t parameter_number = parameter_node.reported<uint16_t>();
+            if (parameter_number <= after_parameter_number || (found_next_parameter && parameter_number >= next_parameter)) {
+                continue;
+            }
+            auto size_node = parameter_node.child_by_type(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::size));
+            if (size_node.is_valid() && size_node.reported_exists() && is_valid_size(size_node.reported<uint8_t>())) {
+                next_parameter       = parameter_number;
+                found_next_parameter = true;
+            }
+        }
+
+        if (!found_next_parameter) {
+            if (phase == discovery_description_phase_t::NAME) {
+                phase_node.set_reported(static_cast<uint8_t>(discovery_description_phase_t::INFO));
+                request_next_discovery_description(endpoint_node, PARAMETER_NUMBER_PROBE_START);
+                return;
+            }
+            endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_active)).set_reported<uint8_t>(0);
+            endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete)).set_reported<uint8_t>(1);
+            return;
+        }
+
+        endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_active)).set_reported<uint8_t>(1);
+        endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_description_parameter)).set_reported(next_parameter);
+        if (phase == discovery_description_phase_t::NAME) {
+            request_configuration_name_get(endpoint_node, next_parameter);
+        } else {
+            request_configuration_info_get(endpoint_node, next_parameter);
+        }
+    }
+
     void command_class_configuration::start_properties_walk(attribute_store::attribute endpoint_node)
     {
         if (configuration_version(endpoint_node) < 3) {
@@ -111,6 +192,8 @@ namespace zwave_command_class
             endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete)).set_reported<uint8_t>(1);
             return;
         }
+        endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_requested)).set_reported<uint8_t>(0);
+        endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_active)).set_reported<uint8_t>(0);
         endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::properties_walk_active)).set_reported<uint8_t>(1);
         endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete)).clear_reported();
         request_properties_get(endpoint_node, PARAMETER_NUMBER_PROBE_START);
@@ -471,13 +554,18 @@ namespace zwave_command_class
         next_parameter_number                                                         = get_value_or_default(payload, "next_parameter_number", next_parameter_number);
         configuration_properties_report_parameter_number_t parameter_number           = 0;
         parameter_number                                                              = get_value_or_default(payload, "parameter_number", parameter_number);
-
-        next_parameter_number = apply_parameter_0_next_quirk(parameter_number, next_parameter_number);
+        next_parameter_number                                                         = apply_parameter_0_next_quirk(parameter_number, next_parameter_number);
         pending_properties_frame_.clear();
 
         if (next_parameter_number == NEXT_PARAMETER_TERMINATOR) {
             walk_active.set_reported<uint8_t>(0);
-            endpoint.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete)).set_reported<uint8_t>(1);
+            auto descriptions_requested = endpoint.child_by_type(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_requested));
+            if (!descriptions_requested.is_valid() || !descriptions_requested.reported_exists() || descriptions_requested.reported<uint8_t>() == 0) {
+                endpoint.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_complete)).set_reported<uint8_t>(1);
+                return SL_STATUS_OK;
+            }
+            endpoint.emplace_node(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_description_phase)).set_reported(static_cast<uint8_t>(discovery_description_phase_t::NAME));
+            request_next_discovery_description(endpoint, PARAMETER_NUMBER_PROBE_START);
             return SL_STATUS_OK;
         }
 
@@ -550,7 +638,15 @@ namespace zwave_command_class
         if (reports_to_follow > 0 && connection_info != nullptr) {
             zwave_tx_set_expected_frames(connection_info->remote.node_id, reports_to_follow);
         }
-        (void)endpoint;
+
+        auto active_node                = endpoint.child_by_type(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_active));
+        auto phase_node                 = endpoint.child_by_type(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_description_phase));
+        auto current_node               = endpoint.child_by_type(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_description_parameter));
+        const uint16_t parameter_number = get_value_or_default(payload, "parameter_number", static_cast<uint16_t>(0));
+        if (reports_to_follow == 0 && active_node.is_valid() && active_node.reported_exists() && active_node.reported<uint8_t>() != 0 && phase_node.is_valid() && phase_node.reported_exists() && phase_node.reported<uint8_t>() == static_cast<uint8_t>(discovery_description_phase_t::NAME)
+            && current_node.is_valid() && current_node.reported_exists() && current_node.reported<uint16_t>() == parameter_number) {
+            request_next_discovery_description(endpoint, parameter_number);
+        }
         return SL_STATUS_OK;
     }
 
@@ -561,7 +657,15 @@ namespace zwave_command_class
         if (reports_to_follow > 0 && connection_info != nullptr) {
             zwave_tx_set_expected_frames(connection_info->remote.node_id, reports_to_follow);
         }
-        (void)endpoint;
+
+        auto active_node                = endpoint.child_by_type(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_descriptions_active));
+        auto phase_node                 = endpoint.child_by_type(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_description_phase));
+        auto current_node               = endpoint.child_by_type(static_cast<attribute_store_type_t>(configuration_endpoint_attributes_t::discovery_description_parameter));
+        const uint16_t parameter_number = get_value_or_default(payload, "parameter_number", static_cast<uint16_t>(0));
+        if (reports_to_follow == 0 && active_node.is_valid() && active_node.reported_exists() && active_node.reported<uint8_t>() != 0 && phase_node.is_valid() && phase_node.reported_exists() && phase_node.reported<uint8_t>() == static_cast<uint8_t>(discovery_description_phase_t::INFO)
+            && current_node.is_valid() && current_node.reported_exists() && current_node.reported<uint16_t>() == parameter_number) {
+            request_next_discovery_description(endpoint, parameter_number);
+        }
         return SL_STATUS_OK;
     }
 
