@@ -165,8 +165,9 @@ typedef struct sec_tx_session {
         const void *user;
         // Callback function, called when the Tx session has been terminated
         on_zwave_tx_send_data_complete_t callback;
-        // Extended TX status, most notably IMA information
+        // Keep a copy because the final callback can run after tx_info's caller returns.
         const zwapi_tx_report_t *tx_ext_status;
+        zwapi_tx_report_t tx_ext_status_storage;
         zwave_tx_session_id_t session_id;
 } sec_tx_session_t;
 
@@ -596,7 +597,8 @@ static void callback(uint8_t status, const zwapi_tx_report_t *tx_info, void *use
     s->tx_code = status;
     // TX ext status return from serial API only if transmit succeed
     if (tx_info) {
-        s->tx_ext_status = tx_info;
+        s->tx_ext_status_storage = *tx_info;
+        s->tx_ext_status         = &s->tx_ext_status_storage;
     }
 
     // Transmit fail, go to Tx Fail no matter our state.
