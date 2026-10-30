@@ -19,8 +19,7 @@
 
 /// libs2 includes
 #include "S2.h"
-#include "x25519.h"
-#include "rand.h"
+#include "crypto.h"
 #include "s2_keystore.h"
 
 /// zwave_api includes

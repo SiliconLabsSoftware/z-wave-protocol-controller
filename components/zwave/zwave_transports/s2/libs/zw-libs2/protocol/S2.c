@@ -16,10 +16,7 @@
 
 #include "zwave_s2_next_nonce.h"
 #include "zwave_s2_key_derivation.h"
-#include "x25519.h"
-#include "aes_ccm.h"
-#include "rand.h"
-#include "aes_ecb.h"
+#include "crypto.h"
 
 #include <platform.h>
 #include "ZW_classcmd.h"

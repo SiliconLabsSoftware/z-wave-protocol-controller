@@ -17,7 +17,7 @@
 
 #include <gtest/gtest.h>
 
-#include "aes_ecb.hpp"
+#include "crypto.hpp"
 #include "test_fixture.hpp"
 
 namespace
@@ -75,6 +75,6 @@ TEST_F(Crypto, AesEcbEncryptCppApi)
     const uint8_t expected[]                            = {0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60, 0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97};
     std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> buffer {};
 
-    ASSERT_EQ(SL_STATUS_OK, crypto::aes_ecb_encrypt(key, in, buffer));
+    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_ecb_encrypt(key, in, buffer));
     ExpectBytesEq(expected, buffer.data(), buffer.size());
 }

@@ -37,11 +37,7 @@
 #include "S2.h"
 #include "zwave_s2_keystore.h"
 #include "s2_keystore.h"
-#include "x25519.h"
-#include "rand.h"
-#include "aes_cbc_mac.h"
-#include "aes_ecb.h"
-#include "aes_ofb.h"
+#include "crypto.h"
 
 // ZPC components
 #include "log.h"

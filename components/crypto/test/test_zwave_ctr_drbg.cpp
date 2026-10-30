@@ -27,7 +27,7 @@
 
 #include <gtest/gtest.h>
 
-#include "aes_ctr_drbg.hpp"
+#include "crypto.hpp"
 #include "test_fixture.hpp"
 
 uint8_t dbgCTRDRBG = 0;
@@ -347,9 +347,9 @@ TEST_F(Crypto, AesCtrDrbgGenerateCppApi)
     AJ_HexToRaw(personal_str, strlen(personal_str), personal.data(), personal.size());
     AJ_HexToRaw(expected_rand_hex, strlen(expected_rand_hex), expected.data(), expected.size());
 
-    ASSERT_EQ(SL_STATUS_OK, crypto::aes_ctr_drbg_init(ctx, entropy, personal));
-    ASSERT_EQ(SL_STATUS_OK, crypto::aes_ctr_drbg_generate(ctx, output));
-    ASSERT_EQ(SL_STATUS_OK, crypto::aes_ctr_drbg_generate(ctx, output));
+    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_ctr_drbg_init(ctx, entropy, personal));
+    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_ctr_drbg_generate(ctx, output));
+    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_ctr_drbg_generate(ctx, output));
     ExpectBytesEq(expected.data(), output.data(), expected.size());
 }
 

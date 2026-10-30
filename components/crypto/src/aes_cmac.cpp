@@ -1,4 +1,4 @@
-#include "aes_cmac.hpp"
+#include "crypto.hpp"
 
 #include "psa/crypto.h"
 #include "psa_status.hpp"
@@ -31,18 +31,13 @@ namespace crypto
         return psa_status_to_sl_status(status);
     }
 
-    sl_status_t aes_cmac_compute(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t> message, std::span<uint8_t, CRYPTO_AES_CMAC_OUTPUT_LEN> mac)
-    {
-        return Crypto::instance().aes_cmac_compute(key, message, mac);
-    }
-
 }  // namespace crypto
 
 extern "C" {
 
 sl_status_t crypto_aes_cmac_compute(const uint8_t *key, const uint8_t *message, size_t message_length, uint8_t *mac)
 {
-    return crypto::aes_cmac_compute(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t>(message, message_length), std::span<uint8_t, CRYPTO_AES_CMAC_OUTPUT_LEN>(mac, CRYPTO_AES_CMAC_OUTPUT_LEN));
+    return crypto::Crypto::instance().aes_cmac_compute(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t>(message, message_length), std::span<uint8_t, CRYPTO_AES_CMAC_OUTPUT_LEN>(mac, CRYPTO_AES_CMAC_OUTPUT_LEN));
 }
 
 }  // extern "C"

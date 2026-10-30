@@ -20,7 +20,7 @@
 
 #include <gtest/gtest.h>
 
-#include "aes_ccm.hpp"
+#include "crypto.hpp"
 #include "test_fixture.hpp"
 
 #define S2_CCM_TAG_LEN   8U
@@ -159,12 +159,14 @@ TEST_F(Crypto, AesCcmEncryptDecryptCppApi)
     std::array<uint8_t, 32> ciphertext {};
     size_t ciphertext_len = 0;
 
-    ASSERT_EQ(SL_STATUS_OK, crypto::aes_ccm_encrypt(key, 6, std::span<const uint8_t>(nonce, sizeof(nonce)), std::span<const uint8_t>(aad, sizeof(aad)), std::span<const uint8_t>(plaintext, sizeof(plaintext)), std::span<uint8_t>(ciphertext.data(), ciphertext.size()), ciphertext_len));
+    ASSERT_EQ(SL_STATUS_OK,
+              crypto::Crypto::instance().aes_ccm_encrypt(key, 6, std::span<const uint8_t>(nonce, sizeof(nonce)), std::span<const uint8_t>(aad, sizeof(aad)), std::span<const uint8_t>(plaintext, sizeof(plaintext)), std::span<uint8_t>(ciphertext.data(), ciphertext.size()), ciphertext_len));
     ASSERT_EQ(22U, ciphertext_len);
     ExpectBytesEq(expected, ciphertext.data(), ciphertext_len);
 
     size_t plaintext_len = 0;
-    ASSERT_EQ(SL_STATUS_OK, crypto::aes_ccm_decrypt(key, 6, std::span<const uint8_t>(nonce, sizeof(nonce)), std::span<const uint8_t>(aad, sizeof(aad)), std::span<const uint8_t>(ciphertext.data(), ciphertext_len), std::span<uint8_t>(ciphertext.data(), ciphertext.size()), plaintext_len));
+    ASSERT_EQ(SL_STATUS_OK,
+              crypto::Crypto::instance().aes_ccm_decrypt(key, 6, std::span<const uint8_t>(nonce, sizeof(nonce)), std::span<const uint8_t>(aad, sizeof(aad)), std::span<const uint8_t>(ciphertext.data(), ciphertext_len), std::span<uint8_t>(ciphertext.data(), ciphertext.size()), plaintext_len));
     ASSERT_EQ(sizeof(plaintext), plaintext_len);
     ExpectBytesEq(plaintext, ciphertext.data(), plaintext_len);
 }

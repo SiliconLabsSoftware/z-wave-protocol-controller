@@ -11,7 +11,7 @@
 #define PROTOCOL_S2_PROTOCOL_H_
 #include <stdbool.h>
 #include "S2.h"
-#include "aes_ctr_drbg.h"
+#include "crypto.h"
 #include "s2_classcmd.h"
 #include "ZW_typedefs.h"
 #include "ZW_classcmd.h"

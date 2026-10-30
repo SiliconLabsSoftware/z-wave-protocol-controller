@@ -1,4 +1,4 @@
-#include "aes_cbc_mac.hpp"
+#include "crypto.hpp"
 
 #include <cstring>
 
@@ -90,18 +90,16 @@ namespace crypto
         return SL_STATUS_OK;
     }
 
-    sl_status_t aes_cbc_mac(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE> iv, std::span<const uint8_t> data, std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE> mac)
-    {
-        return Crypto::instance().aes_cbc_mac(key, iv, data, mac);
-    }
-
 }  // namespace crypto
 
 extern "C" {
 
 sl_status_t crypto_aes_cbc_mac(const uint8_t *key, const uint8_t *iv, const uint8_t *data, uint8_t len, uint8_t *mac)
 {
-    return crypto::aes_cbc_mac(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(iv, CRYPTO_AES_BLOCK_SIZE), std::span<const uint8_t>(data, len), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(mac, CRYPTO_AES_BLOCK_SIZE));
+    return crypto::Crypto::instance().aes_cbc_mac(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE),
+                                                  std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(iv, CRYPTO_AES_BLOCK_SIZE),
+                                                  std::span<const uint8_t>(data, len),
+                                                  std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(mac, CRYPTO_AES_BLOCK_SIZE));
 }
 
 }  // extern "C"
