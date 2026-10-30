@@ -19,9 +19,9 @@
 #include "test_fixture.hpp"
 
 // PSA random generation succeeds after crypto init.
-TEST_F(Crypto, PsaGenerateRandom)
+TEST_F(CryptoBackend, PsaGenerateRandom)
 {
     uint8_t buf[16]     = {0};
-    psa_status_t status = psa_generate_random(buf, sizeof(buf));
+    psa_status_t status = psa_wrappers.generate_random(buf);
     EXPECT_EQ(PSA_SUCCESS, status);
 }
