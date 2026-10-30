@@ -69,6 +69,7 @@ nav:
   - Guides:
     - Command Class Implementation: command_class_implementation_guide.md
   - Release Notes:
+    - v2.1.0: release-notes/v2.1.0.md
     - v2.0.1: release-notes/v2.0.1.md
     - v2.0.0: release-notes/v2.0.0.md
   - Sequences:
@@ -133,8 +134,17 @@ nav:
         - "MQTT interface": api/command_classes/command_class_notification/command_class_notification_mqtt_interface.md
         - "Overview": api/command_classes/command_class_notification/command_class_notification.md
     # GENERATED_CC_NAV_START
+    - "Configuration": api/command_classes/command_class_configuration/command_class_configuration_mqtt_interface.md
     - "Firmware Update Md": api/command_classes/command_class_firmware_update_md/command_class_firmware_update_md_mqtt_interface.md
+    - "Meter": api/command_classes/command_class_meter/command_class_meter_mqtt_interface.md
+    - "Node Naming": api/command_classes/command_class_node_naming/command_class_node_naming_mqtt_interface.md
+    - "Schedule": api/command_classes/command_class_schedule/command_class_schedule_mqtt_interface.md
     - "Security": api/command_classes/command_class_security/command_class_security_mqtt_interface.md
     - "Security 2": api/command_classes/command_class_security_2/command_class_security_2_mqtt_interface.md
+    - "Sensor Binary": api/command_classes/command_class_sensor_binary/command_class_sensor_binary_mqtt_interface.md
+    - "Sensor Multilevel": api/command_classes/command_class_sensor_multilevel/command_class_sensor_multilevel_mqtt_interface.md
+    - "Thermostat Fan State": api/command_classes/command_class_thermostat_fan_state/command_class_thermostat_fan_state_mqtt_interface.md
+    - "Thermostat Operating State": api/command_classes/command_class_thermostat_operating_state/command_class_thermostat_operating_state_mqtt_interface.md
+    - "Thermostat Setback": api/command_classes/command_class_thermostat_setback/command_class_thermostat_setback_mqtt_interface.md
     - "Time": api/command_classes/command_class_time/command_class_time_mqtt_interface.md
     # GENERATED_CC_NAV_END

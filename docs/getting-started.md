@@ -103,11 +103,24 @@ Flash the **Z-Wave NCP Serial API Controller** firmware onto your Silicon Labs b
 
 ## Build ZPC
 
-ZPC uses CMake presets. Use `debug` or `release` on macOS, Linux, and inside Docker:
+ZPC uses CMake workflow presets. Choose the preset for the job you want:
+
+| Preset | What it does |
+|---|---|
+| `debug` | Builds the ZPC application with debug settings. |
+| `release` | Builds the optimized ZPC application. |
+| `unit-test` | Builds and runs the unit tests with AddressSanitizer and UndefinedBehaviorSanitizer enabled. |
+| `unit-test-coverage` | Builds and runs unit tests with coverage instrumentation and sanitizers disabled. Run `ci/scripts/check_coverage.py` afterward to create the report and check coverage thresholds. |
+| `debug-sanitize` | Builds the debug ZPC application with AddressSanitizer and UndefinedBehaviorSanitizer. |
+| `debug-tsan` | Builds the debug ZPC application with ThreadSanitizer. |
+
+Run a workflow on macOS, Linux, or inside Docker with:
 
 ```bash
 cmake --workflow --preset <preset>
 ```
+
+For example, use `cmake --workflow --preset release`. The test and coverage presets are described in more detail in [Contributing: Testing](https://github.com/SiliconLabsSoftware/z-wave-protocol-controller/blob/main/CONTRIBUTING.md#testing).
 
 On Linux, you can produce a `.deb` package after the build — see [Debian packaging](packaging-debian.md).
 

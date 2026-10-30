@@ -36,6 +36,10 @@ CPack writes the `.deb` under `build/release/`.
 
 Runtime **`Depends:`** are set in `cmake/include/cpack.cmake` (`CPACK_DEBIAN_PACKAGE_DEPENDS`). Override at configure time with `-DCPACK_DEBIAN_PACKAGE_DEPENDS='...'` if needed.
 
+The default runtime dependencies are `libc6 (>= 2.31)` and `libssl3 (>= 3.0.0)`. SQLite, fmt, yaml-cpp, and nlohmann/json are built into ZPC (or are header-only), so the package no longer requires their separate Debian runtime packages. Sanitizer packages add the matching runtime library: `libasan8` and `libubsan1` for AddressSanitizer/UndefinedBehaviorSanitizer builds, or `libtsan2` for ThreadSanitizer builds.
+
+All Debian build presets use the filename `zpc-<architecture>.deb`, including sanitizer builds. CI artifact names identify the sanitizer preset separately.
+
 ## Cross-compilation
 
 When using `cmake/arm64_debian.cmake` or `cmake/armhf_debian.cmake`, `CPACK_DEBIAN_PACKAGE_ARCHITECTURE` is preset for the target. Align `CMAKE_INSTALL_PREFIX` and sysroot with your cross environment.

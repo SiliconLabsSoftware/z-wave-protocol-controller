@@ -1,9 +1,22 @@
 #!/usr/bin/env python3
 """Gate component line and branch coverage using native LLVM reports and the component blacklist.
 
-From the repository root, after cmake --workflow --preset unit-test-coverage:
+Prerequisites:
+    * Python 3.10+ with PyYAML installed (included in ci/dependencies/requirements.txt).
+    * A Clang-instrumented unit-test-coverage build and a completed CTest run, so
+      the build directory contains CMakeCache.txt, test binaries, and current
+      .profraw profiles.
+    * llvm-profdata and llvm-cov from the same LLVM toolchain as Clang. They
+      must be on PATH or llvm-profdata must be selected with the LLVM_PROFDATA
+      environment variable.
 
+From the repository root, prepare the build and collect coverage with:
+
+    cmake --workflow --preset unit-test-coverage
     python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
+
+Use --skip-report only when build-dir/coverage/coverage.json already contains a
+native LLVM export from a previous collection run.
 """
 from __future__ import annotations
 
@@ -22,7 +35,17 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+        description="Gate component line and branch coverage using native LLVM reports.",
+        epilog=(
+            "Prerequisites: Python 3.10+ with PyYAML; a built and tested "
+            "unit-test-coverage configuration; and matching llvm-profdata / "
+            "llvm-cov tools (set the LLVM_PROFDATA environment variable if "
+            "they are not beside Clang). "
+            "See the module documentation for the full setup."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument(
         "--build-dir",
         type=Path,
@@ -137,7 +160,10 @@ def run_llvm_coverage(build_dir: Path, coverage_dir: Path) -> Path:
     profdata = os.environ.get("LLVM_PROFDATA") or str(Path(compiler).resolve().with_name("llvm-profdata"))
     cov = profdata.replace("llvm-profdata", "llvm-cov")
     if not shutil.which(profdata) or not shutil.which(cov):
-        raise SystemExit("error: LLVM coverage tools missing; set LLVM_PROFDATA to the tool matching your Clang")
+        raise SystemExit(
+            "error: LLVM coverage tools missing; set the LLVM_PROFDATA "
+            "environment variable to the llvm-profdata tool matching your Clang"
+        )
 
     tests = json.loads(subprocess.check_output(
         ["ctest", "--test-dir", str(build_dir), "--show-only=json-v1"], text=True,

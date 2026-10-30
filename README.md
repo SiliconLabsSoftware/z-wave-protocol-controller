@@ -51,31 +51,40 @@ ZPC uses a reported/desired value system where all state parameters have a repor
 | Command Class | Version | Supported | Controlled | Security Level |
 | ------------- | ------- | --------- | ---------- | -------------- |
 | Association | 3 | true | true | Network Scheme |
-| Association Group Info | 3 | true | true | Network Scheme |
+| Association Group Information | 3 | true | true | Network Scheme |
 | Basic | 2 | false | true | Network Scheme |
 | Battery | 3 | false | true | Network Scheme |
+| Configuration | 4 | false | true | Network Scheme |
 | Device Reset Locally | 1 | true | true | Network Scheme |
 | Door Lock | 4 | false | true | Network Scheme |
-| Firmware Update MD | 5 | true | true | Network Scheme |
+| Firmware Update Meta Data | 5 | true | true | Network Scheme |
 | Indicator | 4 | true | true | Network Scheme |
 | Manufacturer Specific | 2 | true | true | Network Scheme |
+| Meter | 6 | false | true | Network Scheme |
 | Multi Channel | 4 | false | true | Network Scheme |
 | Multi Channel Association | 3 | true | true | Network Scheme |
 | Multi Command | 1 | true | false | Network Scheme |
 | Notification | 8 | true | true | Network Scheme |
-| Power Level | 1 | true | false | Network Scheme |
+| Node Naming and Location | 1 | false | true | Network Scheme |
+| Powerlevel | 1 | true | false | Network Scheme |
 | Protocol (Z-Wave) | 1 | true | false | Network Scheme |
 | Protocol Long Range | 1 | true | false | Network Scheme |
 | Security 0 (S0) | 1 | true | true | None |
 | Security 2 (S2) | 1 | true | true | None |
+| Schedule | 4 | false | true | Network Scheme |
+| Sensor Binary | 2 | false | true | Network Scheme |
+| Sensor Multilevel | 11 | false | true | Network Scheme |
 | Supervision | 2 | true | true | None |
-| Switch Binary | 2 | false | true | None |
+| Switch Binary | 2 | false | true | Network Scheme |
 | Switch Color | 3 | false | true | Network Scheme |
-| Switch Multilevel | 4 | false | true | None |
+| Switch Multilevel | 4 | false | true | Network Scheme |
 | Thermostat Fan Mode | 5 | false | true | Network Scheme |
+| Thermostat Fan State | 2 | false | true | Network Scheme |
 | Thermostat Mode | 3 | false | true | Network Scheme |
+| Thermostat Operating State | 2 | false | true | Network Scheme |
+| Thermostat Setback | 1 | false | true | Network Scheme |
 | Thermostat Setpoint | 3 | false | true | Network Scheme |
-| Time | 3 | true | false | Network Scheme |
+| Time | 3 | true | true | Network Scheme |
 | Transport Service | 2 | true | true | None |
 | Version | 3 | true | true | Network Scheme |
 | Wake Up | 3 | false | true | Network Scheme |
@@ -85,7 +94,7 @@ ZPC uses a reported/desired value system where all state parameters have a repor
 
 Protocol (Z-Wave), Protocol Long Range, Security 0 (S0), Security 2 (S2), and Transport Service are generated with `protocol: true` and a `generate_commands` allowlist. They are not MQTT-facing. Segmentation stays in the Transport Service wrapper (`transport_service.c`); the Transport Service command class is only a manager registration stub.
 
-**Time (version 3):** ZPC answers Date Get and Time Get from the host computer's clock. The timezone offset stays zero. Time Set and Date Set from the network are ignored. There is no MQTT command topic for this class; reports can still be published.
+**Time (version 3):** ZPC answers Time Get, Date Get, and Time Offset Get from the host's local clock. Its reported timezone offset is zero, and the host clock is treated as the time source. As a controlling node, ZPC requests a device's time during interview (including Time Offset for version 2+), accepts MQTT Time/Date/Offset Get and Set commands, and publishes returned reports. It also sends an initial Time Report to interviewed Time endpoints, repeats it after 36 hours without a recent request/report, and sends reports when the host's daylight-saving state changes. Incoming Set commands do not change the host clock. See the [Time Command Class documentation](components/command_classes/command_class_time/doc/command_class_time.md).
 
 **Multi Command (version 1):** There is no MQTT API. When ZPC receives `MULTI_CMD_ENCAP`, it handles each command inside the frame. A truncated frame or a bad length is rejected. If one inner command cannot be handled, the rest still run.
 
@@ -183,7 +192,7 @@ zpc:
 ./build/<preset_name>/applications/zpc/zpc --log.level d
 ```
 
-ZPC is controlled entirely over MQTT — it does not read from the terminal. For full MQTT API documentation, see the [MQTT API index](components/mqtt_api/doc/mqtt_api_index.md), which links to Discovery, Network Management, SmartStart, Device Interview, and all [Command Class MQTT interfaces](components/command_classes/doc/generated/mqtt_interface.md).
+ZPC is controlled entirely over MQTT — it does not read from the terminal. For full MQTT API documentation, see the [MQTT API index](components/mqtt_api/doc/mqtt_api_index.md), which links to Discovery, Network Management, SmartStart, Device Interview, Network Status, OTA, and all [Command Class MQTT interfaces](components/command_classes/doc/generated/mqtt_interface.md).
 
 ## Switch On/Off Demo
 
@@ -223,7 +232,7 @@ mosquitto_pub -t 'zpc/<home_id>/Network/Node/Add' -m '{}'
 mosquitto_pub -t 'zpc/<home_id>/Network/DSK/Accept' -m '{"dsk":"12345"}'
 ```
 
-* When the device interview finishes (per endpoint), ZPC publishes to `zpc/<home_id>/Interview/Report` with `node_id`, `endpoint_id`, and `status`. Endpoint 0 reports also include `node_information` and `version_report`, matching the objects in `Network/Node/List/Report`. Subscribe to that topic to know when the device is fully interviewed.
+* When an endpoint interview finishes, ZPC publishes to `zpc/<home_id>/Interview/Report` with its `node_id`, `endpoint_id`, and numeric `status` (`0` means success). A successful report is sent after the post-interview requests finish; failures and cancellations are reported too. The endpoint 0 report also includes `node_information` and `version_report`, with the same fields as those objects in `Network/Node/List/Report`. This gives clients the root device classes, supported Command Class lists, security information, and protocol/firmware/hardware versions as soon as the interview is complete. Other endpoint reports contain only the node ID, endpoint ID, and status. See the [Device Interviewer API](components/device_interviewer/docs/device_interviewer.md#interviewreport) for a sample payload and field details.
 
 ### Step 4: Control the Switch On/Off device via MQTT
 
@@ -300,7 +309,8 @@ Full documentation is built with [MkDocs](https://www.mkdocs.org/) and the [Mate
 
 ### Release notes
 
-- [v2.0.1](docs/release-notes/v2.0.1.md) — Latest release
+- [v2.1.0](docs/release-notes/v2.1.0.md) — Latest release
+- [v2.0.1](docs/release-notes/v2.0.1.md)
 - [v2.0.0](docs/release-notes/v2.0.0.md)
 
 ### Component docs

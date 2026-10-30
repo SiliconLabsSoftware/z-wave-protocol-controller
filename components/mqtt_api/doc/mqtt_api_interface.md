@@ -148,6 +148,8 @@ subscribe_topic("zpc/Discovery", callback, false);
 3. **Node-specific topics**: Include node ID and endpoint (e.g., `{node_id}/ep{endpoint}/SwitchBinary/Command/SwitchBinarySet`)
 4. **Global topics**: Use `zpc/` prefix directly (e.g., `zpc/Discovery`)
 
+ZPC publishes node IDs as decimal numbers in MQTT topics and JSON reports. In a node-specific topic sent by a client, the node ID can be decimal (for example, `.../4/ep0/...`) or hexadecimal with a `0x` prefix (for example, `.../0x04/ep0/...`). JSON payloads have their own rules: for example, `Network/Node/Remove` expects `{"node_id": 4}`, while `Network/Node/Interview` also accepts a hexadecimal string such as `{"node_id": "0x04"}`. Check each API's payload description for its accepted format.
+
 The base topic is retrieved from the current Z-Wave network's home ID at runtime, ensuring topics always reflect the active network.
 
 ## See also

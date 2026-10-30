@@ -78,7 +78,7 @@ Request a commissioning interview (via Network Management) and receive completio
 | Topic pattern | Direction | Description |
 |---------------|-----------|-------------|
 | `zpc/<home_id>/Network/Node/Interview` | Command | Request a (re-)interview for a node (`node_id`); see [Network Management MQTT API](../../network_manager/doc/network_management_mqtt_api.md#network_node_interview) |
-| `zpc/<home_id>/Interview/Report` | Report | Published when an endpoint interview finishes (`node_id`, `endpoint_id`, `status`); endpoint 0 reports also include `node_information` and `version_report` |
+| `zpc/<home_id>/Interview/Report` | Report | Published when each endpoint interview finishes (`node_id`, `endpoint_id`, numeric `status`; `0` = success). Endpoint 0 also includes `node_information` and `version_report`, matching the objects in `Network/Node/List/Report`. |
 
 **Full reference:** [Device Interviewer](../../device_interviewer/docs/device_interviewer.md#mqtt-api) (MQTT API section)
 

@@ -68,6 +68,8 @@ supported_command_classes:
 
 For transport-layer / protocol command classes, set `protocol: true` (with `mqtt_support: false`). `generate_commands` is required: listed XML `<cmd>` names are generated; an empty list produces a registration shell only. GET/SET resolver rules are still emitted when `control: true` and those commands are generated (for example Security / Security 2 Commands Supported Get). Override `control_handler` / `support_handler` on the leaf when the generated switch is not enough (for example tunneling to `zwapi_transfer_protocol_cc`, or logging that Transport Service frames must not reach the application layer).
 
+The generator parses variable-length arrays and variant groups from the Z-Wave XML definitions, including arrays that consume the remainder of a report and variant groups followed by version-dependent fields. If a command's optional-field metadata needs a project-specific correction, add an `optional_param_overrides` entry in `config.yaml` with its command class, command, parameter, byte offset, and mask. For example, Meter Report's Previous Meter Value is present when any bit in the 16-bit Delta Time field is set (`optionalmask: "0xFFFF"`). Re-run CMake configuration after changing generator configuration or templates.
+
 For Multilevel Switch, `support: false` and `control: true` means ZPC controls multilevel switch devices on the network but does not expose this command class as a supporting device.
 
 ---
