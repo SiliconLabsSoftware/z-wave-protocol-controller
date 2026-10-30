@@ -29,6 +29,7 @@ applications/*/debconf/config
 # Other files
 *.swp
 *.gcov
+*.profraw
 
 ### CMake ###
 CMakeLists.txt.user
