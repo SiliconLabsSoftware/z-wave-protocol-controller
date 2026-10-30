@@ -1,0 +1,7 @@
+add_library(crypto_backend_test_helpers INTERFACE)
+target_link_libraries(crypto_backend_test_helpers INTERFACE crypto_backend GTest::gtest GTest::gmock)
+target_include_directories(crypto_backend_test_helpers INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_zpc_gtest(NAME test_psa_wrappers SRCS test_psa_wrappers.cpp LIBS crypto_backend_test_helpers)
+
+add_zpc_gtest(NAME test_psa_smoke SRCS test_psa_smoke.cpp LIBS crypto_backend_test_helpers)

@@ -11,10 +11,11 @@
 #include "rand.h"
 #include "x25519.h"
 #include "aes_ctr_drbg.h"
-#include "psa_wrappers.hpp"
 
 namespace crypto
 {
+    class PsaWrappersInterface;
+
     class Crypto
     {
         public:

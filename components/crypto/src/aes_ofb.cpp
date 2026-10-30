@@ -1,6 +1,8 @@
 #include "aes_ofb.hpp"
 
 #include "psa/crypto.h"
+#include "psa_status.hpp"
+#include "psa_wrappers_interface.hpp"
 
 namespace crypto
 {
@@ -20,39 +22,39 @@ namespace crypto
 
         status = psa_wrappers_.crypto_init();
         if (status != PSA_SUCCESS) {
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB, key.data(), &key_id, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS, CRYPTO_AES_KEY_SIZE);
+        status = psa_wrappers_.import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB, key, key_id, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS);
         if (status != PSA_SUCCESS) {
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.cipher_encrypt_setup(&operation, key_id, PSA_ALG_OFB);
+        status = psa_wrappers_.cipher_encrypt_setup(operation, key_id, PSA_ALG_OFB);
         if (status != PSA_SUCCESS) {
             psa_wrappers_.destroy_key(key_id);
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.cipher_set_iv(&operation, iv.data(), CRYPTO_AES_BLOCK_SIZE);
+        status = psa_wrappers_.cipher_set_iv(operation, iv);
         if (status != PSA_SUCCESS) {
-            psa_wrappers_.cipher_abort(&operation);
+            psa_wrappers_.cipher_abort(operation);
             psa_wrappers_.destroy_key(key_id);
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.cipher_update(&operation, data.data(), len, data.data(), len, &update_len);
+        status = psa_wrappers_.cipher_update(operation, data, data, update_len);
         if (status != PSA_SUCCESS) {
-            psa_wrappers_.cipher_abort(&operation);
+            psa_wrappers_.cipher_abort(operation);
             psa_wrappers_.destroy_key(key_id);
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.cipher_finish(&operation, data.data() + update_len, len - update_len, &finish_len);
+        status = psa_wrappers_.cipher_finish(operation, data.subspan(update_len), finish_len);
         if (status != PSA_SUCCESS) {
-            psa_wrappers_.cipher_abort(&operation);
+            psa_wrappers_.cipher_abort(operation);
             psa_wrappers_.destroy_key(key_id);
-            return psa_wrappers_.psa_status_to_sl_status(status);
+            return psa_status_to_sl_status(status);
         }
 
         psa_wrappers_.destroy_key(key_id);
