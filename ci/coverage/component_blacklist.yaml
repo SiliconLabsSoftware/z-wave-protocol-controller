@@ -7,7 +7,6 @@ blacklist:
   - components/attribute_store
   - components/attribute_timeouts
   - components/command_classes
-  - components/command_classes/command_class_association_grp_info
   - components/command_classes/command_class_basic
   - components/command_classes/command_class_battery
   - components/command_classes/command_class_configuration
