@@ -20,7 +20,7 @@
 
 #include <gtest/gtest.h>
 
-#include "aes_ofb.hpp"
+#include "crypto.hpp"
 #include "test_fixture.hpp"
 
 /* NIST SP 800-38A Appendix F.4.1 (OFB-AES128.Encrypt) */
@@ -119,7 +119,7 @@ TEST_F(Crypto, AesOfbXorCppApi)
     std::array<uint8_t, 16> buffer {};
     memcpy(buffer.data(), nist_plain_64, buffer.size());
 
-    ASSERT_EQ(SL_STATUS_OK, crypto::aes_ofb_xor(key, iv, std::span<uint8_t>(buffer.data(), buffer.size())));
+    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_ofb_xor(key, iv, std::span<uint8_t>(buffer.data(), buffer.size())));
     ExpectBytesEq(nist_cipher_64, buffer.data(), buffer.size());
 }
 
@@ -137,7 +137,7 @@ TEST_F(Crypto, OfbCppEmptyDataPreservesKeyAndIv)
     std::copy_n(nist_iv, iv.size(), iv.begin());
     const auto saved_key = key;
     const auto saved_iv  = iv;
-    EXPECT_EQ(SL_STATUS_OK, crypto::aes_ofb_xor(key, iv, {}));
+    EXPECT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_ofb_xor(key, iv, {}));
     EXPECT_EQ(saved_key, key);
     EXPECT_EQ(saved_iv, iv);
 }

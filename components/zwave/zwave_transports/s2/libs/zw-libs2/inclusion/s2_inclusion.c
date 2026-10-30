@@ -15,7 +15,7 @@
 #include "ZW_classcmd.h"
 #include "s2_classcmd.h"
 #include "zwave_s2_key_derivation.h"
-#include "x25519.h"
+#include "crypto.h"
 #include "s2_inclusion_internal.h"
 
 #define CHECK_AND_FAIL(CHECK, FAILURE) \

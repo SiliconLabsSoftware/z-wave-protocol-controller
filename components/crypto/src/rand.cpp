@@ -1,4 +1,4 @@
-#include "rand.hpp"
+#include "crypto.hpp"
 
 #include "psa/crypto.h"
 #include "psa_status.hpp"
@@ -21,18 +21,13 @@ namespace crypto
         return psa_status_to_sl_status(psa_wrappers_.generate_random(output));
     }
 
-    sl_status_t generate_random(std::span<uint8_t> output)
-    {
-        return Crypto::instance().generate_random(output);
-    }
-
 }  // namespace crypto
 
 extern "C" {
 
 sl_status_t crypto_generate_random(uint8_t *output, size_t output_size)
 {
-    return crypto::generate_random(std::span<uint8_t>(output, output_size));
+    return crypto::Crypto::instance().generate_random(std::span<uint8_t>(output, output_size));
 }
 
 }  // extern "C"

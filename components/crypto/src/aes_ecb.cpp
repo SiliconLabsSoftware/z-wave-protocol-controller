@@ -1,4 +1,4 @@
-#include "aes_ecb.hpp"
+#include "crypto.hpp"
 
 #include "psa/crypto.h"
 #include "psa_status.hpp"
@@ -55,31 +55,19 @@ namespace crypto
         return psa_status_to_sl_status(status);
     }
 
-    sl_status_t aes_ecb_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE> input, std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE> output)
-    {
-        return Crypto::instance().aes_ecb_encrypt(key, input, output);
-    }
-
-#ifdef UNIT_TEST
-    sl_status_t aes_ecb_decrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE> input, std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE> output)
-    {
-        return Crypto::instance().aes_ecb_decrypt(key, input, output);
-    }
-#endif
-
 }  // namespace crypto
 
 extern "C" {
 
 sl_status_t crypto_aes_ecb_encrypt(const uint8_t *key, const uint8_t *input, uint8_t *output)
 {
-    return crypto::aes_ecb_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(input, CRYPTO_AES_BLOCK_SIZE), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(output, CRYPTO_AES_BLOCK_SIZE));
+    return crypto::Crypto::instance().aes_ecb_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(input, CRYPTO_AES_BLOCK_SIZE), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(output, CRYPTO_AES_BLOCK_SIZE));
 }
 
 #ifdef UNIT_TEST
 sl_status_t crypto_aes_ecb_decrypt(const uint8_t *key, const uint8_t *input, uint8_t *output)
 {
-    return crypto::aes_ecb_decrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(input, CRYPTO_AES_BLOCK_SIZE), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(output, CRYPTO_AES_BLOCK_SIZE));
+    return crypto::Crypto::instance().aes_ecb_decrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(input, CRYPTO_AES_BLOCK_SIZE), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(output, CRYPTO_AES_BLOCK_SIZE));
 }
 #endif
 
