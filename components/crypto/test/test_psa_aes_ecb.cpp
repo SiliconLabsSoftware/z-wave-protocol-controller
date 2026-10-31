@@ -1,0 +1,80 @@
+/******************************************************************************
+ * # License
+ * <b>Copyright 2026 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+
+#include <array>
+#include <cstdint>
+#include <vector>
+
+#include <gtest/gtest.h>
+
+#include "crypto.hpp"
+#include "test_fixture.hpp"
+
+namespace
+{
+    void ExpectBytesEq(const uint8_t *expected, const uint8_t *actual, size_t len)
+    {
+        EXPECT_THAT(std::vector<uint8_t>(actual, actual + len), ::testing::ElementsAreArray(expected, len));
+    }
+}  // namespace
+
+// NIST AES-128-ECB encrypt vector via the C API.
+TEST_F(Crypto, PsaAesEncryptEcb)
+{
+    const uint8_t key[] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    const uint8_t in[]  = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
+    const uint8_t out[] = {0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60, 0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97};
+    uint8_t buffer[16];
+
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ecb_encrypt(key, in, buffer));
+    ExpectBytesEq(out, buffer, 16);
+}
+
+// ECB encrypt re-inits PSA after mbedtls_psa_crypto_free and still produces the expected ciphertext.
+TEST_F(Crypto, PsaAesEncryptEcbReinitializesAfterPsaFree)
+{
+    const uint8_t key[] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    const uint8_t in[]  = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
+    const uint8_t out[] = {0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60, 0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97};
+    uint8_t buffer[16];
+
+    EXPECT_EQ(SL_STATUS_OK, crypto_aes_ecb_encrypt(key, in, buffer));
+    mbedtls_psa_crypto_free();
+
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ecb_encrypt(key, in, buffer));
+    ExpectBytesEq(out, buffer, 16);
+}
+
+// AES-128-ECB decrypt via PSA test helper matches the NIST plaintext.
+TEST_F(Crypto, PsaAesDecryptEcb)
+{
+    const uint8_t key[] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    const uint8_t in[]  = {0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60, 0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97};
+    const uint8_t out[] = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
+    uint8_t buffer[16];
+
+    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ecb_decrypt(key, in, buffer));
+    ExpectBytesEq(out, buffer, 16);
+}
+
+// C++ span API matches the same NIST AES-128-ECB encrypt vector.
+TEST_F(Crypto, AesEcbEncryptCppApi)
+{
+    const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key  = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    const std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> in = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
+    const uint8_t expected[]                            = {0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60, 0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97};
+    std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> buffer {};
+
+    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_ecb_encrypt(key, in, buffer));
+    ExpectBytesEq(expected, buffer.data(), buffer.size());
+}

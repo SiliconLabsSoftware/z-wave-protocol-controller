@@ -16,6 +16,5 @@
 
 sl_status_t zwave_s2_fixt_setup(void)
 {
-    zwave_s2_process_init();
-    return SL_STATUS_OK;
+    return zwave_s2_process_init();
 }

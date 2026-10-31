@@ -37,7 +37,7 @@
 #include "S2.h"
 #include "zwave_s2_keystore.h"
 #include "s2_keystore.h"
-#include "aes.h"
+#include "crypto.h"
 
 // ZPC components
 #include "log.h"
@@ -195,45 +195,10 @@ static unsigned int block_next_elem; /* Cyclic counter for the next
 static uint8_t aes_key[16];
 static uint8_t aes_iv[16];
 
-static void aes_encrypt(uint8_t *in, uint8_t *out)
-{
-    AES128_ECB_encrypt(in, aes_key, out);
-}
-
 static void aes_set_key_tpt(const uint8_t *key, const uint8_t *iv)
 {
     memcpy(aes_key, key, 16);
     memcpy(aes_iv, iv, 16);
-}
-
-static void aes_ofb(uint8_t *data, uint8_t len)
-{
-    for (uint8_t i = 0; i < len; i++) {
-        if ((i & 0xF) == 0x0) {
-            aes_encrypt(aes_iv, aes_iv);
-        }
-        data[i] ^= aes_iv[i & 0xF];
-    }
-}
-
-/*
- * Calculate the authtag for the message,
- */
-static void aes_cbc_mac(const uint8_t *data, uint8_t len, uint8_t *mac)
-{
-    aes_encrypt(aes_iv, mac);
-    for (uint8_t i = 0; i < len; i++) {
-        mac[i & 0xF] ^= data[i];
-        if ((i & 0xF) == 0xF) {
-            aes_encrypt(mac, mac);
-        }
-    }
-
-    /* if len is not divisible by 16 do the final pass, this is the padding
-     * described in the spec */
-    if (len & 0xF) {
-        aes_encrypt(mac, mac);
-    }
 }
 
 /***************** Nonce Blocked list **************************************/
@@ -379,11 +344,13 @@ static uint8_t enckey[16];
 static uint8_t authkey[16];
 static uint8_t enckeyz[16];
 static uint8_t authkeyz[16];
+static bool s0_keys_valid;
 
 void s0_set_key(const uint8_t *network_key)
 {
     uint8_t p[16];
     uint8_t temp[16] = {0};
+    bool keys_valid  = true;
 
     if (memcmp(network_key, temp, 16) == 0) {
         sl_log_debug(LOG_TAG, "Setting S0 key with 0x00 16 times.\n");
@@ -393,15 +360,16 @@ void s0_set_key(const uint8_t *network_key)
 
     memcpy(aes_key, network_key, 16);
     memset(p, 0x55, 16);
-    aes_encrypt(p, authkey);
+    keys_valid &= crypto_aes_ecb_encrypt(aes_key, p, authkey) == SL_STATUS_OK;
     memset(p, 0xAA, 16);
-    aes_encrypt(p, enckey);
+    keys_valid &= crypto_aes_ecb_encrypt(aes_key, p, enckey) == SL_STATUS_OK;
 
     memcpy(aes_key, temp, 16);
     memset(p, 0x55, 16);
-    aes_encrypt(p, authkeyz);
+    keys_valid &= crypto_aes_ecb_encrypt(aes_key, p, authkeyz) == SL_STATUS_OK;
     memset(p, 0xAA, 16);
-    aes_encrypt(p, enckeyz);
+    keys_valid &= crypto_aes_ecb_encrypt(aes_key, p, enckeyz) == SL_STATUS_OK;
+    s0_keys_valid = keys_valid;
 }
 
 static void s0_timeout(void *user)
@@ -452,6 +420,10 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
     auth_data_t *auth;
     uint8_t maxlen = get_node_max_frame_size(s->conn_info.remote.node_id);
 
+    if (!s0_keys_valid) {
+        return 0;
+    }
+
     len          = s->data_len;
     more_to_send = 0;
 
@@ -466,7 +438,10 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
     /* Make the IV */
 
     do {
-        AES_CTR_DRBG_Generate(&s2_ctr_drbg, iv);
+        if (crypto_generate_random(iv, sizeof(iv)) != SL_STATUS_OK) {
+            sl_log_error(LOG_TAG, "Failed to generate S0 IV\n");
+            return 0;
+        }
     } while (get_s0_nonce(s->conn_info.remote.node_id, s->conn_info.local.node_id, iv[0], tmp, false));
 
     /*Choose a nonce from sender */
@@ -505,7 +480,9 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
         aes_set_key_tpt(enckey, iv);
     }
 
-    aes_ofb(enc_data, len + 1);
+    if (crypto_aes_ofb_xor(aes_key, aes_iv, enc_data, len + 1) != SL_STATUS_OK) {
+        return 0;
+    }
 
     /*Fill in the auth structure*/
     /*
@@ -524,15 +501,10 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
     auth->receiverNodeID = s->conn_info.remote.node_id;
     auth->payloadLength  = len + 1;
 
-    if (s->use_inclusion_key) {
-        sl_log_debug(LOG_TAG, "COMMAND_CLASS_SECURITY, NETWORK_KEY_SET\n");
-        /* Authtag */
-        aes_set_key_tpt(authkeyz, iv);
-    } else {
-        /* Authtag */
-        aes_set_key_tpt(authkey, iv);
+    const uint8_t *auth_key = s->use_inclusion_key ? authkeyz : authkey;
+    if (crypto_aes_cbc_mac(auth_key, iv, (const uint8_t *)auth, (uint8_t)(4 + len + 1), mac) != SL_STATUS_OK) {
+        return 0;
     }
-    aes_cbc_mac((uint8_t *)auth, 4 + len + 1, mac);
     s->crypted_msg[0] = COMMAND_CLASS_SECURITY;
     s->crypted_msg[1] = auth->sh;
     memcpy(s->crypted_msg + 2, iv, 8);
@@ -913,7 +885,10 @@ static void s0_send_nonce(const zwave_controller_connection_info_t *conn_info)
     zwave_controller_connection_info_t c2 = {};
 
     do {
-        AES_CTR_DRBG_Generate(&s2_ctr_drbg, temp_nonce);
+        if (crypto_generate_random(temp_nonce, sizeof(temp_nonce)) != SL_STATUS_OK) {
+            sl_log_error(LOG_TAG, "Failed to generate S0 nonce\n");
+            return;
+        }
         memcpy(nonce, temp_nonce, sizeof(nonce));
     } while (get_s0_nonce(conn_info->local.node_id, conn_info->remote.node_id, nonce[0], tmp, false));
 
@@ -951,6 +926,10 @@ static uint8_t s0_decrypt_message(const zwave_controller_connection_info_t *conn
     // Allocate a buffer that's large enough for the largest frame size that's valid
     // Maximum valid size is MAX_ENCRYPTED_MSG_SIZE + 20 bytes overhead + auth header size
     uint8_t auth_buff[MAX_ENCRYPTED_MSG_SIZE + S0_ENCAP_HEADER_LEN + sizeof(auth_data_t)];
+
+    if (!s0_keys_valid) {
+        return 0;
+    }
 
     frame_length = encrypted_frame_len & 0xff;  // FIXME as GW S0 code can handle
                                                 //  only uint8_t len
@@ -1018,9 +997,9 @@ static uint8_t s0_decrypt_message(const zwave_controller_connection_info_t *conn
     auth->payloadLength  = frame_length - 19;
     memcpy((uint8_t *)auth + sizeof(auth_data_t), enc_payload, auth->payloadLength);
 
-    /* Authtag */
-    aes_set_key_tpt(authkey, iv);
-    aes_cbc_mac((uint8_t *)auth, sizeof(auth_data_t) + auth->payloadLength, mac);
+    if (crypto_aes_cbc_mac(authkey, iv, (const uint8_t *)auth, (uint8_t)(sizeof(auth_data_t) + auth->payloadLength), mac) != SL_STATUS_OK) {
+        return 0;
+    }
 
     if (memcmp(mac, frame_data + frame_length - S0_MAC_SIZE, S0_MAC_SIZE) != 0) {
         sl_log_error(LOG_TAG, "Unable to verify auth tag\n");
@@ -1028,7 +1007,9 @@ static uint8_t s0_decrypt_message(const zwave_controller_connection_info_t *conn
     }
     /*Decrypt */
     aes_set_key_tpt(enckey, iv);
-    aes_ofb(enc_payload, auth->payloadLength);
+    if (crypto_aes_ofb_xor(aes_key, aes_iv, enc_payload, auth->payloadLength) != SL_STATUS_OK) {
+        return 0;
+    }
 
     flags = *enc_payload;
 

@@ -30,8 +30,7 @@ zpc_add_shared_library(
   zwave_api_transport
   zwave_s2_nonce_management
   s2_controller
-  s2crypto
-  aes
+  crypto
   zwave_multi_channel
   transport_service_wrapper
   transport_service

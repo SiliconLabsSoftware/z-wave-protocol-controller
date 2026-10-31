@@ -14,6 +14,8 @@ add_subdirectory(main)
 add_subdirectory(zwave_api)
 add_subdirectory(utils)
 
+add_subdirectory(crypto)
+
 add_subdirectory(zwave)
 add_subdirectory(network_manager)
 

@@ -19,7 +19,7 @@
 
 /// libs2 includes
 #include "S2.h"
-#include "curve25519.h"
+#include "crypto.h"
 #include "s2_keystore.h"
 
 /// zwave_api includes
@@ -73,16 +73,19 @@ bool keystore_network_key_clear(uint8_t keyclass)
     uint8_t random_bytes[64];
     uint8_t assigned_keys = 0xff;
 
-    AES_CTR_DRBG_Generate(&s2_ctr_drbg, random_bytes);
+    if (crypto_generate_random(random_bytes, sizeof(random_bytes)) != SL_STATUS_OK) {
+        return false;
+    }
 
     if (keyclass == KEY_CLASS_ALL) {
-        keystore_network_key_clear(KEY_CLASS_S0);
-        keystore_network_key_clear(KEY_CLASS_S2_UNAUTHENTICATED);
-        keystore_network_key_clear(KEY_CLASS_S2_AUTHENTICATED);
-        keystore_network_key_clear(KEY_CLASS_S2_ACCESS);
-        keystore_network_key_clear(KEY_CLASS_S2_AUTHENTICATED_LR);
-        keystore_network_key_clear(KEY_CLASS_S2_ACCESS_LR);
-        return true;
+        bool cleared = true;
+        cleared &= keystore_network_key_clear(KEY_CLASS_S0);
+        cleared &= keystore_network_key_clear(KEY_CLASS_S2_UNAUTHENTICATED);
+        cleared &= keystore_network_key_clear(KEY_CLASS_S2_AUTHENTICATED);
+        cleared &= keystore_network_key_clear(KEY_CLASS_S2_ACCESS);
+        cleared &= keystore_network_key_clear(KEY_CLASS_S2_AUTHENTICATED_LR);
+        cleared &= keystore_network_key_clear(KEY_CLASS_S2_ACCESS_LR);
+        return cleared;
     }
 
     if (keystore_network_key_write(keyclass, random_bytes)) {
@@ -139,7 +142,11 @@ void keystore_public_key_read(uint8_t *buf)
     uint8_t priv_key[32];
 
     keystore_private_key_read(priv_key);
-    crypto_scalarmult_curve25519_base(buf, priv_key);
+    if (crypto_x25519_derive_public_key(priv_key, buf) != SL_STATUS_OK) {
+        // The interface cannot report failure; an all-zero key makes the peer's ECDH fail rather than leak anything.
+        sl_log_error(LOG_TAG, "Failed to derive ECDH public key\n");
+        memset(buf, 0, 32);
+    }
     memset(priv_key, 0, sizeof(priv_key));
 }
 
@@ -308,8 +315,15 @@ void zwave_s2_keystore_reset_assigned_keys()
 
 void zwave_s2_create_new_dynamic_ecdh_key()
 {
-    AES_CTR_DRBG_Generate(&s2_ctr_drbg, dynamic_ecdh_private_key);
-    AES_CTR_DRBG_Generate(&s2_ctr_drbg, &dynamic_ecdh_private_key[16]);
+    uint8_t new_private_key[sizeof(dynamic_ecdh_private_key)];
+
+    if (crypto_generate_random(new_private_key, sizeof(new_private_key)) != SL_STATUS_OK) {
+        sl_log_error(LOG_TAG, "Failed to generate dynamic ECDH private key\n");
+        return;
+    }
+
+    memcpy(dynamic_ecdh_private_key, new_private_key, sizeof(dynamic_ecdh_private_key));
+    secure_memzero(new_private_key, sizeof(new_private_key));
 }
 
 static void zwave_s2_create_new_learn_mode_ecdh_key()
@@ -324,12 +338,20 @@ void zwave_s2_create_new_network_keys()
     uint8_t net_key[16] = {0};
     sl_log_info(LOG_TAG, "Creating new network keys\n");
     for (int c = 0; c < S2_NUM_KEY_CLASSES - 1; c++) {
-        S2_get_hw_random(net_key, 16);
+        if (crypto_generate_random(net_key, sizeof(net_key)) != SL_STATUS_OK) {
+            sl_log_error(LOG_TAG, "Failed to generate S2 network key\n");
+            secure_memzero(net_key, sizeof(net_key));
+            return;
+        }
         keystore_network_key_write(1 << c, net_key);
     }
 
     // Also create a new S0 key:
-    S2_get_hw_random(net_key, 16);
+    if (crypto_generate_random(net_key, sizeof(net_key)) != SL_STATUS_OK) {
+        sl_log_error(LOG_TAG, "Failed to generate S0 network key\n");
+        secure_memzero(net_key, sizeof(net_key));
+        return;
+    }
     keystore_network_key_write(KEY_CLASS_S0, net_key);
 
     memset(net_key, 0, sizeof(net_key));
