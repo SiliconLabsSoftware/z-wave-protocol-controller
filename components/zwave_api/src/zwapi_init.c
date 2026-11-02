@@ -50,6 +50,10 @@ static void zwapi_init_local_variables()
 
 bool zwapi_support_command_func(uint8_t func_id)
 {
+    // FUNC_IDs are 1-based; func_id 0 would index supported_bitmask[-1].
+    if (func_id == 0) {
+        return false;
+    }
     if ((func_id == FUNC_ID_SERIAL_API_GET_CAPABILITIES) || (chip.supported_bitmask[(func_id - 1) >> 3] & (1 << ((func_id - 1) & 0x7)))) {
         return true;
     }
