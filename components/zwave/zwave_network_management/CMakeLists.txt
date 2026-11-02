@@ -11,6 +11,6 @@ add_library(
   src/zwave_network_management_return_route_queue.c)
 
 target_link_libraries(zwave_network_management
-                      PRIVATE zwave_s0 zwave_s2 zwave_smartstart_management zwave_rx threading)
+                      PRIVATE zwave_s0 zwave_s2 zwave_smartstart_management zwave_rx threading pthread)
 target_include_directories(zwave_network_management PUBLIC include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 install(TARGETS zwave_network_management LIBRARY DESTINATION lib)

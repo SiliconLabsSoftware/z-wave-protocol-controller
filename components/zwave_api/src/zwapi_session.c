@@ -175,6 +175,7 @@ void zwapi_session_notify_connection_lost(void)
 
 bool zwapi_session_dequeue_frame(uint8_t **frame_ptr, uint8_t *frame_len)
 {
+    pthread_mutex_lock(&session_serial_mutex);
     if (zwapi_session_rx_queue) {
         zwapi_session_list_elem_t *elem = zwapi_session_rx_queue;
         zwapi_session_rx_queue          = zwapi_session_rx_queue->next;
@@ -189,7 +190,9 @@ bool zwapi_session_dequeue_frame(uint8_t **frame_ptr, uint8_t *frame_len)
     }
 
     // Are there more elements in our session queue?
-    return (zwapi_session_rx_queue) ? true : false;
+    bool more_frames = zwapi_session_rx_queue != NULL;
+    pthread_mutex_unlock(&session_serial_mutex);
+    return more_frames;
 }
 
 static bool enqueue_rx_frames(void)
@@ -448,6 +451,7 @@ sl_status_t zwapi_session_send_frame_no_ack(uint8_t command, const uint8_t *payl
 
 void zwapi_session_flush_queue(void)
 {
+    pthread_mutex_lock(&session_serial_mutex);
     zwapi_session_list_elem_t *e;
     while (zwapi_session_rx_queue) {
         e                      = zwapi_session_rx_queue;
@@ -455,4 +459,5 @@ void zwapi_session_flush_queue(void)
         free(e->data);
         free(e);
     }
+    pthread_mutex_unlock(&session_serial_mutex);
 }

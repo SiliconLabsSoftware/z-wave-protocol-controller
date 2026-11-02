@@ -29,10 +29,27 @@
 
 // Generic includes
 #include <string.h>
+#include <pthread.h>
 
 // ZPC
 #include "log.h"
 #define LOG_TAG "zwave_network_management_helpers"
+
+static pthread_mutex_t cached_node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+void network_management_copy_cached_node_list(zwave_nodemask_t node_list)
+{
+    pthread_mutex_lock(&cached_node_list_mutex);
+    memcpy(node_list, nms.cached_node_list, sizeof(zwave_nodemask_t));
+    pthread_mutex_unlock(&cached_node_list_mutex);
+}
+
+bool network_management_cached_node_list_contains(zwave_node_id_t node_id)
+{
+    zwave_nodemask_t node_list = {};
+    network_management_copy_cached_node_list(node_list);
+    return ZW_IS_NODE_IN_MASK(node_id, node_list) != 0;
+}
 
 void reset_nms_last_operation_data()
 {
@@ -55,12 +72,14 @@ void reset_nms_last_operation_data()
 
 bool we_are_alone_in_our_network()
 {
+    zwave_nodemask_t node_list = {};
+    network_management_copy_cached_node_list(node_list);
     for (zwave_node_id_t node_id = ZW_MIN_NODE_ID; node_id <= ZW_LR_MAX_NODE_ID; node_id++) {
         if (node_id == nms.cached_local_node_id) {
             // We just found ourselves in the node mask.
             continue;
         }
-        if (ZW_IS_NODE_IN_MASK(node_id, nms.cached_node_list) == 1) {
+        if (ZW_IS_NODE_IN_MASK(node_id, node_list) == 1) {
             return false;
         }
     }
@@ -69,11 +88,11 @@ bool we_are_alone_in_our_network()
 
 bool network_management_is_ready_for_a_new_operation()
 {
-    // NOTE: nms.state is only written on the NMS FSM thread. This read is
+    // NOTE: nm_state_load() is only written on the NMS FSM thread. This read is
     // advisory — a caller may observe NM_IDLE while an event that changes
     // state is already queued. Callers must tolerate SL_STATUS_BUSY from
     // the NMS API functions even after a true return here.
-    if (nms.state != NM_IDLE) {
+    if (nm_state_load() != NM_IDLE) {
         return false;
     }
     if (zwave_controller_is_reset_ongoing()) {
@@ -90,7 +109,13 @@ void network_management_refresh_cached_ids()
 
 void network_management_refresh_cached_node_list()
 {
-    zwapi_get_full_node_list(nms.cached_node_list);
+    zwave_nodemask_t node_list = {};
+    network_management_copy_cached_node_list(node_list);
+    if (zwapi_get_full_node_list(node_list) == SL_STATUS_OK) {
+        pthread_mutex_lock(&cached_node_list_mutex);
+        memcpy(nms.cached_node_list, node_list, sizeof(node_list));
+        pthread_mutex_unlock(&cached_node_list_mutex);
+    }
 }
 
 void network_management_refresh_controller_capabilities_bitmask()
