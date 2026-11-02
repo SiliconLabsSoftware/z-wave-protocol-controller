@@ -5,6 +5,8 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include "c_api_test_support.hpp"
+#include "crypto.hpp"
 #include "psa/crypto.h"
 #include "psa/crypto_extra.h"
 #include "sl_status.h"
@@ -19,8 +21,27 @@ class Crypto : public ::testing::Test
 
         void TearDown() override
         {
+            crypto::reset_c_api_backend();
             mbedtls_psa_crypto_free();
         }
 };
+
+// One fixture per src/*.cpp module under test (PSA init/teardown inherited).
+class AesEcb : public Crypto
+{};
+class AesOfb : public Crypto
+{};
+class AesCbcMac : public Crypto
+{};
+class AesCmac : public Crypto
+{};
+class AesCcm : public Crypto
+{};
+class AesCtrDrbg : public Crypto
+{};
+class X25519 : public Crypto
+{};
+class Rand : public Crypto
+{};
 
 #endif

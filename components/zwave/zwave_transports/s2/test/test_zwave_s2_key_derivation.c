@@ -2,19 +2,11 @@
 
 #include "sl_status.h"
 #include "zwave_s2_key_derivation.h"
-#include "psa/crypto.h"
-#include "psa/crypto_extra.h"
 #include "unity.h"
 
-void setUp(void)
-{
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
-}
+void setUp(void) {}
 
-void tearDown(void)
-{
-    mbedtls_psa_crypto_free();
-}
+void tearDown(void) {}
 
 void test_zwave_s2_key_derivation_vectors(void)
 {

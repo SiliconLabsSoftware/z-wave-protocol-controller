@@ -1,11 +1,14 @@
 #include "crypto.hpp"
 
 #include "psa/crypto.h"
-#include "psa_status.hpp"
+#include "util.hpp"
 #include "psa_wrappers_interface.hpp"
 
 namespace crypto
 {
+
+    static_assert(CRYPTO_AES_KEY_SIZE == PSA_BITS_TO_BYTES(CRYPTO_AES_KEY_BITS));
+    static_assert(CRYPTO_AES_BLOCK_SIZE == PSA_BLOCK_CIPHER_BLOCK_LENGTH(PSA_KEY_TYPE_AES));
 
     sl_status_t Crypto::aes_ecb_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE> input, std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE> output) const
     {
@@ -61,14 +64,7 @@ extern "C" {
 
 sl_status_t crypto_aes_ecb_encrypt(const uint8_t *key, const uint8_t *input, uint8_t *output)
 {
-    return crypto::Crypto::instance().aes_ecb_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(input, CRYPTO_AES_BLOCK_SIZE), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(output, CRYPTO_AES_BLOCK_SIZE));
+    return crypto::c_api().aes_ecb_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(input, CRYPTO_AES_BLOCK_SIZE), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(output, CRYPTO_AES_BLOCK_SIZE));
 }
-
-#ifdef UNIT_TEST
-sl_status_t crypto_aes_ecb_decrypt(const uint8_t *key, const uint8_t *input, uint8_t *output)
-{
-    return crypto::Crypto::instance().aes_ecb_decrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(input, CRYPTO_AES_BLOCK_SIZE), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(output, CRYPTO_AES_BLOCK_SIZE));
-}
-#endif
 
 }  // extern "C"

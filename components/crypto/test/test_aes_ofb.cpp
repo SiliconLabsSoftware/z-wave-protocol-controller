@@ -43,7 +43,7 @@ namespace
 }  // namespace
 
 // NIST OFB-AES128 encrypt over one 16-byte block.
-TEST_F(Crypto, NistSp80038aOfbAes128EncryptOneBlock)
+TEST_F(AesOfb, NistEncryptOneBlock)
 {
     uint8_t iv[16];
     uint8_t buffer[16];
@@ -56,7 +56,7 @@ TEST_F(Crypto, NistSp80038aOfbAes128EncryptOneBlock)
 }
 
 // NIST OFB-AES128 encrypt over 64 bytes.
-TEST_F(Crypto, NistSp80038aOfbAes128Encrypt64Bytes)
+TEST_F(AesOfb, NistEncrypt64Bytes)
 {
     uint8_t iv[16];
     uint8_t buffer[64];
@@ -69,7 +69,7 @@ TEST_F(Crypto, NistSp80038aOfbAes128Encrypt64Bytes)
 }
 
 // NIST OFB-AES128 encrypt over a 7-byte partial block.
-TEST_F(Crypto, NistSp80038aOfbAes128EncryptPartialSevenBytes)
+TEST_F(AesOfb, NistEncryptPartialSevenBytes)
 {
     uint8_t iv[16];
     uint8_t buffer[7];
@@ -82,7 +82,7 @@ TEST_F(Crypto, NistSp80038aOfbAes128EncryptPartialSevenBytes)
 }
 
 // OFB decrypt is XOR with the same keystream; ciphertext round-trips to plaintext.
-TEST_F(Crypto, NistSp80038aOfbAes128DecryptViaXor)
+TEST_F(AesOfb, NistDecryptViaXor)
 {
     uint8_t iv[16];
     uint8_t buffer[64];
@@ -95,7 +95,7 @@ TEST_F(Crypto, NistSp80038aOfbAes128DecryptViaXor)
 }
 
 // Zero-length OFB leaves IV and data unchanged.
-TEST_F(Crypto, OfbAes128ZeroLengthLeavesIvAndDataUnchanged)
+TEST_F(AesOfb, ZeroLengthLeavesIvAndDataUnchanged)
 {
     uint8_t iv[16];
     const uint8_t data_expected[] = {0x01, 0x02, 0x03, 0x04};
@@ -110,7 +110,7 @@ TEST_F(Crypto, OfbAes128ZeroLengthLeavesIvAndDataUnchanged)
 }
 
 // C++ span OFB API matches NIST one-block encrypt vector.
-TEST_F(Crypto, AesOfbXorCppApi)
+TEST_F(AesOfb, XorCppApi)
 {
     std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     memcpy(key.data(), nist_key_128, sizeof(key));
@@ -119,17 +119,17 @@ TEST_F(Crypto, AesOfbXorCppApi)
     std::array<uint8_t, 16> buffer {};
     memcpy(buffer.data(), nist_plain_64, buffer.size());
 
-    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_ofb_xor(key, iv, std::span<uint8_t>(buffer.data(), buffer.size())));
+    ASSERT_EQ(SL_STATUS_OK, crypto::c_api().aes_ofb_xor(key, iv, std::span<uint8_t>(buffer.data(), buffer.size())));
     ExpectBytesEq(nist_cipher_64, buffer.data(), buffer.size());
 }
 
 // Zero-length C API with null pointers returns OK without touching spans.
-TEST_F(Crypto, OfbAes128ZeroLengthNullPointersOk)
+TEST_F(AesOfb, ZeroLengthNullPointersOk)
 {
     EXPECT_EQ(SL_STATUS_OK, crypto_aes_ofb_xor(nullptr, nullptr, nullptr, 0));
 }
 
-TEST_F(Crypto, OfbCppEmptyDataPreservesKeyAndIv)
+TEST_F(AesOfb, EmptyDataPreservesKeyAndIv)
 {
     std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key;
     std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> iv;
@@ -137,7 +137,41 @@ TEST_F(Crypto, OfbCppEmptyDataPreservesKeyAndIv)
     std::copy_n(nist_iv, iv.size(), iv.begin());
     const auto saved_key = key;
     const auto saved_iv  = iv;
-    EXPECT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_ofb_xor(key, iv, {}));
+    EXPECT_EQ(SL_STATUS_OK, crypto::c_api().aes_ofb_xor(key, iv, {}));
     EXPECT_EQ(saved_key, key);
     EXPECT_EQ(saved_iv, iv);
 }
+
+#include "test_crypto_injection_fixture.hpp"
+
+TEST_F(AesOfbInjection, UsesInjectedPsaWrappers)
+{
+    expect_import_failure(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB);
+    EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.aes_ofb_xor(key, input, output));
+}
+
+TEST_F(AesOfbInjection, RejectsIncompleteOutputAndReleasesKey)
+{
+    output.fill(0xa5);
+    const auto original_output = output;
+    ::testing::InSequence sequence;
+    EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_encrypt_setup(_, 42, PSA_ALG_OFB)).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, cipher_set_iv(_, ::testing::SizeIs(CRYPTO_AES_BLOCK_SIZE))).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, cipher_update(_, _, _, _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(0), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_finish(_, _, _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<2>(CRYPTO_AES_BLOCK_SIZE - 1), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+    EXPECT_EQ(SL_STATUS_FAIL, algorithms.aes_ofb_xor(key, input, output));
+    EXPECT_EQ(original_output, output);
+}
+
+TEST_P(AesOfbMultipartFailure, ReleasesResourcesAndReturnsFailure)
+{
+    expect_multipart_failure(PSA_ALG_OFB, output.size());
+
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_ofb_xor(key, input, output));
+}
+
+INSTANTIATE_TEST_SUITE_P(AesOfb, AesOfbMultipartFailure, ::testing::Values(CipherFailureStage::Setup, CipherFailureStage::SetIv, CipherFailureStage::Update, CipherFailureStage::Finish), [](const ::testing::TestParamInfo<CipherFailureStage> &info) { return CipherFailureStageName(info.param); });

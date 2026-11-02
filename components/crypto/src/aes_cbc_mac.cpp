@@ -3,7 +3,7 @@
 #include <cstring>
 
 #include "psa/crypto.h"
-#include "psa_status.hpp"
+#include "util.hpp"
 #include "psa_wrappers_interface.hpp"
 
 namespace
@@ -96,10 +96,7 @@ extern "C" {
 
 sl_status_t crypto_aes_cbc_mac(const uint8_t *key, const uint8_t *iv, const uint8_t *data, uint8_t len, uint8_t *mac)
 {
-    return crypto::Crypto::instance().aes_cbc_mac(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE),
-                                                  std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(iv, CRYPTO_AES_BLOCK_SIZE),
-                                                  std::span<const uint8_t>(data, len),
-                                                  std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(mac, CRYPTO_AES_BLOCK_SIZE));
+    return crypto::c_api().aes_cbc_mac(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(iv, CRYPTO_AES_BLOCK_SIZE), std::span<const uint8_t>(data, len), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(mac, CRYPTO_AES_BLOCK_SIZE));
 }
 
 }  // extern "C"

@@ -33,8 +33,6 @@
 #include "zwave_s2_next_nonce.h"
 #include "sl_status.h"
 #include "crypto.h"
-#include "psa/crypto.h"
-#include "psa/crypto_extra.h"
 
 #define S2_CCM_NONCE_LEN 13U
 #define S2_CCM_TAG_LEN   8U
@@ -252,14 +250,10 @@ static void reset_test_state(void)
 
 void setUp(void)
 {
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
     reset_test_state();
 }
 
-void tearDown(void)
-{
-    mbedtls_psa_crypto_free();
-}
+void tearDown(void) {}
 
 /*******************************************************************************
  * Test Data - Static test vectors

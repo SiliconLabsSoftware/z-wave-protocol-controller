@@ -31,7 +31,7 @@ namespace
     }
 }  // namespace
 
-TEST_F(Crypto, GenerateRandomFillsBuffer)
+TEST_F(Rand, FillsBuffer)
 {
     uint8_t buf[32] {};
 
@@ -39,15 +39,33 @@ TEST_F(Crypto, GenerateRandomFillsBuffer)
     EXPECT_FALSE(buffer_is_all_zeros(buf, sizeof(buf)));
 }
 
-TEST_F(Crypto, GenerateRandomRejectsNullOutput)
+TEST_F(Rand, RejectsNullOutput)
 {
     EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_generate_random(nullptr, 32));
 }
 
-TEST_F(Crypto, GenerateRandomAcceptsEmptyOutput)
+TEST_F(Rand, AcceptsEmptyOutput)
 {
     EXPECT_EQ(SL_STATUS_OK, crypto_generate_random(nullptr, 0));
     uint8_t sentinel = 0xa5;
     EXPECT_EQ(SL_STATUS_OK, crypto_generate_random(&sentinel, 0));
     EXPECT_EQ(0xa5, sentinel);
+}
+
+#include "test_crypto_injection_fixture.hpp"
+
+TEST_F(RandInjection, TranslatesInjectedFailure)
+{
+    EXPECT_CALL(mock, generate_random(SameBuffer(std::span(output)))).WillOnce(Return(PSA_ERROR_NOT_SUPPORTED));
+    EXPECT_EQ(SL_STATUS_NOT_SUPPORTED, algorithms.generate_random(output));
+}
+
+TEST_F(RandInjection, ReturnsInjectedGenerationFailure)
+{
+    EXPECT_CALL(mock, generate_random(SameBuffer(std::span(output)))).WillOnce(Return(PSA_ERROR_INSUFFICIENT_ENTROPY));
+    output.fill(0xa5);
+    const auto original_output = output;
+
+    EXPECT_EQ(SL_STATUS_FAIL, algorithms.generate_random(output));
+    EXPECT_EQ(original_output, output);
 }
