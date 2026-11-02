@@ -1,5 +1,5 @@
-#ifndef CRYPTO_MOCK_PSA_WRAPPERS_HPP
-#define CRYPTO_MOCK_PSA_WRAPPERS_HPP
+#ifndef PSA_WRAPPERS_MOCK_HPP
+#define PSA_WRAPPERS_MOCK_HPP
 
 #include <gmock/gmock.h>
 
@@ -7,7 +7,7 @@
 
 namespace crypto::test
 {
-    class MockPsaWrappers : public PsaWrappersInterface
+    class PsaWrappersMock : public PsaWrappersInterface
     {
         public:
             MOCK_METHOD(psa_status_t, crypto_init, (), (override));
