@@ -1,7 +1,7 @@
 #include "crypto.hpp"
 
 #include "psa/crypto.h"
-#include "psa_status.hpp"
+#include "util.hpp"
 #include "psa_wrappers_interface.hpp"
 
 namespace crypto
@@ -27,7 +27,7 @@ extern "C" {
 
 sl_status_t crypto_generate_random(uint8_t *output, size_t output_size)
 {
-    return crypto::Crypto::instance().generate_random(std::span<uint8_t>(output, output_size));
+    return crypto::c_api().generate_random(std::span<uint8_t>(output, output_size));
 }
 
 }  // extern "C"

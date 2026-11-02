@@ -13,7 +13,6 @@
 #include <stdint.h>
 #include <string.h>
 #include "platform.h"
-#include "psa/crypto.h"
 #include "unity.h"
 #include "s2_protocol.h"
 
@@ -22,10 +21,7 @@
 #include "s2_keystore.h"
 #include "zwave_s2_key_derivation.h"
 
-void setUpSuite(void)
-{
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
-}
+void setUpSuite(void) {}
 
 void tearDownSuite(void) {}
 
