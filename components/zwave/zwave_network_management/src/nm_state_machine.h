@@ -110,6 +110,9 @@ typedef struct smartstart_event_data {
 extern "C" {
 #endif
 
+zwave_network_management_state_t nm_state_load(void);
+void nm_state_store(zwave_network_management_state_t state);
+
 void nm_fsm_post_event(nm_event_t ev, void *event_data);
 /*****************************************************************************/
 /**

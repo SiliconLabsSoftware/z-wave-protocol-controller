@@ -172,8 +172,8 @@ uint8_t zwapi_memory_put_buffer(uint16_t offset, const uint8_t *buf, uint16_t le
         for (uint16_t i = 0; i < length; i++) {
             request_buffer[index++] = buf[i];
         }
-        request_buffer[index++]          = func_id;
-        zwapi_memory_put_buffer_callback = callback_function;
+        request_buffer[index++] = func_id;
+        ZWAPI_CALLBACK_STORE(zwapi_memory_put_buffer_callback, callback_function);
         // We already know that the command is supported here, so we call
         // zwapi_session_send_frame_with_response() instead of zwapi_send_command_with_response()
         sl_status_t send_frame_status = zwapi_session_send_frame_with_response(FUNC_ID_MEMORY_PUT_BUFFER, request_buffer, index, response_buffer, &response_length);
