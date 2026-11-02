@@ -4,7 +4,7 @@
 
 #include "crypto.hpp"
 #include "mock_crypto.hpp"
-#include "mock_psa_wrappers.hpp"
+#include "psa_wrappers_mock.hpp"
 #include "psa_wrappers.hpp"
 #include "test_fixture.hpp"
 
@@ -25,7 +25,7 @@ class CryptoInjection : public Crypto
 {
     protected:
         crypto::PsaWrappers real_psa_wrappers;
-        StrictMock<crypto::test::MockPsaWrappers> mock;
+        StrictMock<crypto::test::PsaWrappersMock> mock;
         crypto::Crypto implementation {mock};
         crypto::CryptoInterface &algorithms {implementation};
         const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
@@ -194,7 +194,7 @@ TEST_F(CryptoInjection, X25519SharedSecretTranslatesInjectedAgreementFailure)
 TEST_F(CryptoInjection, InstancesKeepIndependentDependencies)
 {
     EXPECT_CALL(mock, generate_random(SameBuffer(std::span(output)))).WillOnce(Return(PSA_ERROR_BAD_STATE));
-    StrictMock<crypto::test::MockPsaWrappers> other_mock;
+    StrictMock<crypto::test::PsaWrappersMock> other_mock;
     EXPECT_CALL(other_mock, generate_random(SameBuffer(std::span(output)))).WillOnce(Return(PSA_ERROR_NOT_SUPPORTED));
     EXPECT_CALL(other_mock, crypto_init()).WillOnce(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::crypto_init));
     crypto::Crypto other_algorithms(other_mock);
@@ -305,7 +305,7 @@ TEST_F(CryptoInjection, EcbDestroysImportedKeyWhenEncryptionFails)
 
 TEST_F(Crypto, PsaWrappersInterceptCallsFromCppCryptoApi)
 {
-    StrictMock<crypto::test::MockPsaWrappers> mock;
+    StrictMock<crypto::test::PsaWrappersMock> mock;
     crypto::Crypto algorithms(mock);
     const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     const std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> input {};
