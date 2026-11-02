@@ -28,18 +28,20 @@ namespace zwave_command_class
             command_class_basic();
             ~command_class_basic() = default;
 
+            // Attribute-store teardown drops type callbacks, so this can be called again after init.
+            static void register_version_listener();
+            // Invoked by the attribute resolver when Basic Get retries are exhausted.
+            static void on_basic_get_resolution_give_up(attribute_store_node_t group_node);
+            sl_status_t on_basic_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_basic_attribute_map_t payload) override;
+
         private:
             sl_status_t on_basic_set_requested_assemble_frame(const set_requested_args &args, uint8_t *data, uint16_t *length) override;
             static sl_status_t on_command_class_basic_get_interview_requested(command_class_basic_types::basic_get_interview_payload_t payload);
             static void on_basic_version_reported(attribute_store_node_t version_node, attribute_store_change_t change);
-            static void on_basic_get_resolution_give_up(attribute_store_node_t group_node);
 
             // Basic is never advertised (CC:0020.01.00.21.003/004). Interview support
             // is inferred from a Basic Report (CL:0020.01.21.02.2); Version often returns 0.
             static bool has_basic_report(const attribute_store::attribute &endpoint_node);
-
-        protected:
-            sl_status_t on_basic_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_basic_attribute_map_t payload) override;
     };
 
 }  // namespace zwave_command_class

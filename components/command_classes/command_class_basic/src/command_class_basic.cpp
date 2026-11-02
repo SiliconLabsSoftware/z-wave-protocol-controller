@@ -22,9 +22,9 @@
 // Z-Wave defintions
 #include "ZW_classcmd.h"
 #include "attribute_callbacks.hpp"
-#include "attribute_resolver.h"
 #include "attribute_store_defined_attribute_types.h"
 #include "zpc_attribute_store_network_helper.h"
+#include "attribute_resolver.h"
 
 // Component Connector
 #include "component_connector.hpp"
@@ -54,8 +54,13 @@ namespace zwave_command_class
 
         // Promote Version Report 0 → 1 when a Basic Report already proved support
         // (CL:0020.01.21.02.2). Basic is never advertised, so Version often returns 0.
-        attribute_store::register_callback_by_type_and_state(&on_basic_version_reported, ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_BASIC), REPORTED_ATTRIBUTE);
+        register_version_listener();
         attribute_resolver_set_resolution_give_up_listener(static_cast<attribute_store_type_t>(basic_get_group_attributes_t::BASIC_GET_GROUP), &command_class_basic::on_basic_get_resolution_give_up);
+    }
+
+    void command_class_basic::register_version_listener()
+    {
+        attribute_store::register_callback_by_type_and_state(&on_basic_version_reported, ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_BASIC), REPORTED_ATTRIBUTE);
     }
 
     bool command_class_basic::has_basic_report(const attribute_store::attribute &endpoint_node)
