@@ -231,7 +231,7 @@ int16_t zwapi_get_max_lr_tx_power_level(void)
         if (send_command_status == SL_STATUS_OK) {
             if (response_length > (IDX_DATA + 2)) {
                 level = response_buffer[IDX_DATA + 1] << 8;
-                level |= level + response_buffer[IDX_DATA + 2];
+                level |= response_buffer[IDX_DATA + 2];
             }
         }
     }
