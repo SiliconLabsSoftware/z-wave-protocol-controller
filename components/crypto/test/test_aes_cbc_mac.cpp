@@ -86,7 +86,7 @@ namespace
 }  // namespace
 
 // Empty auth payload: MAC state is only E_K(IV) (NIST AES-128-ECB encrypt IV).
-TEST_F(Crypto, S0CbcMacEmptyMessageEqualsAesEcbOfIv)
+TEST_F(AesCbcMac, S0EmptyMessageEqualsAesEcbOfIv)
 {
     const uint8_t expected_mac[] = {0x50, 0xfe, 0x67, 0xcc, 0x99, 0x6d, 0x32, 0xb6, 0xda, 0x09, 0x37, 0xe9, 0x9b, 0xaf, 0xec, 0x60};
     uint8_t ecb_out[16];
@@ -97,7 +97,7 @@ TEST_F(Crypto, S0CbcMacEmptyMessageEqualsAesEcbOfIv)
 }
 
 // One full 16-byte block (NIST SP 800-38A plaintext); exercises one mid-loop ECB step.
-TEST_F(Crypto, S0CbcMacNistPlaintextOneBlock)
+TEST_F(AesCbcMac, S0NistPlaintextOneBlock)
 {
     const uint8_t expected_mac[] = {0x66, 0x8b, 0xcf, 0x60, 0xbe, 0xb0, 0x05, 0xa3, 0x53, 0x54, 0xa2, 0x01, 0xda, 0xb3, 0x6b, 0xda};
 
@@ -105,7 +105,7 @@ TEST_F(Crypto, S0CbcMacNistPlaintextOneBlock)
 }
 
 // Partial final block: spec padding path (final AES encrypt when len % 16 != 0).
-TEST_F(Crypto, S0CbcMacNistPlaintextSevenBytes)
+TEST_F(AesCbcMac, S0NistPlaintextSevenBytes)
 {
     const uint8_t expected_mac[] = {0x13, 0x73, 0x94, 0x01, 0x8c, 0xdf, 0xe1, 0x7f, 0x59, 0xf9, 0x77, 0x97, 0x9e, 0xff, 0x71, 0x08};
 
@@ -113,7 +113,7 @@ TEST_F(Crypto, S0CbcMacNistPlaintextSevenBytes)
 }
 
 // Two AES blocks: second block triggers another ECB iteration at byte index 15.
-TEST_F(Crypto, S0CbcMacNistPlaintextTwoBlocks)
+TEST_F(AesCbcMac, S0NistPlaintextTwoBlocks)
 {
     uint8_t message[32];
     const uint8_t expected_mac[] = {0x11, 0xe0, 0xad, 0xbc, 0x92, 0x31, 0xe1, 0x3d, 0xd8, 0x43, 0x6e, 0x69, 0xd9, 0xf3, 0x14, 0xcc};
@@ -125,7 +125,7 @@ TEST_F(Crypto, S0CbcMacNistPlaintextTwoBlocks)
 }
 
 // Typical S0 authentication data size (header + short encrypted payload).
-TEST_F(Crypto, S0CbcMacMessageEncapsulationAuthData)
+TEST_F(AesCbcMac, S0MessageEncapsulationAuthData)
 {
     const uint8_t expected_mac[] = {0x4c, 0x5c, 0xb1, 0x62, 0xa5, 0x17, 0x4c, 0x77, 0xf4, 0x11, 0x84, 0xa2, 0x5a, 0xe7, 0xb6, 0x0c};
 
@@ -133,7 +133,7 @@ TEST_F(Crypto, S0CbcMacMessageEncapsulationAuthData)
 }
 
 // C++ CBC-MAC API matches the S0 encapsulation auth-data vector.
-TEST_F(Crypto, AesCbcMacCppApi)
+TEST_F(AesCbcMac, CppApi)
 {
     std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     memcpy(key.data(), nist_key_128, sizeof(key));
@@ -142,23 +142,23 @@ TEST_F(Crypto, AesCbcMacCppApi)
     const uint8_t expected_mac[] = {0x4c, 0x5c, 0xb1, 0x62, 0xa5, 0x17, 0x4c, 0x77, 0xf4, 0x11, 0x84, 0xa2, 0x5a, 0xe7, 0xb6, 0x0c};
     std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> mac {};
 
-    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_cbc_mac(key, iv, std::span<const uint8_t>(s0_auth_data, sizeof(s0_auth_data)), mac));
+    ASSERT_EQ(SL_STATUS_OK, crypto::c_api().aes_cbc_mac(key, iv, std::span<const uint8_t>(s0_auth_data, sizeof(s0_auth_data)), mac));
     ExpectBytesEq(expected_mac, mac.data(), mac.size());
 }
 
 // C++ API rejects message lengths that exceed the C API uint8_t limit.
-TEST_F(Crypto, AesCbcMacCppApiRejectsOversizedData)
+TEST_F(AesCbcMac, CppApiRejectsOversizedData)
 {
     std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> iv {};
     std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> mac {};
     std::vector<uint8_t> oversized(static_cast<size_t>(UINT8_MAX) + 1U);
 
-    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto::Crypto::instance().aes_cbc_mac(key, iv, oversized, mac));
+    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto::c_api().aes_cbc_mac(key, iv, oversized, mac));
 }
 
 // Maximum C API payload length (uint8_t): padded IV||data must fit internal buffer.
-TEST_F(Crypto, S0CbcMacMaxPayloadLength255)
+TEST_F(AesCbcMac, S0MaxPayloadLength255)
 {
     uint8_t data[UINT8_MAX];
     uint8_t expected_mac[CRYPTO_AES_BLOCK_SIZE];
@@ -174,7 +174,7 @@ TEST_F(Crypto, S0CbcMacMaxPayloadLength255)
 }
 
 // C++ CBC-MAC at max span length matches C API and ECB-chained reference.
-TEST_F(Crypto, AesCbcMacCppApiMaxPayloadLength255)
+TEST_F(AesCbcMac, CppApiMaxPayloadLength255)
 {
     std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     memcpy(key.data(), nist_key_128, sizeof(key));
@@ -190,9 +190,58 @@ TEST_F(Crypto, AesCbcMacCppApiMaxPayloadLength255)
 
     ComputeS0CbcMacReference(nist_key_128, nist_iv, data.data(), UINT8_MAX, expected_mac);
     ASSERT_EQ(SL_STATUS_OK, crypto_aes_cbc_mac(nist_key_128, nist_iv, data.data(), UINT8_MAX, calculated_mac));
-    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_cbc_mac(key, iv, std::span<const uint8_t>(data.data(), data.size()), mac_cpp));
+    ASSERT_EQ(SL_STATUS_OK, crypto::c_api().aes_cbc_mac(key, iv, std::span<const uint8_t>(data.data(), data.size()), mac_cpp));
 
     ExpectBytesEq(expected_mac, calculated_mac, CRYPTO_AES_BLOCK_SIZE);
     ExpectBytesEq(expected_mac, mac_cpp.data(), mac_cpp.size());
     ExpectBytesEq(calculated_mac, mac_cpp.data(), mac_cpp.size());
 }
+
+#include "test_crypto_injection_fixture.hpp"
+
+TEST_F(AesCbcMacInjection, ReturnsInjectedInitFailure)
+{
+    EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_ERROR_BAD_STATE));
+    output.fill(0xa5);
+    const auto original_output = output;
+
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_cbc_mac(key, input, input, output));
+    EXPECT_EQ(original_output, output);
+}
+
+TEST_F(AesCbcMacInjection, UsesInjectedPsaWrappers)
+{
+    expect_import_failure(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_CBC_NO_PADDING);
+    EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.aes_cbc_mac(key, input, input, output));
+}
+
+TEST_F(AesCbcMacInjection, RejectsIncompleteOutputAndReleasesKey)
+{
+    output.fill(0xa5);
+    const auto original_output = output;
+    ::testing::InSequence sequence;
+    EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_CBC_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_encrypt_setup(_, 42, PSA_ALG_CBC_NO_PADDING)).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, cipher_set_iv(_, ::testing::SizeIs(CRYPTO_AES_BLOCK_SIZE))).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, cipher_update(_, _, _, _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(0), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_finish(_, _, _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<2>(CRYPTO_AES_BLOCK_SIZE - 1), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+    EXPECT_EQ(SL_STATUS_FAIL, algorithms.aes_cbc_mac(key, input, input, output));
+    EXPECT_EQ(original_output, output);
+}
+
+TEST_P(AesCbcMacMultipartFailure, ReleasesResourcesAndReturnsFailure)
+{
+    expect_multipart_failure(PSA_ALG_CBC_NO_PADDING, 2 * CRYPTO_AES_BLOCK_SIZE);
+    output.fill(0xa5);
+    const auto original_output = output;
+
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_cbc_mac(key, input, input, output));
+    EXPECT_EQ(original_output, output);
+}
+
+INSTANTIATE_TEST_SUITE_P(AesCbcMac, AesCbcMacMultipartFailure, ::testing::Values(CipherFailureStage::Setup, CipherFailureStage::SetIv, CipherFailureStage::Update, CipherFailureStage::Finish), [](const ::testing::TestParamInfo<CipherFailureStage> &info) {
+    return CipherFailureStageName(info.param);
+});

@@ -35,7 +35,7 @@ namespace
 }  // namespace
 
 // NIST CCM example 1 encrypt then decrypt round-trip.
-TEST_F(Crypto, PsaCcmNistExample1)
+TEST_F(AesCcm, NistExample1)
 {
     const uint8_t key[16]       = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f};
     const uint8_t nonce[8]      = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17};
@@ -56,7 +56,7 @@ TEST_F(Crypto, PsaCcmNistExample1)
 }
 
 // S2-style CCM round-trip for several plaintext lengths.
-TEST_F(Crypto, PsaCcmS2RoundtripPayloadLengths)
+TEST_F(AesCcm, S2RoundtripPayloadLengths)
 {
     const uint8_t key[16]                 = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f};
     const uint8_t nonce[S2_CCM_NONCE_LEN] = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c};
@@ -96,7 +96,7 @@ TEST_F(Crypto, PsaCcmS2RoundtripPayloadLengths)
 }
 
 // S2 CCM with varying AAD lengths.
-TEST_F(Crypto, PsaCcmS2HandfulAadLengths)
+TEST_F(AesCcm, S2HandfulAadLengths)
 {
     const uint8_t key[16]                 = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f};
     const uint8_t nonce[S2_CCM_NONCE_LEN] = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c};
@@ -128,7 +128,7 @@ TEST_F(Crypto, PsaCcmS2HandfulAadLengths)
 }
 
 // Tampered tag yields authentication failure on decrypt.
-TEST_F(Crypto, PsaCcmDecryptAuthFailure)
+TEST_F(AesCcm, DecryptAuthFailure)
 {
     const uint8_t key[16]                 = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f};
     const uint8_t nonce[S2_CCM_NONCE_LEN] = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c};
@@ -149,7 +149,7 @@ TEST_F(Crypto, PsaCcmDecryptAuthFailure)
 }
 
 // C++ CCM API encrypt and decrypt match the NIST example 1 vector.
-TEST_F(Crypto, AesCcmEncryptDecryptCppApi)
+TEST_F(AesCcm, EncryptDecryptCppApi)
 {
     const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f};
     const uint8_t nonce[]                              = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17};
@@ -159,21 +159,19 @@ TEST_F(Crypto, AesCcmEncryptDecryptCppApi)
     std::array<uint8_t, 32> ciphertext {};
     size_t ciphertext_len = 0;
 
-    ASSERT_EQ(SL_STATUS_OK,
-              crypto::Crypto::instance().aes_ccm_encrypt(key, 6, std::span<const uint8_t>(nonce, sizeof(nonce)), std::span<const uint8_t>(aad, sizeof(aad)), std::span<const uint8_t>(plaintext, sizeof(plaintext)), std::span<uint8_t>(ciphertext.data(), ciphertext.size()), ciphertext_len));
+    ASSERT_EQ(SL_STATUS_OK, crypto::c_api().aes_ccm_encrypt(key, 6, std::span<const uint8_t>(nonce, sizeof(nonce)), std::span<const uint8_t>(aad, sizeof(aad)), std::span<const uint8_t>(plaintext, sizeof(plaintext)), std::span<uint8_t>(ciphertext.data(), ciphertext.size()), ciphertext_len));
     ASSERT_EQ(22U, ciphertext_len);
     ExpectBytesEq(expected, ciphertext.data(), ciphertext_len);
 
     size_t plaintext_len = 0;
-    ASSERT_EQ(SL_STATUS_OK,
-              crypto::Crypto::instance().aes_ccm_decrypt(key, 6, std::span<const uint8_t>(nonce, sizeof(nonce)), std::span<const uint8_t>(aad, sizeof(aad)), std::span<const uint8_t>(ciphertext.data(), ciphertext_len), std::span<uint8_t>(ciphertext.data(), ciphertext.size()), plaintext_len));
+    ASSERT_EQ(SL_STATUS_OK, crypto::c_api().aes_ccm_decrypt(key, 6, std::span<const uint8_t>(nonce, sizeof(nonce)), std::span<const uint8_t>(aad, sizeof(aad)), std::span<const uint8_t>(ciphertext.data(), ciphertext_len), std::span<uint8_t>(ciphertext.data(), ciphertext.size()), plaintext_len));
     ASSERT_EQ(sizeof(plaintext), plaintext_len);
     ExpectBytesEq(plaintext, ciphertext.data(), plaintext_len);
 }
 
 // Exercise the public wrapper against the real PSA backend. Invalid inputs must
 // be rejected, and a subsequent valid request must still work.
-TEST_F(Crypto, CcmRejectsInvalidNonceAndTagLengths)
+TEST_F(AesCcm, RejectsInvalidNonceAndTagLengths)
 {
     const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     const std::array<uint8_t, 14> nonce {};
@@ -194,7 +192,7 @@ TEST_F(Crypto, CcmRejectsInvalidNonceAndTagLengths)
     EXPECT_EQ(plaintext.size() + 8, ciphertext_len);
 }
 
-TEST_F(Crypto, CcmRejectsUndersizedOutputBuffers)
+TEST_F(AesCcm, RejectsUndersizedOutputBuffers)
 {
     const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     const std::array<uint8_t, S2_CCM_NONCE_LEN> nonce {};
@@ -213,7 +211,7 @@ TEST_F(Crypto, CcmRejectsUndersizedOutputBuffers)
     EXPECT_EQ(plaintext, recovered);
 }
 
-TEST_F(Crypto, CcmAuthenticatesNonceAadCiphertextAndKey)
+TEST_F(AesCcm, AuthenticatesNonceAadCiphertextAndKey)
 {
     const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
     const std::array<uint8_t, S2_CCM_NONCE_LEN> nonce {};
@@ -248,4 +246,18 @@ TEST_F(Crypto, CcmAuthenticatesNonceAadCiphertextAndKey)
         ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_decrypt(key.data(), 8, nonce.data(), nonce.size(), aad.data(), aad.size(), ciphertext.data(), ciphertext.size(), recovered.data(), recovered.size(), &length));
         EXPECT_EQ(plaintext, recovered);
     }
+}
+
+#include "test_crypto_injection_fixture.hpp"
+
+TEST_F(AesCcmInjection, EncryptAndDecryptUseSameInjectedPsaWrappers)
+{
+    const std::array<uint8_t, 13> nonce {};
+    size_t length        = 0;
+    const auto algorithm = PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 8);
+    expect_import_failure(PSA_KEY_USAGE_ENCRYPT, algorithm);
+    EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.aes_ccm_encrypt(key, 8, nonce, {}, input, output, length));
+
+    expect_import_failure(PSA_KEY_USAGE_DECRYPT, algorithm);
+    EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.aes_ccm_decrypt(key, 8, nonce, {}, input, output, length));
 }

@@ -39,7 +39,7 @@ namespace
 }  // namespace
 
 // RFC 4493 AES-CMAC example 1 (empty message).
-TEST_F(Crypto, PsaCmacRfc4493Example1)
+TEST_F(AesCmac, Rfc4493Example1)
 {
     const uint8_t key[]          = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
     const uint8_t expected_mac[] = {0xbb, 0x1d, 0x69, 0x29, 0xe9, 0x59, 0x37, 0x28, 0x7f, 0xa3, 0x7d, 0x12, 0x9b, 0x75, 0x67, 0x46};
@@ -48,7 +48,7 @@ TEST_F(Crypto, PsaCmacRfc4493Example1)
 }
 
 // RFC 4493 AES-CMAC example 2 (16-byte message).
-TEST_F(Crypto, PsaCmacRfc4493Example2)
+TEST_F(AesCmac, Rfc4493Example2)
 {
     const uint8_t key[]          = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
     const uint8_t message[]      = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
@@ -58,7 +58,7 @@ TEST_F(Crypto, PsaCmacRfc4493Example2)
 }
 
 // RFC 4493 AES-CMAC example 3 (40-byte message).
-TEST_F(Crypto, PsaCmacRfc4493Example3)
+TEST_F(AesCmac, Rfc4493Example3)
 {
     const uint8_t key[]          = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
     const uint8_t message[]      = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a, 0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c, 0x9e, 0xb7, 0x6f, 0xac, 0x45, 0xaf, 0x8e, 0x51, 0x30, 0xc8, 0x1c, 0x46, 0xa3, 0x5c, 0xe4, 0x11};
@@ -68,7 +68,7 @@ TEST_F(Crypto, PsaCmacRfc4493Example3)
 }
 
 // RFC 4493 AES-CMAC example 4 (64-byte message).
-TEST_F(Crypto, PsaCmacRfc4493Example4)
+TEST_F(AesCmac, Rfc4493Example4)
 {
     const uint8_t key[]          = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
     const uint8_t message[]      = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a, 0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c, 0x9e, 0xb7, 0x6f, 0xac, 0x45, 0xaf, 0x8e, 0x51,
@@ -79,13 +79,46 @@ TEST_F(Crypto, PsaCmacRfc4493Example4)
 }
 
 // C++ CMAC API matches RFC 4493 example 2.
-TEST_F(Crypto, AesCmacComputeCppApi)
+TEST_F(AesCmac, ComputeCppApi)
 {
     const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
     const uint8_t message[]                            = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
     const uint8_t expected_mac[]                       = {0x07, 0x0a, 0x16, 0xb4, 0x6b, 0x4d, 0x41, 0x44, 0xf7, 0x9b, 0xdd, 0x9d, 0xd0, 0x4a, 0x28, 0x7c};
     std::array<uint8_t, CRYPTO_AES_CMAC_OUTPUT_LEN> mac {};
 
-    ASSERT_EQ(SL_STATUS_OK, crypto::Crypto::instance().aes_cmac_compute(key, std::span<const uint8_t>(message, sizeof(message)), mac));
+    ASSERT_EQ(SL_STATUS_OK, crypto::c_api().aes_cmac_compute(key, std::span<const uint8_t>(message, sizeof(message)), mac));
     ExpectBytesEq(expected_mac, mac.data(), mac.size());
+}
+
+#include "test_crypto_injection_fixture.hpp"
+
+TEST_F(AesCmacInjection, UsesInjectedPsaWrappers)
+{
+    expect_import_failure(PSA_KEY_USAGE_SIGN_MESSAGE, PSA_ALG_CMAC);
+    EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.aes_cmac_compute(key, input, output));
+}
+
+TEST_F(AesCmacInjection, ReleasesKeyWhenOperationFails)
+{
+    ::testing::InSequence sequence;
+    EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_SIGN_MESSAGE, PSA_ALG_CMAC, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, mac_compute(42, PSA_ALG_CMAC, SameBuffer(std::span(input)), SameBuffer(std::span(output)), _)).WillOnce(Return(PSA_ERROR_BAD_STATE));
+    EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_cmac_compute(key, input, output));
+}
+
+TEST_F(AesCmacInjection, ChecksOutputLengthAndReleasesKey)
+{
+    for (const size_t length: {size_t {0}, size_t {CRYPTO_AES_CMAC_OUTPUT_LEN - 1}, size_t {CRYPTO_AES_CMAC_OUTPUT_LEN + 1}}) {
+        SCOPED_TRACE(length);
+        ::testing::InSequence sequence;
+        EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_SIGN_MESSAGE, PSA_ALG_CMAC, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, mac_compute(42, PSA_ALG_CMAC, SameBuffer(std::span(input)), SameBuffer(std::span(output)), _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<4>(length), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+        EXPECT_EQ(SL_STATUS_FAIL, algorithms.aes_cmac_compute(key, input, output));
+    }
 }

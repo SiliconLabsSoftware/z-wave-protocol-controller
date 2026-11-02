@@ -2,9 +2,9 @@
 
 #include <gtest/gtest.h>
 
-#include "psa_status.hpp"
+#include "util.hpp"
 
-TEST(PsaStatus, MapsKnownStatuses)
+TEST(Util, MapsKnownPsaStatusesToSlStatus)
 {
     struct StatusMapping {
             psa_status_t psa_status;
@@ -25,7 +25,7 @@ TEST(PsaStatus, MapsKnownStatuses)
     }
 }
 
-TEST(PsaStatus, FallsBackForUnmappedAndUnknownStatuses)
+TEST(Util, FallsBackForUnmappedStatuses)
 {
     EXPECT_EQ(SL_STATUS_FAIL, crypto::psa_status_to_sl_status(PSA_ERROR_GENERIC_ERROR));
     EXPECT_EQ(SL_STATUS_FAIL, crypto::psa_status_to_sl_status(PSA_ERROR_INSUFFICIENT_ENTROPY));
