@@ -23,6 +23,7 @@
 #include <atomic>
 #include <cstddef>
 #include <map>
+#include <mutex>
 
 namespace zwave_command_class
 {
@@ -37,6 +38,7 @@ namespace zwave_command_class
         private:
             static struct timer_handle_t timer;
             static std::map<zwave_node_id_t, uint8_t> nodes_to_be_removed;
+            static std::mutex nodes_to_be_removed_mutex;
 
             // Z-Wave nodes issue Device Reset Locally command before they reset their
             // HomeID and NodeID. Due to that, ZPC shall wait at-least 1 second
