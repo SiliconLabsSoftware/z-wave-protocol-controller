@@ -167,6 +167,21 @@ namespace zwave_component
 zwave_component::supervision_handler *zwave_command_class_supervision_get_handler();
 }
 
+/**
+ * @brief RAII lock for the supervision session map.
+ *
+ * Hold this across pointer use from
+ * zwave_command_class_supervision_find_session_by_unique_id().
+ */
+class supervision_sessions_lock
+{
+    public:
+        supervision_sessions_lock();
+        ~supervision_sessions_lock();
+        supervision_sessions_lock(const supervision_sessions_lock &)            = delete;
+        supervision_sessions_lock &operator=(const supervision_sessions_lock &) = delete;
+};
+
 #endif  // __cplusplus
 
 /** @} end of zwave_cc_supervision_process */

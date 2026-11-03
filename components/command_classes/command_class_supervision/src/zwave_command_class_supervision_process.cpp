@@ -27,8 +27,10 @@
 
 // Generic includes
 #include <map>
+#include <mutex>
 #include <cstdlib>
 #include <string.h>
+#include <vector>
 
 constexpr char LOG_TAG[] = "supervision_process";
 
@@ -47,6 +49,17 @@ static struct timer_handle_t supervision_timer {nullptr};
 // List of Supervision sessions that are monitored.
 std::map<supervision_id_t, supervised_session_t> sessions;
 typedef std::map<supervision_id_t, supervised_session_t>::iterator session_iterator_t;
+static std::recursive_mutex sessions_mutex;
+
+supervision_sessions_lock::supervision_sessions_lock()
+{
+    sessions_mutex.lock();
+}
+
+supervision_sessions_lock::~supervision_sessions_lock()
+{
+    sessions_mutex.unlock();
+}
 
 // Variable for the next session-id to assign for a transmission
 static supervision_id_t next_supervision_id = 1;
@@ -66,6 +79,7 @@ static void increment_unique_supervision_id()
  */
 void zwave_command_class_supervision_restart_timer()
 {
+    supervision_sessions_lock lock;
     timer_stop(&supervision_timer);
     if (sessions.empty()) {
         return;
@@ -107,6 +121,8 @@ void zwave_command_class_supervision_restart_timer()
  */
 static void supervision_process_on_timer_expired_event(void *ptr)
 {
+    (void)ptr;
+    supervision_sessions_lock lock;
     clock_time_t now = clock_time();
     std::vector<supervision_id_t> expired_sessions;
     for (session_iterator_t it = sessions.begin(); it != sessions.end(); ++it) {
@@ -141,6 +157,7 @@ static void supervision_process_on_timer_expired_event(void *ptr)
 ////////////////////////////////////////////////////////////////////////////////
 supervised_session_t *zwave_command_class_supervision_find_session_by_unique_id(supervision_id_t supervision_id)
 {
+    supervision_sessions_lock lock;
     if (sessions.contains(supervision_id)) {
         return (supervised_session_t *)(&sessions[supervision_id]);
     }
@@ -149,6 +166,7 @@ supervised_session_t *zwave_command_class_supervision_find_session_by_unique_id(
 
 supervision_id_t zwave_command_class_supervision_find_session(uint8_t session_id, zwave_node_id_t node_id, zwave_endpoint_id_t endpoint_id)
 {
+    supervision_sessions_lock lock;
     for (auto it = sessions.begin(); it != sessions.end(); ++it) {
         if (it->second.session.node_id == node_id && it->second.session.endpoint_id == endpoint_id && it->second.session.session_id == session_id) {
             return it->first;
@@ -159,6 +177,7 @@ supervision_id_t zwave_command_class_supervision_find_session(uint8_t session_id
 
 static supervision_id_t zwave_command_class_supervision_create_singlecast_session(zwave_node_id_t node_id, zwave_endpoint_id_t endpoint_id, uint32_t discard_timeout_ms, on_zwave_tx_send_data_complete_t callback, void *user)
 {
+    supervision_sessions_lock lock;
     supervised_session_t new_session = {};
 
     new_session.session.session_id  = next_session_id & SUPERVISION_GET_PROPERTIES1_SESSION_ID_MASK;
@@ -183,6 +202,7 @@ static supervision_id_t zwave_command_class_supervision_create_singlecast_sessio
 
 static supervision_id_t zwave_command_class_supervision_update_singlecast_follow_up_session(zwave_node_id_t node_id, zwave_multicast_group_id_t group_id, zwave_endpoint_id_t endpoint_id, uint32_t discard_timeout_ms, on_zwave_tx_send_data_complete_t callback, void *user)
 {
+    supervision_sessions_lock lock;
     for (auto it = sessions.begin(); it != sessions.end(); ++it) {
         if (it->second.session.node_id == node_id && it->second.session.endpoint_id == endpoint_id && it->second.session.group_id == group_id) {
             it->second.callback    = callback;
@@ -203,6 +223,7 @@ static supervision_id_t zwave_command_class_supervision_update_singlecast_follow
 
 static supervision_id_t zwave_command_class_supervision_create_group_session(zwave_multicast_group_id_t group_id, zwave_endpoint_id_t endpoint_id, uint32_t discard_timeout_ms, on_zwave_tx_send_data_complete_t callback, void *user)
 {
+    supervision_sessions_lock lock;
     supervision_id_t return_value    = INVALID_SUPERVISION_ID;
     supervised_session_t new_session = {};
     new_session.session.session_id   = next_session_id & SUPERVISION_GET_PROPERTIES1_SESSION_ID_MASK;
@@ -234,6 +255,7 @@ static supervision_id_t zwave_command_class_supervision_create_group_session(zwa
 
 supervision_id_t zwave_command_class_supervision_create_session(const zwave_controller_connection_info_t *connection, const zwave_tx_options_t *tx_options, on_zwave_tx_send_data_complete_t callback, void *user)
 {
+    supervision_sessions_lock lock;
     // What kind of message do we have here ?
     // Singlecast, Multicast, or singlecast follow-up ?
     if (connection->remote.is_multicast) {
@@ -247,6 +269,7 @@ supervision_id_t zwave_command_class_supervision_create_session(const zwave_cont
 
 sl_status_t zwave_command_class_supervision_assign_session_tx_id(supervision_id_t supervision_id, zwave_tx_session_id_t tx_session_id)
 {
+    supervision_sessions_lock lock;
     supervised_session_t *session = zwave_command_class_supervision_find_session_by_unique_id(supervision_id);
     if (session == nullptr) {
         return SL_STATUS_NOT_FOUND;
@@ -269,6 +292,7 @@ sl_status_t zwave_command_class_supervision_assign_session_tx_id(supervision_id_
 
 sl_status_t zwave_command_class_supervision_close_session(supervision_id_t supervision_id)
 {
+    supervision_sessions_lock lock;
     if (supervision_id == INVALID_SUPERVISION_ID) {
         return SL_STATUS_NOT_FOUND;
     }
@@ -294,6 +318,7 @@ sl_status_t zwave_command_class_supervision_close_session(supervision_id_t super
 
 sl_status_t zwave_command_class_supervision_close_session_by_tx_session(zwave_tx_session_id_t tx_session_id)
 {
+    supervision_sessions_lock lock;
     // Find the session that has the desired tx_session_id
     bool session_found              = false;
     supervision_id_t supervision_id = INVALID_SUPERVISION_ID;
@@ -315,6 +340,7 @@ sl_status_t zwave_command_class_supervision_close_session_by_tx_session(zwave_tx
 
 void zwave_command_class_supervision_process_log()
 {
+    supervision_sessions_lock lock;
     sl_log_debug(LOG_TAG, "Number of Supervision Sessions: %d", sessions.size());
     for (auto it = sessions.begin(); it != sessions.end(); ++it) {
         sl_log_debug(LOG_TAG,
@@ -338,11 +364,13 @@ void zwave_command_class_supervision_process_log()
 
 void zwave_command_class_supervision_set_next_session_id(uint8_t session_id)
 {
+    supervision_sessions_lock lock;
     next_session_id = session_id;
 }
 
 void zwave_command_class_supervision_on_node_deleted(zwave_node_id_t node_id)
 {
+    supervision_sessions_lock lock;
     std::vector<supervision_id_t> to_close;
     for (auto it = sessions.begin(); it != sessions.end(); ++it) {
         if (it->second.session.node_id == node_id) {

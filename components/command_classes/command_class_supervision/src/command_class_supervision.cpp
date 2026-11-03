@@ -72,6 +72,7 @@ namespace zwave_command_class
 
     sl_status_t command_class_supervision::on_supervision_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_supervision_attribute_map_t payload)
     {
+        supervision_sessions_lock lock;
         zwave_command_class_supervision_restart_timer();
 
         uint8_t session_id = 0;
