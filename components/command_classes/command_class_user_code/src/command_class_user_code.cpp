@@ -99,7 +99,7 @@ namespace zwave_command_class
         request_users_number(endpoint_node);
     }
 
-    sl_status_t command_class_user_code::on_user_code_capabilities_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t)
+    sl_status_t command_class_user_code::on_user_code_capabilities_report_parsed(const zwave_controller_connection_info_t * /*connection_info*/, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t /*payload*/)
     {
         if (cc_interview_is_open(endpoint)) {
             request_users_number(endpoint);
@@ -107,7 +107,7 @@ namespace zwave_command_class
         return SL_STATUS_OK;
     }
 
-    sl_status_t command_class_user_code::on_users_number_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t)
+    sl_status_t command_class_user_code::on_users_number_report_parsed(const zwave_controller_connection_info_t * /*connection_info*/, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t /*payload*/)
     {
         if (!cc_interview_is_open(endpoint)) {
             return SL_STATUS_OK;
@@ -123,7 +123,7 @@ namespace zwave_command_class
         return SL_STATUS_OK;
     }
 
-    sl_status_t command_class_user_code::on_admin_code_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t)
+    sl_status_t command_class_user_code::on_admin_code_report_parsed(const zwave_controller_connection_info_t * /*connection_info*/, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t /*payload*/)
     {
         if (cc_interview_is_open(endpoint)) {
             request_keypad_or_users(endpoint);
@@ -131,7 +131,7 @@ namespace zwave_command_class
         return SL_STATUS_OK;
     }
 
-    sl_status_t command_class_user_code::on_user_code_keypad_mode_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t)
+    sl_status_t command_class_user_code::on_user_code_keypad_mode_report_parsed(const zwave_controller_connection_info_t * /*connection_info*/, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t /*payload*/)
     {
         if (cc_interview_is_open(endpoint) && command_class_user_code_rules::supported_user_total(endpoint) != 0) {
             request_extended_user(endpoint, FIRST_USER_IDENTIFIER);
@@ -139,7 +139,7 @@ namespace zwave_command_class
         return SL_STATUS_OK;
     }
 
-    sl_status_t command_class_user_code::on_extended_user_code_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t payload)
+    sl_status_t command_class_user_code::on_extended_user_code_report_parsed(const zwave_controller_connection_info_t * /*connection_info*/, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t payload)
     {
         if (!cc_interview_is_open(endpoint)) {
             return SL_STATUS_OK;
@@ -152,7 +152,7 @@ namespace zwave_command_class
         return SL_STATUS_OK;
     }
 
-    sl_status_t command_class_user_code::on_user_code_report_parsed(const zwave_controller_connection_info_t *, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t payload)
+    sl_status_t command_class_user_code::on_user_code_report_parsed(const zwave_controller_connection_info_t * /*connection_info*/, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t payload)
     {
         if (!cc_interview_is_open(endpoint) || command_class_user_code_rules::peer_version(endpoint) >= 2) {
             return SL_STATUS_OK;
@@ -164,7 +164,7 @@ namespace zwave_command_class
         return SL_STATUS_OK;
     }
 
-    sl_status_t command_class_user_code::on_user_code_get_requested_assemble_frame(const get_requested_args &args, uint8_t *, uint16_t *)
+    sl_status_t command_class_user_code::on_user_code_get_requested_assemble_frame(const get_requested_args &args, uint8_t * /*data*/, uint16_t * /*length*/)
     {
         auto group = args.node;
         auto id    = desired_child(group, static_cast<attribute_store_type_t>(user_code_get_group_attributes_t::user_identifier));
@@ -180,7 +180,7 @@ namespace zwave_command_class
         return args.get_frame_generator->generate_frame();
     }
 
-    sl_status_t command_class_user_code::on_user_code_set_requested_assemble_frame(const set_requested_args &args, uint8_t *, uint16_t *)
+    sl_status_t command_class_user_code::on_user_code_set_requested_assemble_frame(const set_requested_args &args, uint8_t * /*data*/, uint16_t * /*length*/)
     {
         auto group  = args.node;
         auto id     = desired_child(group, static_cast<attribute_store_type_t>(user_code_set_group_attributes_t::user_identifier));
@@ -203,7 +203,7 @@ namespace zwave_command_class
         return args.set_frame_generator->generate_frame();
     }
 
-    sl_status_t command_class_user_code::on_extended_user_code_get_requested_assemble_frame(const get_requested_args &args, uint8_t *, uint16_t *)
+    sl_status_t command_class_user_code::on_extended_user_code_get_requested_assemble_frame(const get_requested_args &args, uint8_t * /*data*/, uint16_t * /*length*/)
     {
         auto group = args.node;
         auto id    = desired_child(group, static_cast<attribute_store_type_t>(extended_user_code_get_group_attributes_t::user_identifier));
@@ -220,7 +220,7 @@ namespace zwave_command_class
         return args.get_frame_generator->generate_frame();
     }
 
-    sl_status_t command_class_user_code::on_extended_user_code_set_requested_assemble_frame(const set_requested_args &args, uint8_t *, uint16_t *)
+    sl_status_t command_class_user_code::on_extended_user_code_set_requested_assemble_frame(const set_requested_args &args, uint8_t * /*data*/, uint16_t * /*length*/)
     {
         auto group = args.node;
         auto count = desired_child(group, static_cast<attribute_store_type_t>(extended_user_code_set_group_attributes_t::number_of_user_codes));
@@ -236,7 +236,7 @@ namespace zwave_command_class
         return args.set_frame_generator->generate_frame();
     }
 
-    sl_status_t command_class_user_code::on_user_code_keypad_mode_set_requested_assemble_frame(const set_requested_args &args, uint8_t *, uint16_t *)
+    sl_status_t command_class_user_code::on_user_code_keypad_mode_set_requested_assemble_frame(const set_requested_args &args, uint8_t * /*data*/, uint16_t * /*length*/)
     {
         auto mode = desired_child(args.node, static_cast<attribute_store_type_t>(user_code_keypad_mode_set_group_attributes_t::keypad_mode));
         if (!mode.is_valid()) {
@@ -249,7 +249,7 @@ namespace zwave_command_class
         return args.set_frame_generator->generate_frame();
     }
 
-    sl_status_t command_class_user_code::on_admin_code_set_requested_assemble_frame(const set_requested_args &args, uint8_t *, uint16_t *)
+    sl_status_t command_class_user_code::on_admin_code_set_requested_assemble_frame(const set_requested_args &args, uint8_t * /*data*/, uint16_t * /*length*/)
     {
         auto length = desired_child(args.node, static_cast<attribute_store_type_t>(admin_code_set_group_attributes_t::admin_code_length));
         if (!length.is_valid()) {
@@ -270,7 +270,7 @@ namespace zwave_command_class
         return args.set_frame_generator->generate_frame();
     }
 
-    sl_status_t command_class_user_code::on_user_code_checksum_get_requested_assemble_frame(const get_requested_args &args, uint8_t *, uint16_t *)
+    sl_status_t command_class_user_code::on_user_code_checksum_get_requested_assemble_frame(const get_requested_args &args, uint8_t * /*data*/, uint16_t * /*length*/)
     {
         if (!command_class_user_code_rules::user_code_checksum_get_is_supported(args.node.parent())) {
             return SL_STATUS_FAIL;

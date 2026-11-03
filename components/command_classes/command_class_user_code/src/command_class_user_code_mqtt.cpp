@@ -31,38 +31,38 @@ namespace zwave_command_class
     command_class_user_code_mqtt::command_class_user_code_mqtt()
     {
 
-        mqtt_callback_map.insert({"UserCodeGet", [this](attribute_store::attribute &endpoint_node, std::string payload) {
-                                      this->mqtt_on_user_code_get_command(endpoint_node, payload);
+        mqtt_callback_map.insert({"UserCodeGet", [](attribute_store::attribute &endpoint_node, std::string payload) {
+                                      command_class_user_code_mqtt::mqtt_on_user_code_get_command(endpoint_node, payload);
                                   }});
-        mqtt_callback_map.insert({"UserCodeSet", [this](attribute_store::attribute &endpoint_node, std::string payload) {
-                                      this->mqtt_on_user_code_set_command(endpoint_node, payload);
+        mqtt_callback_map.insert({"UserCodeSet", [](attribute_store::attribute &endpoint_node, std::string payload) {
+                                      command_class_user_code_mqtt::mqtt_on_user_code_set_command(endpoint_node, payload);
                                   }});
-        mqtt_callback_map.insert({"UsersNumberGet", [this](attribute_store::attribute &endpoint_node, std::string payload) {
-                                      this->mqtt_on_users_number_get_command(endpoint_node, payload);
+        mqtt_callback_map.insert({"UsersNumberGet", [](attribute_store::attribute &endpoint_node, std::string payload) {
+                                      command_class_user_code_mqtt::mqtt_on_users_number_get_command(endpoint_node, payload);
                                   }});
-        mqtt_callback_map.insert({"ExtendedUserCodeSet", [this](attribute_store::attribute &endpoint_node, std::string payload) {
-                                      this->mqtt_on_extended_user_code_set_command(endpoint_node, payload);
+        mqtt_callback_map.insert({"ExtendedUserCodeSet", [](attribute_store::attribute &endpoint_node, std::string payload) {
+                                      command_class_user_code_mqtt::mqtt_on_extended_user_code_set_command(endpoint_node, payload);
                                   }});
-        mqtt_callback_map.insert({"ExtendedUserCodeGet", [this](attribute_store::attribute &endpoint_node, std::string payload) {
-                                      this->mqtt_on_extended_user_code_get_command(endpoint_node, payload);
+        mqtt_callback_map.insert({"ExtendedUserCodeGet", [](attribute_store::attribute &endpoint_node, std::string payload) {
+                                      command_class_user_code_mqtt::mqtt_on_extended_user_code_get_command(endpoint_node, payload);
                                   }});
-        mqtt_callback_map.insert({"UserCodeCapabilitiesGet", [this](attribute_store::attribute &endpoint_node, std::string payload) {
-                                      this->mqtt_on_user_code_capabilities_get_command(endpoint_node, payload);
+        mqtt_callback_map.insert({"UserCodeCapabilitiesGet", [](attribute_store::attribute &endpoint_node, std::string payload) {
+                                      command_class_user_code_mqtt::mqtt_on_user_code_capabilities_get_command(endpoint_node, payload);
                                   }});
-        mqtt_callback_map.insert({"UserCodeKeypadModeSet", [this](attribute_store::attribute &endpoint_node, std::string payload) {
-                                      this->mqtt_on_user_code_keypad_mode_set_command(endpoint_node, payload);
+        mqtt_callback_map.insert({"UserCodeKeypadModeSet", [](attribute_store::attribute &endpoint_node, std::string payload) {
+                                      command_class_user_code_mqtt::mqtt_on_user_code_keypad_mode_set_command(endpoint_node, payload);
                                   }});
-        mqtt_callback_map.insert({"UserCodeKeypadModeGet", [this](attribute_store::attribute &endpoint_node, std::string payload) {
-                                      this->mqtt_on_user_code_keypad_mode_get_command(endpoint_node, payload);
+        mqtt_callback_map.insert({"UserCodeKeypadModeGet", [](attribute_store::attribute &endpoint_node, std::string payload) {
+                                      command_class_user_code_mqtt::mqtt_on_user_code_keypad_mode_get_command(endpoint_node, payload);
                                   }});
-        mqtt_callback_map.insert({"AdminCodeSet", [this](attribute_store::attribute &endpoint_node, std::string payload) {
-                                      this->mqtt_on_admin_code_set_command(endpoint_node, payload);
+        mqtt_callback_map.insert({"AdminCodeSet", [](attribute_store::attribute &endpoint_node, std::string payload) {
+                                      command_class_user_code_mqtt::mqtt_on_admin_code_set_command(endpoint_node, payload);
                                   }});
-        mqtt_callback_map.insert({"AdminCodeGet", [this](attribute_store::attribute &endpoint_node, std::string payload) {
-                                      this->mqtt_on_admin_code_get_command(endpoint_node, payload);
+        mqtt_callback_map.insert({"AdminCodeGet", [](attribute_store::attribute &endpoint_node, std::string payload) {
+                                      command_class_user_code_mqtt::mqtt_on_admin_code_get_command(endpoint_node, payload);
                                   }});
-        mqtt_callback_map.insert({"UserCodeChecksumGet", [this](attribute_store::attribute &endpoint_node, std::string payload) {
-                                      this->mqtt_on_user_code_checksum_get_command(endpoint_node, payload);
+        mqtt_callback_map.insert({"UserCodeChecksumGet", [](attribute_store::attribute &endpoint_node, std::string payload) {
+                                      command_class_user_code_mqtt::mqtt_on_user_code_checksum_get_command(endpoint_node, payload);
                                   }});
 
         mqtt_register_command_handler();
@@ -123,7 +123,7 @@ namespace zwave_command_class
         return SL_STATUS_OK;
     }
 
-    sl_status_t command_class_user_code_mqtt::mqtt_on_users_number_get_command(attribute_store::attribute &endpoint_node, std::string)
+    sl_status_t command_class_user_code_mqtt::mqtt_on_users_number_get_command(attribute_store::attribute &endpoint_node, std::string /*payload*/)
     {
         start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(users_number_get_group_attributes_t::USERS_NUMBER_GET_GROUP)));
         return SL_STATUS_OK;
@@ -179,7 +179,7 @@ namespace zwave_command_class
         return SL_STATUS_OK;
     }
 
-    sl_status_t command_class_user_code_mqtt::mqtt_on_user_code_capabilities_get_command(attribute_store::attribute &endpoint_node, std::string)
+    sl_status_t command_class_user_code_mqtt::mqtt_on_user_code_capabilities_get_command(attribute_store::attribute &endpoint_node, std::string /*payload*/)
     {
         start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(user_code_capabilities_get_group_attributes_t::USER_CODE_CAPABILITIES_GET_GROUP)));
         return SL_STATUS_OK;
@@ -202,7 +202,7 @@ namespace zwave_command_class
         return SL_STATUS_OK;
     }
 
-    sl_status_t command_class_user_code_mqtt::mqtt_on_user_code_keypad_mode_get_command(attribute_store::attribute &endpoint_node, std::string)
+    sl_status_t command_class_user_code_mqtt::mqtt_on_user_code_keypad_mode_get_command(attribute_store::attribute &endpoint_node, std::string /*payload*/)
     {
         start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(user_code_keypad_mode_get_group_attributes_t::USER_CODE_KEYPAD_MODE_GET_GROUP)));
         return SL_STATUS_OK;
@@ -230,13 +230,13 @@ namespace zwave_command_class
         return SL_STATUS_OK;
     }
 
-    sl_status_t command_class_user_code_mqtt::mqtt_on_admin_code_get_command(attribute_store::attribute &endpoint_node, std::string)
+    sl_status_t command_class_user_code_mqtt::mqtt_on_admin_code_get_command(attribute_store::attribute &endpoint_node, std::string /*payload*/)
     {
         start_group_resolution(endpoint_node.emplace_node(static_cast<attribute_store_type_t>(admin_code_get_group_attributes_t::ADMIN_CODE_GET_GROUP)));
         return SL_STATUS_OK;
     }
 
-    sl_status_t command_class_user_code_mqtt::mqtt_on_user_code_checksum_get_command(attribute_store::attribute &endpoint_node, std::string)
+    sl_status_t command_class_user_code_mqtt::mqtt_on_user_code_checksum_get_command(attribute_store::attribute &endpoint_node, std::string /*payload*/)
     {
         if (!command_class_user_code_rules::user_code_checksum_get_is_supported(endpoint_node)) {
             return SL_STATUS_FAIL;

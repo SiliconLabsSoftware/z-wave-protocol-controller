@@ -27,17 +27,17 @@ namespace zwave_command_class
             command_class_user_code_mqtt();
             ~command_class_user_code_mqtt() = default;
 
-            sl_status_t mqtt_on_user_code_get_command(attribute_store::attribute &endpoint_node, std::string payload);
-            sl_status_t mqtt_on_user_code_set_command(attribute_store::attribute &endpoint_node, std::string payload);
-            sl_status_t mqtt_on_users_number_get_command(attribute_store::attribute &endpoint_node, std::string payload);
-            sl_status_t mqtt_on_extended_user_code_set_command(attribute_store::attribute &endpoint_node, std::string payload);
-            sl_status_t mqtt_on_extended_user_code_get_command(attribute_store::attribute &endpoint_node, std::string payload);
-            sl_status_t mqtt_on_user_code_capabilities_get_command(attribute_store::attribute &endpoint_node, std::string payload);
-            sl_status_t mqtt_on_user_code_keypad_mode_set_command(attribute_store::attribute &endpoint_node, std::string payload);
-            sl_status_t mqtt_on_user_code_keypad_mode_get_command(attribute_store::attribute &endpoint_node, std::string payload);
-            sl_status_t mqtt_on_admin_code_set_command(attribute_store::attribute &endpoint_node, std::string payload);
-            sl_status_t mqtt_on_admin_code_get_command(attribute_store::attribute &endpoint_node, std::string payload);
-            sl_status_t mqtt_on_user_code_checksum_get_command(attribute_store::attribute &endpoint_node, std::string payload);
+            static sl_status_t mqtt_on_user_code_get_command(attribute_store::attribute &endpoint_node, std::string payload);
+            static sl_status_t mqtt_on_user_code_set_command(attribute_store::attribute &endpoint_node, std::string payload);
+            static sl_status_t mqtt_on_users_number_get_command(attribute_store::attribute &endpoint_node, std::string payload);
+            static sl_status_t mqtt_on_extended_user_code_set_command(attribute_store::attribute &endpoint_node, std::string payload);
+            static sl_status_t mqtt_on_extended_user_code_get_command(attribute_store::attribute &endpoint_node, std::string payload);
+            static sl_status_t mqtt_on_user_code_capabilities_get_command(attribute_store::attribute &endpoint_node, std::string payload);
+            static sl_status_t mqtt_on_user_code_keypad_mode_set_command(attribute_store::attribute &endpoint_node, std::string payload);
+            static sl_status_t mqtt_on_user_code_keypad_mode_get_command(attribute_store::attribute &endpoint_node, std::string payload);
+            static sl_status_t mqtt_on_admin_code_set_command(attribute_store::attribute &endpoint_node, std::string payload);
+            static sl_status_t mqtt_on_admin_code_get_command(attribute_store::attribute &endpoint_node, std::string payload);
+            static sl_status_t mqtt_on_user_code_checksum_get_command(attribute_store::attribute &endpoint_node, std::string payload);
     };
 
 }  // namespace zwave_command_class
