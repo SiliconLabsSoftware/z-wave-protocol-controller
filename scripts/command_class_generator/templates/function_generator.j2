@@ -9,8 +9,13 @@
         read_bytes += sizeof(item.{{utils.create_variable_name(field.name)}}.value);
     {% elif field.type | lower == "variant" and field.fields[0].param_offset != 255 and field.fields[0].param_offset < attribute.params | length %}
         {% set length_field = attribute.params[field.fields[0].param_offset] %}
-        item.{{utils.create_variable_name(field.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(field.type)}}>(item.{{utils.create_variable_name(length_field.name)}});
-        read_bytes += item.{{utils.create_variable_name(length_field.name)}};
+        {% if length_field.type | lower == "struct_byte" %}
+        uint16_t item_{{utils.create_variable_name(field.name)}}_size = static_cast<uint16_t>((item.{{utils.create_variable_name(length_field.name)}}.value & {{field.fields[0].size_mask}}) + {{field.fields[0].size_change}});
+        {% else %}
+        uint16_t item_{{utils.create_variable_name(field.name)}}_size = static_cast<uint16_t>((item.{{utils.create_variable_name(length_field.name)}} & {{field.fields[0].size_mask}}) + {{field.fields[0].size_change}});
+        {% endif %}
+        item.{{utils.create_variable_name(field.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(field.type)}}>(static_cast<uint8_t>(item_{{utils.create_variable_name(field.name)}}_size));
+        read_bytes = static_cast<uint16_t>(read_bytes + item_{{utils.create_variable_name(field.name)}}_size);
     {% elif field.type | lower == "variant" %}
         item.{{utils.create_variable_name(field.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(field.type)}}>(frame_length - read_bytes);
         read_bytes = frame_length;
