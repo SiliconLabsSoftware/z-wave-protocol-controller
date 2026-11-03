@@ -22,3 +22,7 @@ target_link_libraries(
 )
 
 add_subdirectory(interface)
+
+if(UNIT_TEST)
+  add_subdirectory(test)
+endif()
