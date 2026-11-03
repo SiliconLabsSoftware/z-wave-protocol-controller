@@ -220,7 +220,7 @@ void zwave_command_class_list_unpack(zwave_node_info_t *node_info, const uint8_t
     uint8_t i         = 0;
     uint8_t nif_index = 0;
     if (nif == NULL || node_info == NULL || nif_length == 0) {
-        sl_log_warning(LOG_TAG, "warning: zwave_command_class_list_unpack: invalid input: skipping");
+        sl_log_warning(LOG_TAG, "zwave_command_class_list_unpack: invalid input: skipping");
         assert(false);
         return;
     }
@@ -233,8 +233,8 @@ void zwave_command_class_list_unpack(zwave_node_info_t *node_info, const uint8_t
                 i++;
                 nif_index += 2;
             } else {
-                sl_log_warning(LOG_TAG, "warning: zwave_command_class_list_unpack: invalid input: skipping");
-                assert(false);
+                sl_log_warning(LOG_TAG, "zwave_command_class_list_unpack: invalid input: skipping");
+                break;
             }
         } else {
             node_info->command_class_list[i++] = nif[nif_index++];
