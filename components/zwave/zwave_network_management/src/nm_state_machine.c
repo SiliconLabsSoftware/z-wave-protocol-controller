@@ -70,11 +70,34 @@ void nm_state_store(zwave_network_management_state_t state)
     __atomic_store_n(&nms.state, state, __ATOMIC_RELEASE);
 }
 
+zwave_home_id_t nm_cached_home_id_load(void)
+{
+    return __atomic_load_n(&nms.cached_home_id, __ATOMIC_ACQUIRE);
+}
+
+void nm_cached_home_id_store(zwave_home_id_t home_id)
+{
+    __atomic_store_n(&nms.cached_home_id, home_id, __ATOMIC_RELEASE);
+}
+
+zwave_node_id_t nm_cached_node_id_load(void)
+{
+    return __atomic_load_n(&nms.cached_local_node_id, __ATOMIC_ACQUIRE);
+}
+
+void nm_cached_node_id_store(zwave_node_id_t node_id)
+{
+    __atomic_store_n(&nms.cached_local_node_id, node_id, __ATOMIC_RELEASE);
+}
+
 static LEARN_INFO inf_bkup;
 static uint8_t info_buf[NODE_INFO_MAX_SIZE];
 static void nm_nms_timer_callback(void *ptr)
 {
-    nm_fsm_post_event(NM_EV_TIMEOUT, ptr);
+    (void)ptr;
+    // Timer callbacks run on the timer manager worker thread. Post into the
+    // NMS process so the FSM and cached IDs are only mutated there.
+    zwave_network_management_post_event(NM_EV_TIMEOUT, 0);
 }
 
 /* Timer used to abort s2 incl asynchronously to avoid a buffer overwrite
@@ -353,7 +376,7 @@ static void on_new_network(zwave_kex_fail_type_t kex_fail)
     network_management_take_sis_role_if_no_suc_in_network();
 
     // Call the upper layer callbacks
-    zwave_controller_on_new_network_entered(nms.cached_home_id, nms.cached_local_node_id, nms.granted_keys, kex_fail);
+    zwave_controller_on_new_network_entered(nm_cached_home_id_load(), nm_cached_node_id_load(), nms.granted_keys, kex_fail);
 }
 
 static void nop_send_done(uint8_t status, const zwapi_tx_report_t *tx_info, void *user)
@@ -396,7 +419,7 @@ void nm_state_machine_init()
     zwave_network_management_return_route_clear_queue();
 
     // Print the HomeID, NodeID and DSK to console
-    sl_log_info(LOG_TAG, "ZPC HomeID %08X - NodeID %d", nms.cached_home_id, nms.cached_local_node_id);
+    sl_log_info(LOG_TAG, "ZPC HomeID %08X - NodeID %d", nm_cached_home_id_load(), nm_cached_node_id_load());
     zwave_dsk_t dsk = {};
     zwave_s2_keystore_get_dsk(ZWAVE_S2_KEYSTORE_STATIC_ECDH_KEY, dsk);
     zwave_sl_log_dsk(LOG_TAG, dsk);
@@ -618,11 +641,11 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
                 zwave_s2_create_new_network_keys();
                 zwave_s2_network_init();
                 // Anounce that our NodeID / HomeID just changed.
-                zwave_controller_on_network_address_update(nms.cached_home_id, nms.cached_local_node_id);
+                zwave_controller_on_network_address_update(nm_cached_home_id_load(), nm_cached_node_id_load());
                 // We expect nothing more after entering our network, it is ready to be operated
                 on_new_network(ZWAVE_NETWORK_MANAGEMENT_KEX_FAIL_NONE);
                 // Reset the MQTT subscriptions
-                mqtt_handler_reset_subscriptions(nms.cached_home_id);
+                mqtt_handler_reset_subscriptions(nm_cached_home_id_load());
                 // Initialize the ZPC configuration
                 // zwave_command_class_agi_zpc_configuration_init();
                 nm_state_store(NM_IDLE);
@@ -928,7 +951,7 @@ void nm_fsm_post_event(nm_event_t ev, void *event_data)
                     zwave_network_management_post_event(NM_EV_SECURITY_DONE, 0);
                 } else {
                     // Get started with S2 bootstrapping, the non-secure part of the inclusion is done.
-                    zwave_controller_on_network_address_update(nms.cached_home_id, nms.cached_local_node_id);
+                    zwave_controller_on_network_address_update(nm_cached_home_id_load(), nm_cached_node_id_load());
                     zwave_s2_keystore_reset_assigned_keys();
                     zwave_s2_neighbor_discovery_complete();
                     nm_state_store(NM_WAIT_FOR_SECURE_LEARN);

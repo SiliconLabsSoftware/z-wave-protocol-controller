@@ -112,6 +112,10 @@ extern "C" {
 
 zwave_network_management_state_t nm_state_load(void);
 void nm_state_store(zwave_network_management_state_t state);
+zwave_home_id_t nm_cached_home_id_load(void);
+void nm_cached_home_id_store(zwave_home_id_t home_id);
+zwave_node_id_t nm_cached_node_id_load(void);
+void nm_cached_node_id_store(zwave_node_id_t node_id);
 
 void nm_fsm_post_event(nm_event_t ev, void *event_data);
 /*****************************************************************************/

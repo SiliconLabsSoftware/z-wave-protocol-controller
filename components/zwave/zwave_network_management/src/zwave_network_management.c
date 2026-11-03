@@ -337,12 +337,12 @@ bool zwave_network_management_is_busy()
 
 zwave_home_id_t zwave_network_management_get_home_id()
 {
-    return nms.cached_home_id;
+    return nm_cached_home_id_load();
 }
 
 zwave_node_id_t zwave_network_management_get_node_id()
 {
-    return nms.cached_local_node_id;
+    return nm_cached_node_id_load();
 }
 
 uint16_t zwave_network_management_get_network_size()
