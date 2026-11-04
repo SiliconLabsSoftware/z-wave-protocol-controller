@@ -25,7 +25,7 @@ set(CRYPTO_SOURCES
 
 add_library(crypto STATIC ${CRYPTO_SOURCES})
 target_include_directories(crypto PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(crypto PUBLIC crypto_api PRIVATE MbedTLS::tfpsacrypto)
+target_link_libraries(crypto PUBLIC crypto_api PRIVATE common MbedTLS::tfpsacrypto)
 set_target_properties(crypto PROPERTIES POSITION_INDEPENDENT_CODE ON)
 if(UNIT_TEST)
   target_compile_definitions(crypto PRIVATE UNIT_TEST)

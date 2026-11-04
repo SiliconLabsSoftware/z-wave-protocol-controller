@@ -3,6 +3,7 @@
 # Also provides clock_platform implementation
 set(COMMON_SRC
     src/clock_platform.cpp
+    src/secure_memzero.c
 )
 
 add_library(common OBJECT ${COMMON_SRC})
@@ -12,4 +13,8 @@ target_include_directories(
   PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
     $<INSTALL_INTERFACE:include>)
+
+if(UNIT_TEST)
+  add_subdirectory(test)
+endif()
 

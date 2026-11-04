@@ -20,6 +20,7 @@
 #include "s2_classcmd.h"
 #include "s2_keystore.h"
 #include "zwave_s2_key_derivation.h"
+#include "s2_inclusion_internal.h"
 
 void setUpSuite(void) {}
 
@@ -359,6 +360,8 @@ void test_kex_joining_node_state_machine_csa(void)
         // After the received public key is pushed upwards in the system, then it is expected to receive a challenge response from the upper level.
         // The challenge response should result in correct pub key being set on the context.
         s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, DSK_CSA_CHALLENGE_LENGTH);
+        TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_secret, sizeof(shared_secret));
+        TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_key_mem, sizeof(shared_key_mem));
         TEST_ASSERT_EQUAL_UINT8_ARRAY(s2_context.public_key, m_test_public_key_a, sizeof(m_test_public_key_a));
 
         // After receiving public key from joining node, the upper layer must specify our public key to be send. (This can also be done on initialization, but must happen no later than the received event).
@@ -4219,6 +4222,48 @@ void test_kex_joining_node_wrong_dsk_input(void)
     mock_calls_verify();
 }
 
+void test_ecdh_failure_clears_secrets_and_sends_kex_fail_auth(void)
+{
+    uint8_t frame_buffer[UNIT_TEST_BUF_SIZE] = {0};
+    struct S2 s2_context                     = {0};
+
+    mock_calls_clear();
+    mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
+    mock_call_use_as_stub(TO_STR(S2_network_key_update));
+    mock_call_use_as_stub(TO_STR(S2_send_frame));
+    mock_call_use_as_stub(TO_STR(S2_send_data));
+    mock_call_use_as_stub(TO_STR(s2_event_handler));
+    mock_call_use_as_stub(TO_STR(keystore_network_key_read));
+    mock_call_use_as_stub(TO_STR(keystore_network_key_clear));
+    mock_call_use_as_stub(TO_STR(keystore_network_key_write));
+    mock_call_use_as_stub(TO_STR(keystore_public_key_read));
+    mock_call_use_as_stub(TO_STR(keystore_private_key_read));
+
+    s2_context.inclusion_state = S2_INC_IDLE;
+    s2_context.buf             = frame_buffer;
+    s2_inclusion_init(0x02, 0x01, 0x84);
+    s2_inclusion_set_event_handler(s2_event_handler);
+    s2_inclusion_joining_start(&s2_context, &s2_con, 0);
+
+    helper_func_kex_get_frame(&s2_context);
+    s2_inclusion_post_event(&s2_context, &s2_con);
+    helper_func_kex_set_frame(&s2_context, 0x02, 0x84);
+    s2_inclusion_post_event(&s2_context, &s2_con);
+    helper_func_pub_key_frame(&s2_context);
+    s2_inclusion_post_event(&s2_context, &s2_con);
+    memset(s2_context.public_key, 0, sizeof(s2_context.public_key));
+    memset(shared_secret, 0xa5, sizeof(shared_secret));
+    memset(shared_key_mem, 0xa5, sizeof(shared_key_mem));
+    s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
+
+    TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_secret, sizeof(shared_secret));
+    TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_key_mem, sizeof(shared_key_mem));
+    TEST_ASSERT_EQUAL_UINT8(KEX_FAIL, s2_context.u.inclusion_buf[SECURITY_2_COMMAND_POS]);
+    TEST_ASSERT_EQUAL_UINT8(KEX_FAIL_AUTH, s2_context.u.inclusion_buf[SECURITY_2_KEX_FAIL_FAIL_TYPE_POS]);
+    TEST_ASSERT_EQUAL_UINT8(S2_ERROR_SENT, s2_context.inclusion_state);
+    mock_calls_verify();
+}
+
 void test_tempkey_extract_failure_sends_kex_fail_auth(void)
 {
     uint8_t frame_buffer[UNIT_TEST_BUF_SIZE] = {0};
@@ -4254,8 +4299,12 @@ void test_tempkey_extract_failure_sends_kex_fail_auth(void)
     s2_inclusion_post_event(&s2_context, &s2_con);
     helper_func_pub_key_frame(&s2_context);
     s2_inclusion_post_event(&s2_context, &s2_con);
+    memset(shared_secret, 0xa5, sizeof(shared_secret));
+    memset(shared_key_mem, 0xa5, sizeof(shared_key_mem));
     s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
 
+    TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_secret, sizeof(shared_secret));
+    TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_key_mem, sizeof(shared_key_mem));
     TEST_ASSERT_EQUAL_UINT8(KEX_FAIL, s2_context.u.inclusion_buf[SECURITY_2_COMMAND_POS]);
     TEST_ASSERT_EQUAL_UINT8(KEX_FAIL_AUTH, s2_context.u.inclusion_buf[SECURITY_2_KEX_FAIL_FAIL_TYPE_POS]);
     TEST_ASSERT_EQUAL_UINT8(S2_ERROR_SENT, s2_context.inclusion_state);
@@ -4299,11 +4348,50 @@ void test_tempkey_update_failure_sends_kex_fail_auth(void)
     s2_inclusion_post_event(&s2_context, &s2_con);
     helper_func_pub_key_frame(&s2_context);
     s2_inclusion_post_event(&s2_context, &s2_con);
+    memset(shared_secret, 0xa5, sizeof(shared_secret));
+    memset(shared_key_mem, 0xa5, sizeof(shared_key_mem));
     s2_inclusion_challenge_response(&s2_context, 1, m_test_public_key_a, 0);
 
+    TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_secret, sizeof(shared_secret));
+    TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_key_mem, sizeof(shared_key_mem));
     TEST_ASSERT_EQUAL_UINT8(KEX_FAIL, s2_context.u.inclusion_buf[SECURITY_2_COMMAND_POS]);
     TEST_ASSERT_EQUAL_UINT8(KEX_FAIL_AUTH, s2_context.u.inclusion_buf[SECURITY_2_KEX_FAIL_FAIL_TYPE_POS]);
     TEST_ASSERT_EQUAL_UINT8(S2_ERROR_SENT, s2_context.inclusion_state);
+    mock_calls_verify();
+}
+
+void test_restore_keys_clears_entire_scratch_after_success(void)
+{
+    struct S2 s2_context = {0};
+    mock_t *p_mock;
+    mock_calls_clear();
+    memset(shared_key_mem, 0xa5, sizeof(shared_key_mem));
+
+    mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
+    p_mock->expect_arg[0].value   = KEY_CLASS_S2_UNAUTHENTICATED;
+    p_mock->output_arg[1].pointer = m_test_network_key_s2_class_0;
+    p_mock->return_code.value     = true;
+
+    mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
+    p_mock->compare_rule_arg[0]   = COMPARE_ANY;
+    p_mock->expect_arg[1].value   = 0;
+    p_mock->expect_arg[2].pointer = m_test_network_key_s2_class_0;
+    p_mock->expect_arg[3].value   = 0;
+    p_mock->return_code.value     = 1;
+
+    mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
+    p_mock->expect_arg[0].value   = KEY_CLASS_S2_AUTHENTICATED;
+    p_mock->output_arg[1].pointer = m_test_mem_pool[0];
+    p_mock->return_code.value     = false;
+
+    mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
+    p_mock->expect_arg[0].value   = KEY_CLASS_S2_ACCESS;
+    p_mock->output_arg[1].pointer = m_test_mem_pool[1];
+    p_mock->return_code.value     = false;
+
+    s2_restore_keys(&s2_context);
+
+    TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_key_mem, sizeof(shared_key_mem));
     mock_calls_verify();
 }
 
@@ -4313,6 +4401,7 @@ void test_restore_keys_leaves_failed_key_unloaded(void)
     mock_t *p_mock;
 
     mock_calls_clear();
+    memset(shared_key_mem, 0xa5, sizeof(shared_key_mem));
 
     mock_call_expect(TO_STR(keystore_network_key_read), &p_mock);
     p_mock->expect_arg[0].value   = 0x01;
@@ -4340,6 +4429,7 @@ void test_restore_keys_leaves_failed_key_unloaded(void)
     s2_restore_keys(&s2_context);
 
     TEST_ASSERT_EQUAL_UINT8(0, s2_context.loaded_keys);
+    TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_key_mem, sizeof(shared_key_mem));
     mock_calls_verify();
 }
 

@@ -33,7 +33,7 @@ namespace crypto
             sl_status_t aes_ctr_drbg_generate(crypto::CtrDrbgContext &ctx, std::span<uint8_t> out) const override;
 
         private:
-            sl_status_t update_ctr_drbg(crypto::CtrDrbgContext &ctx, const uint8_t *data) const;
+            sl_status_t update_ctr_drbg(crypto::CtrDrbgContext &ctx, std::span<const uint8_t, crypto::aes_ctr_drbg_seed_size> data) const;
             PsaWrappersInterface &psa_wrappers_;
     };
 }  // namespace crypto

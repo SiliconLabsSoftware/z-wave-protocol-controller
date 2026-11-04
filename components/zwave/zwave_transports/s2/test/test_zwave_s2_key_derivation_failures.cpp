@@ -6,6 +6,7 @@
 
 extern "C" {
 #include "zwave_s2_key_derivation.h"
+#include "zwave_s2_next_nonce.h"
 }
 
 namespace
@@ -38,6 +39,34 @@ namespace
                 });
             }
     };
+
+    TEST_F(ZwaveS2KeyDerivationFailures, NonceInstantiationLeavesContextUnchangedOnEachCryptoFailure)
+    {
+        const std::array<uint8_t, 16> sender_entropy {};
+        const std::array<uint8_t, 16> receiver_entropy {};
+        const std::array<uint8_t, 32> nonce_key {};
+
+        for (unsigned fail_call = 1; fail_call <= 4; ++fail_call) {
+            SCOPED_TRACE(fail_call);
+            crypto_aes_ctr_drbg_ctx_t ctx;
+            std::fill_n(ctx.counter, sizeof(ctx.counter), 0xa5);
+            std::fill_n(ctx.key, sizeof(ctx.key), 0xb6);
+            const auto original = ctx;
+            if (fail_call <= 3) {
+                fail_cmac_on_call(fail_call);
+            } else {
+                EXPECT_CALL(backend, aes_cmac_compute(::testing::_, ::testing::_, ::testing::_)).Times(3).WillRepeatedly([](auto, auto, auto mac) {
+                    std::fill(mac.begin(), mac.end(), 0x42);
+                    return SL_STATUS_OK;
+                });
+                EXPECT_CALL(backend, aes_ctr_drbg_init(::testing::_, ::testing::_, ::testing::_)).WillOnce(::testing::Return(SL_STATUS_FAIL));
+            }
+
+            EXPECT_EQ(SL_STATUS_FAIL, zwave_s2_next_nonce_instantiate(&ctx, sender_entropy.data(), receiver_entropy.data(), nonce_key.data()));
+            EXPECT_THAT(ctx.counter, ::testing::ElementsAreArray(original.counter));
+            EXPECT_THAT(ctx.key, ::testing::ElementsAreArray(original.key));
+        }
+    }
 
     TEST_F(ZwaveS2KeyDerivationFailures, NetworkKeyExpandLeavesOutputsUnchangedOnEachCmacFailure)
     {

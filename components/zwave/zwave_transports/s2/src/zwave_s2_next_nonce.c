@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include "crypto.h"
+#include "secure_memzero.h"
 #include "sl_status.h"
 #include "zwave_s2_next_nonce.h"
 
@@ -27,7 +28,7 @@ static sl_status_t ckdf_nonce0_expand(const uint8_t *pseudo_random_key, uint8_t 
     t0[CKDF_EXPAND_PREFIX_LEN + CKDF_EXPAND_CONSTANT_LEN] = 1;
     status                                                = crypto_aes_cmac_compute(pseudo_random_key, t0, 2 * CKDF_EXPAND_PREFIX_LEN, t1);
     if (status != SL_STATUS_OK) {
-        return status;
+        goto cleanup;
     }
 
     memcpy(t0, t1, CRYPTO_AES_CMAC_OUTPUT_LEN);
@@ -35,12 +36,17 @@ static sl_status_t ckdf_nonce0_expand(const uint8_t *pseudo_random_key, uint8_t 
     t0[CRYPTO_AES_CMAC_OUTPUT_LEN + CKDF_EXPAND_CONSTANT_LEN] = 2;
     status                                                    = crypto_aes_cmac_compute(pseudo_random_key, t0, CRYPTO_AES_CMAC_OUTPUT_LEN + CKDF_EXPAND_PREFIX_LEN, t2);
     if (status != SL_STATUS_OK) {
-        return status;
+        goto cleanup;
     }
 
     memcpy(mixing_entropy_input, t1, CRYPTO_AES_CMAC_OUTPUT_LEN);
     memcpy(mixing_entropy_input + CRYPTO_AES_CMAC_OUTPUT_LEN, t2, CRYPTO_AES_CMAC_OUTPUT_LEN);
-    return SL_STATUS_OK;
+
+cleanup:
+    secure_memzero(t0, sizeof(t0));
+    secure_memzero(t1, sizeof(t1));
+    secure_memzero(t2, sizeof(t2));
+    return status;
 }
 
 sl_status_t zwave_s2_next_nonce_instantiate(crypto_aes_ctr_drbg_ctx_t *ctx, const uint8_t *entropy_input_sender, const uint8_t *entropy_input_receiver, const uint8_t *nonce_key)
@@ -59,13 +65,19 @@ sl_status_t zwave_s2_next_nonce_instantiate(crypto_aes_ctr_drbg_ctx_t *ctx, cons
     memcpy(temp + CRYPTO_AES_BLOCK_SIZE, entropy_input_receiver, CRYPTO_AES_BLOCK_SIZE);
     status = crypto_aes_cmac_compute(constant_nonce, temp, sizeof(temp), X);
     if (status != SL_STATUS_OK) {
-        return status;
+        goto cleanup;
     }
 
     status = ckdf_nonce0_expand(X, mei);
     if (status != SL_STATUS_OK) {
-        return status;
+        goto cleanup;
     }
 
-    return crypto_aes_ctr_drbg_init(ctx, mei, nonce_key);
+    status = crypto_aes_ctr_drbg_init(ctx, mei, nonce_key);
+
+cleanup:
+    secure_memzero(temp, sizeof(temp));
+    secure_memzero(X, sizeof(X));
+    secure_memzero(mei, sizeof(mei));
+    return status;
 }

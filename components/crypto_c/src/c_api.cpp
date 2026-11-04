@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "c_api_backend.hpp"
+#include "secure_memzero.h"
 
 static_assert(CRYPTO_AES_KEY_BITS == crypto::aes_key_bits);
 static_assert(CRYPTO_AES_KEY_SIZE == crypto::aes_key_size);
@@ -28,11 +29,19 @@ extern "C" {
 
 sl_status_t crypto_aes_ecb_encrypt(const uint8_t *key, const uint8_t *input, uint8_t *output)
 {
+    if (key == nullptr || input == nullptr || output == nullptr) {
+        return SL_STATUS_NULL_POINTER;
+    }
+
     return crypto_c::detail::backend().aes_ecb_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(input, CRYPTO_AES_BLOCK_SIZE), std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(output, CRYPTO_AES_BLOCK_SIZE));
 }
 
 sl_status_t crypto_aes_ccm_encrypt(const uint8_t *key, size_t tag_len, const uint8_t *nonce, size_t nonce_len, const uint8_t *aad, size_t aad_len, const uint8_t *plaintext, size_t plaintext_len, uint8_t *ciphertext, size_t ciphertext_size, size_t *ciphertext_len)
 {
+    if (key == nullptr || ciphertext_len == nullptr || (nonce == nullptr && nonce_len != 0) || (aad == nullptr && aad_len != 0) || (plaintext == nullptr && plaintext_len != 0) || (ciphertext == nullptr && ciphertext_size != 0)) {
+        return SL_STATUS_NULL_POINTER;
+    }
+
     return crypto_c::detail::backend().aes_ccm_encrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE),
                                                        tag_len,
                                                        std::span<const uint8_t>(nonce, nonce_len),
@@ -44,6 +53,10 @@ sl_status_t crypto_aes_ccm_encrypt(const uint8_t *key, size_t tag_len, const uin
 
 sl_status_t crypto_aes_ccm_decrypt(const uint8_t *key, size_t tag_len, const uint8_t *nonce, size_t nonce_len, const uint8_t *aad, size_t aad_len, const uint8_t *ciphertext, size_t ciphertext_len, uint8_t *plaintext, size_t plaintext_size, size_t *plaintext_len)
 {
+    if (key == nullptr || plaintext_len == nullptr || (nonce == nullptr && nonce_len != 0) || (aad == nullptr && aad_len != 0) || (ciphertext == nullptr && ciphertext_len != 0) || (plaintext == nullptr && plaintext_size != 0)) {
+        return SL_STATUS_NULL_POINTER;
+    }
+
     return crypto_c::detail::backend().aes_ccm_decrypt(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE),
                                                        tag_len,
                                                        std::span<const uint8_t>(nonce, nonce_len),
@@ -55,11 +68,19 @@ sl_status_t crypto_aes_ccm_decrypt(const uint8_t *key, size_t tag_len, const uin
 
 sl_status_t crypto_aes_cmac_compute(const uint8_t *key, const uint8_t *message, size_t message_length, uint8_t *mac)
 {
+    if (key == nullptr || mac == nullptr || (message == nullptr && message_length != 0)) {
+        return SL_STATUS_NULL_POINTER;
+    }
+
     return crypto_c::detail::backend().aes_cmac_compute(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t>(message, message_length), std::span<uint8_t, CRYPTO_AES_CMAC_OUTPUT_LEN>(mac, CRYPTO_AES_CMAC_OUTPUT_LEN));
 }
 
 sl_status_t crypto_aes_cbc_mac(const uint8_t *key, const uint8_t *iv, const uint8_t *data, uint8_t len, uint8_t *mac)
 {
+    if (key == nullptr || iv == nullptr || mac == nullptr || (data == nullptr && len != 0)) {
+        return SL_STATUS_NULL_POINTER;
+    }
+
     return crypto_c::detail::backend().aes_cbc_mac(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE),
                                                    std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(iv, CRYPTO_AES_BLOCK_SIZE),
                                                    std::span<const uint8_t>(data, len),
@@ -72,13 +93,17 @@ sl_status_t crypto_aes_ofb_xor(const uint8_t *key, uint8_t iv[16], uint8_t *data
         return SL_STATUS_OK;
     }
 
+    if (key == nullptr || iv == nullptr || data == nullptr) {
+        return SL_STATUS_NULL_POINTER;
+    }
+
     return crypto_c::detail::backend().aes_ofb_xor(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(iv, CRYPTO_AES_BLOCK_SIZE), std::span<uint8_t>(data, len));
 }
 
 sl_status_t crypto_aes_ctr_drbg_init(crypto_aes_ctr_drbg_ctx_t *ctx, const uint8_t *entropy_input, const uint8_t *pers_string)
 {
-    if (ctx == NULL || entropy_input == NULL || pers_string == NULL) {
-        return SL_STATUS_INVALID_PARAMETER;
+    if (ctx == nullptr || entropy_input == nullptr || pers_string == nullptr) {
+        return SL_STATUS_NULL_POINTER;
     }
 
     crypto::CtrDrbgContext next_ctx {};
@@ -86,13 +111,14 @@ sl_status_t crypto_aes_ctr_drbg_init(crypto_aes_ctr_drbg_ctx_t *ctx, const uint8
     if (status == SL_STATUS_OK) {
         copy_context(next_ctx, *ctx);
     }
+    secure_memzero(&next_ctx, sizeof(next_ctx));
     return status;
 }
 
 sl_status_t crypto_aes_ctr_drbg_generate(crypto_aes_ctr_drbg_ctx_t *ctx, uint8_t *out)
 {
-    if (ctx == NULL || out == NULL) {
-        return SL_STATUS_INVALID_PARAMETER;
+    if (ctx == nullptr || out == nullptr) {
+        return SL_STATUS_NULL_POINTER;
     }
 
     crypto::CtrDrbgContext next_ctx;
@@ -105,16 +131,26 @@ sl_status_t crypto_aes_ctr_drbg_generate(crypto_aes_ctr_drbg_ctx_t *ctx, uint8_t
         copy_context(next_ctx, *ctx);
         std::copy(generated.begin(), generated.end(), out);
     }
+    secure_memzero(generated.data(), sizeof(generated));
+    secure_memzero(&next_ctx, sizeof(next_ctx));
     return status;
 }
 
 sl_status_t crypto_x25519_derive_public_key(const uint8_t *private_key, uint8_t *public_key)
 {
+    if (private_key == nullptr || public_key == nullptr) {
+        return SL_STATUS_NULL_POINTER;
+    }
+
     return crypto_c::detail::backend().x25519_derive_public_key(std::span<const uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE>(private_key, CRYPTO_X25519_PRIVATE_KEY_SIZE), std::span<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE>(public_key, CRYPTO_X25519_PUBLIC_KEY_SIZE));
 }
 
 sl_status_t crypto_x25519_derive_shared_secret(const uint8_t *private_key, const uint8_t *peer_public_key, uint8_t *shared_secret)
 {
+    if (private_key == nullptr || peer_public_key == nullptr || shared_secret == nullptr) {
+        return SL_STATUS_NULL_POINTER;
+    }
+
     return crypto_c::detail::backend().x25519_derive_shared_secret(std::span<const uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE>(private_key, CRYPTO_X25519_PRIVATE_KEY_SIZE),
                                                                    std::span<const uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE>(peer_public_key, CRYPTO_X25519_PUBLIC_KEY_SIZE),
                                                                    std::span<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE>(shared_secret, CRYPTO_X25519_SHARED_SECRET_SIZE));
@@ -122,6 +158,10 @@ sl_status_t crypto_x25519_derive_shared_secret(const uint8_t *private_key, const
 
 sl_status_t crypto_generate_random(uint8_t *output, size_t output_size)
 {
+    if (output == nullptr && output_size != 0) {
+        return SL_STATUS_NULL_POINTER;
+    }
+
     return crypto_c::detail::backend().generate_random(std::span<uint8_t>(output, output_size));
 }
 
