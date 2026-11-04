@@ -41,6 +41,266 @@ namespace
             }
     };
 
+    struct BoundaryBuffers {
+            std::array<uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> input;
+            std::array<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE> output;
+            crypto_aes_ctr_drbg_ctx_t ctx;
+            size_t length = 123;
+
+            BoundaryBuffers()
+            {
+                input.fill(0x37);
+                output.fill(0xa5);
+                std::memset(&ctx, 0x91, sizeof(ctx));
+            }
+    };
+
+    struct NullPointerCase {
+            const char *name;
+            sl_status_t (*call)(BoundaryBuffers &);
+    };
+
+    class CryptoCNullPointer : public CryptoC, public ::testing::WithParamInterface<NullPointerCase>
+    {};
+
+    TEST_P(CryptoCNullPointer, RejectsBeforeDispatchWithoutChangingCallerStorage)
+    {
+        BoundaryBuffers buffers;
+        const auto original = buffers;
+
+        EXPECT_EQ(SL_STATUS_NULL_POINTER, GetParam().call(buffers));
+        EXPECT_EQ(original.input, buffers.input);
+        EXPECT_EQ(original.output, buffers.output);
+        EXPECT_EQ(0, std::memcmp(&original.ctx, &buffers.ctx, sizeof(buffers.ctx)));
+        EXPECT_EQ(original.length, buffers.length);
+    }
+
+    INSTANTIATE_TEST_SUITE_P(RequiredPointers,
+                             CryptoCNullPointer,
+                             ::testing::Values(NullPointerCase {"EcbKey",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ecb_encrypt(nullptr, b.input.data(), b.output.data());
+                                                                }},
+                                               NullPointerCase {"EcbInput",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ecb_encrypt(b.input.data(), nullptr, b.output.data());
+                                                                }},
+                                               NullPointerCase {"EcbOutput",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ecb_encrypt(b.input.data(), b.input.data(), nullptr);
+                                                                }},
+                                               NullPointerCase {"CmacKey",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_cmac_compute(nullptr, b.input.data(), 1, b.output.data());
+                                                                }},
+                                               NullPointerCase {"CmacMessage",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_cmac_compute(b.input.data(), nullptr, 1, b.output.data());
+                                                                }},
+                                               NullPointerCase {"CmacMac",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_cmac_compute(b.input.data(), b.input.data(), 1, nullptr);
+                                                                }},
+                                               NullPointerCase {"CbcMacKey",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_cbc_mac(nullptr, b.input.data(), b.input.data(), 1, b.output.data());
+                                                                }},
+                                               NullPointerCase {"CbcMacIv",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_cbc_mac(b.input.data(), nullptr, b.input.data(), 1, b.output.data());
+                                                                }},
+                                               NullPointerCase {"CbcMacData",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_cbc_mac(b.input.data(), b.input.data(), nullptr, 1, b.output.data());
+                                                                }},
+                                               NullPointerCase {"CbcMacMac",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_cbc_mac(b.input.data(), b.input.data(), b.input.data(), 1, nullptr);
+                                                                }},
+                                               NullPointerCase {"OfbKey",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ofb_xor(nullptr, b.input.data(), b.output.data(), 1);
+                                                                }},
+                                               NullPointerCase {"OfbIv",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ofb_xor(b.input.data(), nullptr, b.output.data(), 1);
+                                                                }},
+                                               NullPointerCase {"OfbData",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ofb_xor(b.input.data(), b.input.data(), nullptr, 1);
+                                                                }},
+                                               NullPointerCase {"DrbgInitContext",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ctr_drbg_init(nullptr, b.input.data(), b.input.data());
+                                                                }},
+                                               NullPointerCase {"DrbgInitEntropy",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ctr_drbg_init(&b.ctx, nullptr, b.input.data());
+                                                                }},
+                                               NullPointerCase {"DrbgInitPersonalization",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ctr_drbg_init(&b.ctx, b.input.data(), nullptr);
+                                                                }},
+                                               NullPointerCase {"DrbgGenerateContext",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ctr_drbg_generate(nullptr, b.output.data());
+                                                                }},
+                                               NullPointerCase {"DrbgGenerateOutput",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ctr_drbg_generate(&b.ctx, nullptr);
+                                                                }},
+                                               NullPointerCase {"RandomOutput",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_generate_random(nullptr, 1);
+                                                                }},
+                                               NullPointerCase {"X25519PublicPrivateKey",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_x25519_derive_public_key(nullptr, b.output.data());
+                                                                }},
+                                               NullPointerCase {"X25519PublicPublicKey",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_x25519_derive_public_key(b.input.data(), nullptr);
+                                                                }},
+                                               NullPointerCase {"X25519SecretPrivateKey",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_x25519_derive_shared_secret(nullptr, b.input.data(), b.output.data());
+                                                                }},
+                                               NullPointerCase {"X25519SecretPeerPublicKey",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_x25519_derive_shared_secret(b.input.data(), nullptr, b.output.data());
+                                                                }},
+                                               NullPointerCase {"X25519SecretSecret",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_x25519_derive_shared_secret(b.input.data(), b.input.data(), nullptr);
+                                                                }},
+                                               NullPointerCase {"CcmEncryptKey",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ccm_encrypt(nullptr, 6, b.input.data(), 13, b.input.data(), 1, b.input.data(), 1, b.output.data(), b.output.size(), &b.length);
+                                                                }},
+                                               NullPointerCase {"CcmEncryptNonce",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ccm_encrypt(b.input.data(), 6, nullptr, 13, b.input.data(), 1, b.input.data(), 1, b.output.data(), b.output.size(), &b.length);
+                                                                }},
+                                               NullPointerCase {"CcmEncryptAad",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ccm_encrypt(b.input.data(), 6, b.input.data(), 13, nullptr, 1, b.input.data(), 1, b.output.data(), b.output.size(), &b.length);
+                                                                }},
+                                               NullPointerCase {"CcmEncryptPlaintext",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ccm_encrypt(b.input.data(), 6, b.input.data(), 13, b.input.data(), 1, nullptr, 1, b.output.data(), b.output.size(), &b.length);
+                                                                }},
+                                               NullPointerCase {"CcmEncryptCiphertext",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ccm_encrypt(b.input.data(), 6, b.input.data(), 13, b.input.data(), 1, b.input.data(), 1, nullptr, b.output.size(), &b.length);
+                                                                }},
+                                               NullPointerCase {"CcmEncryptLength",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ccm_encrypt(b.input.data(), 6, b.input.data(), 13, b.input.data(), 1, b.input.data(), 1, b.output.data(), b.output.size(), nullptr);
+                                                                }},
+                                               NullPointerCase {"CcmDecryptKey",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ccm_decrypt(nullptr, 6, b.input.data(), 13, b.input.data(), 1, b.input.data(), 7, b.output.data(), b.output.size(), &b.length);
+                                                                }},
+                                               NullPointerCase {"CcmDecryptNonce",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ccm_decrypt(b.input.data(), 6, nullptr, 13, b.input.data(), 1, b.input.data(), 7, b.output.data(), b.output.size(), &b.length);
+                                                                }},
+                                               NullPointerCase {"CcmDecryptAad",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ccm_decrypt(b.input.data(), 6, b.input.data(), 13, nullptr, 1, b.input.data(), 7, b.output.data(), b.output.size(), &b.length);
+                                                                }},
+                                               NullPointerCase {"CcmDecryptCiphertext",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ccm_decrypt(b.input.data(), 6, b.input.data(), 13, b.input.data(), 1, nullptr, 7, b.output.data(), b.output.size(), &b.length);
+                                                                }},
+                                               NullPointerCase {"CcmDecryptPlaintext",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ccm_decrypt(b.input.data(), 6, b.input.data(), 13, b.input.data(), 1, b.input.data(), 7, nullptr, b.output.size(), &b.length);
+                                                                }},
+                                               NullPointerCase {"CcmDecryptLength",
+                                                                [](BoundaryBuffers &b) {
+                                                                    return crypto_aes_ccm_decrypt(b.input.data(), 6, b.input.data(), 13, b.input.data(), 1, b.input.data(), 7, b.output.data(), b.output.size(), nullptr);
+                                                                }}),
+                             [](const auto &info) { return info.param.name; });
+
+    class CryptoCEmptyBuffer : public CryptoC, public ::testing::WithParamInterface<bool>
+    {
+        protected:
+            uint8_t *empty_buffer()
+            {
+                return GetParam() ? nullptr : output.data();
+            }
+    };
+
+    TEST_P(CryptoCEmptyBuffer, CmacForwardsEmptyMessage)
+    {
+        EXPECT_CALL(mock, aes_cmac_compute(_, SameBuffer(std::span<const uint8_t>(empty_buffer(), 0)), _)).WillOnce(Return(SL_STATUS_OK));
+        EXPECT_EQ(SL_STATUS_OK, crypto_aes_cmac_compute(key.data(), empty_buffer(), 0, output.data()));
+    }
+
+    TEST_P(CryptoCEmptyBuffer, CbcMacForwardsEmptyMessage)
+    {
+        EXPECT_CALL(mock, aes_cbc_mac(_, _, SameBuffer(std::span<const uint8_t>(empty_buffer(), 0)), _)).WillOnce(Return(SL_STATUS_OK));
+        EXPECT_EQ(SL_STATUS_OK, crypto_aes_cbc_mac(key.data(), block.data(), empty_buffer(), 0, output.data()));
+    }
+
+    TEST_P(CryptoCEmptyBuffer, RandomForwardsEmptyOutput)
+    {
+        EXPECT_CALL(mock, generate_random(SameBuffer(std::span<uint8_t>(empty_buffer(), 0)))).WillOnce(Return(SL_STATUS_OK));
+        EXPECT_EQ(SL_STATUS_OK, crypto_generate_random(empty_buffer(), 0));
+    }
+
+    TEST_P(CryptoCEmptyBuffer, OfbSkipsDispatchAndPreservesStorage)
+    {
+        output.fill(0xa5);
+        const auto original = output;
+        EXPECT_EQ(SL_STATUS_OK, crypto_aes_ofb_xor(empty_buffer(), empty_buffer(), empty_buffer(), 0));
+        EXPECT_EQ(original, output);
+    }
+
+    TEST_P(CryptoCEmptyBuffer, CcmEncryptForwardsEmptyBuffersAndInvalidSizeStatus)
+    {
+        size_t length     = 123;
+        const auto input  = std::span<const uint8_t>(empty_buffer(), 0);
+        const auto output = std::span<uint8_t>(empty_buffer(), 0);
+        EXPECT_CALL(mock, aes_ccm_encrypt(_, 6, SameBuffer(input), SameBuffer(input), SameBuffer(input), SameBuffer(output), _)).WillOnce(Return(SL_STATUS_INVALID_PARAMETER));
+        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ccm_encrypt(key.data(), 6, empty_buffer(), 0, empty_buffer(), 0, empty_buffer(), 0, empty_buffer(), 0, &length));
+        EXPECT_EQ(123u, length);
+    }
+
+    TEST_P(CryptoCEmptyBuffer, CcmDecryptForwardsEmptyBuffersAndInvalidSizeStatus)
+    {
+        size_t length     = 123;
+        const auto input  = std::span<const uint8_t>(empty_buffer(), 0);
+        const auto output = std::span<uint8_t>(empty_buffer(), 0);
+        EXPECT_CALL(mock, aes_ccm_decrypt(_, 6, SameBuffer(input), SameBuffer(input), SameBuffer(input), SameBuffer(output), _)).WillOnce(Return(SL_STATUS_INVALID_PARAMETER));
+        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ccm_decrypt(key.data(), 6, empty_buffer(), 0, empty_buffer(), 0, empty_buffer(), 0, empty_buffer(), 0, &length));
+        EXPECT_EQ(123u, length);
+    }
+
+    INSTANTIATE_TEST_SUITE_P(EmptyBuffers, CryptoCEmptyBuffer, ::testing::Bool(), [](const auto &info) { return info.param ? "Null" : "NonNull"; });
+
+    TEST_F(CryptoCReal, CcmRoundTripsEmptyPlaintextAndAad)
+    {
+        const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
+        const std::array<uint8_t, 13> nonce {};
+        std::array<uint8_t, 6> ciphertext {};
+        size_t length = 123;
+        ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_encrypt(key.data(), ciphertext.size(), nonce.data(), nonce.size(), nullptr, 0, nullptr, 0, ciphertext.data(), ciphertext.size(), &length));
+        ASSERT_EQ(ciphertext.size(), length);
+        EXPECT_EQ(SL_STATUS_OK, crypto_aes_ccm_decrypt(key.data(), ciphertext.size(), nonce.data(), nonce.size(), nullptr, 0, ciphertext.data(), ciphertext.size(), nullptr, 0, &length));
+        EXPECT_EQ(0u, length);
+    }
+
+    TEST_F(CryptoCReal, CcmRejectsEmptyNonceAsInvalidSize)
+    {
+        const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
+        std::array<uint8_t, 6> ciphertext {};
+        size_t length = 123;
+        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ccm_encrypt(key.data(), ciphertext.size(), nullptr, 0, nullptr, 0, nullptr, 0, ciphertext.data(), ciphertext.size(), &length));
+        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ccm_decrypt(key.data(), ciphertext.size(), nullptr, 0, nullptr, 0, ciphertext.data(), ciphertext.size(), nullptr, 0, &length));
+    }
+
     TEST_F(CryptoC, EcbForwardsBuffersAndFailureWithoutChangingOutput)
     {
         output.fill(0xa5);
@@ -65,10 +325,14 @@ namespace
 
     TEST_F(CryptoC, CbcMacForwardsIvAndMessageLength)
     {
-        const std::array<uint8_t, 7> message {};
-        EXPECT_CALL(mock, aes_cbc_mac(SameBuffer(std::span(key)), SameBuffer(std::span(block)), SameBuffer(std::span(message)), SameBuffer(std::span(output)))).WillOnce(Return(SL_STATUS_NOT_SUPPORTED));
+        const std::array<uint8_t, UINT8_MAX> message {};
+        for (const uint8_t length: {0, 7, UINT8_MAX}) {
+            SCOPED_TRACE(length);
+            const auto data = std::span(message).first(length);
+            EXPECT_CALL(mock, aes_cbc_mac(SameBuffer(std::span(key)), SameBuffer(std::span(block)), SameBuffer(data), SameBuffer(std::span(output)))).WillOnce(Return(SL_STATUS_NOT_SUPPORTED));
 
-        EXPECT_EQ(SL_STATUS_NOT_SUPPORTED, crypto_aes_cbc_mac(key.data(), block.data(), message.data(), message.size(), output.data()));
+            EXPECT_EQ(SL_STATUS_NOT_SUPPORTED, crypto_aes_cbc_mac(key.data(), block.data(), message.data(), length, output.data()));
+        }
     }
 
     TEST_F(CryptoC, OfbForwardsCallerStorageInPlace)
@@ -119,17 +383,6 @@ namespace
     {
         EXPECT_CALL(mock, generate_random(SameBuffer(std::span(output)))).WillOnce(Return(SL_STATUS_FAIL));
         EXPECT_EQ(SL_STATUS_FAIL, crypto_generate_random(output.data(), output.size()));
-    }
-
-    TEST_F(CryptoC, EmptyRandomOutputPreservesNullAndNonNullBuffers)
-    {
-        EXPECT_CALL(mock, generate_random(SameBuffer(std::span<uint8_t> {}))).WillOnce(Return(SL_STATUS_OK));
-        EXPECT_EQ(SL_STATUS_OK, crypto_generate_random(nullptr, 0));
-
-        uint8_t sentinel = 0xa5;
-        EXPECT_CALL(mock, generate_random(SameBuffer(std::span<uint8_t>(&sentinel, 0)))).WillOnce(Return(SL_STATUS_OK));
-        EXPECT_EQ(SL_STATUS_OK, crypto_generate_random(&sentinel, 0));
-        EXPECT_EQ(0xa5, sentinel);
     }
 
     TEST_F(CryptoC, X25519ForwardsPrivatePublicAndSecretBuffers)
@@ -254,16 +507,6 @@ namespace
         crypto_c::test::reset_backend();
         EXPECT_EQ(SL_STATUS_OK, crypto_generate_random(output.data(), output.size()));
     }
-    TEST_F(CryptoC, ZeroLengthNullPointersOk)
-    {
-        EXPECT_EQ(SL_STATUS_OK, crypto_aes_ofb_xor(nullptr, nullptr, nullptr, 0));
-    }
-
-    TEST_F(CryptoCReal, RejectsNullOutput)
-    {
-        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_generate_random(nullptr, 32));
-    }
-
     TEST_F(CryptoCReal, GenerateRejectsNullOutputWithoutAdvancingState)
     {
         crypto_aes_ctr_drbg_ctx_t ctx;
@@ -274,22 +517,8 @@ namespace
         ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&ctx, entropy, personalization));
         memcpy(&saved_ctx, &ctx, sizeof(saved_ctx));
 
-        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_generate(&ctx, nullptr));
+        EXPECT_EQ(SL_STATUS_NULL_POINTER, crypto_aes_ctr_drbg_generate(&ctx, nullptr));
         EXPECT_EQ(0, memcmp(&saved_ctx, &ctx, sizeof(ctx)));
-    }
-
-    TEST_F(CryptoC, RejectsNullArgumentsWithoutChangingContext)
-    {
-        crypto_aes_ctr_drbg_ctx_t ctx {};
-        std::memset(&ctx, 0xa5, sizeof(ctx));
-        const auto original = ctx;
-        std::array<uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> seed {};
-        std::array<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE> output {};
-        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_init(nullptr, seed.data(), seed.data()));
-        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_init(&ctx, nullptr, seed.data()));
-        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_init(&ctx, seed.data(), nullptr));
-        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_generate(nullptr, output.data()));
-        EXPECT_EQ(0, std::memcmp(&original, &ctx, sizeof(ctx)));
     }
 
     TEST_F(CryptoCReal, GenerateCApiMatchesSixteenByteCppRequest)

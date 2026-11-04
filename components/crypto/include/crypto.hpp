@@ -45,6 +45,7 @@ namespace crypto
 
             virtual sl_status_t aes_ofb_xor(std::span<const std::uint8_t, aes_key_size> key, std::span<const std::uint8_t, aes_block_size> iv, std::span<std::uint8_t> data) const = 0;
 
+            // S0 CBC-MAC: zero-IV CBC over iv || data, zero-padded only for a partial final block.
             virtual sl_status_t aes_cbc_mac(std::span<const std::uint8_t, aes_key_size> key, std::span<const std::uint8_t, aes_block_size> iv, std::span<const std::uint8_t> data, std::span<std::uint8_t, aes_block_size> mac) const = 0;
 
             virtual sl_status_t generate_random(std::span<std::uint8_t> output) const = 0;

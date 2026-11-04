@@ -10,6 +10,8 @@ target_include_directories(crypto_test_helpers INTERFACE ${CMAKE_CURRENT_SOURCE_
 
 add_zpc_gtest(NAME test_psa_wrappers SRCS test_psa_wrappers.cpp LIBS crypto_test_helpers crypto)
 
+add_zpc_gtest(NAME test_psa_resources SRCS test_psa_resources.cpp LIBS crypto_test_helpers)
+
 add_zpc_gtest(NAME test_crypto_injection SRCS test_crypto_injection_misc.cpp LIBS crypto_test_helpers crypto)
 
 add_zpc_gtest(NAME test_crypto_interface SRCS test_crypto_interface.cpp LIBS crypto_test_support)

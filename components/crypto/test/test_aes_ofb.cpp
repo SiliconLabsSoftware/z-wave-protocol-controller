@@ -79,7 +79,6 @@ TEST_F(AesOfb, NistEncryptPartialSevenBytes)
     ExpectBytesEq(nist_cipher_64, buffer, sizeof(buffer));
 }
 
-// OFB decrypt is XOR with the same keystream; ciphertext round-trips to plaintext.
 TEST_F(AesOfb, NistDecryptViaXor)
 {
     uint8_t iv[16];
@@ -152,6 +151,22 @@ TEST_F(AesOfbInjection, RejectsIncompleteOutputAndReleasesKey)
     EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
 
     EXPECT_EQ(SL_STATUS_FAIL, algorithms.aes_ofb_xor(key, input, output));
+    EXPECT_EQ(original_output, output);
+}
+
+TEST_F(AesOfbInjection, CleanupFailuresPreserveOperationError)
+{
+    output.fill(0xa5);
+    const auto original_output = output;
+    ::testing::InSequence sequence;
+    EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, crypto::aes_key_bits)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_encrypt_setup(_, 42, PSA_ALG_OFB)).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, cipher_set_iv(_, _)).WillOnce(Return(PSA_ERROR_NOT_SUPPORTED));
+    EXPECT_CALL(mock, cipher_abort(_)).WillOnce(Return(PSA_ERROR_BAD_STATE));
+    EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_ERROR_GENERIC_ERROR));
+
+    EXPECT_EQ(SL_STATUS_NOT_SUPPORTED, algorithms.aes_ofb_xor(key, input, output));
     EXPECT_EQ(original_output, output);
 }
 

@@ -2,6 +2,7 @@
 
 #include "zwave_s2_key_derivation.h"
 #include "crypto.h"
+#include "secure_memzero.h"
 
 #define CKDF_EXPAND_CONSTANT_LEN 15U
 
@@ -37,32 +38,39 @@ static sl_status_t derive_key(const uint8_t *cmac_key, const uint8_t *expand_con
     message_len = ckdf_expand_message_first(message, expand_constant, 0x01);
     status      = crypto_aes_cmac_compute(cmac_key, message, message_len, t1);
     if (status != SL_STATUS_OK) {
-        return status;
+        goto cleanup;
     }
 
     message_len = ckdf_expand_message_chain(message, t1, expand_constant, 0x02);
     status      = crypto_aes_cmac_compute(cmac_key, message, message_len, t2);
     if (status != SL_STATUS_OK) {
-        return status;
+        goto cleanup;
     }
 
     message_len = ckdf_expand_message_chain(message, t2, expand_constant, 0x03);
     status      = crypto_aes_cmac_compute(cmac_key, message, message_len, t3);
     if (status != SL_STATUS_OK) {
-        return status;
+        goto cleanup;
     }
 
     message_len = ckdf_expand_message_chain(message, t3, expand_constant, 0x04);
     status      = crypto_aes_cmac_compute(cmac_key, message, message_len, t4);
     if (status != SL_STATUS_OK) {
-        return status;
+        goto cleanup;
     }
 
     memcpy(ccm_key, t1, sizeof(t1));
     memcpy(nonce_pers_string, t2, sizeof(t2));
     memcpy(nonce_pers_string + sizeof(t2), t3, sizeof(t3));
     memcpy(mpan_key, t4, sizeof(t4));
-    return SL_STATUS_OK;
+
+cleanup:
+    secure_memzero(message, sizeof(message));
+    secure_memzero(t1, sizeof(t1));
+    secure_memzero(t2, sizeof(t2));
+    secure_memzero(t3, sizeof(t3));
+    secure_memzero(t4, sizeof(t4));
+    return status;
 }
 
 sl_status_t zwave_s2_extract_pseudo_random_key(const uint8_t *ecdh_shared_secret, const uint8_t *public_keys, uint8_t *pseudo_random_key)
@@ -80,11 +88,12 @@ sl_status_t zwave_s2_extract_pseudo_random_key(const uint8_t *ecdh_shared_secret
     memcpy(message, ecdh_shared_secret, CRYPTO_X25519_SHARED_SECRET_SIZE);
     memcpy(message + CRYPTO_X25519_SHARED_SECRET_SIZE, public_keys, 2 * CRYPTO_X25519_PUBLIC_KEY_SIZE);
     status = crypto_aes_cmac_compute(constant_pseudo_random_key, message, sizeof(message), mac);
-    if (status != SL_STATUS_OK) {
-        return status;
+    if (status == SL_STATUS_OK) {
+        memcpy(pseudo_random_key, mac, sizeof(mac));
     }
-    memcpy(pseudo_random_key, mac, sizeof(mac));
-    return SL_STATUS_OK;
+    secure_memzero(message, sizeof(message));
+    secure_memzero(mac, sizeof(mac));
+    return status;
 }
 
 sl_status_t zwave_s2_derive_temp_key(const uint8_t *pseudo_random_key, uint8_t *ccm_key, uint8_t *nonce_pers_string, uint8_t *mpan_key)

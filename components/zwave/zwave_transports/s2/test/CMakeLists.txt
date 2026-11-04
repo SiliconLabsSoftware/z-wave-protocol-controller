@@ -14,4 +14,4 @@ add_unity_test(
 add_zpc_gtest(
   NAME test_zwave_s2_key_derivation_failures
   SRCS test_zwave_s2_key_derivation_failures.cpp
-  LIBS crypto_c_test_support zwave_s2_key_derivation)
+  LIBS crypto_c_test_support zwave_s2_key_derivation zwave_s2_next_nonce)
