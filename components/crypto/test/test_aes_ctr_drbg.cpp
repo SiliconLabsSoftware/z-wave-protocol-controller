@@ -1,8 +1,5 @@
 /* © 2017 Silicon Laboratories Inc.
  */
-/**
- * @file
- */
 /******************************************************************************
  * Copyright AllSeen Alliance. All rights reserved.
  *
@@ -26,112 +23,60 @@
 
 #include "crypto.hpp"
 #include "test_fixture.hpp"
+#include "test_crypto_injection_fixture.hpp"
 
-// Different entropy inputs produce different DRBG output.
 TEST_F(AesCtrDrbg, DifferentEntropyYieldsDifferentOutput)
 {
-    crypto_aes_ctr_drbg_ctx_t ctx;
-    const uint8_t personalization[CRYPTO_AES_CTR_DRBG_SEED_SIZE] = {0};
-    uint8_t entropy_a[32]                                        = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
+    crypto::CtrDrbgContext ctx;
+    const uint8_t personalization[crypto::aes_ctr_drbg_seed_size] = {0};
+    uint8_t entropy_a[32]                                         = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
     uint8_t entropy_b[32];
-    uint8_t out_a[CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE];
-    uint8_t out_b[CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE];
+    uint8_t out_a[crypto::aes_ctr_drbg_output_size];
+    uint8_t out_b[crypto::aes_ctr_drbg_output_size];
 
     memcpy(entropy_b, entropy_a, sizeof(entropy_b));
     entropy_b[0] ^= 0xff;
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&ctx, entropy_a, personalization));
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&ctx, out_a));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ctr_drbg_init(ctx, std::span<const uint8_t, crypto::aes_ctr_drbg_seed_size>(entropy_a, crypto::aes_ctr_drbg_seed_size), std::span<const uint8_t, crypto::aes_ctr_drbg_seed_size>(personalization, crypto::aes_ctr_drbg_seed_size)));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ctr_drbg_generate(ctx, std::span<uint8_t, crypto::aes_ctr_drbg_output_size>(out_a, crypto::aes_ctr_drbg_output_size)));
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&ctx, entropy_b, personalization));
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&ctx, out_b));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ctr_drbg_init(ctx, std::span<const uint8_t, crypto::aes_ctr_drbg_seed_size>(entropy_b, crypto::aes_ctr_drbg_seed_size), std::span<const uint8_t, crypto::aes_ctr_drbg_seed_size>(personalization, crypto::aes_ctr_drbg_seed_size)));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ctr_drbg_generate(ctx, std::span<uint8_t, crypto::aes_ctr_drbg_output_size>(out_b, crypto::aes_ctr_drbg_output_size)));
 
-    EXPECT_NE(0, memcmp(out_a, out_b, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE));
+    EXPECT_NE(0, memcmp(out_a, out_b, crypto::aes_ctr_drbg_output_size));
 }
 
-// NULL output on generate is rejected and internal state is unchanged.
-TEST_F(AesCtrDrbg, GenerateRejectsNullOutputWithoutAdvancingState)
-{
-    crypto_aes_ctr_drbg_ctx_t ctx;
-    crypto_aes_ctr_drbg_ctx_t saved_ctx;
-    const uint8_t entropy[CRYPTO_AES_CTR_DRBG_SEED_SIZE]         = {1};
-    const uint8_t personalization[CRYPTO_AES_CTR_DRBG_SEED_SIZE] = {2};
-
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&ctx, entropy, personalization));
-    memcpy(&saved_ctx, &ctx, sizeof(saved_ctx));
-
-    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_generate(&ctx, nullptr));
-    EXPECT_EQ(0, memcmp(&saved_ctx, &ctx, sizeof(ctx)));
-}
-
-TEST_F(AesCtrDrbg, RejectsNullArgumentsWithoutChangingContext)
-{
-    crypto_aes_ctr_drbg_ctx_t ctx {};
-    std::memset(&ctx, 0xa5, sizeof(ctx));
-    const auto original = ctx;
-    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> seed {};
-    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE> output {};
-    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_init(nullptr, seed.data(), seed.data()));
-    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_init(&ctx, nullptr, seed.data()));
-    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_init(&ctx, seed.data(), nullptr));
-    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ctr_drbg_generate(nullptr, output.data()));
-    EXPECT_EQ(0, std::memcmp(&original, &ctx, sizeof(ctx)));
-}
-
-TEST_F(AesCtrDrbg, GenerateCApiMatchesSixteenByteCppRequest)
-{
-    static_assert(CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE == 16);
-    crypto_aes_ctr_drbg_ctx_t c_ctx {};
-    const std::array<uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> entropy {1};
-    const std::array<uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> personal {2};
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_init(&c_ctx, entropy.data(), personal.data()));
-    auto cpp_ctx = c_ctx;
-    std::array<uint8_t, 16> cpp_output {};
-
-    for (int i = 0; i < 2; ++i) {
-        std::array<uint8_t, 18> c_output;
-        c_output.fill(0xa5);
-        ASSERT_EQ(SL_STATUS_OK, crypto_aes_ctr_drbg_generate(&c_ctx, c_output.data() + 1));
-        ASSERT_EQ(SL_STATUS_OK, crypto::c_api().aes_ctr_drbg_generate(cpp_ctx, cpp_output));
-        EXPECT_THAT(std::span<uint8_t>(c_output).subspan(1, cpp_output.size()), ::testing::ElementsAreArray(cpp_output));
-        EXPECT_EQ(0xa5, c_output.front());
-        EXPECT_EQ(0xa5, c_output.back());
-        EXPECT_EQ(0, std::memcmp(&c_ctx, &cpp_ctx, sizeof(c_ctx)));
-    }
-}
-
-#include "test_crypto_injection_fixture.hpp"
-
-TEST_F(AesCtrDrbgInjection, InitKeepsContextWhenNestedEcbFails)
+TEST_F(AesCtrDrbgRealInjection, InitKeepsContextWhenNestedEcbFails)
 {
     EXPECT_CALL(mock, cipher_encrypt(_, PSA_ALG_ECB_NO_PADDING, _, _, _)).Times(1).WillRepeatedly(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::cipher_encrypt));
     EXPECT_CALL(mock, destroy_key(_)).Times(1).WillRepeatedly(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::destroy_key));
-    const std::array<uint8_t, CRYPTO_AES_CTR_DRBG_SEED_SIZE> seed {};
-    crypto_aes_ctr_drbg_ctx_t ctx {};
+    const std::array<uint8_t, crypto::aes_ctr_drbg_seed_size> seed {};
+    crypto::CtrDrbgContext ctx {};
     ctx.key[0]          = 0xa5;
     const auto original = ctx;
-    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, ::testing::SizeIs(CRYPTO_AES_KEY_SIZE), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::import_key)).WillOnce(Return(PSA_ERROR_INSUFFICIENT_MEMORY));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, ::testing::SizeIs(crypto::aes_key_size), _, PSA_KEY_TYPE_AES, crypto::aes_key_bits)).WillOnce(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::import_key)).WillOnce(Return(PSA_ERROR_INSUFFICIENT_MEMORY));
 
     EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.aes_ctr_drbg_init(ctx, seed, seed));
-    EXPECT_EQ(0, std::memcmp(&original, &ctx, sizeof(ctx)));
+    EXPECT_EQ(original.key, ctx.key);
+    EXPECT_EQ(original.counter, ctx.counter);
 }
 
-class AesCtrDrbgGenerateFailure : public AesCtrDrbgInjection, public ::testing::WithParamInterface<int>
+class AesCtrDrbgGenerateFailure : public AesCtrDrbgRealInjection, public ::testing::WithParamInterface<int>
 {};
 
 TEST_P(AesCtrDrbgGenerateFailure, KeepsContextAndOutputOnFailure)
 {
     const int successful_blocks = GetParam();
-    crypto_aes_ctr_drbg_ctx_t ctx {};
+    crypto::CtrDrbgContext ctx {};
     ctx.counter[0]      = 0x42;
     const auto original = ctx;
-    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE> generated;
+    std::array<uint8_t, crypto::aes_ctr_drbg_output_size> generated;
     generated.fill(0xa5);
     const auto original_output = generated;
     EXPECT_CALL(mock, cipher_encrypt(_, PSA_ALG_ECB_NO_PADDING, _, _, _)).Times(successful_blocks).WillRepeatedly(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::cipher_encrypt));
     EXPECT_CALL(mock, destroy_key(_)).Times(successful_blocks).WillRepeatedly(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::destroy_key));
     int imports = 0;
-    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, ::testing::SizeIs(CRYPTO_AES_KEY_SIZE), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS))
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, ::testing::SizeIs(crypto::aes_key_size), _, PSA_KEY_TYPE_AES, crypto::aes_key_bits))
       .Times(successful_blocks + 1)
       .WillRepeatedly([&](psa_key_usage_t usage, psa_algorithm_t algorithm, std::span<const uint8_t> data, psa_key_id_t &key_id, psa_key_type_t type, size_t bits) {
           if (imports++ == successful_blocks) {
@@ -141,7 +86,8 @@ TEST_P(AesCtrDrbgGenerateFailure, KeepsContextAndOutputOnFailure)
       });
 
     EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.aes_ctr_drbg_generate(ctx, generated));
-    EXPECT_EQ(0, std::memcmp(&original, &ctx, sizeof(ctx)));
+    EXPECT_EQ(original.key, ctx.key);
+    EXPECT_EQ(original.counter, ctx.counter);
     EXPECT_EQ(original_output, generated);
 }
 
@@ -150,16 +96,17 @@ INSTANTIATE_TEST_SUITE_P(OutputAndUpdateBlocks, AesCtrDrbgGenerateFailure, ::tes
 
 TEST_F(AesCtrDrbgInjection, RejectsWrongOutputSizeBeforeCallingPsaWrappers)
 {
-    crypto_aes_ctr_drbg_ctx_t ctx {};
+    crypto::CtrDrbgContext ctx {};
     const auto original = ctx;
-    std::array<uint8_t, CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE + 1> generated;
+    std::array<uint8_t, crypto::aes_ctr_drbg_output_size + 1> generated;
     generated.fill(0xa5);
     const auto original_output = generated;
 
     EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, algorithms.aes_ctr_drbg_generate(ctx, {}));
     EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, algorithms.aes_ctr_drbg_generate(ctx, generated));
-    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, algorithms.aes_ctr_drbg_generate(ctx, std::span<uint8_t>(generated).first(CRYPTO_AES_CTR_DRBG_OUTPUT_SIZE - 1)));
+    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, algorithms.aes_ctr_drbg_generate(ctx, std::span<uint8_t>(generated).first(crypto::aes_ctr_drbg_output_size - 1)));
     EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, algorithms.aes_ctr_drbg_generate(ctx, std::span<uint8_t>(generated).first(0)));
-    EXPECT_EQ(0, std::memcmp(&original, &ctx, sizeof(ctx)));
+    EXPECT_EQ(original.key, ctx.key);
+    EXPECT_EQ(original.counter, ctx.counter);
     EXPECT_EQ(original_output, generated);
 }

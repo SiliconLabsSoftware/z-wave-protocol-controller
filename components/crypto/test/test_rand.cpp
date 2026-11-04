@@ -16,7 +16,8 @@
 #include <gtest/gtest.h>
 
 #include "test_fixture.hpp"
-#include "crypto.h"
+#include "crypto.hpp"
+#include "test_crypto_injection_fixture.hpp"
 
 namespace
 {
@@ -35,24 +36,17 @@ TEST_F(Rand, FillsBuffer)
 {
     uint8_t buf[32] {};
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_generate_random(buf, sizeof(buf)));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().generate_random(std::span<uint8_t>(buf, sizeof(buf))));
     EXPECT_FALSE(buffer_is_all_zeros(buf, sizeof(buf)));
-}
-
-TEST_F(Rand, RejectsNullOutput)
-{
-    EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_generate_random(nullptr, 32));
 }
 
 TEST_F(Rand, AcceptsEmptyOutput)
 {
-    EXPECT_EQ(SL_STATUS_OK, crypto_generate_random(nullptr, 0));
+    EXPECT_EQ(SL_STATUS_OK, crypto::default_crypto().generate_random(std::span<uint8_t> {}));
     uint8_t sentinel = 0xa5;
-    EXPECT_EQ(SL_STATUS_OK, crypto_generate_random(&sentinel, 0));
+    EXPECT_EQ(SL_STATUS_OK, crypto::default_crypto().generate_random(std::span<uint8_t>(&sentinel, 0)));
     EXPECT_EQ(0xa5, sentinel);
 }
-
-#include "test_crypto_injection_fixture.hpp"
 
 TEST_F(RandInjection, TranslatesInjectedFailure)
 {

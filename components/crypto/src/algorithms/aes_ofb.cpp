@@ -1,13 +1,13 @@
-#include "crypto.hpp"
+#include "crypto_impl.hpp"
 
 #include "psa/crypto.h"
-#include "util.hpp"
-#include "psa_wrappers_interface.hpp"
+#include "psa/util.hpp"
+#include "psa/psa_wrappers_interface.hpp"
 
 namespace crypto
 {
 
-    sl_status_t Crypto::aes_ofb_xor(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE> key, std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE> iv, std::span<uint8_t> data) const
+    sl_status_t Crypto::aes_ofb_xor(std::span<const uint8_t, crypto::aes_key_size> key, std::span<const uint8_t, crypto::aes_block_size> iv, std::span<uint8_t> data) const
     {
         psa_key_id_t key_id;
         psa_cipher_operation_t operation = PSA_CIPHER_OPERATION_INIT;
@@ -25,7 +25,7 @@ namespace crypto
             return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB, key, key_id, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS);
+        status = psa_wrappers_.import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB, key, key_id, PSA_KEY_TYPE_AES, crypto::aes_key_bits);
         if (status != PSA_SUCCESS) {
             return psa_status_to_sl_status(status);
         }
@@ -67,16 +67,3 @@ namespace crypto
     }
 
 }  // namespace crypto
-
-extern "C" {
-
-sl_status_t crypto_aes_ofb_xor(const uint8_t *key, uint8_t iv[16], uint8_t *data, size_t len)
-{
-    if (len == 0) {
-        return SL_STATUS_OK;
-    }
-
-    return crypto::c_api().aes_ofb_xor(std::span<const uint8_t, CRYPTO_AES_KEY_SIZE>(key, CRYPTO_AES_KEY_SIZE), std::span<const uint8_t, CRYPTO_AES_BLOCK_SIZE>(iv, CRYPTO_AES_BLOCK_SIZE), std::span<uint8_t>(data, len));
-}
-
-}  // extern "C"

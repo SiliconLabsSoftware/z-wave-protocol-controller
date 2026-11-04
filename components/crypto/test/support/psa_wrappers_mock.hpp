@@ -3,7 +3,7 @@
 
 #include <gmock/gmock.h>
 
-#include "psa_wrappers_interface.hpp"
+#include "psa/psa_wrappers_interface.hpp"
 
 namespace crypto::test
 {

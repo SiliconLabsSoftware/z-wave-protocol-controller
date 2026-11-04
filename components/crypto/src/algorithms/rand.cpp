@@ -1,8 +1,8 @@
-#include "crypto.hpp"
+#include "crypto_impl.hpp"
 
 #include "psa/crypto.h"
-#include "util.hpp"
-#include "psa_wrappers_interface.hpp"
+#include "psa/util.hpp"
+#include "psa/psa_wrappers_interface.hpp"
 
 namespace crypto
 {
@@ -22,12 +22,3 @@ namespace crypto
     }
 
 }  // namespace crypto
-
-extern "C" {
-
-sl_status_t crypto_generate_random(uint8_t *output, size_t output_size)
-{
-    return crypto::c_api().generate_random(std::span<uint8_t>(output, output_size));
-}
-
-}  // extern "C"

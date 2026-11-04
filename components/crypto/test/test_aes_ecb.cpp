@@ -19,6 +19,7 @@
 
 #include "crypto.hpp"
 #include "test_fixture.hpp"
+#include "test_crypto_injection_fixture.hpp"
 
 namespace
 {
@@ -28,7 +29,6 @@ namespace
     }
 }  // namespace
 
-// NIST AES-128-ECB encrypt vector via the C API.
 TEST_F(AesEcb, NistEncryptVector)
 {
     const uint8_t key[] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
@@ -36,11 +36,10 @@ TEST_F(AesEcb, NistEncryptVector)
     const uint8_t out[] = {0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60, 0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97};
     uint8_t buffer[16];
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ecb_encrypt(key, in, buffer));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ecb_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size), std::span<const uint8_t, crypto::aes_block_size>(in, crypto::aes_block_size), std::span<uint8_t, crypto::aes_block_size>(buffer, crypto::aes_block_size)));
     ExpectBytesEq(out, buffer, 16);
 }
 
-// ECB encrypt re-inits PSA after mbedtls_psa_crypto_free and still produces the expected ciphertext.
 TEST_F(AesEcb, ReinitializesAfterPsaFree)
 {
     const uint8_t key[] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
@@ -48,40 +47,34 @@ TEST_F(AesEcb, ReinitializesAfterPsaFree)
     const uint8_t out[] = {0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60, 0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97};
     uint8_t buffer[16];
 
-    EXPECT_EQ(SL_STATUS_OK, crypto_aes_ecb_encrypt(key, in, buffer));
+    EXPECT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ecb_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size), std::span<const uint8_t, crypto::aes_block_size>(in, crypto::aes_block_size), std::span<uint8_t, crypto::aes_block_size>(buffer, crypto::aes_block_size)));
     mbedtls_psa_crypto_free();
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ecb_encrypt(key, in, buffer));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ecb_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size), std::span<const uint8_t, crypto::aes_block_size>(in, crypto::aes_block_size), std::span<uint8_t, crypto::aes_block_size>(buffer, crypto::aes_block_size)));
     ExpectBytesEq(out, buffer, 16);
 }
 
-// AES-128-ECB decrypt via the C++ API matches the NIST plaintext.
 TEST_F(AesEcb, NistDecryptVector)
 {
-    const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key  = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
-    const std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> in = {0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60, 0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97};
-    const uint8_t expected[]                            = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
-    std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> buffer {};
+    const std::array<uint8_t, crypto::aes_key_size> key  = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    const std::array<uint8_t, crypto::aes_block_size> in = {0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60, 0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97};
+    const uint8_t expected[]                             = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
+    std::array<uint8_t, crypto::aes_block_size> buffer {};
 
-    ASSERT_EQ(SL_STATUS_OK, crypto::c_api().aes_ecb_decrypt(key, in, buffer));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ecb_decrypt(key, in, buffer));
     ExpectBytesEq(expected, buffer.data(), buffer.size());
 }
 
-// C++ span API matches the same NIST AES-128-ECB encrypt vector.
 TEST_F(AesEcb, EncryptCppApi)
 {
-    const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key  = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
-    const std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> in = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
-    const uint8_t expected[]                            = {0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60, 0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97};
-    std::array<uint8_t, CRYPTO_AES_BLOCK_SIZE> buffer {};
+    const std::array<uint8_t, crypto::aes_key_size> key  = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    const std::array<uint8_t, crypto::aes_block_size> in = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
+    const uint8_t expected[]                             = {0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60, 0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97};
+    std::array<uint8_t, crypto::aes_block_size> buffer {};
 
-    ASSERT_EQ(SL_STATUS_OK, crypto::c_api().aes_ecb_encrypt(key, in, buffer));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ecb_encrypt(key, in, buffer));
     ExpectBytesEq(expected, buffer.data(), buffer.size());
 }
-
-#include "test_crypto_injection_fixture.hpp"
-
-// Injected PSA wrapper error paths and key cleanup for AES-ECB.
 
 TEST_F(AesEcbInjection, DecryptUsesInjectedPsaWrappers)
 {
@@ -92,7 +85,7 @@ TEST_F(AesEcbInjection, DecryptUsesInjectedPsaWrappers)
 TEST_F(AesEcbInjection, DestroysImportedKeyWhenEncryptionFails)
 {
     ::testing::InSequence sequence;
-    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, crypto::aes_key_bits)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
     EXPECT_CALL(mock, cipher_encrypt(42, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(input)), SameBuffer(std::span(output)), _)).WillOnce(Return(PSA_ERROR_BAD_STATE));
     EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
 
@@ -103,7 +96,7 @@ TEST_F(AesEcbInjection, DecryptReleasesKeyWhenOperationFails)
 {
     ::testing::InSequence sequence;
     EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
-    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DECRYPT, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DECRYPT, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, crypto::aes_key_bits)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
     EXPECT_CALL(mock, cipher_decrypt(42, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(input)), SameBuffer(std::span(output)), _)).WillOnce(Return(PSA_ERROR_BAD_STATE));
     EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
 
@@ -112,11 +105,11 @@ TEST_F(AesEcbInjection, DecryptReleasesKeyWhenOperationFails)
 
 TEST_F(AesEcbInjection, EncryptChecksOutputLengthAndReleasesKey)
 {
-    for (const size_t length: {size_t {0}, size_t {CRYPTO_AES_BLOCK_SIZE - 1}, size_t {CRYPTO_AES_BLOCK_SIZE + 1}}) {
+    for (const size_t length: {size_t {0}, size_t {crypto::aes_block_size - 1}, size_t {crypto::aes_block_size + 1}}) {
         SCOPED_TRACE(length);
         ::testing::InSequence sequence;
         EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
-        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, crypto::aes_key_bits)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
         EXPECT_CALL(mock, cipher_encrypt(42, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(input)), SameBuffer(std::span(output)), _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<4>(length), Return(PSA_SUCCESS)));
         EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
 
@@ -126,11 +119,11 @@ TEST_F(AesEcbInjection, EncryptChecksOutputLengthAndReleasesKey)
 
 TEST_F(AesEcbInjection, DecryptChecksOutputLengthAndReleasesKey)
 {
-    for (const size_t length: {size_t {0}, size_t {CRYPTO_AES_BLOCK_SIZE - 1}, size_t {CRYPTO_AES_BLOCK_SIZE + 1}}) {
+    for (const size_t length: {size_t {0}, size_t {crypto::aes_block_size - 1}, size_t {crypto::aes_block_size + 1}}) {
         SCOPED_TRACE(length);
         ::testing::InSequence sequence;
         EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
-        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DECRYPT, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, CRYPTO_AES_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DECRYPT, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, crypto::aes_key_bits)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
         EXPECT_CALL(mock, cipher_decrypt(42, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(input)), SameBuffer(std::span(output)), _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<4>(length), Return(PSA_SUCCESS)));
         EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
 

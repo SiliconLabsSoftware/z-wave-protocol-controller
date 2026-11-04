@@ -18,12 +18,12 @@ namespace
 
             void SetUp() override
             {
-                crypto::set_c_api_backend(backend);
+                crypto_c::test::set_backend(backend);
             }
 
             void TearDown() override
             {
-                crypto::reset_c_api_backend();
+                crypto_c::test::reset_backend();
             }
 
             void fail_cmac_on_call(unsigned call_number)
