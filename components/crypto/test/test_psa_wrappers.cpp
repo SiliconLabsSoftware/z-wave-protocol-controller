@@ -14,8 +14,8 @@
 #include <array>
 #include <cstring>
 
-#include "psa_wrappers.hpp"
-#include "test_fixture.hpp"
+#include "psa/psa_wrappers.hpp"
+#include "psa_test_fixture.hpp"
 
 namespace
 {
@@ -63,14 +63,12 @@ namespace
     const std::array<uint8_t, kX25519PrivateKeyBytes> kX25519SharedSecret {0x4a, 0x5d, 0x9d, 0x5b, 0xa4, 0xce, 0x2d, 0xe1, 0x72, 0x8e, 0x3b, 0xf4, 0x80, 0x35, 0x0f, 0x25, 0xe0, 0x7e, 0x21, 0xc9, 0x47, 0xd1, 0x9e, 0x33, 0x76, 0xf0, 0x9b, 0x3c, 0x1e, 0x16, 0x17, 0x42};
 }  // namespace
 
-// generate_random
 TEST_F(PsaWrappersTest, GenerateRandom)
 {
     std::array<uint8_t, kRandomOutputBytes> output {};
     EXPECT_EQ(PSA_SUCCESS, psa_wrappers.generate_random(output));
 }
 
-// import_key sets usage, algorithm, type, and bits on the PSA key
 TEST_F(PsaWrappersTest, ImportAesKeyAttributes)
 {
     const std::array<uint8_t, kImportKeyStorageBytes> storage {};
@@ -92,7 +90,6 @@ TEST_F(PsaWrappersTest, ImportAesKeyAttributes)
     EXPECT_EQ(PSA_SUCCESS, psa_wrappers.destroy_key(key_id));
 }
 
-// cipher_encrypt with output span shorter than one AES block
 TEST_F(PsaWrappersTest, CipherEncryptBufferTooSmall)
 {
     const std::array<uint8_t, kAes128KeyBytes> key {};
@@ -115,7 +112,6 @@ TEST_F(PsaWrappersTest, CipherEncryptBufferTooSmall)
     EXPECT_EQ(PSA_SUCCESS, psa_wrappers.destroy_key(key_id));
 }
 
-// import_key: 16-byte material, 256 bits declared
 TEST_F(PsaWrappersTest, ImportKeyBitLengthMismatch)
 {
     const std::array<uint8_t, kAes128KeyBytes> key {};
@@ -124,7 +120,6 @@ TEST_F(PsaWrappersTest, ImportKeyBitLengthMismatch)
     EXPECT_EQ(PSA_ERROR_INVALID_ARGUMENT, psa_wrappers.import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, key, key_id, PSA_KEY_TYPE_AES, kAes256KeyBits));
 }
 
-// cipher_encrypt and cipher_decrypt, NIST SP 800-38A vector
 TEST_F(PsaWrappersTest, EcbNistVector)
 {
     std::array<uint8_t, kAes128KeyBytes> ciphertext {};
@@ -144,7 +139,6 @@ TEST_F(PsaWrappersTest, EcbNistVector)
     EXPECT_EQ(PSA_SUCCESS, psa_wrappers.destroy_key(key_id));
 }
 
-// cipher_abort twice, then cipher_encrypt_setup again
 TEST_F(PsaWrappersTest, CipherAbortReuse)
 {
     const std::array<uint8_t, kAes128KeyBytes> key {};
@@ -164,7 +158,6 @@ TEST_F(PsaWrappersTest, CipherAbortReuse)
     EXPECT_EQ(PSA_SUCCESS, psa_wrappers.destroy_key(key_id));
 }
 
-// mac_compute, RFC 4493 example 2
 TEST_F(PsaWrappersTest, MacComputeCmac)
 {
     std::array<uint8_t, kAes128KeyBytes> mac {};
@@ -178,7 +171,6 @@ TEST_F(PsaWrappersTest, MacComputeCmac)
     EXPECT_EQ(PSA_SUCCESS, psa_wrappers.destroy_key(key_id));
 }
 
-// aead_encrypt and aead_decrypt, NIST CCM example 1
 TEST_F(PsaWrappersTest, AeadCcmNistExample1)
 {
     std::array<uint8_t, kCcmCiphertextBufBytes> ciphertext {};
@@ -229,7 +221,6 @@ TEST_F(PsaWrappersTest, RawKeyAgreement)
     EXPECT_EQ(PSA_SUCCESS, psa_wrappers.destroy_key(key_id));
 }
 
-// cipher_update and cipher_finish, NIST OFB one block
 TEST_F(PsaWrappersTest, CipherOfbUpdateFinish)
 {
     std::array<uint8_t, kAes128KeyBytes> buffer = kNistAes128EcbPlaintext;
