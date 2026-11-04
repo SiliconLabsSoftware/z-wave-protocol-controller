@@ -44,6 +44,7 @@ SOURCE_LINK_REWRITES = {
     "../../network_manager/doc/": "../network_manager/",
     "../../device_interviewer/docs/": "../device_interviewer/",
     "../../network_monitor/doc/": "../network_monitor/",
+    "../../jamming_detection/doc/": "../jamming_detection/",
     "../../ota/docs/": "../ota/",
     "../../command_classes/doc/generated/": "../command_classes/",
     "../../../docs/sequences/": "../../sequences/",
