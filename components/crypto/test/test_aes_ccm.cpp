@@ -13,7 +13,6 @@
 
 #include <array>
 #include <cstdint>
-#include <cstdlib>
 #include <cstring>
 #include <span>
 #include <vector>
@@ -78,15 +77,11 @@ TEST_F(AesCcm, S2RoundtripPayloadLengths)
 
     for (size_t i = 0; i < sizeof(lengths) / sizeof(lengths[0]); i++) {
         const size_t pt_len = static_cast<size_t>(lengths[i]);
-        uint8_t *plaintext  = static_cast<uint8_t *>(calloc(1, pt_len + 1));
-        uint8_t *backup     = static_cast<uint8_t *>(calloc(1, pt_len + 1));
-        uint8_t *buffer     = static_cast<uint8_t *>(calloc(1, pt_len + S2_CCM_TAG_LEN + 1));
+        std::vector<uint8_t> plaintext(pt_len + 1);
+        std::vector<uint8_t> backup(pt_len + 1);
+        std::vector<uint8_t> buffer(pt_len + S2_CCM_TAG_LEN + 1);
         size_t ct_len;
         size_t out_len;
-
-        ASSERT_NE(nullptr, plaintext);
-        ASSERT_NE(nullptr, backup);
-        ASSERT_NE(nullptr, buffer);
 
         for (size_t j = 0; j < pt_len; j++) {
             plaintext[j] = static_cast<uint8_t>(j);
@@ -98,8 +93,8 @@ TEST_F(AesCcm, S2RoundtripPayloadLengths)
                                                            S2_CCM_TAG_LEN,
                                                            std::span<const uint8_t>(nonce, S2_CCM_NONCE_LEN),
                                                            std::span<const uint8_t>(aad, sizeof(aad)),
-                                                           std::span<const uint8_t>(plaintext, pt_len),
-                                                           std::span<uint8_t>(buffer, pt_len + S2_CCM_TAG_LEN),
+                                                           std::span<const uint8_t>(plaintext.data(), pt_len),
+                                                           std::span<uint8_t>(buffer.data(), pt_len + S2_CCM_TAG_LEN),
                                                            ct_len));
         ASSERT_EQ(pt_len + S2_CCM_TAG_LEN, ct_len);
 
@@ -108,17 +103,13 @@ TEST_F(AesCcm, S2RoundtripPayloadLengths)
                                                            S2_CCM_TAG_LEN,
                                                            std::span<const uint8_t>(nonce, S2_CCM_NONCE_LEN),
                                                            std::span<const uint8_t>(aad, sizeof(aad)),
-                                                           std::span<const uint8_t>(buffer, ct_len),
-                                                           std::span<uint8_t>(buffer, pt_len + S2_CCM_TAG_LEN),
+                                                           std::span<const uint8_t>(buffer.data(), ct_len),
+                                                           std::span<uint8_t>(buffer.data(), pt_len + S2_CCM_TAG_LEN),
                                                            out_len));
         if (pt_len != 0) {
             ASSERT_EQ(pt_len, out_len);
-            ExpectBytesEq(backup, buffer, pt_len);
+            ExpectBytesEq(backup.data(), buffer.data(), pt_len);
         }
-
-        free(plaintext);
-        free(backup);
-        free(buffer);
     }
 }
 
@@ -132,12 +123,11 @@ TEST_F(AesCcm, S2HandfulAadLengths)
 
     for (size_t i = 0; i < sizeof(aad_lengths) / sizeof(aad_lengths[0]); i++) {
         const size_t aad_len = static_cast<size_t>(aad_lengths[i]);
-        uint8_t *aad         = static_cast<uint8_t *>(calloc(1, aad_len));
+        std::vector<uint8_t> aad(aad_len);
         uint8_t buffer[64];
         size_t ct_len;
         size_t out_len;
 
-        ASSERT_NE(nullptr, aad);
         for (size_t j = 0; j < aad_len; j++) {
             aad[j] = static_cast<uint8_t>(j);
         }
@@ -146,7 +136,7 @@ TEST_F(AesCcm, S2HandfulAadLengths)
                   crypto::default_crypto().aes_ccm_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size),
                                                            S2_CCM_TAG_LEN,
                                                            std::span<const uint8_t>(nonce, S2_CCM_NONCE_LEN),
-                                                           std::span<const uint8_t>(aad, aad_len),
+                                                           std::span<const uint8_t>(aad.data(), aad_len),
                                                            std::span<const uint8_t>(plaintext, pt_len),
                                                            std::span<uint8_t>(buffer, sizeof(buffer)),
                                                            ct_len));
@@ -156,14 +146,12 @@ TEST_F(AesCcm, S2HandfulAadLengths)
                   crypto::default_crypto().aes_ccm_decrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size),
                                                            S2_CCM_TAG_LEN,
                                                            std::span<const uint8_t>(nonce, S2_CCM_NONCE_LEN),
-                                                           std::span<const uint8_t>(aad, aad_len),
+                                                           std::span<const uint8_t>(aad.data(), aad_len),
                                                            std::span<const uint8_t>(buffer, ct_len),
                                                            std::span<uint8_t>(buffer, sizeof(buffer)),
                                                            out_len));
         ASSERT_EQ(pt_len, out_len);
         ExpectBytesEq(plaintext, buffer, pt_len);
-
-        free(aad);
     }
 }
 

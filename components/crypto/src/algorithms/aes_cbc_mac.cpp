@@ -1,15 +1,18 @@
 #include "crypto_impl.hpp"
+#include "scoped_zeroize.hpp"
 
-#include <cstring>
+#include <algorithm>
+#include <array>
 
 #include "psa/crypto.h"
 #include "psa/util.hpp"
-#include "psa/psa_wrappers_interface.hpp"
+#include "psa/psa_resources.hpp"
 
 namespace
 {
 
-    const uint8_t cbc_mac_zero_iv[crypto::aes_block_size] {};
+    constexpr std::size_t cbc_mac_chunk_size = 16 * crypto::aes_block_size;
+    constexpr std::array<uint8_t, crypto::aes_block_size> cbc_mac_zero_iv {};
 
 }  // namespace
 
@@ -18,75 +21,89 @@ namespace crypto
 
     sl_status_t Crypto::aes_cbc_mac(std::span<const uint8_t, crypto::aes_key_size> key, std::span<const uint8_t, crypto::aes_block_size> iv, std::span<const uint8_t> data, std::span<uint8_t, crypto::aes_block_size> mac) const
     {
-        if (data.size() > UINT8_MAX) {
-            return SL_STATUS_INVALID_PARAMETER;
-        }
-
-        const uint8_t len = static_cast<uint8_t>(data.size());
-        uint8_t message[((crypto::aes_block_size + UINT8_MAX + crypto::aes_block_size - 1) / crypto::aes_block_size) * crypto::aes_block_size];
-        uint8_t ciphertext[sizeof(message)];
-        size_t message_len;
-        size_t pad_len;
-        psa_key_id_t key_id;
-        psa_cipher_operation_t operation = PSA_CIPHER_OPERATION_INIT;
-        psa_status_t status;
-        size_t update_len;
-        size_t finish_len;
-        size_t ciphertext_len;
-
-        memcpy(message, iv.data(), crypto::aes_block_size);
-        if (len > 0) {
-            memcpy(message + crypto::aes_block_size, data.data(), len);
-        }
-        message_len = crypto::aes_block_size + len;
-        pad_len     = (crypto::aes_block_size - (message_len % crypto::aes_block_size)) % crypto::aes_block_size;
-        memset(message + message_len, 0, pad_len);
-        message_len += pad_len;
-
-        status = psa_wrappers_.crypto_init();
+        detail::ScopedKey imported_key(psa_wrappers_);
+        detail::ScopedCipherOperation operation(psa_wrappers_);
+        psa_status_t status = psa_wrappers_.crypto_init();
         if (status != PSA_SUCCESS) {
             return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_CBC_NO_PADDING, key, key_id, PSA_KEY_TYPE_AES, crypto::aes_key_bits);
+        status = imported_key.import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_CBC_NO_PADDING, key, PSA_KEY_TYPE_AES, crypto::aes_key_bits);
         if (status != PSA_SUCCESS) {
             return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.cipher_encrypt_setup(operation, key_id, PSA_ALG_CBC_NO_PADDING);
+        status = operation.encrypt_setup(imported_key.id(), PSA_ALG_CBC_NO_PADDING);
         if (status != PSA_SUCCESS) {
-            psa_wrappers_.destroy_key(key_id);
             return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.cipher_set_iv(operation, cbc_mac_zero_iv);
+        status = psa_wrappers_.cipher_set_iv(operation.get(), cbc_mac_zero_iv);
         if (status != PSA_SUCCESS) {
-            psa_wrappers_.cipher_abort(operation);
-            psa_wrappers_.destroy_key(key_id);
             return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.cipher_update(operation, std::span<const uint8_t>(message, message_len), ciphertext, update_len);
+        std::array<uint8_t, PSA_CIPHER_UPDATE_OUTPUT_SIZE(PSA_KEY_TYPE_AES, PSA_ALG_CBC_NO_PADDING, cbc_mac_chunk_size)> ciphertext {};
+        const common::ScopedZeroize wipe_ciphertext(ciphertext.data(), sizeof(ciphertext));
+        std::array<uint8_t, crypto::aes_block_size> last_block {};
+        const common::ScopedZeroize wipe_last_block(last_block.data(), sizeof(last_block));
+        std::size_t pending_blocks = 0;
+
+        const auto retain_output = [&](std::size_t length) {
+            if (length > ciphertext.size() || length % crypto::aes_block_size != 0 || length / crypto::aes_block_size > pending_blocks) {
+                return false;
+            }
+            pending_blocks -= length / crypto::aes_block_size;
+            if (length != 0) {
+                std::copy_n(ciphertext.begin() + length - crypto::aes_block_size, last_block.size(), last_block.begin());
+            }
+            return true;
+        };
+
+        const auto update = [&](std::span<const uint8_t> input) {
+            pending_blocks += input.size() / crypto::aes_block_size;
+            std::size_t length = 0;
+            const auto result  = psa_wrappers_.cipher_update(operation.get(), input, ciphertext, length);
+            if (result != PSA_SUCCESS) {
+                return psa_status_to_sl_status(result);
+            }
+            return retain_output(length) ? SL_STATUS_OK : SL_STATUS_FAIL;
+        };
+
+        auto result = update(iv);
+        if (result != SL_STATUS_OK) {
+            return result;
+        }
+
+        while (data.size() >= crypto::aes_block_size) {
+            const auto length = std::min(data.size() - (data.size() % crypto::aes_block_size), cbc_mac_chunk_size);
+            result            = update(data.first(length));
+            if (result != SL_STATUS_OK) {
+                return result;
+            }
+            data = data.subspan(length);
+        }
+
+        if (!data.empty()) {
+            std::array<uint8_t, crypto::aes_block_size> padded {};
+            const common::ScopedZeroize wipe_padded(padded.data(), sizeof(padded));
+            std::copy(data.begin(), data.end(), padded.begin());
+            result = update(padded);
+            if (result != SL_STATUS_OK) {
+                return result;
+            }
+        }
+
+        std::size_t finish_len = 0;
+        status                 = operation.finish(ciphertext, finish_len);
         if (status != PSA_SUCCESS) {
-            psa_wrappers_.cipher_abort(operation);
-            psa_wrappers_.destroy_key(key_id);
             return psa_status_to_sl_status(status);
         }
 
-        status = psa_wrappers_.cipher_finish(operation, std::span(ciphertext).subspan(update_len), finish_len);
-        if (status != PSA_SUCCESS) {
-            psa_wrappers_.cipher_abort(operation);
-            psa_wrappers_.destroy_key(key_id);
-            return psa_status_to_sl_status(status);
-        }
-
-        psa_wrappers_.destroy_key(key_id);
-
-        ciphertext_len = update_len + finish_len;
-        if (ciphertext_len < crypto::aes_block_size) {
+        if (!retain_output(finish_len) || pending_blocks != 0) {
             return SL_STATUS_FAIL;
         }
-        memcpy(mac.data(), ciphertext + ciphertext_len - crypto::aes_block_size, crypto::aes_block_size);
+        std::copy(last_block.begin(), last_block.end(), mac.begin());
         return SL_STATUS_OK;
     }
 

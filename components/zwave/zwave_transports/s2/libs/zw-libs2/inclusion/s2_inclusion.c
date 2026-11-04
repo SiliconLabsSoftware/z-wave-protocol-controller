@@ -16,6 +16,7 @@
 #include "s2_classcmd.h"
 #include "zwave_s2_key_derivation.h"
 #include "crypto.h"
+#include "secure_memzero.h"
 #include "s2_inclusion_internal.h"
 
 #define CHECK_AND_FAIL(CHECK, FAILURE) \
@@ -332,12 +333,12 @@ void s2_restore_keys(struct S2 *p_context)
         ret_val = keystore_network_key_read(m_key_slot_pair[i][0], shared_key_mem);
         if (true == ret_val) {
             if (!S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, m_key_slot_pair[i][1], shared_key_mem, 0)) {
-                memset(shared_key_mem, 0, NETWORK_KEY_SIZE);
+                secure_memzero(shared_key_mem, NETWORK_KEY_SIZE);
             }
         }
     }
     // Clearing of memory to ensure key is not exposed accidentially elsewhere.
-    memset(shared_key_mem, 0, sizeof(NETWORK_KEY_SIZE));
+    secure_memzero(shared_key_mem, sizeof(shared_key_mem));
 }
 
 /**@brief Function for notifying application that inclusion failed.
@@ -934,7 +935,10 @@ static void s2_public_key_read(uint8_t *buf)
 static void s2_do_ecdh_calc_b(void)
 {
     s2_private_key_read(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX]);
-    if (crypto_x25519_derive_shared_secret(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key, shared_secret) != SL_STATUS_OK) {
+    sl_status_t status = crypto_x25519_derive_shared_secret(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key, shared_secret);
+    secure_memzero(shared_key_mem, sizeof(shared_key_mem));
+    if (status != SL_STATUS_OK) {
+        secure_memzero(shared_secret, sizeof(shared_secret));
         inclusion_failed_frame_send(KEX_FAIL_AUTH, NON_SECURE);
         process_event(S2_INCLUSION_ERROR_SENT);
         return;
@@ -943,7 +947,10 @@ static void s2_do_ecdh_calc_b(void)
     memcpy(&shared_key_mem[PUBLIC_KEY_A_INDEX], mp_context->public_key, 32);
     s2_public_key_read(&shared_key_mem[PUBLIC_KEY_B_INDEX]);
 
-    if (zwave_s2_extract_pseudo_random_key(shared_secret, shared_key_mem, mp_context->public_key) != SL_STATUS_OK || !S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1)) {
+    status = zwave_s2_extract_pseudo_random_key(shared_secret, shared_key_mem, mp_context->public_key);
+    secure_memzero(shared_secret, sizeof(shared_secret));
+    secure_memzero(shared_key_mem, sizeof(shared_key_mem));
+    if (status != SL_STATUS_OK || !S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1)) {
         inclusion_failed_frame_send(KEX_FAIL_AUTH, NON_SECURE);
         process_event(S2_INCLUSION_ERROR_SENT);
         return;

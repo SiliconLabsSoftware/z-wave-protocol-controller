@@ -103,6 +103,16 @@ TEST_F(AesEcbInjection, DecryptReleasesKeyWhenOperationFails)
     EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_ecb_decrypt(key, input, output));
 }
 
+TEST_F(AesEcbInjection, KeyCleanupFailureDoesNotReplaceSuccessfulResult)
+{
+    ::testing::InSequence sequence;
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_ECB_NO_PADDING, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, crypto::aes_key_bits)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_encrypt(42, PSA_ALG_ECB_NO_PADDING, _, _, _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<4>(output.size()), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_ERROR_GENERIC_ERROR));
+
+    EXPECT_EQ(SL_STATUS_OK, algorithms.aes_ecb_encrypt(key, input, output));
+}
+
 TEST_F(AesEcbInjection, EncryptChecksOutputLengthAndReleasesKey)
 {
     for (const size_t length: {size_t {0}, size_t {crypto::aes_block_size - 1}, size_t {crypto::aes_block_size + 1}}) {

@@ -93,7 +93,6 @@ TEST_F(X25519, DeriveSharedSecretCppApi)
 
 TEST_F(X25519, RejectsLowOrderPeerPublicKeys)
 {
-    // u=0 and u=1 produce an all-zero shared secret and must be rejected.
     for (const uint8_t u: {0, 1}) {
         SCOPED_TRACE(u);
         std::array<uint8_t, KEY_SIZE> peer {};
