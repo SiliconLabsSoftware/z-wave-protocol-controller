@@ -475,9 +475,6 @@ namespace zwave_command_class
         command_class_configuration_attribute_map_t attribute_map;
 
         try {
-            frame_parser.read_sequential<uint8_t>(1);  // command class
-            frame_parser.read_sequential<uint8_t>(1);  // command
-
             const auto parameter_offset     = frame_parser.read_sequential<uint16_t>(sizeof(uint16_t));
             const auto number_of_parameters = frame_parser.read_sequential<uint8_t>(sizeof(uint8_t));
             const auto reports_to_follow    = frame_parser.read_sequential<uint8_t>(sizeof(uint8_t));
