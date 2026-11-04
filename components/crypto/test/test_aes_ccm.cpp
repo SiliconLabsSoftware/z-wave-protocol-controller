@@ -22,6 +22,7 @@
 
 #include "crypto.hpp"
 #include "test_fixture.hpp"
+#include "test_crypto_injection_fixture.hpp"
 
 #define S2_CCM_TAG_LEN   8U
 #define S2_CCM_NONCE_LEN 13U
@@ -34,7 +35,6 @@ namespace
     }
 }  // namespace
 
-// NIST CCM example 1 encrypt then decrypt round-trip.
 TEST_F(AesCcm, NistExample1)
 {
     const uint8_t key[16]       = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f};
@@ -46,16 +46,29 @@ TEST_F(AesCcm, NistExample1)
     size_t ciphertext_len;
     size_t plaintext_len;
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_encrypt(key, 6, nonce, sizeof(nonce), aad, sizeof(aad), plaintext, sizeof(plaintext), ciphertext, sizeof(ciphertext), &ciphertext_len));
+    ASSERT_EQ(SL_STATUS_OK,
+              crypto::default_crypto().aes_ccm_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size),
+                                                       6,
+                                                       std::span<const uint8_t>(nonce, sizeof(nonce)),
+                                                       std::span<const uint8_t>(aad, sizeof(aad)),
+                                                       std::span<const uint8_t>(plaintext, sizeof(plaintext)),
+                                                       std::span<uint8_t>(ciphertext, sizeof(ciphertext)),
+                                                       ciphertext_len));
     ASSERT_EQ(22U, ciphertext_len);
     ExpectBytesEq(expected, ciphertext, ciphertext_len);
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_decrypt(key, 6, nonce, sizeof(nonce), aad, sizeof(aad), ciphertext, ciphertext_len, ciphertext, sizeof(ciphertext), &plaintext_len));
+    ASSERT_EQ(SL_STATUS_OK,
+              crypto::default_crypto().aes_ccm_decrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size),
+                                                       6,
+                                                       std::span<const uint8_t>(nonce, sizeof(nonce)),
+                                                       std::span<const uint8_t>(aad, sizeof(aad)),
+                                                       std::span<const uint8_t>(ciphertext, ciphertext_len),
+                                                       std::span<uint8_t>(ciphertext, sizeof(ciphertext)),
+                                                       plaintext_len));
     ASSERT_EQ(sizeof(plaintext), plaintext_len);
     ExpectBytesEq(plaintext, ciphertext, plaintext_len);
 }
 
-// S2-style CCM round-trip for several plaintext lengths.
 TEST_F(AesCcm, S2RoundtripPayloadLengths)
 {
     const uint8_t key[16]                 = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f};
@@ -80,10 +93,24 @@ TEST_F(AesCcm, S2RoundtripPayloadLengths)
             backup[j]    = static_cast<uint8_t>(j);
         }
 
-        ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_encrypt(key, S2_CCM_TAG_LEN, nonce, S2_CCM_NONCE_LEN, aad, sizeof(aad), plaintext, pt_len, buffer, pt_len + S2_CCM_TAG_LEN, &ct_len));
+        ASSERT_EQ(SL_STATUS_OK,
+                  crypto::default_crypto().aes_ccm_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size),
+                                                           S2_CCM_TAG_LEN,
+                                                           std::span<const uint8_t>(nonce, S2_CCM_NONCE_LEN),
+                                                           std::span<const uint8_t>(aad, sizeof(aad)),
+                                                           std::span<const uint8_t>(plaintext, pt_len),
+                                                           std::span<uint8_t>(buffer, pt_len + S2_CCM_TAG_LEN),
+                                                           ct_len));
         ASSERT_EQ(pt_len + S2_CCM_TAG_LEN, ct_len);
 
-        ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_decrypt(key, S2_CCM_TAG_LEN, nonce, S2_CCM_NONCE_LEN, aad, sizeof(aad), buffer, ct_len, buffer, pt_len + S2_CCM_TAG_LEN, &out_len));
+        ASSERT_EQ(SL_STATUS_OK,
+                  crypto::default_crypto().aes_ccm_decrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size),
+                                                           S2_CCM_TAG_LEN,
+                                                           std::span<const uint8_t>(nonce, S2_CCM_NONCE_LEN),
+                                                           std::span<const uint8_t>(aad, sizeof(aad)),
+                                                           std::span<const uint8_t>(buffer, ct_len),
+                                                           std::span<uint8_t>(buffer, pt_len + S2_CCM_TAG_LEN),
+                                                           out_len));
         if (pt_len != 0) {
             ASSERT_EQ(pt_len, out_len);
             ExpectBytesEq(backup, buffer, pt_len);
@@ -95,7 +122,6 @@ TEST_F(AesCcm, S2RoundtripPayloadLengths)
     }
 }
 
-// S2 CCM with varying AAD lengths.
 TEST_F(AesCcm, S2HandfulAadLengths)
 {
     const uint8_t key[16]                 = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f};
@@ -116,10 +142,24 @@ TEST_F(AesCcm, S2HandfulAadLengths)
             aad[j] = static_cast<uint8_t>(j);
         }
 
-        ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_encrypt(key, S2_CCM_TAG_LEN, nonce, S2_CCM_NONCE_LEN, aad, aad_len, plaintext, pt_len, buffer, sizeof(buffer), &ct_len));
+        ASSERT_EQ(SL_STATUS_OK,
+                  crypto::default_crypto().aes_ccm_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size),
+                                                           S2_CCM_TAG_LEN,
+                                                           std::span<const uint8_t>(nonce, S2_CCM_NONCE_LEN),
+                                                           std::span<const uint8_t>(aad, aad_len),
+                                                           std::span<const uint8_t>(plaintext, pt_len),
+                                                           std::span<uint8_t>(buffer, sizeof(buffer)),
+                                                           ct_len));
         ASSERT_EQ(pt_len + S2_CCM_TAG_LEN, ct_len);
 
-        ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_decrypt(key, S2_CCM_TAG_LEN, nonce, S2_CCM_NONCE_LEN, aad, aad_len, buffer, ct_len, buffer, sizeof(buffer), &out_len));
+        ASSERT_EQ(SL_STATUS_OK,
+                  crypto::default_crypto().aes_ccm_decrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size),
+                                                           S2_CCM_TAG_LEN,
+                                                           std::span<const uint8_t>(nonce, S2_CCM_NONCE_LEN),
+                                                           std::span<const uint8_t>(aad, aad_len),
+                                                           std::span<const uint8_t>(buffer, ct_len),
+                                                           std::span<uint8_t>(buffer, sizeof(buffer)),
+                                                           out_len));
         ASSERT_EQ(pt_len, out_len);
         ExpectBytesEq(plaintext, buffer, pt_len);
 
@@ -127,7 +167,6 @@ TEST_F(AesCcm, S2HandfulAadLengths)
     }
 }
 
-// Tampered tag yields authentication failure on decrypt.
 TEST_F(AesCcm, DecryptAuthFailure)
 {
     const uint8_t key[16]                 = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f};
@@ -139,41 +178,52 @@ TEST_F(AesCcm, DecryptAuthFailure)
     size_t out_len;
     sl_status_t status;
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_encrypt(key, S2_CCM_TAG_LEN, nonce, S2_CCM_NONCE_LEN, aad, sizeof(aad), plaintext, sizeof(plaintext), buffer, sizeof(buffer), &ct_len));
+    ASSERT_EQ(SL_STATUS_OK,
+              crypto::default_crypto().aes_ccm_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size),
+                                                       S2_CCM_TAG_LEN,
+                                                       std::span<const uint8_t>(nonce, S2_CCM_NONCE_LEN),
+                                                       std::span<const uint8_t>(aad, sizeof(aad)),
+                                                       std::span<const uint8_t>(plaintext, sizeof(plaintext)),
+                                                       std::span<uint8_t>(buffer, sizeof(buffer)),
+                                                       ct_len));
 
     buffer[ct_len - 1] ^= 0x01U;
 
-    status = crypto_aes_ccm_decrypt(key, S2_CCM_TAG_LEN, nonce, S2_CCM_NONCE_LEN, aad, sizeof(aad), buffer, ct_len, buffer, sizeof(buffer), &out_len);
+    status = crypto::default_crypto().aes_ccm_decrypt(std::span<const uint8_t, crypto::aes_key_size>(key, crypto::aes_key_size),
+                                                      S2_CCM_TAG_LEN,
+                                                      std::span<const uint8_t>(nonce, S2_CCM_NONCE_LEN),
+                                                      std::span<const uint8_t>(aad, sizeof(aad)),
+                                                      std::span<const uint8_t>(buffer, ct_len),
+                                                      std::span<uint8_t>(buffer, sizeof(buffer)),
+                                                      out_len);
     EXPECT_TRUE(status == SL_STATUS_INVALID_SIGNATURE || status == SL_STATUS_INVALID_PARAMETER);
     /* PSA does not leave the in-place ciphertext intact on authentication failure. */
 }
 
-// C++ CCM API encrypt and decrypt match the NIST example 1 vector.
 TEST_F(AesCcm, EncryptDecryptCppApi)
 {
-    const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f};
-    const uint8_t nonce[]                              = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17};
-    const uint8_t aad[]                                = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
-    const uint8_t plaintext[]                          = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f};
-    const uint8_t expected[]                           = {0xd2, 0xa1, 0xf0, 0xe0, 0x51, 0xea, 0x5f, 0x62, 0x08, 0x1a, 0x77, 0x92, 0x07, 0x3d, 0x59, 0x3d, 0x1f, 0xc6, 0x4f, 0xbf, 0xac, 0xcd};
+    const std::array<uint8_t, crypto::aes_key_size> key = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f};
+    const uint8_t nonce[]                               = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17};
+    const uint8_t aad[]                                 = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+    const uint8_t plaintext[]                           = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f};
+    const uint8_t expected[]                            = {0xd2, 0xa1, 0xf0, 0xe0, 0x51, 0xea, 0x5f, 0x62, 0x08, 0x1a, 0x77, 0x92, 0x07, 0x3d, 0x59, 0x3d, 0x1f, 0xc6, 0x4f, 0xbf, 0xac, 0xcd};
     std::array<uint8_t, 32> ciphertext {};
     size_t ciphertext_len = 0;
 
-    ASSERT_EQ(SL_STATUS_OK, crypto::c_api().aes_ccm_encrypt(key, 6, std::span<const uint8_t>(nonce, sizeof(nonce)), std::span<const uint8_t>(aad, sizeof(aad)), std::span<const uint8_t>(plaintext, sizeof(plaintext)), std::span<uint8_t>(ciphertext.data(), ciphertext.size()), ciphertext_len));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ccm_encrypt(key, 6, std::span<const uint8_t>(nonce, sizeof(nonce)), std::span<const uint8_t>(aad, sizeof(aad)), std::span<const uint8_t>(plaintext, sizeof(plaintext)), std::span<uint8_t>(ciphertext.data(), ciphertext.size()), ciphertext_len));
     ASSERT_EQ(22U, ciphertext_len);
     ExpectBytesEq(expected, ciphertext.data(), ciphertext_len);
 
     size_t plaintext_len = 0;
-    ASSERT_EQ(SL_STATUS_OK, crypto::c_api().aes_ccm_decrypt(key, 6, std::span<const uint8_t>(nonce, sizeof(nonce)), std::span<const uint8_t>(aad, sizeof(aad)), std::span<const uint8_t>(ciphertext.data(), ciphertext_len), std::span<uint8_t>(ciphertext.data(), ciphertext.size()), plaintext_len));
+    ASSERT_EQ(SL_STATUS_OK,
+              crypto::default_crypto().aes_ccm_decrypt(key, 6, std::span<const uint8_t>(nonce, sizeof(nonce)), std::span<const uint8_t>(aad, sizeof(aad)), std::span<const uint8_t>(ciphertext.data(), ciphertext_len), std::span<uint8_t>(ciphertext.data(), ciphertext.size()), plaintext_len));
     ASSERT_EQ(sizeof(plaintext), plaintext_len);
     ExpectBytesEq(plaintext, ciphertext.data(), plaintext_len);
 }
 
-// Exercise the public wrapper against the real PSA backend. Invalid inputs must
-// be rejected, and a subsequent valid request must still work.
 TEST_F(AesCcm, RejectsInvalidNonceAndTagLengths)
 {
-    const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
+    const std::array<uint8_t, crypto::aes_key_size> key {};
     const std::array<uint8_t, 14> nonce {};
     const std::array<uint8_t, 1> plaintext {0x42};
     std::array<uint8_t, 32> ciphertext {};
@@ -185,41 +235,97 @@ TEST_F(AesCcm, RejectsInvalidNonceAndTagLengths)
     const Parameters invalid[] = {{6, 8}, {14, 8}, {13, 3}, {13, 5}, {13, 18}};
     for (const auto &[nonce_len, tag_len]: invalid) {
         SCOPED_TRACE(::testing::Message() << "nonce=" << nonce_len << " tag=" << tag_len);
-        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ccm_encrypt(key.data(), tag_len, nonce.data(), nonce_len, nullptr, 0, plaintext.data(), plaintext.size(), ciphertext.data(), ciphertext.size(), &ciphertext_len));
-        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_aes_ccm_decrypt(key.data(), tag_len, nonce.data(), nonce_len, nullptr, 0, ciphertext.data(), ciphertext.size(), ciphertext.data(), ciphertext.size(), &ciphertext_len));
+        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER,
+                  crypto::default_crypto().aes_ccm_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key.data(), crypto::aes_key_size),
+                                                           tag_len,
+                                                           std::span<const uint8_t>(nonce.data(), nonce_len),
+                                                           std::span<const uint8_t> {},
+                                                           std::span<const uint8_t>(plaintext.data(), plaintext.size()),
+                                                           std::span<uint8_t>(ciphertext.data(), ciphertext.size()),
+                                                           ciphertext_len));
+        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER,
+                  crypto::default_crypto().aes_ccm_decrypt(std::span<const uint8_t, crypto::aes_key_size>(key.data(), crypto::aes_key_size),
+                                                           tag_len,
+                                                           std::span<const uint8_t>(nonce.data(), nonce_len),
+                                                           std::span<const uint8_t> {},
+                                                           std::span<const uint8_t>(ciphertext.data(), ciphertext.size()),
+                                                           std::span<uint8_t>(ciphertext.data(), ciphertext.size()),
+                                                           ciphertext_len));
     }
-    EXPECT_EQ(SL_STATUS_OK, crypto_aes_ccm_encrypt(key.data(), 8, nonce.data(), 13, nullptr, 0, plaintext.data(), plaintext.size(), ciphertext.data(), ciphertext.size(), &ciphertext_len));
+    EXPECT_EQ(SL_STATUS_OK,
+              crypto::default_crypto().aes_ccm_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key.data(), crypto::aes_key_size),
+                                                       8,
+                                                       std::span<const uint8_t>(nonce.data(), 13),
+                                                       std::span<const uint8_t> {},
+                                                       std::span<const uint8_t>(plaintext.data(), plaintext.size()),
+                                                       std::span<uint8_t>(ciphertext.data(), ciphertext.size()),
+                                                       ciphertext_len));
     EXPECT_EQ(plaintext.size() + 8, ciphertext_len);
 }
 
 TEST_F(AesCcm, RejectsUndersizedOutputBuffers)
 {
-    const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
+    const std::array<uint8_t, crypto::aes_key_size> key {};
     const std::array<uint8_t, S2_CCM_NONCE_LEN> nonce {};
     const std::array<uint8_t, 2> plaintext {0x42, 0x24};
     std::array<uint8_t, 10> ciphertext {};
     size_t length = 0;
-    EXPECT_EQ(SL_STATUS_FAIL, crypto_aes_ccm_encrypt(key.data(), 8, nonce.data(), nonce.size(), nullptr, 0, plaintext.data(), plaintext.size(), ciphertext.data(), ciphertext.size() - 1, &length));
+    EXPECT_EQ(SL_STATUS_FAIL,
+              crypto::default_crypto().aes_ccm_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key.data(), crypto::aes_key_size),
+                                                       8,
+                                                       std::span<const uint8_t>(nonce.data(), nonce.size()),
+                                                       std::span<const uint8_t> {},
+                                                       std::span<const uint8_t>(plaintext.data(), plaintext.size()),
+                                                       std::span<uint8_t>(ciphertext.data(), ciphertext.size() - 1),
+                                                       length));
     EXPECT_EQ(0U, length);
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_encrypt(key.data(), 8, nonce.data(), nonce.size(), nullptr, 0, plaintext.data(), plaintext.size(), ciphertext.data(), ciphertext.size(), &length));
+    ASSERT_EQ(SL_STATUS_OK,
+              crypto::default_crypto().aes_ccm_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key.data(), crypto::aes_key_size),
+                                                       8,
+                                                       std::span<const uint8_t>(nonce.data(), nonce.size()),
+                                                       std::span<const uint8_t> {},
+                                                       std::span<const uint8_t>(plaintext.data(), plaintext.size()),
+                                                       std::span<uint8_t>(ciphertext.data(), ciphertext.size()),
+                                                       length));
     ASSERT_EQ(ciphertext.size(), length);
     std::array<uint8_t, 2> recovered {};
-    EXPECT_EQ(SL_STATUS_FAIL, crypto_aes_ccm_decrypt(key.data(), 8, nonce.data(), nonce.size(), nullptr, 0, ciphertext.data(), ciphertext.size(), recovered.data(), recovered.size() - 1, &length));
+    EXPECT_EQ(SL_STATUS_FAIL,
+              crypto::default_crypto().aes_ccm_decrypt(std::span<const uint8_t, crypto::aes_key_size>(key.data(), crypto::aes_key_size),
+                                                       8,
+                                                       std::span<const uint8_t>(nonce.data(), nonce.size()),
+                                                       std::span<const uint8_t> {},
+                                                       std::span<const uint8_t>(ciphertext.data(), ciphertext.size()),
+                                                       std::span<uint8_t>(recovered.data(), recovered.size() - 1),
+                                                       length));
     EXPECT_EQ(0U, length);
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_decrypt(key.data(), 8, nonce.data(), nonce.size(), nullptr, 0, ciphertext.data(), ciphertext.size(), recovered.data(), recovered.size(), &length));
+    ASSERT_EQ(SL_STATUS_OK,
+              crypto::default_crypto().aes_ccm_decrypt(std::span<const uint8_t, crypto::aes_key_size>(key.data(), crypto::aes_key_size),
+                                                       8,
+                                                       std::span<const uint8_t>(nonce.data(), nonce.size()),
+                                                       std::span<const uint8_t> {},
+                                                       std::span<const uint8_t>(ciphertext.data(), ciphertext.size()),
+                                                       std::span<uint8_t>(recovered.data(), recovered.size()),
+                                                       length));
     EXPECT_EQ(plaintext.size(), length);
     EXPECT_EQ(plaintext, recovered);
 }
 
 TEST_F(AesCcm, AuthenticatesNonceAadCiphertextAndKey)
 {
-    const std::array<uint8_t, CRYPTO_AES_KEY_SIZE> key {};
+    const std::array<uint8_t, crypto::aes_key_size> key {};
     const std::array<uint8_t, S2_CCM_NONCE_LEN> nonce {};
     const std::array<uint8_t, 2> aad {0x01, 0x02};
     const std::array<uint8_t, 2> plaintext {0x42, 0x24};
     std::array<uint8_t, 10> ciphertext {};
     size_t length = 0;
-    ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_encrypt(key.data(), 8, nonce.data(), nonce.size(), aad.data(), aad.size(), plaintext.data(), plaintext.size(), ciphertext.data(), ciphertext.size(), &length));
+    ASSERT_EQ(SL_STATUS_OK,
+              crypto::default_crypto().aes_ccm_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key.data(), crypto::aes_key_size),
+                                                       8,
+                                                       std::span<const uint8_t>(nonce.data(), nonce.size()),
+                                                       std::span<const uint8_t>(aad.data(), aad.size()),
+                                                       std::span<const uint8_t>(plaintext.data(), plaintext.size()),
+                                                       std::span<uint8_t>(ciphertext.data(), ciphertext.size()),
+                                                       length));
     for (int tampered = 0; tampered < 4; ++tampered) {
         SCOPED_TRACE(tampered);
         auto changed_key        = key;
@@ -241,14 +347,26 @@ TEST_F(AesCcm, AuthenticatesNonceAadCiphertextAndKey)
                 break;
         }
         std::array<uint8_t, 2> recovered {0xa5, 0xa5};
-        EXPECT_EQ(SL_STATUS_INVALID_SIGNATURE, crypto_aes_ccm_decrypt(changed_key.data(), 8, changed_nonce.data(), changed_nonce.size(), changed_aad.data(), changed_aad.size(), changed_ciphertext.data(), changed_ciphertext.size(), recovered.data(), recovered.size(), &length));
+        EXPECT_EQ(SL_STATUS_INVALID_SIGNATURE,
+                  crypto::default_crypto().aes_ccm_decrypt(std::span<const uint8_t, crypto::aes_key_size>(changed_key.data(), crypto::aes_key_size),
+                                                           8,
+                                                           std::span<const uint8_t>(changed_nonce.data(), changed_nonce.size()),
+                                                           std::span<const uint8_t>(changed_aad.data(), changed_aad.size()),
+                                                           std::span<const uint8_t>(changed_ciphertext.data(), changed_ciphertext.size()),
+                                                           std::span<uint8_t>(recovered.data(), recovered.size()),
+                                                           length));
         EXPECT_EQ(0U, length);
-        ASSERT_EQ(SL_STATUS_OK, crypto_aes_ccm_decrypt(key.data(), 8, nonce.data(), nonce.size(), aad.data(), aad.size(), ciphertext.data(), ciphertext.size(), recovered.data(), recovered.size(), &length));
+        ASSERT_EQ(SL_STATUS_OK,
+                  crypto::default_crypto().aes_ccm_decrypt(std::span<const uint8_t, crypto::aes_key_size>(key.data(), crypto::aes_key_size),
+                                                           8,
+                                                           std::span<const uint8_t>(nonce.data(), nonce.size()),
+                                                           std::span<const uint8_t>(aad.data(), aad.size()),
+                                                           std::span<const uint8_t>(ciphertext.data(), ciphertext.size()),
+                                                           std::span<uint8_t>(recovered.data(), recovered.size()),
+                                                           length));
         EXPECT_EQ(plaintext, recovered);
     }
 }
-
-#include "test_crypto_injection_fixture.hpp"
 
 TEST_F(AesCcmInjection, EncryptAndDecryptUseSameInjectedPsaWrappers)
 {

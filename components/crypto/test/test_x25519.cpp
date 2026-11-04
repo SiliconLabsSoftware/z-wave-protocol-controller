@@ -20,6 +20,7 @@
 
 #include "test_fixture.hpp"
 #include "crypto.hpp"
+#include "test_crypto_injection_fixture.hpp"
 
 #define KEY_SIZE 32U
 
@@ -35,27 +36,24 @@ namespace
     }
 }  // namespace
 
-// RFC 7748 Alice public key from fixed private key.
 TEST_F(X25519, Rfc7748AlicePublicKey)
 {
     const uint8_t expected_alice_public_key[KEY_SIZE] = {0x85, 0x20, 0xf0, 0x09, 0x89, 0x30, 0xa7, 0x54, 0x74, 0x8b, 0x7d, 0xdc, 0xb4, 0x3e, 0xf7, 0x5a, 0x0d, 0xbf, 0x3a, 0x0d, 0x26, 0x38, 0x1a, 0xf4, 0xeb, 0xa4, 0xa9, 0x8e, 0xaa, 0x9b, 0x4e, 0x6a};
     uint8_t alice_public_key[KEY_SIZE];
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_x25519_derive_public_key(alice_secret_key, alice_public_key));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().x25519_derive_public_key(std::span<const uint8_t, crypto::x25519_private_key_size>(alice_secret_key, crypto::x25519_private_key_size), std::span<uint8_t, crypto::x25519_public_key_size>(alice_public_key, crypto::x25519_public_key_size)));
     ExpectBytesEq(expected_alice_public_key, alice_public_key, KEY_SIZE);
 }
 
-// RFC 7748 Bob public key from fixed private key.
 TEST_F(X25519, Rfc7748BobPublicKey)
 {
     const uint8_t expected_bob_public_key[KEY_SIZE] = {0xde, 0x9e, 0xdb, 0x7d, 0x7b, 0x7d, 0xc1, 0xb4, 0xd3, 0x5b, 0x61, 0xc2, 0xec, 0xe4, 0x35, 0x37, 0x3f, 0x83, 0x43, 0xc8, 0x5b, 0x78, 0x67, 0x4d, 0xad, 0xfc, 0x7e, 0x14, 0x6f, 0x88, 0x2b, 0x4f};
     uint8_t bob_public_key[KEY_SIZE];
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_x25519_derive_public_key(bob_secret_key, bob_public_key));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().x25519_derive_public_key(std::span<const uint8_t, crypto::x25519_private_key_size>(bob_secret_key, crypto::x25519_private_key_size), std::span<uint8_t, crypto::x25519_public_key_size>(bob_public_key, crypto::x25519_public_key_size)));
     ExpectBytesEq(expected_bob_public_key, bob_public_key, KEY_SIZE);
 }
 
-// RFC 7748 shared secret matches for Alice and Bob.
 TEST_F(X25519, Rfc7748SharedSecret)
 {
     const uint8_t expected_shared_secret[KEY_SIZE] = {0x4a, 0x5d, 0x9d, 0x5b, 0xa4, 0xce, 0x2d, 0xe1, 0x72, 0x8e, 0x3b, 0xf4, 0x80, 0x35, 0x0f, 0x25, 0xe0, 0x7e, 0x21, 0xc9, 0x47, 0xd1, 0x9e, 0x33, 0x76, 0xf0, 0x9b, 0x3c, 0x1e, 0x16, 0x17, 0x42};
@@ -64,27 +62,32 @@ TEST_F(X25519, Rfc7748SharedSecret)
     uint8_t shared_alice[KEY_SIZE];
     uint8_t shared_bob[KEY_SIZE];
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_x25519_derive_public_key(alice_secret_key, alice_public_key));
-    ASSERT_EQ(SL_STATUS_OK, crypto_x25519_derive_public_key(bob_secret_key, bob_public_key));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().x25519_derive_public_key(std::span<const uint8_t, crypto::x25519_private_key_size>(alice_secret_key, crypto::x25519_private_key_size), std::span<uint8_t, crypto::x25519_public_key_size>(alice_public_key, crypto::x25519_public_key_size)));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().x25519_derive_public_key(std::span<const uint8_t, crypto::x25519_private_key_size>(bob_secret_key, crypto::x25519_private_key_size), std::span<uint8_t, crypto::x25519_public_key_size>(bob_public_key, crypto::x25519_public_key_size)));
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_x25519_derive_shared_secret(alice_secret_key, bob_public_key, shared_alice));
-    ASSERT_EQ(SL_STATUS_OK, crypto_x25519_derive_shared_secret(bob_secret_key, alice_public_key, shared_bob));
+    ASSERT_EQ(SL_STATUS_OK,
+              crypto::default_crypto().x25519_derive_shared_secret(std::span<const uint8_t, crypto::x25519_private_key_size>(alice_secret_key, crypto::x25519_private_key_size),
+                                                                   std::span<const uint8_t, crypto::x25519_public_key_size>(bob_public_key, crypto::x25519_public_key_size),
+                                                                   std::span<uint8_t, crypto::x25519_shared_secret_size>(shared_alice, crypto::x25519_shared_secret_size)));
+    ASSERT_EQ(SL_STATUS_OK,
+              crypto::default_crypto().x25519_derive_shared_secret(std::span<const uint8_t, crypto::x25519_private_key_size>(bob_secret_key, crypto::x25519_private_key_size),
+                                                                   std::span<const uint8_t, crypto::x25519_public_key_size>(alice_public_key, crypto::x25519_public_key_size),
+                                                                   std::span<uint8_t, crypto::x25519_shared_secret_size>(shared_bob, crypto::x25519_shared_secret_size)));
 
     ExpectBytesEq(expected_shared_secret, shared_alice, KEY_SIZE);
     ExpectBytesEq(expected_shared_secret, shared_bob, KEY_SIZE);
 }
 
-// C++ X25519 API derives the RFC 7748 shared secret.
 TEST_F(X25519, DeriveSharedSecretCppApi)
 {
-    std::array<uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> alice_priv {};
+    std::array<uint8_t, crypto::x25519_private_key_size> alice_priv {};
     memcpy(alice_priv.data(), alice_secret_key, alice_priv.size());
-    std::array<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> bob_pub {};
-    std::array<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE> shared {};
+    std::array<uint8_t, crypto::x25519_public_key_size> bob_pub {};
+    std::array<uint8_t, crypto::x25519_shared_secret_size> shared {};
     const uint8_t expected_shared_secret[KEY_SIZE] = {0x4a, 0x5d, 0x9d, 0x5b, 0xa4, 0xce, 0x2d, 0xe1, 0x72, 0x8e, 0x3b, 0xf4, 0x80, 0x35, 0x0f, 0x25, 0xe0, 0x7e, 0x21, 0xc9, 0x47, 0xd1, 0x9e, 0x33, 0x76, 0xf0, 0x9b, 0x3c, 0x1e, 0x16, 0x17, 0x42};
 
-    ASSERT_EQ(SL_STATUS_OK, crypto_x25519_derive_public_key(bob_secret_key, bob_pub.data()));
-    ASSERT_EQ(SL_STATUS_OK, crypto::c_api().x25519_derive_shared_secret(alice_priv, bob_pub, shared));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().x25519_derive_public_key(std::span<const uint8_t, crypto::x25519_private_key_size>(bob_secret_key, crypto::x25519_private_key_size), std::span<uint8_t, crypto::x25519_public_key_size>(bob_pub.data(), crypto::x25519_public_key_size)));
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().x25519_derive_shared_secret(alice_priv, bob_pub, shared));
     ExpectBytesEq(expected_shared_secret, shared.data(), shared.size());
 }
 
@@ -96,32 +99,36 @@ TEST_F(X25519, RejectsLowOrderPeerPublicKeys)
         std::array<uint8_t, KEY_SIZE> peer {};
         std::array<uint8_t, KEY_SIZE> secret {};
         peer[0] = u;
-        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER, crypto_x25519_derive_shared_secret(alice_secret_key, peer.data(), secret.data()));
-        ASSERT_EQ(SL_STATUS_OK, crypto_x25519_derive_public_key(bob_secret_key, peer.data()));
-        EXPECT_EQ(SL_STATUS_OK, crypto_x25519_derive_shared_secret(alice_secret_key, peer.data(), secret.data()));
+        EXPECT_EQ(SL_STATUS_INVALID_PARAMETER,
+                  crypto::default_crypto().x25519_derive_shared_secret(std::span<const uint8_t, crypto::x25519_private_key_size>(alice_secret_key, crypto::x25519_private_key_size),
+                                                                       std::span<const uint8_t, crypto::x25519_public_key_size>(peer.data(), crypto::x25519_public_key_size),
+                                                                       std::span<uint8_t, crypto::x25519_shared_secret_size>(secret.data(), crypto::x25519_shared_secret_size)));
+        ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().x25519_derive_public_key(std::span<const uint8_t, crypto::x25519_private_key_size>(bob_secret_key, crypto::x25519_private_key_size), std::span<uint8_t, crypto::x25519_public_key_size>(peer.data(), crypto::x25519_public_key_size)));
+        EXPECT_EQ(SL_STATUS_OK,
+                  crypto::default_crypto().x25519_derive_shared_secret(std::span<const uint8_t, crypto::x25519_private_key_size>(alice_secret_key, crypto::x25519_private_key_size),
+                                                                       std::span<const uint8_t, crypto::x25519_public_key_size>(peer.data(), crypto::x25519_public_key_size),
+                                                                       std::span<uint8_t, crypto::x25519_shared_secret_size>(secret.data(), crypto::x25519_shared_secret_size)));
     }
 }
 
-#include "test_crypto_injection_fixture.hpp"
-
-TEST_F(X25519Injection, PublicKeyTranslatesInjectedExportFailure)
+TEST_F(X25519RealInjection, PublicKeyTranslatesInjectedExportFailure)
 {
-    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, ::testing::SizeIs(CRYPTO_X25519_PRIVATE_KEY_SIZE), _, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY), CRYPTO_X25519_KEY_BITS)).Times(1).WillRepeatedly(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::import_key));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, ::testing::SizeIs(crypto::x25519_private_key_size), _, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY), crypto::x25519_key_bits)).Times(1).WillRepeatedly(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::import_key));
     EXPECT_CALL(mock, export_public_key(_, _, _)).WillOnce(Return(PSA_ERROR_NOT_SUPPORTED));
     EXPECT_CALL(mock, destroy_key(_)).Times(1).WillRepeatedly(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::destroy_key));
-    const std::array<uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key {};
-    std::array<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key {};
+    const std::array<uint8_t, crypto::x25519_private_key_size> private_key {};
+    std::array<uint8_t, crypto::x25519_public_key_size> public_key {};
     EXPECT_EQ(SL_STATUS_NOT_SUPPORTED, algorithms.x25519_derive_public_key(private_key, public_key));
 }
 
-TEST_F(X25519Injection, SharedSecretTranslatesInjectedAgreementFailure)
+TEST_F(X25519RealInjection, SharedSecretTranslatesInjectedAgreementFailure)
 {
-    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, ::testing::SizeIs(CRYPTO_X25519_PRIVATE_KEY_SIZE), _, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY), CRYPTO_X25519_KEY_BITS)).Times(1).WillRepeatedly(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::import_key));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, ::testing::SizeIs(crypto::x25519_private_key_size), _, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY), crypto::x25519_key_bits)).Times(1).WillRepeatedly(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::import_key));
     EXPECT_CALL(mock, raw_key_agreement(PSA_ALG_ECDH, _, _, _, _)).WillOnce(Return(PSA_ERROR_INVALID_ARGUMENT));
     EXPECT_CALL(mock, destroy_key(_)).Times(1).WillRepeatedly(Invoke(&real_psa_wrappers, &crypto::PsaWrappers::destroy_key));
-    const std::array<uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key {};
-    std::array<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key {};
-    std::array<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE> shared_secret {};
+    const std::array<uint8_t, crypto::x25519_private_key_size> private_key {};
+    std::array<uint8_t, crypto::x25519_public_key_size> public_key {};
+    std::array<uint8_t, crypto::x25519_shared_secret_size> shared_secret {};
     crypto::Crypto production(real_psa_wrappers);
     ASSERT_EQ(SL_STATUS_OK, production.x25519_derive_public_key(private_key, public_key));
 
@@ -130,21 +137,21 @@ TEST_F(X25519Injection, SharedSecretTranslatesInjectedAgreementFailure)
 
 TEST_F(X25519Injection, ReturnsInjectedImportFailure)
 {
-    const std::array<uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key {};
-    std::array<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key {};
-    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, SameBuffer(std::span(private_key)), _, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY), CRYPTO_X25519_KEY_BITS)).WillOnce(Return(PSA_ERROR_INSUFFICIENT_MEMORY));
+    const std::array<uint8_t, crypto::x25519_private_key_size> private_key {};
+    std::array<uint8_t, crypto::x25519_public_key_size> public_key {};
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, SameBuffer(std::span(private_key)), _, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY), crypto::x25519_key_bits)).WillOnce(Return(PSA_ERROR_INSUFFICIENT_MEMORY));
 
     EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.x25519_derive_public_key(private_key, public_key));
 }
 
 TEST_F(X25519Injection, SharedSecretReturnsImportFailure)
 {
-    const std::array<uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key {};
-    const std::array<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key {};
-    std::array<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE> shared_secret;
+    const std::array<uint8_t, crypto::x25519_private_key_size> private_key {};
+    const std::array<uint8_t, crypto::x25519_public_key_size> public_key {};
+    std::array<uint8_t, crypto::x25519_shared_secret_size> shared_secret;
     shared_secret.fill(0xa5);
     const auto original_output = shared_secret;
-    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, SameBuffer(std::span(private_key)), _, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY), CRYPTO_X25519_KEY_BITS)).WillOnce(Return(PSA_ERROR_INSUFFICIENT_MEMORY));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, SameBuffer(std::span(private_key)), _, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY), crypto::x25519_key_bits)).WillOnce(Return(PSA_ERROR_INSUFFICIENT_MEMORY));
 
     EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.x25519_derive_shared_secret(private_key, public_key, shared_secret));
     EXPECT_EQ(original_output, shared_secret);
@@ -152,13 +159,13 @@ TEST_F(X25519Injection, SharedSecretReturnsImportFailure)
 
 TEST_F(X25519Injection, PublicKeyChecksOutputLengthAndReleasesKey)
 {
-    const std::array<uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key {};
-    std::array<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key {};
-    for (const size_t length: {size_t {0}, size_t {CRYPTO_X25519_PUBLIC_KEY_SIZE - 1}, size_t {CRYPTO_X25519_PUBLIC_KEY_SIZE + 1}}) {
+    const std::array<uint8_t, crypto::x25519_private_key_size> private_key {};
+    std::array<uint8_t, crypto::x25519_public_key_size> public_key {};
+    for (const size_t length: {size_t {0}, size_t {crypto::x25519_public_key_size - 1}, size_t {crypto::x25519_public_key_size + 1}}) {
         SCOPED_TRACE(length);
         ::testing::InSequence sequence;
         EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
-        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, SameBuffer(std::span(private_key)), _, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY), CRYPTO_X25519_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, SameBuffer(std::span(private_key)), _, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY), crypto::x25519_key_bits)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
         EXPECT_CALL(mock, export_public_key(42, SameBuffer(std::span(public_key)), _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<2>(length), Return(PSA_SUCCESS)));
         EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
 
@@ -168,14 +175,14 @@ TEST_F(X25519Injection, PublicKeyChecksOutputLengthAndReleasesKey)
 
 TEST_F(X25519Injection, SharedSecretChecksOutputLengthAndReleasesKey)
 {
-    const std::array<uint8_t, CRYPTO_X25519_PRIVATE_KEY_SIZE> private_key {};
-    const std::array<uint8_t, CRYPTO_X25519_PUBLIC_KEY_SIZE> public_key {};
-    std::array<uint8_t, CRYPTO_X25519_SHARED_SECRET_SIZE> shared_secret {};
-    for (const size_t length: {size_t {0}, size_t {CRYPTO_X25519_SHARED_SECRET_SIZE - 1}, size_t {CRYPTO_X25519_SHARED_SECRET_SIZE + 1}}) {
+    const std::array<uint8_t, crypto::x25519_private_key_size> private_key {};
+    const std::array<uint8_t, crypto::x25519_public_key_size> public_key {};
+    std::array<uint8_t, crypto::x25519_shared_secret_size> shared_secret {};
+    for (const size_t length: {size_t {0}, size_t {crypto::x25519_shared_secret_size - 1}, size_t {crypto::x25519_shared_secret_size + 1}}) {
         SCOPED_TRACE(length);
         ::testing::InSequence sequence;
         EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
-        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, SameBuffer(std::span(private_key)), _, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY), CRYPTO_X25519_KEY_BITS)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+        EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH, SameBuffer(std::span(private_key)), _, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY), crypto::x25519_key_bits)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
         EXPECT_CALL(mock, raw_key_agreement(PSA_ALG_ECDH, 42, SameBuffer(std::span(public_key)), SameBuffer(std::span(shared_secret)), _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<4>(length), Return(PSA_SUCCESS)));
         EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
 
