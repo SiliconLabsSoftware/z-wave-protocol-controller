@@ -71,6 +71,7 @@ namespace
     // Private variable indicating if a Tx Queue flush is ongoing
     // Atomic to allow safe access from multiple threads
     std::atomic<bool> queue_flush_ongoing {false};
+    std::atomic<bool> backoff_timer_expired {false};
     // The frame currently being handled
     zwave_tx_session_id_t current_tx_session_id;
     // Map of NodeIDs and the number of frames that we expect from Nodes in our network.
@@ -262,13 +263,13 @@ static void zwave_tx_resume_from_backoff_step()
 
 static void zwave_tx_process_backoff_timer_callback(void *ptr)
 {
-    sl_log_debug(LOG_TAG, "Tx backoff timer expired. Posting event to resume from back-off.\n");
-    // Post event to the zwave_tx_process thread instead of directly modifying
-    // shared state. Timer callbacks execute in the timer manager's worker thread,
-    // so we must use the event queue to safely access shared state.
-    if (zwave_tx_process_instance != nullptr) {
-        zwave_tx_process_instance->post_event(ZWAVE_TX_BACKOFF_TIMER_EXPIRED, nullptr);
-    }
+    (void)ptr;
+    sl_log_debug(LOG_TAG, "Tx backoff timer expired. Signaling TX process to resume from back-off.\n");
+    // Do not take the TX event-queue mutex here: the timer worker has just
+    // acquired the timer mutex, and the TX thread acquires the queue mutex
+    // then the timer mutex. That lock order inverts and TSan reports a
+    // potential deadlock.
+    backoff_timer_expired.store(true);
 }
 
 /**
@@ -1215,10 +1216,17 @@ namespace zwave_component
             initialize_internal();
         }
 
+        if (backoff_timer_expired.exchange(false)) {
+            zwave_tx_resume_from_backoff_step();
+        }
+
         // Use 100ms timeout to allow periodic checks for should_stop()
         auto event = event_queue.pop(100);
         if (event.has_value()) {
             handle_event(event.value());
+        }
+        if (backoff_timer_expired.exchange(false)) {
+            zwave_tx_resume_from_backoff_step();
         }
 
         static auto last_stall_diag_log = std::chrono::steady_clock::now();
