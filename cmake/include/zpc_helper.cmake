@@ -25,16 +25,6 @@ function(collect_object_files TARGET TARGET_OBJS EXCLUDES)
   endif()
 endfunction()
 
-# helper tags to pack static libraries as a whole library. meaning all symbols
-# are imported.
-if(APPLE)
-  set(WHOLE_ARCHIVE_START -Wl,-undefined -Wl,dynamic_lookup -Wl,-all_load)
-  set(WHOLE_ARCHIVE_END "")
-else()
-  set(WHOLE_ARCHIVE_START -Wl,--whole-archive)
-  set(WHOLE_ARCHIVE_END -Wl,--no-whole-archive)
-endif()
-
 # This function is able to collect a bunch of static liberries (.a) and bundle
 # them into a shared library. All libraries must be defined cmake targets, ie
 # defined using the add_library() command
@@ -68,8 +58,10 @@ function(zpc_add_shared_library)
   add_library(${LIBNAME} SHARED ${DUMMYFILE})
   add_dependencies(${LIBNAME} ${LIBS})
   target_include_directories(${LIBNAME} PUBLIC ${target-includes})
-  target_link_options(${LIBNAME} PRIVATE ${WHOLE_ARCHIVE_START}
-                      ${GENERATOR_EXPRS} ${WHOLE_ARCHIVE_END})
+  # Explicit objects retain every symbol; normal linkage supplies their dependencies
+  # without force-loading duplicate objects from transitive static archives.
+  target_link_options(${LIBNAME} PRIVATE ${GENERATOR_EXPRS})
+  target_link_libraries(${LIBNAME} PRIVATE ${LIBS})
 endfunction()
 if(NOT TARGET sl_status_strings_lib)
   set(SL_STATUS_STRINGS_SCRIPT "")
