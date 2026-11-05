@@ -49,6 +49,14 @@ if [[ "$(uname -s)" == Darwin ]]; then
   sdk="$(xcrun --show-sdk-path)"
   extra=(-extra-arg=-isysroot"$sdk" -extra-arg=-isystem"$sdk/usr/include/c++/v1")
 fi
+if [[ "${GITHUB_ACTIONS:-}" != "true" ]]; then
+  extra+=(-extra-arg=-fno-caret-diagnostics)
+  exec python3 ci/scripts/run_clang_tidy_local.py \
+    --compile-db "build/$preset/compile_commands.json" \
+    -- \
+    "$runner" -p "build/$preset" -j "$jobs" -config-file=.clang-tidy \
+    -clang-tidy-binary="$tidy" "${extra[@]}" -quiet applications components
+fi
 
 exec "$runner" -p "build/$preset" -j "$jobs" -config-file=.clang-tidy \
   -clang-tidy-binary="$tidy" "${extra[@]}" -quiet applications components
