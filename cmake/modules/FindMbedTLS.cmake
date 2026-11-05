@@ -4,6 +4,7 @@ if(NOT TARGET MbedTLS::tfpsacrypto)
   message(NOTICE "-- Finding Mbed TLS (FetchContent ${MbedTLS_VERSION})")
 
   include(FetchContent)
+  include(${CMAKE_CURRENT_LIST_DIR}/../include/external_compiler_flags.cmake)
   if(POLICY CMP0135)
     cmake_policy(SET CMP0135 NEW)
   endif()
@@ -16,13 +17,9 @@ if(NOT TARGET MbedTLS::tfpsacrypto)
   set(ENABLE_TESTING OFF CACHE BOOL "" FORCE)
   set(LINK_WITH_PTHREAD ON CACHE BOOL "" FORCE)
 
-  get_directory_property(_compile_options COMPILE_OPTIONS)
-  add_compile_options(-w)
-
+  zpc_push_external_compiler_flags()
   FetchContent_MakeAvailable(mbedtls)
-
-  set_directory_properties(PROPERTIES COMPILE_OPTIONS "${_compile_options}")
-  unset(_compile_options)
+  zpc_pop_external_compiler_flags()
 
   add_library(MbedTLS::tfpsacrypto ALIAS tfpsacrypto)
 endif()
