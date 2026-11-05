@@ -18,6 +18,7 @@ target_link_libraries(
   PUBLIC
     command_class_common
     command_class_user_code_interface
+    command_class_user_credential_interface
 )
 
 add_subdirectory(interface)

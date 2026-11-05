@@ -10,6 +10,8 @@
         '_reset': 'set',
         '_start_level_change': 'set',
         '_stop_level_change': 'set',
+        '_learn_start': 'set',
+        '_learn_cancel': 'set',
         'wake_up_no_more_information': 'set',
         '_report': 'report',
         '_notification': 'report'
@@ -55,6 +57,8 @@
        "SENSOR_MULTILEVEL_SUPPORTED_SCALE_REPORT": "SENSOR_MULTILEVEL_SUPPORTED_GET_SCALE",
        "SENSOR_BINARY_SUPPORTED_SENSOR_REPORT": "SENSOR_BINARY_SUPPORTED_GET_SENSOR",
        "THERMOSTAT_OPERATING_LOGGING_SUPPORTED_REPORT": "THERMOSTAT_OPERATING_STATE_LOGGING_SUPPORTED_GET",
+       "CREDENTIAL_LEARN_REPORT": "CREDENTIAL_LEARN_START",
+       "USER_CREDENTIAL_ASSOCIATION_REPORT": "USER_CREDENTIAL_ASSOCIATION_SET",
     } %}
     {{ command_map | as_json }}
 {% endmacro %}

@@ -28,7 +28,7 @@
 
 {# Remaining-bytes VG (paramOffs=255): stop before fixed trailing fields that belong to this or later CC versions. #}
 {% macro parse_remaining_variant_group(command, attribute, attribute_index) %}
-{% set variant_group_name = command.name | lower + "_" + attribute.name + "_t" %}
+{% set variant_group_name = command.name | lower + "_" + utils.create_variable_name(attribute.name) + "_t" %}
 {% set trailing = namespace(has_fixed=false) %}
 {% for later in command.params[attribute_index + 1:] %}
     {% set t = later.type | lower %}
@@ -92,7 +92,7 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
         {% for attribute in command.params %}
             {% if version == attribute.min_version %}
                 {% if attribute.type | lower == "variant_group" %}
-                    {% set variant_group_name.value = command.name | lower + "_" + attribute.name + "_t" %}
+                    {% set variant_group_name.value = command.name | lower + "_" + utils.create_variable_name(attribute.name) + "_t" %}
                     {{variant_group_name.value}} {{utils.create_variable_name(attribute.name)}} = {};
                 {% elif attribute.type | lower == "variant" %}
                     {% set populated_type      = utils.create_variable_name(attribute.name) %}
@@ -190,15 +190,22 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
                             uint16_t {{utils.create_variable_name(attribute.name)}}_size = ({{utils.create_variable_name(command.params[attribute.fields[0].paramoffs].name)}} & {{attribute.fields[0].len_mask}});
                         {% endif %}
                     {% else %}
+                        {% if attribute.fields[0].bitmask_length is not none %}
+                        uint16_t {{utils.create_variable_name(attribute.name)}}_size = {{attribute.fields[0].bitmask_length}};
+                        {% else %}
                         uint16_t {{utils.create_variable_name(attribute.name)}}_size = frame_length - read_bytes;
+                        {% endif %}
                     {% endif %}
                     {{utils.create_variable_name(attribute.name)}} = frame_parser.read_sequential<{{utils.convert_zwave_type_to_cpp_type(attribute.type)}}>({{utils.create_variable_name(attribute.name)}}_size);
+                    {% if attribute.fields[0].paramoffs >= (command.params | length) %}
+                    read_bytes += {{utils.create_variable_name(attribute.name)}}_size;
+                    {% endif %}
                     
                 {% elif attribute.type | lower == "bit_24" %}
                     {{utils.create_variable_name(attribute.name)}} = frame_parser.read_sequential<uint32_t>(3);
                     read_bytes += 3;
                 {% elif attribute.type | lower == "variant_group" %}
-                    {% set variant_group_name = command.name | lower + "_" + attribute.name + "_t" %}
+                    {% set variant_group_name = command.name | lower + "_" + utils.create_variable_name(attribute.name) + "_t" %}
                     {% if attribute.param_offset != 255 %}
                         {% if command.params[attribute.param_offset].type | lower == "byte" %}
                             uint16_t {{variant_group_name}}_size = {{utils.create_variable_name(command.params[attribute.param_offset].name)}} & {{attribute.size_mask}};
@@ -259,7 +266,7 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
             {% elif attribute.type | lower != "marker" %}
                 {% if attribute.type | lower == "variant_group" %}
                     {% if version == attribute.min_version %}
-                        {% set variant_group_name.value = command.name | lower + "_" + attribute.name + "_t" %}
+                        {% set variant_group_name.value = command.name | lower + "_" + utils.create_variable_name(attribute.name) + "_t" %}
                         attribute_map.insert({"{{utils.create_variable_name(attribute.name)}}", {{utils.create_variable_name(attribute.name)}}});
                     {% endif %}
                 {% else %}
@@ -411,7 +418,7 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
         {% for attribute in command.params %}
             {% if version == attribute.min_version %}
                 {% if attribute.type | lower == "variant_group" %}
-                    {% set variant_group_name = command.name | lower + "_" + attribute.name + "_t" %}
+                    {% set variant_group_name = command.name | lower + "_" + utils.create_variable_name(attribute.name) + "_t" %}
                     {{variant_group_name}} {{utils.create_variable_name(attribute.name)}} = {};
                 {% elif attribute.type | lower == "variant" %}
                     {% set populated_type      = utils.create_variable_name(attribute.name) %}
@@ -472,7 +479,7 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
                     read_bytes += 3;
                 {% elif attribute.type | lower == "variant_group" %}
                     {% if attribute.param_offset != 255 %}
-                        {% set variant_group_name = command.name | lower + "_" + attribute.name + "_t" %}
+                        {% set variant_group_name = command.name | lower + "_" + utils.create_variable_name(attribute.name) + "_t" %}
                         {% if command.params[attribute.param_offset].type | lower == "struct_byte" %}
                             uint16_t {{variant_group_name}}_size = ({{utils.create_variable_name(command.params[attribute.param_offset].name)}}.value & {{attribute.size_mask}});
                         {% else %}
