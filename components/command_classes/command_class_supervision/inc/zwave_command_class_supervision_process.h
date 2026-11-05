@@ -151,6 +151,12 @@ void zwave_command_class_supervision_set_next_session_id(uint8_t session_id);
  */
 void zwave_command_class_supervision_on_node_deleted(zwave_node_id_t node_id);
 
+/**
+ * @brief Applies an incoming Supervision Report under the session lock, then
+ *        re-arms the timer without holding that lock.
+ */
+sl_status_t zwave_command_class_supervision_handle_incoming_report(zwave_node_id_t node_id, zwave_endpoint_id_t endpoint_id, uint8_t session_id, uint8_t status, uint8_t more_status_updates, clock_time_t expiry_time);
+
 #ifdef __cplusplus
 
 // Forward declaration

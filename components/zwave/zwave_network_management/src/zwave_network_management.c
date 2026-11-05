@@ -49,7 +49,7 @@ void zwave_network_management_enable_smart_start_learn_mode(bool enabled)
 
 zwave_network_management_state_t zwave_network_management_get_state()
 {
-    return nms.state;
+    return nm_state_load();
 }
 
 zwave_network_management_activity_t zwave_network_management_get_activity(zwave_network_management_state_t state)
@@ -117,11 +117,11 @@ sl_status_t zwave_network_management_add_node_with_dsk(const zwave_dsk_t dsk, zw
 sl_status_t zwave_network_management_set_default()
 {
     // If assigning return routes, just abort this
-    if (nms.state == NM_ASSIGNING_RETURN_ROUTE) {
+    if (nm_state_load() == NM_ASSIGNING_RETURN_ROUTE) {
         zwave_network_management_return_route_clear_queue();
-        nms.state = NM_IDLE;
+        nm_state_store(NM_IDLE);
     }
-    if (nms.state != NM_IDLE) {
+    if (nm_state_load() != NM_IDLE) {
         sl_log_info(LOG_TAG,
                     "Network management is busy. "
                     "Ignoring Set Default request.\n");
@@ -143,7 +143,9 @@ sl_status_t zwave_network_management_remove_failed(zwave_node_id_t node_id)
         return SL_STATUS_FAIL;
     }
 
-    if (!ZW_IS_NODE_IN_MASK(node_id, nms.cached_node_list)) {
+    zwave_nodemask_t node_list = {};
+    network_management_copy_cached_node_list(node_list);
+    if (!ZW_IS_NODE_IN_MASK(node_id, node_list)) {
         sl_log_info(LOG_TAG,
                     "NodeID %d is not part of the network. "
                     "Ignoring Remove Failed node request.\n",
@@ -182,7 +184,7 @@ static sl_status_t zwave_network_management_stop_add_mode()
     // Checking if the network management operation is in NM_WAITING_FOR_ADD state,
     // and if it does, we stop adding process before Z-Wave Serial API sends
     // ADD_NODE_STATUS_NODE_FOUND event.
-    if (nms.state == NM_WAITING_FOR_ADD) {
+    if (nm_state_load() == NM_WAITING_FOR_ADD) {
         sl_log_info(LOG_TAG, "Aborting a Z-Wave add node operation\n");
         zwave_network_management_post_event(NM_EV_ABORT, 0);
         return SL_STATUS_OK;
@@ -196,7 +198,7 @@ sl_status_t zwave_network_management_abort()
         return SL_STATUS_OK;
     }
 
-    if (nms.state != NM_IDLE) {
+    if (nm_state_load() != NM_IDLE) {
         sl_log_info(LOG_TAG, "Aborting ongoing Z-Wave Network Management operation\n");
         zwave_network_management_post_event(NM_EV_ABORT, 0);
         return SL_STATUS_OK;
@@ -221,7 +223,7 @@ sl_status_t zwave_network_management_add_node()
 
 sl_status_t zwave_network_management_keys_set(bool accept, bool csa, zwave_keyset_t granted_keys)
 {
-    if ((nms.state != NM_WAIT_FOR_SECURE_ADD) || (nms.expected_s2_user_input != NM_S2_USER_INPUT_GRANT_KEYS)) {
+    if ((nm_state_load() != NM_WAIT_FOR_SECURE_ADD) || (nms.expected_s2_user_input != NM_S2_USER_INPUT_GRANT_KEYS)) {
         sl_log_error(LOG_TAG,
                      "The Network Management S2 key set operation will not be performed "
                      "since a key response is not expected.\n");
@@ -237,7 +239,7 @@ sl_status_t zwave_network_management_keys_set(bool accept, bool csa, zwave_keyse
 
 sl_status_t zwave_network_management_dsk_set(zwave_dsk_t dsk)
 {
-    if ((nms.state != NM_WAIT_FOR_SECURE_ADD) || (nms.expected_s2_user_input != NM_S2_USER_INPUT_ACCEPT_DSK)) {
+    if ((nm_state_load() != NM_WAIT_FOR_SECURE_ADD) || (nms.expected_s2_user_input != NM_S2_USER_INPUT_ACCEPT_DSK)) {
         sl_log_error(LOG_TAG,
                      "The Network Management S2 DSK set operation will not be performed "
                      "since a DSK response is not expected.\n");
@@ -252,7 +254,7 @@ sl_status_t zwave_network_management_dsk_set(zwave_dsk_t dsk)
 sl_status_t zwave_network_management_learn_mode(zwave_learn_mode_t mode)
 {
     if (mode == ZWAVE_NETWORK_MANAGEMENT_LEARN_NONE) {
-        if (nms.state == NM_LEARN_MODE) {
+        if (nm_state_load() == NM_LEARN_MODE) {
             zwave_network_management_post_event(NM_EV_ABORT, 0);
         }
         return SL_STATUS_OK;
@@ -279,7 +281,7 @@ bool zwave_network_management_is_zpc_sis()
 
 bool zwave_network_management_is_protocol_sending_frames_to_node(zwave_node_id_t node_id)
 {
-    return (we_have_return_routes_to_assign(node_id) || (nms.state == NM_NEIGHBOR_DISCOVERY_ONGOING && nms.node_id_being_handled == node_id));
+    return (we_have_return_routes_to_assign(node_id) || (nm_state_load() == NM_NEIGHBOR_DISCOVERY_ONGOING && nms.node_id_being_handled == node_id));
 }
 
 sl_status_t zwave_network_management_request_node_neighbor_discovery(zwave_node_id_t node_id)
@@ -327,7 +329,7 @@ sl_status_t zwave_network_management_assign_return_route(zwave_node_id_t node_id
 
 bool zwave_network_management_is_busy()
 {
-    if (nms.state != NM_IDLE) {
+    if (nm_state_load() != NM_IDLE) {
         return true;
     }
     return false;
@@ -335,19 +337,21 @@ bool zwave_network_management_is_busy()
 
 zwave_home_id_t zwave_network_management_get_home_id()
 {
-    return nms.cached_home_id;
+    return nm_cached_home_id_load();
 }
 
 zwave_node_id_t zwave_network_management_get_node_id()
 {
-    return nms.cached_local_node_id;
+    return nm_cached_node_id_load();
 }
 
 uint16_t zwave_network_management_get_network_size()
 {
-    uint16_t number_of_nodes = 0;
+    uint16_t number_of_nodes   = 0;
+    zwave_nodemask_t node_list = {};
+    network_management_copy_cached_node_list(node_list);
     for (zwave_node_id_t n = ZW_MIN_NODE_ID; n <= ZW_LR_MAX_NODE_ID; n++) {
-        if (ZW_IS_NODE_IN_MASK(n, nms.cached_node_list)) {
+        if (ZW_IS_NODE_IN_MASK(n, node_list)) {
             number_of_nodes += 1;
         }
     }
@@ -357,7 +361,7 @@ uint16_t zwave_network_management_get_network_size()
 
 void zwave_network_management_get_network_node_list(zwave_nodemask_t node_list)
 {
-    memcpy(node_list, nms.cached_node_list, sizeof(zwave_nodemask_t));
+    network_management_copy_cached_node_list(node_list);
 }
 
 zwave_keyset_t zwave_network_management_get_granted_keys()

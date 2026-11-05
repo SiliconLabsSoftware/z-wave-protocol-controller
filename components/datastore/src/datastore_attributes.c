@@ -295,12 +295,16 @@ sl_status_t datastore_fetch_attribute(datastore_attribute_id_t id, uint32_t *typ
         // Reported value
         const uint8_t *value_buffer = (const uint8_t *)sqlite3_column_blob(select_statement, 3);
         *reported_value_size        = (uint8_t)sqlite3_column_bytes(select_statement, 3);
-        memcpy(reported_value, value_buffer, *reported_value_size);
+        if (*reported_value_size > 0) {
+            memcpy(reported_value, value_buffer, *reported_value_size);
+        }
 
         // Desired value
         value_buffer        = (const uint8_t *)sqlite3_column_blob(select_statement, 4);
         *desired_value_size = (uint8_t)sqlite3_column_bytes(select_statement, 4);
-        memcpy(desired_value, value_buffer, *desired_value_size);
+        if (*desired_value_size > 0) {
+            memcpy(desired_value, value_buffer, *desired_value_size);
+        }
 
         status = SL_STATUS_OK;
     } else {
@@ -332,12 +336,16 @@ sl_status_t datastore_fetch_all_attributes(datastore_attribute_t *attribute)
         // Reported value
         const uint8_t *value_buffer    = (const uint8_t *)sqlite3_column_blob(select_all_statement, 3);
         attribute->reported_value_size = (uint8_t)sqlite3_column_bytes(select_all_statement, 3);
-        memcpy(attribute->reported_value, value_buffer, attribute->reported_value_size);
+        if (attribute->reported_value_size > 0) {
+            memcpy(attribute->reported_value, value_buffer, attribute->reported_value_size);
+        }
 
         // Desired value
         value_buffer                  = (const uint8_t *)sqlite3_column_blob(select_all_statement, 4);
         attribute->desired_value_size = (uint8_t)sqlite3_column_bytes(select_all_statement, 4);
-        memcpy(attribute->desired_value, value_buffer, attribute->desired_value_size);
+        if (attribute->desired_value_size > 0) {
+            memcpy(attribute->desired_value, value_buffer, attribute->desired_value_size);
+        }
 
         return SL_STATUS_IN_PROGRESS;
     }  // We are done iterating
@@ -377,12 +385,16 @@ sl_status_t datastore_fetch_attribute_child(datastore_attribute_id_t parent_id, 
         // Get a pointer from sqlite and copy the data to the user pointer
         const uint8_t *value_buffer = (const uint8_t *)sqlite3_column_blob(select_child_index_statement, 2);
         *reported_value_size        = (uint8_t)sqlite3_column_bytes(select_child_index_statement, 2);
-        memcpy(reported_value, value_buffer, *reported_value_size);
+        if (*reported_value_size > 0) {
+            memcpy(reported_value, value_buffer, *reported_value_size);
+        }
 
         // Same thing for the desired value
         value_buffer        = sqlite3_column_blob(select_child_index_statement, 3);
         *desired_value_size = (uint8_t)sqlite3_column_bytes(select_child_index_statement, 3);
-        memcpy(desired_value, value_buffer, *desired_value_size);
+        if (*desired_value_size > 0) {
+            memcpy(desired_value, value_buffer, *desired_value_size);
+        }
         status = SL_STATUS_OK;
     } else {
         // No result was found for the parent_id / child_index

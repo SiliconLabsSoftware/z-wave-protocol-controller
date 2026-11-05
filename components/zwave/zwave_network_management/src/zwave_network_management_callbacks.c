@@ -38,7 +38,7 @@ void on_learn_mode_callback(LEARN_INFO *learn_mode_info)
             // If we were in SmartStart learn mode (which keeps the nms state to IDLE)
             // change the nms state from IDLE to LEARN_MODE
             if (nms.learn_mode_intent == ZWAVE_NETWORK_MANAGEMENT_LEARN_SMART_START) {
-                nms.state = NM_LEARN_MODE;
+                nm_state_store(NM_LEARN_MODE);
             }
 
             break;

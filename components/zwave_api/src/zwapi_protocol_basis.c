@@ -431,9 +431,9 @@ sl_status_t zwapi_send_node_information(zwave_node_id_t destNode, uint8_t txOpti
     uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     zwapi_write_node_id(request_buffer, &index, destNode);
-    request_buffer[index++]              = txOptions;
-    request_buffer[index++]              = func_id;  // Func id for CompletedFunc
-    zwapi_send_node_information_callback = completedFunc;
+    request_buffer[index++] = txOptions;
+    request_buffer[index++] = func_id;  // Func id for CompletedFunc
+    ZWAPI_CALLBACK_STORE(zwapi_send_node_information_callback, completedFunc);
     return zwapi_send_command(FUNC_ID_ZW_SEND_NODE_INFORMATION, request_buffer, index);
 }
 
@@ -445,8 +445,8 @@ sl_status_t zwapi_send_test_frame(zwave_node_id_t destination_node_id, rf_power_
     uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
     uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
 
-    func_id                        = (callback_function == NULL ? 0 : 4);
-    zwapi_send_test_frame_callback = callback_function;
+    func_id = (callback_function == NULL ? 0 : 4);
+    ZWAPI_CALLBACK_STORE(zwapi_send_test_frame_callback, callback_function);
     zwapi_write_node_id(request_buffer, &index, destination_node_id);
     request_buffer[index++]         = (uint8_t)power_level;
     request_buffer[index++]         = func_id;
@@ -455,6 +455,7 @@ sl_status_t zwapi_send_test_frame(zwave_node_id_t destination_node_id, rf_power_
         return SL_STATUS_OK;
     }
 
+    ZWAPI_CALLBACK_CLEAR_IF(zwapi_send_test_frame_callback, callback_function);
     return SL_STATUS_FAIL;
 }
 

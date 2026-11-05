@@ -75,6 +75,10 @@ void network_management_refresh_cached_ids();
  */
 void network_management_refresh_cached_node_list();
 
+/** Copy the cached node list without observing a partial refresh. */
+void network_management_copy_cached_node_list(zwave_nodemask_t node_list);
+bool network_management_cached_node_list_contains(zwave_node_id_t node_id);
+
 /**
  * @brief Asks the Z-Wave API to tell us what are the controller's capabilities
  * in this network
