@@ -49,6 +49,26 @@ if [[ "$(uname -s)" == Darwin ]]; then
   sdk="$(xcrun --show-sdk-path)"
   extra=(-extra-arg=-isysroot"$sdk" -extra-arg=-isystem"$sdk/usr/include/c++/v1")
 fi
+if [[ "${GITHUB_ACTIONS:-}" != "true" ]]; then
+  extra+=(-extra-arg=-fno-caret-diagnostics)
+  log="$(mktemp "${TMPDIR:-/tmp}/clang-tidy-log.XXXXXX")"
+  (
+    printf 'Progress: .' >&2
+    while sleep 5; do
+      printf '.' >&2
+    done
+  ) &
+  dot=$!
+  trap 'kill "$dot" 2>/dev/null || true; rm -f "$log"' EXIT
+  rc=0
+  "$runner" -p "build/$preset" -j "$jobs" -config-file=.clang-tidy \
+    -clang-tidy-binary="$tidy" "${extra[@]}" -quiet applications components >"$log" 2>&1 || rc=$?
+  kill "$dot" 2>/dev/null || true
+  wait "$dot" 2>/dev/null || true
+  printf '\n' >&2
+  grep -E ': error:' "$log" || true
+  exit "$rc"
+fi
 
 exec "$runner" -p "build/$preset" -j "$jobs" -config-file=.clang-tidy \
   -clang-tidy-binary="$tidy" "${extra[@]}" -quiet applications components
