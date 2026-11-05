@@ -138,20 +138,6 @@ void S2_stop_timeout(struct S2 *ctxt)
     MOCK_CALL_COMPARE_INPUT_STRUCT_S2(p_mock, ARG0, ctxt);
 }
 
-void S2_get_hw_random(uint8_t *buf, uint8_t len)
-{
-    mock_t *p_mock;
-
-    MOCK_CALL_RETURN_VOID_IF_USED_AS_STUB();
-    MOCK_CALL_FIND_RETURN_VOID_ON_FAILURE(p_mock);
-
-    MOCK_CALL_ACTUAL(p_mock, buf, len);
-
-    MOCK_CALL_COMPARE_INPUT_UINT8(p_mock, ARG1, len);
-
-    MOCK_CALL_SET_OUTPUT_ARRAY(p_mock->output_arg[0].pointer, buf, len, uint8_t);
-}
-
 void S2_save_nls_state(void)
 {
     mock_t *p_mock;

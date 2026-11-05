@@ -1,0 +1,180 @@
+/******************************************************************************
+ * # License
+ * <b>Copyright 2026 Silicon Laboratories Inc. www.silabs.com</b>
+ ******************************************************************************
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ *****************************************************************************/
+
+#include <algorithm>
+#include <array>
+#include <cstdint>
+#include <cstring>
+#include <span>
+#include <vector>
+
+#include <gtest/gtest.h>
+
+#include "crypto.hpp"
+#include "test_fixture.hpp"
+#include "test_crypto_injection_fixture.hpp"
+
+/* NIST SP 800-38A Appendix F.4.1 (OFB-AES128.Encrypt) */
+
+static const uint8_t nist_key_128[] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+static const uint8_t nist_iv[]      = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+
+static const uint8_t nist_plain_64[] = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a, 0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c, 0x9e, 0xb7, 0x6f, 0xac, 0x45, 0xaf, 0x8e, 0x51,
+                                        0x30, 0xc8, 0x1c, 0x46, 0xa3, 0x5c, 0xe4, 0x11, 0xe5, 0xfb, 0xc1, 0x19, 0x1a, 0x0a, 0x52, 0xef, 0xf6, 0x9f, 0x24, 0x45, 0xdf, 0x4f, 0x9b, 0x17, 0xad, 0x2b, 0x41, 0x7b, 0xe6, 0x6c, 0x37, 0x10};
+
+static const uint8_t nist_cipher_64[] = {0x3b, 0x3f, 0xd9, 0x2e, 0xb7, 0x2d, 0xad, 0x20, 0x33, 0x34, 0x49, 0xf8, 0xe8, 0x3c, 0xfb, 0x4a, 0x77, 0x89, 0x50, 0x8d, 0x16, 0x91, 0x8f, 0x03, 0xf5, 0x3c, 0x52, 0xda, 0xc5, 0x4e, 0xd8, 0x25,
+                                         0x97, 0x40, 0x05, 0x1e, 0x9c, 0x5f, 0xec, 0xf6, 0x43, 0x44, 0xf7, 0xa8, 0x22, 0x60, 0xed, 0xcc, 0x30, 0x4c, 0x65, 0x28, 0xf6, 0x59, 0xc7, 0x78, 0x66, 0xa5, 0x10, 0xd9, 0xc1, 0xd6, 0xae, 0x5e};
+
+namespace
+{
+    void ExpectBytesEq(const uint8_t *expected, const uint8_t *actual, size_t len)
+    {
+        EXPECT_THAT(std::vector<uint8_t>(actual, actual + len), ::testing::ElementsAreArray(expected, len));
+    }
+}  // namespace
+
+TEST_F(AesOfb, NistEncryptOneBlock)
+{
+    uint8_t iv[16];
+    uint8_t buffer[16];
+
+    memcpy(iv, nist_iv, sizeof(iv));
+    memcpy(buffer, nist_plain_64, sizeof(buffer));
+
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ofb_xor(std::span<const uint8_t, crypto::aes_key_size>(nist_key_128, crypto::aes_key_size), std::span<const uint8_t, crypto::aes_block_size>(iv, crypto::aes_block_size), std::span<uint8_t>(buffer, sizeof(buffer))));
+    ExpectBytesEq(nist_cipher_64, buffer, sizeof(buffer));
+}
+
+TEST_F(AesOfb, NistEncrypt64Bytes)
+{
+    uint8_t iv[16];
+    uint8_t buffer[64];
+
+    memcpy(iv, nist_iv, sizeof(iv));
+    memcpy(buffer, nist_plain_64, sizeof(buffer));
+
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ofb_xor(std::span<const uint8_t, crypto::aes_key_size>(nist_key_128, crypto::aes_key_size), std::span<const uint8_t, crypto::aes_block_size>(iv, crypto::aes_block_size), std::span<uint8_t>(buffer, sizeof(buffer))));
+    ExpectBytesEq(nist_cipher_64, buffer, sizeof(buffer));
+}
+
+TEST_F(AesOfb, NistEncryptPartialSevenBytes)
+{
+    uint8_t iv[16];
+    uint8_t buffer[7];
+
+    memcpy(iv, nist_iv, sizeof(iv));
+    memcpy(buffer, nist_plain_64, sizeof(buffer));
+
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ofb_xor(std::span<const uint8_t, crypto::aes_key_size>(nist_key_128, crypto::aes_key_size), std::span<const uint8_t, crypto::aes_block_size>(iv, crypto::aes_block_size), std::span<uint8_t>(buffer, sizeof(buffer))));
+    ExpectBytesEq(nist_cipher_64, buffer, sizeof(buffer));
+}
+
+TEST_F(AesOfb, NistDecryptViaXor)
+{
+    uint8_t iv[16];
+    uint8_t buffer[64];
+
+    memcpy(iv, nist_iv, sizeof(iv));
+    memcpy(buffer, nist_cipher_64, sizeof(buffer));
+
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ofb_xor(std::span<const uint8_t, crypto::aes_key_size>(nist_key_128, crypto::aes_key_size), std::span<const uint8_t, crypto::aes_block_size>(iv, crypto::aes_block_size), std::span<uint8_t>(buffer, sizeof(buffer))));
+    ExpectBytesEq(nist_plain_64, buffer, sizeof(buffer));
+}
+
+TEST_F(AesOfb, ZeroLengthLeavesIvAndDataUnchanged)
+{
+    uint8_t iv[16];
+    const uint8_t data_expected[] = {0x01, 0x02, 0x03, 0x04};
+    uint8_t data[4];
+
+    memcpy(iv, nist_iv, sizeof(iv));
+    memcpy(data, data_expected, sizeof(data));
+
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ofb_xor(std::span<const uint8_t, crypto::aes_key_size>(nist_key_128, crypto::aes_key_size), std::span<const uint8_t, crypto::aes_block_size>(iv, crypto::aes_block_size), std::span<uint8_t>(data, 0)));
+    ExpectBytesEq(nist_iv, iv, sizeof(iv));
+    ExpectBytesEq(data_expected, data, sizeof(data));
+}
+
+TEST_F(AesOfb, XorCppApi)
+{
+    std::array<uint8_t, crypto::aes_key_size> key {};
+    memcpy(key.data(), nist_key_128, sizeof(key));
+    std::array<uint8_t, crypto::aes_block_size> iv {};
+    memcpy(iv.data(), nist_iv, sizeof(iv));
+    std::array<uint8_t, 16> buffer {};
+    memcpy(buffer.data(), nist_plain_64, buffer.size());
+
+    ASSERT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ofb_xor(key, iv, std::span<uint8_t>(buffer.data(), buffer.size())));
+    ExpectBytesEq(nist_cipher_64, buffer.data(), buffer.size());
+}
+
+TEST_F(AesOfb, EmptyDataPreservesKeyAndIv)
+{
+    std::array<uint8_t, crypto::aes_key_size> key;
+    std::array<uint8_t, crypto::aes_block_size> iv;
+    std::copy_n(nist_key_128, key.size(), key.begin());
+    std::copy_n(nist_iv, iv.size(), iv.begin());
+    const auto saved_key = key;
+    const auto saved_iv  = iv;
+    EXPECT_EQ(SL_STATUS_OK, crypto::default_crypto().aes_ofb_xor(key, iv, {}));
+    EXPECT_EQ(saved_key, key);
+    EXPECT_EQ(saved_iv, iv);
+}
+
+TEST_F(AesOfbInjection, UsesInjectedPsaWrappers)
+{
+    expect_import_failure(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB);
+    EXPECT_EQ(SL_STATUS_ALLOCATION_FAILED, algorithms.aes_ofb_xor(key, input, output));
+}
+
+TEST_F(AesOfbInjection, RejectsIncompleteOutputAndReleasesKey)
+{
+    output.fill(0xa5);
+    const auto original_output = output;
+    ::testing::InSequence sequence;
+    EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, crypto::aes_key_bits)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_encrypt_setup(_, 42, PSA_ALG_OFB)).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, cipher_set_iv(_, ::testing::SizeIs(crypto::aes_block_size))).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, cipher_update(_, _, _, _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(0), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_finish(_, _, _)).WillOnce(::testing::DoAll(::testing::SetArgReferee<2>(crypto::aes_block_size - 1), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_SUCCESS));
+
+    EXPECT_EQ(SL_STATUS_FAIL, algorithms.aes_ofb_xor(key, input, output));
+    EXPECT_EQ(original_output, output);
+}
+
+TEST_F(AesOfbInjection, CleanupFailuresPreserveOperationError)
+{
+    output.fill(0xa5);
+    const auto original_output = output;
+    ::testing::InSequence sequence;
+    EXPECT_CALL(mock, crypto_init()).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, import_key(PSA_KEY_USAGE_ENCRYPT, PSA_ALG_OFB, SameBuffer(std::span(key)), _, PSA_KEY_TYPE_AES, crypto::aes_key_bits)).WillOnce(::testing::DoAll(::testing::SetArgReferee<3>(42), Return(PSA_SUCCESS)));
+    EXPECT_CALL(mock, cipher_encrypt_setup(_, 42, PSA_ALG_OFB)).WillOnce(Return(PSA_SUCCESS));
+    EXPECT_CALL(mock, cipher_set_iv(_, _)).WillOnce(Return(PSA_ERROR_NOT_SUPPORTED));
+    EXPECT_CALL(mock, cipher_abort(_)).WillOnce(Return(PSA_ERROR_BAD_STATE));
+    EXPECT_CALL(mock, destroy_key(42)).WillOnce(Return(PSA_ERROR_GENERIC_ERROR));
+
+    EXPECT_EQ(SL_STATUS_NOT_SUPPORTED, algorithms.aes_ofb_xor(key, input, output));
+    EXPECT_EQ(original_output, output);
+}
+
+TEST_P(AesOfbMultipartFailure, ReleasesResourcesAndReturnsFailure)
+{
+    expect_multipart_failure(PSA_ALG_OFB, output.size());
+
+    EXPECT_EQ(SL_STATUS_INVALID_STATE, algorithms.aes_ofb_xor(key, input, output));
+}
+
+INSTANTIATE_TEST_SUITE_P(AesOfb, AesOfbMultipartFailure, ::testing::Values(CipherFailureStage::Setup, CipherFailureStage::SetIv, CipherFailureStage::Update, CipherFailureStage::Finish), [](const ::testing::TestParamInfo<CipherFailureStage> &info) { return CipherFailureStageName(info.param); });

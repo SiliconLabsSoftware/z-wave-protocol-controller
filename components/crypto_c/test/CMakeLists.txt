@@ -1,0 +1,5 @@
+add_library(crypto_c_test_support INTERFACE)
+target_link_libraries(crypto_c_test_support INTERFACE crypto_c crypto_test_support)
+target_include_directories(crypto_c_test_support INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/support)
+
+add_zpc_gtest(NAME test_crypto_c SRCS test_c_api.cpp LIBS crypto_c_test_support)
