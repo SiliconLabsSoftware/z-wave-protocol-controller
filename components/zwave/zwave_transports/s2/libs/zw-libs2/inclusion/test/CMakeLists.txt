@@ -16,6 +16,6 @@ add_unity_test(NAME test_inclusion_joining_node_slave
     mock
     s2_mock
     s2_inclusion_mocks
-    crypto_mocks
+    zwave_s2_key_derivation_mock
     crypto_c
 )

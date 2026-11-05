@@ -1,5 +1,10 @@
 add_compile_definitions(UNIT_TEST)
 
+# Keep this separate from s2_inclusion_mocks: test_span needs the real
+# key-derivation object, which defines the same extraction symbol.
+add_library(zwave_s2_key_derivation_mock kderiv_mock.c)
+target_link_libraries(zwave_s2_key_derivation_mock PUBLIC zwave_s2_key_derivation PRIVATE mock)
+
 add_unity_test(
   NAME test_zwave_nextnonce
   FILES test_zwave_nextnonce.c
