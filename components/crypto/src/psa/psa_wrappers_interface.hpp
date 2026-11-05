@@ -1,7 +1,7 @@
 #ifndef PSA_WRAPPERS_INTERFACE_HPP
 #define PSA_WRAPPERS_INTERFACE_HPP
 
-#include <stdint.h>
+#include <cstdint>
 #include <span>
 
 #include "psa/crypto.h"

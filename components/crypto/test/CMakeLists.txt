@@ -1,5 +1,3 @@
-add_compile_definitions(UNIT_TEST)
-
 add_library(crypto_test_support INTERFACE)
 target_link_libraries(crypto_test_support INTERFACE crypto_api GTest::gmock)
 target_include_directories(crypto_test_support INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/support)

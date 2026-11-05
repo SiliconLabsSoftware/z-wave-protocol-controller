@@ -16,6 +16,8 @@ namespace crypto
                 return SL_STATUS_NOT_SUPPORTED;
             case PSA_ERROR_INSUFFICIENT_MEMORY:
                 return SL_STATUS_ALLOCATION_FAILED;
+            case PSA_ERROR_BUFFER_TOO_SMALL:
+                return SL_STATUS_WOULD_OVERFLOW;
             case PSA_ERROR_BAD_STATE:
                 return SL_STATUS_INVALID_STATE;
             default:

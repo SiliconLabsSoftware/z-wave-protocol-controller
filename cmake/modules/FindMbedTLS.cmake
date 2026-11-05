@@ -1,5 +1,12 @@
 set(MbedTLS_VERSION 4.2.0)
 
+set(TF_PSA_CRYPTO_USER_CONFIG_FILE
+    "${CMAKE_CURRENT_LIST_DIR}/../../components/crypto/config/tf_psa_crypto_user_config.h"
+    CACHE FILEPATH "TF-PSA-Crypto user config file (appended to default).")
+set(MBEDTLS_USER_CONFIG_FILE
+    "${CMAKE_CURRENT_LIST_DIR}/../../components/crypto/config/mbedtls_user_config.h"
+    CACHE FILEPATH "Mbed TLS user config file (appended to default).")
+
 if(NOT TARGET MbedTLS::tfpsacrypto)
   message(NOTICE "-- Finding Mbed TLS (FetchContent ${MbedTLS_VERSION})")
 

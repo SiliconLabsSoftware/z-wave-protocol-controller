@@ -87,7 +87,7 @@ sl_status_t crypto_aes_cbc_mac(const uint8_t *key, const uint8_t *iv, const uint
                                                    std::span<uint8_t, CRYPTO_AES_BLOCK_SIZE>(mac, CRYPTO_AES_BLOCK_SIZE));
 }
 
-sl_status_t crypto_aes_ofb_xor(const uint8_t *key, uint8_t iv[16], uint8_t *data, size_t len)
+sl_status_t crypto_aes_ofb_xor(const uint8_t *key, const uint8_t iv[16], uint8_t *data, size_t len)
 {
     if (len == 0) {
         return SL_STATUS_OK;

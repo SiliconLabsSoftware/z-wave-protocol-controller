@@ -10,12 +10,13 @@ TEST(Util, MapsKnownPsaStatusesToSlStatus)
             psa_status_t psa_status;
             sl_status_t sl_status;
     };
-    const std::array<StatusMapping, 6> mappings {{
+    const std::array<StatusMapping, 7> mappings {{
       {PSA_SUCCESS, SL_STATUS_OK},
       {PSA_ERROR_INVALID_SIGNATURE, SL_STATUS_INVALID_SIGNATURE},
       {PSA_ERROR_INVALID_ARGUMENT, SL_STATUS_INVALID_PARAMETER},
       {PSA_ERROR_NOT_SUPPORTED, SL_STATUS_NOT_SUPPORTED},
       {PSA_ERROR_INSUFFICIENT_MEMORY, SL_STATUS_ALLOCATION_FAILED},
+      {PSA_ERROR_BUFFER_TOO_SMALL, SL_STATUS_WOULD_OVERFLOW},
       {PSA_ERROR_BAD_STATE, SL_STATUS_INVALID_STATE},
     }};
 

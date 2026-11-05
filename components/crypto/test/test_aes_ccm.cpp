@@ -258,7 +258,7 @@ TEST_F(AesCcm, RejectsUndersizedOutputBuffers)
     const std::array<uint8_t, 2> plaintext {0x42, 0x24};
     std::array<uint8_t, 10> ciphertext {};
     size_t length = 0;
-    EXPECT_EQ(SL_STATUS_FAIL,
+    EXPECT_EQ(SL_STATUS_WOULD_OVERFLOW,
               crypto::default_crypto().aes_ccm_encrypt(std::span<const uint8_t, crypto::aes_key_size>(key.data(), crypto::aes_key_size),
                                                        8,
                                                        std::span<const uint8_t>(nonce.data(), nonce.size()),
@@ -277,7 +277,7 @@ TEST_F(AesCcm, RejectsUndersizedOutputBuffers)
                                                        length));
     ASSERT_EQ(ciphertext.size(), length);
     std::array<uint8_t, 2> recovered {};
-    EXPECT_EQ(SL_STATUS_FAIL,
+    EXPECT_EQ(SL_STATUS_WOULD_OVERFLOW,
               crypto::default_crypto().aes_ccm_decrypt(std::span<const uint8_t, crypto::aes_key_size>(key.data(), crypto::aes_key_size),
                                                        8,
                                                        std::span<const uint8_t>(nonce.data(), nonce.size()),

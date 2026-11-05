@@ -14,8 +14,6 @@
 #include <stdint.h>
 #include <platform.h>
 
-#include "crypto.h"
-
 // #include <ZW_transport_api.h>
 
 #define S2_MSG_FLAG_EXT  0x1
