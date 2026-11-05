@@ -29,6 +29,8 @@ zpc_add_shared_library(
   zwave_s0
   zwave_api_transport
   zwave_s2_nonce_management
+  zwave_s2_key_derivation
+  zwave_s2_next_nonce
   s2_controller
   crypto_c
   zwave_multi_channel
@@ -38,6 +40,5 @@ zpc_add_shared_library(
   config
   zwave_api)
 
-  target_link_libraries(zwave PUBLIC
-	  zwave_definitions)
+target_link_libraries(zwave PUBLIC zwave_definitions PRIVATE system)
 
