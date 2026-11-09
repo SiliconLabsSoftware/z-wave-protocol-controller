@@ -29,10 +29,27 @@
 
 // Generic includes
 #include <string.h>
+#include <pthread.h>
 
 // ZPC
 #include "log.h"
 #define LOG_TAG "zwave_network_management_helpers"
+
+static pthread_mutex_t cached_node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+void network_management_copy_cached_node_list(zwave_nodemask_t node_list)
+{
+    pthread_mutex_lock(&cached_node_list_mutex);
+    memcpy(node_list, nms.cached_node_list, sizeof(zwave_nodemask_t));
+    pthread_mutex_unlock(&cached_node_list_mutex);
+}
+
+bool network_management_cached_node_list_contains(zwave_node_id_t node_id)
+{
+    zwave_nodemask_t node_list = {};
+    network_management_copy_cached_node_list(node_list);
+    return ZW_IS_NODE_IN_MASK(node_id, node_list) != 0;
+}
 
 void reset_nms_last_operation_data()
 {
@@ -55,12 +72,14 @@ void reset_nms_last_operation_data()
 
 bool we_are_alone_in_our_network()
 {
+    zwave_nodemask_t node_list = {};
+    network_management_copy_cached_node_list(node_list);
     for (zwave_node_id_t node_id = ZW_MIN_NODE_ID; node_id <= ZW_LR_MAX_NODE_ID; node_id++) {
-        if (node_id == nms.cached_local_node_id) {
+        if (node_id == nm_cached_node_id_load()) {
             // We just found ourselves in the node mask.
             continue;
         }
-        if (ZW_IS_NODE_IN_MASK(node_id, nms.cached_node_list) == 1) {
+        if (ZW_IS_NODE_IN_MASK(node_id, node_list) == 1) {
             return false;
         }
     }
@@ -69,11 +88,11 @@ bool we_are_alone_in_our_network()
 
 bool network_management_is_ready_for_a_new_operation()
 {
-    // NOTE: nms.state is only written on the NMS FSM thread. This read is
+    // NOTE: nm_state_load() is only written on the NMS FSM thread. This read is
     // advisory — a caller may observe NM_IDLE while an event that changes
     // state is already queued. Callers must tolerate SL_STATUS_BUSY from
     // the NMS API functions even after a true return here.
-    if (nms.state != NM_IDLE) {
+    if (nm_state_load() != NM_IDLE) {
         return false;
     }
     if (zwave_controller_is_reset_ongoing()) {
@@ -85,12 +104,23 @@ bool network_management_is_ready_for_a_new_operation()
 
 void network_management_refresh_cached_ids()
 {
-    zwapi_memory_get_ids(&nms.cached_home_id, &nms.cached_local_node_id);
+    zwave_home_id_t home_id = 0;
+    zwave_node_id_t node_id = 0;
+    if (zwapi_memory_get_ids(&home_id, &node_id) == SL_STATUS_OK) {
+        nm_cached_home_id_store(home_id);
+        nm_cached_node_id_store(node_id);
+    }
 }
 
 void network_management_refresh_cached_node_list()
 {
-    zwapi_get_full_node_list(nms.cached_node_list);
+    zwave_nodemask_t node_list = {};
+    network_management_copy_cached_node_list(node_list);
+    if (zwapi_get_full_node_list(node_list) == SL_STATUS_OK) {
+        pthread_mutex_lock(&cached_node_list_mutex);
+        memcpy(nms.cached_node_list, node_list, sizeof(node_list));
+        pthread_mutex_unlock(&cached_node_list_mutex);
+    }
 }
 
 void network_management_refresh_controller_capabilities_bitmask()
@@ -148,11 +178,12 @@ bool we_should_self_destruct()
 
     // Here a tricky bit, we assume that if we have a granted NodeID > 255, we are
     // included with Z-Wave LR. Ideally, the Z-Wave API or S2 engine should tell us this.
-    if (IS_ZWAVE_NODE_ID(nms.cached_local_node_id)) {
+    const zwave_node_id_t cached_node_id = nm_cached_node_id_load();
+    if (IS_ZWAVE_NODE_ID(cached_node_id)) {
         // With Z-Wave, we accept any S2 keyset for after SmartStart
         return false;
     }
-    if (IS_ZWAVE_EXTENDED_NODE_ID(nms.cached_local_node_id)) {
+    if (IS_ZWAVE_EXTENDED_NODE_ID(cached_node_id)) {
         // We need either Access Control or Authenticated to accept our network.
         return !(nms.granted_keys & (ZWAVE_CONTROLLER_S2_AUTHENTICATED_KEY | ZWAVE_CONTROLLER_S2_ACCESS_KEY));
     }
@@ -162,7 +193,7 @@ bool we_should_self_destruct()
     sl_log_error(LOG_TAG,
                  "Unkown protocol after SmartStart inclusion."
                  "NodeID %d. Assuming we have to reset.",
-                 nms.cached_local_node_id);
+                 cached_node_id);
     return true;
 }
 
@@ -170,7 +201,7 @@ void network_management_take_sis_role_if_no_suc_in_network()
 {
     if ((nms.controller_capabilities_bitmask & (CONTROLLER_NODEID_SERVER_PRESENT | CONTROLLER_IS_SECONDARY)) == 0) {
         sl_log_info(LOG_TAG, "Attempting to take the SUC/SIS Role");
-        zwapi_set_suc_node_id(nms.cached_local_node_id, true, false, ZW_SUC_FUNC_NODEID_SERVER, &on_set_suc_node_id_completed);
+        zwapi_set_suc_node_id(nm_cached_node_id_load(), true, false, ZW_SUC_FUNC_NODEID_SERVER, &on_set_suc_node_id_completed);
         // Z-Wave API does not seem to callback
         // if we have our own NodeID being set.
         network_management_refresh_controller_capabilities_bitmask();
