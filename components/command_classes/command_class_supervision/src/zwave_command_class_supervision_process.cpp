@@ -22,6 +22,7 @@
 
 // ZPC includes
 #include "zwave_tx_groups.h"
+#include "zwapi_protocol_transport.h"
 
 #include "timer.hpp"
 
@@ -199,6 +200,60 @@ supervised_session_t *zwave_command_class_supervision_find_session_by_unique_id(
         return (supervised_session_t *)(&sessions[supervision_id]);
     }
     return nullptr;
+}
+
+sl_status_t zwave_command_class_supervision_copy_session_id(supervision_id_t supervision_id, uint8_t *session_id)
+{
+    if (session_id == nullptr) {
+        return SL_STATUS_FAIL;
+    }
+    supervision_sessions_lock lock;
+    const auto it = sessions.find(supervision_id);
+    if (it == sessions.end()) {
+        return SL_STATUS_NOT_FOUND;
+    }
+    *session_id = it->second.session.session_id;
+    return SL_STATUS_OK;
+}
+
+void zwave_command_class_supervision_handle_send_data_complete(supervision_id_t supervision_id, uint8_t status, const zwapi_tx_report_t *tx_info)
+{
+    on_zwave_tx_send_data_complete_t callback = nullptr;
+    void *user                                = nullptr;
+    bool invoke_fail                          = false;
+
+    {
+        supervision_sessions_lock lock;
+        const auto it = sessions.find(supervision_id);
+        if (it == sessions.end()) {
+            // RX already received the report and closed the session, or multicast.
+            return;
+        }
+        supervised_session_t &session = it->second;
+
+        if ((status != TRANSMIT_COMPLETE_OK) && (status != TRANSMIT_COMPLETE_VERIFIED)) {
+            if (session.callback != nullptr) {
+                invoke_fail = true;
+                callback    = session.callback;
+                user        = session.user;
+            }
+            sessions.erase(it);
+        } else {
+            // Report can arrive before this TX callback; keep WORKING expiry.
+            if (session.status != SUPERVISION_REPORT_WORKING) {
+                session.expiry_time = clock_time() + SUPERVISION_REPORT_TIMEOUT;
+            }
+            session.tx_info_valid = true;
+            if (tx_info != nullptr) {
+                session.tx_info = *tx_info;
+            }
+        }
+    }
+
+    if (invoke_fail) {
+        callback(SUPERVISION_REPORT_FAIL, tx_info, user);
+        zwave_command_class_supervision_restart_timer();
+    }
 }
 
 supervision_id_t zwave_command_class_supervision_find_session(uint8_t session_id, zwave_node_id_t node_id, zwave_endpoint_id_t endpoint_id)
