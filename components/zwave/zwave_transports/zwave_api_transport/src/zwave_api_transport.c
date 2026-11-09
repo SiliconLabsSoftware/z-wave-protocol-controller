@@ -16,6 +16,8 @@
 // Generic includes
 #include <stdbool.h>
 #include <string.h>
+#include <pthread.h>
+#include <stdint.h>
 
 // Interfaces
 #include "zwave_helper_macros.h"
@@ -41,6 +43,8 @@
 
 // Local variables
 static send_data_state_t state;
+static pthread_mutex_t state_mutex = PTHREAD_MUTEX_INITIALIZER;
+static uintptr_t state_generation;
 
 // Forward declarations
 void zwave_api_send_data_callback(uint8_t status, zwapi_tx_report_t *tx_status);
@@ -65,6 +69,7 @@ static void zwave_api_reset_state()
 
 static void zwave_api_transport_start_transmission(on_zwave_tx_send_data_complete_t callback, void *user, zwave_tx_session_id_t parent_session_id)
 {
+    state_generation++;
     state.transmission_ongoing  = true;
     state.on_send_data_complete = callback;
     state.user                  = user;
@@ -73,22 +78,31 @@ static void zwave_api_transport_start_transmission(on_zwave_tx_send_data_complet
     zwave_api_transport_start_timer();
 }
 
-static void zwave_api_transport_emergency_timeout_step()
+static void zwave_api_transport_emergency_timeout_step(void *ptr)
 {
+    pthread_mutex_lock(&state_mutex);
+    if (!state.transmission_ongoing || state_generation != (uintptr_t)ptr) {
+        pthread_mutex_unlock(&state_mutex);
+        return;
+    }
+    if (state.awaiting_nif) {
+        zwave_node_id_t remote_node_id = state.remote_node_id;
+        pthread_mutex_unlock(&state_mutex);
+        // We cannot really abort a Request NIF, just give up on waiting for it.
+        // Protocol can handle a new send_data while request nif.
+        // take_completion_matching re-checks awaiting_nif under the lock.
+        zwave_api_transport_on_node_info_req_failed(remote_node_id);
+        return;
+    }
+
     sl_log_error(LOG_TAG,
                  "Emergency timer fired! "
                  "Aborting transmission for element id=%p\n",
                  state.parent_session_id);
-
-    if (state.awaiting_nif == true) {
-        // We cannot really abort a Request NIF, just give up on waiting for it.
-        // Protocol can handle a new send_data while request nif.
-        zwave_api_transport_on_node_info_req_failed(state.remote_node_id);
-        return;
-    }
-
-    // Use the Z-Wave API to abort.
+    // FUNC_ID_ZW_SEND_DATA_ABORT cancels the radio's current TX, not a session.
+    // Keep the lock so send_data cannot start a new frame before the abort is issued.
     zwapi_abort_send_data();
+    pthread_mutex_unlock(&state_mutex);
 }
 
 // Intercepting Protocol specific commands
@@ -136,33 +150,64 @@ static sl_status_t zwave_api_transport_intercept_payload(const zwave_controller_
 ///////////////////////////////////////////////////////////////////////////////
 // Z-Wave API callback functions
 ///////////////////////////////////////////////////////////////////////////////
+typedef struct {
+        on_zwave_tx_send_data_complete_t callback;
+        void *user;
+        zwave_node_id_t remote_node_id;
+        bool fast_track;
+} completed_send_data_t;
+
+static bool zwave_api_take_completion_matching(completed_send_data_t *completed, bool require_nif, zwave_node_id_t node_id)
+{
+    pthread_mutex_lock(&state_mutex);
+    if (!state.transmission_ongoing || (require_nif && (!state.awaiting_nif || (node_id != INVALID_NODE_ID && state.remote_node_id != node_id)))) {
+        pthread_mutex_unlock(&state_mutex);
+        return false;
+    }
+
+    completed->callback       = state.on_send_data_complete;
+    completed->user           = state.user;
+    completed->remote_node_id = state.remote_node_id;
+    completed->fast_track     = state.fast_track;
+    zwave_api_reset_state();
+    pthread_mutex_unlock(&state_mutex);
+    return true;
+}
+
+static bool zwave_api_take_completion(completed_send_data_t *completed)
+{
+    return zwave_api_take_completion_matching(completed, false, INVALID_NODE_ID);
+}
+
+static void zwave_api_finish_completion(const completed_send_data_t *completed, uint8_t status, zwapi_tx_report_t *tx_status)
+{
+    // We are done sending a frame. Notify the calling component.
+    if (completed->callback != NULL) {
+        completed->callback(status, tx_status, completed->user);
+    }
+
+    // We want to notify the Z-Wave Controller about transmission status of a frame.
+    // This enables the controller to track when a given node is not reachable.
+    if (completed->remote_node_id != INVALID_NODE_ID) {
+        if (IS_TRANSMISSION_SUCCESSFUL(status)) {
+            zwave_controller_on_frame_transmission(true, tx_status, completed->remote_node_id);
+        } else if (completed->fast_track == false) {
+            // Inform of transmission failures only if we sent without fast track.
+            zwave_controller_on_frame_transmission(false, tx_status, completed->remote_node_id);
+        }
+    }
+}
+
 void zwave_api_send_data_callback(uint8_t status, zwapi_tx_report_t *tx_status)
 {
-    if (state.transmission_ongoing == false) {
+    completed_send_data_t completed;
+    if (!zwave_api_take_completion(&completed)) {
         sl_log_warning(LOG_TAG,
                        "Callback from the Z-Wave API while no transmission is "
                        "ongoing. Ignoring.");
         return;
     }
-
-    // We are done sending a frame. Notify the calling component.
-    if (state.on_send_data_complete != NULL) {
-        state.on_send_data_complete(status, tx_status, state.user);
-    }
-
-    // We want to notify the Z-Wave Controller about transmission status of a frame.
-    // This enables the controller to track when a given node is not reachable.
-    if (state.remote_node_id != INVALID_NODE_ID) {
-        if (IS_TRANSMISSION_SUCCESSFUL(status)) {
-            zwave_controller_on_frame_transmission(true, tx_status, state.remote_node_id);
-        } else if (state.fast_track == false) {
-            // Inform of transmission failures only if we sent without fast track.
-            zwave_controller_on_frame_transmission(false, tx_status, state.remote_node_id);
-        }
-    }
-
-    // We are free again to send frames
-    zwave_api_reset_state();
+    zwave_api_finish_completion(&completed, status, tx_status);
 }
 
 void zwave_api_send_test_frame_callback(uint8_t status)
@@ -181,17 +226,18 @@ void zwave_api_send_data_multi_callback(uint8_t status)
 ///////////////////////////////////////////////////////////////////////////////
 void zwave_api_transport_on_node_info_req_failed(zwave_node_id_t node_id)
 {
-    (void)node_id;
-    if (state.awaiting_nif == true) {
-        zwave_api_send_data_callback(TRANSMIT_COMPLETE_FAIL, NULL);
+    completed_send_data_t completed;
+    if (zwave_api_take_completion_matching(&completed, true, node_id)) {
+        zwave_api_finish_completion(&completed, TRANSMIT_COMPLETE_FAIL, NULL);
     }
 }
 
 void zwave_api_transport_on_node_information(zwave_node_id_t node_id, const zwave_node_info_t *node_info)
 {
     (void)node_info;
-    if (state.awaiting_nif == true && state.remote_node_id == node_id) {
-        zwave_api_send_data_callback(TRANSMIT_COMPLETE_OK, NULL);
+    completed_send_data_t completed;
+    if (zwave_api_take_completion_matching(&completed, true, node_id)) {
+        zwave_api_finish_completion(&completed, TRANSMIT_COMPLETE_OK, NULL);
     }
 }
 
@@ -202,14 +248,10 @@ static const zwave_controller_callbacks_t zwave_api_transport_callbacks = {.on_n
 ///////////////////////////////////////////////////////////////////////////////
 static void on_zwave_api_started()
 {
-    if (state.transmission_ongoing == false) {
-        return;
-    }
-
     sl_log_debug(LOG_TAG,
                  "Considering transmission failed due to a Z-Wave API restart "
                  "during an ongoing transmission.");
-    zwave_api_send_data_callback(TRANSMIT_COMPLETE_FAIL, NULL);
+    zwave_api_transport_reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -245,7 +287,7 @@ static void on_zwave_api_started()
  * - SL_STATUS_NOT_SUPPORTED   If no endpoint encapsulation is to be applied
  * - SL_STATUS_BUSY            If the transmission cannot be done at the moment.
  */
-static sl_status_t zwave_api_send_data(const zwave_controller_connection_info_t *info, uint16_t data_length, const uint8_t *data, const zwave_tx_options_t *tx_options, const on_zwave_tx_send_data_complete_t on_send_data_complete, void *user, zwave_tx_session_id_t parent_session_id)
+static sl_status_t zwave_api_send_data_locked(const zwave_controller_connection_info_t *info, uint16_t data_length, const uint8_t *data, const zwave_tx_options_t *tx_options, const on_zwave_tx_send_data_complete_t on_send_data_complete, void *user, zwave_tx_session_id_t parent_session_id)
 {
     // Check if we can take the frame length.
     if (data_length > ZWAVE_API_MAXIMUM_FRAME_LENGTH) {
@@ -263,6 +305,9 @@ static sl_status_t zwave_api_send_data(const zwave_controller_connection_info_t 
                      "we cannot accept a new one.");
         return SL_STATUS_BUSY;
     }
+
+    // A refused command must not leave details from a previous attempt behind.
+    zwave_api_reset_state();
 
     // Is it something special like a Request NIF, send NOP?
     if (SL_STATUS_OK == zwave_api_transport_intercept_payload(info, data_length, data)) {
@@ -312,6 +357,7 @@ static sl_status_t zwave_api_send_data(const zwave_controller_connection_info_t 
                        "Z-Wave API zwapi_send_data/zwapi_send_test_frame refused "
                        "frame (parent_id = %p)\n",
                        parent_session_id);
+        zwave_api_reset_state();
         return SL_STATUS_FAIL;
 
     }  // End of singlecast frame
@@ -343,6 +389,7 @@ static sl_status_t zwave_api_send_data(const zwave_controller_connection_info_t 
             return SL_STATUS_OK;
         }
         sl_log_warning(LOG_TAG, "Z-Wave API zwapi_send_data_multi refused frame (parent_id = %p)\n", parent_session_id);
+        zwave_api_reset_state();
         return SL_STATUS_FAIL;
 
     }  // End of multicast frame
@@ -351,20 +398,32 @@ static sl_status_t zwave_api_send_data(const zwave_controller_connection_info_t 
     return SL_STATUS_FAIL;
 }
 
+static sl_status_t zwave_api_send_data(const zwave_controller_connection_info_t *info, uint16_t data_length, const uint8_t *data, const zwave_tx_options_t *tx_options, const on_zwave_tx_send_data_complete_t on_send_data_complete, void *user, zwave_tx_session_id_t parent_session_id)
+{
+    pthread_mutex_lock(&state_mutex);
+    sl_status_t status = zwave_api_send_data_locked(info, data_length, data, tx_options, on_send_data_complete, user, parent_session_id);
+    pthread_mutex_unlock(&state_mutex);
+    return status;
+}
+
 static sl_status_t zwave_api_abort_send_data(const zwave_tx_session_id_t session_id)
 {
-    // Are we involved in transmitting this element ?
-    if (state.transmission_ongoing != true || state.parent_session_id != session_id) {
+    pthread_mutex_lock(&state_mutex);
+    if (!state.transmission_ongoing || state.parent_session_id != session_id) {
+        pthread_mutex_unlock(&state_mutex);
         return SL_STATUS_NOT_FOUND;
     }
 
-    if (state.awaiting_nif == true) {
-        zwave_api_transport_on_node_info_req_failed(state.remote_node_id);
+    if (state.awaiting_nif) {
+        zwave_node_id_t node_id = state.remote_node_id;
+        pthread_mutex_unlock(&state_mutex);
+        zwave_api_transport_on_node_info_req_failed(node_id);
         return SL_STATUS_OK;
     }
 
-    // If yes, then tell the Z-Wave API to abort.
+    // Hold the lock across abort so a newer send cannot occupy the radio first.
     zwapi_abort_send_data();
+    pthread_mutex_unlock(&state_mutex);
     return SL_STATUS_OK;
 }
 
@@ -374,7 +433,9 @@ static sl_status_t zwave_api_abort_send_data(const zwave_tx_session_id_t session
 sl_status_t zwave_api_transport_init()
 {
     // Get our transmission state initialized.
+    pthread_mutex_lock(&state_mutex);
     zwave_api_reset_state();
+    pthread_mutex_unlock(&state_mutex);
 
     // Tell the controller to inform us about NIF events
     zwave_controller_register_callbacks(&zwave_api_transport_callbacks);
@@ -397,21 +458,24 @@ sl_status_t zwave_api_transport_init()
 
 static bool zwave_api_transport_is_busy(void)
 {
-    return state.transmission_ongoing;
+    pthread_mutex_lock(&state_mutex);
+    bool busy = state.transmission_ongoing;
+    pthread_mutex_unlock(&state_mutex);
+    return busy;
 }
 
 void zwave_api_transport_reset()
 {
     sl_log_debug(LOG_TAG, "Resetting the Z-Wave API transport.");
-    if (state.transmission_ongoing == true) {
-        zwave_api_send_data_callback(TRANSMIT_COMPLETE_FAIL, NULL);
+    completed_send_data_t completed;
+    if (zwave_api_take_completion(&completed)) {
+        zwave_api_finish_completion(&completed, TRANSMIT_COMPLETE_FAIL, NULL);
     }
-    zwave_api_reset_state();
 }
 
 static void zwave_api_transport_start_timer(void)
 {
     if (state.transmission_ongoing == true) {
-        timer_set(&state.emergency_timer, SEND_DATA_EMERGENCY_TIMEOUT * TIMER_SECOND, zwave_api_transport_emergency_timeout_step, 0);
+        timer_set(&state.emergency_timer, SEND_DATA_EMERGENCY_TIMEOUT * TIMER_SECOND, zwave_api_transport_emergency_timeout_step, (void *)state_generation);
     }
 }
