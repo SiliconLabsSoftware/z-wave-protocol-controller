@@ -68,31 +68,31 @@ void (*zwapi_replace_failed_node_callback)(uint8_t txStatus);
 
 void zwave_api_protocol_init_callbacks(void)
 {
-    zwapi_send_data_callback                      = NULL;
-    zwapi_send_nop_callback                       = NULL;
-    zwapi_send_data_multi_callback                = NULL;
-    zwapi_send_test_frame_callback                = NULL;
-    zwapi_send_data_bridge_callback               = NULL;
-    zwapi_send_data_multi_bridge_callback         = NULL;
-    zwapi_send_node_information_callback          = NULL;
-    zwapi_memory_put_buffer_callback              = NULL;
-    zwapi_set_default_callback                    = NULL;
-    zwapi_create_new_primarly_ctrl_callback       = NULL;
-    zwapi_remove_node_from_network_callback       = NULL;
-    zwapi_add_node_to_network_callback            = NULL;
-    zwapi_transfer_primary_ctrl_role_callback     = NULL;
-    zwapi_send_controller_replication_callback    = NULL;
-    zwapi_assign_return_route_callback            = NULL;
-    zwapi_assign_suc_return_route_callback        = NULL;
-    zwapi_delete_suc_return_route_callback        = NULL;
-    zwapi_delete_return_route_callback            = NULL;
-    zwapi_set_learn_mode_callback                 = NULL;
-    zwapi_set_virtual_node_to_learn_mode_callback = NULL;
-    zwapi_request_neighbor_update_callback        = NULL;
-    zwapi_set_suc_node_id_callback                = NULL;
-    zwapi_request_network_update_callback         = NULL;
-    zwapi_remove_failed_node_callback             = NULL;
-    zwapi_replace_failed_node_callback            = NULL;
+    ZWAPI_CALLBACK_STORE(zwapi_send_data_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_send_nop_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_send_data_multi_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_send_test_frame_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_send_data_bridge_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_send_data_multi_bridge_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_send_node_information_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_memory_put_buffer_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_set_default_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_create_new_primarly_ctrl_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_remove_node_from_network_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_add_node_to_network_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_transfer_primary_ctrl_role_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_send_controller_replication_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_assign_return_route_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_assign_suc_return_route_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_delete_suc_return_route_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_delete_return_route_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_set_learn_mode_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_set_virtual_node_to_learn_mode_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_request_neighbor_update_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_set_suc_node_id_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_request_network_update_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_remove_failed_node_callback, NULL);
+    ZWAPI_CALLBACK_STORE(zwapi_replace_failed_node_callback, NULL);
 }
 
 /* Check if the received frame will overflow zwapi_command_buffer buffer */
@@ -334,9 +334,7 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
             // The rest are callback functions
 
         case FUNC_ID_ZW_SEND_NODE_INFORMATION:
-            if (zwapi_send_node_information_callback != NULL) {
-                zwapi_send_node_information_callback(pData[IDX_DATA + 1]);
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_send_node_information_callback, pData[IDX_DATA + 1]);
             break;
 
         case FUNC_ID_ZW_SEND_PROTOCOL_DATA:
@@ -349,14 +347,11 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
             uint8_t txStatus = *p++;
 
             if (pData[IDX_CMD] == FUNC_ID_ZW_SEND_DATA || pData[IDX_CMD] == FUNC_ID_ZW_SEND_PROTOCOL_DATA) {
-                f                        = zwapi_send_data_callback;
-                zwapi_send_data_callback = 0;
+                f = ZWAPI_CALLBACK_TAKE(zwapi_send_data_callback);
             } else if (pData[IDX_CMD] == FUNC_ID_SEND_NOP) {
-                f                       = zwapi_send_nop_callback;
-                zwapi_send_nop_callback = 0;
+                f = ZWAPI_CALLBACK_TAKE(zwapi_send_nop_callback);
             } else {
-                f                               = zwapi_send_data_bridge_callback;
-                zwapi_send_data_bridge_callback = 0;
+                f = ZWAPI_CALLBACK_TAKE(zwapi_send_data_bridge_callback);
             }
 
             if (len >= 24) {
@@ -420,36 +415,27 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
         } break;
 
         case FUNC_ID_ZW_SEND_TEST_FRAME: {
-            if (zwapi_send_test_frame_callback != NULL) {
-                f2                             = zwapi_send_test_frame_callback;
-                zwapi_send_test_frame_callback = 0;
+            f2 = ZWAPI_CALLBACK_TAKE(zwapi_send_test_frame_callback);
+            if (f2 != NULL) {
                 f2(pData[IDX_DATA + 1]);
             }
         } break;
 
         case FUNC_ID_ZW_SEND_DATA_MULTI_BRIDGE:
-            if (zwapi_send_data_multi_bridge_callback != NULL) {
-                /* (pData + IDX_DATA)[] contains { funcId, txStatus }. Only txStatus is used */
-                zwapi_send_data_multi_bridge_callback(pData[IDX_DATA + 1]);
-            }
+            /* (pData + IDX_DATA)[] contains { funcId, txStatus }. Only txStatus is used */
+            ZWAPI_CALLBACK_INVOKE(zwapi_send_data_multi_bridge_callback, pData[IDX_DATA + 1]);
             break;
         case FUNC_ID_ZW_SEND_DATA_MULTI:
             // ZW->HOST: REQ | 0x14 | funcID | txStatus
-            if (zwapi_send_data_multi_callback != NULL) {
-                zwapi_send_data_multi_callback(pData[IDX_DATA + 1]);
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_send_data_multi_callback, pData[IDX_DATA + 1]);
             break;
 
         case FUNC_ID_MEMORY_PUT_BUFFER:
-            if (zwapi_memory_put_buffer_callback != NULL) {
-                zwapi_memory_put_buffer_callback();
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_memory_put_buffer_callback);
             break;
 
         case FUNC_ID_ZW_SET_DEFAULT:
-            if (zwapi_set_default_callback != NULL) {
-                zwapi_set_default_callback();
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_set_default_callback);
             break;
 
         /// FIXME: We should really not treat those functions as a bulk and
@@ -461,17 +447,17 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
         case FUNC_ID_ZW_ADD_NODE_TO_NETWORK:
             switch (pData[IDX_CMD]) {
                 case FUNC_ID_ZW_CONTROLLER_CHANGE:
-                    funcLearnInfo = zwapi_transfer_primary_ctrl_role_callback;
+                    funcLearnInfo = ZWAPI_CALLBACK_LOAD(zwapi_transfer_primary_ctrl_role_callback);
                     break;
                 case FUNC_ID_ZW_CREATE_NEW_PRIMARY:
-                    funcLearnInfo = zwapi_create_new_primarly_ctrl_callback;
+                    funcLearnInfo = ZWAPI_CALLBACK_LOAD(zwapi_create_new_primarly_ctrl_callback);
                     break;
                 case FUNC_ID_ZW_REMOVE_NODE_FROM_NETWORK:
                 case FUNC_ID_ZW_REMOVE_NODE_ID_FROM_NETWORK:
-                    funcLearnInfo = zwapi_remove_node_from_network_callback;
+                    funcLearnInfo = ZWAPI_CALLBACK_LOAD(zwapi_remove_node_from_network_callback);
                     break;
                 case FUNC_ID_ZW_ADD_NODE_TO_NETWORK:
-                    funcLearnInfo = zwapi_add_node_to_network_callback;
+                    funcLearnInfo = ZWAPI_CALLBACK_LOAD(zwapi_add_node_to_network_callback);
                     break;
             }
 
@@ -506,98 +492,82 @@ void zwave_api_protocol_rx_dispatch(uint8_t *pData, uint16_t len)
             break;
 
         case FUNC_ID_ZW_REPLICATION_SEND_DATA:
-            if (zwapi_send_controller_replication_callback != NULL) {
-                zwapi_send_controller_replication_callback(pData[IDX_DATA + 1]);
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_send_controller_replication_callback, pData[IDX_DATA + 1]);
             break;
 
         case FUNC_ID_ZW_ASSIGN_RETURN_ROUTE:
-            if (zwapi_assign_return_route_callback != NULL) {
-                zwapi_assign_return_route_callback(pData[IDX_DATA + 1]);
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_assign_return_route_callback, pData[IDX_DATA + 1]);
             break;
 
         case FUNC_ID_ZW_DELETE_RETURN_ROUTE:
-            if (zwapi_delete_return_route_callback != NULL) {
-                zwapi_delete_return_route_callback(pData[IDX_DATA + 1]);
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_delete_return_route_callback, pData[IDX_DATA + 1]);
             break;
 
         case FUNC_ID_ZW_ASSIGN_SUC_RETURN_ROUTE:
-            if (zwapi_assign_suc_return_route_callback != NULL) {
-                zwapi_assign_suc_return_route_callback(pData[IDX_DATA + 1]);
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_assign_suc_return_route_callback, pData[IDX_DATA + 1]);
             break;
 
         case FUNC_ID_ZW_DELETE_SUC_RETURN_ROUTE:
-            if (zwapi_delete_suc_return_route_callback != NULL) {
-                zwapi_delete_suc_return_route_callback(pData[IDX_DATA + 1]);
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_delete_suc_return_route_callback, pData[IDX_DATA + 1]);
             break;
 
-        case FUNC_ID_ZW_SET_LEARN_MODE:
-            if (zwapi_set_learn_mode_callback != NULL) {
-                int bytes_to_read = IDX_DATA + 3;
-                if (NODEID_16BITS == zwapi_get_node_id_basetype()) {
-                    bytes_to_read++;
-                }
-                uint8_t current_index = IDX_DATA + 1;
-                if (len > bytes_to_read) {
-                    learnNodeInfo.bStatus = pData[current_index++];
-                    learnNodeInfo.bSource = zwapi_read_node_id(pData, &current_index);
-                    if (zwave_api_detect_buffer_overflow(pData[current_index])) {
-                        break;
-                    }
-                }
-
-                if (len > (current_index + pData[current_index])) {
-                    for (i = 0; i < pData[current_index]; i++) {
-                        zwapi_command_buffer[i] = pData[current_index + 1 + i];
-                    }
-                }
-                learnNodeInfo.pCmd = zwapi_command_buffer;
-                learnNodeInfo.bLen = pData[current_index];
-                zwapi_set_learn_mode_callback(&learnNodeInfo);
+        case FUNC_ID_ZW_SET_LEARN_MODE: {
+            __typeof__(zwapi_set_learn_mode_callback) callback = ZWAPI_CALLBACK_LOAD(zwapi_set_learn_mode_callback);
+            if (callback == NULL) {
+                break;
             }
-            break;
-
-        case FUNC_ID_ZW_SET_SLAVE_LEARN_MODE:
-            if (zwapi_set_virtual_node_to_learn_mode_callback != NULL) {
-                uint8_t index                    = IDX_DATA + 2;
-                zwave_node_id_t original_node_id = zwapi_read_node_id(pData, &index);
-                zwave_node_id_t new_node_id      = zwapi_read_node_id(pData, &index);
-                zwapi_set_virtual_node_to_learn_mode_callback(pData[IDX_DATA + 1], original_node_id, new_node_id);
+            int bytes_to_read = IDX_DATA + 3;
+            if (NODEID_16BITS == zwapi_get_node_id_basetype()) {
+                bytes_to_read++;
             }
-            break;
+            uint8_t current_index = IDX_DATA + 1;
+            if (len > bytes_to_read) {
+                learnNodeInfo.bStatus = pData[current_index++];
+                learnNodeInfo.bSource = zwapi_read_node_id(pData, &current_index);
+                if (zwave_api_detect_buffer_overflow(pData[current_index])) {
+                    break;
+                }
+            }
+
+            if (len > (current_index + pData[current_index])) {
+                for (i = 0; i < pData[current_index]; i++) {
+                    zwapi_command_buffer[i] = pData[current_index + 1 + i];
+                }
+            }
+            learnNodeInfo.pCmd = zwapi_command_buffer;
+            learnNodeInfo.bLen = pData[current_index];
+            callback(&learnNodeInfo);
+        } break;
+
+        case FUNC_ID_ZW_SET_SLAVE_LEARN_MODE: {
+            __typeof__(zwapi_set_virtual_node_to_learn_mode_callback) callback = ZWAPI_CALLBACK_LOAD(zwapi_set_virtual_node_to_learn_mode_callback);
+            if (callback == NULL) {
+                break;
+            }
+            uint8_t index                    = IDX_DATA + 2;
+            zwave_node_id_t original_node_id = zwapi_read_node_id(pData, &index);
+            zwave_node_id_t new_node_id      = zwapi_read_node_id(pData, &index);
+            callback(pData[IDX_DATA + 1], original_node_id, new_node_id);
+        } break;
 
         case FUNC_ID_ZW_SET_SUC_NODE_ID:
-            if (zwapi_set_suc_node_id_callback != NULL) {
-                zwapi_set_suc_node_id_callback(pData[IDX_DATA + 1]);
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_set_suc_node_id_callback, pData[IDX_DATA + 1]);
             break;
 
         case FUNC_ID_ZW_REQUEST_NODE_NEIGHBOR_UPDATE:
-            if (zwapi_request_neighbor_update_callback != NULL) {
-                zwapi_request_neighbor_update_callback(pData[IDX_DATA + 1]);
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_request_neighbor_update_callback, pData[IDX_DATA + 1]);
             break;
 
         case FUNC_ID_ZW_REQUEST_NETWORK_UPDATE:
-            if (zwapi_request_network_update_callback != NULL) {
-                zwapi_request_network_update_callback(pData[IDX_DATA + 1]);
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_request_network_update_callback, pData[IDX_DATA + 1]);
             break;
 
         case FUNC_ID_ZW_REMOVE_FAILED_NODE_ID:
-            if (zwapi_remove_failed_node_callback != NULL) {
-                zwapi_remove_failed_node_callback(pData[IDX_DATA + 1]);
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_remove_failed_node_callback, pData[IDX_DATA + 1]);
             break;
 
         case FUNC_ID_ZW_REPLACE_FAILED_NODE:
-            if (zwapi_replace_failed_node_callback != NULL) {
-                zwapi_replace_failed_node_callback(pData[IDX_DATA + 1]);
-            }
+            ZWAPI_CALLBACK_INVOKE(zwapi_replace_failed_node_callback, pData[IDX_DATA + 1]);
             break;
 
         case FUNC_ID_SERIAL_API_STARTED:

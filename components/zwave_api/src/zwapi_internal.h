@@ -22,6 +22,7 @@
 
 #include "zwapi_init.h"
 #include "zwapi_protocol_transport.h"  //zwapi_tx_report_t definition
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,6 +30,23 @@ extern "C" {
 
 // Forward declarations
 struct LEARN_INFO;
+
+// Callback slots are shared by Serial API command threads and the RX thread.
+// Never invoke a callback as part of one of these atomic operations.
+#define ZWAPI_CALLBACK_STORE(slot, callback) __atomic_store_n(&(slot), (callback), __ATOMIC_RELEASE)
+#define ZWAPI_CALLBACK_LOAD(slot)            __atomic_load_n(&(slot), __ATOMIC_ACQUIRE)
+#define ZWAPI_CALLBACK_TAKE(slot)            __atomic_exchange_n(&(slot), NULL, __ATOMIC_ACQ_REL)
+// If a send is rejected, put `previous` back when the slot still holds `expected`.
+// Callers reuse the same completion function, so CAS-to-NULL would drop an earlier
+// accepted command's still-pending completion.
+#define ZWAPI_CALLBACK_RESTORE_IF(slot, expected, previous) __atomic_compare_exchange_n(&(slot), &(expected), (previous), false, __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE)
+#define ZWAPI_CALLBACK_INVOKE(slot, ...)                       \
+    do {                                                       \
+        __typeof__(slot) callback = ZWAPI_CALLBACK_LOAD(slot); \
+        if (callback != NULL) {                                \
+            callback(__VA_ARGS__);                             \
+        }                                                      \
+    } while (0)
 
 extern void (*zwapi_send_data_callback)(uint8_t, zwapi_tx_report_t *);
 extern void (*zwapi_send_nop_callback)(uint8_t, zwapi_tx_report_t *);

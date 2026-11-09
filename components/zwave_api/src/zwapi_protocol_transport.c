@@ -62,14 +62,14 @@ sl_status_t zwapi_send_data_multi_bridge(zwave_node_id_t source_node_id, const z
     func_id                 = (callback_function == NULL ? 0 : 0x03);
     request_buffer[index++] = func_id;
 
+    __typeof__(zwapi_send_data_multi_bridge_callback) previous_callback = ZWAPI_CALLBACK_LOAD(zwapi_send_data_multi_bridge_callback);
+    ZWAPI_CALLBACK_STORE(zwapi_send_data_multi_bridge_callback, callback_function);
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_SEND_DATA_MULTI_BRIDGE, request_buffer, index, response_buffer, &response_length);
 
     if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
-        // Activate the callback function only if the Z-Wave module accepted the command
-        zwapi_send_data_multi_bridge_callback = callback_function;
         return SL_STATUS_OK;
     }
-
+    ZWAPI_CALLBACK_RESTORE_IF(zwapi_send_data_multi_bridge_callback, callback_function, previous_callback);
     return SL_STATUS_FAIL;
 }
 
@@ -107,15 +107,15 @@ sl_status_t zwapi_send_data_bridge(zwave_node_id_t source_node_id, zwave_node_id
     func_id                 = (callback_function == NULL ? 0 : 1);
     request_buffer[index++] = func_id;
 
-    zwapi_send_data_bridge_callback = callback_function;
+    __typeof__(zwapi_send_data_bridge_callback) previous_callback = ZWAPI_CALLBACK_LOAD(zwapi_send_data_bridge_callback);
+    ZWAPI_CALLBACK_STORE(zwapi_send_data_bridge_callback, callback_function);
 
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_SEND_DATA_BRIDGE, request_buffer, index, response_buffer, &response_length);
 
     if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
-        // Activate the callback function only if the Z-Wave module accepted the command
-        zwapi_send_data_bridge_callback = callback_function;
         return SL_STATUS_OK;
     }
+    ZWAPI_CALLBACK_RESTORE_IF(zwapi_send_data_bridge_callback, callback_function, previous_callback);
     return SL_STATUS_FAIL;
 }
 
@@ -157,14 +157,14 @@ sl_status_t zwapi_send_data_multi(zwave_nodemask_t destination_node_mask, const 
     func_id                 = (callback_function == NULL ? 0 : 0x03);
     request_buffer[index++] = func_id;
 
+    __typeof__(zwapi_send_data_multi_callback) previous_callback = ZWAPI_CALLBACK_LOAD(zwapi_send_data_multi_callback);
+    ZWAPI_CALLBACK_STORE(zwapi_send_data_multi_callback, callback_function);
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_SEND_DATA_MULTI, request_buffer, index, response_buffer, &response_length);
 
     if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
-        // Activate the callback function only if the Z-Wave module accepted the command
-        zwapi_send_data_multi_callback = callback_function;
         return SL_STATUS_OK;
     }
-
+    ZWAPI_CALLBACK_RESTORE_IF(zwapi_send_data_multi_callback, callback_function, previous_callback);
     return SL_STATUS_FAIL;
 }
 
@@ -196,13 +196,14 @@ sl_status_t zwapi_send_data(zwave_node_id_t destination_node_id, const uint8_t *
     func_id                 = (callback_function == NULL ? 0 : 1);
     request_buffer[index++] = func_id;
 
+    __typeof__(zwapi_send_data_callback) previous_callback = ZWAPI_CALLBACK_LOAD(zwapi_send_data_callback);
+    ZWAPI_CALLBACK_STORE(zwapi_send_data_callback, callback_function);
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_SEND_DATA, request_buffer, index, response_buffer, &response_length);
 
     if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
-        // Activate the callback function only if the Z-Wave module accepted the command
-        zwapi_send_data_callback = callback_function;
         return SL_STATUS_OK;
     }
+    ZWAPI_CALLBACK_RESTORE_IF(zwapi_send_data_callback, callback_function, previous_callback);
     return SL_STATUS_FAIL;
 }
 
@@ -229,14 +230,14 @@ sl_status_t zwapi_send_protocol_data(zwave_node_id_t destination_node_id, const 
     index += protocol_metadata->data_length;
     request_buffer[index++] = protocol_metadata->session_id;
 
+    __typeof__(zwapi_send_data_callback) previous_callback = ZWAPI_CALLBACK_LOAD(zwapi_send_data_callback);
+    ZWAPI_CALLBACK_STORE(zwapi_send_data_callback, callback_function);
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_SEND_PROTOCOL_DATA, request_buffer, index, response_buffer, &response_length);
 
     if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
-        // Activate the callback function only if the Z-Wave module accepted the command
-        // FUNC_ID_ZW_SEND_DATA and FUNC_ID_ZW_SEND_PROTOCOL_DATA share the same callback
-        zwapi_send_data_callback = callback_function;
         return SL_STATUS_OK;
     }
+    ZWAPI_CALLBACK_RESTORE_IF(zwapi_send_data_callback, callback_function, previous_callback);
     return SL_STATUS_FAIL;
 }
 
@@ -256,13 +257,14 @@ sl_status_t zwapi_send_nop(zwave_node_id_t destination_node_id, uint8_t tx_optio
     request_buffer[index++] = tx_options;
     request_buffer[index++] = (callback_function == NULL ? 0 : 1);
 
+    __typeof__(zwapi_send_nop_callback) previous_callback = ZWAPI_CALLBACK_LOAD(zwapi_send_nop_callback);
+    ZWAPI_CALLBACK_STORE(zwapi_send_nop_callback, callback_function);
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_SEND_NOP, request_buffer, index, response_buffer, &response_length);
 
     if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA && response_buffer[IDX_DATA] == ZW_COMMAND_RETURN_VALUE_TRUE) {
-        // Activate the callback function only if the Z-Wave module accepted the command
-        zwapi_send_nop_callback = callback_function;
         return SL_STATUS_OK;
     }
+    ZWAPI_CALLBACK_RESTORE_IF(zwapi_send_nop_callback, callback_function, previous_callback);
     if (send_command_status == SL_STATUS_NOT_SUPPORTED) {
         return SL_STATUS_NOT_SUPPORTED;
     }
