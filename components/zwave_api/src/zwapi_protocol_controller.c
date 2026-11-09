@@ -31,8 +31,8 @@ sl_status_t zwapi_request_neighbor_update(zwave_node_id_t bNodeID, void (*comple
     uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     zwapi_write_node_id(request_buffer, &index, bNodeID);
-    request_buffer[index++]                = func_id;
-    zwapi_request_neighbor_update_callback = completedFunc;
+    request_buffer[index++] = func_id;
+    ZWAPI_CALLBACK_STORE(zwapi_request_neighbor_update_callback, completedFunc);
 
     return zwapi_send_command(FUNC_ID_ZW_REQUEST_NODE_NEIGHBOR_UPDATE, request_buffer, index);
 }
@@ -81,7 +81,7 @@ sl_status_t zwapi_set_default(void (*completedFunc)(void)) /* IN Command complet
     uint8_t request_buffer[REQUEST_BUFFER_SIZE] = {0};
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     request_buffer[index++]                     = func_id;
-    zwapi_set_default_callback                  = completedFunc;
+    ZWAPI_CALLBACK_STORE(zwapi_set_default_callback, completedFunc);
 
     return zwapi_send_command(FUNC_ID_ZW_SET_DEFAULT, request_buffer, index);
 }
@@ -94,7 +94,7 @@ sl_status_t zwapi_transfer_primary_ctrl_role(uint8_t bMode, void (*completedFunc
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     request_buffer[index++]                     = bMode;
     request_buffer[index++]                     = func_id;
-    zwapi_transfer_primary_ctrl_role_callback   = completedFunc;
+    ZWAPI_CALLBACK_STORE(zwapi_transfer_primary_ctrl_role_callback, completedFunc);
 
     return zwapi_send_command(FUNC_ID_ZW_CONTROLLER_CHANGE, request_buffer, index);
 }
@@ -107,7 +107,7 @@ sl_status_t zwapi_create_new_primary_ctrl(uint8_t bMode, void (*completedFunc)(L
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     request_buffer[index++]                     = bMode;
     request_buffer[index++]                     = func_id;
-    zwapi_create_new_primarly_ctrl_callback     = completedFunc;
+    ZWAPI_CALLBACK_STORE(zwapi_create_new_primarly_ctrl_callback, completedFunc);
 
     return zwapi_send_command(FUNC_ID_ZW_NEW_CONTROLLER, request_buffer, index);
 }
@@ -120,7 +120,7 @@ sl_status_t zwapi_add_node_to_network(uint8_t bMode, void (*completedFunc)(LEARN
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     request_buffer[index++]                     = bMode;
     request_buffer[index++]                     = func_id;
-    zwapi_add_node_to_network_callback          = completedFunc;
+    ZWAPI_CALLBACK_STORE(zwapi_add_node_to_network_callback, completedFunc);
 
     return zwapi_send_command(FUNC_ID_ZW_ADD_NODE_TO_NETWORK, request_buffer, index);
 }
@@ -133,7 +133,7 @@ sl_status_t zwapi_remove_node_from_network(uint8_t bMode, void (*completedFunc)(
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     request_buffer[index++]                     = bMode;
     request_buffer[index++]                     = func_id;
-    zwapi_remove_node_from_network_callback     = completedFunc;
+    ZWAPI_CALLBACK_STORE(zwapi_remove_node_from_network_callback, completedFunc);
 
     return zwapi_send_command(FUNC_ID_ZW_REMOVE_NODE_FROM_NETWORK, request_buffer, index);
 }
@@ -149,8 +149,8 @@ sl_status_t zwapi_remove_node_id_from_network(uint8_t bMode, zwave_node_id_t nod
     if (bMode != REMOVE_NODE_STOP) {
         zwapi_write_node_id(request_buffer, &index, node_id);
     }
-    request_buffer[index++]                 = func_id;
-    zwapi_remove_node_from_network_callback = completedFunc;
+    request_buffer[index++] = func_id;
+    ZWAPI_CALLBACK_STORE(zwapi_remove_node_from_network_callback, completedFunc);
 
     return zwapi_send_command(FUNC_ID_ZW_REMOVE_NODE_ID_FROM_NETWORK, request_buffer, index);
 }
@@ -164,8 +164,8 @@ uint8_t zwapi_remove_failed_node(zwave_node_id_t NodeID, void (*completedFunc)(u
     uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     zwapi_write_node_id(request_buffer, &index, NodeID);
-    request_buffer[index++]           = func_id;
-    zwapi_remove_failed_node_callback = completedFunc;
+    request_buffer[index++] = func_id;
+    ZWAPI_CALLBACK_STORE(zwapi_remove_failed_node_callback, completedFunc);
 
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_REMOVE_FAILED_NODE_ID, request_buffer, index, response_buffer, &response_length);
     if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA) {
@@ -184,8 +184,8 @@ uint8_t zwapi_replace_failed_node(zwave_node_id_t NodeID, bool bNormalPower, voi
     uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     zwapi_write_node_id(request_buffer, &index, NodeID);
-    request_buffer[index++]            = func_id;
-    zwapi_replace_failed_node_callback = completedFunc;
+    request_buffer[index++] = func_id;
+    ZWAPI_CALLBACK_STORE(zwapi_replace_failed_node_callback, completedFunc);
 
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_REPLACE_FAILED_NODE, request_buffer, index, response_buffer, &response_length);
     if (send_command_status == SL_STATUS_OK && response_length > IDX_DATA) {
@@ -206,8 +206,8 @@ sl_status_t zwapi_assign_return_route(zwave_node_id_t bSrcNodeID, zwave_node_id_
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     zwapi_write_node_id(request_buffer, &index, bSrcNodeID);
     zwapi_write_node_id(request_buffer, &index, bDstNodeID);
-    request_buffer[index++]            = func_id;
-    zwapi_assign_return_route_callback = completedFunc;
+    request_buffer[index++] = func_id;
+    ZWAPI_CALLBACK_STORE(zwapi_assign_return_route_callback, completedFunc);
 
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_ASSIGN_RETURN_ROUTE, request_buffer, index, response_buffer, &response_length);
 
@@ -227,8 +227,8 @@ sl_status_t zwapi_delete_return_route(zwave_node_id_t nodeID, void (*completedFu
     uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     zwapi_write_node_id(request_buffer, &index, nodeID);
-    request_buffer[index++]            = func_id;
-    zwapi_delete_return_route_callback = completedFunc;
+    request_buffer[index++] = func_id;
+    ZWAPI_CALLBACK_STORE(zwapi_delete_return_route_callback, completedFunc);
 
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_DELETE_RETURN_ROUTE, request_buffer, index, response_buffer, &response_length);
 
@@ -248,8 +248,8 @@ sl_status_t zwapi_assign_suc_return_route(zwave_node_id_t bSrcNodeID, void (*com
     uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     zwapi_write_node_id(request_buffer, &index, bSrcNodeID);
-    request_buffer[index++]                = func_id;
-    zwapi_assign_suc_return_route_callback = completedFunc;
+    request_buffer[index++] = func_id;
+    ZWAPI_CALLBACK_STORE(zwapi_assign_suc_return_route_callback, completedFunc);
 
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_ASSIGN_SUC_RETURN_ROUTE, request_buffer, index, response_buffer, &response_length);
 
@@ -269,8 +269,8 @@ sl_status_t zwapi_delete_suc_return_route(zwave_node_id_t nodeID, void (*complet
     uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     zwapi_write_node_id(request_buffer, &index, nodeID);
-    request_buffer[index++]                = func_id;
-    zwapi_delete_suc_return_route_callback = completedFunc;
+    request_buffer[index++] = func_id;
+    ZWAPI_CALLBACK_STORE(zwapi_delete_suc_return_route_callback, completedFunc);
 
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_DELETE_SUC_RETURN_ROUTE, request_buffer, index, response_buffer, &response_length);
 
@@ -308,11 +308,11 @@ sl_status_t zwapi_set_suc_node_id(zwave_node_id_t nodeID, uint8_t SUCState, uint
     uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     zwapi_write_node_id(request_buffer, &index, nodeID);
-    request_buffer[index++]        = SUCState; /* Do we want to enable or disable?? */
-    request_buffer[index++]        = bTxOption;
-    request_buffer[index++]        = bCapabilities;
-    request_buffer[index++]        = func_id;
-    zwapi_set_suc_node_id_callback = completedFunc;
+    request_buffer[index++] = SUCState; /* Do we want to enable or disable?? */
+    request_buffer[index++] = bTxOption;
+    request_buffer[index++] = bCapabilities;
+    request_buffer[index++] = func_id;
+    ZWAPI_CALLBACK_STORE(zwapi_set_suc_node_id_callback, completedFunc);
 
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_SET_SUC_NODE_ID, request_buffer, index, response_buffer, &response_length);
 
@@ -333,7 +333,7 @@ sl_status_t zwapi_set_learn_mode(uint8_t mode, void (*completedFunc)(LEARN_INFO 
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     request_buffer[index++]                     = mode;
     request_buffer[index++]                     = func_id;
-    zwapi_set_learn_mode_callback               = completedFunc;
+    ZWAPI_CALLBACK_STORE(zwapi_set_learn_mode_callback, completedFunc);
 
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_SET_LEARN_MODE, request_buffer, index, response_buffer, &response_length);
 
@@ -352,9 +352,9 @@ sl_status_t zwapi_set_virtual_node_to_learn_mode(zwave_node_id_t node, uint8_t m
     uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
     func_id                                     = (completedFunc == NULL ? 0 : 0x03);
     zwapi_write_node_id(request_buffer, &index, node);
-    request_buffer[index++]                       = mode;
-    request_buffer[index++]                       = func_id;
-    zwapi_set_virtual_node_to_learn_mode_callback = completedFunc;
+    request_buffer[index++] = mode;
+    request_buffer[index++] = func_id;
+    ZWAPI_CALLBACK_STORE(zwapi_set_virtual_node_to_learn_mode_callback, completedFunc);
 
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_SET_SLAVE_LEARN_MODE, request_buffer, index, response_buffer, &response_length);
 
@@ -441,9 +441,9 @@ sl_status_t zwapi_send_controller_replication(zwave_node_id_t nodeID, const uint
     for (uint8_t i = 0; i < dataLength; i++) {
         request_buffer[index++] = pData[i];
     }
-    request_buffer[index++]                    = txOptions;
-    request_buffer[index++]                    = func_id;
-    zwapi_send_controller_replication_callback = completedFunc;
+    request_buffer[index++] = txOptions;
+    request_buffer[index++] = func_id;
+    ZWAPI_CALLBACK_STORE(zwapi_send_controller_replication_callback, completedFunc);
 
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_REPLICATION_SEND_DATA, request_buffer, index, response_buffer, &response_length);
 
@@ -478,7 +478,7 @@ sl_status_t zwapi_request_network_update(void (*complFunc)(uint8_t))
     uint8_t response_buffer[FRAME_LENGTH_MAX]   = {0};
     func_id                                     = (complFunc == NULL ? 0 : 0x03);
     request_buffer[index++]                     = func_id;
-    zwapi_request_network_update_callback       = complFunc;
+    ZWAPI_CALLBACK_STORE(zwapi_request_network_update_callback, complFunc);
 
     sl_status_t send_command_status = zwapi_send_command_with_response(FUNC_ID_ZW_REQUEST_NETWORK_UPDATE, request_buffer, index, response_buffer, &response_length);
 
@@ -638,7 +638,7 @@ sl_status_t zwapi_add_smartstart_node_to_network(uint8_t bMode, const uint8_t *d
     request_buffer[index++]                     = dsk[5];
     request_buffer[index++]                     = dsk[6];
     request_buffer[index++]                     = dsk[7];
-    zwapi_add_node_to_network_callback          = completedFunc;
+    ZWAPI_CALLBACK_STORE(zwapi_add_node_to_network_callback, completedFunc);
 
     return zwapi_send_command(FUNC_ID_ZW_ADD_NODE_TO_NETWORK, request_buffer, index);
 }
