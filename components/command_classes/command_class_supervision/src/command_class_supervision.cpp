@@ -72,8 +72,6 @@ namespace zwave_command_class
 
     sl_status_t command_class_supervision::on_supervision_report_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_supervision_attribute_map_t payload)
     {
-        zwave_command_class_supervision_restart_timer();
-
         uint8_t session_id = 0;
         session_id         = get_value_or_default(payload, "session_id", session_id);
 
@@ -86,64 +84,14 @@ namespace zwave_command_class
         uint8_t duration = 0;
         duration         = get_value_or_default(payload, "duration", duration);
 
-        // Verify that the Supervision Report corresponds to the session that we are currently controlling.
-        supervision_id_t supervision_id = zwave_command_class_supervision_find_session(session_id, connection_info->remote.node_id, connection_info->remote.endpoint_id);
-
-        supervised_session_t *current_session = zwave_command_class_supervision_find_session_by_unique_id(supervision_id);
-
-        // If we have no idea about this session, we will just ignore it.
-        if (current_session == NULL) {
-            // Maybe a duplicate transmission of a finished report.
-            // Just ignore it happily.
-            sl_log_debug(LOG_TAG.data(), "NodeID %d:%d sent us an unknown Supervision Session ID (%d)", connection_info->remote.node_id, connection_info->remote.endpoint_id, session_id);
-            zwave_command_class_supervision_process_log();
-            return SL_STATUS_OK;
-        }
-
-        current_session->status = status;
-
-        // Print out supervision session data
-        sl_log_debug(LOG_TAG.data(),
-                     "Incoming Supervision Report for NodeID %d:%d, group %d, "
-                     "Session ID (%d). Status: %d ",
-                     current_session->session.node_id,
-                     current_session->session.endpoint_id,
-                     current_session->session.group_id,
-                     current_session->session.session_id,
-                     current_session->status);
-
+        clock_time_t expiry_time = 0;
         if (duration < 0xFE) {
-            current_session->expiry_time = clock_time() + command_class_utils::zwave_duration_to_time(duration) + SUPERVISION_REPORT_TIMEOUT;
-        } else {  // Duration is unknown. Allocate some default waiting time here.
-            current_session->expiry_time = clock_time() + (SUPERVISION_DEFAULT_SESSION_DURATION) + SUPERVISION_REPORT_TIMEOUT;
-        }
-
-        if (current_session->status == SUPERVISION_REPORT_WORKING) {
-            if (!static_cast<bool>(more_status_updates)) {
-                sl_log_debug(LOG_TAG.data(),
-                             "NodeID %d:%d sent a WORKING status with the more_update "
-                             "flag set to 0. Supervision Session ID (%d) will probably "
-                             "time out automatically after its expiry duration",
-                             connection_info->remote.node_id,
-                             connection_info->remote.endpoint_id,
-                             current_session->session.session_id);
-            }
-            zwave_command_class_supervision_restart_timer();
-
-            // Give the callback to the user, so that it knows that the node is working
-            if (current_session->callback != NULL) {
-                current_session->callback(current_session->status, current_session->tx_info_valid ? &current_session->tx_info : NULL, current_session->user);
-            }
-
+            expiry_time = clock_time() + command_class_utils::zwave_duration_to_time(duration) + SUPERVISION_REPORT_TIMEOUT;
         } else {
-            // Close this session if it is not WORKING
-            if (current_session->callback != NULL) {
-                current_session->callback(current_session->status, current_session->tx_info_valid ? &current_session->tx_info : NULL, current_session->user);
-            }
-            zwave_command_class_supervision_close_session(supervision_id);
+            expiry_time = clock_time() + (SUPERVISION_DEFAULT_SESSION_DURATION) + SUPERVISION_REPORT_TIMEOUT;
         }
 
-        return SL_STATUS_OK;
+        return zwave_command_class_supervision_handle_incoming_report(connection_info->remote.node_id, connection_info->remote.endpoint_id, session_id, status, more_status_updates, expiry_time);
     }
 
     sl_status_t command_class_supervision::on_supervision_get_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_supervision_attribute_map_t payload)
