@@ -42,6 +42,7 @@ namespace zwave_command_class
 {
     struct timer_handle_t command_class_device_reset_locally::timer                            = {nullptr};
     std::map<zwave_node_id_t, uint8_t> command_class_device_reset_locally::nodes_to_be_removed = {};
+    std::mutex command_class_device_reset_locally::nodes_to_be_removed_mutex;
     std::atomic<size_t> command_class_device_reset_locally::pending_reset_notifications {0};
 
     [[maybe_unused]] static constexpr std::string_view LOG_TAG = "command_class_device_reset_locally";
@@ -91,7 +92,11 @@ namespace zwave_command_class
                     "Reset step: Sending a Device Reset Locally Notification "
                     "to the lifeline destinations.");
 
-        nodes_to_be_removed.clear();
+        {
+            std::lock_guard<std::mutex> lock(nodes_to_be_removed_mutex);
+            nodes_to_be_removed.clear();
+            timer_stop(&timer);
+        }
         pending_reset_notifications.store(0);
 
         const uint8_t reset_notification[] = {COMMAND_CLASS_DEVICE_RESET_LOCALLY, DEVICE_RESET_LOCALLY_NOTIFICATION};
@@ -153,35 +158,55 @@ namespace zwave_command_class
 
     void command_class_device_reset_locally::zwave_command_class_device_reset_on_node_deleted(zwave_node_id_t node_id)
     {
+        std::lock_guard<std::mutex> lock(nodes_to_be_removed_mutex);
         nodes_to_be_removed.erase(node_id);
+        if (nodes_to_be_removed.empty()) {
+            timer_stop(&timer);
+        }
     }
 
     void command_class_device_reset_locally::on_timeout_device_reset(void *data)
     {
-        auto it = nodes_to_be_removed.begin();
-        if (it != nodes_to_be_removed.end()) {
-            if (it->second < DEVICE_RESET_LOCALLY_REMOVE_RETRIES_MAX) {
-                if (zwave_network_management_get_state() == NM_IDLE) {
-                    zwave_network_management_remove_failed(it->first);
-                    it->second++;
-                    if (it->second == DEVICE_RESET_LOCALLY_REMOVE_RETRIES_MAX) {
-                        timer_set(&command_class_device_reset_locally::timer, DEVICE_RESET_LOCALLY_REMOVE_TRIGGER_TIMEOUT_DEFAULT, command_class_device_reset_locally::on_timeout_device_reset, 0);
-                    } else {
-                        timer_set(&command_class_device_reset_locally::timer, 5 * DEVICE_RESET_LOCALLY_REMOVE_TRIGGER_TIMEOUT_DEFAULT, command_class_device_reset_locally::on_timeout_device_reset, 0);
-                    }
-                } else {
-                    timer_restart(&command_class_device_reset_locally::timer);
-                }
-            } else {
-                nodes_to_be_removed.erase(it);
-                // Iterative call to trigger removing next node (if any) immediately
-                on_timeout_device_reset(nullptr);
+        (void)data;
+        for (;;) {
+            std::unique_lock<std::mutex> lock(nodes_to_be_removed_mutex);
+            auto it = nodes_to_be_removed.begin();
+            if (it == nodes_to_be_removed.end()) {
+                return;
             }
+            if (it->second >= DEVICE_RESET_LOCALLY_REMOVE_RETRIES_MAX) {
+                nodes_to_be_removed.erase(it);
+                continue;
+            }
+
+            lock.unlock();
+            const bool network_idle = zwave_network_management_get_state() == NM_IDLE;
+            lock.lock();
+            it = nodes_to_be_removed.begin();
+            if (it == nodes_to_be_removed.end()) {
+                return;
+            }
+            if (it->second >= DEVICE_RESET_LOCALLY_REMOVE_RETRIES_MAX) {
+                continue;
+            }
+            if (!network_idle) {
+                timer_restart(&timer);
+                return;
+            }
+
+            const zwave_node_id_t node_id = it->first;
+            const uint8_t retries         = ++it->second;
+            const uint32_t delay          = retries == DEVICE_RESET_LOCALLY_REMOVE_RETRIES_MAX ? DEVICE_RESET_LOCALLY_REMOVE_TRIGGER_TIMEOUT_DEFAULT : 5 * DEVICE_RESET_LOCALLY_REMOVE_TRIGGER_TIMEOUT_DEFAULT;
+            timer_set(&timer, delay, on_timeout_device_reset, nullptr);
+            lock.unlock();
+            zwave_network_management_remove_failed(node_id);
+            return;
         }
     }
 
     sl_status_t command_class_device_reset_locally::on_device_reset_locally_notification_parsed(const zwave_controller_connection_info_t *connection_info, attribute_store::attribute endpoint, command_class_device_reset_locally_attribute_map_t payload)
     {
+        std::lock_guard<std::mutex> lock(nodes_to_be_removed_mutex);
         nodes_to_be_removed.try_emplace(connection_info->remote.node_id, 0);
         timer_set(&command_class_device_reset_locally::timer, DEVICE_RESET_LOCALLY_REMOVE_TRIGGER_TIMEOUT_DEFAULT, command_class_device_reset_locally::on_timeout_device_reset, 0);
 

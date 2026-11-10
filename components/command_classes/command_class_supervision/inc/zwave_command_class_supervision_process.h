@@ -85,6 +85,22 @@ supervision_id_t zwave_command_class_supervision_find_session(uint8_t session_id
 supervised_session_t *zwave_command_class_supervision_find_session_by_unique_id(supervision_id_t supervision_id);
 
 /**
+ * @brief Copies the wire Session ID for a unique supervision handle.
+ *
+ * @returns SL_STATUS_OK if the session exists, SL_STATUS_NOT_FOUND otherwise.
+ */
+sl_status_t zwave_command_class_supervision_copy_session_id(supervision_id_t supervision_id, uint8_t *session_id);
+
+/**
+ * @brief Applies a TX completion to a supervised session under the session lock.
+ *
+ * Failed transmissions invoke the user callback after releasing the lock and
+ * close the session. Successful transmissions store tx_info and arm the report
+ * timeout unless a WORKING report already arrived.
+ */
+void zwave_command_class_supervision_handle_send_data_complete(supervision_id_t supervision_id, uint8_t status, const zwapi_tx_report_t *tx_info);
+
+/**
  * @brief Creates a new supe a supervised session
  *
  * @param connection    Connection info received for the supervision session
@@ -150,6 +166,12 @@ void zwave_command_class_supervision_set_next_session_id(uint8_t session_id);
  * @param node_id The deleted node ID.
  */
 void zwave_command_class_supervision_on_node_deleted(zwave_node_id_t node_id);
+
+/**
+ * @brief Applies an incoming Supervision Report under the session lock, then
+ *        re-arms the timer without holding that lock.
+ */
+sl_status_t zwave_command_class_supervision_handle_incoming_report(zwave_node_id_t node_id, zwave_endpoint_id_t endpoint_id, uint8_t session_id, uint8_t status, uint8_t more_status_updates, clock_time_t expiry_time);
 
 #ifdef __cplusplus
 
