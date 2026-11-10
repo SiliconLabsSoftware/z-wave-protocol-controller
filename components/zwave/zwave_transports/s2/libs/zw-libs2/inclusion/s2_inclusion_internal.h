@@ -58,9 +58,9 @@
 #define SINGLE_RULE_SUPPORT         0        //< Only a single encryption rule applies to this frametype.
 #define DUAL_RULE_SUPPORT           1        //< Two encryption rules applies to this frametype.
 #define ECHO_SUPPORT                2        //< This frame type support echo frames, where the encryption rule depends on whether the frame is an echo.
-#define LOCAL_PRIVATE_KEY_INDEX     0        //< Index in auth tag array for local private key.
-#define PUBLIC_KEY_A_INDEX          0        //< Index in auth tag array for public key A.
-#define PUBLIC_KEY_B_INDEX          32       //< Index in auth tag array for public key B.
+#define LOCAL_PRIVATE_KEY_INDEX     0        //< Index in shared_key_mem for local private key (ECDH only).
+#define PUBLIC_KEY_A_INDEX          0        //< Index in shared_key_mem for KeyPub_A (CKDF-TempExtract).
+#define PUBLIC_KEY_B_INDEX          32       //< Index in shared_key_mem for KeyPub_B (CKDF-TempExtract).
 #define ECDH_PUBLIC_KEY_SIZE        32       //< Size of an ECDH public key.
 #define NETWORK_KEY_SIZE            16       //< Size of a Z-Wave network key.
 #define ACCEPT_INCLUSION            1        //< Value defining inclusion acceptance.

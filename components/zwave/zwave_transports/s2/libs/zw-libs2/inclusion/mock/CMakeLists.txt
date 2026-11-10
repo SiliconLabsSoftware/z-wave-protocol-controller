@@ -6,5 +6,4 @@ s2_dbg_printf.c
 )
 
 add_library(s2_inclusion_mocks ${lib_source_files})
-target_link_libraries(s2_inclusion_mocks mock)
-
+target_link_libraries(s2_inclusion_mocks PUBLIC mock PRIVATE crypto_c)

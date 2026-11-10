@@ -8,11 +8,22 @@ target_include_directories(zwave_s2_nonce_management PUBLIC include)
 
 target_link_libraries(
   zwave_s2_nonce_management
-  PUBLIC s2_controller
+  PUBLIC common s2_controller
   PRIVATE zwave_controller)
 target_compile_definitions(zwave_s2_nonce_management PRIVATE ZW_CONTROLLER)
 
 set(KEYSTORE_SOURCES "src/zwave_s2_keystore.c")
+
+add_library(zwave_s2_key_derivation STATIC src/zwave_s2_key_derivation.c)
+target_include_directories(zwave_s2_key_derivation PUBLIC include)
+target_link_libraries(zwave_s2_key_derivation PUBLIC common PRIVATE crypto_c)
+set_target_properties(zwave_s2_key_derivation PROPERTIES POSITION_INDEPENDENT_CODE ON C_STANDARD 99)
+
+# NextNonce combines S2 nonce derivation with the generic CTR-DRBG.
+add_library(zwave_s2_next_nonce STATIC src/zwave_s2_next_nonce.c)
+target_include_directories(zwave_s2_next_nonce PUBLIC include)
+target_link_libraries(zwave_s2_next_nonce PUBLIC common crypto_c)
+set_target_properties(zwave_s2_next_nonce PROPERTIES POSITION_INDEPENDENT_CODE ON C_STANDARD 99)
 
 # Z-Wave S2 main library
 add_library(
@@ -50,8 +61,10 @@ set_target_properties(
 
 target_link_libraries(
   s2_controller
-  s2crypto
-  aes)
+  PUBLIC common crypto_c
+  PRIVATE
+  zwave_s2_next_nonce
+  zwave_s2_key_derivation)
 
 target_include_directories(
   s2_controller
@@ -59,13 +72,20 @@ target_include_directories(
   include
   PRIVATE
   ${ZPC_SOURCE_DIR}/../../components/zwave/zwave_definitions/include
-  ${ZW-LIBS2_PATH}/include
   ${ZW-LIBS2_PATH}/inclusion
   src)
+# libs2 headers (S2.h, s2_keystore.h, ...) are consumed by targets that link
+# s2_controller, so they must be exported.
+target_include_directories(s2_controller PUBLIC ${ZW-LIBS2_PATH}/include)
 
 target_link_libraries(
   zwave_s2
-  PUBLIC zwave_s2_nonce_management
-  PRIVATE s2_controller zwave_controller zwave_s0 zpc_attribute_store)
+  PUBLIC common zwave_s2_nonce_management
+  PRIVATE s2_controller crypto_c zwave_controller zwave_s0
+          zpc_attribute_store)
 
 target_compile_definitions(zwave_s2 PRIVATE ZIPGW ZW_CONTROLLER)
+
+if(UNIT_TEST)
+  add_subdirectory(test)
+endif()

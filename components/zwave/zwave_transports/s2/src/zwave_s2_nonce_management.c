@@ -39,9 +39,8 @@
  */
 static void zwave_s2_configure_span_table_entry(struct SPAN *entry, const span_entry_t *span_data, zwave_node_id_t node_id)
 {
-    entry->d.rng.df = span_data->df;
-    memcpy(entry->d.rng.k, span_data->key, CTR_DRBG_KEY_LENGTH);
-    memcpy(entry->d.rng.v, span_data->working_state, CTR_DRBG_INTERNAL_STATE_LENGTH);
+    memcpy(entry->d.rng.key, span_data->key, CTR_DRBG_KEY_LENGTH);
+    memcpy(entry->d.rng.counter, span_data->working_state, CTR_DRBG_INTERNAL_STATE_LENGTH);
     entry->rx_seq   = span_data->rx_sequence;
     entry->tx_seq   = span_data->tx_sequence;
     entry->lnode    = zwave_network_management_get_node_id();
@@ -75,9 +74,8 @@ sl_status_t zwave_s2_get_span_data(zwave_node_id_t node_id, span_entry_t *span_d
 {
     for (size_t i = 0; i < SPAN_TABLE_SIZE; i++) {
         if (s2_ctx->span_table[i].state == SPAN_NEGOTIATED && s2_ctx->span_table[i].rnode == node_id) {
-            span_data->df = s2_ctx->span_table[i].d.rng.df;
-            memcpy(span_data->key, s2_ctx->span_table[i].d.rng.k, CTR_DRBG_KEY_LENGTH);
-            memcpy(span_data->working_state, s2_ctx->span_table[i].d.rng.v, CTR_DRBG_INTERNAL_STATE_LENGTH);
+            memcpy(span_data->key, s2_ctx->span_table[i].d.rng.key, CTR_DRBG_KEY_LENGTH);
+            memcpy(span_data->working_state, s2_ctx->span_table[i].d.rng.counter, CTR_DRBG_INTERNAL_STATE_LENGTH);
             span_data->rx_sequence = s2_ctx->span_table[i].rx_seq;
             span_data->tx_sequence = s2_ctx->span_table[i].tx_seq;
             span_data->class_id    = s2_ctx->span_table[i].class_id;
