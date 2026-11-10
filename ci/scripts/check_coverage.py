@@ -6,14 +6,13 @@ Prerequisites:
     * A Clang-instrumented unit-test-coverage build and a completed CTest run, so
       the build directory contains CMakeCache.txt, test binaries, and current
       .profraw profiles.
-    * llvm-profdata and llvm-cov from the same LLVM toolchain as Clang. They
-      must be on PATH or llvm-profdata must be selected with the LLVM_PROFDATA
-      environment variable.
+    * llvm-profdata and llvm-cov from the same toolchain as the coverage Clang.
+      macOS uses xcrun; Linux looks beside CMAKE_CXX_COMPILER or uses LLVM_PROFDATA.
 
 From the repository root, prepare the build and collect coverage with:
 
     cmake --workflow --preset unit-test-coverage
-    python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
+    ./ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
 
 Use --skip-report only when build-dir/coverage/coverage.json already contains a
 native LLVM export from a previous collection run.
@@ -40,8 +39,8 @@ def parse_args() -> argparse.Namespace:
         epilog=(
             "Prerequisites: Python 3.10+ with PyYAML; a built and tested "
             "unit-test-coverage configuration; and matching llvm-profdata / "
-            "llvm-cov tools (set the LLVM_PROFDATA environment variable if "
-            "they are not beside Clang). "
+            "llvm-cov tools (macOS: xcrun; otherwise set LLVM_PROFDATA if they "
+            "are not beside Clang). "
             "See the module documentation for the full setup."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -152,17 +151,26 @@ def cmake_cache_value(build_dir: Path, key: str) -> str | None:
     return None
 
 
+def llvm_coverage_tools(compiler: str) -> tuple[list[str], list[str]]:
+    if env := os.environ.get("LLVM_PROFDATA"):
+        return [env], [env.replace("llvm-profdata", "llvm-cov")]
+    if sys.platform == "darwin":
+        return ["xcrun", "llvm-profdata"], ["xcrun", "llvm-cov"]
+    beside = str(Path(compiler).resolve().with_name("llvm-profdata"))
+    return [beside], [beside.replace("llvm-profdata", "llvm-cov")]
+
+
 def run_llvm_coverage(build_dir: Path, coverage_dir: Path) -> Path:
     """Merge test profiles, then let LLVM produce both the gate data and HTML."""
     compiler = cmake_cache_value(build_dir, "CMAKE_CXX_COMPILER")
     if not compiler or cmake_cache_value(build_dir, "COVERAGE") != "ON":
         raise SystemExit("error: configure and build the unit-test-coverage preset first")
-    profdata = os.environ.get("LLVM_PROFDATA") or str(Path(compiler).resolve().with_name("llvm-profdata"))
-    cov = profdata.replace("llvm-profdata", "llvm-cov")
-    if not shutil.which(profdata) or not shutil.which(cov):
+    profdata, cov = llvm_coverage_tools(compiler)
+    if not shutil.which(profdata[0]) or not shutil.which(cov[0]):
         raise SystemExit(
-            "error: LLVM coverage tools missing; set the LLVM_PROFDATA "
-            "environment variable to the llvm-profdata tool matching your Clang"
+            "error: LLVM coverage tools missing; on macOS install Xcode CLT "
+            "(xcrun llvm-profdata), otherwise set LLVM_PROFDATA to the "
+            "llvm-profdata tool matching your Clang"
         )
 
     tests = json.loads(subprocess.check_output(
@@ -189,13 +197,13 @@ def run_llvm_coverage(build_dir: Path, coverage_dir: Path) -> Path:
     coverage_dir.mkdir(parents=True, exist_ok=True)
     merged = coverage_dir / "coverage.profdata"
     print(f"Merging LLVM profiles from {len(binaries)} test executables", flush=True)
-    subprocess.run([profdata, "merge", "-sparse", *map(str, profiles), "-o", str(merged)], check=True)
+    subprocess.run([*profdata, "merge", "-sparse", *map(str, profiles), "-o", str(merged)], check=True)
 
     # LLVM merges shared files and inline instantiations across these binaries.
     objects = [arg for binary in sorted(binaries) for arg in ["-object", str(binary)]]
     common = [*objects, "-instr-profile=" + str(merged)]
     # Ask LLVM which files are mapped, then use the same source scope for HTML and JSON.
-    mapped = json.loads(subprocess.check_output([cov, "export", *common, "-summary-only"], text=True))
+    mapped = json.loads(subprocess.check_output([*cov, "export", *common, "-summary-only"], text=True))
     sources = sorted({entry["filename"] for dataset in mapped["data"] for entry in dataset["files"]
                       if posix_rel(entry["filename"], REPO_ROOT).startswith("components/")
                       and not should_skip_file(posix_rel(entry["filename"], REPO_ROOT))})
@@ -205,14 +213,14 @@ def run_llvm_coverage(build_dir: Path, coverage_dir: Path) -> Path:
     json_path = coverage_dir / "coverage.json"
     print("Exporting LLVM file summaries for the component gates", flush=True)
     with json_path.open("w") as output:
-        subprocess.run([cov, "export", *common, "-summary-only"], stdout=output, check=True)
+        subprocess.run([*cov, "export", *common, "-summary-only"], stdout=output, check=True)
     lcov_path = coverage_dir / "lcov.info"
     print("Exporting LCOV report: " + str(lcov_path), flush=True)
     with lcov_path.open("w") as output:
-        subprocess.run([cov, "export", *common, "-format=lcov"], stdout=output, check=True)
+        subprocess.run([*cov, "export", *common, "-format=lcov"], stdout=output, check=True)
     print("Writing LLVM HTML report: " + str(coverage_dir / "html/index.html"), flush=True)
     subprocess.run([
-        cov, "show", *common, "-format=html", "-output-dir=" + str(coverage_dir / "html"),
+        *cov, "show", *common, "-format=html", "-output-dir=" + str(coverage_dir / "html"),
         "-show-branches=count", "-show-expansions", "-show-branch-summary",
     ], check=True)
     return json_path

@@ -136,7 +136,7 @@ ASan/UBSan abort on error (`ASAN_OPTIONS` / `UBSAN_OPTIONS` in the `unit-test` t
 
 ```bash
 cmake --workflow --preset unit-test-coverage --fresh
-python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
+./ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
 ```
 
 - [`ci/coverage/component_blacklist.yaml`](ci/coverage/component_blacklist.yaml) is the only exemption list. Coverage minimums come from [`ci/unit_test_config.yaml`](ci/unit_test_config.yaml). A tested component (`CMakeLists.txt` + `test/`) omitted from the blacklist must meet both configured minimums for line and branch coverage.
@@ -145,7 +145,7 @@ python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
 - Confirm the child’s own row in the `check_coverage.py` table is `pass` for both line and branch coverage, not rolled into a blacklisted parent.
 - Missing executable line data for a gated component is a failure. Zero branches is valid for straight-line code.
 - Install Python dependencies from `ci/dependencies/requirements.txt` (no additional Python coverage package is needed). Run the reporting script with that Python environment.
-- The script uses `llvm-profdata` and `llvm-cov` beside the configured compiler. Set `LLVM_PROFDATA` for a versioned/custom toolchain, e.g. `llvm-profdata-17`; the script uses the corresponding `llvm-cov` name.
+- The script uses `xcrun llvm-profdata` / `xcrun llvm-cov` on macOS, or the tools beside the configured compiler on Linux. Set `LLVM_PROFDATA` for a versioned toolchain, e.g. `llvm-profdata-17`.
 - Configuring coverage clears previous coverage output. After code changes, rebuild and run all coverage tests before reporting; use `--fresh` for a clean baseline.
 - Branches are source condition outcomes; no throw/unreachable branch filters are applied. Still test meaningful error and exception behavior explicitly. Exact counts can differ between OS targets and compiler versions.
 - Reports: `build/unit-test-coverage/coverage/html/index.html`, `build/unit-test-coverage/coverage/coverage.json`, and `build/unit-test-coverage/coverage/lcov.info` (for editor coverage plugins).

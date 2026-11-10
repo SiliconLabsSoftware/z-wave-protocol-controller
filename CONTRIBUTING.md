@@ -286,7 +286,7 @@ The [`check_coverage.py` documentation](ci/scripts/check_coverage.py) lists the 
 
 ```bash
 cmake --workflow --preset unit-test-coverage --fresh
-python3 ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
+./ci/scripts/check_coverage.py --build-dir build/unit-test-coverage
 ```
 
 Reports: `build/unit-test-coverage/coverage/html/index.html` and `build/unit-test-coverage/coverage/coverage.json`. PR CI uploads those as the `unit-test-coverage` artifact after the sanitizer unit-test runs.
@@ -300,7 +300,7 @@ What happens:
 
 Branch coverage measures true/false outcomes of source conditions. No exception-branch or unreachable-branch filters are applied. Test meaningful error and exception handling explicitly as well.
 
-Use `llvm-profdata` and `llvm-cov` from the compiler's toolchain. By default the script finds them beside the configured compiler. For versioned Linux tools, set the `LLVM_PROFDATA` environment variable (for example, `LLVM_PROFDATA=llvm-profdata-17`); the script uses the corresponding `llvm-cov-17`. CI uses Clang 17; local AppleClang uses the same coverage model, but OS-specific code and compiler versions can change counts. Use the same toolchain and target when comparing exact percentages.
+Use `llvm-profdata` and `llvm-cov` from the compiler's toolchain. On macOS the script runs `xcrun llvm-profdata` and `xcrun llvm-cov`. On Linux it finds them beside the configured compiler, or uses `LLVM_PROFDATA` (for example `llvm-profdata-17`; the script uses the corresponding `llvm-cov-17`). CI uses Clang 17; local default Clang/AppleClang uses the same coverage model, but OS-specific code and compiler versions can change counts. Use the same toolchain and target when comparing exact percentages.
 
 Profiles older than their executable are ignored; missing current profiles fail collection. LLVM warnings remain visible in the command output. After changing code, rebuild and run **all** coverage tests before reporting. Reconfigure with `--fresh` for a clean baseline. If CMake selects a Python interpreter different from the one containing your dependencies, configure with `cmake --preset unit-test-coverage --fresh -DPython3_EXECUTABLE=/path/to/python`, then run `cmake --build --preset unit-test-coverage`, `ctest --preset unit-test-coverage`, and the reporting script using that Python interpreter.
 

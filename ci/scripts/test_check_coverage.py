@@ -86,6 +86,38 @@ class CollectionTests(unittest.TestCase):
                 run.assert_not_called()
 
 
+class ToolResolutionTests(unittest.TestCase):
+    def test_env_overrides_macos_xcrun(self):
+        with patch.object(gate.sys, "platform", "darwin"), patch.dict(
+            gate.os.environ, {"LLVM_PROFDATA": "/tools/llvm-profdata"}
+        ):
+            self.assertEqual(
+                gate.llvm_coverage_tools("/usr/bin/clang++"),
+                (["/tools/llvm-profdata"], ["/tools/llvm-cov"]),
+            )
+
+    def test_macos_uses_xcrun(self):
+        with patch.object(gate.sys, "platform", "darwin"), patch.dict(gate.os.environ):
+            gate.os.environ.pop("LLVM_PROFDATA", None)
+            self.assertEqual(
+                gate.llvm_coverage_tools("/usr/bin/clang++"),
+                (["xcrun", "llvm-profdata"], ["xcrun", "llvm-cov"]),
+            )
+
+    def test_linux_uses_tools_beside_compiler(self):
+        with patch.object(gate.sys, "platform", "linux"), patch.dict(gate.os.environ), TemporaryDirectory() as directory:
+            gate.os.environ.pop("LLVM_PROFDATA", None)
+            clang = Path(directory) / "clang++"
+            clang.touch()
+            self.assertEqual(
+                gate.llvm_coverage_tools(str(clang)),
+                (
+                    [str(clang.resolve().with_name("llvm-profdata"))],
+                    [str(clang.resolve().with_name("llvm-cov"))],
+                ),
+            )
+
+
 class GateTests(unittest.TestCase):
     def run_gate(self, files):
         with TemporaryDirectory() as directory:
