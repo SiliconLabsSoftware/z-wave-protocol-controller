@@ -63,13 +63,6 @@ static const std::vector<attribute_schema_t> attribute_schema = {
   {ATTRIBUTE_COMMAND_CLASS_ALARM_SENSOR_NODE_ID,   "NodeID",   ATTRIBUTE_COMMAND_CLASS_ALARM_SENSOR_TYPE,   U16_STORAGE_TYPE},
   {ATTRIBUTE_COMMAND_CLASS_ALARM_SENSOR_SECONDS,   "Seconds",   ATTRIBUTE_COMMAND_CLASS_ALARM_SENSOR_TYPE,   U16_STORAGE_TYPE},
   /////////////////////////////////////////////////////////////////////
-  //        Barrier Operator Command Class attributes
-  /////////////////////////////////////////////////////////////////////
-  {ATTRIBUTE_COMMAND_CLASS_BARRIER_OPERATOR_BITMASK,   "Barrier Operator Bitmask",   ATTRIBUTE_ENDPOINT_ID,   BYTE_ARRAY_STORAGE_TYPE},
-  {ATTRIBUTE_COMMAND_CLASS_BARRIER_OPERATOR_STATE,   "Barrier Operator State",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
-  {ATTRIBUTE_COMMAND_CLASS_BARRIER_OPERATOR_SUBSYSTEM_TYPE,   "Subsystem Type",   ATTRIBUTE_ENDPOINT_ID,   U8_STORAGE_TYPE},
-  {ATTRIBUTE_COMMAND_CLASS_BARRIER_OPERATOR_SUBSYSTEM_STATE,   "Subsystem State",   ATTRIBUTE_COMMAND_CLASS_BARRIER_OPERATOR_SUBSYSTEM_TYPE,   U8_STORAGE_TYPE},
-  /////////////////////////////////////////////////////////////////////
   //        Central Scene Command Class attributes
   /////////////////////////////////////////////////////////////////////
   {ATTRIBUTE_COMMAND_CLASS_CENTRAL_SCENE_NUMBER_OF_SCENES,   "Number of Scenes",   ATTRIBUTE_ENDPOINT_ID,   U32_STORAGE_TYPE},
