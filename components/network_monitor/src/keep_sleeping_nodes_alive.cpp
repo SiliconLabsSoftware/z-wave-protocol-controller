@@ -23,6 +23,7 @@ using namespace network_monitor;
 #include <iterator>
 #include <cassert>
 #include <chrono>
+#include <mutex>
 
 // ZPC components
 #include "attribute_store.h"
@@ -48,7 +49,9 @@ constexpr const char *LOG_TAG             = "keep_device_awake";
 namespace
 {
     struct timer_handle_t poll_timer = {nullptr};
+    std::mutex keep_alive_mutex;
     std::set<attribute_store_node_t> keep_alive;
+    uint64_t keep_alive_epoch                       = 0;
     attribute_store_node_t keep_alive_last_serviced = ATTRIBUTE_STORE_INVALID_NODE;
 
     auto boot_time = std::chrono::system_clock::now();
@@ -98,9 +101,8 @@ static void keep_awake(attribute_store_node_t node_id_node);
     `GIVE_UP_TIMEOUT_SEC`
 * @returns false when the give up timeout occurred. returns true otherwise
 */
-static bool keep_alive_controller(std::set<attribute_store_node_t>::const_iterator node_id_node_it)
+static bool keep_alive_controller(attribute_store_node_t node_id_node)
 {
-    const attribute_store_node_t &node_id_node = *node_id_node_it;
 
     zwave_node_id_t node_id;
     attribute_store_get_reported(node_id_node, &node_id, sizeof(zwave_node_id_t));
@@ -139,24 +141,30 @@ static bool keep_alive_controller(std::set<attribute_store_node_t>::const_iterat
  */
 static void keep_alive_nop_node([[maybe_unused]] void *user)
 {
-    if (keep_alive.empty()) {
-        return;
+    attribute_store_node_t node_id_node = ATTRIBUTE_STORE_INVALID_NODE;
+    uint64_t epoch                      = 0;
+    {
+        std::lock_guard<std::mutex> lock(keep_alive_mutex);
+        if (keep_alive.empty()) {
+            return;
+        }
+        node_id_node = get_next_keep_alive_node();
+        if (keep_alive.find(node_id_node) == keep_alive.end()) {
+            return;
+        }
+        keep_alive_last_serviced = node_id_node;
+        epoch                    = keep_alive_epoch;
     }
-    assert(!keep_alive.empty());
 
-    const attribute_store_node_t node_id_node = get_next_keep_alive_node();
-    keep_alive_last_serviced                  = node_id_node;
+    const bool keep = keep_alive_controller(node_id_node);
 
-    const auto node_it = keep_alive.find(node_id_node);
-    assert(node_it != keep_alive.end());
-
-    if (!keep_alive_controller(node_it)) {
-        keep_alive.erase(node_it);
+    std::lock_guard<std::mutex> lock(keep_alive_mutex);
+    if (!keep && epoch == keep_alive_epoch) {
+        keep_alive.erase(node_id_node);
         if (keep_alive_last_serviced == node_id_node) {
             keep_alive_last_serviced = ATTRIBUTE_STORE_INVALID_NODE;
         }
     }
-
     if (!keep_alive.empty()) {
         timer_set(&poll_timer, keep_alive_poll_interval_ms(), keep_alive_nop_node, nullptr);
     }
@@ -194,6 +202,7 @@ static sl_status_t get_node_state_and_operating_mode(attribute_store_node_t netw
  */
 static void stop_timer_if_needed()
 {
+    std::lock_guard<std::mutex> lock(keep_alive_mutex);
     if (keep_alive.empty()) {
         timer_stop(&poll_timer);
     }
@@ -216,7 +225,9 @@ static void keep_awake(attribute_store_node_t node_id_node)
                  attribute_store_type_get_node_type_name(node_id_node),
                  node_id);
 
+    std::lock_guard<std::mutex> lock(keep_alive_mutex);
     keep_alive.insert(node_id_node);
+    ++keep_alive_epoch;
     timer_set(&poll_timer, keep_alive_poll_interval_ms(), keep_alive_nop_node, nullptr);
 }
 
@@ -259,6 +270,7 @@ static void keep_alive_network_status_update(attribute_store_node_t network_stat
             keep_awake(node_id_node);
         }
     } else {
+        std::lock_guard<std::mutex> lock(keep_alive_mutex);
         keep_alive.erase(node_id_node);
         if (keep_alive_last_serviced == node_id_node) {
             keep_alive_last_serviced = ATTRIBUTE_STORE_INVALID_NODE;
@@ -275,6 +287,7 @@ static void keep_alive_network_status_update(attribute_store_node_t network_stat
 static void on_node_id_deleted(attribute_store_node_t updated_node, attribute_store_change_t change)
 {
     if (change == ATTRIBUTE_DELETED) {
+        std::lock_guard<std::mutex> lock(keep_alive_mutex);
         keep_alive.erase(updated_node);
         if (keep_alive_last_serviced == updated_node) {
             keep_alive_last_serviced = ATTRIBUTE_STORE_INVALID_NODE;
