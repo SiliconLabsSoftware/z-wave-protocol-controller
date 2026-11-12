@@ -292,9 +292,7 @@ namespace zwave_command_class
         }
         const bool delete_all = operation_type == OPERATION_DELETE && user_unique_identifier == DELETE_ALL_IDENTIFIER && credential_slot == FIRST_SLOT;
         if (delete_all) {
-            // Credential type 0 is the wildcard for deleting all credential types
-            // when both the user identifier and credential slot are 0.
-            return credential_length == 0 && (credential_type == CREDENTIAL_TYPE_NONE || credential_type_is_supported(endpoint, credential_type));
+            return credential_length == 0 && credential_type_is_supported(endpoint, credential_type);
         }
         if (!user_identifier_is_supported(endpoint, user_unique_identifier, false) || !credential_type_is_supported(endpoint, credential_type)) {
             return false;

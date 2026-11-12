@@ -209,8 +209,14 @@ namespace zwave_command_class
         auto requested_type = desired_child(get, static_cast<attribute_store_type_t>(credential_get_group_attributes_t::credential_type));
         auto requested_slot = desired_child(get, static_cast<attribute_store_type_t>(credential_get_group_attributes_t::credential_slot));
         if (requested_user.is_valid() && requested_type.is_valid() && requested_slot.is_valid() && requested_user.desired<uint16_t>() == user_id && (requested_type.desired<uint8_t>() != credential_type || requested_slot.desired<uint16_t>() != credential_slot)) {
-            request_credential(endpoint, user_id, credential_type, credential_slot);
-            return SL_STATUS_OK;
+            const bool requested_first_credential = requested_type.desired<uint8_t>() == CREDENTIAL_TYPE_NONE && requested_slot.desired<uint16_t>() == FIRST_SLOT;
+            if (requested_first_credential) {
+                requested_type.set_desired(credential_type);
+                requested_slot.set_desired(credential_slot);
+            } else {
+                request_credential(endpoint, user_id, credential_type, credential_slot);
+                return SL_STATUS_OK;
+            }
         }
 
         if (next_type != CREDENTIAL_TYPE_NONE || next_slot != FIRST_SLOT) {
