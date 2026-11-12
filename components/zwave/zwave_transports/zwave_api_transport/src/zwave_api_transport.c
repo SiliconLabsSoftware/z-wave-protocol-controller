@@ -51,6 +51,7 @@ void zwave_api_send_data_callback(uint8_t status, zwapi_tx_report_t *tx_status);
 void zwave_api_transport_on_node_info_req_failed(zwave_node_id_t node_id);
 static void zwave_api_transport_start_timer(void);
 static bool zwave_api_transport_is_busy(void);
+static void zwave_api_complete_nif_failure(zwave_node_id_t node_id, uintptr_t expected_generation);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Private helper functions
@@ -87,11 +88,11 @@ static void zwave_api_transport_emergency_timeout_step(void *ptr)
     }
     if (state.awaiting_nif) {
         zwave_node_id_t remote_node_id = state.remote_node_id;
+        uintptr_t generation           = (uintptr_t)ptr;
         pthread_mutex_unlock(&state_mutex);
         // We cannot really abort a Request NIF, just give up on waiting for it.
         // Protocol can handle a new send_data while request nif.
-        // take_completion_matching re-checks awaiting_nif under the lock.
-        zwave_api_transport_on_node_info_req_failed(remote_node_id);
+        zwave_api_complete_nif_failure(remote_node_id, generation);
         return;
     }
 
@@ -157,10 +158,10 @@ typedef struct {
         bool fast_track;
 } completed_send_data_t;
 
-static bool zwave_api_take_completion_matching(completed_send_data_t *completed, bool require_nif, zwave_node_id_t node_id)
+static bool zwave_api_take_completion_matching(completed_send_data_t *completed, bool require_nif, zwave_node_id_t node_id, uintptr_t expected_generation)
 {
     pthread_mutex_lock(&state_mutex);
-    if (!state.transmission_ongoing || (require_nif && (!state.awaiting_nif || (node_id != INVALID_NODE_ID && state.remote_node_id != node_id)))) {
+    if (!state.transmission_ongoing || (expected_generation != 0 && state_generation != expected_generation) || (require_nif && (!state.awaiting_nif || (node_id != INVALID_NODE_ID && state.remote_node_id != node_id)))) {
         pthread_mutex_unlock(&state_mutex);
         return false;
     }
@@ -176,7 +177,7 @@ static bool zwave_api_take_completion_matching(completed_send_data_t *completed,
 
 static bool zwave_api_take_completion(completed_send_data_t *completed)
 {
-    return zwave_api_take_completion_matching(completed, false, INVALID_NODE_ID);
+    return zwave_api_take_completion_matching(completed, false, INVALID_NODE_ID, 0);
 }
 
 static void zwave_api_finish_completion(const completed_send_data_t *completed, uint8_t status, zwapi_tx_report_t *tx_status)
@@ -224,19 +225,24 @@ void zwave_api_send_data_multi_callback(uint8_t status)
 ///////////////////////////////////////////////////////////////////////////////
 // Z-Wave controller callback functions
 ///////////////////////////////////////////////////////////////////////////////
-void zwave_api_transport_on_node_info_req_failed(zwave_node_id_t node_id)
+static void zwave_api_complete_nif_failure(zwave_node_id_t node_id, uintptr_t expected_generation)
 {
     completed_send_data_t completed;
-    if (zwave_api_take_completion_matching(&completed, true, node_id)) {
+    if (zwave_api_take_completion_matching(&completed, true, node_id, expected_generation)) {
         zwave_api_finish_completion(&completed, TRANSMIT_COMPLETE_FAIL, NULL);
     }
+}
+
+void zwave_api_transport_on_node_info_req_failed(zwave_node_id_t node_id)
+{
+    zwave_api_complete_nif_failure(node_id, 0);
 }
 
 void zwave_api_transport_on_node_information(zwave_node_id_t node_id, const zwave_node_info_t *node_info)
 {
     (void)node_info;
     completed_send_data_t completed;
-    if (zwave_api_take_completion_matching(&completed, true, node_id)) {
+    if (zwave_api_take_completion_matching(&completed, true, node_id, 0)) {
         zwave_api_finish_completion(&completed, TRANSMIT_COMPLETE_OK, NULL);
     }
 }
@@ -416,8 +422,9 @@ static sl_status_t zwave_api_abort_send_data(const zwave_tx_session_id_t session
 
     if (state.awaiting_nif) {
         zwave_node_id_t node_id = state.remote_node_id;
+        uintptr_t generation    = state_generation;
         pthread_mutex_unlock(&state_mutex);
-        zwave_api_transport_on_node_info_req_failed(node_id);
+        zwave_api_complete_nif_failure(node_id, generation);
         return SL_STATUS_OK;
     }
 

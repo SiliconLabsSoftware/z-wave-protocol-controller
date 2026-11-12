@@ -278,9 +278,9 @@ namespace timer
                         timer_queue_.pop();
                         entry->last_expiration_time = entry->expiration_time;
                         entry->is_active            = false;
-                        // Move the callback out so timer_set/stop on this entry
-                        // cannot destroy std::function while it is running.
-                        std::function<void()> callback = std::move(entry->callback);
+                        // Copy so timer_set cannot destroy the running
+                        // std::function, and timer_restart still has a callback.
+                        std::function<void()> callback = entry->callback;
                         lock.unlock();
                         if (callback) {
                             callback();
