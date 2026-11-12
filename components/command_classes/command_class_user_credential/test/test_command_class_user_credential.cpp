@@ -47,6 +47,7 @@ namespace user_credential_test
     constexpr uint8_t USER_CREDENTIAL_CC                   = COMMAND_CLASS_USER_CREDENTIAL;
     constexpr uint8_t USER_CODE_CC                         = COMMAND_CLASS_USER_CODE;
     constexpr uint8_t VERSION_1                            = 1;
+    constexpr uint8_t MAX_CONNECTOR_EVENT_DRAIN_PASSES     = 8;
     constexpr uint8_t COMMAND_INDEX                        = 1;
     constexpr uint8_t FRAME_USER_CAPABILITIES_REPORT       = 0x02;
     constexpr uint8_t FRAME_CREDENTIAL_CAPABILITIES_REPORT = 0x04;
@@ -567,7 +568,7 @@ namespace user_credential_test
         });
 
         ASSERT_EQ(SL_STATUS_OK, receive(general_user_capabilities()));
-        for (uint8_t drain = 0; drain < 8 && *published == 0; ++drain) {
+        for (uint8_t drain = 0; drain < MAX_CONNECTOR_EVENT_DRAIN_PASSES && *published == 0; ++drain) {
             connector.run();
         }
 
@@ -588,11 +589,32 @@ namespace user_credential_test
                                                                                                                            });
 
         ASSERT_EQ(SL_STATUS_OK, receive(user_report(USER_IDENTIFIER_1, 0)));
-        for (uint8_t drain = 0; drain < 8 && !*schedule_seen; ++drain) {
+        for (uint8_t drain = 0; drain < MAX_CONNECTOR_EVENT_DRAIN_PASSES && !*schedule_seen; ++drain) {
             connector.run();
         }
 
         EXPECT_TRUE(*schedule_seen);
+    }
+
+    // Spec 2026B User Schedule handoff applies to an actual user (CC:0083.02.02.11.001, CC:0083.01.02.11.009).
+    // The no-user identifier 0 does not publish an Active Schedule handoff.
+    TEST_F(UserCredentialCommandClassTest, UserIdentifierZeroDoesNotPublishScheduleHandoff)
+    {
+        start_user_walk(static_cast<uint8_t>(ASCII_SUPPORT | USER_SCHEDULE_SUPPORT));
+        auto schedule_seen = std::make_shared<bool>(false);
+        component_connector connector;
+        connector.connect_typed<command_class_user_credential_events_t, user_credential_interview_user_schedule_payload_t>(command_class_user_credential_events_t::COMMAND_CLASS_USER_CREDENTIAL_INTERVIEW_USER_SCHEDULE, [schedule_seen](const user_credential_interview_user_schedule_payload_t &) {
+            *schedule_seen = true;
+            return SL_STATUS_OK;
+        });
+
+        ASSERT_EQ(SL_STATUS_OK, receive(user_report(0, 0)));
+        for (uint8_t drain = 0; drain < MAX_CONNECTOR_EVENT_DRAIN_PASSES; ++drain) {
+            connector.run();
+        }
+
+        EXPECT_FALSE(*schedule_seen);
+        EXPECT_FALSE(endpoint.child_by_type(CREDENTIAL_GET_GROUP).is_valid());
     }
 
     // Spec 2026B Credential Get with a user and type 0, slot 0 returns that user's first credential (CC:0083.01.0B.11.005).
@@ -1079,6 +1101,24 @@ namespace user_credential_test
         ASSERT_EQ(SL_STATUS_OK, receive(general_user_capabilities()));
 
         EXPECT_FALSE(rules::user_name_encoding_is_supported(endpoint, ENCODING_UNDEFINED));
+    }
+
+    // Spec 2026B a user type the node did not advertise is ignored (CC:0083.01.05.11.030).
+    // User Set refuses a defined type that is absent from the advertised type mask.
+    TEST_F(UserCredentialCommandClassTest, UserSetRejectsUnadvertisedUserType)
+    {
+        ASSERT_EQ(SL_STATUS_OK, receive(general_user_capabilities()));
+
+        EXPECT_FALSE(user_add_is_valid(USER_IDENTIFIER_1, USER_TYPE_PROGRAMMING, USER_ACTIVE, CREDENTIAL_RULE_SINGLE, 0, ENCODING_ASCII, {}));
+    }
+
+    // Spec 2026B a name encoding not advertised by the node is ignored (CC:0083.01.02.11.025).
+    // User Set refuses Extended ASCII when only ASCII support is advertised.
+    TEST_F(UserCredentialCommandClassTest, UserSetRejectsUnadvertisedNameEncoding)
+    {
+        ASSERT_EQ(SL_STATUS_OK, receive(general_user_capabilities(ASCII_SUPPORT)));
+
+        EXPECT_FALSE(user_add_is_valid(USER_IDENTIFIER_1, USER_TYPE_GENERAL, USER_ACTIVE, CREDENTIAL_RULE_SINGLE, 0, ENCODING_EXTENDED_ASCII, {}));
     }
 
     // Spec 2026B user identifier 0 is invalid except for a delete (CC:0083.01.05.11.006).
@@ -1747,6 +1787,15 @@ namespace user_credential_test
         EXPECT_EQ(SL_STATUS_FAIL, assemble_get(endpoint.emplace_node(CHECKSUM_GET_GROUP), FRAME_ALL_USERS_CHECKSUM_GET));
     }
 
+    // Spec 2026B value 1 means All Users Checksum is supported (CC:0083.01.02.11.011).
+    // All Users Checksum Get is assembled when the peer advertises support.
+    TEST_F(UserCredentialCommandClassTest, AllUsersChecksumGetAssemblySucceedsWithSupport)
+    {
+        ASSERT_EQ(SL_STATUS_OK, receive(general_user_capabilities(static_cast<uint8_t>(ASCII_SUPPORT | ALL_USERS_CHECKSUM_SUPPORT))));
+
+        EXPECT_EQ(SL_STATUS_OK, assemble_get(endpoint.emplace_node(CHECKSUM_GET_GROUP), FRAME_ALL_USERS_CHECKSUM_GET));
+    }
+
     // Spec 2026B Admin PIN Code Get without Admin Code support (CC:0083.01.1B.13.001).
     // Admin PIN Get is not assembled when Admin Code Support is clear.
     TEST_F(UserCredentialCommandClassTest, AdminPinGetAssemblyIsRefusedWithoutSupport)
@@ -1754,6 +1803,37 @@ namespace user_credential_test
         ASSERT_EQ(SL_STATUS_OK, receive(pin_credential_capabilities()));
 
         EXPECT_EQ(SL_STATUS_FAIL, assemble_get(endpoint.emplace_node(ADMIN_GET_GROUP), FRAME_ADMIN_PIN_GET));
+    }
+
+    // Spec 2026B value 1 means Admin Code is supported (CC:0083.01.04.11.013).
+    // Admin PIN Code Get is assembled when the peer advertises Admin Code support.
+    TEST_F(UserCredentialCommandClassTest, AdminPinGetAssemblySucceedsWithSupport)
+    {
+        ASSERT_EQ(SL_STATUS_OK, receive(pin_credential_capabilities(ADMIN_CODE_SUPPORT)));
+
+        EXPECT_EQ(SL_STATUS_OK, assemble_get(endpoint.emplace_node(ADMIN_GET_GROUP), FRAME_ADMIN_PIN_GET));
+    }
+
+    // Spec 2026B value 0 means Admin Code is unsupported (CC:0083.01.04.11.014).
+    // Interviewing a peer without Admin Code support does not request Admin PIN Code.
+    TEST_F(UserCredentialCommandClassTest, InterviewSkipsAdminPinGetWithoutSupport)
+    {
+        start_user_walk();
+
+        EXPECT_FALSE(endpoint.child_by_type(ADMIN_GET_GROUP).is_valid());
+    }
+
+    // Spec 2026B value 1 means Admin Code is supported (CC:0083.01.04.11.013).
+    // Interviewing a peer with Admin Code support requests its Admin PIN Code.
+    TEST_F(UserCredentialCommandClassTest, InterviewRequestsAdminPinGetWhenSupported)
+    {
+        set_peer_version(endpoint, VERSION_1);
+        advertise(endpoint, {USER_CREDENTIAL_CC});
+        open_interview(endpoint);
+        ASSERT_EQ(SL_STATUS_OK, receive(general_user_capabilities()));
+        ASSERT_EQ(SL_STATUS_OK, receive(pin_credential_capabilities(ADMIN_CODE_SUPPORT)));
+
+        EXPECT_TRUE(endpoint.child_by_type(ADMIN_GET_GROUP).is_valid());
     }
 
     // Spec 2026B adding a user (CL:0083.01.31.05.1).
@@ -1806,6 +1886,16 @@ namespace user_credential_test
         ASSERT_EQ(SL_STATUS_OK, receive(general_user_capabilities()));
 
         EXPECT_EQ(SL_STATUS_FAIL, component().mqtt_on_all_users_checksum_get_command(endpoint, "{}"));
+    }
+
+    // Spec 2026B value 1 means All Users Checksum is supported (CC:0083.01.02.11.011).
+    // MQTT All Users Checksum Get creates its request group when support is advertised.
+    TEST_F(UserCredentialCommandClassTest, MqttAllUsersChecksumGetSucceedsWithSupport)
+    {
+        ASSERT_EQ(SL_STATUS_OK, receive(general_user_capabilities(static_cast<uint8_t>(ASCII_SUPPORT | ALL_USERS_CHECKSUM_SUPPORT))));
+
+        EXPECT_EQ(SL_STATUS_OK, component().mqtt_on_all_users_checksum_get_command(endpoint, "{}"));
+        EXPECT_TRUE(endpoint.child_by_type(CHECKSUM_GET_GROUP).is_valid());
     }
 
     // Spec 2026B User Get, User Checksum Get, and Credential Checksum Get (CC:0083.01.06.11.003, CC:0083.01.16.11.001, CC:0083.01.18.11.004).
@@ -1867,6 +1957,89 @@ namespace user_credential_test
         store_pin_and_user_capabilities();
 
         EXPECT_EQ(SL_STATUS_FAIL, component().mqtt_on_credential_learn_start_command(endpoint, "{\"user_unique_identifier\":1,\"credential_type\":1,\"credential_slot\":1,\"operation_type\":2,\"credential_learn_timeout\":10}"));
+    }
+
+    // The MQTT payload schema has no corresponding Z-Wave CC requirement; malformed required fields must be rejected.
+    // An empty object omits the required User Set fields, so parsing fails before any desired state is created.
+    TEST_F(UserCredentialCommandClassTest, MqttUserSetRejectsMissingFields)
+    {
+        EXPECT_NE(SL_STATUS_OK, component().mqtt_on_user_set_command(endpoint, "{}"));
+        EXPECT_FALSE(endpoint.child_by_type(USER_SET_GROUP).is_valid());
+    }
+
+    // The MQTT payload schema has no corresponding Z-Wave CC requirement; malformed required fields must be rejected.
+    // An empty object omits the required User Get identifier, so parsing fails before a Get group is created.
+    TEST_F(UserCredentialCommandClassTest, MqttUserGetRejectsMissingIdentifier)
+    {
+        EXPECT_NE(SL_STATUS_OK, component().mqtt_on_user_get_command(endpoint, "{}"));
+        EXPECT_FALSE(endpoint.child_by_type(USER_GET_GROUP).is_valid());
+    }
+
+    // The MQTT payload schema has no corresponding Z-Wave CC requirement; malformed required fields must be rejected.
+    // An empty object omits the required Credential Set fields, so parsing fails before desired state is created.
+    TEST_F(UserCredentialCommandClassTest, MqttCredentialSetRejectsMissingFields)
+    {
+        EXPECT_NE(SL_STATUS_OK, component().mqtt_on_credential_set_command(endpoint, "{}"));
+        EXPECT_FALSE(endpoint.child_by_type(CREDENTIAL_SET_GROUP).is_valid());
+    }
+
+    // The MQTT payload schema has no corresponding Z-Wave CC requirement; malformed required fields must be rejected.
+    // An empty object omits the required Credential Get fields, so parsing fails before a Get group is created.
+    TEST_F(UserCredentialCommandClassTest, MqttCredentialGetRejectsMissingFields)
+    {
+        EXPECT_NE(SL_STATUS_OK, component().mqtt_on_credential_get_command(endpoint, "{}"));
+        EXPECT_FALSE(endpoint.child_by_type(CREDENTIAL_GET_GROUP).is_valid());
+    }
+
+    // The MQTT payload schema has no corresponding Z-Wave CC requirement; malformed required fields must be rejected.
+    // An empty object omits Credential Learn Start fields, so parsing fails before a request group is created.
+    TEST_F(UserCredentialCommandClassTest, MqttCredentialLearnStartRejectsMissingFields)
+    {
+        EXPECT_NE(SL_STATUS_OK, component().mqtt_on_credential_learn_start_command(endpoint, "{}"));
+        EXPECT_FALSE(endpoint.child_by_type(LEARN_START_GROUP).is_valid());
+    }
+
+    // The MQTT payload schema has no corresponding Z-Wave CC requirement; malformed required fields must be rejected.
+    // An empty object omits Association Set fields, so parsing fails before desired state is created.
+    TEST_F(UserCredentialCommandClassTest, MqttAssociationSetRejectsMissingFields)
+    {
+        EXPECT_NE(SL_STATUS_OK, component().mqtt_on_user_credential_association_set_command(endpoint, "{}"));
+        EXPECT_FALSE(endpoint.child_by_type(ASSOCIATION_SET_GROUP).is_valid());
+    }
+
+    // The MQTT payload schema has no corresponding Z-Wave CC requirement; malformed required fields must be rejected.
+    // An empty object omits the User Checksum Get identifier, so parsing fails before a Get group is created.
+    TEST_F(UserCredentialCommandClassTest, MqttUserChecksumGetRejectsMissingIdentifier)
+    {
+        EXPECT_NE(SL_STATUS_OK, component().mqtt_on_user_checksum_get_command(endpoint, "{}"));
+        EXPECT_FALSE(endpoint.child_by_type(type_of(user_checksum_get_group_attributes_t::USER_CHECKSUM_GET_GROUP)).is_valid());
+    }
+
+    // The MQTT payload schema has no corresponding Z-Wave CC requirement; malformed required fields must be rejected.
+    // An empty object omits the Credential Checksum Get type, so parsing fails before a Get group is created.
+    TEST_F(UserCredentialCommandClassTest, MqttCredentialChecksumGetRejectsMissingType)
+    {
+        EXPECT_NE(SL_STATUS_OK, component().mqtt_on_credential_checksum_get_command(endpoint, "{}"));
+        EXPECT_FALSE(endpoint.child_by_type(type_of(credential_checksum_get_group_attributes_t::CREDENTIAL_CHECKSUM_GET_GROUP)).is_valid());
+    }
+
+    // The MQTT payload schema has no corresponding Z-Wave CC requirement; malformed required fields must be rejected.
+    // An empty object omits the required Admin PIN length, so parsing fails before desired state is created.
+    TEST_F(UserCredentialCommandClassTest, MqttAdminPinSetRejectsMissingLength)
+    {
+        EXPECT_NE(SL_STATUS_OK, component().mqtt_on_admin_pin_code_set_command(endpoint, "{}"));
+        EXPECT_FALSE(endpoint.child_by_type(ADMIN_SET_GROUP).is_valid());
+    }
+
+    // Spec 2026B length 0 deactivates Admin Code when supported (CC:0083.01.1A.11.006).
+    // Omitting the optional code for deactivation stores an empty desired code and succeeds.
+    TEST_F(UserCredentialCommandClassTest, MqttAdminPinDeactivationAllowsOmittedCode)
+    {
+        ASSERT_EQ(SL_STATUS_OK, receive(pin_credential_capabilities(static_cast<uint8_t>(ADMIN_CODE_SUPPORT | ADMIN_DEACTIVATION_SUPPORT))));
+
+        ASSERT_EQ(SL_STATUS_OK, component().mqtt_on_admin_pin_code_set_command(endpoint, "{\"admin_pin_code_length\":0}"));
+
+        EXPECT_TRUE(endpoint.child_by_type(ADMIN_SET_GROUP).child_by_type(type_of(admin_pin_code_set_group_attributes_t::admin_code)).desired<std::vector<uint8_t>>().empty());
     }
 
 }  // namespace user_credential_test
