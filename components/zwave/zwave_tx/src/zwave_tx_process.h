@@ -80,6 +80,10 @@ typedef enum {
     ZWAVE_TX_NODE_DELETED,
     /// An incoming Z-Wave frame was received.
     ZWAVE_TX_FRAME_RECEIVED,
+    /// Flush the TX queue as part of a controller reset step.
+    ZWAVE_TX_FLUSH_QUEUE,
+    /// Expected incoming-frame count was updated from another thread.
+    ZWAVE_TX_EXPECTED_FRAMES_UPDATED,
 } zwave_tx_events_t;
 
 /**
