@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#include <pthread.h>
 // Common component (for clock_time_t)
 #include "clock_platform.h"
 // Timer component
@@ -191,6 +192,7 @@ nonce_block_t nonce_block[NONCE_BLOCK_LIST_SIZE];
 
 static unsigned int block_next_elem; /* Cyclic counter for the next
                                             element in nonce block */
+static pthread_mutex_t nonce_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /************************ AES Helper functions ********************************/
 static uint8_t aes_key[16];
@@ -245,11 +247,14 @@ static void aes_cbc_mac(const uint8_t *data, uint8_t len, uint8_t *mac)
  */
 static unsigned int s0_is_nonce_blocked(const uint8_t src, const uint8_t dst, const uint8_t *nonce)
 {
+    pthread_mutex_lock(&nonce_mutex);
     for (unsigned int i = 0; i < NONCE_BLOCK_LIST_SIZE; i++) {
         if (nonce_block[i].in_use && (0 == memcmp(nonce_block[i].nonce, nonce, 8)) && (nonce_block[i].src == src) && (nonce_block[i].dst == dst)) {
+            pthread_mutex_unlock(&nonce_mutex);
             return 1;
         }
     }
+    pthread_mutex_unlock(&nonce_mutex);
     return 0;
 }
 
@@ -259,11 +264,13 @@ static unsigned int s0_is_nonce_blocked(const uint8_t src, const uint8_t dst, co
  */
 static void s0_block_nonce(const uint8_t src, const uint8_t dst, const uint8_t *nonce)
 {
+    pthread_mutex_lock(&nonce_mutex);
     nonce_block[block_next_elem].in_use = 1;
     memcpy(nonce_block[block_next_elem].nonce, nonce, RECEIVERS_NONCE_SIZE);
     nonce_block[block_next_elem].src = src;
     nonce_block[block_next_elem].dst = dst;
     block_next_elem                  = (block_next_elem + 1) % NONCE_BLOCK_LIST_SIZE;
+    pthread_mutex_unlock(&nonce_mutex);
 }
 
 /********************** Nonce Management **************************************/
@@ -284,6 +291,7 @@ struct timer_handle_t nonce_timer = {NULL};
  */
 static uint8_t register_nonce(uint8_t src, uint8_t dst, uint8_t reply_nonce, const uint8_t nonce[8])
 {
+    pthread_mutex_lock(&nonce_mutex);
     if (reply_nonce) {
         /*Only one reply nonce is allowed*/
         for (uint8_t i = 0; i < NONCE_TABLE_SIZE; i++) {
@@ -291,6 +299,7 @@ static uint8_t register_nonce(uint8_t src, uint8_t dst, uint8_t reply_nonce, con
                 sl_log_debug(LOG_TAG, "Reply nonce overwritten %d->%d slot:%d\n", src, dst, i);
                 memcpy(nonce_table[i].nonce, nonce, 8);
                 nonce_table[i].timeout = NONCE_TIMEOUT;
+                pthread_mutex_unlock(&nonce_mutex);
                 restart_s0_timer();
                 return 1;
             }
@@ -304,13 +313,15 @@ static uint8_t register_nonce(uint8_t src, uint8_t dst, uint8_t reply_nonce, con
             nonce_table[i].reply_nonce = reply_nonce;
             memcpy(nonce_table[i].nonce, nonce, 8);
             nonce_table[i].timeout = NONCE_TIMEOUT;
-            restart_s0_timer();
             sl_log_debug(LOG_TAG, "Nonce registered %d->%d slot:%d\n", src, dst, i);
+            pthread_mutex_unlock(&nonce_mutex);
+            restart_s0_timer();
             return 1;
         }
     }
 
     sl_log_error(LOG_TAG, "Nonce table is full\n");
+    pthread_mutex_unlock(&nonce_mutex);
     return 0;
 }
 
@@ -323,12 +334,15 @@ static uint8_t register_nonce(uint8_t src, uint8_t dst, uint8_t reply_nonce, con
  */
 static uint8_t get_s0_nonce(uint8_t src, uint8_t dst, uint8_t ri, uint8_t nonce[RECEIVERS_NONCE_SIZE], uint8_t any_nonce)
 {
+    pthread_mutex_lock(&nonce_mutex);
     for (uint8_t i = 0; i < NONCE_TABLE_SIZE; i++) {
         if ((nonce_table[i].timeout > 0) && (nonce_table[i].src == src) && (nonce_table[i].dst == dst) && (any_nonce || (nonce_table[i].nonce[0] == ri))) {
             memcpy(nonce, nonce_table[i].nonce, RECEIVERS_NONCE_SIZE);
+            pthread_mutex_unlock(&nonce_mutex);
             return 1;
         }
     }
+    pthread_mutex_unlock(&nonce_mutex);
     return 0;
 }
 
@@ -339,6 +353,7 @@ static uint8_t get_s0_nonce(uint8_t src, uint8_t dst, uint8_t ri, uint8_t nonce[
  */
 static void nonce_clear(uint8_t src, uint8_t dst)
 {
+    pthread_mutex_lock(&nonce_mutex);
     /*Remove entries from table from that source dest combination */
     for (uint8_t i = 0; i < NONCE_TABLE_SIZE; i++) {
         if ((nonce_table[i].timeout) && (nonce_table[i].src == src) && (nonce_table[i].dst == dst)) {
@@ -346,12 +361,14 @@ static void nonce_clear(uint8_t src, uint8_t dst)
             sl_log_debug(LOG_TAG, "%d -> %d nonce cleared slot: %d\n", nonce_table[i].src, nonce_table[i].dst, i);
         }
     }
+    pthread_mutex_unlock(&nonce_mutex);
 }
 
 static void nonce_timer_timeout(void *data)
 {
     (void)data;
     bool restartTimer = false;
+    pthread_mutex_lock(&nonce_mutex);
     for (uint8_t i = 0; i < NONCE_TABLE_SIZE; i++) {
         if (nonce_table[i].timeout > 0) {
             nonce_table[i].timeout--;
@@ -362,6 +379,7 @@ static void nonce_timer_timeout(void *data)
             }
         }
     }
+    pthread_mutex_unlock(&nonce_mutex);
     if (restartTimer) {
         timer_set(&nonce_timer, 1000, nonce_timer_timeout, 0);
     }
@@ -1178,13 +1196,17 @@ void free_all_tx_sessions()
 
 void free_nonce_block_list()
 {
+    pthread_mutex_lock(&nonce_mutex);
     for (uint8_t i = 0; i < NONCE_BLOCK_LIST_SIZE; i++) {
         memset(&nonce_block[i], 0, sizeof(nonce_block_t));
     }
+    pthread_mutex_unlock(&nonce_mutex);
 }
 void reset_block_next_elem()
 {
+    pthread_mutex_lock(&nonce_mutex);
     block_next_elem = 0;
+    pthread_mutex_unlock(&nonce_mutex);
 }
 
 void reset_s0_timers()
