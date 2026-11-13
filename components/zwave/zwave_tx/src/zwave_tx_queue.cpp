@@ -344,6 +344,32 @@ sl_status_t zwave_tx_queue::find_best_unsent_by_qos(zwave_tx_queue_element_t *el
     return SL_STATUS_OK;
 }
 
+sl_status_t zwave_tx_queue::find_best_unsent_by_qos_matching(bool (*is_eligible)(const zwave_tx_queue_element_t &), zwave_tx_queue_element_t *element) const
+{
+    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+    if (empty() || (element == nullptr) || (is_eligible == nullptr)) {
+        return SL_STATUS_NOT_FOUND;
+    }
+
+    const queue_element_qos_compare better;
+    bool found                    = false;
+    zwave_tx_queue_element_t best = {};
+    for (const auto *it = queue.begin(); it != queue.end(); ++it) {
+        if ((it->transmission_timestamp != 0) || it->options.transport.valid_parent_session_id || !is_eligible(*it)) {
+            continue;
+        }
+        if (!found || better(*it, best)) {
+            best  = *it;
+            found = true;
+        }
+    }
+    if (!found) {
+        return SL_STATUS_NOT_FOUND;
+    }
+    *element = best;
+    return SL_STATUS_OK;
+}
+
 sl_status_t zwave_tx_queue::find_best_unsent_backoff_bypass(zwave_tx_queue_element_t *element) const
 {
     std::lock_guard<std::recursive_mutex> lock(queue_mutex_);

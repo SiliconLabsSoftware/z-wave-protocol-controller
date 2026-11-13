@@ -191,6 +191,9 @@ void zwave_tx_process_check_queue();
  */
 void zwave_tx_process_set_expected_frames(zwave_node_id_t remote_node_id, uint8_t number_of_incoming_frames);
 
+/** @brief Sets the source node of an incomplete Transport Service datagram, or 0 when none is active. */
+void zwave_tx_process_set_transport_service_rx_node(zwave_node_id_t remote_node_id);
+
 /**
  * @brief Logs the state of the Z-Wave TX Process using sl_log
  */

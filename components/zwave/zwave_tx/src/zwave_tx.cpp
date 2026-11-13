@@ -215,6 +215,11 @@ void zwave_tx_set_expected_frames(zwave_node_id_t remote_node_id, uint8_t number
     zwave_tx_process_set_expected_frames(remote_node_id, number_of_incoming_frames);
 }
 
+void zwave_tx_set_transport_service_rx_node(zwave_node_id_t remote_node_id)
+{
+    zwave_tx_process_set_transport_service_rx_node(remote_node_id);
+}
+
 const uint8_t *zwave_tx_get_frame(zwave_tx_session_id_t session_id)
 {
     return tx_queue.get_frame(session_id);

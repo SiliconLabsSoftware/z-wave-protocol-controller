@@ -14,6 +14,8 @@
 #ifndef ZWAVE_TX_H
 #define ZWAVE_TX_H
 
+#include <stdbool.h>
+
 // Includes from other components
 #include "sl_status.h"
 #include "zwave_controller_connection_info.h"
@@ -282,6 +284,14 @@ uint8_t zwave_tx_get_number_of_responses(zwave_tx_session_id_t session_id);
  *
  */
 void zwave_tx_set_expected_frames(zwave_node_id_t remote_node_id, uint8_t number_of_incoming_frames);
+
+/**
+ * @brief Marks the source node of an incoming Transport Service datagram.
+ *
+ * New S2 application frames to this node are deferred until reassembly ends.
+ * Transport Service controls and S2 recovery frames remain eligible.
+ */
+void zwave_tx_set_transport_service_rx_node(zwave_node_id_t remote_node_id);
 
 /**
  * @brief Returns a pointer to frame data for a given Z-Wave Tx session ID.

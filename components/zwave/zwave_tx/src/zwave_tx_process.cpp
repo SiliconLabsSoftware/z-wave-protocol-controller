@@ -88,6 +88,10 @@ namespace
     // replies" wedge.
     std::vector<zwave_tx_session_id_t> preempted_backoff_stack;
 
+    // Transport Service has a single receive context. Track its source while
+    // a datagram is incomplete so S2 application sends to that node can wait.
+    std::atomic<zwave_node_id_t> transport_service_rx_node {0};
+
     /**
      * @brief Returns true if the Z-Wave frame is an S2 transport-internal
      * frame (S2 NONCE_GET or S2 NONCE_REPORT).
@@ -456,6 +460,28 @@ static bool zwave_tx_can_ignore_incoming_frames()
     return (next_element.options.transport.ignore_incoming_frames_back_off && (next_element.transmission_timestamp == 0));
 }
 
+static bool is_s2_application_send_blocked_by_transport_service(const zwave_tx_queue_element_t &element)
+{
+    const auto node_id = transport_service_rx_node.load();
+    if ((node_id == 0) || (element.transmission_timestamp != 0) || element.connection_info.remote.is_multicast || (element.connection_info.remote.node_id != node_id)) {
+        return false;
+    }
+
+    switch (element.connection_info.encapsulation) {
+        case ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_2_UNAUTHENTICATED:
+        case ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_2_AUTHENTICATED:
+        case ZWAVE_CONTROLLER_ENCAPSULATION_SECURITY_2_ACCESS:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static bool is_frame_eligible_during_transport_service_reassembly(const zwave_tx_queue_element_t &element)
+{
+    return !is_s2_application_send_blocked_by_transport_service(element);
+}
+
 /**
  * @brief Inspect the highest priority element in the queue and initiate sending.
  */
@@ -499,6 +525,14 @@ static void zwave_tx_process_send_next_message_step()
                        zwave_tx_state_name(state));
         return;
     }
+    if (is_s2_application_send_blocked_by_transport_service(current_element)) {
+        sl_log_debug(LOG_TAG, "Deferring S2 application frame id=%p to NodeID %u while Transport Service reassembly is active.", current_element.zwave_tx_session_id, current_element.connection_info.remote.node_id);
+        if ((state != ZWAVE_TX_STATE_IDLE) || (tx_queue.find_best_unsent_by_qos_matching(is_frame_eligible_during_transport_service_reassembly, &current_element) != SL_STATUS_OK)) {
+            return;
+        }
+        sl_log_debug(LOG_TAG, "Dispatching eligible frame id=%p while S2 sends to NodeID %u are deferred.", current_element.zwave_tx_session_id, transport_service_rx_node.load());
+    }
+
     // Save the current Session ID.
     current_tx_session_id = current_element.zwave_tx_session_id;
 
@@ -1015,6 +1049,19 @@ void zwave_tx_process_set_expected_frames(zwave_node_id_t remote_node_id, uint8_
     }
 }
 
+void zwave_tx_process_set_transport_service_rx_node(zwave_node_id_t remote_node_id)
+{
+    const auto previous_node = transport_service_rx_node.exchange(remote_node_id);
+    if (remote_node_id != 0) {
+        if (previous_node != remote_node_id) {
+            sl_log_debug(LOG_TAG, "Transport Service RX reassembly active for NodeID %u.", remote_node_id);
+        }
+    } else if (previous_node != 0) {
+        sl_log_debug(LOG_TAG, "Transport Service RX reassembly inactive for NodeID %u; resuming queued S2 sends.", previous_node);
+        zwave_tx_process_post_event(ZWAVE_TX_SEND_NEXT_MESSAGE, nullptr);
+    }
+}
+
 void zwave_tx_process_log_state()
 {
     bool timer_running = (static_cast<int>(timer_expired(&backoff_timer)) == 0);
@@ -1043,6 +1090,7 @@ namespace zwave_component
         state = ZWAVE_TX_STATE_IDLE;
         tx_queue.clear();
         expected_incoming_frames.clear();
+        transport_service_rx_node.store(0);
         zwave_tx_init();
         zwave_tx_route_cache_init();
         zwave_tx_process_open_tx_queue();
@@ -1084,6 +1132,7 @@ namespace zwave_component
             state = ZWAVE_TX_STATE_IDLE;
             tx_queue.clear();
             expected_incoming_frames.clear();
+            transport_service_rx_node.store(0);
             preempted_backoff_stack.clear();
             initialized = false;
             sl_log_info(LOG_TAG, "Z-Wave Tx process exited.\n");

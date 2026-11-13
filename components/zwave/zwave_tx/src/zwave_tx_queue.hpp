@@ -332,6 +332,11 @@ class zwave_tx_queue
         sl_status_t find_best_unsent_by_qos(zwave_tx_queue_element_t *element) const;
 
         /**
+         * @brief Highest-QoS unsent frame that matches a dispatch eligibility predicate.
+         */
+        sl_status_t find_best_unsent_by_qos_matching(bool (*is_eligible)(const zwave_tx_queue_element_t &), zwave_tx_queue_element_t *element) const;
+
+        /**
          * @brief Like \ref find_best_unsent_by_qos but restricted to standalone
          *        back-off-bypass frames (`ignore_incoming_frames_back_off`, no parent).
          *

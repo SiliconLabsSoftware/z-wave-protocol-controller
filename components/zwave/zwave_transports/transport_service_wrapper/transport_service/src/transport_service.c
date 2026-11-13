@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include "transport_service.h"
 #include "zwave_tx.h"
 #include "clock_platform.h"
@@ -49,10 +50,40 @@ static uint16_t offset_to_request = 0;
 
 static uint8_t flag_tie_broken      = 0;
 static uint8_t flag_initialize_once = 1;  // to initialize the receive session stuff once
+static pthread_mutex_t transport_service_mutex;
+static pthread_once_t transport_service_mutex_once = PTHREAD_ONCE_INIT;
+
+static void initialize_transport_service_mutex(void)
+{
+    pthread_mutexattr_t attributes;
+    pthread_mutexattr_init(&attributes);
+    pthread_mutexattr_settype(&attributes, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&transport_service_mutex, &attributes);
+    pthread_mutexattr_destroy(&attributes);
+}
+
+static void lock_transport_service(void)
+{
+    pthread_once(&transport_service_mutex_once, initialize_transport_service_mutex);
+    pthread_mutex_lock(&transport_service_mutex);
+}
+
+static void unlock_transport_service(void)
+{
+    pthread_mutex_unlock(&transport_service_mutex);
+}
+
+static void set_incoming_datagram_source(ts_node_id_t source)
+{
+    zwave_tx_set_transport_service_rx_node(source);
+}
+
 static void reply_frag_req();
 static uint8_t send_frag_wait_cmd();
 static void send_subseq_frag(void *nthing);
+void transport_service_senddata_cb(uint8_t status, void *user);
 void fc_timer_expired(void *nthing);
+static void rx_timer_expired_impl(void *ss, bool timer_callback);
 static void send_first_frag();
 static uint8_t get_next_missing_offset();
 static void rx_timer_expired(void *ss);
@@ -62,9 +93,12 @@ static void send_last_frag(void);
 #define log_error(f, ...) sl_log_debug(LOG_TAG, f, ##__VA_ARGS__)
 void transport_service_init(ts_node_id_t node_id, const upper_layer_command_handler_t command_handler, const send_data_t send_data)
 {
+    lock_transport_service();
+    set_incoming_datagram_source(0);
     lower_layer_send_data       = send_data;
     upper_layer_command_handler = command_handler;
     my_node_id                  = node_id;
+    unlock_transport_service();
 }
 
 uint8_t t2_txBuf[PAYLOAD_SIZE_MAX + sizeof(ZW_COMMAND_SUBSEQUENT_FRAGMENT_1BYTE_FRAME) - 1];
@@ -473,7 +507,7 @@ uint8_t is_transport_service_sending()
     return (recv_or_send() == 0) ? 1 : 0;
 }
 
-void transport_service_senddata_cb(uint8_t status, void *user)
+static void transport_service_senddata_cb_impl(uint8_t status, void *user)
 {
     (void)user;
     /* : May be, this should be part of the specs
@@ -532,6 +566,7 @@ void transport_service_senddata_cb(uint8_t status, void *user)
 
 static uint8_t discard_all_received_fragments(void)
 {
+    set_incoming_datagram_source(0);
     memset(rcb.datagramData, 0, sizeof(rcb.datagramData));
 
     memset((uint8_t *)&rcb.cmn, 0, sizeof(control_block_t));
@@ -541,14 +576,24 @@ static uint8_t discard_all_received_fragments(void)
     return 0;
 }
 
-static void reset_transport_service(void *user)
+static void reset_transport_service_impl(void *user)
 {
     (void)user;
+    if (timer_running(&scb.reset_timer)) {
+        return;
+    }
     log_debug("reset_timer expired going back to ST_IDLE state \n");
     timer_stop(&scb.reset_timer);
     current_state = ST_IDLE;
     discard_all_received_fragments();
     scb.sending = 0;
+}
+
+static void reset_transport_service(void *user)
+{
+    lock_transport_service();
+    reset_transport_service_impl(user);
+    unlock_transport_service();
 }
 
 static uint8_t send_frag_wait_cmd()
@@ -643,6 +688,7 @@ static uint8_t send_frag_complete_cmd()
         log_debug("send_data failed\n"); /* What to do of sending Frag Compl fails */
     }
 
+    set_incoming_datagram_source(0);
     upper_layer_command_handler(rcb.cmn.source, rcb.cmn.dest, rcb.datagramData, rcb.datagram_size); /**/
 
     /* Resetting for next session */
@@ -703,7 +749,7 @@ static uint8_t send_frag_req_cmd()
         log_debug("send_data failed \n");
         log_debug("Retrying sending fragment request\n");
         if (i) {
-            rx_timer_expired(&rcb.rx_data);
+            rx_timer_expired_impl(&rcb.rx_data, false);
         }
     }
 
@@ -732,6 +778,7 @@ static void find_missing()
         if (rcb.rx_type == BROADCAST) {
             log_debug("Fragment transfer has compoleted, but in broadcast datagram. "
                       "Not sending fragment complete command to sender\n");
+            set_incoming_datagram_source(0);
             return;
         }
         t2_sm_post_event(EV_SEND_FRAG_COMPLETE);
@@ -748,7 +795,7 @@ static void add_crc(uint8_t *buf, uint16_t len)
     *tmp_buf   = (crc) & 0xff;
 }
 
-static void temp_callback_last_frag(uint8_t status, void *user)
+static void temp_callback_last_frag_impl(uint8_t status, void *user)
 {
     (void)user;
     if (status != 0) {
@@ -770,6 +817,13 @@ static void temp_callback_last_frag(uint8_t status, void *user)
         timer_set(&rcb.fc_timer, FRAGMENT_FC_TIMEOUT, fc_timer_expired, 0);
         t2_sm_post_event(EV_SUCCESS); /* Go to ST_WAIT_ACK state */
     }
+}
+
+static void temp_callback_last_frag(uint8_t status, void *user)
+{
+    lock_transport_service();
+    temp_callback_last_frag_impl(status, user);
+    unlock_transport_service();
 }
 
 static void send_last_frag(void)
@@ -813,7 +867,7 @@ static void send_last_frag(void)
     }
 }
 
-static void send_subseq_frag(void *nthing)
+static void send_subseq_frag_impl(void *nthing)
 {
     (void)nthing;
     uint8_t ret = 0;
@@ -878,7 +932,14 @@ static void send_subseq_frag(void *nthing)
     t2_sm_post_event(EV_SEND_NEW_FRAG); /*ZCB_send_subseq_frag*/
 }
 
-void temp_callback_reply_frag_req(unsigned char status, void *user)
+static void send_subseq_frag(void *nthing)
+{
+    lock_transport_service();
+    send_subseq_frag_impl(nthing);
+    unlock_transport_service();
+}
+
+static void temp_callback_reply_frag_req_impl(unsigned char status, void *user)
 {
     (void)user;
     //    memcpy((uint8_t*)&scb.cmn.tx_status, ts, sizeof(TX_STATUS_TYPE));
@@ -889,7 +950,14 @@ void temp_callback_reply_frag_req(unsigned char status, void *user)
     t2_sm_post_event(EV_SENT_MISS_FRAG);
 }
 
-void fc_timer_expired(void *nthing)
+void temp_callback_reply_frag_req(unsigned char status, void *user)
+{
+    lock_transport_service();
+    temp_callback_reply_frag_req_impl(status, user);
+    unlock_transport_service();
+}
+
+static void fc_timer_expired_impl(void *nthing)
 {
     (void)nthing;
     if (scb.flag_replied_frag_req) {
@@ -939,6 +1007,13 @@ void fc_timer_expired(void *nthing)
     t2_sm_post_event(EV_FRAG_COMPL_TIMER); /*send_last_frag() */
     scb.flag_fc_timer_expired_once++;
     send_last_frag();
+}
+
+void fc_timer_expired(void *nthing)
+{
+    lock_transport_service();
+    fc_timer_expired_impl(nthing);
+    unlock_transport_service();
 }
 
 /*this has to be aligned in sending session similarly to send_frag_wait_cmd() */
@@ -1012,8 +1087,11 @@ static uint8_t get_next_missing_offset()
     return 0;
 }
 
-static void rx_timer_expired(void *ss)
+static void rx_timer_expired_impl(void *ss, bool timer_callback)
 {
+    if (timer_callback && timer_running(&rcb.rx_timer)) {
+        return;
+    }
     log_debug("rx_timer_expired\n");
     const struct rx_timer_expired_data *rdata = ss;
     uint8_t state                             = 0;
@@ -1035,10 +1113,24 @@ static void rx_timer_expired(void *ss)
     }
 }
 
-static void wait_restart_from_first(void *nthing)
+static void rx_timer_expired(void *ss)
+{
+    lock_transport_service();
+    rx_timer_expired_impl(ss, true);
+    unlock_transport_service();
+}
+
+static void wait_restart_from_first_impl(void *nthing)
 {
     (void)nthing;
     send_first_frag();
+}
+
+static void wait_restart_from_first(void *nthing)
+{
+    lock_transport_service();
+    wait_restart_from_first_impl(nthing);
+    unlock_transport_service();
 }
 
 static bool receive(void)
@@ -1097,6 +1189,7 @@ static bool receive(void)
                 t2_sm_post_event(EV_DIFF_SESSION);
                 return false;
             }
+            set_incoming_datagram_source(rcb.cmn.source);
             // Tell the Tx Queue to take it easy, we have incoming frames.
             zwave_tx_set_expected_frames(rcb.cmn.source, 1);
             timer_set(&rcb.rx_timer, FRAGMENT_RX_TIMEOUT, rx_timer_expired, &rcb.rx_data);
@@ -1513,7 +1606,10 @@ static bool transport_service_command_handler(ts_node_id_t source, ts_node_id_t 
 
 bool transport_service_on_frame_received(ts_node_id_t source, ts_node_id_t dest, receive_type rx_type, const uint8_t *frame_data, uint8_t frame_length)
 {
-    return transport_service_command_handler(source, dest, rx_type, frame_data, frame_length);
+    lock_transport_service();
+    const bool handled = transport_service_command_handler(source, dest, rx_type, frame_data, frame_length);
+    unlock_transport_service();
+    return handled;
 }
 
 static void send_first_frag()
@@ -1587,7 +1683,14 @@ static void send_first_frag()
     scb.sending = 1;
 }
 
-transport_service_send_data_return_code_t transport_service_send_data(ts_node_id_t source, ts_node_id_t dest, const uint8_t *payload, uint16_t payload_len, uint16_t max_frame_len, const on_transport_service_send_data_complete_t c)
+void transport_service_senddata_cb(uint8_t status, void *user)
+{
+    lock_transport_service();
+    transport_service_senddata_cb_impl(status, user);
+    unlock_transport_service();
+}
+
+static transport_service_send_data_return_code_t transport_service_send_data_impl(ts_node_id_t source, ts_node_id_t dest, const uint8_t *payload, uint16_t payload_len, uint16_t max_frame_len, const on_transport_service_send_data_complete_t c)
 {
     on_send_complete_cb = c;
     max_fragment_size   = max_frame_len - 7;
@@ -1645,4 +1748,12 @@ transport_service_send_data_return_code_t transport_service_send_data(ts_node_id
     }
     send_first_frag();
     return TRANSPORT_SERVICE_SEND_SUCCESS;
+}
+
+transport_service_send_data_return_code_t transport_service_send_data(ts_node_id_t source, ts_node_id_t dest, const uint8_t *payload, uint16_t payload_len, uint16_t max_frame_len, const on_transport_service_send_data_complete_t c)
+{
+    lock_transport_service();
+    const transport_service_send_data_return_code_t result = transport_service_send_data_impl(source, dest, payload, payload_len, max_frame_len, c);
+    unlock_transport_service();
+    return result;
 }
