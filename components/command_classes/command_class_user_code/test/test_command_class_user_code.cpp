@@ -1942,15 +1942,28 @@ TEST_F(UserCodeCommandClassTest, MqttAdminCodeSetRejectsLengthMismatch)
     EXPECT_FALSE(target.child_by_type(ADMIN_SET_GROUP).is_valid());
 }
 
-// Spec 2026B Admin Code Set (CC:0063.02.0E.11.005). MQTT stores length 0 when ACD is set.
-TEST_F(UserCodeCommandClassTest, MqttAdminCodeSetStoresDeactivation)
+// Spec 2026B Admin Code Set (CC:0063.02.0E.11.005). Deactivation clears an earlier code and assembles a zero-length Set.
+TEST_F(UserCodeCommandClassTest, MqttAdminCodeSetClearsExistingCodeWhenDeactivated)
 {
-    auto target               = version_two_peer(static_cast<uint8_t>(AC_SUPPORT_MASK | ACD_SUPPORT_MASK | MASK_LENGTH_ONE), MASK_LENGTH_ONE, KEYPAD_TWO_MODES, TWO_SUPPORTED_USERS, TWO_SUPPORTED_USERS);
-    const std::string payload = std::string("{\"properties1\":{\"admin_code_length\":") + std::to_string(LENGTH_ZERO) + "}}";
+    auto target                       = version_two_peer(static_cast<uint8_t>(AC_SUPPORT_MASK | ACD_SUPPORT_MASK | MASK_LENGTH_ONE), MASK_LENGTH_ONE, KEYPAD_TWO_MODES, TWO_SUPPORTED_USERS, TWO_SUPPORTED_USERS);
+    const std::string set_payload     = std::string("{\"properties1\":{\"admin_code_length\":") + std::to_string(ADMIN_CODE_LENGTH) + "},\"admin_code\":" + json_bytes(ASCII_CODE) + "}";
+    const std::string disable_payload = std::string("{\"properties1\":{\"admin_code_length\":") + std::to_string(LENGTH_ZERO) + "}}";
 
-    ASSERT_EQ(SL_STATUS_OK, component().mqtt_on_admin_code_set_command(target, payload));
+    // Seed the persistent command group with the currently configured Admin Code.
+    ASSERT_EQ(SL_STATUS_OK, component().mqtt_on_admin_code_set_command(target, set_payload));
+    ASSERT_EQ(ASCII_CODE, target.child_by_type(ADMIN_SET_GROUP).child_by_type(static_cast<attribute_store_type_t>(admin_code_set_group_attributes_t::admin_code)).desired<std::vector<uint8_t>>());
 
-    EXPECT_EQ(LENGTH_ZERO, target.child_by_type(ADMIN_SET_GROUP).child_by_type(static_cast<attribute_store_type_t>(admin_code_set_group_attributes_t::admin_code_length)).desired<uint8_t>());
+    // Deactivation must clear that code, otherwise frame validation sees a length mismatch.
+    ASSERT_EQ(SL_STATUS_OK, component().mqtt_on_admin_code_set_command(target, disable_payload));
+    auto group = target.child_by_type(ADMIN_SET_GROUP);
+    EXPECT_EQ(LENGTH_ZERO, group.child_by_type(static_cast<attribute_store_type_t>(admin_code_set_group_attributes_t::admin_code_length)).desired<uint8_t>());
+    EXPECT_TRUE(group.child_by_type(static_cast<attribute_store_type_t>(admin_code_set_group_attributes_t::admin_code)).desired<std::vector<uint8_t>>().empty());
+
+    // Confirm the updated group assembles to Admin Code Set with a zero length and no code bytes.
+    uint8_t frame[FRAME_BUFFER_SIZE] {};
+    uint16_t frame_length = 0;
+    ASSERT_EQ(SL_STATUS_OK, assemble(group, ADMIN_CODE_SET, frame, &frame_length, true));
+    EXPECT_EQ(std::vector<uint8_t>({USER_CODE_CC, ADMIN_CODE_SET, LENGTH_ZERO}), std::vector<uint8_t>(frame, frame + frame_length));
 }
 
 // Spec 2026B Extended User Code Set (CC:0063.02.0B.11.001). An empty block list is refused.
