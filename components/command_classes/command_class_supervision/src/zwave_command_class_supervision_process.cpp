@@ -22,13 +22,17 @@
 
 // ZPC includes
 #include "zwave_tx_groups.h"
+#include "zwapi_protocol_transport.h"
 
 #include "timer.hpp"
 
 // Generic includes
+#include <atomic>
 #include <map>
+#include <mutex>
 #include <cstdlib>
 #include <string.h>
+#include <vector>
 
 constexpr char LOG_TAG[] = "supervision_process";
 
@@ -47,10 +51,95 @@ static struct timer_handle_t supervision_timer {nullptr};
 // List of Supervision sessions that are monitored.
 std::map<supervision_id_t, supervised_session_t> sessions;
 typedef std::map<supervision_id_t, supervised_session_t>::iterator session_iterator_t;
+static std::recursive_mutex sessions_mutex;
+
+class supervision_sessions_lock
+{
+    public:
+        supervision_sessions_lock()
+        {
+            sessions_mutex.lock();
+        }
+        ~supervision_sessions_lock()
+        {
+            sessions_mutex.unlock();
+        }
+        supervision_sessions_lock(const supervision_sessions_lock &)            = delete;
+        supervision_sessions_lock &operator=(const supervision_sessions_lock &) = delete;
+};
 
 // Variable for the next session-id to assign for a transmission
 static supervision_id_t next_supervision_id = 1;
-static uint8_t next_session_id              = 0;
+static std::atomic<uint8_t> next_session_id {0};
+
+static clock_time_t compute_next_expiry_locked()
+{
+    clock_time_t next_expiry = 0;
+    for (auto it = sessions.begin(); it != sessions.end(); ++it) {
+        if (it->second.expiry_time == 0) {
+            continue;
+        }
+        if (next_expiry == 0) {
+            next_expiry = it->second.expiry_time;
+        } else if (it->second.expiry_time < next_expiry) {
+            next_expiry = it->second.expiry_time;
+        }
+    }
+    return next_expiry;
+}
+
+static void arm_supervision_timer(clock_time_t next_expiry)
+{
+    timer_stop(&supervision_timer);
+    if (next_expiry == 0) {
+        return;
+    }
+    const clock_time_t now = clock_time();
+    if (next_expiry < now) {
+        timer_set(&supervision_timer, 1, supervision_process_on_timer_expired_event, 0);
+    } else {
+        timer_set(&supervision_timer, next_expiry - now, supervision_process_on_timer_expired_event, 0);
+    }
+}
+
+static void process_supervision_timer_expiry()
+{
+    clock_time_t now = clock_time();
+    std::vector<supervision_id_t> expired_sessions;
+    struct expired_callback {
+            on_zwave_tx_send_data_complete_t callback;
+            bool tx_info_valid;
+            zwapi_tx_report_t tx_info;
+            void *user;
+    };
+    std::vector<expired_callback> callbacks;
+    {
+        supervision_sessions_lock lock;
+        for (session_iterator_t it = sessions.begin(); it != sessions.end(); ++it) {
+            if (it->second.expiry_time <= now) {
+                sl_log_debug(LOG_TAG,
+                             "Timed out waiting for a Supervision Report for NodeID "
+                             "%d:%d Session ID %d. "
+                             "Considering Supervision ID %d Session failed",
+                             it->second.session.node_id,
+                             it->second.session.endpoint_id,
+                             it->second.session.session_id,
+                             it->first);
+                expired_sessions.push_back(it->first);
+                if (it->second.callback != nullptr) {
+                    callbacks.push_back({it->second.callback, it->second.tx_info_valid, it->second.tx_info, it->second.user});
+                }
+            }
+        }
+        for (auto &session: expired_sessions) {
+            sessions.erase(session);
+        }
+    }
+    for (auto &cb: callbacks) {
+        cb.callback(SUPERVISION_REPORT_FAIL, cb.tx_info_valid ? &cb.tx_info : nullptr, cb.user);
+    }
+    zwave_command_class_supervision_restart_timer();
+}
 
 static void increment_unique_supervision_id()
 {
@@ -66,37 +155,12 @@ static void increment_unique_supervision_id()
  */
 void zwave_command_class_supervision_restart_timer()
 {
-    timer_stop(&supervision_timer);
-    if (sessions.empty()) {
-        return;
-    }
-
-    // Else find the next supervision session to expire
-    clock_time_t next_expiry = 0;
-    for (auto it = sessions.begin(); it != sessions.end(); ++it) {
-        if (it->second.expiry_time == 0) {
-            continue;
-        }
-        if (next_expiry == 0) {
-            next_expiry = it->second.expiry_time;
-        } else if (it->second.expiry_time < next_expiry) {
-            next_expiry = it->second.expiry_time;
-        }
-    }
-
-    // Set the timer and leave extra room for the Supervision Report to come to us.
-    if (next_expiry != 0) {
-        // zwave_command_class_supervision_close_session call this function, and may be
-        // invoked from another process, so make sure the timer is started within
-        // the Supervision Process context
-        if (next_expiry < clock_time()) {
-            // Already expired! Restart the timer in 1ms and get rid of
-            // the already expired sessions
-            timer_set(&supervision_timer, 1, supervision_process_on_timer_expired_event, 0);
-        } else {
-            timer_set(&supervision_timer, next_expiry - clock_time(), supervision_process_on_timer_expired_event, 0);
-        }
-    }
+    // Arm while holding sessions_mutex so a concurrent TX/RX update cannot
+    // snapshot an older deadline and overwrite a newer one. TimerManager
+    // releases its mutex before invoking this callback, so the lock order is
+    // sessions then timer — the same as other API paths.
+    supervision_sessions_lock lock;
+    arm_supervision_timer(compute_next_expiry_locked());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,33 +171,8 @@ void zwave_command_class_supervision_restart_timer()
  */
 static void supervision_process_on_timer_expired_event(void *ptr)
 {
-    clock_time_t now = clock_time();
-    std::vector<supervision_id_t> expired_sessions;
-    for (session_iterator_t it = sessions.begin(); it != sessions.end(); ++it) {
-        if (it->second.expiry_time <= now) {
-            sl_log_debug(LOG_TAG,
-                         "Timed out waiting for a Supervision Report for NodeID "
-                         "%d:%d Session ID %d. "
-                         "Considering Supervision ID %d Session failed",
-                         it->second.session.node_id,
-                         it->second.session.endpoint_id,
-                         it->second.session.session_id,
-                         it->first);
-            expired_sessions.push_back(it->first);
-            if (it->second.callback != nullptr) {
-                it->second.callback(SUPERVISION_REPORT_FAIL, it->second.tx_info_valid ? &it->second.tx_info : nullptr, it->second.user);
-                // Break in case the callbacks triggered some supervision session closure.
-                break;
-            }
-        }
-    }
-    // Remove them from the sessions list.
-    for (auto &session: expired_sessions) {
-        sessions.erase(session);
-    }
-
-    // Restart the timer for the next sessions.
-    zwave_command_class_supervision_restart_timer();
+    (void)ptr;
+    process_supervision_timer_expiry();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,14 +180,70 @@ static void supervision_process_on_timer_expired_event(void *ptr)
 ////////////////////////////////////////////////////////////////////////////////
 supervised_session_t *zwave_command_class_supervision_find_session_by_unique_id(supervision_id_t supervision_id)
 {
+    supervision_sessions_lock lock;
     if (sessions.contains(supervision_id)) {
         return (supervised_session_t *)(&sessions[supervision_id]);
     }
     return nullptr;
 }
 
+sl_status_t zwave_command_class_supervision_copy_session_id(supervision_id_t supervision_id, uint8_t *session_id)
+{
+    if (session_id == nullptr) {
+        return SL_STATUS_FAIL;
+    }
+    supervision_sessions_lock lock;
+    const auto it = sessions.find(supervision_id);
+    if (it == sessions.end()) {
+        return SL_STATUS_NOT_FOUND;
+    }
+    *session_id = it->second.session.session_id;
+    return SL_STATUS_OK;
+}
+
+void zwave_command_class_supervision_handle_send_data_complete(supervision_id_t supervision_id, uint8_t status, const zwapi_tx_report_t *tx_info)
+{
+    on_zwave_tx_send_data_complete_t callback = nullptr;
+    void *user                                = nullptr;
+    bool invoke_fail                          = false;
+
+    {
+        supervision_sessions_lock lock;
+        const auto it = sessions.find(supervision_id);
+        if (it == sessions.end()) {
+            // RX already received the report and closed the session, or multicast.
+            return;
+        }
+        supervised_session_t &session = it->second;
+
+        if ((status != TRANSMIT_COMPLETE_OK) && (status != TRANSMIT_COMPLETE_VERIFIED)) {
+            if (session.callback != nullptr) {
+                invoke_fail = true;
+                callback    = session.callback;
+                user        = session.user;
+            }
+            sessions.erase(it);
+        } else {
+            // Report can arrive before this TX callback; keep WORKING expiry.
+            if (session.status != SUPERVISION_REPORT_WORKING) {
+                session.expiry_time = clock_time() + SUPERVISION_REPORT_TIMEOUT;
+            }
+            session.tx_info_valid = true;
+            if (tx_info != nullptr) {
+                session.tx_info = *tx_info;
+            }
+        }
+    }
+
+    if (invoke_fail) {
+        callback(SUPERVISION_REPORT_FAIL, tx_info, user);
+    }
+    zwave_command_class_supervision_restart_timer();
+}
+
 supervision_id_t zwave_command_class_supervision_find_session(uint8_t session_id, zwave_node_id_t node_id, zwave_endpoint_id_t endpoint_id)
 {
+    supervision_sessions_lock lock;
     for (auto it = sessions.begin(); it != sessions.end(); ++it) {
         if (it->second.session.node_id == node_id && it->second.session.endpoint_id == endpoint_id && it->second.session.session_id == session_id) {
             return it->first;
@@ -159,9 +254,10 @@ supervision_id_t zwave_command_class_supervision_find_session(uint8_t session_id
 
 static supervision_id_t zwave_command_class_supervision_create_singlecast_session(zwave_node_id_t node_id, zwave_endpoint_id_t endpoint_id, uint32_t discard_timeout_ms, on_zwave_tx_send_data_complete_t callback, void *user)
 {
+    supervision_sessions_lock lock;
     supervised_session_t new_session = {};
 
-    new_session.session.session_id  = next_session_id & SUPERVISION_GET_PROPERTIES1_SESSION_ID_MASK;
+    new_session.session.session_id  = next_session_id.load() & SUPERVISION_GET_PROPERTIES1_SESSION_ID_MASK;
     new_session.session.node_id     = node_id;
     new_session.session.endpoint_id = endpoint_id;
     new_session.session.group_id    = ZWAVE_TX_INVALID_GROUP;
@@ -177,12 +273,13 @@ static supervision_id_t zwave_command_class_supervision_create_singlecast_sessio
 
     // Increment the Session IDs for the next call
     increment_unique_supervision_id();
-    next_session_id += 1;
+    next_session_id.fetch_add(1);
     return return_value;
 }
 
 static supervision_id_t zwave_command_class_supervision_update_singlecast_follow_up_session(zwave_node_id_t node_id, zwave_multicast_group_id_t group_id, zwave_endpoint_id_t endpoint_id, uint32_t discard_timeout_ms, on_zwave_tx_send_data_complete_t callback, void *user)
 {
+    supervision_sessions_lock lock;
     for (auto it = sessions.begin(); it != sessions.end(); ++it) {
         if (it->second.session.node_id == node_id && it->second.session.endpoint_id == endpoint_id && it->second.session.group_id == group_id) {
             it->second.callback    = callback;
@@ -203,9 +300,10 @@ static supervision_id_t zwave_command_class_supervision_update_singlecast_follow
 
 static supervision_id_t zwave_command_class_supervision_create_group_session(zwave_multicast_group_id_t group_id, zwave_endpoint_id_t endpoint_id, uint32_t discard_timeout_ms, on_zwave_tx_send_data_complete_t callback, void *user)
 {
+    supervision_sessions_lock lock;
     supervision_id_t return_value    = INVALID_SUPERVISION_ID;
     supervised_session_t new_session = {};
-    new_session.session.session_id   = next_session_id & SUPERVISION_GET_PROPERTIES1_SESSION_ID_MASK;
+    new_session.session.session_id   = next_session_id.load() & SUPERVISION_GET_PROPERTIES1_SESSION_ID_MASK;
     new_session.session.endpoint_id  = endpoint_id;
     new_session.session.group_id     = group_id;
     new_session.callback             = callback;
@@ -228,12 +326,13 @@ static supervision_id_t zwave_command_class_supervision_create_group_session(zwa
 
     // Increment the Session IDs for the next call, all nodes in this group have
     // the same Session ID
-    next_session_id += 1;
+    next_session_id.fetch_add(1);
     return return_value;
 }
 
 supervision_id_t zwave_command_class_supervision_create_session(const zwave_controller_connection_info_t *connection, const zwave_tx_options_t *tx_options, on_zwave_tx_send_data_complete_t callback, void *user)
 {
+    supervision_sessions_lock lock;
     // What kind of message do we have here ?
     // Singlecast, Multicast, or singlecast follow-up ?
     if (connection->remote.is_multicast) {
@@ -247,6 +346,7 @@ supervision_id_t zwave_command_class_supervision_create_session(const zwave_cont
 
 sl_status_t zwave_command_class_supervision_assign_session_tx_id(supervision_id_t supervision_id, zwave_tx_session_id_t tx_session_id)
 {
+    supervision_sessions_lock lock;
     supervised_session_t *session = zwave_command_class_supervision_find_session_by_unique_id(supervision_id);
     if (session == nullptr) {
         return SL_STATUS_NOT_FOUND;
@@ -269,24 +369,27 @@ sl_status_t zwave_command_class_supervision_assign_session_tx_id(supervision_id_
 
 sl_status_t zwave_command_class_supervision_close_session(supervision_id_t supervision_id)
 {
-    if (supervision_id == INVALID_SUPERVISION_ID) {
-        return SL_STATUS_NOT_FOUND;
-    }
-    // Find the session
-    session_iterator_t it = sessions.find(supervision_id);
-    if (it == sessions.end()) {
-        return SL_STATUS_NOT_FOUND;
-    }
+    {
+        supervision_sessions_lock lock;
+        if (supervision_id == INVALID_SUPERVISION_ID) {
+            return SL_STATUS_NOT_FOUND;
+        }
+        // Find the session
+        session_iterator_t it = sessions.find(supervision_id);
+        if (it == sessions.end()) {
+            return SL_STATUS_NOT_FOUND;
+        }
 
-    sl_log_debug(LOG_TAG,
-                 "Closing Supervision Session %d "
-                 "(local SessionID %d with NodeID %d:%d, group %d)",
-                 supervision_id,
-                 it->second.session.session_id,
-                 it->second.session.node_id,
-                 it->second.session.endpoint_id,
-                 it->second.session.group_id);
-    sessions.erase(it);
+        sl_log_debug(LOG_TAG,
+                     "Closing Supervision Session %d "
+                     "(local SessionID %d with NodeID %d:%d, group %d)",
+                     supervision_id,
+                     it->second.session.session_id,
+                     it->second.session.node_id,
+                     it->second.session.endpoint_id,
+                     it->second.session.group_id);
+        sessions.erase(it);
+    }
     zwave_command_class_supervision_restart_timer();
 
     return SL_STATUS_OK;
@@ -294,18 +397,17 @@ sl_status_t zwave_command_class_supervision_close_session(supervision_id_t super
 
 sl_status_t zwave_command_class_supervision_close_session_by_tx_session(zwave_tx_session_id_t tx_session_id)
 {
-    // Find the session that has the desired tx_session_id
-    bool session_found              = false;
     supervision_id_t supervision_id = INVALID_SUPERVISION_ID;
-
-    for (auto it = sessions.begin(); it != sessions.end(); ++it) {
-        if (it->second.tx_session_valid && it->second.tx_session_id == tx_session_id) {
-            session_found  = true;
-            supervision_id = it->first;
-            break;
+    {
+        supervision_sessions_lock lock;
+        for (auto it = sessions.begin(); it != sessions.end(); ++it) {
+            if (it->second.tx_session_valid && it->second.tx_session_id == tx_session_id) {
+                supervision_id = it->first;
+                break;
+            }
         }
     }
-    if (!session_found) {
+    if (supervision_id == INVALID_SUPERVISION_ID) {
         sl_log_debug(LOG_TAG, "Could not find Tx Session %p among supervised sessions", tx_session_id);
         return SL_STATUS_NOT_FOUND;
     }
@@ -315,45 +417,119 @@ sl_status_t zwave_command_class_supervision_close_session_by_tx_session(zwave_tx
 
 void zwave_command_class_supervision_process_log()
 {
-    sl_log_debug(LOG_TAG, "Number of Supervision Sessions: %d", sessions.size());
-    for (auto it = sessions.begin(); it != sessions.end(); ++it) {
-        sl_log_debug(LOG_TAG,
-                     "\t - Supervision ID %d / NodeID %d:%d - Group %d, "
-                     "Session ID %d - Callback (%p[%p]) - Expiry %lu",
-                     it->first,
-                     it->second.session.node_id,
-                     it->second.session.endpoint_id,
-                     it->second.session.group_id,
-                     it->second.session.session_id,
-                     it->second.callback,
-                     it->second.user,
-                     it->second.expiry_time);
-    }
-    if (0 == static_cast<int>(timer_expired(&supervision_timer))) {
-        sl_log_debug(LOG_TAG, "Supervision Timer running");
-    } else {
-        sl_log_debug(LOG_TAG, "Supervision Timer NOT running");
+    {
+        supervision_sessions_lock lock;
+        sl_log_debug(LOG_TAG, "Number of Supervision Sessions: %d", sessions.size());
+        for (auto it = sessions.begin(); it != sessions.end(); ++it) {
+            sl_log_debug(LOG_TAG,
+                         "\t - Supervision ID %d / NodeID %d:%d - Group %d, "
+                         "Session ID %d - Callback (%p[%p]) - Expiry %lu",
+                         it->first,
+                         it->second.session.node_id,
+                         it->second.session.endpoint_id,
+                         it->second.session.group_id,
+                         it->second.session.session_id,
+                         it->second.callback,
+                         it->second.user,
+                         it->second.expiry_time);
+        }
     }
 }
 
 void zwave_command_class_supervision_set_next_session_id(uint8_t session_id)
 {
-    next_session_id = session_id;
+    next_session_id.store(session_id);
 }
 
 void zwave_command_class_supervision_on_node_deleted(zwave_node_id_t node_id)
 {
-    std::vector<supervision_id_t> to_close;
-    for (auto it = sessions.begin(); it != sessions.end(); ++it) {
-        if (it->second.session.node_id == node_id) {
-            to_close.push_back(it->first);
+    struct pending_callback {
+            on_zwave_tx_send_data_complete_t callback;
+            bool tx_info_valid;
+            zwapi_tx_report_t tx_info;
+            void *user;
+    };
+    std::vector<pending_callback> callbacks;
+    {
+        supervision_sessions_lock lock;
+        std::vector<supervision_id_t> to_close;
+        for (auto it = sessions.begin(); it != sessions.end(); ++it) {
+            if (it->second.session.node_id == node_id) {
+                to_close.push_back(it->first);
+                if (it->second.callback != nullptr) {
+                    callbacks.push_back({it->second.callback, it->second.tx_info_valid, it->second.tx_info, it->second.user});
+                }
+            }
+        }
+        for (supervision_id_t id: to_close) {
+            sessions.erase(id);
         }
     }
-    for (supervision_id_t id: to_close) {
-        supervised_session_t *session = zwave_command_class_supervision_find_session_by_unique_id(id);
-        if (session != nullptr && session->callback != nullptr) {
-            session->callback(SUPERVISION_REPORT_FAIL, session->tx_info_valid ? &session->tx_info : nullptr, session->user);
-        }
-        zwave_command_class_supervision_close_session(id);
+    for (auto &cb: callbacks) {
+        cb.callback(SUPERVISION_REPORT_FAIL, cb.tx_info_valid ? &cb.tx_info : nullptr, cb.user);
     }
+    zwave_command_class_supervision_restart_timer();
+}
+
+sl_status_t zwave_command_class_supervision_handle_incoming_report(zwave_node_id_t node_id, zwave_endpoint_id_t endpoint_id, uint8_t session_id, uint8_t status, uint8_t more_status_updates, clock_time_t expiry_time)
+{
+    on_zwave_tx_send_data_complete_t callback = nullptr;
+    bool tx_info_valid                        = false;
+    zwapi_tx_report_t tx_info                 = {};
+    void *user                                = nullptr;
+    uint8_t callback_status                   = status;
+    bool invoke_callback                      = false;
+
+    {
+        supervision_sessions_lock lock;
+        const supervision_id_t supervision_id = zwave_command_class_supervision_find_session(session_id, node_id, endpoint_id);
+        supervised_session_t *current_session = zwave_command_class_supervision_find_session_by_unique_id(supervision_id);
+        if (current_session == nullptr) {
+            sl_log_debug(LOG_TAG, "NodeID %d:%d sent us an unknown Supervision Session ID (%d)", node_id, endpoint_id, session_id);
+            zwave_command_class_supervision_process_log();
+            return SL_STATUS_OK;
+        }
+
+        current_session->status      = status;
+        current_session->expiry_time = expiry_time;
+        sl_log_debug(LOG_TAG,
+                     "Incoming Supervision Report for NodeID %d:%d, group %d, "
+                     "Session ID (%d). Status: %d ",
+                     current_session->session.node_id,
+                     current_session->session.endpoint_id,
+                     current_session->session.group_id,
+                     current_session->session.session_id,
+                     current_session->status);
+
+        if (current_session->status == SUPERVISION_REPORT_WORKING) {
+            if (!static_cast<bool>(more_status_updates)) {
+                sl_log_debug(LOG_TAG,
+                             "NodeID %d:%d sent a WORKING status with the more_update "
+                             "flag set to 0. Supervision Session ID (%d) will probably "
+                             "time out automatically after its expiry duration",
+                             node_id,
+                             endpoint_id,
+                             current_session->session.session_id);
+            }
+        }
+
+        if (current_session->callback != nullptr) {
+            invoke_callback = true;
+            callback        = current_session->callback;
+            tx_info_valid   = current_session->tx_info_valid;
+            tx_info         = current_session->tx_info;
+            user            = current_session->user;
+            callback_status = current_session->status;
+        }
+
+        if (current_session->status != SUPERVISION_REPORT_WORKING) {
+            sessions.erase(supervision_id);
+        }
+    }
+
+    if (invoke_callback) {
+        callback(callback_status, tx_info_valid ? &tx_info : nullptr, user);
+    }
+    zwave_command_class_supervision_restart_timer();
+    return SL_STATUS_OK;
 }

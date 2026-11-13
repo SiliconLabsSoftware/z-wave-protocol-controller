@@ -55,41 +55,9 @@ void zwave_command_class_supervision_on_send_data_complete(uint8_t status, const
 {
     // At that point, we know TX has sent the frame
     // However, we rely on the Supervision Report to make the final callback.
-
-    // We need the process to start a timer, waiting for a report
-    // If the report was already received and processed, the timer will not do
-    // anything bad as the session will be closed when expiring.
-    zwave_command_class_supervision_restart_timer();
-
-    supervision_id_t supervision_id = (intptr_t)user;
-
-    supervised_session_t *ongoing_session = zwave_command_class_supervision_find_session_by_unique_id(supervision_id);
-
-    if (ongoing_session == NULL) {
-        // RX has already received the report and the session is closed.
-        // Or somebody asked for a callback for Multicast, which won't happen just yet
-        return;
-    }
-
-    // Verify that transmission was successful, else just callback a fail and close
-    // the supervision session
-    if ((status != TRANSMIT_COMPLETE_OK) && (status != TRANSMIT_COMPLETE_VERIFIED)) {
-        if (ongoing_session->callback != NULL) {
-            ongoing_session->callback(SUPERVISION_REPORT_FAIL, tx_info, ongoing_session->user);
-        }
-        zwave_command_class_supervision_close_session(supervision_id);
-        return;
-    }
-
-    // Start waiting for a report
-    // Verify here that we are not in the WORKING stage because sometimes the
-    // report comes in before the send_data callback.
-    if (ongoing_session->status != SUPERVISION_REPORT_WORKING) {
-        ongoing_session->expiry_time = clock_time() + SUPERVISION_REPORT_TIMEOUT;
-    }
-    // Save the tx info for the user callback later on.
-    ongoing_session->tx_info_valid = true;
-    memcpy(&ongoing_session->tx_info, tx_info, sizeof(zwapi_tx_report_t));
+    // Re-arm after handle_send_data_complete so the timer uses the updated
+    // report-timeout expiry, not the pre-TX emergency deadline.
+    zwave_command_class_supervision_handle_send_data_complete((supervision_id_t)(intptr_t)user, status, tx_info);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -108,10 +76,9 @@ sl_status_t
     }
 
     // Pick up the connection info and update the currently controlled session from it.
-    supervision_id_t supervision_id       = zwave_command_class_supervision_create_session(connection, tx_options, on_supervision_complete, user);
-    supervised_session_t *ongoing_session = zwave_command_class_supervision_find_session_by_unique_id(supervision_id);
-
-    if (ongoing_session == NULL) {
+    supervision_id_t supervision_id = zwave_command_class_supervision_create_session(connection, tx_options, on_supervision_complete, user);
+    uint8_t session_id              = 0;
+    if (zwave_command_class_supervision_copy_session_id(supervision_id, &session_id) != SL_STATUS_OK) {
         zwave_command_class_supervision_process_log();
         sl_log_warning(LOG_TAG,
                        "Cannot allocate Supervision ID for sending session. "
@@ -125,7 +92,7 @@ sl_status_t
     frame.command                       = SUPERVISION_GET;
 
     // We always ask for status updates.
-    frame.status_wake_session_field   = SUPERVISION_GET_PROPERTIES1_STATUS_UPDATES_BIT_MASK | ongoing_session->session.session_id;
+    frame.status_wake_session_field   = SUPERVISION_GET_PROPERTIES1_STATUS_UPDATES_BIT_MASK | session_id;
     frame.encapsulated_command_length = data_length;
     memcpy(frame.encapsulated_command, data_payload, data_length);
     uint16_t supervision_frame_size = sizeof(frame) - SUPERVISION_ENCAPSULATED_COMMAND_MAXIMUM_SIZE + data_length;
