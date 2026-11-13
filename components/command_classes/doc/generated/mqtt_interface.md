@@ -51,6 +51,7 @@ Example: `zpc/CAFECAFE/4/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoint 3
 | [COMMAND_CLASS_ASSOCIATION_GRP_INFO](command_class_association_grp_info/doc/generated/command_class_association_grp_info_mqtt_interface.md) | true | true | true |
 | [COMMAND_CLASS_DEVICE_RESET_LOCALLY](command_class_device_reset_locally/doc/generated/command_class_device_reset_locally_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_ZWAVEPLUS_INFO](command_class_zwaveplus_info/doc/generated/command_class_zwaveplus_info_mqtt_interface.md) | false | true | true |
+| [COMMAND_CLASS_BARRIER_OPERATOR](command_class_barrier_operator/doc/generated/command_class_barrier_operator_mqtt_interface.md) | true | false | true |
 | [COMMAND_CLASS_SECURITY_2](command_class_security_2/doc/generated/command_class_security_2_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_SUPERVISION](command_class_supervision/doc/generated/command_class_supervision_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_INCLUSION_CONTROLLER](command_class_inclusion_controller/doc/generated/command_class_inclusion_controller_mqtt_interface.md) | false | true | true |
@@ -93,6 +94,7 @@ Example: `zpc/CAFECAFE/4/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoint 3
 - [COMMAND_CLASS_ASSOCIATION_GRP_INFO](command_class_association_grp_info/doc/generated/command_class_association_grp_info_mqtt_interface.md)
 - [COMMAND_CLASS_DEVICE_RESET_LOCALLY](command_class_device_reset_locally/doc/generated/command_class_device_reset_locally_mqtt_interface.md)
 - [COMMAND_CLASS_ZWAVEPLUS_INFO](command_class_zwaveplus_info/doc/generated/command_class_zwaveplus_info_mqtt_interface.md)
+- [COMMAND_CLASS_BARRIER_OPERATOR](command_class_barrier_operator/doc/generated/command_class_barrier_operator_mqtt_interface.md)
 - [COMMAND_CLASS_SECURITY_2](command_class_security_2/doc/generated/command_class_security_2_mqtt_interface.md)
 - [COMMAND_CLASS_SUPERVISION](command_class_supervision/doc/generated/command_class_supervision_mqtt_interface.md)
 - [COMMAND_CLASS_INCLUSION_CONTROLLER](command_class_inclusion_controller/doc/generated/command_class_inclusion_controller_mqtt_interface.md)
