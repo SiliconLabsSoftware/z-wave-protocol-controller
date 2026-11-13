@@ -20,9 +20,14 @@
 #include "attribute.hpp"
 #include "attribute_store_fixt.h"
 #include "attribute_store_type_registration.h"
+#include "attribute_store_defined_attribute_types.h"
 #include "command_class_user_code.hpp"
+#include "command_class_user_code_constants.hpp"
 #include "command_class_user_code_core.hpp"
 #include "command_class_user_code_types.hpp"
+#include "command_class_user_credential.hpp"
+#include "command_class_user_credential_events.hpp"
+#include "command_class_user_credential_generated_types.hpp"
 #include "component_connector.hpp"
 #include "component_connector_common_events.hpp"
 #include "component_connector_types.hpp"
@@ -130,6 +135,11 @@ namespace user_code_test
     const std::vector<uint8_t> ASCII_CODE {DIGIT_1, DIGIT_2, DIGIT_3, DIGIT_4};
     const std::vector<uint8_t> ERASED_CODE {0x00, 0x00, 0x00, 0x00};
 
+    constexpr uint8_t USER_CREDENTIAL_VERSION_1                            = 1;
+    constexpr uint8_t USER_CREDENTIAL_VERSION_2                            = 2;
+    constexpr uint16_t USER_CREDENTIAL_USER_COUNT_ABOVE_USER_CODE_V1_RANGE = 1500;
+    constexpr size_t INTERVIEW_EVENT_DRAIN_PASSES                          = 3;
+
     const auto V1_REPORT_GROUP       = static_cast<attribute_store_type_t>(user_code_report_group_attributes_t::USER_CODE_REPORT_GROUP);
     const auto V1_REPORT_STATUS      = static_cast<attribute_store_type_t>(user_code_report_group_attributes_t::user_id_status);
     const auto V1_REPORT_CODE        = static_cast<attribute_store_type_t>(user_code_report_group_attributes_t::user_code);
@@ -197,6 +207,7 @@ namespace user_code_test
         add(static_cast<attribute_store_type_t>(admin_code_set_group_attributes_t::admin_code), "admin_code", admin_set);
         add(static_cast<attribute_store_type_t>(admin_code_report_group_attributes_t::admin_code), "admin_code", admin_report);
     }
+
 }  // namespace user_code_test
 
 using namespace user_code_test;
@@ -204,6 +215,12 @@ using namespace user_code_test;
 class UserCodeCommandClassTest : public ::testing::Test
 {
     protected:
+        static command_class_user_credential &user_credential_component()
+        {
+            static command_class_user_credential instance;
+            return instance;
+        }
+
         static command_class_user_code &component()
         {
             static command_class_user_code instance;
@@ -216,6 +233,7 @@ class UserCodeCommandClassTest : public ::testing::Test
             auto home = attribute_store::attribute::root().emplace_node(ATTRIBUTE_HOME_ID, std::vector<uint8_t>(TEST_HOME_ID.begin(), TEST_HOME_ID.end()));
             auto node = home.emplace_node(ATTRIBUTE_NODE_ID, TEST_NODE_ID);
             endpoint  = node.emplace_node(ATTRIBUTE_ENDPOINT_ID, TEST_ENDPOINT_ID);
+            (void)user_credential_component();
             (void)component();
             register_byte_array_attributes();
         }
@@ -237,13 +255,20 @@ class UserCodeCommandClassTest : public ::testing::Test
             endpoint.emplace_node(ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_USER_CODE)).set_reported(version);
         }
 
+        void set_user_credential_peer_version(uint8_t version)
+        {
+            endpoint.emplace_node(ZWAVE_CC_VERSION_ATTRIBUTE(COMMAND_CLASS_USER_CREDENTIAL)).set_reported(version);
+        }
+
         // The device interviewer opens this command class through the interview-done event.
         void open_interview(attribute_store::attribute target)
         {
             component_connector connector;
             const component_connector_interview_done_payload_t payload {static_cast<attribute_store_node_t>(target), SL_STATUS_OK};
             auto status = connector.fire_event_async(static_cast<uint32_t>(component_connector_common_events_t::COMPONENT_CONNECTOR_INTERVIEW_DONE), payload);
-            connector.run();
+            for (size_t pass = 0; pass < INTERVIEW_EVENT_DRAIN_PASSES; ++pass) {
+                connector.run();
+            }
             ASSERT_EQ(SL_STATUS_OK, status.get());
         }
 
@@ -1946,4 +1971,124 @@ TEST_F(UserCodeCommandClassTest, MqttExtendedUserCodeSetStoresOccupiedBlock)
     ASSERT_EQ(SL_STATUS_OK, component().mqtt_on_extended_user_code_set_command(target, payload));
 
     EXPECT_EQ(occupied_block(IDENTIFIER_MSB_ZERO, USER_IDENTIFIER_1), target.child_by_type(EXT_SET_GROUP).child_by_type(static_cast<attribute_store_type_t>(extended_user_code_set_group_attributes_t::vg1)).desired<std::vector<uint8_t>>());
+}
+
+// A Node Info frame without User Credential keeps the User Code interview.
+TEST_F(UserCodeCommandClassTest, InterviewWithoutUserCredentialStartsUserCodeGets)
+{
+    set_peer_version(USER_CODE_VERSION_2);
+    open_interview(endpoint);
+
+    EXPECT_TRUE(endpoint.child_by_type(CAP_GET_GROUP).is_valid());
+}
+
+// User Credential capacity is 16-bit; a positive count selects User Credential without writing the User Code 8-bit count.
+TEST_F(UserCodeCommandClassTest, InterviewSkipsGetsWhenUserCredentialHasUsers)
+{
+    constexpr uint16_t SUPPORTED_USER_COUNT = USER_CREDENTIAL_USER_COUNT_ABOVE_USER_CODE_V1_RANGE;
+    set_user_credential_peer_version(USER_CREDENTIAL_VERSION_1);
+    set_peer_version(USER_CODE_VERSION_2);
+    endpoint.emplace_node(ATTRIBUTE_ZWAVE_NIF, std::vector<uint8_t> {COMMAND_CLASS_USER_CREDENTIAL});
+    open_interview(endpoint);
+    EXPECT_FALSE(endpoint.child_by_type(CAP_GET_GROUP).is_valid());
+    command_class_user_credential_types::command_class_user_credential_attribute_map_t report {{"number_of_supported_user_unique_identifiers", SUPPORTED_USER_COUNT}};
+    EXPECT_EQ(SL_STATUS_OK, user_credential_component().on_user_capabilities_report_received_store(endpoint, report));
+    const auto user_capabilities = endpoint.child_by_type(static_cast<attribute_store_type_t>(command_class_user_credential_types::user_capabilities_report_group_attributes_t::USER_CAPABILITIES_REPORT_GROUP));
+
+    component_connector connector;
+    const user_credential_supported_user_count_payload_t payload {endpoint, SUPPORTED_USER_COUNT};
+    connector.fire_event(static_cast<uint32_t>(command_class_user_credential_events_t::COMMAND_CLASS_USER_CREDENTIAL_SUPPORTED_USER_COUNT), payload);
+    connector.run();
+
+    EXPECT_FALSE(endpoint.child_by_type(CAP_GET_GROUP).is_valid());
+    EXPECT_FALSE(endpoint.child_by_type(USERS_GET_GROUP).is_valid());
+    EXPECT_FALSE(endpoint.child_by_type(USERS_REPORT_GROUP).child_by_type(SUPPORTED_USERS).reported_exists());
+    EXPECT_EQ(SUPPORTED_USER_COUNT, user_capabilities.child_by_type(static_cast<attribute_store_type_t>(command_class_user_credential_types::user_capabilities_report_group_attributes_t::number_of_supported_user_unique_identifiers)).reported<uint16_t>());
+}
+
+// The same User Credential preference applies with User Code v1 and User Credential v2.
+TEST_F(UserCodeCommandClassTest, InterviewSkipsUserCodeV1WhenUserCredentialV2HasUsers)
+{
+    constexpr uint16_t SUPPORTED_USER_COUNT = USER_CREDENTIAL_USER_COUNT_ABOVE_USER_CODE_V1_RANGE;
+    set_user_credential_peer_version(USER_CREDENTIAL_VERSION_2);
+    set_peer_version(USER_CODE_VERSION_1);
+    endpoint.emplace_node(ATTRIBUTE_ZWAVE_NIF, std::vector<uint8_t> {COMMAND_CLASS_USER_CREDENTIAL});
+    open_interview(endpoint);
+
+    command_class_user_credential_types::command_class_user_credential_attribute_map_t report {{"number_of_supported_user_unique_identifiers", SUPPORTED_USER_COUNT}};
+    ASSERT_EQ(SL_STATUS_OK, user_credential_component().on_user_capabilities_report_received_store(endpoint, report));
+
+    component_connector connector;
+    const user_credential_supported_user_count_payload_t payload {endpoint, SUPPORTED_USER_COUNT};
+    connector.fire_event(static_cast<uint32_t>(command_class_user_credential_events_t::COMMAND_CLASS_USER_CREDENTIAL_SUPPORTED_USER_COUNT), payload);
+    connector.run();
+
+    EXPECT_FALSE(endpoint.child_by_type(CAP_GET_GROUP).is_valid());
+    EXPECT_FALSE(endpoint.child_by_type(USERS_GET_GROUP).is_valid());
+    EXPECT_FALSE(endpoint.child_by_type(USERS_REPORT_GROUP).child_by_type(SUPPORTED_USERS).reported_exists());
+}
+
+// User Code does not start while the User Credential interview is obtaining its count.
+TEST_F(UserCodeCommandClassTest, InterviewWaitsForUserCredentialCountReport)
+{
+    set_peer_version(USER_CODE_VERSION_2);
+    endpoint.emplace_node(ATTRIBUTE_ZWAVE_NIF, std::vector<uint8_t> {COMMAND_CLASS_USER_CREDENTIAL});
+    open_interview(endpoint);
+
+    EXPECT_FALSE(endpoint.child_by_type(CAP_GET_GROUP).is_valid());
+}
+
+// A stored count is invalidated while both CCs request a fresh capabilities report.
+TEST_F(UserCodeCommandClassTest, ReinterviewWaitsForFreshUserCredentialCount)
+{
+    constexpr uint16_t EARLIER_COUNT = 2;
+    set_peer_version(USER_CODE_VERSION_2);
+    endpoint.emplace_node(ATTRIBUTE_ZWAVE_NIF, std::vector<uint8_t> {COMMAND_CLASS_USER_CREDENTIAL});
+    command_class_user_credential_types::command_class_user_credential_attribute_map_t report {{"number_of_supported_user_unique_identifiers", EARLIER_COUNT}};
+    EXPECT_EQ(SL_STATUS_OK, user_credential_component().on_user_capabilities_report_received_store(endpoint, report));
+
+    open_interview(endpoint);
+
+    const auto count = endpoint.child_by_type(static_cast<attribute_store_type_t>(command_class_user_credential_types::user_capabilities_report_group_attributes_t::USER_CAPABILITIES_REPORT_GROUP))
+                         .child_by_type(static_cast<attribute_store_type_t>(command_class_user_credential_types::user_capabilities_report_group_attributes_t::number_of_supported_user_unique_identifiers));
+    EXPECT_FALSE(count.reported_exists());
+    EXPECT_FALSE(endpoint.child_by_type(CAP_GET_GROUP).is_valid());
+}
+
+// User Credential in the Node Info with zero supported users lets the User Code interview continue.
+TEST_F(UserCodeCommandClassTest, InterviewContinuesWhenUserCredentialHasNoUsers)
+{
+    constexpr uint16_t NO_USER_CREDENTIAL_USERS = 0;
+    set_user_credential_peer_version(USER_CREDENTIAL_VERSION_1);
+    set_peer_version(USER_CODE_VERSION_2);
+    endpoint.emplace_node(ATTRIBUTE_ZWAVE_NIF, std::vector<uint8_t> {COMMAND_CLASS_USER_CREDENTIAL});
+    open_interview(endpoint);
+    EXPECT_FALSE(endpoint.child_by_type(CAP_GET_GROUP).is_valid());
+    command_class_user_credential_types::command_class_user_credential_attribute_map_t report {{"number_of_supported_user_unique_identifiers", NO_USER_CREDENTIAL_USERS}};
+    EXPECT_EQ(SL_STATUS_OK, user_credential_component().on_user_capabilities_report_received_store(endpoint, report));
+
+    component_connector connector;
+    const user_credential_supported_user_count_payload_t payload {endpoint, NO_USER_CREDENTIAL_USERS};
+    connector.fire_event(static_cast<uint32_t>(command_class_user_credential_events_t::COMMAND_CLASS_USER_CREDENTIAL_SUPPORTED_USER_COUNT), payload);
+    connector.run();
+
+    EXPECT_TRUE(endpoint.child_by_type(CAP_GET_GROUP).is_valid());
+}
+
+// A zero User Credential count falls back to the User Code v1 interview path.
+TEST_F(UserCodeCommandClassTest, InterviewFallsBackToUserCodeV1WhenUserCredentialHasNoUsers)
+{
+    constexpr uint16_t NO_USER_CREDENTIAL_USERS = 0;
+    set_user_credential_peer_version(USER_CREDENTIAL_VERSION_2);
+    set_peer_version(USER_CODE_VERSION_1);
+    endpoint.emplace_node(ATTRIBUTE_ZWAVE_NIF, std::vector<uint8_t> {COMMAND_CLASS_USER_CREDENTIAL});
+    open_interview(endpoint);
+
+    component_connector connector;
+    const user_credential_supported_user_count_payload_t payload {endpoint, NO_USER_CREDENTIAL_USERS};
+    connector.fire_event(static_cast<uint32_t>(command_class_user_credential_events_t::COMMAND_CLASS_USER_CREDENTIAL_SUPPORTED_USER_COUNT), payload);
+    connector.run();
+
+    EXPECT_TRUE(endpoint.child_by_type(USERS_GET_GROUP).is_valid());
+    EXPECT_FALSE(endpoint.child_by_type(CAP_GET_GROUP).is_valid());
 }

@@ -98,7 +98,6 @@ target_link_libraries(
     ${INTERFACE_NAMES}
 )
 
-
 ### Merge everything at the top level
 add_library(
   command_classes

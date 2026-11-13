@@ -17,8 +17,10 @@
 #include <optional>
 #include <vector>
 
+#include "attribute_store_defined_attribute_types.h"
 #include "command_class_user_code_constants.hpp"
 #include "command_class_user_code_rules.hpp"
+#include "zwave_command_class_utils.hpp"
 #include "ZW_classcmd.h"
 
 namespace zwave_command_class

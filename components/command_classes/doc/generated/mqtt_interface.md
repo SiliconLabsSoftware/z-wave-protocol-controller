@@ -55,6 +55,7 @@ Example: `zpc/CAFECAFE/4/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoint 3
 | [COMMAND_CLASS_SECURITY_2](command_class_security_2/doc/generated/command_class_security_2_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_SUPERVISION](command_class_supervision/doc/generated/command_class_supervision_mqtt_interface.md) | false | true | true |
 | [COMMAND_CLASS_INCLUSION_CONTROLLER](command_class_inclusion_controller/doc/generated/command_class_inclusion_controller_mqtt_interface.md) | false | true | true |
+| [COMMAND_CLASS_USER_CREDENTIAL](command_class_user_credential/doc/generated/command_class_user_credential_mqtt_interface.md) | true | false | true |
 
 > When MQTT Support is `false`, the linked documentation lists only TX (report/notification) commands. ZPC publishes those reports to MQTT but does not handle `Command/*` topics for that command class.
 
@@ -98,3 +99,4 @@ Example: `zpc/CAFECAFE/4/ep3/ZWaveCC/Command/SwitchBinarySet` targets endpoint 3
 - [COMMAND_CLASS_SECURITY_2](command_class_security_2/doc/generated/command_class_security_2_mqtt_interface.md)
 - [COMMAND_CLASS_SUPERVISION](command_class_supervision/doc/generated/command_class_supervision_mqtt_interface.md)
 - [COMMAND_CLASS_INCLUSION_CONTROLLER](command_class_inclusion_controller/doc/generated/command_class_inclusion_controller_mqtt_interface.md)
+- [COMMAND_CLASS_USER_CREDENTIAL](command_class_user_credential/doc/generated/command_class_user_credential_mqtt_interface.md)

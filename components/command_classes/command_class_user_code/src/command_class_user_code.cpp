@@ -17,6 +17,9 @@
 #include "command_class_user_code.hpp"
 #include "command_class_user_code_constants.hpp"
 #include "command_class_user_code_rules.hpp"
+#include "command_class_user_credential_events.hpp"
+#include "component_connector.hpp"
+#include "ZW_classcmd.h"
 
 namespace zwave_command_class
 {
@@ -24,6 +27,15 @@ namespace zwave_command_class
     using namespace command_class_user_code_constants;
 
     [[maybe_unused]] static constexpr std::string_view LOG_TAG = "command_class_user_code";
+
+    command_class_user_code::command_class_user_code()
+    {
+        component_connector connector;
+        connector.connect_typed<command_class_user_credential_events_t, user_credential_supported_user_count_payload_t>(command_class_user_credential_events_t::COMMAND_CLASS_USER_CREDENTIAL_SUPPORTED_USER_COUNT,
+                                                                                                                        [this](const user_credential_supported_user_count_payload_t &payload) { return on_supported_user_count_available(payload.endpoint, payload.supported_user_count); });
+        connector.connect_typed<command_class_user_credential_events_t, user_credential_presence_response_payload_t>(command_class_user_credential_events_t::COMMAND_CLASS_USER_CREDENTIAL_PRESENCE_RESPONSE,
+                                                                                                                     [this](const user_credential_presence_response_payload_t &payload) { return on_user_credential_presence_response(payload); });
+    }
 
     attribute_store::attribute command_class_user_code::desired_child(attribute_store::attribute group, attribute_store_type_t type)
     {
@@ -88,7 +100,7 @@ namespace zwave_command_class
         request_keypad_or_users(endpoint);
     }
 
-    void command_class_user_code::on_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
+    void command_class_user_code::begin_user_code_interview(attribute_store::attribute endpoint_node, uint8_t supported_version)
     {
         if (supported_version >= 2) {
             auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(user_code_capabilities_report_group_attributes_t::USER_CODE_CAPABILITIES_REPORT_GROUP));
@@ -97,6 +109,49 @@ namespace zwave_command_class
             return;
         }
         request_users_number(endpoint_node);
+    }
+
+    void command_class_user_code::on_interview(attribute_store::attribute endpoint_node, uint8_t /*supported_version*/)
+    {
+        auto report = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(users_number_report_group_attributes_t::USERS_NUMBER_REPORT_GROUP));
+        auto count  = report.emplace_node(static_cast<attribute_store_type_t>(users_number_report_group_attributes_t::supported_users));
+        cc_interview_require_attribute(count);
+        component_connector connector;
+        connector.fire_event(static_cast<uint32_t>(command_class_user_credential_events_t::COMMAND_CLASS_USER_CREDENTIAL_PRESENCE_QUERY), user_credential_presence_query_payload_t {endpoint_node});
+    }
+
+    sl_status_t command_class_user_code::on_user_credential_presence_response(const user_credential_presence_response_payload_t &payload)
+    {
+        if (!cc_interview_is_open(payload.endpoint)) {
+            return SL_STATUS_OK;
+        }
+        if (!payload.present) {
+            begin_user_code_interview(payload.endpoint, command_class_user_code_rules::peer_version(payload.endpoint));
+        }
+        return SL_STATUS_OK;
+    }
+
+    sl_status_t command_class_user_code::on_supported_user_count_available(attribute_store::attribute endpoint, uint16_t supported_user_count)
+    {
+        if (!cc_interview_is_open(endpoint)) {
+            return SL_STATUS_OK;
+        }
+        auto report = endpoint.emplace_node(static_cast<attribute_store_type_t>(users_number_report_group_attributes_t::USERS_NUMBER_REPORT_GROUP));
+        auto count  = report.emplace_node(static_cast<attribute_store_type_t>(users_number_report_group_attributes_t::supported_users));
+        if (count.reported_exists()) {
+            cc_interview_finish_if_complete(endpoint);
+            return SL_STATUS_OK;
+        }
+        if (supported_user_count == 0) {
+            count.set_reported(supported_user_count);
+            begin_user_code_interview(endpoint, command_class_user_code_rules::peer_version(endpoint));
+        } else {
+            // User Credential is the selected User Management CC. Do not copy its
+            // 16-bit user capacity into User Code's 8-bit Users Number Report.
+            cc_interview_unrequire_attribute(count);
+        }
+        cc_interview_finish_if_complete(endpoint);
+        return SL_STATUS_OK;
     }
 
     sl_status_t command_class_user_code::on_user_code_capabilities_report_parsed(const zwave_controller_connection_info_t * /*connection_info*/, attribute_store::attribute endpoint, command_class_user_code_attribute_map_t /*payload*/)

@@ -72,7 +72,7 @@ namespace zwave_command_class
             {% elif attribute.type | lower == "variant_group" %}
                 {% for field in attribute.params %}
                     {% if field.type | lower == "struct_byte" %}
-                        enum class {{command.name | lower}}_{{attribute.name | lower}}_{{field.name | lower}}_attribute_masks_t : uint8_t {
+                        enum class {{utils.create_variable_name(command.name)}}_{{utils.create_variable_name(attribute.name)}}_{{utils.create_variable_name(field.name)}}_attribute_masks_t : uint8_t {
                         {% for field in field.fields %}
                             {{utils.create_variable_name(field.name)}}_mask = {{field.mask}},
                         {% endfor %}

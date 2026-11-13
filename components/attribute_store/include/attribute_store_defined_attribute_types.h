@@ -599,6 +599,10 @@ DEFINE_ATTRIBUTE(ATTRIBUTE_COMMAND_CLASS_SCENE_CONTROLLER_SETTING_DIMMING_DURATI
 // Registered by command_class_user_code via register_attribute_types.
 
 /////////////////////////////////////////////////
+// User Credential Command Class
+// Registered by command_class_user_credential via register_attribute_types.
+
+/////////////////////////////////////////////////
 // Powerlevel Command Class
 ///< This represents the version of the Powerlevel Command class.
 /// zwave_cc_version_t

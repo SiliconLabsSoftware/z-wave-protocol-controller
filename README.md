@@ -86,11 +86,16 @@ ZPC uses a reported/desired value system where all state parameters have a repor
 | Thermostat Setpoint | 3 | false | true | Network Scheme |
 | Time | 3 | true | true | Network Scheme |
 | Transport Service | 2 | true | true | None |
+| User Credential | 1 | false | true | Network Scheme |
 | Version | 3 | true | true | Network Scheme |
 | Wake Up | 3 | false | true | Network Scheme |
 | Z-Wave+ Info | 2 | true | true | None |
 
 *Supported* means the controller responds to this command class (support handler). *Controlled* means the controller can send commands for this command class (control handler). For full MQTT APIs per command class, see the [Command Classes MQTT Interface](components/command_classes/doc/generated/mqtt_interface.md).
+
+### User Credential limitations
+
+ZPC controls PIN Code (`0x01`), Password (`0x02`), and RFID Code (`0x03`) credentials. It does not control BLE (`0x04`), NFC (`0x05`), UWB (`0x06`), Eye Biometric (`0x07`), Face Biometric (`0x08`), Finger Biometric (`0x09`), Hand Biometric (`0x0A`), Unspecified Biometric (`0x0B`), or DESFire EV2/3 (`0x0C`) credentials.
 
 Protocol (Z-Wave), Protocol Long Range, Security 0 (S0), Security 2 (S2), and Transport Service are generated with `protocol: true` and a `generate_commands` allowlist. They are not MQTT-facing. Segmentation stays in the Transport Service wrapper (`transport_service.c`); the Transport Service command class is only a manager registration stub.
 
