@@ -220,6 +220,8 @@ apt-get install -y $(cat \
 ./ci/scripts/clang-tidy.sh check
 ```
 
+Locally the same `run-clang-tidy` runner is used. Progress is a `.` every 10s; error lines are printed when the run finishes (no caret snippets). GitHub Actions (`GITHUB_ACTIONS=true`) still scans the full tree with the runner's usual output. Force that CI behavior locally with `GITHUB_ACTIONS=true ./ci/scripts/clang-tidy.sh check`.
+
 The script resolves the LLVM 19 binary per platform. Override with `CLANG_TIDY` or `RUN_CLANG_TIDY` if needed. You can also use the VS Code task **"Run clang-tidy"** from the command palette (`Tasks: Run Task`). This check is intentionally **not** wired into git hooks — a full-tree tidy run is too slow for commit-time feedback.
 
 #### CI enforcement
