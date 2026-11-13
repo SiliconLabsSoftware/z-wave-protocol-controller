@@ -143,7 +143,7 @@ namespace zwave_command_class
             return SL_STATUS_OK;
         }
         if (supported_user_count == 0) {
-            count.set_reported(supported_user_count);
+            count.set_reported(static_cast<uint8_t>(supported_user_count));
             begin_user_code_interview(endpoint, command_class_user_code_rules::peer_version(endpoint));
         } else {
             // User Credential is the selected User Management CC. Do not copy its
