@@ -1,4 +1,4 @@
-find_package(MbedTLS REQUIRED)
+find_package(TF-PSA-Crypto REQUIRED)
 
 add_library(crypto_api INTERFACE)
 target_include_directories(crypto_api INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -19,7 +19,7 @@ set(CRYPTO_SOURCES
 
 add_library(crypto STATIC ${CRYPTO_SOURCES})
 target_include_directories(crypto PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(crypto PUBLIC crypto_api PRIVATE common MbedTLS::tfpsacrypto)
+target_link_libraries(crypto PUBLIC crypto_api PRIVATE common TF-PSA-Crypto::tfpsacrypto)
 set_target_properties(crypto PROPERTIES POSITION_INDEPENDENT_CODE ON)
 if(UNIT_TEST)
   add_subdirectory(test)
