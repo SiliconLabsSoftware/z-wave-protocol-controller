@@ -46,7 +46,7 @@ under the Apache License, Version 2.0
 (https://www.apache.org/licenses/LICENSE-2.0):
 
 - **OpenSSL** (https://www.openssl.org/)
-- **Mbed TLS / TF-PSA-Crypto** (https://github.com/Mbed-TLS/mbedtls, v4.2.0).
+- **TF-PSA-Crypto** (https://github.com/Mbed-TLS/TF-PSA-Crypto, v1.2.0).
   Dual-licensed Apache-2.0 OR GPL-2.0-or-later; used here under Apache-2.0.
 
 ---
