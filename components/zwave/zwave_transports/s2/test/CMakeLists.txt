@@ -20,3 +20,10 @@ add_zpc_gtest(
   NAME test_zwave_s2_key_derivation_failures
   SRCS test_zwave_s2_key_derivation_failures.cpp
   LIBS crypto_c_test_support zwave_s2_key_derivation zwave_s2_next_nonce)
+
+add_zpc_gtest(
+  NAME test_zwave_s2_keystore
+  SRCS test_zwave_s2_keystore.cpp ../src/zwave_s2_keystore.c
+  INCLUDES ../src $<TARGET_PROPERTY:zwave_s2,INCLUDE_DIRECTORIES>
+  LIBS crypto_c_test_support)
+target_compile_definitions(test_zwave_s2_keystore PRIVATE ZIPGW ZW_CONTROLLER)
