@@ -302,25 +302,30 @@ void zwave_s2_keystore_reset_assigned_keys()
     nvm_config_set(assigned_keys, &assigned_keys);
 }
 
-void zwave_s2_create_new_dynamic_ecdh_key()
+sl_status_t zwave_s2_create_new_dynamic_ecdh_key(void)
 {
     uint8_t new_private_key[sizeof(dynamic_ecdh_private_key)];
 
-    if (crypto_generate_random(new_private_key, sizeof(new_private_key)) != SL_STATUS_OK) {
+    sl_status_t status = crypto_generate_random(new_private_key, sizeof(new_private_key));
+    if (status != SL_STATUS_OK) {
         secure_memzero(new_private_key, sizeof(new_private_key));
         sl_log_error(LOG_TAG, "Failed to generate dynamic ECDH private key\n");
-        return;
+        return status;
     }
 
     memcpy(dynamic_ecdh_private_key, new_private_key, sizeof(dynamic_ecdh_private_key));
     secure_memzero(new_private_key, sizeof(new_private_key));
+    return SL_STATUS_OK;
 }
 
-static void zwave_s2_create_new_learn_mode_ecdh_key()
+static sl_status_t zwave_s2_create_new_learn_mode_ecdh_key(void)
 {
-    zwave_s2_create_new_dynamic_ecdh_key();
+    sl_status_t status = zwave_s2_create_new_dynamic_ecdh_key();
+    if (status != SL_STATUS_OK) {
+        return status;
+    }
     nvm_config_set(ecdh_priv_key, dynamic_ecdh_private_key);
-    zwave_s2_create_new_dynamic_ecdh_key();
+    return zwave_s2_create_new_dynamic_ecdh_key();
 }
 
 void zwave_s2_create_new_network_keys()
@@ -347,24 +352,35 @@ void zwave_s2_create_new_network_keys()
     secure_memzero(net_key, sizeof(net_key));
 }
 
-void zwave_s2_keystore_init()
+sl_status_t zwave_s2_keystore_init(void)
 {
     uint32_t magic = 0;
 
-    if (SL_STATUS_OK != nvm_config_get(magic, &magic)) {
+    sl_status_t status = nvm_config_get(magic, &magic);
+    if (status != SL_STATUS_OK) {
         sl_log_error(LOG_TAG, "Failed to read magic from zwapi_memory_get_buffer\n");
-        assert(false);
+        return status;
     }
     magic = zwave_controller_ntohl(magic);
     if (magic != NVM_MAGIC) {
         sl_log_warning(LOG_TAG, "NVM magic check failed %08x != %08x, generating new keys\n", magic, NVM_MAGIC);
-        zwave_s2_create_new_learn_mode_ecdh_key();
+        status = zwave_s2_create_new_learn_mode_ecdh_key();
+        if (status != SL_STATUS_OK) {
+            return status;
+        }
         zwave_s2_create_new_network_keys();
+    }
 
+    status = zwave_s2_create_new_dynamic_ecdh_key();
+    if (status != SL_STATUS_OK) {
+        return status;
+    }
+
+    if (magic != NVM_MAGIC) {
         magic = zwave_controller_ntohl(NVM_MAGIC);
         nvm_config_set(magic, &magic);
     }
-    zwave_s2_create_new_dynamic_ecdh_key();
+    return SL_STATUS_OK;
 }
 
 void zwave_s2_keystore_get_dsk(zwave_s2_keystore_ecdh_key_mode_t mode, zwave_dsk_t dsk)

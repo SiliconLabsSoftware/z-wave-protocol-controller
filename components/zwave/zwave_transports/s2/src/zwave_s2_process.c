@@ -82,8 +82,13 @@ static void zwave_s2_on_new_network_entered(zwave_home_id_t home_id, zwave_node_
     zwave_s2_refresh_home_id(home_id);
 }
 
-static void zwave_s2_init()
+static sl_status_t zwave_s2_init(void)
 {
+    sl_status_t status = zwave_s2_keystore_init();
+    if (status != SL_STATUS_OK) {
+        return status;
+    }
+
     static zwave_controller_callbacks_t callbacks = {
       .on_network_address_update  = zwave_s2_on_network_address_update,
       .on_new_network_entered     = zwave_s2_on_new_network_entered,
@@ -103,15 +108,14 @@ static void zwave_s2_init()
     };
     zwave_controller_transport_register(&transport);
 
-    zwave_s2_keystore_init();
     zwave_s2_network_init();
     zwave_s2_transport_init();
+    return SL_STATUS_OK;
 }
 
 sl_status_t zwave_s2_process_init(void)
 {
     timer_stop(&s2_timer);
     timer_stop(&s2_inclusion_timer);
-    zwave_s2_init();
-    return SL_STATUS_OK;
+    return zwave_s2_init();
 }
