@@ -19,7 +19,6 @@ target_include_directories(zwave_s2_key_derivation PUBLIC include)
 target_link_libraries(zwave_s2_key_derivation PUBLIC common PRIVATE crypto_c)
 set_target_properties(zwave_s2_key_derivation PROPERTIES POSITION_INDEPENDENT_CODE ON C_STANDARD 99)
 
-# NextNonce combines S2 nonce derivation with the generic CTR-DRBG.
 add_library(zwave_s2_next_nonce STATIC src/zwave_s2_next_nonce.c)
 target_include_directories(zwave_s2_next_nonce PUBLIC include)
 target_link_libraries(zwave_s2_next_nonce PUBLIC common crypto_c)
@@ -74,8 +73,6 @@ target_include_directories(
   ${ZPC_SOURCE_DIR}/../../components/zwave/zwave_definitions/include
   ${ZW-LIBS2_PATH}/inclusion
   src)
-# libs2 headers (S2.h, s2_keystore.h, ...) are consumed by targets that link
-# s2_controller, so they must be exported.
 target_include_directories(s2_controller PUBLIC ${ZW-LIBS2_PATH}/include)
 
 target_link_libraries(

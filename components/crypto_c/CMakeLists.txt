@@ -1,8 +1,8 @@
-set(CRYPTO_C_SOURCES src/c_api.cpp src/c_api_backend.cpp)
+set(CRYPTO_C_SOURCES src/crypto_impl.cpp src/c_api_backend.cpp)
 if(UNIT_TEST)
   list(APPEND CRYPTO_C_SOURCES test/support/c_api_override_test.cpp)
 else()
-  list(APPEND CRYPTO_C_SOURCES src/c_api_override_none.cpp)
+  list(APPEND CRYPTO_C_SOURCES src/c_api_override_default.cpp)
 endif()
 
 add_library(crypto_c STATIC ${CRYPTO_C_SOURCES})

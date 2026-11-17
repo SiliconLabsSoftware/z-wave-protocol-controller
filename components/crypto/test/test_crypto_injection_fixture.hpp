@@ -6,8 +6,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "algorithms/crypto_impl.hpp"
-#include "psa/psa_wrappers.hpp"
+#include "crypto_impl.hpp"
+#include "psa/psa_wrappers_impl.hpp"
 #include "psa_wrappers_mock.hpp"
 #include "test_fixture.hpp"
 

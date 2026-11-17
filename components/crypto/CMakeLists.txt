@@ -14,8 +14,8 @@ set(CRYPTO_SOURCES
     src/algorithms/aes_ecb.cpp
     src/algorithms/aes_ofb.cpp
     src/algorithms/rand.cpp
-    src/psa/psa_wrappers.cpp
-    src/psa/util.cpp)
+    src/psa/psa_wrappers_impl.cpp
+    src/psa/psa_helpers.cpp)
 
 add_library(crypto STATIC ${CRYPTO_SOURCES})
 target_include_directories(crypto PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)

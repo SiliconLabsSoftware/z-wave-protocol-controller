@@ -389,6 +389,9 @@ void s0_set_key(const uint8_t *network_key)
     memset(p, 0xAA, 16);
     keys_valid &= crypto_aes_ecb_encrypt(aes_key, p, enckeyz) == SL_STATUS_OK;
     s0_keys_valid = keys_valid;
+    if (!s0_keys_valid) {
+        sl_log_error(LOG_TAG, "S0 key derivation failed");
+    }
 }
 
 static void s0_timeout(void *user)
@@ -440,6 +443,7 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
     uint8_t maxlen = get_node_max_frame_size(s->conn_info.remote.node_id);
 
     if (!s0_keys_valid) {
+        sl_log_error(LOG_TAG, "S0 keys unavailable");
         return 0;
     }
 
@@ -458,7 +462,7 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
 
     do {
         if (crypto_generate_random(iv, sizeof(iv)) != SL_STATUS_OK) {
-            sl_log_error(LOG_TAG, "Failed to generate S0 IV\n");
+            sl_log_error(LOG_TAG, "S0 IV generation failed");
             return 0;
         }
     } while (get_s0_nonce(s->conn_info.remote.node_id, s->conn_info.local.node_id, iv[0], tmp, false));
@@ -500,6 +504,7 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
     }
 
     if (crypto_aes_ofb_xor(aes_key, aes_iv, enc_data, len + 1) != SL_STATUS_OK) {
+        sl_log_error(LOG_TAG, "S0 encryption failed");
         return 0;
     }
 
@@ -521,7 +526,8 @@ static uint8_t s0_encrypt_message(sec_tx_session_t *s, uint8_t pass2)
     auth->payloadLength  = len + 1;
 
     const uint8_t *auth_key = s->use_inclusion_key ? authkeyz : authkey;
-    if (crypto_aes_cbc_mac(auth_key, iv, (const uint8_t *)auth, (uint8_t)(4 + len + 1), mac) != SL_STATUS_OK) {
+    if (crypto_aes_cbc_mac(auth_key, iv, (const uint8_t *)auth, 4 + len + 1, mac) != SL_STATUS_OK) {
+        sl_log_error(LOG_TAG, "S0 CBC-MAC failed");
         return 0;
     }
     s->crypted_msg[0] = COMMAND_CLASS_SECURITY;
@@ -906,7 +912,7 @@ static void s0_send_nonce(const zwave_controller_connection_info_t *conn_info)
 
     do {
         if (crypto_generate_random(temp_nonce, sizeof(temp_nonce)) != SL_STATUS_OK) {
-            sl_log_error(LOG_TAG, "Failed to generate S0 nonce\n");
+            sl_log_error(LOG_TAG, "S0 nonce generation failed");
             return;
         }
         memcpy(nonce, temp_nonce, sizeof(nonce));
@@ -948,6 +954,7 @@ static uint8_t s0_decrypt_message(const zwave_controller_connection_info_t *conn
     uint8_t auth_buff[MAX_ENCRYPTED_MSG_SIZE + S0_ENCAP_HEADER_LEN + sizeof(auth_data_t)];
 
     if (!s0_keys_valid) {
+        sl_log_error(LOG_TAG, "S0 keys unavailable");
         return 0;
     }
 
@@ -1017,7 +1024,8 @@ static uint8_t s0_decrypt_message(const zwave_controller_connection_info_t *conn
     auth->payloadLength  = frame_length - 19;
     memcpy((uint8_t *)auth + sizeof(auth_data_t), enc_payload, auth->payloadLength);
 
-    if (crypto_aes_cbc_mac(authkey, iv, (const uint8_t *)auth, (uint8_t)(sizeof(auth_data_t) + auth->payloadLength), mac) != SL_STATUS_OK) {
+    if (crypto_aes_cbc_mac(authkey, iv, (const uint8_t *)auth, sizeof(auth_data_t) + auth->payloadLength, mac) != SL_STATUS_OK) {
+        sl_log_error(LOG_TAG, "S0 CBC-MAC failed");
         return 0;
     }
 
@@ -1028,6 +1036,7 @@ static uint8_t s0_decrypt_message(const zwave_controller_connection_info_t *conn
     /*Decrypt */
     aes_set_key_tpt(enckey, iv);
     if (crypto_aes_ofb_xor(aes_key, aes_iv, enc_payload, auth->payloadLength) != SL_STATUS_OK) {
+        sl_log_error(LOG_TAG, "S0 decryption failed");
         return 0;
     }
 

@@ -58,8 +58,6 @@ function(zpc_add_shared_library)
   add_library(${LIBNAME} SHARED ${DUMMYFILE})
   add_dependencies(${LIBNAME} ${LIBS})
   target_include_directories(${LIBNAME} PUBLIC ${target-includes})
-  # Explicit objects retain every symbol; normal linkage supplies their dependencies
-  # without force-loading duplicate objects from transitive static archives.
   target_link_options(${LIBNAME} PRIVATE ${GENERATOR_EXPRS})
   target_link_libraries(${LIBNAME} PRIVATE ${LIBS})
 endfunction()

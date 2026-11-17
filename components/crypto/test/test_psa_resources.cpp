@@ -5,8 +5,8 @@
 #include "psa/psa_resources.hpp"
 #include "psa_wrappers_mock.hpp"
 
-using crypto::detail::ScopedCipherOperation;
-using crypto::detail::ScopedKey;
+using crypto::ScopedCipherOperation;
+using crypto::ScopedKey;
 using ::testing::_;
 using ::testing::DoAll;
 using ::testing::Return;

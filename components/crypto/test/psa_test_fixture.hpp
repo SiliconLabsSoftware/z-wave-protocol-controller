@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 #include "psa/crypto_extra.h"
-#include "psa/psa_wrappers.hpp"
+#include "psa/psa_wrappers_impl.hpp"
 
 class PsaWrappersTest : public ::testing::Test
 {
