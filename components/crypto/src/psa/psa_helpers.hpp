@@ -1,5 +1,5 @@
-#ifndef CRYPTO_UTIL_HPP
-#define CRYPTO_UTIL_HPP
+#ifndef PSA_HELPERS_HPP
+#define PSA_HELPERS_HPP
 
 #include "psa/crypto.h"
 #include "sl_status.h"

@@ -1,7 +1,7 @@
 #include "crypto_impl.hpp"
 
 #include "psa/crypto.h"
-#include "psa/util.hpp"
+#include "psa/psa_helpers.hpp"
 #include "psa/psa_resources.hpp"
 
 namespace crypto
@@ -9,7 +9,7 @@ namespace crypto
 
     sl_status_t Crypto::aes_ccm_encrypt(std::span<const uint8_t, crypto::aes_key_size> key, size_t tag_len, std::span<const uint8_t> nonce, std::span<const uint8_t> aad, std::span<const uint8_t> plaintext, std::span<uint8_t> ciphertext, size_t &ciphertext_len) const
     {
-        detail::ScopedKey imported_key(psa_wrappers_);
+        ScopedKey imported_key(psa_wrappers_);
         const psa_algorithm_t algorithm = PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, tag_len);
         psa_status_t status;
 
@@ -29,7 +29,7 @@ namespace crypto
 
     sl_status_t Crypto::aes_ccm_decrypt(std::span<const uint8_t, crypto::aes_key_size> key, size_t tag_len, std::span<const uint8_t> nonce, std::span<const uint8_t> aad, std::span<const uint8_t> ciphertext, std::span<uint8_t> plaintext, size_t &plaintext_len) const
     {
-        detail::ScopedKey imported_key(psa_wrappers_);
+        ScopedKey imported_key(psa_wrappers_);
         const psa_algorithm_t algorithm = PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, tag_len);
         psa_status_t status;
 

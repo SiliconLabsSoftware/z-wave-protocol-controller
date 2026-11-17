@@ -14,7 +14,7 @@
 #include <array>
 #include <cstring>
 
-#include "psa/psa_wrappers.hpp"
+#include "psa/psa_wrappers_impl.hpp"
 #include "psa_test_fixture.hpp"
 
 namespace

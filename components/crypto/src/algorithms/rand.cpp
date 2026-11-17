@@ -1,8 +1,8 @@
 #include "crypto_impl.hpp"
 
 #include "psa/crypto.h"
-#include "psa/util.hpp"
-#include "psa/psa_wrappers_interface.hpp"
+#include "psa/psa_helpers.hpp"
+#include "psa/psa_wrappers.hpp"
 
 namespace crypto
 {

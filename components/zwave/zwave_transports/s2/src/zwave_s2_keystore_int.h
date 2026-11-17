@@ -50,17 +50,16 @@ typedef struct nvm_config {
 /**
  * @brief Initialize the keystore
  *
- * This also validates the nvm contents. If the validation fails new keys are
- * generated. Returns an error if ECDH key generation fails.
+ * This also validates the nvm contents. If the validation fails new keys are g
+ * generated.
  */
-sl_status_t zwave_s2_keystore_init(void);
+void zwave_s2_keystore_init();
 
 /**
  * Create a new Elliptic curve key for add node mode
  * and for unauthenticated learnmode.
- * Returns the RNG error on failure, preserving the previous key.
  */
-sl_status_t zwave_s2_create_new_dynamic_ecdh_key(void);
+void zwave_s2_create_new_dynamic_ecdh_key();
 
 /**
  * @brief Set ecdh key mode for use in zwave_s2_keystore

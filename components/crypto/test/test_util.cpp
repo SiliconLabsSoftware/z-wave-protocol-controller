@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "psa/util.hpp"
+#include "psa/psa_helpers.hpp"
 
 TEST(Util, MapsKnownPsaStatusesToSlStatus)
 {

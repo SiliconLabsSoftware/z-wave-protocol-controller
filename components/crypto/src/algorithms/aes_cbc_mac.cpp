@@ -5,7 +5,7 @@
 #include <array>
 
 #include "psa/crypto.h"
-#include "psa/util.hpp"
+#include "psa/psa_helpers.hpp"
 #include "psa/psa_resources.hpp"
 
 namespace
@@ -21,8 +21,8 @@ namespace crypto
 
     sl_status_t Crypto::aes_cbc_mac(std::span<const uint8_t, crypto::aes_key_size> key, std::span<const uint8_t, crypto::aes_block_size> iv, std::span<const uint8_t> data, std::span<uint8_t, crypto::aes_block_size> mac) const
     {
-        detail::ScopedKey imported_key(psa_wrappers_);
-        detail::ScopedCipherOperation operation(psa_wrappers_);
+        ScopedKey imported_key(psa_wrappers_);
+        ScopedCipherOperation operation(psa_wrappers_);
         psa_status_t status = psa_wrappers_.crypto_init();
         if (status != PSA_SUCCESS) {
             return psa_status_to_sl_status(status);

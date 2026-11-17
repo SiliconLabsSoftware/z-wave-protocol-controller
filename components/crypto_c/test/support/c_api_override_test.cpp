@@ -19,10 +19,10 @@ namespace crypto_c::test
     }
 }  // namespace crypto_c::test
 
-namespace crypto_c::detail
+namespace crypto_c
 {
     crypto::CryptoInterface *backend_override()
     {
         return override_backend;
     }
-}  // namespace crypto_c::detail
+}  // namespace crypto_c

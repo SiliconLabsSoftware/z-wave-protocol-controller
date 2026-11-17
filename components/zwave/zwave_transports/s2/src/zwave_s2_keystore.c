@@ -131,8 +131,7 @@ void keystore_public_key_read(uint8_t *buf)
 
     keystore_private_key_read(priv_key);
     if (crypto_x25519_derive_public_key(priv_key, buf) != SL_STATUS_OK) {
-        // The interface cannot report failure; an all-zero key makes the peer's ECDH fail rather than leak anything.
-        sl_log_error(LOG_TAG, "Failed to derive ECDH public key\n");
+        sl_log_error(LOG_TAG, "ECDH public key derivation failed");
         memset(buf, 0, 32);
     }
     secure_memzero(priv_key, sizeof(priv_key));
@@ -302,30 +301,16 @@ void zwave_s2_keystore_reset_assigned_keys()
     nvm_config_set(assigned_keys, &assigned_keys);
 }
 
-sl_status_t zwave_s2_create_new_dynamic_ecdh_key(void)
+void zwave_s2_create_new_dynamic_ecdh_key()
 {
-    uint8_t new_private_key[sizeof(dynamic_ecdh_private_key)];
-
-    sl_status_t status = crypto_generate_random(new_private_key, sizeof(new_private_key));
-    if (status != SL_STATUS_OK) {
-        secure_memzero(new_private_key, sizeof(new_private_key));
-        sl_log_error(LOG_TAG, "Failed to generate dynamic ECDH private key\n");
-        return status;
-    }
-
-    memcpy(dynamic_ecdh_private_key, new_private_key, sizeof(dynamic_ecdh_private_key));
-    secure_memzero(new_private_key, sizeof(new_private_key));
-    return SL_STATUS_OK;
+    crypto_generate_random(dynamic_ecdh_private_key, sizeof(dynamic_ecdh_private_key));
 }
 
-static sl_status_t zwave_s2_create_new_learn_mode_ecdh_key(void)
+static void zwave_s2_create_new_learn_mode_ecdh_key()
 {
-    sl_status_t status = zwave_s2_create_new_dynamic_ecdh_key();
-    if (status != SL_STATUS_OK) {
-        return status;
-    }
+    zwave_s2_create_new_dynamic_ecdh_key();
     nvm_config_set(ecdh_priv_key, dynamic_ecdh_private_key);
-    return zwave_s2_create_new_dynamic_ecdh_key();
+    zwave_s2_create_new_dynamic_ecdh_key();
 }
 
 void zwave_s2_create_new_network_keys()
@@ -333,54 +318,35 @@ void zwave_s2_create_new_network_keys()
     uint8_t net_key[16] = {0};
     sl_log_info(LOG_TAG, "Creating new network keys\n");
     for (int c = 0; c < S2_NUM_KEY_CLASSES - 1; c++) {
-        if (crypto_generate_random(net_key, sizeof(net_key)) != SL_STATUS_OK) {
-            sl_log_error(LOG_TAG, "Failed to generate S2 network key\n");
-            secure_memzero(net_key, sizeof(net_key));
-            return;
-        }
+        crypto_generate_random(net_key, sizeof(net_key));
         keystore_network_key_write(1 << c, net_key);
     }
 
     // Also create a new S0 key:
-    if (crypto_generate_random(net_key, sizeof(net_key)) != SL_STATUS_OK) {
-        sl_log_error(LOG_TAG, "Failed to generate S0 network key\n");
-        secure_memzero(net_key, sizeof(net_key));
-        return;
-    }
+    crypto_generate_random(net_key, sizeof(net_key));
     keystore_network_key_write(KEY_CLASS_S0, net_key);
 
     secure_memzero(net_key, sizeof(net_key));
 }
 
-sl_status_t zwave_s2_keystore_init(void)
+void zwave_s2_keystore_init()
 {
     uint32_t magic = 0;
 
-    sl_status_t status = nvm_config_get(magic, &magic);
-    if (status != SL_STATUS_OK) {
+    if (SL_STATUS_OK != nvm_config_get(magic, &magic)) {
         sl_log_error(LOG_TAG, "Failed to read magic from zwapi_memory_get_buffer\n");
-        return status;
+        assert(false);
     }
     magic = zwave_controller_ntohl(magic);
     if (magic != NVM_MAGIC) {
         sl_log_warning(LOG_TAG, "NVM magic check failed %08x != %08x, generating new keys\n", magic, NVM_MAGIC);
-        status = zwave_s2_create_new_learn_mode_ecdh_key();
-        if (status != SL_STATUS_OK) {
-            return status;
-        }
+        zwave_s2_create_new_learn_mode_ecdh_key();
         zwave_s2_create_new_network_keys();
-    }
 
-    status = zwave_s2_create_new_dynamic_ecdh_key();
-    if (status != SL_STATUS_OK) {
-        return status;
-    }
-
-    if (magic != NVM_MAGIC) {
         magic = zwave_controller_ntohl(NVM_MAGIC);
         nvm_config_set(magic, &magic);
     }
-    return SL_STATUS_OK;
+    zwave_s2_create_new_dynamic_ecdh_key();
 }
 
 void zwave_s2_keystore_get_dsk(zwave_s2_keystore_ecdh_key_mode_t mode, zwave_dsk_t dsk)

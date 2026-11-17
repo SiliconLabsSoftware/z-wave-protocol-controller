@@ -4222,13 +4222,14 @@ void test_kex_joining_node_wrong_dsk_input(void)
     mock_calls_verify();
 }
 
-void test_ecdh_failure_clears_secrets_and_sends_kex_fail_auth(void)
+void test_ecdh_return_value_is_ignored_and_secrets_are_cleared(void)
 {
     uint8_t frame_buffer[UNIT_TEST_BUF_SIZE] = {0};
     struct S2 s2_context                     = {0};
 
     mock_calls_clear();
     mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
+    mock_call_use_as_stub(TO_STR(zwave_s2_extract_pseudo_random_key));
     mock_call_use_as_stub(TO_STR(S2_network_key_update));
     mock_call_use_as_stub(TO_STR(S2_send_frame));
     mock_call_use_as_stub(TO_STR(S2_send_data));
@@ -4258,13 +4259,13 @@ void test_ecdh_failure_clears_secrets_and_sends_kex_fail_auth(void)
 
     TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_secret, sizeof(shared_secret));
     TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_key_mem, sizeof(shared_key_mem));
-    TEST_ASSERT_EQUAL_UINT8(KEX_FAIL, s2_context.u.inclusion_buf[SECURITY_2_COMMAND_POS]);
-    TEST_ASSERT_EQUAL_UINT8(KEX_FAIL_AUTH, s2_context.u.inclusion_buf[SECURITY_2_KEX_FAIL_FAIL_TYPE_POS]);
-    TEST_ASSERT_EQUAL_UINT8(S2_ERROR_SENT, s2_context.inclusion_state);
+    TEST_ASSERT_EQUAL_UINT8(KEX_SET, s2_context.u.inclusion_buf[SECURITY_2_COMMAND_POS]);
+    TEST_ASSERT_BITS_HIGH(SECURITY_2_ECHO_ON, s2_context.u.inclusion_buf[SECURITY_2_KEX_SET_ECHO_POS]);
+    TEST_ASSERT_EQUAL_UINT8(S2_ECHO_KEX_SET_SENDING, s2_context.inclusion_state);
     mock_calls_verify();
 }
 
-void test_tempkey_extract_failure_sends_kex_fail_auth(void)
+void test_tempkey_extract_return_value_is_ignored(void)
 {
     uint8_t frame_buffer[UNIT_TEST_BUF_SIZE] = {0};
     struct S2 s2_context                     = {0};
@@ -4305,13 +4306,13 @@ void test_tempkey_extract_failure_sends_kex_fail_auth(void)
 
     TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_secret, sizeof(shared_secret));
     TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_key_mem, sizeof(shared_key_mem));
-    TEST_ASSERT_EQUAL_UINT8(KEX_FAIL, s2_context.u.inclusion_buf[SECURITY_2_COMMAND_POS]);
-    TEST_ASSERT_EQUAL_UINT8(KEX_FAIL_AUTH, s2_context.u.inclusion_buf[SECURITY_2_KEX_FAIL_FAIL_TYPE_POS]);
-    TEST_ASSERT_EQUAL_UINT8(S2_ERROR_SENT, s2_context.inclusion_state);
+    TEST_ASSERT_EQUAL_UINT8(KEX_SET, s2_context.u.inclusion_buf[SECURITY_2_COMMAND_POS]);
+    TEST_ASSERT_BITS_HIGH(SECURITY_2_ECHO_ON, s2_context.u.inclusion_buf[SECURITY_2_KEX_SET_ECHO_POS]);
+    TEST_ASSERT_EQUAL_UINT8(S2_ECHO_KEX_SET_SENDING, s2_context.inclusion_state);
     mock_calls_verify();
 }
 
-void test_tempkey_update_failure_sends_kex_fail_auth(void)
+void test_tempkey_update_return_value_is_ignored(void)
 {
     uint8_t frame_buffer[UNIT_TEST_BUF_SIZE] = {0};
     struct S2 s2_context                     = {0};
@@ -4354,9 +4355,9 @@ void test_tempkey_update_failure_sends_kex_fail_auth(void)
 
     TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_secret, sizeof(shared_secret));
     TEST_ASSERT_EACH_EQUAL_UINT8(0, shared_key_mem, sizeof(shared_key_mem));
-    TEST_ASSERT_EQUAL_UINT8(KEX_FAIL, s2_context.u.inclusion_buf[SECURITY_2_COMMAND_POS]);
-    TEST_ASSERT_EQUAL_UINT8(KEX_FAIL_AUTH, s2_context.u.inclusion_buf[SECURITY_2_KEX_FAIL_FAIL_TYPE_POS]);
-    TEST_ASSERT_EQUAL_UINT8(S2_ERROR_SENT, s2_context.inclusion_state);
+    TEST_ASSERT_EQUAL_UINT8(KEX_SET, s2_context.u.inclusion_buf[SECURITY_2_COMMAND_POS]);
+    TEST_ASSERT_BITS_HIGH(SECURITY_2_ECHO_ON, s2_context.u.inclusion_buf[SECURITY_2_KEX_SET_ECHO_POS]);
+    TEST_ASSERT_EQUAL_UINT8(S2_ECHO_KEX_SET_SENDING, s2_context.inclusion_state);
     mock_calls_verify();
 }
 
@@ -4433,7 +4434,7 @@ void test_restore_keys_leaves_failed_key_unloaded(void)
     mock_calls_verify();
 }
 
-void test_network_key_update_failure_rejects_received_key(void)
+void test_network_key_update_return_value_is_ignored(void)
 {
     uint8_t frame_buffer[UNIT_TEST_BUF_SIZE] = {0};
     struct S2 s2_context                     = {0};
@@ -4441,7 +4442,11 @@ void test_network_key_update_failure_rejects_received_key(void)
 
     mock_calls_clear();
     mock_call_use_as_stub(TO_STR(s2_inclusion_extern_mock.c));
-    mock_call_use_as_stub(TO_STR(S2_send_frame));
+
+    mock_call_expect(TO_STR(keystore_network_key_write), &p_mock);
+    p_mock->expect_arg[0].value   = 0x01;
+    p_mock->expect_arg[1].pointer = m_test_network_key_s2_class_0;
+    p_mock->return_code.value     = true;
 
     mock_call_expect(TO_STR(S2_network_key_update), &p_mock);
     p_mock->compare_rule_arg[0]   = COMPARE_ANY;
@@ -4449,6 +4454,14 @@ void test_network_key_update_failure_rejects_received_key(void)
     p_mock->expect_arg[2].pointer = m_test_network_key_s2_class_0;
     p_mock->expect_arg[3].value   = 0;
     p_mock->return_code.value     = 0;
+
+    uint8_t verify_frame[] = {COMMAND_CLASS_SECURITY_2, SECURITY_2_NETWORK_KEY_VERIFY};
+    mock_call_expect(TO_STR(S2_send_data), &p_mock);
+    p_mock->compare_rule_arg[0]   = COMPARE_ANY;
+    p_mock->compare_rule_arg[1]   = COMPARE_ANY;
+    p_mock->expect_arg[2].pointer = verify_frame;
+    p_mock->expect_arg[3].value   = sizeof(verify_frame);
+    p_mock->return_code.value     = 1;
 
     s2_context.inclusion_state = S2_AWAITING_NET_KEY_REPORT;
     s2_context.buf             = frame_buffer;
@@ -4459,9 +4472,9 @@ void test_network_key_update_failure_rejects_received_key(void)
     helper_func_net_key_report_frame(&s2_context, 0x01);
     s2_inclusion_post_event(&s2_context, &s2_con);
 
-    TEST_ASSERT_EQUAL_UINT8(KEX_FAIL, s2_context.u.inclusion_buf[SECURITY_2_COMMAND_POS]);
-    TEST_ASSERT_EQUAL_UINT8(KEX_FAIL_AUTH, s2_context.u.inclusion_buf[SECURITY_2_KEX_FAIL_FAIL_TYPE_POS]);
-    TEST_ASSERT_EQUAL_UINT8(S2_ERROR_SENT, s2_context.inclusion_state);
+    TEST_ASSERT_EQUAL_UINT8(SECURITY_2_NETWORK_KEY_VERIFY, s2_context.u.inclusion_buf[SECURITY_2_COMMAND_POS]);
+    TEST_ASSERT_EQUAL_UINT8(S2_KEY_EXCHANGED, s2_context.inclusion_state);
+    TEST_ASSERT_EQUAL_UINT8(0x02, s2_context.key_exchange);
     mock_calls_verify();
 }
 

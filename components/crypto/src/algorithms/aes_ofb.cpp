@@ -1,7 +1,7 @@
 #include "crypto_impl.hpp"
 
 #include "psa/crypto.h"
-#include "psa/util.hpp"
+#include "psa/psa_helpers.hpp"
 #include "psa/psa_resources.hpp"
 
 namespace crypto
@@ -9,8 +9,8 @@ namespace crypto
 
     sl_status_t Crypto::aes_ofb_xor(std::span<const uint8_t, crypto::aes_key_size> key, std::span<const uint8_t, crypto::aes_block_size> iv, std::span<uint8_t> data) const
     {
-        detail::ScopedKey imported_key(psa_wrappers_);
-        detail::ScopedCipherOperation operation(psa_wrappers_);
+        ScopedKey imported_key(psa_wrappers_);
+        ScopedCipherOperation operation(psa_wrappers_);
         psa_status_t status;
         size_t update_len;
         size_t finish_len;

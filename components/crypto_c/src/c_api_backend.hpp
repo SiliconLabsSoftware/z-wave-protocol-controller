@@ -3,10 +3,10 @@
 
 #include "crypto.hpp"
 
-namespace crypto_c::detail
+namespace crypto_c
 {
     crypto::CryptoInterface &backend();
     crypto::CryptoInterface *backend_override();
-}  // namespace crypto_c::detail
+}  // namespace crypto_c
 
 #endif

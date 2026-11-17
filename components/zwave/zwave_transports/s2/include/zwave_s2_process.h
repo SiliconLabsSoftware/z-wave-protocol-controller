@@ -14,8 +14,6 @@
 #ifndef ZWAVE_S2_PROCESS_H
 #define ZWAVE_S2_PROCESS_H
 
-#include "sl_status.h"
-
-sl_status_t zwave_s2_process_init(void);
+void zwave_s2_process_init(void);
 
 #endif  // ZWAVE_S2_PROCESS_H

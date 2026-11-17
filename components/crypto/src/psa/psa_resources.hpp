@@ -1,9 +1,9 @@
 #ifndef PSA_RESOURCES_HPP
 #define PSA_RESOURCES_HPP
 
-#include "psa_wrappers_interface.hpp"
+#include "psa_wrappers.hpp"
 
-namespace crypto::detail
+namespace crypto
 {
     class ScopedKey
     {
@@ -95,6 +95,6 @@ namespace crypto::detail
             psa_cipher_operation_t operation_ = PSA_CIPHER_OPERATION_INIT;
             bool active_                      = false;
     };
-}  // namespace crypto::detail
+}  // namespace crypto
 
 #endif

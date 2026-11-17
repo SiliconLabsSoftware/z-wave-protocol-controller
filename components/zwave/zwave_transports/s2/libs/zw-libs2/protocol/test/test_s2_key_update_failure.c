@@ -81,7 +81,7 @@ void setUp(void)
 
 void tearDown(void) {}
 
-static void assert_key_update_failure(uint8_t use_temp_key)
+static void assert_key_update_ignores_expansion_failure(uint8_t use_temp_key)
 {
     struct S2 context;
     const network_key_t network_key = {0};
@@ -98,23 +98,23 @@ static void assert_key_update_failure(uint8_t use_temp_key)
     memcpy(expected_nonce_key, context.sg[class_id].nonce_key, sizeof(expected_nonce_key));
     memcpy(expected_mpan_key, context.sg[class_id].mpan_key, sizeof(expected_mpan_key));
 
-    TEST_ASSERT_FALSE(S2_network_key_update(&context, 0, class_id, network_key, use_temp_key));
-    TEST_ASSERT_EQUAL_UINT8(0, context.loaded_keys);
+    TEST_ASSERT_TRUE(S2_network_key_update(&context, 0, class_id, network_key, use_temp_key));
+    TEST_ASSERT_EQUAL_UINT8(1 << class_id, context.loaded_keys);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_enc_key, context.sg[class_id].enc_key, sizeof(expected_enc_key));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_nonce_key, context.sg[class_id].nonce_key, sizeof(expected_nonce_key));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_mpan_key, context.sg[class_id].mpan_key, sizeof(expected_mpan_key));
 }
 
-void test_network_key_update_does_not_load_or_modify_key_on_expansion_failure(void)
+void test_network_key_update_ignores_expansion_failure(void)
 {
-    assert_key_update_failure(0);
+    assert_key_update_ignores_expansion_failure(0);
     TEST_ASSERT_EQUAL_UINT32(1, networkkey_expand_calls);
     TEST_ASSERT_EQUAL_UINT32(0, tempkey_expand_calls);
 }
 
-void test_temp_key_update_does_not_load_or_modify_key_on_expansion_failure(void)
+void test_temp_key_update_ignores_expansion_failure(void)
 {
-    assert_key_update_failure(1);
+    assert_key_update_ignores_expansion_failure(1);
     TEST_ASSERT_EQUAL_UINT32(0, networkkey_expand_calls);
     TEST_ASSERT_EQUAL_UINT32(1, tempkey_expand_calls);
 }

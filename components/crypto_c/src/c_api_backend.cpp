@@ -1,6 +1,6 @@
 #include "c_api_backend.hpp"
 
-namespace crypto_c::detail
+namespace crypto_c
 {
     crypto::CryptoInterface &backend()
     {
@@ -9,4 +9,4 @@ namespace crypto_c::detail
         }
         return crypto::default_crypto();
     }
-}  // namespace crypto_c::detail
+}  // namespace crypto_c
