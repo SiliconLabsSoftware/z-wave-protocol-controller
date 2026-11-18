@@ -7,7 +7,9 @@
 
 namespace
 {
-
+    /**
+     * @brief Increment a big-endian counter, wrapping to zero on overflow.
+     */
     void increment(std::span<uint8_t, crypto::aes_block_size> counter) noexcept
     {
         for (auto byte = counter.rbegin(); byte != counter.rend(); ++byte) {

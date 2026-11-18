@@ -18,6 +18,9 @@ static_assert(CRYPTO_X25519_SHARED_SECRET_SIZE == crypto::x25519_shared_secret_s
 
 namespace
 {
+    /**
+     * @brief Copy the C++ DRBG state into its C API representation.
+     */
     void copy_context(const crypto::CtrDrbgContext &source, crypto_aes_ctr_drbg_ctx_t &destination)
     {
         std::copy(source.counter.begin(), source.counter.end(), destination.counter);
