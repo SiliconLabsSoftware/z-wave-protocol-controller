@@ -9,6 +9,9 @@
 #define CKDF_EXPAND_CONSTANT_LEN 15U
 #define CKDF_EXPAND_PREFIX_LEN   (CKDF_EXPAND_CONSTANT_LEN + sizeof(uint8_t)) /* constant_entropy_input || step */
 
+/**
+ * @brief Expand a 16-byte pseudo-random key into 32 bytes of mixing entropy; output is written only on success.
+ */
 static sl_status_t ckdf_nonce0_expand(const uint8_t *pseudo_random_key, uint8_t *mixing_entropy_input)
 {
     if (pseudo_random_key == NULL || mixing_entropy_input == NULL) {

@@ -10,6 +10,11 @@ namespace crypto
     class Crypto : public CryptoInterface
     {
         public:
+            /**
+             * @brief Construct a crypto backend on top of the given PSA wrappers.
+             *
+             * @param psa_wrappers PSA wrappers to use; not owned and must outlive this instance.
+             */
             explicit Crypto(PsaWrappersInterface &psa_wrappers) : psa_wrappers_(psa_wrappers) {}
 
             sl_status_t aes_ecb_encrypt(std::span<const uint8_t, crypto::aes_key_size> key, std::span<const uint8_t, crypto::aes_block_size> input, std::span<uint8_t, crypto::aes_block_size> output) const override;
@@ -33,6 +38,9 @@ namespace crypto
             sl_status_t aes_ctr_drbg_generate(crypto::CtrDrbgContext &ctx, std::span<uint8_t> out) const override;
 
         private:
+            /**
+             * @brief Advance the DRBG state and mix in 32 bytes; ctx may be partially updated on failure.
+             */
             sl_status_t update_ctr_drbg(crypto::CtrDrbgContext &ctx, std::span<const uint8_t, crypto::aes_ctr_drbg_seed_size> data) const;
             PsaWrappersInterface &psa_wrappers_;
     };

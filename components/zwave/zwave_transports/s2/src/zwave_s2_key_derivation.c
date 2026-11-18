@@ -6,6 +6,9 @@
 
 #define CKDF_EXPAND_CONSTANT_LEN 15U
 
+/**
+ * @brief Build constant || step for the first CKDF expansion block.
+ */
 static uint8_t ckdf_expand_message_first(uint8_t *message, const uint8_t *expand_constant, uint8_t step)
 {
     memcpy(message, expand_constant, CKDF_EXPAND_CONSTANT_LEN);
@@ -13,6 +16,9 @@ static uint8_t ckdf_expand_message_first(uint8_t *message, const uint8_t *expand
     return (uint8_t)(CKDF_EXPAND_CONSTANT_LEN + sizeof(step)); /* constant || step */
 }
 
+/**
+ * @brief Build previous_block || constant || step for a chained CKDF block.
+ */
 static uint8_t ckdf_expand_message_chain(uint8_t *message, const uint8_t *previous_block, const uint8_t *expand_constant, uint8_t step)
 {
     memcpy(message, previous_block, CRYPTO_AES_CMAC_OUTPUT_LEN);
@@ -21,6 +27,9 @@ static uint8_t ckdf_expand_message_chain(uint8_t *message, const uint8_t *previo
     return (uint8_t)(CRYPTO_AES_CMAC_OUTPUT_LEN + CKDF_EXPAND_CONSTANT_LEN + sizeof(step)); /* T || constant || step */
 }
 
+/**
+ * @brief Expand a CMAC key into CCM, nonce, and MPAN material; outputs are written only on success.
+ */
 static sl_status_t derive_key(const uint8_t *cmac_key, const uint8_t *expand_constant, uint8_t *ccm_key, uint8_t *nonce_pers_string, uint8_t *mpan_key)
 {
     if (cmac_key == NULL || expand_constant == NULL || ccm_key == NULL || nonce_pers_string == NULL || mpan_key == NULL) {
