@@ -93,14 +93,6 @@ void S2_set_timeout(struct S2 *ctxt, uint32_t interval);
 void S2_stop_timeout(struct S2 *ctxt);
 
 /**
- * Get a number of bytes from a hardware random number generator
- *
- * \param buf pointer to buffer where the random bytes must be written.
- * \param len number of bytes to write.
- */
-void S2_get_hw_random(uint8_t *buf, uint8_t len);
-
-/**
  * Get the command classes supported by S2
  * \param lnode The node id to which the frame was sent.
  * \param class_id the security class this request was on

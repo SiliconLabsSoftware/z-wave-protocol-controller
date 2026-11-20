@@ -63,8 +63,6 @@ uint8_t S2_is_send_data_busy(struct S2 *p_context)
     return 0;
 }
 
-void S2_init_prng(void) {}
-
 struct S2 *S2_init_ctx(uint32_t home)
 {
     mock_t *p_mock;
@@ -135,7 +133,7 @@ uint8_t S2_network_key_update(struct S2 *ctx, uint32_t key_id, security_class_t 
     MOCK_CALL_COMPARE_INPUT_UINT8(p_mock, ARG1, class_id);
     MOCK_CALL_COMPARE_INPUT_UINT8_ARRAY(p_mock, ARG2, sizeof(network_key_t), net_key, sizeof(network_key_t));
     MOCK_CALL_COMPARE_INPUT_UINT8(p_mock, ARG3, temp_key_expand);
-    return 1;
+    MOCK_CALL_RETURN_VALUE(p_mock, uint8_t);
 }
 
 uint8_t S2_send_data_multicast(struct S2 *p_context, const s2_connection_t *con, const uint8_t *buf, uint16_t len)

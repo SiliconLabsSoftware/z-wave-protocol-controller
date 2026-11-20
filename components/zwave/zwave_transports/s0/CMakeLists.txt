@@ -7,6 +7,6 @@ target_compile_definitions(zwave_s0 PRIVATE ZIPGW ZW_CONTROLLER)
 target_include_directories(zwave_s0 PUBLIC include)
 target_link_libraries(
   zwave_s0
-  PRIVATE zwave_s2 zwave_controller zwave_tx_scheme_selector timer pthread
+  PRIVATE zwave_s2 zwave_controller zwave_tx_scheme_selector timer pthread crypto_c
 )
 install(TARGETS zwave_s0 LIBRARY DESTINATION lib)

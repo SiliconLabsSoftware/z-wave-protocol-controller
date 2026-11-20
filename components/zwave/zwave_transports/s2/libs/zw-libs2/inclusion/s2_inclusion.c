@@ -14,8 +14,9 @@
 #include <platform.h>
 #include "ZW_classcmd.h"
 #include "s2_classcmd.h"
-#include "kderiv.h"
-#include "curve25519.h"
+#include "zwave_s2_key_derivation.h"
+#include "crypto.h"
+#include "secure_memzero.h"
 #include "s2_inclusion_internal.h"
 
 #define CHECK_AND_FAIL(CHECK, FAILURE) \
@@ -189,7 +190,7 @@ static uint8_t m_schemes;
 static uint8_t m_curves;
 static uint8_t m_keys;  //< Bitmask of keys this node should request when joining.
 uint8_t shared_secret[32];
-uint8_t shared_key_mem[64];  //< Shared memory array for handling of keys/auth tag during inclusion.
+uint8_t shared_key_mem[64];  //< ECDH scratch and KeyPub_A||KeyPub_B for zwave_s2_extract_pseudo_random_key.
 
 struct S2 *mp_context;
 
@@ -323,19 +324,17 @@ void process_event(uint16_t evt)
 void s2_restore_keys(struct S2 *p_context)
 {
     uint8_t i;
-    bool ret_val;
     MP_CTX_DEF
 
     mp_context->loaded_keys = 0;
 
     for (i = 0; i < ELEM_COUNT(m_key_slot_pair); i++) {
-        ret_val = keystore_network_key_read(m_key_slot_pair[i][0], shared_key_mem);
-        if (true == ret_val) {
-            S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, m_key_slot_pair[i][1], shared_key_mem, 0);
+        if (keystore_network_key_read(m_key_slot_pair[i][0], shared_key_mem)) {
+            (void)S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, m_key_slot_pair[i][1], shared_key_mem, 0);
         }
     }
-    // Clearing of memory to ensure key is not exposed accidentially elsewhere.
-    memset(shared_key_mem, 0, sizeof(NETWORK_KEY_SIZE));
+    // Clear the entire scratch buffer, regardless of key read or update failures.
+    secure_memzero(shared_key_mem, sizeof(shared_key_mem));
 }
 
 /**@brief Function for notifying application that inclusion failed.
@@ -832,7 +831,7 @@ static void s2_send_net_key_verify(void)
 
     mp_context->key_exchange <<= 1;
     // Update context with new key.
-    S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, NETWORK_KEY_SECURE, &mp_context->buf[SECURITY_2_NET_KEY_REP_KEY_POS], 0);
+    (void)S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, NETWORK_KEY_SECURE, &mp_context->buf[SECURITY_2_NET_KEY_REP_KEY_POS], 0);
 
     mp_context->u.inclusion_buf[SECURITY_2_COMMAND_CLASS_POS] = COMMAND_CLASS_SECURITY_2;
     mp_context->u.inclusion_buf[SECURITY_2_COMMAND_POS]       = SECURITY_2_NETWORK_KEY_VERIFY;
@@ -929,12 +928,16 @@ static void s2_public_key_read(uint8_t *buf)
 static void s2_do_ecdh_calc_b(void)
 {
     s2_private_key_read(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX]);
-    crypto_scalarmult_curve25519(shared_secret, &shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key);
+    (void)crypto_x25519_derive_shared_secret(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key, shared_secret);
+    secure_memzero(shared_key_mem, sizeof(shared_key_mem));
+
     memcpy(&shared_key_mem[PUBLIC_KEY_A_INDEX], mp_context->public_key, 32);
     s2_public_key_read(&shared_key_mem[PUBLIC_KEY_B_INDEX]);
 
-    tempkey_extract(shared_secret, shared_key_mem, mp_context->public_key);
-    S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1);
+    (void)zwave_s2_extract_pseudo_random_key(shared_secret, shared_key_mem, mp_context->public_key);
+    secure_memzero(shared_secret, sizeof(shared_secret));
+    secure_memzero(shared_key_mem, sizeof(shared_key_mem));
+    (void)S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1);
 
     m_retry_counter = TBI1_TIMEOUT / TB5_TIMEOUT;
     s2_send_echo_kex_set();

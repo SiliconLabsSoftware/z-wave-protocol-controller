@@ -14,8 +14,6 @@
 #include <stdint.h>
 #include <platform.h>
 
-#include "ctr_drbg.h"
-
 // #include <ZW_transport_api.h>
 
 #define S2_MSG_FLAG_EXT  0x1
@@ -348,17 +346,6 @@ void S2_free_mpan(struct S2 *p_context, node_t owner_id, uint8_t group_id);
 
 #include "S2_external.h"
 #include "s2_inclusion.h"
-
-/**
- * Initialize the S2 PRNG. Must be called on powerup.
- * Do not call when starting S2 inclusion. Disables the radio briefly while running.
- */
-void S2_init_prng(void);
-
-/**
- * The random number generator used by S2
- */
-extern CTR_DRBG_CTX s2_ctr_drbg;
 
 /**
  * @}
