@@ -2,6 +2,7 @@
 #define SCOPED_ZEROIZE_HPP
 
 #include <cstddef>
+#include <span>
 
 #include "secure_memzero.h"
 
@@ -19,14 +20,14 @@ namespace common
              * @param buffer Memory to clear; must stay valid until the guard is destroyed. May be null.
              * @param size Number of bytes to clear.
              */
-            ScopedZeroize(void *buffer, std::size_t size) noexcept : buffer_(buffer), size_(size) {}
+            ScopedZeroize(void *buffer, std::size_t size) noexcept : buffer_(std::span<std::byte>(static_cast<std::byte *>(buffer), size)) {}
 
             /**
              * @brief Clear the registered buffer.
              */
             ~ScopedZeroize()
             {
-                secure_memzero(buffer_, size_);
+                secure_memzero(buffer_.data(), buffer_.size());
             }
 
             ScopedZeroize(const ScopedZeroize &)            = delete;
@@ -35,8 +36,7 @@ namespace common
             ScopedZeroize &operator=(ScopedZeroize &&)      = delete;
 
         private:
-            void *buffer_;
-            std::size_t size_;
+            std::span<std::byte> buffer_;
     };
 }  // namespace common
 
