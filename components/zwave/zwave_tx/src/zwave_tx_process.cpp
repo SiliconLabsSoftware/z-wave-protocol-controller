@@ -985,6 +985,22 @@ static void zwave_tx_process_drop_remaining_sessions()
             tx_queue.collect_descendants(root, family);
             for (auto it = family.rbegin(); it != family.rend(); ++it) {
                 tx_queue.disable_fasttack(*it);
+                zwave_tx_queue_element_t element = {};
+                if (tx_queue.get_by_id(&element, *it) != SL_STATUS_OK) {
+                    continue;
+                }
+                if (tx_queue.transport_completion_step_is_pending(*it)) {
+                    // Transport already reported; run the pending step once with
+                    // that status. Do not overwrite it with FAIL.
+                    zwave_tx_message_transmission_completed_step(*it);
+                    continue;
+                }
+                if (element.transmission_time != 0) {
+                    // Send callback already ran; the session is only waiting for
+                    // replies. Pop it without a second FAIL callback.
+                    zwave_tx_finalize_element(*it);
+                    continue;
+                }
                 tx_queue.set_transmissions_results(*it, TRANSMIT_COMPLETE_FAIL, nullptr);
                 zwave_tx_message_transmission_completed_step(*it);
             }
