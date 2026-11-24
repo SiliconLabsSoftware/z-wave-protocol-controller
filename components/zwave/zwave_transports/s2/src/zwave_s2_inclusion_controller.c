@@ -3,8 +3,9 @@
  * s2_inclusion_controller.c
  *
  */
-#include "kderiv.h"
-#include "curve25519.h"
+#include "zwave_s2_key_derivation.h"
+#include "crypto.h"
+#include "secure_memzero.h"
 #include "s2_protocol.h"
 #include "s2_keystore.h"
 #include "s2_inclusion_internal.h"
@@ -151,11 +152,15 @@ void execute_action_controller(uint8_t action)
 static void s2_do_ecdh_calc_a(void)
 {
     keystore_private_key_read(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX]);
-    crypto_scalarmult_curve25519(shared_secret, &shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key);
+    crypto_x25519_derive_shared_secret(&shared_key_mem[LOCAL_PRIVATE_KEY_INDEX], mp_context->public_key, shared_secret);
+    secure_memzero(shared_key_mem, sizeof(shared_key_mem));
+
     memcpy(&shared_key_mem[PUBLIC_KEY_B_INDEX], mp_context->public_key, 32);
     keystore_public_key_read(&shared_key_mem[PUBLIC_KEY_A_INDEX]);
 
-    tempkey_extract(shared_secret, shared_key_mem, mp_context->public_key);
+    zwave_s2_extract_pseudo_random_key(shared_secret, shared_key_mem, mp_context->public_key);
+    secure_memzero(shared_secret, sizeof(shared_secret));
+    secure_memzero(shared_key_mem, sizeof(shared_key_mem));
     S2_network_key_update(mp_context, ZWAVE_KEY_ID_NONE, TEMP_KEY_SECURE, mp_context->public_key, 1);
 }
 
