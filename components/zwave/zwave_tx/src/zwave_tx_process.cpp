@@ -44,6 +44,7 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <mutex>
 #include <new>
 #include <vector>
 // Constants
@@ -77,6 +78,9 @@ namespace
     // Private variable indicating if a Tx Queue flush is ongoing
     // Atomic to allow safe access from multiple threads
     std::atomic<bool> queue_flush_ongoing {false};
+    // Serializes enqueue with the end of flush so a concurrent send_data cannot
+    // insert a frame after the worker decides the queue is empty.
+    std::recursive_mutex tx_enqueue_flush_gate;
     // Epoch of the currently armed backoff timer. Bumped on every stop/re-arm so
     // an in-flight timer callback cannot expire a later backoff.
     std::atomic<uint32_t> backoff_timer_epoch {0};
@@ -255,12 +259,6 @@ static void zwave_tx_finalize_element(zwave_tx_session_id_t session_id)
     // (e.g. aborted, dropped, or fast-track failed), remove it so we do
     // not try to re-arm a back-off for a session that no longer exists.
     preempted_backoff_stack.erase(std::remove(preempted_backoff_stack.begin(), preempted_backoff_stack.end(), session_id), preempted_backoff_stack.end());
-
-    // Did we just reach an empty queue while waiting for a queue flush?
-    if (zwave_tx_process_queue_flush_is_ongoing() && tx_queue.empty()) {
-        sl_log_info(LOG_TAG, "Reset step: Tx Queue flush completed");
-        zwave_controller_on_reset_step_complete(ZWAVE_CONTROLLER_TX_FLUSH_RESET_STEP_PRIORITY);
-    }
 }
 
 /**
@@ -786,8 +784,19 @@ bool zwave_tx_process_queue_flush_is_ongoing()
     return queue_flush_ongoing.load();
 }
 
+void zwave_tx_process_enqueue_gate_lock()
+{
+    tx_enqueue_flush_gate.lock();
+}
+
+void zwave_tx_process_enqueue_gate_unlock()
+{
+    tx_enqueue_flush_gate.unlock();
+}
+
 void zwave_tx_process_open_tx_queue()
 {
+    std::lock_guard<std::recursive_mutex> lock(tx_enqueue_flush_gate);
     if (queue_flush_ongoing.load()) {
         sl_log_info(LOG_TAG, "Re-opening the Z-Wave Tx Queue for new frames.");
         queue_flush_ongoing.store(false);
@@ -944,18 +953,58 @@ void zwave_tx_process_on_node_deleted(zwave_node_id_t node_id)
     zwave_tx_process_post_event(ZWAVE_TX_NODE_DELETED, reinterpret_cast<void *>(static_cast<uintptr_t>(node_id)));
 }
 
+static void zwave_tx_process_drop_remaining_sessions()
+{
+    while (!tx_queue.empty()) {
+        const int size_before = tx_queue.size();
+        std::vector<zwave_tx_session_id_t> sessions_to_abort;
+        tx_queue.collect_all_session_ids(sessions_to_abort);
+        if (sessions_to_abort.empty()) {
+            break;
+        }
+        for (zwave_tx_session_id_t session_id: sessions_to_abort) {
+            zwave_controller_transport_abort_send_data(session_id);
+        }
+
+        // collect_all_session_ids is QoS/heap order, not parent-then-child.
+        // Complete each remaining chain the same way as the in-flight watchdog:
+        // collect_descendants (parents before children) then reverse so children
+        // finalize first.
+        std::vector<zwave_tx_session_id_t> roots;
+        for (zwave_tx_session_id_t session_id: sessions_to_abort) {
+            if (!tx_queue.contains(session_id)) {
+                continue;
+            }
+            const zwave_tx_session_id_t root = tx_queue.find_root(session_id);
+            if (std::find(roots.begin(), roots.end(), root) == roots.end()) {
+                roots.push_back(root);
+            }
+        }
+        for (zwave_tx_session_id_t root: roots) {
+            std::vector<zwave_tx_session_id_t> family;
+            tx_queue.collect_descendants(root, family);
+            for (auto it = family.rbegin(); it != family.rend(); ++it) {
+                tx_queue.disable_fasttack(*it);
+                tx_queue.set_transmissions_results(*it, TRANSMIT_COMPLETE_FAIL, nullptr);
+                zwave_tx_message_transmission_completed_step(*it);
+            }
+        }
+        if (tx_queue.size() >= size_before) {
+            sl_log_error(LOG_TAG, "Reset step: Tx Queue flush made no progress; %d session(s) remain.", tx_queue.size());
+            break;
+        }
+    }
+}
+
 static void zwave_tx_process_flush_queue_on_process_thread()
 {
     // Shortcut any active back-off so remaining sessions can be aborted below.
     // Do NOT return early: other sessions may still be in the queue.
     if (state == ZWAVE_TX_STATE_BACKOFF) {
         zwave_tx_resume_from_backoff_step();
-        // If this was the last session, zwave_tx_finalize_element already called
-        // zwave_controller_on_reset_step_complete; sessions_to_abort will be
-        // empty and we fall through safely.
     }
 
-    // Force-drop every remaining session. abort_transmission only drops in IDLE
+    // Force-drop remaining sessions. abort_transmission only drops in IDLE
     // and otherwise marks the session failed for a later send_next_message_step
     // scan; that scan returns immediately while queue_flush_ongoing is set.
     // queue_flush_ongoing also blocks child frames a transport abort may need
@@ -964,35 +1013,30 @@ static void zwave_tx_process_flush_queue_on_process_thread()
     // would treat `user` as protocol_metadata_t while a protocol frame is
     // in flight. Same pattern as the in-flight watchdog.
     is_protocol_frame.store(false);
-    std::vector<zwave_tx_session_id_t> sessions_to_abort;
-    tx_queue.collect_all_session_ids(sessions_to_abort);
-    for (zwave_tx_session_id_t session_id: sessions_to_abort) {
-        zwave_controller_transport_abort_send_data(session_id);
+
+    // Drop without holding the enqueue gate: complete callbacks and the next
+    // reset step may call zwave_tx_send_data. Recheck emptiness under the gate
+    // so a concurrent enqueue cannot sneak in after we decide the queue is empty.
+    for (;;) {
+        zwave_tx_process_drop_remaining_sessions();
+        bool queue_empty = false;
+        {
+            std::lock_guard<std::recursive_mutex> lock(tx_enqueue_flush_gate);
+            queue_empty = tx_queue.empty();
+        }
+        if (queue_empty) {
+            break;
+        }
+        const int leftover = tx_queue.size();
+        zwave_tx_process_drop_remaining_sessions();
+        if (tx_queue.size() >= leftover) {
+            sl_log_error(LOG_TAG, "Reset step: Tx Queue flush could not drop remaining session(s); continuing reset.");
+            break;
+        }
     }
 
-    // collect_all_session_ids is QoS/heap order, not parent-then-child.
-    // Complete each remaining chain the same way as the in-flight watchdog:
-    // collect_descendants (parents before children) then reverse so children
-    // finalize first.
-    std::vector<zwave_tx_session_id_t> roots;
-    for (zwave_tx_session_id_t session_id: sessions_to_abort) {
-        if (!tx_queue.contains(session_id)) {
-            continue;
-        }
-        const zwave_tx_session_id_t root = tx_queue.find_root(session_id);
-        if (std::find(roots.begin(), roots.end(), root) == roots.end()) {
-            roots.push_back(root);
-        }
-    }
-    for (zwave_tx_session_id_t root: roots) {
-        std::vector<zwave_tx_session_id_t> family;
-        tx_queue.collect_descendants(root, family);
-        for (auto it = family.rbegin(); it != family.rend(); ++it) {
-            tx_queue.disable_fasttack(*it);
-            tx_queue.set_transmissions_results(*it, TRANSMIT_COMPLETE_FAIL, nullptr);
-            zwave_tx_message_transmission_completed_step(*it);
-        }
-    }
+    sl_log_info(LOG_TAG, "Reset step: Tx Queue flush completed");
+    zwave_controller_on_reset_step_complete(ZWAVE_CONTROLLER_TX_FLUSH_RESET_STEP_PRIORITY);
 }
 
 sl_status_t zwave_tx_process_flush_queue_reset_step()
@@ -1003,15 +1047,9 @@ sl_status_t zwave_tx_process_flush_queue_reset_step()
     queue_flush_ongoing.store(true);
     sl_log_info(LOG_TAG, "Tx Queue will no longer accept new frames.");
 
-    // Is it already empty?
-    if (tx_queue.empty()) {
-        // Tell the controller not to wait for any callback.
-        sl_log_info(LOG_TAG, "Reset step: Tx Queue flush completed. (was empty)");
-        return SL_STATUS_ALREADY_INITIALIZED;
-    }
-
-    // Mutate TX state only on the process thread. This reset step is invoked
-    // from the controller/reset caller thread.
+    // Always post to the process thread, including the empty case: a concurrent
+    // send_data can enqueue after this check. The worker re-drains and then
+    // signals reset-step complete.
     zwave_tx_process_post_event(ZWAVE_TX_FLUSH_QUEUE, nullptr);
     return SL_STATUS_OK;
 }

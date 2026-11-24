@@ -179,6 +179,12 @@ void zwave_tx_process_on_node_deleted(zwave_node_id_t node_id);
 bool zwave_tx_process_queue_flush_is_ongoing();
 
 /**
+ * @brief Serialize zwave_tx_send_data enqueue with Tx Queue flush completion.
+ */
+void zwave_tx_process_enqueue_gate_lock();
+void zwave_tx_process_enqueue_gate_unlock();
+
+/**
  * @brief Triggers the processing of the next frame in the queue if we are idle
  *
  * Use this function instead of posting directly a ZWAVE_TX_SEND_NEXT_MESSAGE
