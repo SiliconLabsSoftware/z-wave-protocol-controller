@@ -243,13 +243,36 @@ default_flag
 
 {# Build nested MQTT JSON for a report from a flattened attribute_map (struct_byte fields grouped by param name). #}
 {% macro mqtt_publish_json_from_attribute_map(command_class_name_lower, command) %}
+        {# The parser normalizes struct fields, but MQTT retains its original masked
+           encoding. Match the parser's version order and first-insert semantics:
+           repeated names (e.g. reserved) share the first source field's value. #}
+        {% set mqtt_field_shifts = {} %}
+        {% for attribute in command.params | sort(attribute='min_version') %}
+            {% if attribute.type | lower == "struct_byte" %}
+                {% for field in attribute.fields %}
+                    {% set field_name = create_variable_name(field.name) %}
+                    {% if field_name not in mqtt_field_shifts %}
+                        {% do mqtt_field_shifts.update({field_name: field.shifter | default(0, true) | int}) %}
+                    {% endif %}
+                {% endfor %}
+            {% elif attribute.type | lower != "marker" %}
+                {% set field_name = create_variable_name(attribute.name) %}
+                {% if field_name not in mqtt_field_shifts %}
+                    {% do mqtt_field_shifts.update({field_name: 0}) %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
         {% for attribute in command.params %}
             {% if attribute.type | lower == "struct_byte" %}
         {
             nlohmann::json {{ create_variable_name(attribute.name) }}_obj = nlohmann::json::object();
                 {% for field in attribute.fields %}
             {{ create_variable_name(attribute.name) }}_obj["{{ create_variable_name(field.name) }}"] =
+                    {% if mqtt_field_shifts[create_variable_name(field.name)] > 0 %}
+              static_cast<uint8_t>(get_value_or_default<uint8_t>(attribute_map, "{{ create_variable_name(field.name) }}", static_cast<uint8_t>(0)) << {{ mqtt_field_shifts[create_variable_name(field.name)] }});
+                    {% else %}
               get_value_or_default<uint8_t>(attribute_map, "{{ create_variable_name(field.name) }}", static_cast<uint8_t>(0));
+                    {% endif %}
                 {% endfor %}
             j_map["{{ create_variable_name(attribute.name) }}"] = std::move({{ create_variable_name(attribute.name) }}_obj);
         }

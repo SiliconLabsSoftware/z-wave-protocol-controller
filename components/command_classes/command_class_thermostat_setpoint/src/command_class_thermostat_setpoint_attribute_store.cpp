@@ -174,12 +174,12 @@ namespace zwave_command_class
         uint8_t precision1_raw = 0;
         precision1_raw         = get_value_or_default(attribute_map, "precision1", precision1_raw);
         auto precision1_node   = group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::precision1));
-        precision1_node.set_reported<uint8_t>((precision1_raw >> 5) & 0x07U);
+        precision1_node.set_reported<uint8_t>(precision1_raw);
 
         uint8_t precision2_raw = 0;
         precision2_raw         = get_value_or_default(attribute_map, "precision2", precision2_raw);
         auto precision2_node   = group_node.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::precision2));
-        precision2_node.set_reported<uint8_t>((precision2_raw >> 5) & 0x07U);
+        precision2_node.set_reported<uint8_t>(precision2_raw);
 
         return SL_STATUS_OK;
     }

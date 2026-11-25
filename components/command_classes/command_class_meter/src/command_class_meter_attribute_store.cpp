@@ -46,7 +46,7 @@ namespace zwave_command_class
             }
 
             const uint8_t group_scale = command_class_meter_constants::meter_scale_from_report_fields(scale_bit_2_node.reported<uint8_t>(), scale_bits_10_node.reported<uint8_t>(), scale_2_node.reported<uint8_t>());
-            const uint8_t group_rate  = command_class_meter_constants::rate_type_from_masked(rate_type_node.reported<uint8_t>());
+            const uint8_t group_rate  = rate_type_node.reported<uint8_t>();
             if (group_scale == scale && group_rate == rate_type) {
                 return group_node;
             }
@@ -70,7 +70,7 @@ namespace zwave_command_class
         report_group.emplace_node(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::scale_bit_2)).set_reported<uint8_t>(scale_bit_2);
         report_group.emplace_node(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::scale_bits_10)).set_reported<uint8_t>(scale_bits_10);
         report_group.emplace_node(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::scale_2)).set_reported<uint8_t>(scale_2);
-        report_group.emplace_node(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::rate_type)).set_reported<uint8_t>(command_class_meter_constants::rate_type_to_masked(rate_type));
+        report_group.emplace_node(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::rate_type)).set_reported<uint8_t>(rate_type);
         return report_group;
     }
 
@@ -113,7 +113,7 @@ namespace zwave_command_class
         return true;
     }
 
-    bool command_class_meter_attribute_store::get_supported_rate_type_masked(attribute_store::attribute endpoint_node, uint8_t &rate_type_masked)
+    bool command_class_meter_attribute_store::get_supported_rate_type(attribute_store::attribute endpoint_node, uint8_t &rate_type)
     {
         auto supported = endpoint_node.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::METER_SUPPORTED_REPORT_GROUP));
         if (!supported.is_valid()) {
@@ -123,7 +123,7 @@ namespace zwave_command_class
         if (!rate_node.is_valid() || !rate_node.reported_exists()) {
             return false;
         }
-        rate_type_masked = rate_node.reported<uint8_t>();
+        rate_type = rate_node.reported<uint8_t>();
         return true;
     }
 
@@ -181,7 +181,7 @@ namespace zwave_command_class
         previous_meter_value = get_value_or_default(attribute_map, "previous_meter_value", previous_meter_value);
 
         const uint8_t logical_scale = command_class_meter_constants::meter_scale_from_report_fields(scale_bit_2, scale_bits_10, scale_2);
-        const uint8_t logical_rate  = command_class_meter_constants::rate_type_from_masked(rate_type);
+        const uint8_t logical_rate  = rate_type;
 
         auto report_group = find_or_create_meter_report_group(endpoint_node, logical_scale, logical_rate);
         report_group.emplace_node(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::meter_type)).set_reported(meter_type);

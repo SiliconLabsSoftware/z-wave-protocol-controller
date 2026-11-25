@@ -100,9 +100,9 @@ namespace zwave_command_class
 
         group_node.emplace_node(static_cast<attribute_store_type_t>(sensor_multilevel_report_group_attributes_t::sensor_type)).set_reported<uint8_t>(sensor_type);
 
-        // The parsed struct_byte fields are masked but not shifted; decode them through the generated union.
+        // Parsed fields are normalized; shift them only while rebuilding the packed byte.
         sensor_multilevel_report_level_t level;
-        level.value = get_value_or_default<uint8_t>(attribute_map, "size", 0) | get_value_or_default<uint8_t>(attribute_map, "scale", 0) | get_value_or_default<uint8_t>(attribute_map, "precision", 0);
+        level.value = get_value_or_default<uint8_t>(attribute_map, "size", 0) | static_cast<uint8_t>(get_value_or_default<uint8_t>(attribute_map, "scale", 0) << 3) | static_cast<uint8_t>(get_value_or_default<uint8_t>(attribute_map, "precision", 0) << 5);
 
         group_node.emplace_node(static_cast<attribute_store_type_t>(sensor_multilevel_report_group_attributes_t::size)).set_reported<uint8_t>(level.flags.sensor_multilevel_report_size);
         group_node.emplace_node(static_cast<attribute_store_type_t>(sensor_multilevel_report_group_attributes_t::scale)).set_reported<uint8_t>(level.flags.sensor_multilevel_report_scale);

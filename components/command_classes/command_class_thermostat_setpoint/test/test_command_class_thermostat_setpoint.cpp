@@ -237,8 +237,8 @@ TEST_F(ThermostatSetpointTest, SetV3RejectsValueOutsideReportedCapabilities)
                                                                                 {"setpoint_type", uint8_t {SETPOINT_TYPE_HEATING}},
                                                                                 {"min_value", std::vector<uint8_t> {0x00, 0xC8}},
                                                                                 {"maxvalue", std::vector<uint8_t> {0x01, 0x2C}},
-                                                                                {"precision1", uint8_t {0x20}},
-                                                                                {"precision2", uint8_t {0x20}},
+                                                                                {"precision1", SETPOINT_PRECISION_ONE_DECIMAL},
+                                                                                {"precision2", SETPOINT_PRECISION_ONE_DECIMAL},
                                                                               }));
     auto group = endpoint.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_set_group_attributes_t::THERMOSTAT_SETPOINT_SET_GROUP));
 
@@ -874,7 +874,9 @@ TEST_F(ThermostatSetpointTest, SetV3RejectsValueBelowReportedMinimum)
 
     // Heating limits are 20.0 through 30.0: raw 200 and 300 with one decimal place.
     ASSERT_EQ(SL_STATUS_OK,
-              core.on_thermostat_setpoint_capabilities_report_received_store(endpoint, {{"setpoint_type", SETPOINT_TYPE_HEATING}, {"min_value", std::vector<uint8_t> {0x00, 0xC8}}, {"maxvalue", std::vector<uint8_t> {0x01, 0x2C}}, {"precision1", uint8_t {0x20}}, {"precision2", uint8_t {0x20}}}));
+              core.on_thermostat_setpoint_capabilities_report_received_store(
+                endpoint,
+                {{"setpoint_type", SETPOINT_TYPE_HEATING}, {"min_value", std::vector<uint8_t> {0x00, 0xC8}}, {"maxvalue", std::vector<uint8_t> {0x01, 0x2C}}, {"precision1", SETPOINT_PRECISION_ONE_DECIMAL}, {"precision2", SETPOINT_PRECISION_ONE_DECIMAL}}));
     auto group = endpoint.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_set_group_attributes_t::THERMOSTAT_SETPOINT_SET_GROUP));
     group.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_set_group_attributes_t::setpoint_type)).set_desired(SETPOINT_TYPE_HEATING);
     group.emplace_node(static_cast<attribute_store_type_t>(thermostat_setpoint_set_group_attributes_t::size)).set_desired(SETPOINT_SIZE_TWO_BYTES);
