@@ -32,6 +32,7 @@
 #include "ZW_classcmd.h"
 
 #include "timer.hpp"
+#include "clock_platform.h"
 
 // ZPC components
 #include "log.h"
@@ -43,6 +44,7 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <mutex>
 #include <new>
 #include <vector>
 // Constants
@@ -51,6 +53,11 @@ static constexpr char LOG_TAG[] = "zwave_tx_process";
 // Must exceed the zwave_api_transport emergency timer (65 s) so the watchdog
 // only fires after the API-level recovery has already had a chance to run.
 static constexpr clock_time_t TX_FRAME_IN_FLIGHT_WATCHDOG_MS = 90 * CLOCK_SECOND;
+// Cap for event_queue.pop so should_stop() is observed while idle.
+static constexpr uint32_t TX_EVENT_QUEUE_WAIT_MS = 100;
+// When the backoff deadline is due but the timer worker has not published the
+// expiry epoch yet, do not pop(0): that busy-waits the TX thread.
+static constexpr uint32_t TX_EVENT_QUEUE_EXPIRED_POLL_MS = 1;
 
 // Forward declaration for global instance
 namespace zwave_component
@@ -64,13 +71,21 @@ zwave_component::zwave_tx_process *zwave_tx_process_instance = nullptr;
 // Our private variables.
 namespace
 {
-    // Tx Queue state
-    zwave_tx_state_t state;
+    // Tx Queue state. Atomic: other threads may log or observe it.
+    std::atomic<zwave_tx_state_t> state {ZWAVE_TX_STATE_IDLE};
     // back-off timer, used to decide when to send the next frame
     struct timer_handle_t backoff_timer {nullptr};
     // Private variable indicating if a Tx Queue flush is ongoing
     // Atomic to allow safe access from multiple threads
     std::atomic<bool> queue_flush_ongoing {false};
+    // Serializes enqueue with the end of flush so a concurrent send_data cannot
+    // insert a frame after the worker decides the queue is empty.
+    std::recursive_mutex tx_enqueue_flush_gate;
+    // Epoch of the currently armed backoff timer. Bumped on every stop/re-arm so
+    // an in-flight timer callback cannot expire a later backoff.
+    std::atomic<uint32_t> backoff_timer_epoch {0};
+    std::atomic<uint32_t> backoff_timer_expired_epoch {0};
+    std::atomic<clock_time_t> backoff_deadline {0};
     // The frame currently being handled
     zwave_tx_session_id_t current_tx_session_id;
     // Map of NodeIDs and the number of frames that we expect from Nodes in our network.
@@ -130,6 +145,47 @@ std::atomic<bool> is_protocol_frame {false};
 static void zwave_tx_message_transmission_completed_step(zwave_tx_session_id_t session_id);
 
 static void zwave_tx_process_backoff_timer_callback(void *ptr);
+
+static uint32_t zwave_tx_cancel_backoff_timer()
+{
+    timer_stop(&backoff_timer);
+    backoff_deadline.store(0, std::memory_order_relaxed);
+    return backoff_timer_epoch.fetch_add(1, std::memory_order_relaxed) + 1;
+}
+
+static void zwave_tx_arm_backoff_timer(clock_time_t delay)
+{
+    const uint32_t epoch = zwave_tx_cancel_backoff_timer();
+    backoff_deadline.store(clock_time() + delay, std::memory_order_relaxed);
+    timer_set(&backoff_timer, delay, zwave_tx_process_backoff_timer_callback, reinterpret_cast<void *>(static_cast<uintptr_t>(epoch)));
+}
+
+static bool zwave_tx_consume_backoff_timer_expiry()
+{
+    const uint32_t armed = backoff_timer_epoch.load(std::memory_order_acquire);
+    uint32_t expired     = backoff_timer_expired_epoch.load(std::memory_order_acquire);
+    if ((armed == 0) || (expired != armed)) {
+        return false;
+    }
+    return backoff_timer_expired_epoch.compare_exchange_strong(expired, 0, std::memory_order_acq_rel);
+}
+
+static uint32_t zwave_tx_event_queue_wait_ms()
+{
+    const clock_time_t deadline = backoff_deadline.load(std::memory_order_relaxed);
+    if (deadline == 0) {
+        return TX_EVENT_QUEUE_WAIT_MS;
+    }
+    const clock_time_t now = clock_time();
+    if (clock_lte(deadline, now) != 0) {
+        return TX_EVENT_QUEUE_EXPIRED_POLL_MS;
+    }
+    const clock_time_t remaining = deadline - now;
+    if (remaining >= TX_EVENT_QUEUE_WAIT_MS) {
+        return TX_EVENT_QUEUE_WAIT_MS;
+    }
+    return static_cast<uint32_t>(remaining);
+}
 
 static void zwave_tx_restore_preempted_backoff_if_needed(zwave_tx_session_id_t completed_session_id);
 
@@ -203,12 +259,6 @@ static void zwave_tx_finalize_element(zwave_tx_session_id_t session_id)
     // (e.g. aborted, dropped, or fast-track failed), remove it so we do
     // not try to re-arm a back-off for a session that no longer exists.
     preempted_backoff_stack.erase(std::remove(preempted_backoff_stack.begin(), preempted_backoff_stack.end(), session_id), preempted_backoff_stack.end());
-
-    // Did we just reach an empty queue while waiting for a queue flush?
-    if (zwave_tx_process_queue_flush_is_ongoing() && tx_queue.empty()) {
-        sl_log_info(LOG_TAG, "Reset step: Tx Queue flush completed");
-        zwave_controller_on_reset_step_complete(ZWAVE_CONTROLLER_TX_FLUSH_RESET_STEP_PRIORITY);
-    }
 }
 
 /**
@@ -222,8 +272,7 @@ static void zwave_tx_process_initiate_backoff(clock_time_t backoff_time, zwave_t
     sl_log_debug(LOG_TAG, "Starting Z-Wave TX back off for %lu ms. Reason: %s\n", backoff_time, zwave_back_off_reason_name(reason));
     state          = ZWAVE_TX_STATE_BACKOFF;
     backoff_reason = reason;
-    timer_stop(&backoff_timer);
-    timer_set(&backoff_timer, backoff_time, zwave_tx_process_backoff_timer_callback, 0);
+    zwave_tx_arm_backoff_timer(backoff_time);
 }
 
 /**
@@ -232,8 +281,9 @@ static void zwave_tx_process_initiate_backoff(clock_time_t backoff_time, zwave_t
  */
 static void zwave_tx_resume_from_backoff_step()
 {
-    // Ensure that the backoff timer is not running anymore
-    timer_stop(&backoff_timer);
+    // Ensure that the backoff timer is not running anymore, and that a late
+    // callback cannot expire a backoff armed after this resume.
+    (void)zwave_tx_cancel_backoff_timer();
 
     // Snapshot for the pre-empted-session re-scheduling
     const zwave_tx_session_id_t resumed_session_id = current_tx_session_id;
@@ -266,13 +316,13 @@ static void zwave_tx_resume_from_backoff_step()
 
 static void zwave_tx_process_backoff_timer_callback(void *ptr)
 {
-    sl_log_debug(LOG_TAG, "Tx backoff timer expired. Posting event to resume from back-off.\n");
-    // Post event to the zwave_tx_process thread instead of directly modifying
-    // shared state. Timer callbacks execute in the timer manager's worker thread,
-    // so we must use the event queue to safely access shared state.
-    if (zwave_tx_process_instance != nullptr) {
-        zwave_tx_process_instance->post_event(ZWAVE_TX_BACKOFF_TIMER_EXPIRED, nullptr);
-    }
+    const uint32_t epoch = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(ptr));
+    sl_log_debug(LOG_TAG, "Tx backoff timer expired. Signaling TX process to resume from back-off.\n");
+    // Do not take the TX event-queue mutex here: posting would invert the
+    // TX-thread lock order (queue mutex then timer mutex) and TSan reports a
+    // potential deadlock. Publish this arming's epoch instead; the TX thread
+    // ignores it if the timer has already been cancelled or re-armed.
+    backoff_timer_expired_epoch.store(epoch, std::memory_order_release);
 }
 
 /**
@@ -487,6 +537,10 @@ static bool is_frame_eligible_during_transport_service_reassembly(const zwave_tx
  */
 static void zwave_tx_process_send_next_message_step()
 {
+    if (zwave_tx_process_queue_flush_is_ongoing()) {
+        return;
+    }
+
     if (tx_queue.empty()) {
         return;
     }
@@ -567,7 +621,7 @@ static void zwave_tx_process_send_next_message_step()
         // safety timer or non-preempted poll). If the frame goes out before the
         // timer fires, leaving it armed would run zwave_tx_resume_from_backoff_step
         // and corrupt backoff_reason for an unrelated session.
-        timer_stop(&backoff_timer);
+        (void)zwave_tx_cancel_backoff_timer();
         return;
     }
     if (transport_status == SL_STATUS_BUSY) {
@@ -585,15 +639,18 @@ static void zwave_tx_process_send_next_message_step()
             // the preempted session is abandoned. Arm a safety timer so zwave_tx_resume_from_backoff_step
             // restores the preempted backoff and retries the bypass frame regardless.
             sl_log_debug(LOG_TAG, "Bypass frame deferred with preempted session pending (id=%p). Arming safety retry timer.", preempted_backoff_stack.back());
-            timer_set(&backoff_timer, 3 * CLOCK_SECOND, zwave_tx_process_backoff_timer_callback, 0);
+            zwave_tx_arm_backoff_timer(3 * CLOCK_SECOND);
         } else {
             // No transport completion will arrive for this defer; poll periodically so
             // the queue head is retried when S2 inclusion or an app session clears.
-            timer_set(&backoff_timer, CLOCK_SECOND / 2, zwave_tx_process_backoff_timer_callback, 0);
+            zwave_tx_arm_backoff_timer(CLOCK_SECOND / 2);
         }
         return;
     }  // Persistent error from the transport layer. Drop the frame to avoid a stall.
     sl_log_warning(LOG_TAG, "Transport cannot handle new frame (id=%p). Discarding to avoid a stall.", current_tx_session_id);
+    // This session was just dispatched (possibly as a protocol frame). Clear
+    // so the synthetic complete below is not interpreted as protocol metadata.
+    is_protocol_frame.store(false);
     zwave_tx_drop_unsent_current_message();
 }
 
@@ -727,8 +784,19 @@ bool zwave_tx_process_queue_flush_is_ongoing()
     return queue_flush_ongoing.load();
 }
 
+void zwave_tx_process_enqueue_gate_lock()
+{
+    tx_enqueue_flush_gate.lock();
+}
+
+void zwave_tx_process_enqueue_gate_unlock()
+{
+    tx_enqueue_flush_gate.unlock();
+}
+
 void zwave_tx_process_open_tx_queue()
 {
+    std::lock_guard<std::recursive_mutex> lock(tx_enqueue_flush_gate);
     if (queue_flush_ongoing.load()) {
         sl_log_info(LOG_TAG, "Re-opening the Z-Wave Tx Queue for new frames.");
         queue_flush_ongoing.store(false);
@@ -885,6 +953,108 @@ void zwave_tx_process_on_node_deleted(zwave_node_id_t node_id)
     zwave_tx_process_post_event(ZWAVE_TX_NODE_DELETED, reinterpret_cast<void *>(static_cast<uintptr_t>(node_id)));
 }
 
+static void zwave_tx_process_drop_remaining_sessions()
+{
+    while (!tx_queue.empty()) {
+        const int size_before = tx_queue.size();
+        std::vector<zwave_tx_session_id_t> sessions_to_abort;
+        tx_queue.collect_all_session_ids(sessions_to_abort);
+        if (sessions_to_abort.empty()) {
+            break;
+        }
+        for (zwave_tx_session_id_t session_id: sessions_to_abort) {
+            zwave_controller_transport_abort_send_data(session_id);
+        }
+
+        // collect_all_session_ids is QoS/heap order, not parent-then-child.
+        // Complete each remaining chain the same way as the in-flight watchdog:
+        // collect_descendants (parents before children) then reverse so children
+        // finalize first.
+        std::vector<zwave_tx_session_id_t> roots;
+        for (zwave_tx_session_id_t session_id: sessions_to_abort) {
+            if (!tx_queue.contains(session_id)) {
+                continue;
+            }
+            const zwave_tx_session_id_t root = tx_queue.find_root(session_id);
+            if (std::find(roots.begin(), roots.end(), root) == roots.end()) {
+                roots.push_back(root);
+            }
+        }
+        for (zwave_tx_session_id_t root: roots) {
+            std::vector<zwave_tx_session_id_t> family;
+            tx_queue.collect_descendants(root, family);
+            for (auto it = family.rbegin(); it != family.rend(); ++it) {
+                tx_queue.disable_fasttack(*it);
+                zwave_tx_queue_element_t element = {};
+                if (tx_queue.get_by_id(&element, *it) != SL_STATUS_OK) {
+                    continue;
+                }
+                if (tx_queue.transport_completion_step_is_pending(*it)) {
+                    // Transport already reported; run the pending step once with
+                    // that status. Do not overwrite it with FAIL.
+                    zwave_tx_message_transmission_completed_step(*it);
+                    continue;
+                }
+                if (element.transmission_time != 0) {
+                    // Send callback already ran; the session is only waiting for
+                    // replies. Pop it without a second FAIL callback.
+                    zwave_tx_finalize_element(*it);
+                    continue;
+                }
+                tx_queue.set_transmissions_results(*it, TRANSMIT_COMPLETE_FAIL, nullptr);
+                zwave_tx_message_transmission_completed_step(*it);
+            }
+        }
+        if (tx_queue.size() >= size_before) {
+            sl_log_error(LOG_TAG, "Reset step: Tx Queue flush made no progress; %d session(s) remain.", tx_queue.size());
+            break;
+        }
+    }
+}
+
+static void zwave_tx_process_flush_queue_on_process_thread()
+{
+    // Shortcut any active back-off so remaining sessions can be aborted below.
+    // Do NOT return early: other sessions may still be in the queue.
+    if (state == ZWAVE_TX_STATE_BACKOFF) {
+        zwave_tx_resume_from_backoff_step();
+    }
+
+    // Force-drop remaining sessions. abort_transmission only drops in IDLE
+    // and otherwise marks the session failed for a later send_next_message_step
+    // scan; that scan returns immediately while queue_flush_ongoing is set.
+    // queue_flush_ongoing also blocks child frames a transport abort may need
+    // (e.g. S0 nonce frames), so we cannot wait for an async abort callback.
+    // Do not go through on_zwave_transport_send_data_complete: that helper
+    // would treat `user` as protocol_metadata_t while a protocol frame is
+    // in flight. Same pattern as the in-flight watchdog.
+    is_protocol_frame.store(false);
+
+    // Drop without holding the enqueue gate: complete callbacks and the next
+    // reset step may call zwave_tx_send_data. Recheck emptiness under the gate
+    // so a concurrent enqueue cannot sneak in after we decide the queue is empty.
+    for (;;) {
+        zwave_tx_process_drop_remaining_sessions();
+        bool queue_empty = false;
+        {
+            std::lock_guard<std::recursive_mutex> lock(tx_enqueue_flush_gate);
+            queue_empty = tx_queue.empty();
+        }
+        if (queue_empty) {
+            break;
+        }
+        const int leftover = tx_queue.size();
+        zwave_tx_process_drop_remaining_sessions();
+        if (tx_queue.size() >= leftover) {
+            sl_log_error(LOG_TAG, "Reset step: Tx Queue flush could not drop remaining session(s); continuing reset.");
+            break;
+        }
+    }
+
+    sl_log_info(LOG_TAG, "Reset step: Tx Queue flush completed");
+    zwave_controller_on_reset_step_complete(ZWAVE_CONTROLLER_TX_FLUSH_RESET_STEP_PRIORITY);
+}
+
 sl_status_t zwave_tx_process_flush_queue_reset_step()
 {
     sl_log_info(LOG_TAG, "Reset step: Initiating flush of the Tx Queue");
@@ -893,40 +1063,10 @@ sl_status_t zwave_tx_process_flush_queue_reset_step()
     queue_flush_ongoing.store(true);
     sl_log_info(LOG_TAG, "Tx Queue will no longer accept new frames.");
 
-    // Is it already empty?
-    if (tx_queue.empty()) {
-        // Tell the controller not to wait for any callback.
-        sl_log_info(LOG_TAG, "Reset step: Tx Queue flush completed. (was empty)");
-        return SL_STATUS_ALREADY_INITIALIZED;
-    }
-
-    // Shortcut any active back-off so remaining sessions can be aborted below.
-    // Do NOT return early: other sessions may still be in the queue.
-    if (state == ZWAVE_TX_STATE_BACKOFF) {
-        zwave_tx_resume_from_backoff_step();
-        // If this was the last session, zwave_tx_finalize_element already called
-        // zwave_controller_on_reset_step_complete; sessions_to_abort will be
-        // empty and we fall through to return SL_STATUS_OK safely.
-    }
-
-    // If transmitting, tell the transport to abort (best-effort), then
-    // unconditionally force-drop the current frame. queue_flush_ongoing blocks
-    // any child frames the transport needs to complete its own abort (e.g. S0
-    // nonce frames), so we cannot rely on the transport's async callback.
-    if (state == ZWAVE_TX_STATE_TRANSMISSION_ONGOING) {
-        zwave_controller_transport_abort_send_data(current_tx_session_id);
-        zwave_tx_drop_unsent_current_message();
-    }
-
-    // Force-abort every session still in the queue. Sessions that depend on
-    // child frames (e.g. S0 nonce traffic) will never make progress on their
-    // own once queue_flush_ongoing is set.
-    std::vector<zwave_tx_session_id_t> sessions_to_abort;
-    tx_queue.collect_all_session_ids(sessions_to_abort);
-    for (zwave_tx_session_id_t session_id: sessions_to_abort) {
-        zwave_tx_process_abort_transmission(session_id);
-    }
-
+    // Always post to the process thread, including the empty case: a concurrent
+    // send_data can enqueue after this check. The worker re-drains and then
+    // signals reset-step complete.
+    zwave_tx_process_post_event(ZWAVE_TX_FLUSH_QUEUE, nullptr);
     return SL_STATUS_OK;
 }
 
@@ -942,14 +1082,14 @@ void zwave_tx_process_check_queue()
     if ((ZWAVE_TX_STATE_BACKOFF == state) && (BACKOFF_EXPECTED_ADDITIONAL_FRAMES == backoff_reason) && (zwave_tx_can_ignore_incoming_frames())) {
         // Stop the timer so it cannot fire later and corrupt backoff_reason for
         // an unrelated session that starts a new BACKOFF_CURRENT_SESSION_ID back-off.
-        timer_stop(&backoff_timer);
+        (void)zwave_tx_cancel_backoff_timer();
         sl_log_debug(LOG_TAG, "Breaking Tx back-off as the next frame allows it.");
         state = ZWAVE_TX_STATE_IDLE;
     }
     // Pre-empt BACKOFF_CURRENT_SESSION_ID to send a back-off-bypass frame
     else if ((ZWAVE_TX_STATE_BACKOFF == state) && (BACKOFF_CURRENT_SESSION_ID == backoff_reason) && (zwave_tx_can_ignore_incoming_frames())) {
         sl_log_debug(LOG_TAG, "Pre-empting BACKOFF_CURRENT_SESSION_ID to dispatch a back-off-bypass frame. Back-off will be re-armed for the original session (id=%p) when the bypass frame completes.", current_tx_session_id);
-        timer_stop(&backoff_timer);
+        (void)zwave_tx_cancel_backoff_timer();
         // Push, do not overwrite: a previous pre-emption may still be pending
         // its own restore (nested bypass chain). LIFO order matches how the
         // bypass chain unwinds in zwave_tx_restore_preempted_backoff_if_needed.
@@ -1043,10 +1183,8 @@ static void zwave_tx_process_service_in_flight_watchdog()
 void zwave_tx_process_set_expected_frames(zwave_node_id_t remote_node_id, uint8_t number_of_incoming_frames)
 {
     expected_incoming_frames.set_frames(remote_node_id, number_of_incoming_frames);
-    if ((ZWAVE_TX_STATE_BACKOFF == state) && (BACKOFF_EXPECTED_ADDITIONAL_FRAMES == backoff_reason) && (expected_incoming_frames.empty())) {
-        sl_log_debug(LOG_TAG, "Expecting no more additional frames.");
-        zwave_tx_resume_from_backoff_step();
-    }
+    // Resume-from-backoff mutates `state` on the TX process thread only.
+    zwave_tx_process_post_event(ZWAVE_TX_EXPECTED_FRAMES_UPDATED, nullptr);
 }
 
 void zwave_tx_process_set_transport_service_rx_node(zwave_node_id_t remote_node_id)
@@ -1128,7 +1266,7 @@ namespace zwave_component
     void zwave_tx_process::cleanup()
     {
         if (initialized) {
-            timer_stop(&backoff_timer);
+            (void)zwave_tx_cancel_backoff_timer();
             state = ZWAVE_TX_STATE_IDLE;
             tx_queue.clear();
             expected_incoming_frames.clear();
@@ -1229,6 +1367,13 @@ namespace zwave_component
                 zwave_tx_process_inspect_received_frame_step(payload->node_id, payload->frame_data, payload->frame_length);
                 free_frame_received_event_data(payload);
             }
+        } else if (event.event_type == ZWAVE_TX_FLUSH_QUEUE) {
+            zwave_tx_process_flush_queue_on_process_thread();
+        } else if (event.event_type == ZWAVE_TX_EXPECTED_FRAMES_UPDATED) {
+            if ((ZWAVE_TX_STATE_BACKOFF == state) && (BACKOFF_EXPECTED_ADDITIONAL_FRAMES == backoff_reason) && (expected_incoming_frames.empty())) {
+                sl_log_debug(LOG_TAG, "Expecting no more additional frames.");
+                zwave_tx_resume_from_backoff_step();
+            }
         } else {
             // If an event/state combination does not make sense, the
             // state machine may get stuck, so we print out a warning when
@@ -1253,10 +1398,18 @@ namespace zwave_component
             initialize_internal();
         }
 
-        // Use 100ms timeout to allow periodic checks for should_stop()
-        auto event = event_queue.pop(100);
+        // Wait at most 100ms so should_stop() is observed, or until the current
+        // backoff deadline so short backoffs are not stretched by that cap.
+        // A due deadline still waits 1ms so pop does not busy-spin while the
+        // timer worker publishes the expiry epoch.
+        // Consume expiry only when the queue is idle so queued FRAME_RECEIVED
+        // or completion events drain first. A published timeout must not resume
+        // after a single event while further replies are still queued.
+        auto event = event_queue.pop(zwave_tx_event_queue_wait_ms());
         if (event.has_value()) {
             handle_event(event.value());
+        } else if (zwave_tx_consume_backoff_timer_expiry()) {
+            zwave_tx_resume_from_backoff_step();
         }
 
         static auto last_stall_diag_log = std::chrono::steady_clock::now();

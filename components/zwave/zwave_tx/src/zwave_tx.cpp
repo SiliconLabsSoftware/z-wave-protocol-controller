@@ -139,10 +139,20 @@ sl_status_t zwave_tx_send_data(const zwave_controller_connection_info_t *connect
         new_element.connection_info.remote.endpoint_id = 0;
     }
 
-    if (SL_STATUS_OK == tx_queue.enqueue(new_element, session)) {
+    zwave_tx_session_id_t enqueued_session = nullptr;
+    zwave_tx_session_id_t *session_out     = (session != nullptr) ? session : &enqueued_session;
+    zwave_tx_process_enqueue_gate_lock();
+    if (zwave_tx_process_queue_flush_is_ongoing()) {
+        zwave_tx_process_enqueue_gate_unlock();
+        sl_log_info(LOG_TAG, "Rejecting new frame due to Tx Queue flush.");
+        return SL_STATUS_FAIL;
+    }
+    if (SL_STATUS_OK == tx_queue.enqueue(new_element, session_out)) {
+        zwave_tx_process_enqueue_gate_unlock();
         zwave_tx_process_post_event(ZWAVE_TX_SEND_NEXT_MESSAGE, nullptr);
         return SL_STATUS_OK;
     }
+    zwave_tx_process_enqueue_gate_unlock();
 
     sl_log_error(LOG_TAG, "Tx Queue rejected new frame request.");
     tx_queue.log(true);
@@ -172,10 +182,18 @@ sl_status_t zwave_tx_send_data(const zwave_controller_connection_info_t *connect
             // Recursively evict all descendant child frames first so none are
             // left in the queue with a dangling parent_session_id.
             evict_subtree(evicted);
-            if (tx_queue.enqueue(new_element, session) == SL_STATUS_OK) {
+            zwave_tx_process_enqueue_gate_lock();
+            if (zwave_tx_process_queue_flush_is_ongoing()) {
+                zwave_tx_process_enqueue_gate_unlock();
+                sl_log_info(LOG_TAG, "Rejecting new frame due to Tx Queue flush.");
+                return SL_STATUS_FAIL;
+            }
+            if (tx_queue.enqueue(new_element, session_out) == SL_STATUS_OK) {
+                zwave_tx_process_enqueue_gate_unlock();
                 zwave_tx_process_post_event(ZWAVE_TX_SEND_NEXT_MESSAGE, nullptr);
                 return SL_STATUS_OK;
             }
+            zwave_tx_process_enqueue_gate_unlock();
         }
     }
     return SL_STATUS_FAIL;

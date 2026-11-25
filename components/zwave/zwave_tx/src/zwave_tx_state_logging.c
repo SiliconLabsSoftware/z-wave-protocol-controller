@@ -43,6 +43,8 @@ const char *zwave_tx_event_name(zwave_tx_events_t event)
         STR_CASE(ZWAVE_TX_BACKOFF_TIMER_EXPIRED)
         STR_CASE(ZWAVE_TX_NODE_DELETED)
         STR_CASE(ZWAVE_TX_FRAME_RECEIVED)
+        STR_CASE(ZWAVE_TX_FLUSH_QUEUE)
+        STR_CASE(ZWAVE_TX_EXPECTED_FRAMES_UPDATED)
         default:
             sl_log_warning(LOG_TAG, "Unknown Tx event : %d", event);
             return "Unknown";

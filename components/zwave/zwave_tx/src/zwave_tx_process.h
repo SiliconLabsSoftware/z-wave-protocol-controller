@@ -80,6 +80,10 @@ typedef enum {
     ZWAVE_TX_NODE_DELETED,
     /// An incoming Z-Wave frame was received.
     ZWAVE_TX_FRAME_RECEIVED,
+    /// Flush the TX queue as part of a controller reset step.
+    ZWAVE_TX_FLUSH_QUEUE,
+    /// Expected incoming-frame count was updated from another thread.
+    ZWAVE_TX_EXPECTED_FRAMES_UPDATED,
 } zwave_tx_events_t;
 
 /**
@@ -173,6 +177,12 @@ void zwave_tx_process_on_node_deleted(zwave_node_id_t node_id);
  * @returns boolean value.
  */
 bool zwave_tx_process_queue_flush_is_ongoing();
+
+/**
+ * @brief Serialize zwave_tx_send_data enqueue with Tx Queue flush completion.
+ */
+void zwave_tx_process_enqueue_gate_lock();
+void zwave_tx_process_enqueue_gate_unlock();
 
 /**
  * @brief Triggers the processing of the next frame in the queue if we are idle
