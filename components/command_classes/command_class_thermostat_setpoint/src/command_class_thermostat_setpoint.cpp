@@ -317,14 +317,8 @@ namespace zwave_command_class
         }
 
         const uint8_t setpoint_type              = setpoint_type_node.desired<uint8_t>();
-        uint8_t scale                            = scale_node.desired<uint8_t>();
+        const uint8_t scale                      = scale_node.desired<uint8_t>();
         attribute_store::attribute endpoint_node = group_node.parent();
-        if (endpoint_node.is_valid()) {
-            uint8_t reported_scale = 0;
-            if (get_reported_scale_for_setpoint_type(endpoint_node, setpoint_type, reported_scale)) {
-                scale = reported_scale;
-            }
-        }
 
         thermostat_setpoint_set_level_t level;
         level.value                                       = 0;

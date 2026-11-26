@@ -892,13 +892,13 @@ TEST_F(ThermostatSetpointTest, SetV3RejectsValueBelowReportedMinimum)
 }
 
 // CC:0043.03.03.11.001 — Spec 2026B §2.2.112, Setpoint Set v3 range and scale handling.
-// Confirms incomplete capability data skips local range validation, and a known report scale is used for encoding.
+// Confirms incomplete capability data skips local range validation, and the requested scale is used for encoding.
 TEST_F(ThermostatSetpointTest, SetV3HandlesIncompleteCapabilitiesAndReportedScale)
 {
     set_version(VERSION_3);
     auto &core = static_cast<command_class_thermostat_setpoint_core &>(component());
 
-    // Store Heating's reported Fahrenheit scale; Set must use this known scale when assembling its Properties2 byte.
+    // Store Heating's reported Fahrenheit scale; it must not override the requested Celsius scale.
     ASSERT_EQ(SL_STATUS_OK, core.on_thermostat_setpoint_report_received_store(endpoint, {{"setpoint_type", SETPOINT_TYPE_HEATING}, {"scale", SETPOINT_SCALE_FAHRENHEIT}}));
 
     auto make_group = [&]() {
@@ -919,7 +919,7 @@ TEST_F(ThermostatSetpointTest, SetV3HandlesIncompleteCapabilitiesAndReportedScal
     generator.initialize_frame(THERMOSTAT_SETPOINT_SET_ID, data, &length);
     command_class_thermostat_setpoint_core::set_requested_args without_capabilities_args {without_capabilities, &generator};
     ASSERT_EQ(SL_STATUS_OK, component().on_thermostat_setpoint_set_requested(without_capabilities_args, data, &length));
-    EXPECT_EQ(SETPOINT_LEVEL2_TWO_BYTES_ONE_DECIMAL_FAHRENHEIT, data[3]);  // Properties2 encodes two-byte Size, Fahrenheit Scale, and one decimal place.
+    EXPECT_EQ(SETPOINT_LEVEL2_TWO_BYTES_ONE_DECIMAL, data[3]);  // Properties2 preserves the requested Celsius scale.
 
     // Capabilities without precision data are incomplete for decimal comparison; preserve device-side range validation.
     auto capabilities_report = endpoint.add_node(static_cast<attribute_store_type_t>(thermostat_setpoint_capabilities_report_group_attributes_t::THERMOSTAT_SETPOINT_CAPABILITIES_REPORT_GROUP));
