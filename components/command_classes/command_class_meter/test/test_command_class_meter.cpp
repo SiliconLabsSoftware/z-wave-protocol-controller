@@ -60,6 +60,7 @@ namespace
     constexpr uint8_t TEST_RATE_TYPE_DEFAULT           = 0;
     constexpr uint8_t TEST_RATE_TYPE_NO_SUPPORT_MASKED = 0;
     constexpr uint8_t TEST_RATE_TYPE_EXPORT            = 2;
+    constexpr uint8_t TEST_RATE_TYPE_BOTH              = 3;
     constexpr uint8_t TEST_LOGICAL_SCALE_DEFAULT       = 0;
     constexpr uint8_t TEST_LOGICAL_SCALE_ONE           = 1;
     constexpr uint8_t TEST_LOGICAL_SCALE_THREE         = 3;
@@ -67,11 +68,7 @@ namespace
     constexpr uint8_t TEST_LOGICAL_SCALE_SIX           = 6;
 
     // Meter Report property bytes: Export occupies bits 6:5; scale 2 occupies bits 4:3; precision 2 occupies bits 7:5.
-    constexpr uint8_t TEST_RATE_TYPE_IMPORT_MASKED   = 0x20;
-    constexpr uint8_t TEST_RATE_TYPE_EXPORT_MASKED   = 0x40;
-    constexpr uint8_t TEST_RATE_TYPE_BOTH_MASKED     = 0x60;
-    constexpr uint8_t TEST_SCALE_BITS_10_FOR_SCALE_2 = 0x10;
-    constexpr uint8_t TEST_PRECISION_2_MASKED        = 0x40;
+    constexpr uint8_t TEST_SCALE_BITS_10_FOR_SCALE_2 = 2;
     constexpr uint8_t TEST_SCALE_BIT_2_CLEAR         = 0;
     constexpr uint8_t TEST_SCALE_BITS_10_CLEAR       = 0;
     constexpr uint8_t TEST_SCALE_2_CLEAR             = 0;
@@ -148,14 +145,14 @@ namespace
     constexpr uint8_t TEST_LOGICAL_SCALE_EIGHT                         = 8;
     constexpr uint8_t TEST_LOGICAL_SCALE_TWO                           = 2;
 
-    // Return the Meter Report lookup key as the implementation stores it: three masked scale fields and a masked rate.
+    // Return the Meter Report lookup key with normalized scale low bits and rate.
     std::array<uint8_t, 4> meter_report_key(uint8_t logical_scale, uint8_t logical_rate_type)
     {
         uint8_t scale_bit_2   = 0;
         uint8_t scale_bits_10 = 0;
         uint8_t scale_2       = 0;
         command_class_meter_constants::encode_scale_key_fields(logical_scale, scale_bit_2, scale_bits_10, scale_2);
-        return {scale_bit_2, scale_bits_10, scale_2, command_class_meter_constants::rate_type_to_masked(logical_rate_type)};
+        return {scale_bit_2, scale_bits_10, scale_2, logical_rate_type};
     }
 }  // namespace
 
@@ -315,11 +312,11 @@ TEST_F(MeterCommandClassTest, StoresV4ReportsByScaleAndRateType)
     // Build a v4 Report for Electric/Export, scale 2, a two-byte value, one-minute delta, and a previous reading.
     command_class_meter_attribute_map_t report {
       {"meter_type", uint8_t {TEST_METER_TYPE_ELECTRIC}},                                           // Meter Type 1 selects an Electric meter.
-      {"rate_type", uint8_t {TEST_RATE_TYPE_EXPORT_MASKED}},                                        // Masked rate bits select Export.
+      {"rate_type", uint8_t {TEST_RATE_TYPE_EXPORT}},                                               // Normalized rate selects Export.
       {"scale_bit_2", uint8_t {TEST_SCALE_BIT_2_CLEAR}},                                            // The high scale bit is clear.
       {"size", uint8_t {TEST_METER_VALUE_SIZE_TWO_BYTES}},                                          // Meter Value and Previous Meter Value each contain two bytes.
       {"scale_bits_10", uint8_t {TEST_SCALE_BITS_10_FOR_SCALE_2}},                                  // Low scale bits encode logical scale 2.
-      {"precision", uint8_t {TEST_PRECISION_2_MASKED}},                                             // Masked precision bits encode two decimal places.
+      {"precision", uint8_t {TEST_PRECISION_TWO_DECIMAL_PLACES}},                                   // Normalized precision encodes two decimal places.
       {"meter_value", std::vector<uint8_t> {TEST_READING_500_MSB, TEST_READING_500_LSB}},           // 0x01F4 is 500, displayed as 5.00.
       {"delta_time", uint16_t {TEST_DELTA_TIME_SECONDS}},                                           // The previous reading is 60 seconds earlier.
       {"previous_meter_value", std::vector<uint8_t> {TEST_READING_432_MSB, TEST_READING_432_LSB}},  // 0x01B0 is 432, displayed as 4.32.
@@ -335,7 +332,7 @@ TEST_F(MeterCommandClassTest, StoresV4ReportsByScaleAndRateType)
               command_class_meter_constants::meter_scale_from_report_fields(group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::scale_bit_2)).reported<uint8_t>(),
                                                                             group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::scale_bits_10)).reported<uint8_t>(),
                                                                             group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::scale_2)).reported<uint8_t>()));
-    EXPECT_EQ(TEST_RATE_TYPE_EXPORT, command_class_meter_constants::rate_type_from_masked(group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::rate_type)).reported<uint8_t>()));
+    EXPECT_EQ(TEST_RATE_TYPE_EXPORT, group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::rate_type)).reported<uint8_t>());
     EXPECT_EQ((std::vector<uint8_t> {TEST_READING_500_MSB, TEST_READING_500_LSB}), group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::meter_value)).reported<std::vector<uint8_t>>());           // Current value remains 5.00.
     EXPECT_EQ(TEST_DELTA_TIME_SECONDS, group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::delta_time)).reported<uint16_t>());                                                                    // Delta Time remains 60 seconds.
     EXPECT_EQ((std::vector<uint8_t> {TEST_READING_432_MSB, TEST_READING_432_LSB}), group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::previous_meter_value)).reported<std::vector<uint8_t>>());  // Previous value remains 4.32.
@@ -347,7 +344,7 @@ TEST_F(MeterCommandClassTest, StoresV4ReportsByScaleAndRateType)
     EXPECT_EQ(1, groups.size());  // The second report updates the existing scale/rate group.
 }
 
-// Verifies the v6 Meter Report wire layout preserves masked fields, both values, Delta Time, and Scale 2.
+// Verifies the v6 Meter Report wire layout normalizes fields and preserves both values, Delta Time, and Scale 2.
 TEST_F(MeterCommandClassTest, ParsesV6MeterReportWireFields)
 {
     // This v6 Report encodes Electric/Export, scale 8, precision 2, a value of 5.00, a 60-second delta, and previous value 4.32.
@@ -375,7 +372,8 @@ TEST_F(MeterCommandClassTest, ParsesV6MeterReportWireFields)
     ASSERT_EQ(1, groups.size());  // The v6 frame creates one report group.
     const auto group = groups.front();
     EXPECT_EQ(TEST_METER_TYPE_ELECTRIC, group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::meter_type)).reported<uint8_t>());
-    EXPECT_EQ(TEST_RATE_TYPE_EXPORT, command_class_meter_constants::rate_type_from_masked(group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::rate_type)).reported<uint8_t>()));
+    EXPECT_EQ(TEST_PRECISION_TWO_DECIMAL_PLACES, group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::precision)).reported<uint8_t>());
+    EXPECT_EQ(TEST_RATE_TYPE_EXPORT, group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::rate_type)).reported<uint8_t>());
     EXPECT_EQ(TEST_LOGICAL_SCALE_EIGHT,
               command_class_meter_constants::meter_scale_from_report_fields(group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::scale_bit_2)).reported<uint8_t>(),
                                                                             group.child_by_type(static_cast<attribute_store_type_t>(meter_report_group_attributes_t::scale_bits_10)).reported<uint8_t>(),
@@ -431,7 +429,7 @@ TEST_F(MeterCommandClassTest, ParsesV4SupportedReportWireFields)
     const auto supported = endpoint.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::METER_SUPPORTED_REPORT_GROUP));
     ASSERT_TRUE(supported.is_valid());
     EXPECT_EQ(TEST_METER_TYPE_GAS, supported.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::meter_type)).reported<uint8_t>());
-    EXPECT_EQ(TEST_RATE_TYPE_BOTH_MASKED, supported.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::rate_type)).reported<uint8_t>());
+    EXPECT_EQ(static_cast<uint8_t>(TEST_RATE_TYPE_IMPORT | TEST_RATE_TYPE_EXPORT), supported.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::rate_type)).reported<uint8_t>());
     EXPECT_TRUE(command_class_meter_attribute_store::get_reported_meter_reset_supported(endpoint));
     EXPECT_EQ(TEST_SUPPORTED_REPORT_SCALES_ONE_AND_TWO_MASK, supported.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::scale_supported_0)).reported<uint8_t>());
     EXPECT_EQ((std::vector<uint8_t> {TEST_SUPPORTED_REPORT_EXTENSION_SCALE_SEVEN_MASK}), supported.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::scale_supported)).reported<std::vector<uint8_t>>());
@@ -456,7 +454,7 @@ TEST_F(MeterCommandClassTest, ParsesV4SupportedReportWithoutScaleExtension)
     ASSERT_EQ(SL_STATUS_OK, component().on_meter_supported_report_received(args));
     const auto supported = endpoint.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::METER_SUPPORTED_REPORT_GROUP));
     ASSERT_TRUE(supported.is_valid());
-    EXPECT_EQ(TEST_RATE_TYPE_IMPORT_MASKED, supported.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::rate_type)).reported<uint8_t>());
+    EXPECT_EQ(TEST_RATE_TYPE_IMPORT, supported.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::rate_type)).reported<uint8_t>());
     EXPECT_EQ(TEST_SUPPORTED_REPORT_SCALE_ZERO_MASK, supported.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::scale_supported_0)).reported<uint8_t>());
     EXPECT_EQ(TEST_SUPPORTED_REPORT_MST_CLEAR, supported.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::m_s_t)).reported<uint8_t>());
     EXPECT_TRUE(supported.child_by_type(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::scale_supported)).reported<std::vector<uint8_t>>().empty());
@@ -493,7 +491,7 @@ TEST_F(MeterCommandClassTest, StoresV4SupportedScalesAndResetCapability)
     // Advertise v4 scales, both rate types, and Meter Reset support.
     command_class_meter_attribute_map_t report {
       {"meter_type", uint8_t {TEST_METER_TYPE_GAS}},                                             // Store a Gas meter's capabilities.
-      {"rate_type", uint8_t {TEST_RATE_TYPE_BOTH_MASKED}},                                       // Advertise both Import and Export rates.
+      {"rate_type", uint8_t {TEST_RATE_TYPE_BOTH}},                                              // Advertise both Import and Export rates.
       {"meter_reset", uint8_t {TEST_RESET_SUPPORTED_MASKED}},                                    // Set the Meter Reset supported flag.
       {"scale_supported_0", uint8_t {TEST_SCALE_ZERO_AND_ONE_SUPPORTED_MASKED}},                 // Advertise scales 0 and 1 in bitmap byte 1.
       {"m_s_t", uint8_t {TEST_MST_SET}},                                                         // Indicate that an extended scale bitmap follows.
@@ -595,7 +593,7 @@ TEST_F(MeterCommandClassTest, SupportedReportV4StartsEveryScaleAndRateReading)
               component().on_meter_supported_report_received_store(endpoint,
                                                                    {
                                                                      {"meter_type", uint8_t {TEST_METER_TYPE_ELECTRIC}},                         // Use the Electric meter type.
-                                                                     {"rate_type", uint8_t {TEST_RATE_TYPE_BOTH_MASKED}},                        // Advertise Import and Export.
+                                                                     {"rate_type", uint8_t {TEST_RATE_TYPE_BOTH}},                               // Advertise Import and Export.
                                                                      {"meter_reset", uint8_t {TEST_METER_RESET_UNSUPPORTED}},                    // Reset is not supported.
                                                                      {"scale_supported_0", uint8_t {TEST_SCALE_ZERO_AND_ONE_SUPPORTED_MASKED}},  // Advertise scales 0 and 1.
                                                                      {"m_s_t", uint8_t {TEST_MST_CLEAR}},                                        // No extended scale bitmap follows.
@@ -612,7 +610,7 @@ TEST_F(MeterCommandClassTest, SupportedReportV4StartsEveryScaleAndRateReading)
 
     // Reporting one reading advances to the next not-yet-reported scale/rate pair.
     command_class_meter_attribute_map_t reading {
-      {"rate_type", uint8_t {TEST_RATE_TYPE_IMPORT_MASKED}},    // The completed report is for Import.
+      {"rate_type", uint8_t {TEST_RATE_TYPE_IMPORT}},           // The completed report is for Import.
       {"meter_value", std::vector<uint8_t> {TEST_READING_ONE}}  // A one-byte value marks this reading complete.
     };
     ASSERT_EQ(SL_STATUS_OK, component().on_meter_report_received_store(endpoint, reading));
@@ -637,7 +635,7 @@ TEST_F(MeterCommandClassTest, SupportedReportV4DecodesRateAndExtendedScaleBitmas
     };
 
     // Import-only support selects Import and keeps the extended scale from the following byte.
-    report["rate_type"] = uint8_t {TEST_RATE_TYPE_IMPORT_MASKED};  // Advertise Import only.
+    report["rate_type"] = uint8_t {TEST_RATE_TYPE_IMPORT};  // Advertise Import only.
     ASSERT_EQ(SL_STATUS_OK, component().on_meter_supported_report_received_store(endpoint, report));
     ASSERT_EQ(SL_STATUS_OK, component().on_meter_supported_report_parsed(nullptr, endpoint, {}));
     auto groups = endpoint.children(static_cast<attribute_store_type_t>(meter_get_group_attributes_t::METER_GET_GROUP));
@@ -647,7 +645,7 @@ TEST_F(MeterCommandClassTest, SupportedReportV4DecodesRateAndExtendedScaleBitmas
     ASSERT_EQ(2, extended.size());  // The two advertised extended scales each create a Meter Report group.
 
     // Export-only support selects Export; an empty rate mask yields no reading request.
-    report["rate_type"] = uint8_t {TEST_RATE_TYPE_EXPORT_MASKED};  // Replace Import with Export support.
+    report["rate_type"] = uint8_t {TEST_RATE_TYPE_EXPORT};  // Replace Import with Export support.
     ASSERT_EQ(SL_STATUS_OK, component().on_meter_supported_report_received_store(endpoint, report));
     ASSERT_EQ(SL_STATUS_OK, component().on_meter_supported_report_parsed(nullptr, endpoint, {}));
     EXPECT_EQ(TEST_RATE_TYPE_EXPORT, groups.front().child_by_type(static_cast<attribute_store_type_t>(meter_get_group_attributes_t::rate_type)).desired<uint8_t>());  // Export becomes the requested rate.
@@ -808,7 +806,7 @@ TEST_F(MeterCommandClassTest, SupportedReportCapabilityChecksV4ScaleExtension)
     set_version(METER_CC_VERSION_4);
     auto supported = endpoint.emplace_node(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::METER_SUPPORTED_REPORT_GROUP));
     supported.emplace_node(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::scale_supported_0)).set_reported(uint8_t {TEST_SCALE_ZERO_SUPPORTED_MASKED});  // Advertise scale 0.
-    supported.emplace_node(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::rate_type)).set_reported(uint8_t {TEST_RATE_TYPE_IMPORT_MASKED});              // Advertise Import.
+    supported.emplace_node(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::rate_type)).set_reported(uint8_t {TEST_RATE_TYPE_IMPORT});                     // Advertise Import.
     auto marker = supported.emplace_node(static_cast<attribute_store_type_t>(meter_supported_report_group_attributes_t::m_s_t));
     marker.set_reported(uint8_t {TEST_MST_CLEAR});  // No extended scale byte is advertised initially.
 
@@ -843,7 +841,7 @@ TEST_F(MeterCommandClassTest, ReadingRequestsV4WaitForReportedRateCapability)
     ASSERT_EQ(SL_STATUS_OK, component().on_meter_report_parsed(nullptr, endpoint, {}));
     EXPECT_TRUE(endpoint.children(static_cast<attribute_store_type_t>(meter_get_group_attributes_t::METER_GET_GROUP)).empty());
 
-    rate.set_reported(uint8_t {TEST_RATE_TYPE_IMPORT_MASKED});  // Report Import as supported.
+    rate.set_reported(uint8_t {TEST_RATE_TYPE_IMPORT});  // Report Import as supported.
     ASSERT_EQ(SL_STATUS_OK, component().on_meter_report_parsed(nullptr, endpoint, {}));
     const auto requests = endpoint.children(static_cast<attribute_store_type_t>(meter_get_group_attributes_t::METER_GET_GROUP));
     ASSERT_EQ(1, requests.size());                                                                                                                                       // The supported default scale schedules one request.

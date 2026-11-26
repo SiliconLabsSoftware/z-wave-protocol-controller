@@ -36,7 +36,6 @@ namespace zwave_command_class
             static attribute_store::attribute emplace_parameter(attribute_store::attribute endpoint_node, uint16_t parameter_number);
             static int64_t decode_configuration_value(const std::vector<uint8_t> &bytes, uint8_t format);
             static std::vector<uint8_t> encode_configuration_value(int64_t value, uint8_t size);
-            static uint8_t normalize_format(uint8_t raw_format_field);
             static uint8_t normalize_flag(uint8_t raw_flag_field);
     };
 

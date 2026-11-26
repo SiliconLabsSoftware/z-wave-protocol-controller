@@ -1,5 +1,19 @@
 ## MQTT Interface Documentation
 
+### Report bitfield encoding
+
+Reports handled by the generated parser group top-level packed-byte fields under
+the parameter name. Each field retains its original bit position: a precision of
+2 in bits 7–5 is published as `64`, and a scale of 2 in bits 4–3 is published as
+`16`. ZPC normalizes these fields internally and restores their original encoding
+when publishing MQTT reports. Generated single-bit flags retain their original
+masks too. Handwritten report handlers retain their existing per-command encoding.
+
+Variant-group entries keep their existing typed JSON serialization, including
+normalized fields within packed bytes. Command payloads retain each command's
+existing input format. Consumers must use the encoding for the specific field;
+there is no blanket conversion for every nested JSON value.
+
 ### Endpoint addressing for multi-endpoint devices
 
 For devices that support multiple endpoints (e.g. multi-channel devices), include the endpoint identifier in the MQTT topic using the `ep{endpoint_id}` segment:

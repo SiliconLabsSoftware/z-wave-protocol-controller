@@ -50,14 +50,9 @@ namespace zwave_command_class
         constexpr uint8_t METER_VALUE_SIZE_TWO_BYTES  = 2;
         constexpr uint8_t METER_VALUE_SIZE_FOUR_BYTES = 4;
 
-        inline uint8_t rate_type_from_masked(uint8_t masked_rate_type)
+        inline uint8_t rate_type_from_masked_field(uint8_t masked_rate_type)
         {
             return static_cast<uint8_t>((masked_rate_type >> RATE_TYPE_SHIFT) & RATE_TYPE_VALUE_MASK);
-        }
-
-        inline uint8_t rate_type_to_masked(uint8_t logical_rate_type)
-        {
-            return static_cast<uint8_t>((logical_rate_type & RATE_TYPE_VALUE_MASK) << RATE_TYPE_SHIFT);
         }
 
         inline bool is_meter_reset_supported(uint8_t masked_meter_reset)
@@ -80,10 +75,10 @@ namespace zwave_command_class
             return static_cast<uint8_t>(masked_size & SIZE_VALUE_MASK);
         }
 
-        // Report/Get scale fields are stored as masked values from the frame parser.
+        // scale_bit_2 is a one-bit flag; scale_bits_10 is the normalized two-bit field.
         inline uint8_t meter_scale_from_report_fields(uint8_t scale_bit_2, uint8_t scale_bits_10, uint8_t scale_2)
         {
-            const uint8_t scale_low  = static_cast<uint8_t>((scale_bits_10 >> SCALE_BITS_10_SHIFT) & SCALE_BITS_10_VALUE_MASK);
+            const uint8_t scale_low  = static_cast<uint8_t>(scale_bits_10 & SCALE_BITS_10_VALUE_MASK);
             const uint8_t scale_high = static_cast<uint8_t>((scale_bit_2 >> SCALE_BIT_2_SHIFT) & SCALE_BIT_2_VALUE_MASK);
             const uint8_t scale_0_7  = static_cast<uint8_t>((scale_high << SCALE_HIGH_TO_SCALE_SHIFT) | scale_low);
             if (scale_0_7 < SCALE_BITS_EXTENDED) {
@@ -95,12 +90,12 @@ namespace zwave_command_class
         inline void encode_scale_key_fields(uint8_t logical_scale, uint8_t &scale_bit_2, uint8_t &scale_bits_10, uint8_t &scale_2)
         {
             if (logical_scale < SCALE_BITS_EXTENDED) {
-                scale_bits_10 = static_cast<uint8_t>((logical_scale & SCALE_BITS_10_VALUE_MASK) << SCALE_BITS_10_SHIFT);
+                scale_bits_10 = static_cast<uint8_t>(logical_scale & SCALE_BITS_10_VALUE_MASK);
                 scale_bit_2   = static_cast<uint8_t>(((logical_scale >> SCALE_HIGH_TO_SCALE_SHIFT) & SCALE_BIT_2_VALUE_MASK) << SCALE_BIT_2_SHIFT);
                 scale_2       = 0x00;
                 return;
             }
-            scale_bits_10 = static_cast<uint8_t>(SCALE_BITS_10_VALUE_MASK << SCALE_BITS_10_SHIFT);
+            scale_bits_10 = SCALE_BITS_10_VALUE_MASK;
             scale_bit_2   = static_cast<uint8_t>(SCALE_BIT_2_VALUE_MASK << SCALE_BIT_2_SHIFT);
             scale_2       = static_cast<uint8_t>(logical_scale - SCALE_BITS_EXTENDED);
         }

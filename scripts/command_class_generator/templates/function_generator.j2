@@ -259,7 +259,7 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
                    upgrades in later XML versions do not gate inserts behind later frame bytes. #}
                 {% if version == attribute.min_version %}
                     {% for field in attribute.fields %}
-                        uint8_t {{utils.create_variable_name(attribute.name)}}_{{utils.create_variable_name(field.name)}} = {{utils.create_variable_name(attribute.name)}}.value & static_cast<uint8_t>({{command.name | lower}}_{{attribute.name | lower}}_attribute_masks_t::{{utils.create_variable_name(field.name)}}_mask);
+                        uint8_t {{utils.create_variable_name(attribute.name)}}_{{utils.create_variable_name(field.name)}} = ({{utils.create_variable_name(attribute.name)}}.value & static_cast<uint8_t>({{command.name | lower}}_{{attribute.name | lower}}_attribute_masks_t::{{utils.create_variable_name(field.name)}}_mask)) >> {{field.shifter | default(0, true)}};
                         attribute_map.insert({"{{utils.create_variable_name(field.name)}}", {{utils.create_variable_name(attribute.name)}}_{{utils.create_variable_name(field.name)}}});
                     {% endfor %}
                 {% endif %}
@@ -360,7 +360,7 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
             {% if attribute.type | lower == "struct_byte" %}
                 {% for field in attribute.fields %}
                     {% if version == field.min_version %}
-                        uint8_t {{utils.create_variable_name(attribute.name)}}_{{utils.create_variable_name(field.name)}} = {{utils.create_variable_name(attribute.name)}} & static_cast<uint8_t>({{command.name | lower}}_{{attribute.name | lower}}_attribute_masks_t::{{utils.create_variable_name(field.name)}}_mask);
+                        uint8_t {{utils.create_variable_name(attribute.name)}}_{{utils.create_variable_name(field.name)}} = ({{utils.create_variable_name(attribute.name)}} & static_cast<uint8_t>({{command.name | lower}}_{{attribute.name | lower}}_attribute_masks_t::{{utils.create_variable_name(field.name)}}_mask)) >> {{field.shifter | default(0, true)}};
                         attribute_map.insert({"{{utils.create_variable_name(field.name)}}", {{utils.create_variable_name(attribute.name)}}_{{utils.create_variable_name(field.name)}}});
                     {% endif %}
                 {% endfor %}
@@ -530,7 +530,7 @@ sl_status_t {{command_class_name_lower}}_core::on_{{command.name | lower}}_recei
             {% if attribute.type | lower == "struct_byte" %}
                 {% for field in attribute.fields %}
                     {% if version == field.min_version %}
-                        uint8_t {{utils.create_variable_name(attribute.name)}}_{{utils.create_variable_name(field.name)}} = {{utils.create_variable_name(attribute.name)}}.value & static_cast<uint8_t>({{command.name | lower}}_{{attribute.name | lower}}_attribute_masks_t::{{utils.create_variable_name(field.name)}}_mask);
+                        uint8_t {{utils.create_variable_name(attribute.name)}}_{{utils.create_variable_name(field.name)}} = ({{utils.create_variable_name(attribute.name)}}.value & static_cast<uint8_t>({{command.name | lower}}_{{attribute.name | lower}}_attribute_masks_t::{{utils.create_variable_name(field.name)}}_mask)) >> {{field.shifter | default(0, true)}};
                         attribute_map.insert({"{{utils.create_variable_name(field.name)}}", {{utils.create_variable_name(attribute.name)}}_{{utils.create_variable_name(field.name)}}});
                     {% endif %}
                 {% endfor %}

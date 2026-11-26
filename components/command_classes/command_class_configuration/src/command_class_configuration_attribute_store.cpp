@@ -69,11 +69,6 @@ namespace zwave_command_class
         return endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::PARAMETER_ID), parameter_number);
     }
 
-    uint8_t command_class_configuration_attribute_store::normalize_format(uint8_t raw_format_field)
-    {
-        return static_cast<uint8_t>((raw_format_field >> 3) & 0x07);
-    }
-
     uint8_t command_class_configuration_attribute_store::normalize_flag(uint8_t raw_flag_field)
     {
         return raw_flag_field != 0 ? 1 : 0;
@@ -225,8 +220,8 @@ namespace zwave_command_class
         parameter_number                                                    = get_value_or_default(attribute_map, "parameter_number", parameter_number);
         uint8_t size                                                        = 0;
         size                                                                = get_value_or_default(attribute_map, "size", size);
-        uint8_t format_raw                                                  = 0;
-        format_raw                                                          = get_value_or_default(attribute_map, "format", format_raw);
+        uint8_t format                                                      = 0;
+        format                                                              = get_value_or_default(attribute_map, "format", format);
         configuration_properties_report_min_value_t min_value;
         min_value = get_value_or_default(attribute_map, "min_value", min_value);
         configuration_properties_report_max_value_t max_value;
@@ -239,7 +234,7 @@ namespace zwave_command_class
         auto report_group = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(configuration_properties_report_group_attributes_t::CONFIGURATION_PROPERTIES_REPORT_GROUP));
         report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_properties_report_group_attributes_t::parameter_number)).set_reported(parameter_number);
         report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_properties_report_group_attributes_t::size)).set_reported(size);
-        report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_properties_report_group_attributes_t::format)).set_reported(normalize_format(format_raw));
+        report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_properties_report_group_attributes_t::format)).set_reported(format);
         report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_properties_report_group_attributes_t::min_value)).set_reported(min_value);
         report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_properties_report_group_attributes_t::max_value)).set_reported(max_value);
         report_group.emplace_node(static_cast<attribute_store_type_t>(configuration_properties_report_group_attributes_t::default_value)).set_reported(default_value);
@@ -249,13 +244,12 @@ namespace zwave_command_class
             return SL_STATUS_OK;
         }
 
-        const uint8_t format_value = normalize_format(format_raw);
-        auto parameter_node        = emplace_parameter(endpoint_node, parameter_number);
+        auto parameter_node = emplace_parameter(endpoint_node, parameter_number);
         parameter_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::size)).set_reported(size);
-        parameter_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::format)).set_reported(format_value);
-        parameter_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::min_value)).set_reported(decode_configuration_value(min_value, format_value));
-        parameter_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::max_value)).set_reported(decode_configuration_value(max_value, format_value));
-        parameter_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::default_value)).set_reported(decode_configuration_value(default_value, format_value));
+        parameter_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::format)).set_reported(format);
+        parameter_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::min_value)).set_reported(decode_configuration_value(min_value, format));
+        parameter_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::max_value)).set_reported(decode_configuration_value(max_value, format));
+        parameter_node.emplace_node(static_cast<attribute_store_type_t>(configuration_parameter_attributes_t::default_value)).set_reported(decode_configuration_value(default_value, format));
 
         if (attribute_map.contains("readonly")) {
             uint8_t readonly = 0;

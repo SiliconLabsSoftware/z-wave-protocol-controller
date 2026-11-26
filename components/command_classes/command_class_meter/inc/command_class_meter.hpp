@@ -40,7 +40,7 @@ namespace zwave_command_class
 
         private:
             static std::vector<uint8_t> scales_from_supported_bitmask(uint8_t version, uint8_t scale_supported_0, uint8_t m_s_t, const std::vector<uint8_t> &scale_supported_follow);
-            static std::vector<uint8_t> rate_types_for_meter_get(uint8_t version, uint8_t supported_rate_type_masked);
+            static std::vector<uint8_t> rate_types_for_meter_get(uint8_t version, uint8_t supported_rate_type);
 
             static std::vector<std::pair<uint8_t, uint8_t>> reading_requests_for_endpoint(attribute_store::attribute endpoint_node, uint8_t version);
             static bool start_meter_get(attribute_store::attribute endpoint_node, uint8_t scale, uint8_t rate_type);

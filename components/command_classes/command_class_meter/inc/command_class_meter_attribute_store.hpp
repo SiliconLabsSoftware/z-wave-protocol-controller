@@ -38,7 +38,7 @@ namespace zwave_command_class
             static attribute_store::attribute find_meter_report_group(attribute_store::attribute endpoint_node, uint8_t scale, uint8_t rate_type);
             static attribute_store::attribute find_or_create_meter_report_group(attribute_store::attribute endpoint_node, uint8_t scale, uint8_t rate_type);
             static bool get_supported_scale_bitmask(attribute_store::attribute endpoint_node, uint8_t &scale_supported_0, uint8_t &m_s_t, std::vector<uint8_t> &scale_supported);
-            static bool get_supported_rate_type_masked(attribute_store::attribute endpoint_node, uint8_t &rate_type_masked);
+            static bool get_supported_rate_type(attribute_store::attribute endpoint_node, uint8_t &rate_type);
     };
 
 }  // namespace zwave_command_class

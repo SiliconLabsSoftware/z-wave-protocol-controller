@@ -89,8 +89,7 @@ namespace zwave_command_class
         if (version > 0 && version < time_source_min_version) {
             time_source = time_source_zwave;
         } else {
-            // The generated parser masks Time Source but leaves it in wire bits 5..6.
-            time_source = static_cast<uint8_t>(time_source >> time_source_shift);
+            // Generated parser stores the Time Source field normalized to bit 0.
         }
         // The generated parser likewise leaves RTC Failure in wire bit 7.
         rtc_failure = logical_flag(rtc_failure);

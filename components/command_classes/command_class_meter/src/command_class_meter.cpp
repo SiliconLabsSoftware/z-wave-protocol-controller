@@ -50,7 +50,7 @@ namespace zwave_command_class
         return scales;
     }
 
-    std::vector<uint8_t> command_class_meter::rate_types_for_meter_get(uint8_t version, uint8_t supported_rate_type_masked)
+    std::vector<uint8_t> command_class_meter::rate_types_for_meter_get(uint8_t version, uint8_t supported_rate_type)
     {
         using namespace command_class_meter_constants;
 
@@ -58,7 +58,7 @@ namespace zwave_command_class
             return {RATE_TYPE_DEFAULT};
         }
 
-        switch (rate_type_from_masked(supported_rate_type_masked)) {
+        switch (supported_rate_type) {
             case SUPPORTED_RATE_TYPE_IMPORT_ONLY:
                 return {RATE_TYPE_IMPORT};
             case SUPPORTED_RATE_TYPE_EXPORT_ONLY:
@@ -85,15 +85,15 @@ namespace zwave_command_class
             return requests;
         }
 
-        uint8_t rate_type_masked = 0;
+        uint8_t supported_rate_type = 0;
         if (version >= 4) {
-            if (!get_supported_rate_type_masked(endpoint_node, rate_type_masked)) {
+            if (!get_supported_rate_type(endpoint_node, supported_rate_type)) {
                 return requests;
             }
         }
 
         const auto scales     = scales_from_supported_bitmask(version, scale_supported_0, m_s_t, follow);
-        const auto rate_types = rate_types_for_meter_get(version, rate_type_masked);
+        const auto rate_types = rate_types_for_meter_get(version, supported_rate_type);
         for (uint8_t scale: scales) {
             for (uint8_t rate_type: rate_types) {
                 requests.emplace_back(scale, rate_type);
