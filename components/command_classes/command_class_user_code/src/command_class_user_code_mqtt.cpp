@@ -223,9 +223,7 @@ namespace zwave_command_class
         }
         auto group = endpoint_node.emplace_node(static_cast<attribute_store_type_t>(admin_code_set_group_attributes_t::ADMIN_CODE_SET_GROUP));
         group.emplace_node(static_cast<attribute_store_type_t>(admin_code_set_group_attributes_t::admin_code_length)).set_desired(length);
-        if (!code.empty()) {
-            group.emplace_node(static_cast<attribute_store_type_t>(admin_code_set_group_attributes_t::admin_code)).set_desired(code);
-        }
+        group.emplace_node(static_cast<attribute_store_type_t>(admin_code_set_group_attributes_t::admin_code)).set_desired(code);
         start_group_resolution(group);
         return SL_STATUS_OK;
     }
