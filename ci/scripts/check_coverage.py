@@ -279,6 +279,45 @@ def coverage_table(
     return "\n".join(rows) + "\n"
 
 
+def overall_coverage(totals: dict[str, tuple[int, int, int, int]]) -> tuple[int, int, int, int]:
+    """Sum included component line and branch counts for weighted project totals."""
+    return tuple(sum(values[index] for values in totals.values()) for index in range(4))
+
+
+def discover_project_sources(repo: Path) -> list[str]:
+    """Find all production C/C++ source files under components, including ungated components."""
+    extensions = {".c", ".cc", ".cpp", ".cxx"}
+    sources = []
+    components = repo / "components"
+    for source in components.rglob("*"):
+        if not source.is_file() or source.suffix.lower() not in extensions:
+            continue
+        rel = normalize_prefix(str(source.relative_to(repo)))
+        if not should_skip_file(rel):
+            sources.append(rel)
+    return sorted(sources)
+
+
+def overall_project_coverage(
+    json_path: Path,
+    repo: Path,
+) -> tuple[int, int, int, int]:
+    """Aggregate executable coverage counts LLVM reports for production components."""
+    totals_by_file: dict[str, tuple[int, int, int, int]] = {}
+    payload = json.loads(json_path.read_text())
+    for dataset in payload["data"]:
+        for entry in dataset["files"]:
+            rel = posix_rel(entry["filename"], repo)
+            if not rel.startswith("components/") or should_skip_file(rel):
+                continue
+            summary = entry["summary"]
+            totals_by_file[rel] = (
+                summary["lines"]["covered"], summary["lines"]["count"],
+                summary["branches"]["covered"], summary["branches"]["count"],
+            )
+    return tuple(sum(values[i] for values in totals_by_file.values()) for i in range(4))
+
+
 def report_table(table: str) -> None:
     print(table, end="")
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -286,6 +325,24 @@ def report_table(table: str) -> None:
         with open(summary_path, "a", encoding="utf-8") as summary:
             summary.write("## Component line and branch coverage\n\n")
             summary.write(table)
+
+
+def report_overall_coverage(totals: tuple[int, int, int, int]) -> None:
+    lines_covered, lines_total, branches_covered, branches_total = totals
+    line_pct = percent(lines_covered, lines_total) if lines_total else None
+    branch_pct = percent(branches_covered, branches_total) if branches_total else None
+    line_coverage = f"{line_pct:.1f}% ({lines_covered}/{lines_total})" if line_pct is not None else "—"
+    branch_coverage = f"{branch_pct:.1f}% ({branches_covered}/{branches_total})" if branch_pct is not None else "—"
+    report = (
+        "## Overall line and branch coverage\n\n"
+        "| Line coverage | Branch coverage |\n|---:|---:|\n"
+        f"| {line_coverage} | {branch_coverage} |\n"
+    )
+    print(report, end="")
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_path:
+        with open(summary_path, "a", encoding="utf-8") as summary:
+            summary.write(report)
 
 
 def main() -> int:
@@ -309,6 +366,7 @@ def main() -> int:
 
     totals, unmatched = aggregate(json_path, prefixes)
     report_table(coverage_table(prefixes, totals, blacklist, min_line, min_branch))
+    report_overall_coverage(overall_project_coverage(json_path, REPO_ROOT))
 
     failures: list[str] = []
     for prefix in sorted(set(prefixes) | set(totals)):

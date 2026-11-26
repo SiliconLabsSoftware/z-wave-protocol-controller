@@ -165,6 +165,42 @@ class GateTests(unittest.TestCase):
         self.assertEqual(result, 0)
         self.assertIn("100.0% (10/10)", output)
 
+    def test_overall_coverage_is_weighted_across_non_blacklisted_components(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            component = root / "components/example"
+            (component / "test").mkdir(parents=True)
+            (component / "CMakeLists.txt").touch()
+            excluded = root / "components/excluded"
+            (excluded / "test").mkdir(parents=True)
+            (excluded / "CMakeLists.txt").touch()
+            (root / "blacklist.yaml").write_text("blacklist: [components/excluded]\n")
+            (root / "thresholds.yaml").write_text("min_line_percent: 0\nmin_branch_percent: 0\n")
+            (root / "build/coverage").mkdir(parents=True)
+            first = covered_file(lines=(8, 10), branches=(3, 4))
+            second = {**covered_file(lines=(3, 30), branches=(1, 10)), "filename": "components/excluded/src/excluded.cpp"}
+            (root / "build/coverage/coverage.json").write_text(json.dumps(llvm_report([first, second])))
+            args = argparse.Namespace(build_dir=Path("build"), blacklist=Path("blacklist.yaml"), thresholds=Path("thresholds.yaml"), skip_report=True)
+            output = StringIO()
+            with patch.dict(gate.os.environ, {"GITHUB_STEP_SUMMARY": ""}), patch.object(
+                gate, "REPO_ROOT", root
+            ), patch.object(gate, "parse_args", return_value=args), redirect_stdout(output), redirect_stderr(output):
+                result = gate.main()
+            self.assertEqual(result, 0)
+            self.assertIn("## Overall line and branch coverage", output.getvalue())
+            self.assertIn("80.0% (8/10) | 75.0% (3/4)", output.getvalue())
+
+    def test_overall_project_coverage_does_not_invent_counts_for_unreported_sources(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "components/untested/src/untested.cpp"
+            source.parent.mkdir(parents=True)
+            source.write_text("int untested() { return 0; }\n")
+            report = root / "coverage.json"
+            report.write_text(json.dumps(llvm_report([covered_file(lines=(8, 10), branches=(3, 4))])))
+            totals = gate.overall_project_coverage(report, root)
+            self.assertEqual(totals, (8, 10, 3, 4))
+
 
 if __name__ == "__main__":
     unittest.main()
